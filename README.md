@@ -12,25 +12,24 @@ The functionality of the Export/Query App as well as the export method are captu
 
 ## Repository structure
 
-  catalog                 all files necessary for RDMO questionnaire 
+  catalog&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all files necessary for RDMO questionnaire\n
+  --questions.xml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;question-/help-text, relation to domain, options, condition
   
-  --questions.xml         question-/help-text, relation to domain, options, condition
+  --domains.xml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;individual domains
   
-  --domains.xml           individual domains
+  --options.xml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;individual options
   
-  --options.xml           individual options
-  
-  --conditions.xml        individual conditions
+  --conditions.xml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;individual conditions
   
   func
   
-  --export.py             contains Export/Query function (based on RDMO's csv export) 
+  --export.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contains Export/Query function (based on RDMO's csv export) 
   
-  --para.py               contains question IDs for proper export and query
+  --para.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contains question IDs for proper export and query
   
   kg
   
-  --MaRDI_RDMO.owl        owl based knowledge graph for local workflow exports and queries
+  --MaRDI_RDMO.owl&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;owl based knowledge graph for local workflow exports and queries
   
-  requirements.txt        all package requirements to set up a proper conda environment
+  requirements.txt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all package requirements to set up a proper conda environment
 
