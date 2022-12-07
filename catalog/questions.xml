@@ -1171,7 +1171,7 @@
 		<help lang="en">Describe the methods applied in your workflow below. Use a separate set for each method. The title of the respective sets should be a simple sequential number starting from 0.</help>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<title lang="de">Beschreiben die in deinem Workflow verwendeten Methoden.</title>
+		<title lang="de">Beschreiben Sie die in ihrem Workflow verwendeten Methoden.</title>
 		<help lang="de">Beschreiben Sie im folgenden die verwendeten Methode ihres Workflows. Verwenden Sie für jede Methode ein separates Set. Titel der jeweiligen Sets soll eine einfache Laufzahl sein, die bei 0 startet.</help>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
