@@ -8,22 +8,31 @@ The Export/Query App allows the user to export his documented workflow into a st
 
 The functionality of the Export/Query App as well as the export method are captured in the question catalog, so that a single button controls everything. 
 
-*For the time being, there is no connection to the MaRDI Knowledge Graph, so a local Knowledge Graph will be used for testing.
+*For the time being, there is no connection to the MaRDI Knowledge Graph, so a local Knowledge Graph will be used for testing. The three searchable components are Research Objective, Methods and Input Data.
 
 ## Repository structure
 
-  catalog - all files necessary for RDMO questionnaire <br>
+ -catalog - all files necessary for RDMO questionnaire <br>
   --questions.xml - question-/help-text, relation to domain, options, condition <br>
   --domains.xml - individual domains <br>
   --options.xml - individual options <br>
   --conditions.xml - individual conditions
   
-  func - all files necessary for the Export/Query app <br>
+ -func - all files necessary for the Export/Query app <br>
   --export.py - contains Export/Query function (based on RDMO's csv export) <br>
   --para.py - contains question IDs for proper export and query
   
-  kg - all files necessary for the local knowledge graph <br>
+ -kg - all files necessary for the local knowledge graph <br>
   --MaRDI_RDMO.owl - owl based knowledge graph for local workflow exports and queries
+ 
   
-  requirements.txt - all package requirements to set up a proper conda environment
+## Installation and Setup
+
+To install RDMO you can either follow their [instructions](https://rdmo.readthedocs.io/en/latest/installation/index.html) or build a conda environment using the environment file. If you choose to install RDMO on your own or if you already installed RDMO you have to make sure that numpy (<1.23.0), scikit-learn, owlready2 and nltk are present. These four packages are required to interact with the local knowledge graph, could change once the MaRDI portal is connected.
+
+
+
+
+
+
 
