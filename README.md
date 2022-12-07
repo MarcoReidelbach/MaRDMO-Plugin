@@ -28,7 +28,7 @@ The functionality of the Export/Query App as well as the export method are captu
   
 ## Installation and Setup
 
-To install and configure RDMO follow their [instructions](https://rdmo.readthedocs.io/en/latest/installation/index.html). Once your RDMO instance is ready make sure that 'numpy (<1.23.0)`, `scikit-learn`, `owlready2` and `nltk` are present. If not install them. These four packages are required to interact with the local knowledge graph, could change once the MaRDI portal is connected.
+To install and configure RDMO follow their [instructions](https://rdmo.readthedocs.io/en/latest/installation/index.html). Once your RDMO instance is ready make sure that `numpy (<1.23.0)`, `scikit-learn`, `owlready2` and `nltk` are present. If not install them. These four packages are required to interact with the local knowledge graph, could change once the MaRDI portal is connected.
 
 The mardi_workflow directory has to be placed in the rdmo-app directory. To connect the Plugin with RDMO include 
 
