@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdmo xmlns:dc="http://purl.org/dc/elements/1.1/">
+	<optionset dc:uri="http://example.com/terms/options/data_type">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>data_type</key>
+		<dc:comment/>
+		<order>0</order>
+		<provider_key/>
+		<conditions/>
+	</optionset>
+	<option dc:uri="http://example.com/terms/options/data_type/type_0">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>type_0</key>
+		<path>data_type/type_0</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/data_type"/>
+		<order>0</order>
+		<text lang="en">Binary</text>
+		<text lang="de">Binär</text>
+		<additional_input>False</additional_input>
+	</option>
+	<option dc:uri="http://example.com/terms/options/data_type/type_1">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>type_1</key>
+		<path>data_type/type_1</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/data_type"/>
+		<order>0</order>
+		<text lang="en">Text</text>
+		<text lang="de">Text</text>
+		<additional_input>False</additional_input>
+	</option>
+	<optionset dc:uri="http://example.com/terms/options/operation_modus">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>operation_modus</key>
+		<dc:comment/>
+		<order>0</order>
+		<provider_key/>
+		<conditions/>
+	</optionset>
+	<option dc:uri="http://example.com/terms/options/operation_modus/modus_0">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>modus_0</key>
+		<path>operation_modus/modus_0</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/operation_modus"/>
+		<order>0</order>
+		<text lang="en">Workflow Documentation</text>
+		<text lang="de">Workflow Dokumentation</text>
+		<additional_input>False</additional_input>
+	</option>
+	<option dc:uri="http://example.com/terms/options/operation_modus/modus_1">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>modus_1</key>
+		<path>operation_modus/modus_1</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/operation_modus"/>
+		<order>0</order>
+		<text lang="en">Workflow Finding</text>
+		<text lang="de">Workflow Findung</text>
+		<additional_input>False</additional_input>
+	</option>
+	<optionset dc:uri="http://example.com/terms/options/publication_type">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>publication_type</key>
+		<dc:comment/>
+		<order>0</order>
+		<provider_key/>
+		<conditions/>
+	</optionset>
+	<option dc:uri="http://example.com/terms/options/publication_type/type_0">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>type_0</key>
+		<path>publication_type/type_0</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/publication_type"/>
+		<order>0</order>
+		<text lang="en">MaRDI Portal</text>
+		<text lang="de">MaRDI Portal</text>
+		<additional_input>False</additional_input>
+	</option>
+	<option dc:uri="http://example.com/terms/options/publication_type/type_1">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>type_1</key>
+		<path>publication_type/type_1</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/publication_type"/>
+		<order>1</order>
+		<text lang="en">Markdown File</text>
+		<text lang="de">Markdown File</text>
+		<additional_input>False</additional_input>
+	</option>
+	<optionset dc:uri="http://example.com/terms/options/search_topic">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>search_topic</key>
+		<dc:comment/>
+		<order>0</order>
+		<provider_key/>
+		<conditions/>
+	</optionset>
+	<option dc:uri="http://example.com/terms/options/search_topic/research_onjective">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>research_onjective</key>
+		<path>search_topic/research_onjective</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/search_topic"/>
+		<order>0</order>
+		<text lang="en">Research Objective</text>
+		<text lang="de">Forschungsziel</text>
+		<additional_input>False</additional_input>
+	</option>
+	<option dc:uri="http://example.com/terms/options/search_topic/methods">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>methods</key>
+		<path>search_topic/methods</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/search_topic"/>
+		<order>1</order>
+		<text lang="en">Methods</text>
+		<text lang="de">Methoden</text>
+		<additional_input>False</additional_input>
+	</option>
+	<option dc:uri="http://example.com/terms/options/search_topic/input_data">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>input_data</key>
+		<path>search_topic/input_data</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/search_topic"/>
+		<order>2</order>
+		<text lang="en">Input Data</text>
+		<text lang="de">Eingabedaten</text>
+		<additional_input>False</additional_input>
+	</option>
+	<optionset dc:uri="http://example.com/terms/options/variable_type">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>variable_type</key>
+		<dc:comment/>
+		<order>0</order>
+		<provider_key/>
+		<conditions/>
+	</optionset>
+	<option dc:uri="http://example.com/terms/options/variable_type/type_0">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>type_0</key>
+		<path>variable_type/type_0</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/variable_type"/>
+		<order>0</order>
+		<text lang="en">Dependent</text>
+		<text lang="de">Abhängig</text>
+		<additional_input>False</additional_input>
+	</option>
+	<option dc:uri="http://example.com/terms/options/variable_type/type_1">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>type_1</key>
+		<path>variable_type/type_1</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/variable_type"/>
+		<order>0</order>
+		<text lang="en">Independent</text>
+		<text lang="de">Unabhängig</text>
+		<additional_input>False</additional_input>
+	</option>
+	<optionset dc:uri="http://example.com/terms/options/workflow_type">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>workflow_type</key>
+		<dc:comment>Type of the MaRDI Workflow</dc:comment>
+		<order>0</order>
+		<provider_key/>
+		<conditions/>
+	</optionset>
+	<option dc:uri="http://example.com/terms/options/workflow_type/type_0">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>type_0</key>
+		<path>workflow_type/type_0</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/workflow_type"/>
+		<order>0</order>
+		<text lang="en">Experimental Workflow</text>
+		<text lang="de">Experimenteller Workflow</text>
+		<additional_input>False</additional_input>
+	</option>
+	<option dc:uri="http://example.com/terms/options/workflow_type/type_1">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>type_1</key>
+		<path>workflow_type/type_1</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/workflow_type"/>
+		<order>1</order>
+		<text lang="en">Mathematical Workflow</text>
+		<text lang="de">Mathematischer Workflow</text>
+		<additional_input>False</additional_input>
+	</option>
+	<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no">
+		<uri_prefix>https://rdmorganiser.github.io/terms</uri_prefix>
+		<key>yes_with_text_no</key>
+		<dc:comment/>
+		<order>0</order>
+		<provider_key/>
+		<conditions/>
+	</optionset>
+	<option dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no/yes">
+		<uri_prefix>https://rdmorganiser.github.io/terms</uri_prefix>
+		<key>yes</key>
+		<path>yes_with_text_no/yes</path>
+		<dc:comment/>
+		<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
+		<order>1</order>
+		<text lang="en">Yes</text>
+		<text lang="de">Ja</text>
+		<additional_input>True</additional_input>
+	</option>
+	<option dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no/no">
+		<uri_prefix>https://rdmorganiser.github.io/terms</uri_prefix>
+		<key>no</key>
+		<path>yes_with_text_no/no</path>
+		<dc:comment/>
+		<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
+		<order>2</order>
+		<text lang="en">No</text>
+		<text lang="de">Nein</text>
+		<additional_input>False</additional_input>
+	</option>
+</rdmo>

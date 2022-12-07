@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdmo xmlns:dc="http://purl.org/dc/elements/1.1/">
+	<condition dc:uri="http://example.com/terms/conditions/modus_0">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>modus_0</key>
+		<dc:comment/>
+		<source dc:uri="http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_1"/>
+		<relation>eq</relation>
+		<target_text/>
+		<target_option dc:uri="http://example.com/terms/options/operation_modus/modus_0"/>
+	</condition>
+	<condition dc:uri="http://example.com/terms/conditions/modus_1">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>modus_1</key>
+		<dc:comment/>
+		<source dc:uri="http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_1"/>
+		<relation>eq</relation>
+		<target_text/>
+		<target_option dc:uri="http://example.com/terms/options/operation_modus/modus_1"/>
+	</condition>
+	<condition dc:uri="http://example.com/terms/conditions/parameter_needed">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>parameter_needed</key>
+		<dc:comment/>
+		<source dc:uri="http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3"/>
+		<relation>eq</relation>
+		<target_text/>
+		<target_option dc:uri="http://example.com/terms/options/workflow_type/type_0"/>
+	</condition>
+	<condition dc:uri="http://example.com/terms/conditions/parameter_needed2">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>parameter_needed2</key>
+		<dc:comment/>
+		<source dc:uri="http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3"/>
+		<relation>eq</relation>
+		<target_text/>
+		<target_option dc:uri="http://example.com/terms/options/workflow_type/type_1"/>
+	</condition>
+</rdmo>

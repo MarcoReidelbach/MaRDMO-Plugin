@@ -1,0 +1,109 @@
+# packages in environment
+#
+# Name                    Version                   Build  Channel
+_libgcc_mutex             0.1                 conda_forge    conda-forge
+_openmp_mutex             4.5                  2_kmp_llvm    conda-forge
+asgiref                   3.5.2                    pypi_0    pypi
+attrs                     22.1.0                   pypi_0    pypi
+blas                      1.0                    openblas    anaconda
+bzip2                     1.0.8                h7b6447c_0  
+ca-certificates           2022.07.19           h06a4308_0    anaconda
+certifi                   2022.6.15       py310h06a4308_0    anaconda
+cffi                      1.15.1                   pypi_0    pypi
+charset-normalizer        2.1.1                    pypi_0    pypi
+click                     8.0.4           py310h06a4308_0  
+coreapi                   2.3.3                    pypi_0    pypi
+coreschema                0.0.4                    pypi_0    pypi
+coverage                  5.5                      pypi_0    pypi
+cryptography              38.0.4                   pypi_0    pypi
+defusedcsv                2.0.0                    pypi_0    pypi
+defusedxml                0.7.1                    pypi_0    pypi
+django                    3.2.16                   pypi_0    pypi
+django-allauth            0.51.0                   pypi_0    pypi
+django-appconf            1.0.5                    pypi_0    pypi
+django-cleanup            6.0.0                    pypi_0    pypi
+django-compressor         4.0                      pypi_0    pypi
+django-extensions         3.2.1                    pypi_0    pypi
+django-filter             21.1                     pypi_0    pypi
+django-js-asset           2.0.0                    pypi_0    pypi
+django-libsass            0.9                      pypi_0    pypi
+django-mathfilters        1.0.0                    pypi_0    pypi
+django-mptt               0.13.4                   pypi_0    pypi
+django-rest-swagger       2.2.0                    pypi_0    pypi
+django-settings-export    1.2.1                    pypi_0    pypi
+django-widget-tweaks      1.4.12                   pypi_0    pypi
+djangorestframework       3.12.4                   pypi_0    pypi
+drf-extensions            0.7.1                    pypi_0    pypi
+fftw                      3.3.9                h27cfd23_1    anaconda
+idna                      3.4                      pypi_0    pypi
+iniconfig                 1.1.1                    pypi_0    pypi
+iso8601                   1.0.2                    pypi_0    pypi
+itypes                    1.2.0                    pypi_0    pypi
+jinja2                    3.1.2                    pypi_0    pypi
+joblib                    1.1.1           py310h06a4308_0  
+jsonfield                 3.1.0                    pypi_0    pypi
+ld_impl_linux-64          2.38                 h1181459_1  
+libblas                   3.9.0           16_linux64_openblas    conda-forge
+libcblas                  3.9.0           16_linux64_openblas    conda-forge
+libffi                    3.4.2                h6a678d5_6  
+libgcc-ng                 12.2.0              h65d4601_19    conda-forge
+libgfortran-ng            12.2.0              h69a702a_19    conda-forge
+libgfortran5              12.2.0              h337968e_19    conda-forge
+liblapack                 3.9.0           16_linux64_openblas    conda-forge
+libopenblas               0.3.21          pthreads_h78a6416_3    conda-forge
+libsass                   0.22.0                   pypi_0    pypi
+libstdcxx-ng              11.2.0               h1234567_1  
+libuuid                   1.41.5               h5eee18b_0  
+llvm-openmp               14.0.6               h9e868ea_0  
+markdown                  3.3.7                    pypi_0    pypi
+markupsafe                2.1.1                    pypi_0    pypi
+ncurses                   6.3                  h5eee18b_3  
+nltk                      3.7                pyhd3eb1b0_0    anaconda
+numpy                     1.22.1          py310h454958d_0    conda-forge
+oauthlib                  3.2.2                    pypi_0    pypi
+openapi-codec             1.3.2                    pypi_0    pypi
+openssl                   1.1.1s               h0b41bf4_1    conda-forge
+owlready2                 0.39            py310h5764c6d_1    conda-forge
+packaging                 21.3                     pypi_0    pypi
+pip                       22.2.2          py310h06a4308_0  
+pluggy                    1.0.0                    pypi_0    pypi
+py                        1.11.0                   pypi_0    pypi
+pycparser                 2.21                     pypi_0    pypi
+pyjwt                     2.6.0                    pypi_0    pypi
+pypandoc                  1.8.1                    pypi_0    pypi
+pyparsing                 3.0.9                    pypi_0    pypi
+pytest                    6.2.5                    pypi_0    pypi
+pytest-cov                2.12.1                   pypi_0    pypi
+pytest-django             4.4.0                    pypi_0    pypi
+pytest-dotenv             0.5.2                    pypi_0    pypi
+pytest-mock               3.6.1                    pypi_0    pypi
+pytest-pythonpath         0.7.4                    pypi_0    pypi
+python                    3.10.8               h7a1cb2a_1  
+python-dotenv             0.21.0                   pypi_0    pypi
+python3-openid            3.2.0                    pypi_0    pypi
+python_abi                3.10                    2_cp310    conda-forge
+pytz                      2022.6                   pypi_0    pypi
+rcssmin                   1.1.0                    pypi_0    pypi
+rdmo                      1.9.0                    pypi_0    pypi
+readline                  8.2                  h5eee18b_0  
+regex                     2022.7.9        py310h5eee18b_0  
+requests                  2.28.1                   pypi_0    pypi
+requests-oauthlib         1.3.1                    pypi_0    pypi
+rjsmin                    1.2.0                    pypi_0    pypi
+rules                     3.3                      pypi_0    pypi
+scikit-learn              1.1.1           py310h6a678d5_0    anaconda
+scipy                     1.9.3           py310heeff2f4_0  
+setuptools                65.5.0          py310h06a4308_0  
+simplejson                3.18.0                   pypi_0    pypi
+sqlite                    3.40.0               h5082296_0  
+sqlparse                  0.4.3                    pypi_0    pypi
+threadpoolctl             2.2.0              pyh0d69192_0    anaconda
+tk                        8.6.12               h1ccaba5_0  
+toml                      0.10.2                   pypi_0    pypi
+tqdm                      4.64.1          py310h06a4308_0  
+tzdata                    2022g                h04d1e81_0  
+uritemplate               4.1.1                    pypi_0    pypi
+urllib3                   1.26.13                  pypi_0    pypi
+wheel                     0.37.1             pyhd3eb1b0_0  
+xz                        5.2.8                h5eee18b_0  
+zlib                      1.2.13               h5eee18b_0  
