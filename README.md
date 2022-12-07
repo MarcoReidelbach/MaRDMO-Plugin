@@ -13,7 +13,7 @@ The functionality of the Export/Query App as well as the export method are captu
 ## Repository structure
 
   catalog &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; all files necessary for RDMO questionnaire <br>
-  --questions.xml &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; question-/help-text, relation to domain, options, condition
+  --questions.xml &emsp;&emsp; question-/help-text, relation to domain, options, condition
   
   --domains.xml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;individual domains
   
