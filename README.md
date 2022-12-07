@@ -28,9 +28,9 @@ The functionality of the Export/Query App as well as the export method are captu
   
 ## Installation and Setup
 
-To install and configure RDMO follow their [instructions](https://rdmo.readthedocs.io/en/latest/installation/index.html). Once your RDMO instance is ready make sure that numpy (<1.23.0), scikit-learn, owlready2 and nltk are present. If not install them. These four packages are required to interact with the local knowledge graph, could change once the MaRDI portal is connected.
+To install and configure RDMO follow their [instructions](https://rdmo.readthedocs.io/en/latest/installation/index.html). Once your RDMO instance is ready make sure that 'numpy (<1.23.0)`, `scikit-learn`, `owlready2` and `nltk` are present. If not install them. These four packages are required to interact with the local knowledge graph, could change once the MaRDI portal is connected.
 
-The mardi_workflow directory has to be placed in the rdmo-app directory. Subsequently, it need to be connected to RDMO. Therefore, include 
+The mardi_workflow directory has to be placed in the rdmo-app directory. To connect the Plugin with RDMO include 
 
 ```python
 from django.utils.translation import ugettext_lazy as _  
@@ -46,7 +46,11 @@ PROJECT_EXPORTS += [
         ]
 ```
 
-at an arbitrary place.
+at an arbitrary place in local.py. Thereby, the Export/Query Plugin is connected to RDMO and an `MaRDI Export/Query` Butoon is established. 
+
+Once, the Export/Query Plugin is connected run RDMO and subsequently upload the catalog files e.g. via `Managment/Domain/Import`. Make sure to upload domains.xml first and questions.xml last.
+
+Now, everything is ready to use the MaRDI questionnaire. Therefore, click on `Create new Project`, choose a project name (the name chosen here will also be the name used to identify you workflow) and assign the MaRDI questionnaire. The first question is aimed at the Export/Query Plugin operation modus. If you choose Workflow Finding you will be asked to state and describe the component by which you would like to search the knowledge graph. Once, filled out and saved, return to the project page and click on `MaRDI Export/Query` and an appropriate workflow will be displayed. If you choose Workflow documentation you have to answer several detalied questions about your workflow. Make sure to read the instructions carefully, especially the set numbering (0,1,2,...). Once, all questions are answered you can decide if you would like to download your documentation as Markdown File or add it to the MaRDI Portal (aka local knowledge graph). As before, return to the project page and click on `MaRDI Export/Query`.
 
 
 
