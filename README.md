@@ -13,23 +13,17 @@ The functionality of the Export/Query App as well as the export method are captu
 ## Repository structure
 
   catalog &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; all files necessary for RDMO questionnaire <br>
-  --questions.xml &emsp;&emsp; question-/help-text, relation to domain, options, condition
+  --questions.xml &emsp;&emsp; question-/help-text, relation to domain, options, condition <br>
+  --domains.xml &emsp;&emsp; individual domains <br>
+  --options.xml &emsp;&emsp; individual options <br>
+  --conditions.xml &emsp;&emsp; individual conditions
   
-  --domains.xml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;individual domains
+  func &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; all files necessary for the Export/Query app <br>
+  --export.py &emsp;&emsp; contains Export/Query function (based on RDMO's csv export) <br>
+  --para.py &emsp;&emsp; contains question IDs for proper export and query
   
-  --options.xml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;individual options
+  kg &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; all files necessary for the local knowledge graph
+  --MaRDI_RDMO.owl &emsp;&emsp; owl based knowledge graph for local workflow exports and queries
   
-  --conditions.xml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;individual conditions
-  
-  func
-  
-  --export.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contains Export/Query function (based on RDMO's csv export) 
-  
-  --para.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contains question IDs for proper export and query
-  
-  kg
-  
-  --MaRDI_RDMO.owl&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;owl based knowledge graph for local workflow exports and queries
-  
-  requirements.txt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;all package requirements to set up a proper conda environment
+  requirements.txt &emsp;&emsp; all package requirements to set up a proper conda environment
 
