@@ -12,18 +12,18 @@ The functionality of the Export/Query App as well as the export method are captu
 
 ## Repository structure
 
-  catalog &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; all files necessary for RDMO questionnaire <br>
-  --questions.xml &emsp;&emsp; question-/help-text, relation to domain, options, condition <br>
-  --domains.xml &emsp;&emsp; individual domains <br>
-  --options.xml &emsp;&emsp; individual options <br>
-  --conditions.xml &emsp;&emsp; individual conditions
+  catalog - all files necessary for RDMO questionnaire <br>
+  --questions.xml - question-/help-text, relation to domain, options, condition <br>
+  --domains.xml - individual domains <br>
+  --options.xml - individual options <br>
+  --conditions.xml - individual conditions
   
-  func &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; all files necessary for the Export/Query app <br>
-  --export.py &emsp;&emsp; contains Export/Query function (based on RDMO's csv export) <br>
-  --para.py &emsp;&emsp; contains question IDs for proper export and query
+  func - all files necessary for the Export/Query app <br>
+  --export.py - contains Export/Query function (based on RDMO's csv export) <br>
+  --para.py - contains question IDs for proper export and query
   
-  kg &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; all files necessary for the local knowledge graph
-  --MaRDI_RDMO.owl &emsp;&emsp; owl based knowledge graph for local workflow exports and queries
+  kg - all files necessary for the local knowledge graph <br>
+  --MaRDI_RDMO.owl - owl based knowledge graph for local workflow exports and queries
   
-  requirements.txt &emsp;&emsp; all package requirements to set up a proper conda environment
+  requirements.txt - all package requirements to set up a proper conda environment
 
