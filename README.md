@@ -30,11 +30,23 @@ The functionality of the Export/Query App as well as the export method are captu
 
 To install and configure RDMO follow their [instructions](https://rdmo.readthedocs.io/en/latest/installation/index.html). Once your RDMO instance is ready make sure that numpy (<1.23.0), scikit-learn, owlready2 and nltk are present. If not install them. These four packages are required to interact with the local knowledge graph, could change once the MaRDI portal is connected.
 
+The mardi_workflow directory has to be placed in the rdmo-app directory. Subsequently, it need to be connected to RDMO. Therefore, include 
+
 ```python
 from django.utils.translation import ugettext_lazy as _  
 from . import BASE_DIR, INSTALLED_APPS, PROJECT_EXPORTS
 ```
+at the top of RDMO's local.py file. Furthermore, add
 
+```python
+INSTALLED_APPS = ['mardi_workflow'] + INSTALLED_APPS
+
+PROJECT_EXPORTS += [
+        ('mde', _('MaRDI Export/Query'), 'mardi_workflow.func.export.MaRDIExport'),
+        ]
+```
+
+at an arbitrary place.
 
 
 
