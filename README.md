@@ -4,9 +4,9 @@ This repository contains a questionnaire and an Export/Query Plugin for the [Res
 
 The questionnaire allows a standardized documentation of interdisciplinary workflows related to mathematics, where the connection to "real" experiments or theoretical approaches, like simulations, is possible and desired.
 
-The Export/Query Plugin allows the user to export his documented workflow into a standardized Markdown template. It also offers the possibility to publish the documented workflow directly on the [MaRDI Portal](https://portal.mardi4nfdi.de/wiki/Portal)* and to integrate it into the MaRDI knowledge graph. The Query App in turn allows the user to search the stored workflows based on individual components. 
+The Export/Query Plugin allows the user to export documented workflows into a standardized Markdown template. It also offers the possibility to publish the documented workflow directly on the [MaRDI Portal](https://portal.mardi4nfdi.de/wiki/Portal)* and to integrate it into the MaRDI knowledge graph. The query functionality in turn allows the user to search the stored workflows based on individual components. 
 
-The functionality of the Export/Query App is captured in the questionnaire, so that a single button controls everything. 
+The functionality of the Export/Query Plugin is captured in the questionnaire, such that a single button controls everything. 
 
 *For the time being, there is no connection to the MaRDI knowledge graph and portal, hence a local knowledge graph is used for testing. The three searchable components are Research Objective, Methods and Input Data.
 
