@@ -36,9 +36,9 @@ To install RDMO check if you meet their [prerequisites](https://rdmo.readthedocs
 
 Likewise clone the MaRDI_RDMO directory:
 
-`cd rdmo-app
+`cd rdmo-app`
 
-git clone git@github.com:MarcoReidelbach/MaRDI_RDMO` (adjust once repo public)
+`git clone git@github.com:MarcoReidelbach/MaRDI_RDMO` (adjust once repo public)
 
 Once cloned setup a virtual conda environment:
 
@@ -48,13 +48,13 @@ Thereby, a virtual environment "MaRDI_RDMO" is created in which the RDMO package
 
 Setup the RDMO application:
 
-`conda activate MaRDI_RDMO
+`conda activate MaRDI_RDMO`
 
-cp config/settings/sample.local.py config/settings/local.py
+`cp config/settings/sample.local.py config/settings/local.py`
 
-python manage.py migrate                
-python manage.py setup_groups           
-python manage.py createsuperuser`
+`python manage.py migrate`                
+`python manage.py setup_groups`           
+`python manage.py createsuperuser`
 
 Your RDMO instance is now ready. To install the Export/Query Plugin add the following lines to `local.py` and set *Debug = True*:
 
