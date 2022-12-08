@@ -62,7 +62,7 @@ class MaRDIExport(Export):
                    Documented workflows will be new instances in Workflow class and described by three datatype 
                    properties hasMethod, hasInputData, and hasResearchObjective.'''
                 # Load Ontology
-                onto=get_ontology(settings.BASE_DIR+'/mardi_workflow/kg/MaRDI_RDMO.owl').load()
+                onto=get_ontology(settings.BASE_DIR+'/MaRDI_RDMO/kg/MaRDI_RDMO.owl').load()
                 # Prepare new instance
                 new=onto.Workflow(self.project.title)
                 research_objective=''
@@ -88,7 +88,7 @@ class MaRDIExport(Export):
         # Workflow Finding
         elif dec[1][0] in data or dec[1][1] in data:
             # Load Ontology
-            onto=get_ontology(settings.BASE_DIR+'/mardi_workflow/kg/MaRDI_RDMO.owl').load()
+            onto=get_ontology(settings.BASE_DIR+'/MaRDI_RDMO/kg/MaRDI_RDMO.owl').load()
             # What to search for?
             if dec[3][0] in data or dec[3][1] in data:
                 verb='hasResearchObjective'
