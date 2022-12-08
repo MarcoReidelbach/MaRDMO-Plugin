@@ -56,7 +56,7 @@ Setup the RDMO application:
 `python manage.py setup_groups`           
 `python manage.py createsuperuser`
 
-Your RDMO instance is now ready. To install the Export/Query Plugin add the following lines to `local.py` and set *Debug = True*:
+Your RDMO instance is now ready. To install the Export/Query Plugin add the following lines to `local.py` and set **Debug = True**:
 
 ```python
 from django.utils.translation import ugettext_lazy as _  
