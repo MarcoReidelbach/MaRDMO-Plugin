@@ -83,7 +83,7 @@ Your RDMO instance is now ready to be used with the "MaRDI Workflow Documentatio
 
 ## Usage of RDMO and Export/Query Plugin
 
-Choose "Create New Project". Choose a proper name for your project (this name will be later on used to identify your documented workflow), assign the "MaRDI Workflow Documentation" catalog and click on "Create Project". Your project is now created. On the right hand side in the "Export" category you may notice the "MaRDI Export/Query" functionality.      
+Choose "Create New Project". Choose a proper name for your project (this name will be later on used to identify your documented workflow), assign the "MaRDI Workflow Documentation" catalog and click on "Create Project". Your project is now created. On the right hand side in the "Export" category you may notice the "MaRDI Export/Query" button.      
 
 Choose "Answer Questions" to start the interview. With the first question the Operation Modus of the Export/Query Plugin is determined:
 
