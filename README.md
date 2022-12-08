@@ -40,7 +40,7 @@ Likewise clone the MaRDI_RDMO directory:
 
 `git clone git@github.com:MarcoReidelbach/MaRDI_RDMO` (adjust once repo public)
 
-Once cloned setup a virtual conda environment:
+Once cloned, setup a virtual conda environment:
 
 `conda env create -f MaRDI_RDMO/environment.yml`
 
