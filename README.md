@@ -2,13 +2,13 @@
 
 This repository contains a questionnaire and an Export/Query Plugin for the [Research Datamanagement Organizer](https://rdmorganiser.github.io/) developed within Task Area 4 "Interdisciplinary Mathematics" of the [Mathematical research Data Initiative](https://www.mardi4nfdi.de/about/mission) (MaRDI). 
 
-The questionnaire allows a standardized documentation of interdisciplinary workflows related to mathematics, where the connection to "real" experiments as well as to computational simulations is possible and also desired.
+The questionnaire allows a standardized documentation of interdisciplinary workflows related to mathematics, where the connection to "real" experiments or theoretical approaches, like simulations, is possible and desired.
 
-The Export/Query Plugin allows the user to export his documented workflow into a standardized Markdown template. It also offers the possibility to publish the documented workflow directly on the [MaRDI Portal](https://portal.mardi4nfdi.de/wiki/Portal)* and to integrate it into the knowledge graph there. The Query App in turn allows the user to search the workflows stored in the portal based on individual components. 
+The Export/Query Plugin allows the user to export his documented workflow into a standardized Markdown template. It also offers the possibility to publish the documented workflow directly on the [MaRDI Portal](https://portal.mardi4nfdi.de/wiki/Portal)* and to integrate it into the MaRDI knowledge graph. The Query App in turn allows the user to search the stored workflows based on individual components. 
 
-The functionality of the Export/Query App as well as the export method are captured in the question catalog, so that a single button controls everything. 
+The functionality of the Export/Query App is captured in the questionnaire, so that a single button controls everything. 
 
-*For the time being, there is no connection to the MaRDI Knowledge Graph, so a local Knowledge Graph will be used for testing. The three searchable components are Research Objective, Methods and Input Data.
+*For the time being, there is no connection to the MaRDI knowledge graph and portal, so a local knowledge graph is used for testing. The three searchable components are Research Objective, Methods and Input Data.
 
 ## Repository structure
 
@@ -30,7 +30,7 @@ The functionality of the Export/Query App as well as the export method are captu
 
 To install and configure RDMO follow their [instructions](https://rdmo.readthedocs.io/en/latest/installation/index.html). Once your RDMO instance is ready make sure that `numpy (<1.23.0)`, `scikit-learn`, `owlready2` and `nltk` are present. If not install them. These four packages are required to interact with the local knowledge graph, could change once the MaRDI portal is connected.
 
-The mardi_workflow directory has to be placed in the rdmo-app directory. To connect the Plugin with RDMO include 
+The MaRDI_RDMO-main directory should be placed in the rdmo-app directory created during the installation of RDMO. To connect the Plugin with RDMO include 
 
 ```python
 from django.utils.translation import ugettext_lazy as _  
