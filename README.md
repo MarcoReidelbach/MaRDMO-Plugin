@@ -103,7 +103,7 @@ Operation Modus:
 
 Workflow Finding:
 
-1.0 Please choose to search existing workflow documentation by research objective, methods used, or input data. 
+1.0 Please choose to search existing workflow documentation by research objective, methods used, or input data. <br>
 1.1 Please state the research objective, methods or input data to be searched for. 
 
 Workflow Documentation:
