@@ -42,7 +42,7 @@ Likewise clone the MaRDI_RDMO directory:
 
 `cd rdmo-app`
 
-`git clone https://github.com/MarcoReidelbach/MaRDI_RDMO.git
+`git clone https://github.com/MarcoReidelbach/MaRDI_RDMO.git`
 
 Once cloned, setup a virtual conda environment:
 
