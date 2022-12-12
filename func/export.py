@@ -47,7 +47,7 @@ class MaRDIExport(Export):
                 # Adjust raw MaRDI templates to User answers
                 temp=self.dyn_template(data) 
                 if len(temp) == 0:
-                    return HttpResponse('Choose a Workflow Type!',content_type="text/plain") 
+                    return render(self.request,'error5.html')
                 # Fill out MaRDI template
                 for entry in data:
                         temp=re.sub(entry[0],entry[1],temp)

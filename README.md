@@ -27,7 +27,7 @@ The functionality of the Export/Query Plugin is captured in the questionnaire, s
 
  -templates - all files for rendering  
   -- export.html - successfull export to local knowledge graph
-  -- error1/22/3/4.html - error message for different reasons
+  -- error1/2/3/4/5.html - error message for different reasons
 
  -environment.yml - set up virtual conda environment 
  
