@@ -99,7 +99,7 @@ Choose "Answer Questions" to start the interview. With the first question the Op
 
 Operation Modus:
 
-0. Do you want to document or find a workflow?
+0.0 Do you want to document or find a workflow?
 
 Workflow Finding:
 
