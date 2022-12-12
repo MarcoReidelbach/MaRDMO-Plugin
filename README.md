@@ -26,7 +26,7 @@ The functionality of the Export/Query Plugin is captured in the questionnaire, s
   --MaRDI_RDMO.owl - owl based knowledge graph for local workflow exports and queries
 
  -templates - all files for rendering  
-  -- export.html - successfull export to local knowledge graph
+  -- export.html - successfull export to local knowledge graph <br>
   -- error1/22/3/4.html - error message for different reasons
 
  -environment.yml - set up virtual conda environment 
