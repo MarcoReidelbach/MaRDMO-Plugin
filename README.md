@@ -4,9 +4,9 @@ This repository contains a questionnaire and an Export/Query Plugin for the [Res
 
 The questionnaire allows a standardized documentation of interdisciplinary workflows related to mathematics, where the connection to "real" experiments or theoretical approaches, like simulations, is possible and desired.
 
-The Export/Query Plugin allows the user to export his documented workflow into a standardized Markdown template. It also offers the possibility to publish the documented workflow directly on the [MaRDI Portal](https://portal.mardi4nfdi.de/wiki/Portal)* and to integrate it into the MaRDI knowledge graph. The Query App in turn allows the user to search the stored workflows based on individual components. 
+The Export/Query Plugin allows the user to export documented workflows into a standardized Markdown template. It also offers the possibility to publish the documented workflow directly on the [MaRDI Portal](https://portal.mardi4nfdi.de/wiki/Portal)* and to integrate it into the MaRDI knowledge graph. The query functionality in turn allows the user to search the stored workflows based on individual components. 
 
-The functionality of the Export/Query App is captured in the questionnaire, so that a single button controls everything. 
+The functionality of the Export/Query Plugin is captured in the questionnaire, such that a single button controls everything. 
 
 *For the time being, there is no connection to the MaRDI knowledge graph and portal, hence a local knowledge graph is used for testing. The three searchable components are Research Objective, Methods and Input Data.
 
@@ -40,11 +40,11 @@ To install RDMO check if you meet their [prerequisites](https://rdmo.readthedocs
 
 Likewise clone the MaRDI_RDMO directory:
 
-`cd rdmo-app
+`cd rdmo-app`
 
-git clone git@github.com:MarcoReidelbach/MaRDI_RDMO` (adjust once repo public)
+`git clone git@github.com:MarcoReidelbach/MaRDI_RDMO` (adjust once repo public)
 
-Once cloned setup a virtual conda environment:
+Once cloned, setup a virtual conda environment:
 
 `conda env create -f MaRDI_RDMO/environment.yml`
 
@@ -52,15 +52,15 @@ Thereby, a virtual environment "MaRDI_RDMO" is created in which the RDMO package
 
 Setup the RDMO application:
 
-`conda activate MaRDI_RDMO
+`conda activate MaRDI_RDMO`
 
-cp config/settings/sample.local.py config/settings/local.py
+`cp config/settings/sample.local.py config/settings/local.py`
 
-python manage.py migrate                
-python manage.py setup_groups           
-python manage.py createsuperuser`
+`python manage.py migrate`                
+`python manage.py setup_groups`           
+`python manage.py createsuperuser`
 
-Your RDMO instance is now ready. To install the Export/Query Plugin add the following lines to `local.py` and set *Debug = True*:
+Your RDMO instance is now ready. To install the Export/Query Plugin add the following lines to `local.py` and set **Debug = True**:
 
 ```python
 from django.utils.translation import ugettext_lazy as _  
@@ -87,27 +87,27 @@ Your RDMO instance is now ready to be used with the "MaRDI Workflow Documentatio
 
 ## Usage of RDMO and Export/Query Plugin
 
-To actually use RDMO choose "Create New Project". Choose a proper name for your project (this name will be later on used to identify your documented workflow), assign the "MaRDI Workflow Documentation" catalog and click on "Create Project". Your project is now created. On the right hand side in the "Export" category you may notice the "MaRDI Export/Query" functionality.      
+Choose "Create New Project". Choose a proper name for your project (this name will be later on used to identify your documented workflow), assign the "MaRDI Workflow Documentation" catalog and click on "Create Project". Your project is now created. On the right hand side in the "Export" category you may notice the "MaRDI Export/Query" button.      
 
 Choose "Answer Questions" to start the interview. With the first question the Operation Modus of the Export/Query Plugin is determined:
 
-1) If you choose *"Workflow Documentation"* and click on "Save and proceed", you will be guided through a series of questions (the individual questions are listed below) in order to document your workflow. For some of these questions you have to add sets, e.g. each variable of your workflow gets his own question set. Make sure to use integer numbers starting from 0 for the individual question set names. With the final question you decide if your workflow documentation is added to the MaRDI portal (choose "MaRDI Portal") or downloaded (choose "Markdown File"). Once you have answered all questions return to the project page and choose "MaRDI Export/Query" to add your workflow documentation to the knowledge graph or download it. 
+1) If you choose **"Workflow Documentation"** and click on "Save and proceed", you will be guided through a series of questions (the individual questions are listed below) in order to document your workflow. For some of these questions you have to add sets, e.g. each variable of your workflow gets his own question set. Make sure to use integer numbers starting from 0 for the individual question set names. With the final question you decide if your workflow documentation is added to the MaRDI portal (choose "MaRDI Portal") or downloaded (choose "Markdown File"). Once you have answered all questions return to the project page and choose "MaRDI Export/Query" to add your workflow documentation to the knowledge graph or download it. 
 
-*Note:* Not all questions need to answered, hence if you cannot answer a specific question you can leave the field free. Beside the question about the operation modus, the questions about the workflow and export type are necessary. If one of those is not answered, the export will stop.
+**Note:** Not all questions have to be answered, hence if you cannot answer a specific question you can leave the field free. Beside the question about the operation modus, the questions about the workflow and export type are necessary. If one of those is not answered, the export will stop.
 
-2) If you choose *"Workflow Finding"* and click on "Save and proceed", you will be directed to a page where you have to choose by which component you would like to search existing workflow documentations and describe your needs, e.g. if you would like to know how to determine intermediate states and reaction kinetics from time-resolved raman spectroscopy choose "Research Objective" and write something like "Intermediate States Kinetics Time-resolved Raman Spectroscopy". Click on "Save", return to the project page and choose "MaRDI Export/Query" and you will (hopefully) get workflow suggestion that might be interesting to you.
+2) If you choose **"Workflow Finding"** and click on "Save and proceed", you will be directed to a page where you have to choose by which component you would like to search existing workflow documentations and describe your needs, e.g. if you would like to know how to determine intermediate states and reaction kinetics from time-resolved raman spectroscopy choose "Research Objective" and write something like "Intermediate States Kinetics Time-resolved Raman Spectroscopy". Click on "Save", return to the project page and choose "MaRDI Export/Query" and you will (hopefully) get a workflow suggestion that is interesting to you.
 
-*Note:* If you do not choose a component to search for, the query will stop.      
+**Note:** If you do not choose a component to search for, the query will stop.      
 
 ## Questionnaire
 
 Operation Modus:
 
-0. Do you want to document or find a workflow?
+0.0 Do you want to document or find a workflow?
 
 Workflow Finding:
 
-1.0 Please choose to search existing workflow documentation by research objective, methods used, or input data. 
+1.0 Please choose to search existing workflow documentation by research objective, methods used, or input data. <br>
 1.1 Please state the research objective, methods or input data to be searched for. 
 
 Workflow Documentation:
