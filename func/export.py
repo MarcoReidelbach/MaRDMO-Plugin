@@ -3,6 +3,7 @@ from django.conf import settings
 from rdmo.projects.exports import Export
 from rdmo.questions.models import Question
 from rdmo.core.utils import render_to_csv
+from django.shortcuts import render
 
 from .para import *
 import requests
@@ -20,7 +21,7 @@ class MaRDIExport(Export):
        
         # Check if MaRDI Questionaire is used
         if str(self.project.catalog) != 'MaRDI':
-            return HttpResponse('Questionnaire not suitable for MaRDI Export!',content_type="text/plain") 
+            return render(self.request,'error1.html')
 
         # Get Data - Questions and User Answers
         queryset = self.project.values.filter(snapshot=None)
@@ -79,11 +80,11 @@ class MaRDIExport(Export):
                 new.hasMethod=method
                 new.hasInputData=input_data
                 onto.save()
-                return HttpResponse('Your Workflow has been added to the local Knowledge Graph!\n\nSee you soon on the MaRDI Portal!',content_type="text/plain")
+                return render(self.request,'export.html')
 
             # Not chosen
             else:
-                return HttpResponse('Choose an Export Type',content_type="text/plain")
+                return render(self.request,'error2.html')
 
         # Workflow Finding
         elif dec[1][0] in data or dec[1][1] in data:
@@ -97,7 +98,8 @@ class MaRDIExport(Export):
             elif dec[5][0] in data or dec[5][1] in data:
                 verb='hasInputData'
             else:
-                return HttpResponse('Choose an entity to search for!',content_type="text/plain")
+                return render(self.request,'error3.html')
+
             # SPARQL query to get workflows and objects of interest
             workflows=list(default_world.sparql("""SELECT ?workflow ?searched_obj{ ?workflow MaRDI_RDMO:"""+verb+""" ?searched_obj . }"""))
             # List of Objects of interest
@@ -112,7 +114,7 @@ class MaRDIExport(Export):
         
         # Not chosen
         else:
-            return HttpResponse('Choose an Operation Modus!',content_type="text/plain")
+            return render(self.request,'error4.html')
 
     def stringify_values(self, values):
         '''Original function from csv export'''

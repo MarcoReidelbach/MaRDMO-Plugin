@@ -24,7 +24,11 @@ The functionality of the Export/Query App is captured in the questionnaire, so t
   
  -kg - all files necessary for the local knowledge graph <br>
   --MaRDI_RDMO.owl - owl based knowledge graph for local workflow exports and queries
-  
+
+ -templates - all files for rendering  
+  -- export.html - successfull export to local knowledge graph
+  -- error1/22/3/4.html - error message for different reasons
+
  -environment.yml - set up virtual conda environment 
  
   
