@@ -91,7 +91,7 @@ Choose "Answer Questions" to start the interview. With the first question the Op
 
 **Note:** Not all questions have to be answered, hence if you cannot answer a specific question you can leave the field free. Beside the question about the operation modus, the questions about the workflow and export type are necessary. If one of those is not answered, the export will stop.
 
-2) If you choose **"Workflow Finding"** and click on "Save and proceed", you will be directed to a page where you have to choose by which component you would like to search existing workflow documentations and describe your needs, e.g. if you would like to know how to determine intermediate states and reaction kinetics from time-resolved raman spectroscopy choose "Research Objective" and write something like "Intermediate States Kinetics Time-resolved Raman Spectroscopy". Click on "Save", return to the project page and choose "MaRDI Export/Query" and you will (hopefully) get workflow suggestion that might be interesting to you.
+2) If you choose **"Workflow Finding"** and click on "Save and proceed", you will be directed to a page where you have to choose by which component you would like to search existing workflow documentations and describe your needs, e.g. if you would like to know how to determine intermediate states and reaction kinetics from time-resolved raman spectroscopy choose "Research Objective" and write something like "Intermediate States Kinetics Time-resolved Raman Spectroscopy". Click on "Save", return to the project page and choose "MaRDI Export/Query" and you will (hopefully) get a workflow suggestion that is interesting to you.
 
 **Note:** If you do not choose a component to search for, the query will stop.      
 
