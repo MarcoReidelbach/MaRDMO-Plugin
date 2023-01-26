@@ -1,4 +1,4 @@
-name: RDMO_TEST
+name: MaRDI_RDMO
 channels:
   - anaconda
   - conda-forge
