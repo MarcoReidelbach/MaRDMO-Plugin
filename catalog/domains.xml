@@ -56,6 +56,34 @@
 		<dc:comment/>
 		<parent/>
 	</attribute>
+	<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_6">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Section_6</key>
+		<path>MaRDI/Section_6</path>
+		<dc:comment/>
+		<parent dc:uri="http://example.com/terms/domain/MaRDI"/>
+	</attribute>
+	<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_6/Set_1">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Set_1</key>
+		<path>MaRDI/Section_6/Set_1</path>
+		<dc:comment/>
+		<parent dc:uri="http://example.com/terms/domain/MaRDI/Section_6"/>
+	</attribute>
+	<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_1">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Question_1</key>
+		<path>MaRDI/Section_6/Set_1/Question_1</path>
+		<dc:comment/>
+		<parent dc:uri="http://example.com/terms/domain/MaRDI/Section_6/Set_1"/>
+	</attribute>
+	<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_2">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Question_2</key>
+		<path>MaRDI/Section_6/Set_1/Question_2</path>
+		<dc:comment/>
+		<parent dc:uri="http://example.com/terms/domain/MaRDI/Section_6/Set_1"/>
+	</attribute>
 	<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_2">
 		<uri_prefix>http://example.com/terms</uri_prefix>
 		<key>Section_2</key>
@@ -762,26 +790,5 @@
 		<path>MaRDI/Section_5/Set_1/Question_6</path>
 		<dc:comment/>
 		<parent dc:uri="http://example.com/terms/domain/MaRDI/Section_5/Set_1"/>
-	</attribute>
-	<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_6">
-		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Section_6</key>
-		<path>MaRDI/Section_6</path>
-		<dc:comment/>
-		<parent dc:uri="http://example.com/terms/domain/MaRDI"/>
-	</attribute>
-	<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_6/Set_1">
-		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Set_1</key>
-		<path>MaRDI/Section_6/Set_1</path>
-		<dc:comment/>
-		<parent dc:uri="http://example.com/terms/domain/MaRDI/Section_6"/>
-	</attribute>
-	<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_1">
-		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Question_1</key>
-		<path>MaRDI/Section_6/Set_1/Question_1</path>
-		<dc:comment/>
-		<parent dc:uri="http://example.com/terms/domain/MaRDI/Section_6/Set_1"/>
 	</attribute>
 </rdmo>

@@ -221,4 +221,34 @@
 		<text lang="de">Nein</text>
 		<additional_input>False</additional_input>
 	</option>
+	<optionset dc:uri="http://example.com/terms/options/yes_no">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>yes_no</key>
+		<dc:comment/>
+		<order>0</order>
+		<provider_key/>
+		<conditions/>
+	</optionset>
+	<option dc:uri="http://example.com/terms/options/yes_no/no">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>no</key>
+		<path>yes_no/no</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/yes_no"/>
+		<order>0</order>
+		<text lang="en">No</text>
+		<text lang="de">Nein</text>
+		<additional_input>False</additional_input>
+	</option>
+	<option dc:uri="http://example.com/terms/options/yes_no/yes">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>yes</key>
+		<path>yes_no/yes</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/yes_no"/>
+		<order>0</order>
+		<text lang="en">Yes</text>
+		<text lang="de">Ja</text>
+		<additional_input>False</additional_input>
+	</option>
 </rdmo>
