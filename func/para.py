@@ -275,6 +275,7 @@ dec=[[['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_1', 'Work
      [['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Methods'],['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Methoden']],
      [['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Input Data'],['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Eingabedaten']],
      [['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Mathematical Workflow'],['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Mathematischer Workflow']],
-     [['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Experimental Workflow'],['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Experimenteller Workflow']]]
+     [['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Experimental Workflow'],['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Experimenteller Workflow']],
+     [['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_2', 'No'],['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_2','Nein']]]
 
 

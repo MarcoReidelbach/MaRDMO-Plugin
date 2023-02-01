@@ -41,9 +41,9 @@ class MaRDIExport(Export):
                 data.append([question.attribute.uri, self.stringify_values(values)])
         
         # Workflow Documentation
-        if dec[0][0] in data or dec[0][1] in data:
+        if dec[0][0] in data or dec[0][1] in data :
             # Export as Markdown File
-            if dec[2][0] in data: 
+            if dec[2][0] in data or not (dec[8][0] in data or dec[8][1] in data): 
                 # Adjust raw MaRDI templates to User answers
                 temp=self.dyn_template(data) 
                 if len(temp) == 0:
@@ -57,7 +57,7 @@ class MaRDIExport(Export):
                 return response
             
             # Export to MaRDI Portal
-            elif dec[2][1] in data:
+            elif dec[2][1] in data and (dec[8][0] in data or dec[8][1] in data):
                 '''This is a placeholder for the MaRDI Portal functionality. Until ready, documented Workflows 
                    in RDMO will be saved to a local owl ontology file.
                    Documented workflows will be new instances in Workflow class and described by three datatype 
