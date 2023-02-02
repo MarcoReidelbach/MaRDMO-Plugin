@@ -67,8 +67,8 @@ class MaRDIExport(Export):
                    in RDMO will be saved to a local owl ontology file.
                    Documented workflows will be new instances in Workflow class and described by three datatype 
                    properties hasMethod, hasInputData, and hasResearchObjective.'''
-                # Export Workflow Documentation to mediawiki portal 
-                self.wikipage_export(self.project.title,pypandoc.convert_text(temp,'mediawiki',format='md'))
+                # Export Workflow Documentation to mediawiki portal
+                self.wikipage_export(self.project.title,re.sub('{\|','{| class="wikitable"',pypandoc.convert_text(temp,'mediawiki',format='md')))
                 # Load Ontology
                 onto=get_ontology(settings.BASE_DIR+'/MaRDI_RDMO/kg/MaRDI_RDMO.owl').load()
                 # Prepare new instance
