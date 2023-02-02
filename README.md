@@ -48,7 +48,7 @@ Once cloned, setup a virtual conda environment:
 
 `conda env create -f MaRDI_RDMO/environment.yml`
 
-Thereby, a virtual environment "MaRDI_RDMO" is created in which the RDMO package and further packages, namely 'PyPandoc', `Numpy`, `scikit-learn`, `owlready` and `nltk` (packages might change with the connection to the MaRDI knowledge graph), for the Export/Query Plugin are installed.  
+Thereby, a virtual environment "MaRDI_RDMO" is created in which the RDMO package and further packages, namely `PyPandoc, `Numpy`, `scikit-learn`, `owlready` and `nltk` (packages might change with the connection to the MaRDI knowledge graph), for the Export/Query Plugin are installed.  
 
 Setup the RDMO application:
 
