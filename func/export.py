@@ -6,6 +6,7 @@ from rdmo.core.utils import render_to_csv
 from django.shortcuts import render
 
 from .para import *
+from .config import *
 import requests
 
 from owlready2 import *
@@ -66,6 +67,8 @@ class MaRDIExport(Export):
                    in RDMO will be saved to a local owl ontology file.
                    Documented workflows will be new instances in Workflow class and described by three datatype 
                    properties hasMethod, hasInputData, and hasResearchObjective.'''
+                # Export Workflow Documentation to mediawiki portal 
+                self.wikipage_export(self.project.title,pypandoc.convert_text(temp,'mediawiki',format='md'))
                 # Load Ontology
                 onto=get_ontology(settings.BASE_DIR+'/MaRDI_RDMO/kg/MaRDI_RDMO.owl').load()
                 # Prepare new instance
@@ -192,3 +195,58 @@ class MaRDIExport(Export):
         cosine_similarities = np.reshape(sk.metrics.pairwise.cosine_similarity(embeddings, embeddings).flatten(),(len(documents),len(documents)))
         return cosine_similarities
        
+    def wikipage_export(self,title,content): 
+        '''Genereic Mediawiki Example'''
+        S = requests.Session()
+
+        URL = "http://localhost/w/api.php"
+
+        # Step 1: GET request to fetch login token
+        PARAMS_0 = {
+            "action": "query",
+            "meta": "tokens",
+            "type": "login",
+            "format": "json"
+        }
+
+        R = S.get(url=URL, params=PARAMS_0)
+        DATA = R.json()
+
+        LOGIN_TOKEN = DATA['query']['tokens']['logintoken']
+
+        # Step 2: POST request to log in.
+        PARAMS_1 = {
+            "action": "login",
+            "lgname": lgname,
+            "lgpassword": lgpassword,
+            "lgtoken": LOGIN_TOKEN,
+            "format": "json"
+        }
+
+        R = S.post(URL, data=PARAMS_1)
+
+        # Step 3: GET request to fetch CSRF token
+        PARAMS_2 = {
+            "action": "query",
+            "meta": "tokens",
+            "format": "json"
+        }
+
+        R = S.get(url=URL, params=PARAMS_2)
+        DATA = R.json()
+
+        CSRF_TOKEN = DATA['query']['tokens']['csrftoken']
+
+        # Step 4: POST request to edit a page
+        PARAMS_3 = {
+            "action": "edit",
+            "title": title,
+            "token": CSRF_TOKEN,
+            "format": "json",
+            "appendtext": re.sub('<math display="block">','<math>',content)
+        }
+        print(title)
+        print(content)
+        print(R)
+        R = S.post(URL, data=PARAMS_3)   
+
