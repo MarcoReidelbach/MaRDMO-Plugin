@@ -278,4 +278,46 @@ dec=[[['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_1', 'Work
      [['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Experimental Workflow'],['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Experimenteller Workflow']],
      [['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_2', 'No'],['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_2','Nein']]]
 
+# Stuff to preview Documentation as HTML
+
+html_front="""
+<head>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-mml-chtml.js">
+  </script>
+  <style>
+    table {
+      margin-left: 0;
+      margin-right: auto;
+      margin-bottom: 24px;
+      border-spacing: 0;
+      border-bottom: 2px solid black;
+      border-top: 2px solid black;
+    }
+    table th {
+      padding: 3px 10px;
+      background-color: white;
+      border-top: none;
+      border-left: 1px solid black;
+      border-right: 1px solid black;
+      border-bottom: 1px solid black;
+      text-align: center;
+    }
+    table td {
+      padding: 3px 10px;
+      border-top: 1px solid black;
+      border-left: 1px solid black;
+      border-bottom: 1px solid black;
+      border-right: 1px solid black;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+"""
+
+html_end="""
+</body>
+</html>"""
+
 

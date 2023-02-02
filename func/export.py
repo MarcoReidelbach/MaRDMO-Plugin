@@ -12,6 +12,7 @@ from owlready2 import *
 import nltk
 import numpy as np
 import sklearn as sk
+import pypandoc
 
 class MaRDIExport(Export):
 
@@ -42,20 +43,23 @@ class MaRDIExport(Export):
         
         # Workflow Documentation
         if dec[0][0] in data or dec[0][1] in data :
-            # Export as Markdown File
-            if dec[2][0] in data or not (dec[8][0] in data or dec[8][1] in data): 
-                # Adjust raw MaRDI templates to User answers
-                temp=self.dyn_template(data) 
-                if len(temp) == 0:
-                    return render(self.request,'error5.html')
-                # Fill out MaRDI template
-                for entry in data:
-                        temp=re.sub(entry[0],entry[1],temp)
+            # Generate Markdown File
+            # Adjust raw MaRDI templates to User answers
+            temp=self.dyn_template(data)
+            if len(temp) == 0:
+                return render(self.request,'error5.html')
+            # Fill out MaRDI template
+            for entry in data:
+                print(entry)
+                temp=re.sub("Yes: |'","",re.sub(entry[0],repr(entry[1]),temp))
+            if dec[2][0] in data: 
                 # Download as Markdown
                 response = HttpResponse(temp, content_type="application/md")
                 response['Content-Disposition'] = 'filename="workflow.md"'
                 return response
-            
+            elif dec[2][1] in data and not (dec[8][0] in data or dec[8][1] in data):
+                # Preview Markdown as HTML
+                return HttpResponse(html_front+pypandoc.convert_text(temp,'html',format='md')+html_end)
             # Export to MaRDI Portal
             elif dec[2][1] in data and (dec[8][0] in data or dec[8][1] in data):
                 '''This is a placeholder for the MaRDI Portal functionality. Until ready, documented Workflows 
