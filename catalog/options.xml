@@ -116,19 +116,19 @@
 		<dc:comment/>
 		<optionset dc:uri="http://example.com/terms/options/search_topic"/>
 		<order>1</order>
-		<text lang="en">Methods</text>
-		<text lang="de">Methoden</text>
+		<text lang="en">Model, Methods, Software and Input Data</text>
+		<text lang="de">Model, Methoden, Software und Eingabedaten</text>
 		<additional_input>False</additional_input>
 	</option>
-	<option dc:uri="http://example.com/terms/options/search_topic/input_data">
+	<option dc:uri="http://example.com/terms/options/search_topic/field_of_research">
 		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>input_data</key>
-		<path>search_topic/input_data</path>
+		<key>field_of_research</key>
+		<path>search_topic/field_of_research</path>
 		<dc:comment/>
 		<optionset dc:uri="http://example.com/terms/options/search_topic"/>
 		<order>2</order>
-		<text lang="en">Input Data</text>
-		<text lang="de">Eingabedaten</text>
+		<text lang="en">Field of Research</text>
+		<text lang="de">Forschungsfeld</text>
 		<additional_input>False</additional_input>
 	</option>
 	<optionset dc:uri="http://example.com/terms/options/variable_type">
@@ -191,36 +191,6 @@
 		<text lang="de">Mathematischer Workflow</text>
 		<additional_input>False</additional_input>
 	</option>
-	<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no">
-		<uri_prefix>https://rdmorganiser.github.io/terms</uri_prefix>
-		<key>yes_with_text_no</key>
-		<dc:comment/>
-		<order>0</order>
-		<provider_key/>
-		<conditions/>
-	</optionset>
-	<option dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no/yes">
-		<uri_prefix>https://rdmorganiser.github.io/terms</uri_prefix>
-		<key>yes</key>
-		<path>yes_with_text_no/yes</path>
-		<dc:comment/>
-		<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
-		<order>1</order>
-		<text lang="en">Yes</text>
-		<text lang="de">Ja</text>
-		<additional_input>True</additional_input>
-	</option>
-	<option dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no/no">
-		<uri_prefix>https://rdmorganiser.github.io/terms</uri_prefix>
-		<key>no</key>
-		<path>yes_with_text_no/no</path>
-		<dc:comment/>
-		<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
-		<order>2</order>
-		<text lang="en">No</text>
-		<text lang="de">Nein</text>
-		<additional_input>False</additional_input>
-	</option>
 	<optionset dc:uri="http://example.com/terms/options/yes_no">
 		<uri_prefix>http://example.com/terms</uri_prefix>
 		<key>yes_no</key>
@@ -249,6 +219,36 @@
 		<order>0</order>
 		<text lang="en">Yes</text>
 		<text lang="de">Ja</text>
+		<additional_input>False</additional_input>
+	</option>
+	<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no">
+		<uri_prefix>https://rdmorganiser.github.io/terms</uri_prefix>
+		<key>yes_with_text_no</key>
+		<dc:comment/>
+		<order>0</order>
+		<provider_key/>
+		<conditions/>
+	</optionset>
+	<option dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no/yes">
+		<uri_prefix>https://rdmorganiser.github.io/terms</uri_prefix>
+		<key>yes</key>
+		<path>yes_with_text_no/yes</path>
+		<dc:comment/>
+		<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
+		<order>1</order>
+		<text lang="en">Yes</text>
+		<text lang="de">Ja</text>
+		<additional_input>True</additional_input>
+	</option>
+	<option dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no/no">
+		<uri_prefix>https://rdmorganiser.github.io/terms</uri_prefix>
+		<key>no</key>
+		<path>yes_with_text_no/no</path>
+		<dc:comment/>
+		<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
+		<order>2</order>
+		<text lang="en">No</text>
+		<text lang="de">Nein</text>
 		<additional_input>False</additional_input>
 	</option>
 </rdmo>

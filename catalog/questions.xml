@@ -5,9 +5,9 @@
 		<key>MaRDI</key>
 		<dc:comment/>
 		<order>0</order>
-		<title lang="en">MaRDI Workflow Documentation</title>
+		<title lang="en">MaRDMO Catalog</title>
 		<help lang="en"/>
-		<title lang="de">MaRDI Workflow Dokumentation</title>
+		<title lang="de">MaRDMO Katalog</title>
 		<help lang="de"/>
 	</catalog>
 	<section dc:uri="http://example.com/terms/questions/MaRDI/Section_0">
@@ -17,8 +17,8 @@
 		<dc:comment/>
 		<catalog dc:uri="http://example.com/terms/questions/MaRDI"/>
 		<order>-2</order>
-		<title lang="en">MaRDI Plugin Operation Modus</title>
-		<title lang="de">MaRDI Plugin Betriebsmodus</title>
+		<title lang="en">MaRDMO Operation Modus</title>
+		<title lang="de">MaRDMO Betriebsmodus</title>
 	</section>
 	<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_0/Set_1">
 		<uri_prefix>http://example.com/terms</uri_prefix>
@@ -31,11 +31,11 @@
 		<is_collection>False</is_collection>
 		<order>0</order>
 		<title lang="en">Operation Modus</title>
-		<help lang="en">The MaRDI plugin allows essential components (e.g. input and output data, methods, software, hardware, ...) of various workflows to be documented and made publicly available via the MaRDI portal. In addition, the plugin offers researchers the opportunity to find documented workflows on the MaRDI portal containing research objectives, methods or input data interesting for the user. Ideally, this ends in another workflow documentation on the MaRDI portal.</help>
+		<help lang="en">MaRDMO enables the documentation of interdisciplinary workflows using predefined templates that are published as wiki pages on the MaRDI portal. Furthermore, essential workflow components (e.g., research objective, mathematical model, methods, software, ...) are integrated into the MaRDI knowledge graph to enable specific workflow queries. Ideally, MaRDMO thus increases the reproducibility of individual workflows and initiates a user-driven knowledge loop.</help>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<title lang="de">Betriebsmodus</title>
-		<help lang="de">Das MaRDI Plugin erlaubt es essentielle Bestandteile (z.B. Input-, Output-Daten, Methoden, Software, Hardware, ...) verschiedenster workflows zu dokumentieren und über das MaRDI Portal öffentlich verfügbar zu machen. Darüber hinaus bietet das Plugin Forschern die Möglichkeit, dokumentierte Workflows auf dem MaRDI-Portal zu finden, die für den Nutzer interessante Forschungsziele, Methoden oder Eingangsdaten enthalten. Im Idealfall endet dies in einer weiteren Workflow-Dokumentation auf dem MaRDI-Portal.</help>
+		<help lang="de">MaRDMO ermöglicht die Dokumentation von interdisziplinären Workflows mittels vordefinierter Vorlagen, die als Wiki-Seiten im MaRDI-Portal veröffentlicht werden. Darüber hinaus werden wesentliche Workflow-Komponenten (z.B. Forschungsziel, mathematisches Modell, Methoden, Software, ...) in den MaRDI Knowledge Graphen integriert, um spezifische Workflow-Abfragen zu ermöglichen. Im Idealfall erhöht MaRDMO damit die Reproduzierbarkeit einzelner Workflows und initiiert einen nutzergesteuerten Wissenskreislauf.</help>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<conditions/>
@@ -116,13 +116,13 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
-		<help lang="en">If none of the three is selected, the MaRDI Export/Query will result in an error.</help>
-		<text lang="en">Please choose to search existing workflow documentation by research objective, methods used, or input data.</text>
+		<help lang="en">If none is selected, the MaRDI Export/Query will result in an error.</help>
+		<text lang="en">Please choose to search existing workflow documentation by research objective, used mathematical model, methods and software, field of research, or input data.</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Falls keines von den dreien ausgewählt wird, führt der MaRDI Export/Query zu einem Fehler.</help>
-		<text lang="de">Bitte wählen Sie, ob Sie bestehende Workflow Dokumentationen nach dem Forschungsziel, den verwendeten Methoden oder den Eingabedaten suchen möchten.</text>
+		<help lang="de">Falls keines ausgewählt wird, führt der MaRDI Export/Query zu einem Fehler.</help>
+		<text lang="de">Bitte wählen Sie, ob Sie bestehende Workflow Dokumentationen nach dem Forschungsziel, mathematischem Model, Methoden und Software, dem Forschungsbereich oder den Eingabedaten suchen möchten.</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -147,22 +147,22 @@
 		<dc:comment/>
 		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_1"/>
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_1/Set_1"/>
-		<is_collection>False</is_collection>
+		<is_collection>True</is_collection>
 		<is_optional>False</is_optional>
-		<order>1</order>
-		<help lang="en">Please keep the description short and concise. Once you have described the research objective, methods, or input data to search for, save your entries and return to the overview of your project. Click on "MaRDI Export/Query" under "Export" so that the MaRDI Knowledge Graph can be searched for you. The most interesting result will be displayed afterwards.</help>
-		<text lang="en">Please state the research objective, methods or input data to be searched for.</text>
+		<order>2</order>
+		<help lang="en">Use a new text field for each entity to be searched. Searching is possible using free text, e.g. the name of a method, as well as mardi:QIDs. Concise keywords should be used to search for workflows with matching research objectives or input data. Remember that matching workflows must meet all of your search criteria, so keep your requirements as low as necessary.</help>
+		<text lang="en">Please state what to search.</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Bitte halten Sie die Beschreibung kurz und prägnant. Wenn Sie das zu suchende Forschungsziel, die Methoden oder Eingabedaten beschrieben haben, speichern Sie ihre Eintragungen und kehren zur Übersicht ihres Projekts zurück. Klicken Sie dort unter dem Punkt "Export" auf "MaRDI Export/Query", damit der MaRDI Knowledge Graph für Sie durchsucht werden kann. Das interessanteste Ergebnis wird ihnen im Anschluss angezeigt.</help>
-		<text lang="de">Bitte nennen Sie das Forschungsziel, die Methoden oder Eingabedaten nach denen gesucht werden soll.</text>
+		<help lang="de">Verwenden Sie für jede zu suchende Entität ein neues Textfeld. Die Suche ist sowohl über Freitext, z. B. den Namen einer Methode, als auch über mardi:QIDs möglich. Für die Suche nach Workflows mit übereinstimmenden Forschungszielen oder Eingabedaten sollten prägnante Schlüsselwörter verwendet werden. Denken Sie daran, dass passende Workflows alle Ihre Suchkriterien erfüllen müssen, also halten Sie Ihre Anforderungen so niedrig wie nötig.</help>
+		<text lang="de">Bitte geben Sien an, was gesucht werden soll.</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
 		<default_external_id/>
-		<widget_type>textarea</widget_type>
+		<widget_type>text</widget_type>
 		<value_type>text</value_type>
 		<maximum/>
 		<minimum/>
@@ -222,7 +222,7 @@
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
-		<default_option/>
+		<default_option dc:uri="http://example.com/terms/options/publication_type/type_0"/>
 		<default_external_id/>
 		<widget_type>radio</widget_type>
 		<value_type>text</value_type>
@@ -246,13 +246,13 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>1</order>
-		<help lang="en">If this question is not explicitly answered with 'No', there will be no export to the MaRDI portal. Please check your export locally before publishing it in the MaRDI portal. If you chose 'Markdown File' Export ignore this question.</help>
-		<text lang="en">Should a local copy be made before exporting to the MaRDI portal to correct any errors?</text>
+		<help lang="en">If this question is not explicitly answered with 'No', there will be no export to the MaRDI portal. Please check your export for errors before publishing it on the MaRDI portal. If you chose 'Markdown File' Export ignore this question.</help>
+		<text lang="en">Get an HTML preview before exporting to the MaRDI portal to correct errors?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Wenn diese Frage nicht explizit mit 'Nein' beantwortet wird, findet kein Export in das MaRDI-Portal statt. Bitte prüfen Sie Ihren Export lokal, bevor Sie ihn im MaRDI-Portal veröffentlichen. Wenn Sie 'Markdown File' Export gewählt haben, ignorieren Sie diese Frage.</help>
-		<text lang="de">Sollte vor dem Export in das MaRDI-Portal eine lokale Kopie erstellt werden, um eventuelle Fehler zu korrigieren?</text>
+		<help lang="de">Wenn diese Frage nicht explizit mit 'Nein' beantwortet wird, findet kein Export in das MaRDI-Portal statt. Bitte prüfen Sie Ihren Export auf Fehler bevor Sie ihn im MaRDI-Portal veröffentlichen. Wenn Sie 'Markdown File' Export gewählt haben, ignorieren Sie diese Frage.</help>
+		<text lang="de">Möchten Sie vor dem Export auf das MaRDI-Portal eine HTML Preview erhalten um eventuelle Fehler zu korrigieren?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -332,40 +332,6 @@
 		<optionsets/>
 		<conditions/>
 	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_2/Set_1/Question_2">
-		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Question_2</key>
-		<path>MaRDI/Section_2/Set_1/Question_2</path>
-		<dc:comment/>
-		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_2"/>
-		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_2/Set_1"/>
-		<is_collection>False</is_collection>
-		<is_optional>False</is_optional>
-		<order>1</order>
-		<help lang="en">If so, under which PID, e.g. doi?</help>
-		<text lang="en">Has the workflow been published?</text>
-		<default_text lang="en"/>
-		<verbose_name lang="en"/>
-		<verbose_name_plural lang="en"/>
-		<help lang="de">Wenn ja, unter welcher PID, z.B. doi?</help>
-		<text lang="de">Wurde der Workflow veröffentlicht?</text>
-		<default_text lang="de"/>
-		<verbose_name lang="de"/>
-		<verbose_name_plural lang="de"/>
-		<default_option/>
-		<default_external_id/>
-		<widget_type>radio</widget_type>
-		<value_type>text</value_type>
-		<maximum/>
-		<minimum/>
-		<step/>
-		<unit/>
-		<width/>
-		<optionsets>
-		<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
-		</optionsets>
-		<conditions/>
-	</question>
 	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_2/Set_1/Question_3">
 		<uri_prefix>http://example.com/terms</uri_prefix>
 		<key>Question_3</key>
@@ -375,7 +341,7 @@
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_2/Set_1"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>2</order>
+		<order>1</order>
 		<help lang="en">If neither is selected, the MaRDI Export/Query will result in an error. The MaRDI template for documenting interdisciplinary workflows is designed to document all workflows with a mathematical component. The counterpart to the mathematical component determines which template must be used. If the workflow involves real experiments, the Experimental Workflow template must be used, while simulations and other theoretical considerations require the Theoretical Workflow template.</help>
 		<text lang="en">Is your workflow experimental or theoretical?</text>
 		<default_text lang="en"/>
@@ -400,6 +366,40 @@
 		</optionsets>
 		<conditions/>
 	</question>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_2/Set_1/Question_2">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Question_2</key>
+		<path>MaRDI/Section_2/Set_1/Question_2</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_2"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_2/Set_1"/>
+		<is_collection>False</is_collection>
+		<is_optional>False</is_optional>
+		<order>2</order>
+		<help lang="en">If so, under which DOI (e.g. doi:10...)? If the publication happened without DOI, select 'No'.</help>
+		<text lang="en">Has the workflow been published?</text>
+		<default_text lang="en">doi:</default_text>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">Wenn ja, unter welcher DOI (z.B. doi:10...)? Falls die Veröffentlichung ohne DOI geschah, wählen Sie 'Nein'.</help>
+		<text lang="de">Wurde der Workflow veröffentlicht?</text>
+		<default_text lang="de">doi:</default_text>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no/yes"/>
+		<default_external_id/>
+		<widget_type>radio</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets>
+		<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
+		</optionsets>
+		<conditions/>
+	</question>
 	<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_2/Set_2">
 		<uri_prefix>http://example.com/terms</uri_prefix>
 		<key>Set_2</key>
@@ -409,7 +409,7 @@
 		<section dc:uri="http://example.com/terms/questions/MaRDI/Section_2"/>
 		<questionset/>
 		<is_collection>False</is_collection>
-		<order>1</order>
+		<order>2</order>
 		<title lang="en">Research Objective and Procedure</title>
 		<help lang="en"/>
 		<verbose_name lang="en"/>
@@ -431,8 +431,7 @@
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en">A concise sentence is sufficient.</help>
-		<text lang="en">Name the research object of the underlying workflow.
-		</text>
+		<text lang="en">Name the research object of the underlying workflow.</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
@@ -463,12 +462,12 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
-		<help lang="en">The description is intended to help other people, who may not be familiar with the subject, to follow the underlying workflow. Please consider this in the depth of detail of the mathematical and experimental description.</help>
+		<help lang="en">The description is intended to help other people, who may not be familiar with the subject, to follow the underlying workflow. Please consider this in the depth of detail of the mathematical and experimental description. You may use HTML tags, e.g. for bold text, new line, ..., and Latex math (in $$...$$) to structure your answer.</help>
 		<text lang="en">Describe the procedure of your workflow.</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Die Beschreibung soll anderen, möglicherweise fachfremden Personen, helfen dem zugrunde liegenden Workflow zu folgen. Bitte beachten Sie dies bei der Detailtiefe der mathematischen und experimentellen Beschreibung.</help>
+		<help lang="de">Die Beschreibung soll anderen, möglicherweise fachfremden Personen, helfen dem zugrunde liegenden Workflow zu folgen. Bitte beachten Sie dies bei der Detailtiefe der mathematischen und experimentellen Beschreibung. Sie können HTML Tags, z.B. für fetten Text, neue Zeile, ..., und Latex Mathe (in $$...$$) nutzen um Ihre Antwort zu strukturieren.</help>
 		<text lang="de">Beschreiben Sie das Prozedere Ihres Workflows.</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -494,7 +493,7 @@
 		<section dc:uri="http://example.com/terms/questions/MaRDI/Section_2"/>
 		<questionset/>
 		<is_collection>False</is_collection>
-		<order>2</order>
+		<order>3</order>
 		<title lang="en">Involved Disciplines and Data Streams</title>
 		<help lang="en"/>
 		<verbose_name lang="en"/>
@@ -515,14 +514,14 @@
 		<is_collection>True</is_collection>
 		<is_optional>False</is_optional>
 		<order>1</order>
-		<help lang="en">Use wikidata IDs (www.wikidata.org) if applicable. Some exemplary disciplines: Egyptology (wikidata:Q145903), Linear Algebra (wikidata:Q8571), Numerical Analysis (wikidata:Q14149), ...</help>
+		<help lang="en">Use mardi:QIDs or wikidata:QIDs if applicable. Format of answer should be: Discipline (mardi/wikidata:QID).</help>
 		<text lang="en">Which disciplines can your workflow be assigned to?</text>
-		<default_text lang="en"/>
+		<default_text lang="en">wikidata:</default_text>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Verwenden Sie, wenn möglich, wikidata IDs (www.wikidata.org). Exemplarische Disziplinen: Egyptology (wikidata:Q145903), Linear Algebra (wikidata:Q8571), Numerical Analysis (wikidata:Q14149), ...</help>
+		<help lang="de">Verwenden Sie, sofern vorhanden, mardi:QIDs oder wikidata:QIDs. Format der Antwort sollte sein: Disziplin (mardi/wikidata:QID).</help>
 		<text lang="de">Welchen Disziplinen kann ihr Workflow zugeordnet werden?</text>
-		<default_text lang="de"/>
+		<default_text lang="de">wikidata:</default_text>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
@@ -588,17 +587,53 @@
 		<section dc:uri="http://example.com/terms/questions/MaRDI/Section_3"/>
 		<questionset/>
 		<is_collection>False</is_collection>
-		<order>0</order>
-		<title lang="en">Model and Discretization</title>
+		<order>-1</order>
+		<title lang="en">Model</title>
 		<help lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<title lang="de">Modell und Diskretisierung</title>
+		<title lang="de">Modell</title>
 		<help lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<conditions/>
 	</questionset>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Wiki_1">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Wiki_1</key>
+		<path>MaRDI/Section_3/Set_1/Wiki_1</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_1"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
+		<is_collection>False</is_collection>
+		<is_optional>False</is_optional>
+		<order>-1</order>
+		<help lang="en">If yes, provide the mardi:QID or wikidata:QID and continue with the next section.</help>
+		<text lang="en">Is the mathematical model already deposited in MaRDI Knowledge Graph or wikidata?</text>
+		<default_text lang="en">mardi:</default_text>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">Falls ja, geben Sie die mardi:QID oder wikidata:QID an und fahren mit der nächste Sektion fort.</help>
+		<text lang="de">Ist das mathematische Model bereits im MaRDI Knowledge Graph oder Wikidata hinterlegt?</text>
+		<default_text lang="de">mardi:</default_text>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no/yes"/>
+		<default_external_id/>
+		<widget_type>radio</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets>
+		<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
+		</optionsets>
+		<conditions>
+		<condition dc:uri="http://example.com/terms/conditions/wiki_paper"/>
+		</conditions>
+	</question>
 	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Question_1">
 		<uri_prefix>http://example.com/terms</uri_prefix>
 		<key>Question_1</key>
@@ -609,19 +644,19 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
-		<help lang="en">Avoid formulas and use IDs, e.g. wikidata, doi, whenever possible.</help>
-		<text lang="en">Describe the model on which the workflow is based, in particular the theoretical foundations.</text>
+		<help lang="en">Short and concise. Will be used as label for MaRDI knowledge graph item if not yet present in MaRDI knowledge graph or wikidata.</help>
+		<text lang="en">Provide the name of the mathematical model.</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Verzichten Sie auf Formeln und nutzen sofern möglich IDs, z.B. wikidata, doi.</help>
-		<text lang="de">Beschreiben Sie das dem Workflow zugrunde liegende Modell, insbesondere die theoretischen Grundlagen.</text>
+		<help lang="de">Kurz und prägnant. Wird als Label für das MaRDI Knowledge Graph Item verwendet, sofern noch nicht im MaRDI Knowledge Graph oder in Wikidata vorhanden.</help>
+		<text lang="de">Geben Sie den Namen des mathematischen Models an.</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
 		<default_external_id/>
-		<widget_type>textarea</widget_type>
+		<widget_type>text</widget_type>
 		<value_type>text</value_type>
 		<maximum/>
 		<minimum/>
@@ -631,13 +666,131 @@
 		<optionsets/>
 		<conditions/>
 	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Question_2">
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Wiki_2">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Wiki_2</key>
+		<path>MaRDI/Section_3/Set_1/Wiki_2</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_2"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
+		<is_collection>False</is_collection>
+		<is_optional>False</is_optional>
+		<order>2</order>
+		<help lang="en">Avoid mathematical formulas at his point. Will be used as description for MaRDI knowledge graph item if not yet present in MaRDI knowledge graph or wikidata.</help>
+		<text lang="en">Provide a short description of the mathematical model.</text>
+		<default_text lang="en"/>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">Vermeiden Sie an dieser Stelle mathematische Formeln. Wird als Beschreibung für das MaRDI Knowledge Graph Item verwendet, sofern noch nicht im MaRDI Knowledge Graph oder in Wikidata vorhanden.</help>
+		<text lang="de">Bitte beschreiben Sie kurz das mathematische Modell.</text>
+		<default_text lang="de"/>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option/>
+		<default_external_id/>
+		<widget_type>text</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets/>
+		<conditions/>
+	</question>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Wiki_3">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Wiki_3</key>
+		<path>MaRDI/Section_3/Set_1/Wiki_3</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_3"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
+		<is_collection>False</is_collection>
+		<is_optional>False</is_optional>
+		<order>3</order>
+		<help lang="en">Use a mardi:QID or wikidata:QID.</help>
+		<text lang="en">Please state the main subject of the mathematical model.</text>
+		<default_text lang="en">wikidata:</default_text>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">Nutzen Sie eine mardi:QID oder wikidata:QID.</help>
+		<text lang="de">Nennen Sie das Hauptthema des Models.</text>
+		<default_text lang="de">wikidata:</default_text>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option/>
+		<default_external_id/>
+		<widget_type>text</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets/>
+		<conditions>
+		<condition dc:uri="http://example.com/terms/conditions/wiki_paper"/>
+		</conditions>
+	</question>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Wiki_4">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Wiki_4</key>
+		<path>MaRDI/Section_3/Set_1/Wiki_4</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_4"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
+		<is_collection>True</is_collection>
+		<is_optional>False</is_optional>
+		<order>4</order>
+		<help lang="en">Use Latex Math in $$...$$. Please check if the formulas are rendered correctly using the HTML preview option.</help>
+		<text lang="en">State the defining mathematical formulas of the method.</text>
+		<default_text lang="en"/>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">Nutzen Sie Latex Math in $$...$$. Bitte überprüfen Sie, ob ihre Formeln korrekt gerendert wurden mit der Option zur HTML Preview.</help>
+		<text lang="de">Geben sie relevanten mathematischen Formeln des Models an.</text>
+		<default_text lang="de"/>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option/>
+		<default_external_id/>
+		<widget_type>text</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets/>
+		<conditions/>
+	</question>
+	<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_4">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Set_4</key>
+		<path>MaRDI/Section_3/Set_4</path>
+		<dc:comment/>
+		<attribute/>
+		<section dc:uri="http://example.com/terms/questions/MaRDI/Section_3"/>
+		<questionset/>
+		<is_collection>False</is_collection>
+		<order>0</order>
+		<title lang="en">Discretization</title>
+		<help lang="en"/>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<title lang="de">Diskretisierung</title>
+		<help lang="de"/>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<conditions/>
+	</questionset>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_4/Question_2">
 		<uri_prefix>http://example.com/terms</uri_prefix>
 		<key>Question_2</key>
-		<path>MaRDI/Section_3/Set_1/Question_2</path>
+		<path>MaRDI/Section_3/Set_4/Question_2</path>
 		<dc:comment/>
 		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_2"/>
-		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_4"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
@@ -665,13 +818,13 @@
 		</optionsets>
 		<conditions/>
 	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Question_3">
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_4/Question_3">
 		<uri_prefix>http://example.com/terms</uri_prefix>
 		<key>Question_3</key>
-		<path>MaRDI/Section_3/Set_1/Question_3</path>
+		<path>MaRDI/Section_3/Set_4/Question_3</path>
 		<dc:comment/>
 		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_3"/>
-		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_4"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>2</order>
@@ -708,7 +861,7 @@
 		<section dc:uri="http://example.com/terms/questions/MaRDI/Section_3"/>
 		<questionset/>
 		<is_collection>True</is_collection>
-		<order>0</order>
+		<order>1</order>
 		<title lang="en">Involved Variables</title>
 		<help lang="en">Describe the variables of your workflow below. Use a separate set for each variable. The title of the respective sets should be a simple sequential number starting from 0.</help>
 		<verbose_name lang="en"/>
@@ -860,7 +1013,7 @@
 		<section dc:uri="http://example.com/terms/questions/MaRDI/Section_3"/>
 		<questionset/>
 		<is_collection>True</is_collection>
-		<order>1</order>
+		<order>2</order>
 		<title lang="en">Involved Parameters</title>
 		<help lang="en">Describe the parameters of your workflow below. Use a separate set for each parameter. The title of the respective sets should be a simple sequential number starting from 0.</help>
 		<verbose_name lang="en"/>
@@ -1073,12 +1226,12 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>2</order>
-		<help lang="en">What is the input data of the process step?</help>
+		<help lang="en">What is the input (data) of the process step?</help>
 		<text lang="en">Input of the Process Step</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Was sind die Eingabedaten des Prozessschritts?</help>
+		<help lang="de">Was sind die Eingaben/Eingabedaten des Prozessschritts?</help>
 		<text lang="de">Input des Prozessschritts</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -1105,12 +1258,12 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>3</order>
-		<help lang="en">What is the output data of the process step?</help>
+		<help lang="en">What is the output (data) of the process step?</help>
 		<text lang="en">Output of the Process Step</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Was sind die Ausgabedaten des Prozessschritts?</help>
+		<help lang="de">Was sind die Ausgaben/Ausgabedaten des Prozessschritts?</help>
 		<text lang="de">Output des Prozessschritts</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -1285,14 +1438,14 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
-		<help lang="en">Ideally a wikidata ID (www.wikidata.org). If not available a publication record (doi).</help>
-		<text lang="en">Provide an ID for the Method.</text>
-		<default_text lang="en"/>
+		<help lang="en">Use a mardi:QID or wikidata:QID. If no QID exists provide a DOI (doi:) which will be used to create a new entity in the MaRDI knowledge graph describing the method.</help>
+		<text lang="en">Provide an ID for the method.</text>
+		<default_text lang="en">mardi:</default_text>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Idealerweise eine wikidata ID (www.wikidata.org). Falls nicht verfügbar ein Publikationseintrag (doi).</help>
+		<help lang="de">Nutzen Sie eine mardi:QID oder wikidata:QID. Falls keine QID existiert, geben Sie bitte eine DOI (doi:) an mit der ein neues Item im MaRDI Knowledge Graphen zur Beschreibung der Methode erzeugt werden kann.</help>
 		<text lang="de">Geben Sie eine ID für die Methode an.</text>
-		<default_text lang="de"/>
+		<default_text lang="de">mardi:</default_text>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
@@ -1317,12 +1470,12 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>1</order>
-		<help lang="en">Should resemble the name in associated publications, if available.</help>
+		<help lang="en">Short and concise. Will be used as label for MaRDI knowledge graph item if not yet present in MaRDI knowledge graph or wikidata.</help>
 		<text lang="en">Name of the Method</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Sollte, sofern vorhanden, dem Namen in dazugehörigen Publikationen gleichen.</help>
+		<help lang="de">Kurz und prägnant. Wird als Label für das MaRDI Knowledge Graph Item verwendet, sofern noch nicht im MaRDI Knowledge Graph oder in Wikidata vorhanden.</help>
 		<text lang="de">Name der Methode</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -1339,6 +1492,108 @@
 		<optionsets/>
 		<conditions/>
 	</question>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2/Wiki_2">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Wiki_2</key>
+		<path>MaRDI/Section_4/Set_2/Wiki_2</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_2"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2"/>
+		<is_collection>False</is_collection>
+		<is_optional>False</is_optional>
+		<order>1</order>
+		<help lang="en">Will be used as description for MaRDI knowledge graph item if not yet present in MaRDI knowledge graph or wikidata.</help>
+		<text lang="en">Provide a short description of the method.</text>
+		<default_text lang="en"/>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">Wird als Beschreibung für das MaRDI Knowledge Graph Item verwendet, sofern noch nicht im MaRDI Knowledge Graph oder in Wikidata vorhanden.</help>
+		<text lang="de">Bitte beschreiben Sie die Methode kurz.</text>
+		<default_text lang="de"/>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option/>
+		<default_external_id/>
+		<widget_type>text</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets/>
+		<conditions>
+		<condition dc:uri="http://example.com/terms/conditions/wiki_paper"/>
+		</conditions>
+	</question>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2/Wiki_3">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Wiki_3</key>
+		<path>MaRDI/Section_4/Set_2/Wiki_3</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_3"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2"/>
+		<is_collection>False</is_collection>
+		<is_optional>False</is_optional>
+		<order>2</order>
+		<help lang="en">Use a mardi:QID or wikidata:QID.</help>
+		<text lang="en">State the main subject of the method.</text>
+		<default_text lang="en">mardi:</default_text>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">Nutzen Sie eine mardi:QID oder wikidata:QID.</help>
+		<text lang="de">Nennen Sie das Hauptthema der Methode.</text>
+		<default_text lang="de">mardi:</default_text>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option/>
+		<default_external_id/>
+		<widget_type>text</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets/>
+		<conditions>
+		<condition dc:uri="http://example.com/terms/conditions/wiki_paper"/>
+		</conditions>
+	</question>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2/Wiki_4">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Wiki_4</key>
+		<path>MaRDI/Section_4/Set_2/Wiki_4</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_4"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2"/>
+		<is_collection>False</is_collection>
+		<is_optional>False</is_optional>
+		<order>2</order>
+		<help lang="en">Use Latex Math in $$...$$. Please check if the formulas are rendered correctly using the HTML preview.</help>
+		<text lang="en">State the defining mathematical formulas of the method.</text>
+		<default_text lang="en"/>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">Nutzen Sie Latex Math in $$...$$. Bitte überprüfen Sie, ob ihre Formeln korrekt gerendert wurden mit der HTML Preview.</help>
+		<text lang="de">Geben sie relevanten mathematischen Formeln der Methode an.</text>
+		<default_text lang="de"/>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option/>
+		<default_external_id/>
+		<widget_type>text</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets/>
+		<conditions>
+		<condition dc:uri="http://example.com/terms/conditions/wiki_paper"/>
+		</conditions>
+	</question>
 	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2/Question_3">
 		<uri_prefix>http://example.com/terms</uri_prefix>
 		<key>Question_3</key>
@@ -1348,7 +1603,7 @@
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>2</order>
+		<order>3</order>
 		<help lang="en">Specify the name of the previously documented and relevant process step.</help>
 		<text lang="en">Process Step in which Method is used.</text>
 		<default_text lang="en"/>
@@ -1465,14 +1720,14 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
-		<help lang="en">Ideally a swmath ID (www.zbmath.org/software). If not available a wikidata ID or a publication record (doi).</help>
-		<text lang="en">Provide a Software ID</text>
-		<default_text lang="en"/>
+		<help lang="en">Use mardi:QID or wikidata:QID. If no QID exists provide an swmath ID (swmath:) or DOI (doi:) which will be used to create a new entity in the MaRDI knowledge graph describing the software.</help>
+		<text lang="en">Provide an ID for the Software</text>
+		<default_text lang="en">mardi:</default_text>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Idealerweise eine swmath ID (www.zbmath.org/software). Falls nicht verfügbar eine wikidata ID oder ein Publikationseintrag (doi).</help>
-		<text lang="de">Geben Sie eine Software ID an</text>
-		<default_text lang="de"/>
+		<help lang="de">Nutzen Sie eine mardi:QID oder wikidata:QID. Falls keine QID existiert, geben Sie bitte eine swmath ID (swmath:) oder DOI (doi:) an mit der ein neues Item im MaRDI Knowledge Graphen zur Beschreibung der Software erzeugt werden kann.</help>
+		<text lang="de">Geben Sie eine ID für die Software an.</text>
+		<default_text lang="de">mardi:</default_text>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
@@ -1497,12 +1752,12 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>1</order>
-		<help lang="en">Without version number</help>
+		<help lang="en">Without version number. Will be used as label for MaRDI knowledge graph item if not yet present in MaRDI knowledge graph or wikidata.</help>
 		<text lang="en">Name of the Software</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Ohne Versionsnummer</help>
+		<help lang="de">Ohne Versionsnummer. Wird als Label für das MaRDI Knowledge Graph Item verwendet, sofern noch nicht im MaRDI Knowledge Graph oder in Wikidata vorhanden.</help>
 		<text lang="de">Name der Software</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -1529,12 +1784,12 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>2</order>
-		<help lang="en">Short, concise and workflow relevant.</help>
+		<help lang="en">Short and concise. Will be used as description for MaRDI knowledge graph item if not yet present in MaRDI knowledge graph or wikidata.</help>
 		<text lang="en">Description of the Software</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Kurz, prägnant und Workflow relevant.</help>
+		<help lang="de">Kurz und prägnant. Wird als Beschreibung für das MaRDI Knowledge Graph Item verwendet, sofern noch nicht im MaRDI Knowledge Graph oder in Wikidata vorhanden.</help>
 		<text lang="de">Beschreibung der Software</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -1590,15 +1845,15 @@
 		<dc:comment/>
 		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_5"/>
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3"/>
-		<is_collection>False</is_collection>
+		<is_collection>True</is_collection>
 		<is_optional>False</is_optional>
 		<order>4</order>
-		<help lang="en">Comma separated list if more than one.</help>
+		<help lang="en">Use mardi:QID or wikidata:QID. Format of the answer should be: Programming Language (mardi/wikidata:QID).</help>
 		<text lang="en">Programming Language of the Software</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Komma separierte Liste falls mehr als eine.</help>
+		<help lang="de">Nutzen Sie eine mardi:QID oder wikidata:QID. Format der Antwort sollte sein: Name der Programmiersprache (mardi/wikidata:QID).</help>
 		<text lang="de">Programmiersprache der Software</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -1781,12 +2036,12 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
-		<help lang="en">If available (e.g. www.wikidata.org), leave blank if not.</help>
+		<help lang="en">Use a mardi:QID or wikidata:QID. If no QID exists leave blank.</help>
 		<text lang="en">ID of the Hardware</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Sofern verfügbar (z. B. www.wikidata.org), leer lassen falls nicht.</help>
+		<help lang="de">Use a mardi:QID or wikidata:QID. Sofern keine QID vorhanden Feld freilassen.</help>
 		<text lang="de">ID der Hardware</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -1951,7 +2206,7 @@
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
-		<reidelbachdefault_option/>
+		<default_option/>
 		<default_external_id/>
 		<widget_type>text</widget_type>
 		<value_type>text</value_type>
@@ -1995,12 +2250,12 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
-		<help lang="en">If available (e.g. www.wikidata.org), leave blank if not.</help>
+		<help lang="en">Use a mardi:QID or wikidata:QID. If no QID exists leave blank.</help>
 		<text lang="en">ID of the experimental device or hardware</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Sofern verfügbar (z. B. www.wikidata.org), leer lassen falls nicht.</help>
+		<help lang="de">Nutzen Sie eine mardi:QID oder wikidata:QID. Sofern keine QID vorhanden Feld freilassen.</help>
 		<text lang="de">ID des experimentellen Geräts oder der Hardware</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -2060,7 +2315,7 @@
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en">Short, concise and workflow relevant.</help>
-		<text lang="en">Description of the experimental device or the hardware</text>
+		<text lang="en">Description of the experimental device or hardware</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
@@ -2092,7 +2347,7 @@
 		<is_optional>False</is_optional>
 		<order>3</order>
 		<help lang="en"/>
-		<text lang="en">Version of the experimental device or the hardware</text>
+		<text lang="en">Version of the experimental device or hardware</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
@@ -2124,13 +2379,12 @@
 		<is_optional>False</is_optional>
 		<order>4</order>
 		<help lang="en">If available, if not leave empty.</help>
-		<text lang="en">Part Number of the experimental device or the hardware</text>
+		<text lang="en">Part Number of the experimental device or hardware</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Sofern verfügbar, falls nicht frei lassen.</help>
-		<text lang="de">Teilenummer des experimentellen Geräts oder Hardware
-		</text>
+		<text lang="de">Teilenummer des experimentellen Geräts oder Hardware</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2272,14 +2526,14 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
-		<help lang="en">If available, a doi under which the dataset can be retrieved.</help>
+		<help lang="en">Use mardi:QID or wikidata:QID. If no QID exists provide a DOI (doi:) which will be used to create a new entity in the MaRDI knowledge graph describing the input data.</help>
 		<text lang="en">Provide an ID for your input data.</text>
-		<default_text lang="en"/>
+		<default_text lang="en">mardi:</default_text>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Sofern vorhanden eine doi unter der der Datensatz abgerufen werden kann.</help>
+		<help lang="de">Nutzen Sie eine mardi:QID oder wikidata:QID. Falls keine QID existiert, geben Sie bitte eine DOI (doi:) an mit der ein neues Item im MaRDI Knowledge Graphen zur Beschreibung der Eingabedaten erzeugt werden kann.</help>
 		<text lang="de">Geben Sie eine ID für ihre Eingabedaten an.</text>
-		<default_text lang="de"/>
+		<default_text lang="de">mardi:</default_text>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
@@ -2304,12 +2558,12 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>1</order>
-		<help lang="en">Short and concise</help>
+		<help lang="en">Short and concise. Will be used as label for MaRDI knowledge graph item if not yet present in MaRDI knowledge graph or wikidata.</help>
 		<text lang="en">Provide a name for your input data.</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Kurz und prägnant</help>
+		<help lang="de">Kurz und prägnant. Wird als Label für das MaRDI Knowledge Graph Item verwendet, sofern noch nicht im MaRDI Knowledge Graph oder in Wikidata vorhanden.</help>
 		<text lang="de">Geben Sie einem Namen für ihre Eingabedaten an.</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -2620,14 +2874,14 @@
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
-		<help lang="en">If available, a doi under which the dataset can be retrieved.</help>
+		<help lang="en">Use mardi:QID, wikidata:QID or DOI (doi:).</help>
 		<text lang="en">Provide an ID for your output data.</text>
-		<default_text lang="en"/>
+		<default_text lang="en">mardi:</default_text>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Sofern vorhanden eine doi unter der der Datensatz abgerufen werden kann.</help>
+		<help lang="de">Nutzen Sie eine mardi:QID, wikidata:QID oder DOI (doi:).</help>
 		<text lang="de">Geben Sie eine ID für ihre Ausgabedaten an.</text>
-		<default_text lang="de"/>
+		<default_text lang="de">mardi:</default_text>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>

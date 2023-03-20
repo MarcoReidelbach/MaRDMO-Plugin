@@ -1,6 +1,8 @@
+from .id import *
+
 # Raw Math Template
 
-math_temp='''# TEMPLATE_TITLE 
+math_temp=''' 
 
 PID (if applicable): http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_2
 
@@ -28,6 +30,10 @@ http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_2
 
 http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_1
 
+http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_2
+
+http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_4
+
 ### Discretization
 
 * Time: http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_2
@@ -37,7 +43,7 @@ http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_1
 
 MATH_TAB_1 
 
-## Process Informationen
+## Process Information
 
 ### Process Steps
 
@@ -89,7 +95,7 @@ http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_5
 
 http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_6
 
-# Legend
+## Legend
 
 The following abbreviations are used in the document to indicate/resolve IDs:
 
@@ -97,11 +103,13 @@ doi: DOI / https://dx.doi.org/
 
 sw: swMATH / https://swmath.org/software/
 
-wikidata: https://www.wikidata.org/wiki/'''
+wikidata: https://www.wikidata.org/wiki/
+
+mardi: https://portal.mardi4nfdi.de/wiki/Item:'''
 
 # Raw Exp Template
 
-exp_temp='''# TEMPLATE_TITLE
+exp_temp='''
 
 PID (if applicable): http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_2
 
@@ -129,6 +137,10 @@ http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_2
 
 http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_1
 
+http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_2
+
+http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_4
+
 ### Discretization
 (if applicable)
 
@@ -143,7 +155,7 @@ EXP_TAB_1
 
 EXP_TAB_2
 
-## Process Informationen
+## Process Information
 
 ### Process Steps
 
@@ -184,7 +196,7 @@ http://example.com/terms/domain/MaRDI/Section_5/Set_2/Question_2
 
 http://example.com/terms/domain/MaRDI/Section_5/Set_2/Question_3
 
-# Legend
+## Legend
 
 The following abbreviations are used in the document to indicate/resolve IDs:
 
@@ -192,7 +204,9 @@ doi: DOI / https://dx.doi.org/
 
 sw: swMATH / https://swmath.org/software/
 
-wikidata: https://www.wikidata.org/wiki/'''
+wikidata: https://www.wikidata.org/wiki/
+
+mardi: https://portal.mardi4nfdi.de/wiki/Item:'''
 
 # Stuff to generate Tables for Math Template
 
@@ -272,11 +286,46 @@ dec=[[['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_1', 'Work
      [['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_1', 'Workflow Finding'],['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_1', 'Workflow Findung']],
      [['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_1', 'Markdown File'],['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_1', 'MaRDI Portal']],
      [['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Research Objective'],['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Forschungsziel']],
-     [['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Methods'],['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Methoden']],
+     [['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Model, Methods, Software and Input Data'],['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Model, Methoden, Software und Eingabedaten']],
      [['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Input Data'],['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Eingabedaten']],
      [['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Mathematical Workflow'],['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Mathematischer Workflow']],
      [['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Experimental Workflow'],['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Experimenteller Workflow']],
-     [['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_2', 'No'],['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_2','Nein']]]
+     [['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_2', 'No'],['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_2','Nein']],
+     [['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Field of Research'],['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Forschungsfeld']]]
+
+# Stuff for Wikibase Export
+
+w_no=['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_1',
+      'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_1',
+      'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_1']
+
+paper_doi=['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_2']
+
+ws2=['http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_1',
+     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_1',
+     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_2',
+     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_3',
+     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_4']
+
+ws3=['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_1',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_2',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_2',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_3',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_4']
+
+ws4=['http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_1',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_2',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_3',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_5']
+
+ws5=['http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_1']
+
+ws6=['http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_1']
+
+ws7=['http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_0',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_1']
+
+ws8='http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_1'
 
 # Stuff to preview Documentation as HTML
 
@@ -319,5 +368,149 @@ html_front="""
 html_end="""
 </body>
 </html>"""
+
+# Stuff for SPARQL Query
+
+query_base="""SELECT DISTINCT ?label
+WHERE {
+ITEMFINDER
+STATEMENT
+FILTER
+}
+LIMIT 10"""
+
+statement_obj="""?t p:P"""+instance_of+""" ?s.
+?t rdfs:label ?label.
+?t schema:description ?quote.
+"""
+
+statement_mms="""?y rdfs:label ?label."""
+
+doi_query="""SELECT ?qid
+WHERE {
+?publication wdt:P"""+DOI+""" "DOI".
+BIND(STRAFTER(STR(?publication),STR(wd:)) AS ?qid)
+}
+LIMIT 1"""
+
+doi_query_wikidata="""SELECT ?qid ?label ?quote
+WHERE {
+?publication wdt:P356 "DOI";
+             rdfs:label ?label;
+             schema:description ?quote.
+BIND(STRAFTER(STR(?publication),STR(wd:)) AS ?qid)
+FILTER (lang(?label) = 'en')
+FILTER (lang(?quote) = 'en')
+}
+LIMIT 1"""
+
+author_query="""SELECT ?qid 
+WHERE {
+?author wdt:P"""+ORCID_iD+""" "ORCID".
+BIND(STRAFTER(STR(?author),STR(wd:)) AS ?qid)
+}
+LIMIT 1"""
+
+author_query_wikidata="""SELECT ?qid ?label ?quote 
+WHERE {
+?author wdt:P496 "ORCID";
+        rdfs:label ?label;
+        schema:description ?quote.
+BIND(STRAFTER(STR(?author),STR(wd:)) AS ?qid)
+FILTER (lang(?label) = 'en')
+FILTER (lang(?quote) = 'en')
+}
+LIMIT 1"""
+
+journal_query="""SELECT ?qid
+WHERE {
+?journal rdfs:label ?label.
+FILTER (lcase(str(?label)) = "JOURNAL")
+BIND(STRAFTER(STR(?journal),STR(wd:)) AS ?qid)
+}
+LIMIT 1"""
+
+journal_query_wikidata="""SELECT ?qid ?label ?quote
+WHERE {
+?journal wdt:P31 wd:Q5633421;
+         rdfs:label ?label;
+         schema:description ?quote.
+FILTER (lcase(str(?label)) = "JOURNAL")
+FILTER (lang(?quote) = 'en')
+BIND(STRAFTER(STR(?journal),STR(wd:)) AS ?qid)
+}
+LIMIT 1"""
+
+model_query="""SELECT ?label ?quote 
+WHERE {
+MODEL rdfs:label ?label;
+      schema:description ?quote.
+FILTER (lang(?label) = 'en')
+FILTER (lang(?quote) = 'en')
+}
+LIMIT 1"""
+
+method_query="""SELECT ?label ?quote
+WHERE {
+METHOD rdfs:label ?label;
+      schema:description ?quote.
+FILTER (lang(?label) = 'en')
+FILTER (lang(?quote) = 'en')
+}
+LIMIT 1"""
+
+software_query="""SELECT ?label ?quote
+WHERE {
+SOFTWARE rdfs:label ?label;
+      schema:description ?quote.
+FILTER (lang(?label) = 'en')
+FILTER (lang(?quote) = 'en')
+}
+LIMIT 1"""
+
+input_query="""SELECT ?label ?quote
+WHERE {
+INPUT rdfs:label ?label;
+      schema:description ?quote.
+FILTER (lang(?label) = 'en')
+FILTER (lang(?quote) = 'en')
+}
+LIMIT 1"""
+
+discipline_query="""SELECT ?label ?quote  
+WHERE 
+{
+DISCIPLINE rdfs:label ?label;
+        schema:description ?quote.
+FILTER (lang(?label) = 'en')
+FILTER (lang(?quote) = 'en')
+}"""
+
+language_query="""SELECT ?label ?quote  
+WHERE 
+{
+LANGUAGE rdfs:label ?label;
+        schema:description ?quote.
+FILTER (lang(?label) = 'en')
+FILTER (lang(?quote) = 'en')
+}"""
+
+main_subject_query="""SELECT ?label ?quote  
+WHERE 
+{
+MAIN SUBJECT rdfs:label ?label;
+        schema:description ?quote.
+FILTER (lang(?label) = 'en')
+FILTER (lang(?quote) = 'en')
+}"""
+
+check_query="""SELECT ?item ?qid 
+WHERE 
+{
+?item rdfs:label "LABEL"@en;
+      schema:description "DESCRIPTION"@en.
+BIND(STRAFTER(STR(?item),STR(wd:)) AS ?qid)
+}"""
+
 
 
