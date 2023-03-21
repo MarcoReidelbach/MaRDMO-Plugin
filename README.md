@@ -44,25 +44,37 @@ So far, there is no connection to the *real* MaRDI Portal / Knowledge Graph. To 
 
 To install RDMO check if you meet their [prerequisites](https://rdmo.readthedocs.io/en/latest/installation/prerequisites.html). If so, obtain the app directory by cloning the corresponding repository:
 
-`git clone https://github.com/rdmorganiser/rdmo-app`
+```bash
+git clone https://github.com/rdmorganiser/rdmo-app
+```
 
 Likewise clone the MaRDMO directory:
 
-`cd rdmo-app`
+```bash
+cd rdmo-app
+```
 
-`git clone https://github.com/MarcoReidelbach/MaRDMO.git`
+```bash
+git clone https://github.com/MarcoReidelbach/MaRDMO.git
+```
 
 Once cloned, setup a virtual conda environment:
 
-`conda env create -f MaRDMO/environment.yml`
+```bash
+conda env create -f MaRDMO/environment.yml
+```
 
 Thereby, a virtual environment "MaRDMO" is created in which the RDMO package and further packages, e.g. `PyPandoc`, `WikibaseIntegrator`, and `SPARQLWrapper`, for the Export/Query Plugin are installed.  
 
 Setup the RDMO application:
 
-`conda activate MaRDMO`
+```bash
+conda activate MaRDMO
+```
 
-`cp config/settings/sample.local.py config/settings/local.py`
+```bash
+cp config/settings/sample.local.py config/settings/local.py
+```
 
 ```python
 python manage.py migrate                
@@ -89,7 +101,9 @@ Thereby, the Export/Query Plugin is installed and a "MaRDI Export/Query" Button 
 
 Now, run your application and log in via your browser:
 
-`python manage.py runserver`
+```bash
+python manage.py runserver
+```
 
 To actually use RDMO, a questionnaire (or more than one) needs to be added. To do this, click on "Management", choose "Domain" and import `domains.xml` from `MaRDMO/catalog`. Do the same for `options.xml`, `conditions.xml` and `questions.xml` by choosing "Options", "Conditions" and "Questions", respectively. Ensure, that `questions.xml` is added last.
 
@@ -114,43 +128,43 @@ Choose "Answer Questions" to start the interview. With the first question the Op
 
 ## Questionnaire
 
-Operation Modus:
+**Operation Modus**
 
 0.0 Do you want to document or find a workflow?
 
-Workflow Finding:
+**Workflow Finding**
 
 1.0 Please choose to search existing workflow documentation by research objective, used mathematical model, methods and software, field of research, or input data. <br>
 1.1 Please state what to search. 
 
-Workflow Documentation:
+**Workflow Documentation**
 
-Documentation
+**Documentation**
 
 2.0 Do you want to save your workflow documentation locally or export it to the MaRDI portal? <br>
 2.1 Get an HTML preview before exporting to the MaRDI portal to correct errors?
 
-General
+**General**
 
-Publication and Problem Statement
+**Publication and Problem Statement**
 
 3.0.0 Name the Problem of the underlying Workflow. <br>
 3.0.1 Is your workflow experimental or theoretical? <br>
 3.0.2 Has the workflow been published?
 
-Research Objective and Procedure
+**Research Objective and Procedure**
 
 3.1.0 Name the research object of the underlying workflow. <br>
 3.1.1 Describe the procedure of your workflow.
 
-Involved Disciplines and Data Streams
+**Involved Disciplines and Data Streams**
 
 3.2.0 Which disciplines can your workflow be assigned to? <br>
 3.2.1 Data streams between the disciplines 
 
-Model, Variables and Parameter
+**Model, Variables and Parameter**
 
-Model
+**Model**
 
 4.0.0 Is the mathematical model already deposited in MaRDI Knowledge Graph or wikidata? <br>
 4.0.1 Provide the name of the mathematical model. <br>
@@ -158,27 +172,27 @@ Model
 4.0.3 Please state the main subject of the mathematical model. <br>
 4.0.4 State the defining mathematical formulas of the method.
 
-Discretization
+**Discretization**
 
 4.1.0 Is time discretized? <br>
 4.1.1 Is space discretized?
 
-Involved Variables
+**Involved Variables**
 
 4.2.0 Name of the Variable <br>
 4.2.1 Unit of the Variable <br>
 4.2.2 Symbol of the Variable <br>
 4.2.3 Is the variable dependent or independent? (*Experimental Workflow only*)
 
-Involved Parameters: (*Experimental Workflow only*)
+**Involved Parameters** (*Experimental Workflow only*)
 
 4.3.0 Name of the Paramter <br>
 4.3.1 Unit of the Parameter <br>
 4.3.2 Symbol of the Parameter
 
-Process Information
+**Process Information**
 
-Describe the individual process steps of your workflow.
+**Describe the individual process steps of your workflow**
 
 5.0.0 Name of the Process Step <br>
 5.0.1 Description of the Process Step <br> 
@@ -189,7 +203,7 @@ Describe the individual process steps of your workflow.
 5.0.6 Environment of the Process Step <br>
 5.0.7 Mathematical Area of the Process Step 
 
-Describe the methods applied in your Workflow.
+**Describe the methods applied in your Workflow**
 
 5.1.0 Provide an ID for the Method. <br>
 5.1.1 Name of the Method <br>
@@ -200,7 +214,7 @@ Describe the methods applied in your Workflow.
 5.1.6 Parameter of the Method <br>
 5.1.7 Method realized or implemented by
 
-Describe the Software used in your Workflow
+**Describe the Software used in your Workflow**
 
 5.2.0 Provide a Software ID <br>
 5.2.1 Name of the Software <br>
@@ -212,7 +226,7 @@ Describe the Software used in your Workflow
 5.2.7 Is the sofware published? <br>
 5.2.8 Is the software documented? 
 
-Describe the hardware used in the Workflow (*Mathematical Workflow only*)
+**Describe the hardware used in the Workflow** (*Mathematical Workflow only*)
 
 5.3.0 ID of the Hardware <br>
 5.3.1 Name of the Hardware <br>
@@ -221,7 +235,7 @@ Describe the hardware used in the Workflow (*Mathematical Workflow only*)
 5.3.4 Number of Nodes <br>
 5.3.5 Number of Cores <br>
 
-Describe the experimental Devices, Instruments and Computer Hardware used in your Workflow. (*Experimental Workflow only*)
+**Describe the experimental Devices, Instruments and Computer Hardware used in your Workflow** (*Experimental Workflow only*)
 
 5.4.0 ID of the experimental device or hardware <br>
 5.4.1 Name of the experimental device or hardware <br>
@@ -232,7 +246,7 @@ Describe the experimental Devices, Instruments and Computer Hardware used in you
 5.4.6 Location of the experimental device or hardware <br>
 5.4.7 Software of the experimental device or hardware 
 
-Input Data:
+**Input Data**
 
 5.5.0 Provide an ID for your input data.
 5.5.1 Provide a name for your input data. <br>
@@ -245,7 +259,7 @@ Input Data:
 5.5.8 Is it necessary to publish the input data? <br> 
 5.5.9 Is it necessary to archive the input data? 
 
-Output Data: 
+**Output Data** 
 
 5.6.0 Provide an ID for your output data. <br>
 5.6.1 Provide a name for your output data. <br>
@@ -258,9 +272,9 @@ Output Data:
 5.6.8 Is it necessary to publish the output data? <br> 
 5.6.9 Is it necessary to archive the output data? 
 
-Reproducibility
+**Reproducibility**
 
-Mathematical reproducibility and transferability? (*Mathematical Workflow only*)
+**Mathematical reproducibility and transferability?** (*Mathematical Workflow only*)
 
 6.0.0 Mathematical Reproducibility? <br>
 6.0.1 Runtime reproducibility? <br>
@@ -269,7 +283,7 @@ Mathematical reproducibility and transferability? (*Mathematical Workflow only*)
 6.0.4 Reproducibility on other hardware? <br>
 6.0.5 Transferability to 
 
-Reproducibility and Transferability of the Experiments: (*Experimental Workflow only*)
+**Reproducibility and Transferability of the Experiments** (*Experimental Workflow only*)
 
 6.1.0 Are the experiments reproducible on the original devices/instruments/hardware? <br>
 6.1.1 Are the experiments reproducible on other devices/instruments/hardware? <br>
