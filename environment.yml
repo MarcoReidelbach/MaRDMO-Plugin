@@ -135,4 +135,3 @@ dependencies:
       - uritemplate==4.1.1
       - urllib3==1.26.13
       - wikibaseintegrator==0.12.3
-prefix: /home/marco/anaconda3/envs/MaRDI_RDMO
