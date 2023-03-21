@@ -14,7 +14,7 @@ So far, there is no connection to the *real* MaRDI Portal / Knowledge Graph. To 
 
 ```bash
 . 
-├── catalog - Files necessary for RDMO Questionnaire 
+├── catalog - RDMO Questionnaire Files 
 │   ├── conditions.xml - individual conditions of RDMO Questionnaire 
 │   ├── domains.xml - individual domains of RDMO Questionnaire 
 │   ├── options.xml - individual options of RDMO Questionnaire 
@@ -22,7 +22,7 @@ So far, there is no connection to the *real* MaRDI Portal / Knowledge Graph. To 
 │ 
 ├── environment.yml - File to set up MaRDMO conda environment 
 │ 
-├── func - Files necessary for Export/Query Plugin 
+├── func - Export/Query Plugin Files
 │   ├─ citation.py - get citation from DOI and ORCID API 
 │   ├── config_empty.py - wikibase information 
 │   ├── export.py - Export/Query Function 
