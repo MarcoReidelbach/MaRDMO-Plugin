@@ -12,29 +12,29 @@ So far, there is no connection to the *real* MaRDI Portal / Knowledge Graph. To 
 
 ## Repository structure
 
-.
-├── catalog - Files necessary for RDMO Questionnaire
-│   ├── conditions.xml - individual conditions of RDMO Questionnaire
-│   ├── domains.xml - individual domains of RDMO Questionnaire
-│   ├── options.xml - individual options of RDMO Questionnaire
-│   └── questions.xml - individual questions for RDMO Questionnaire, connected to domains, options, and conditions 
-│
-├── environment.yml - File to set up MaRDMO conda environment
-│
-├── func - Files necessary for Export/Query Plugin
-│   ├─ citation.py - get citation from DOI and ORCID API
-│   ├── config_empty.py - wikibase information
-│   ├── export.py - Export/Query Function
-│   ├── id.py - wikibase item and property ids
-│   └── para.py - Export/Query parameters
-│
-├── LICENSE.md
-│
-├── README.md
-│
-└── templates - Files to render 
-    ├── errors.html
-    └── export.html
+. <br>
+├── catalog - Files necessary for RDMO Questionnaire <br>
+│   ├── conditions.xml - individual conditions of RDMO Questionnaire <br>
+│   ├── domains.xml - individual domains of RDMO Questionnaire <br>
+│   ├── options.xml - individual options of RDMO Questionnaire <br>
+│   └── questions.xml - individual questions for RDMO Questionnaire, connected to domains, options, and conditions <br> 
+│ <br>
+├── environment.yml - File to set up MaRDMO conda environment <br>
+│ <br>
+├── func - Files necessary for Export/Query Plugin <br>
+│   ├─ citation.py - get citation from DOI and ORCID API <br>
+│   ├── config_empty.py - wikibase information <br>
+│   ├── export.py - Export/Query Function <br>
+│   ├── id.py - wikibase item and property ids <br>
+│   └── para.py - Export/Query parameters <br>
+│ <br>
+├── LICENSE.md <br>
+│ <br>
+├── README.md <br>
+│ <br>
+└── templates - Files to render <br>
+    ├── errors.html <br>
+    └── export.html 
 
   
 ## Installation
