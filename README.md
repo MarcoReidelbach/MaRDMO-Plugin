@@ -12,30 +12,31 @@ So far, there is no connection to the *real* MaRDI Portal / Knowledge Graph. To 
 
 ## Repository structure
 
-. <br>
-├── catalog - Files necessary for RDMO Questionnaire <br>
-│   ├── conditions.xml - individual conditions of RDMO Questionnaire <br>
-│   ├── domains.xml - individual domains of RDMO Questionnaire <br>
-│   ├── options.xml - individual options of RDMO Questionnaire <br>
-│   └── questions.xml - individual questions for RDMO Questionnaire, connected to domains, options, and conditions <br> 
-│ <br>
-├── environment.yml - File to set up MaRDMO conda environment <br>
-│ <br>
-├── func - Files necessary for Export/Query Plugin <br>
-│   ├─ citation.py - get citation from DOI and ORCID API <br>
-│   ├── config_empty.py - wikibase information <br>
-│   ├── export.py - Export/Query Function <br>
-│   ├── id.py - wikibase item and property ids <br>
-│   └── para.py - Export/Query parameters <br>
-│ <br>
-├── LICENSE.md <br>
-│ <br>
-├── README.md <br>
-│ <br>
-└── templates - Files to render <br>
-    ├── errors.html <br>
+```bash
+. 
+├── catalog - Files necessary for RDMO Questionnaire 
+│   ├── conditions.xml - individual conditions of RDMO Questionnaire 
+│   ├── domains.xml - individual domains of RDMO Questionnaire 
+│   ├── options.xml - individual options of RDMO Questionnaire 
+│   └── questions.xml - individual questions for RDMO Questionnaire 
+│ 
+├── environment.yml - File to set up MaRDMO conda environment 
+│ 
+├── func - Files necessary for Export/Query Plugin 
+│   ├─ citation.py - get citation from DOI and ORCID API 
+│   ├── config_empty.py - wikibase information 
+│   ├── export.py - Export/Query Function 
+│   ├── id.py - wikibase item and property ids 
+│   └── para.py - Export/Query parameters
+│ 
+├── LICENSE.md
+│ 
+├── README.md 
+│ 
+└── templates - Files to render
+    ├── errors.html 
     └── export.html 
-
+```
   
 ## Installation
 
@@ -63,9 +64,11 @@ Setup the RDMO application:
 
 `cp config/settings/sample.local.py config/settings/local.py`
 
-`python manage.py migrate`                
-`python manage.py setup_groups`           
-`python manage.py createsuperuser`
+```python
+python manage.py migrate                
+python manage.py setup_groups           
+python manage.py createsuperuser
+```
 
 Your RDMO instance is now ready. To install the Export/Query Plugin add the following lines to `config/settings/local.py` and set **Debug = True**:
 
