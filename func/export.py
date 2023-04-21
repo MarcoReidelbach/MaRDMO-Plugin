@@ -9,6 +9,7 @@ from .para import *
 from .config import *
 from .citation import *
 from .id import *
+from .sparql import *
 import requests
 
 import pypandoc
@@ -20,6 +21,8 @@ from wikibaseintegrator.wbi_enums import ActionIfExists
 from wikibaseintegrator.wbi_config import config as wbi_config
 
 from SPARQLWrapper import SPARQLWrapper, JSON
+
+import time
 
 class MaRDIExport(Export):
 
@@ -69,16 +72,20 @@ class MaRDIExport(Export):
             # Export to MaRDI Portal
             elif dec[2][1] in data and (dec[8][0] in data or dec[8][1] in data):
                 # Export Workflow Documentation to mediawiki portal 
-                self.wikipage_export(self.project.title,re.sub('{\|','{| class="wikitable"',pypandoc.convert_text(temp,'mediawiki',format='md')))
+                #self.wikipage_export(self.project.title,re.sub('{\|','{| class="wikitable"',pypandoc.convert_text(temp,'mediawiki',format='md')))
              
                 # Integrate related paper in wikibase
                 paper=self.wikibase_answers(data,paper_doi)
                 if paper[0]!= 'No':
                     #Check if Paper already on MaRDI Portal
                     mardi_paper_qid=self.get_results(mardi_endpoint,re.sub('DOI',re.split(':',paper[0])[-1],doi_query))
+                    print('HHH')
+                    print(mardi_paper_qid)
                     if mardi_paper_qid:
                         #If on Portal store QID
+                        print(mardi_paper_qid)
                         paper_qid=mardi_paper_qid[0]["qid"]["value"]
+                        print(paper_qid)
                     else:
                         #If not on Portal, check if Paper on wikidata
                         wikidata_paper_entry=self.get_results(wikidata_endpoint,re.sub('DOI',re.split(':',paper[0])[-1],doi_query_wikidata))
@@ -157,7 +164,7 @@ class MaRDIExport(Export):
                                     #If QID does not exists, return error
                                     return render(self.request,'error17.html')
                             elif main_subject_id[0] == 'wikidata':
-                                wikidata_main_subject_entry=self.get_results(wikidata_endpoint,re.sub('MAIN SUBJECT','wd:'+main_subject_id[-1],main_subject_query))
+                                wikidata_main_subject_entry=self.get_results(wikidata_endpoint,re.sub('MAIN SUBJECT','wd:'+main_subject_id[-1],main_subject_query_wikidata))
                                 if wikidata_main_subject_entry:
                                     #Check if Entity with same label and descrition exists on MaRDI Portal
                                     main_subject_entry_check=self.entry_check(wikidata_main_subject_entry[0]["label"]["value"],wikidata_main_subject_entry[0]["quote"]["value"])
@@ -187,7 +194,7 @@ class MaRDIExport(Export):
                             return render(self.request,'error10.html')
                     elif model_id[0] == 'wikidata':
                         #Check if wikidata qid exists
-                        wikidata_model_entry=self.get_results(wikidata_endpoint,re.sub('MODEL','wd:'+model_id[1],model_query))
+                        wikidata_model_entry=self.get_results(wikidata_endpoint,re.sub('MODEL','wd:'+model_id[1],model_query_wikidata))
                         if wikidata_model_entry: 
                             #If on wikidata, generate dummy entry in portal and store QID
                             model_entry_check=self.entry_check(wikidata_model_entry[0]["label"]["value"],wikidata_model_entry[0]["quote"]["value"])
@@ -207,6 +214,7 @@ class MaRDIExport(Export):
 
                 # Integrate related methods in wikibase 
                 methods=self.wikibase_answers(data,ws3)
+                print(methods)
                 methods_qid=[]
                 no_methods=len(methods)//5
                 for i in range(no_methods):
@@ -223,7 +231,7 @@ class MaRDIExport(Export):
                                 return render(self.request,'error12.html')
                         elif method_id[0] == 'wikidata':
                             #Check if wikidata qid exists
-                            wikidata_method_entry=self.get_results(wikidata_endpoint,re.sub('METHOD','wd:'+method_id[-1],method_query))
+                            wikidata_method_entry=self.get_results(wikidata_endpoint,re.sub('METHOD','wd:'+method_id[-1],method_query_wikidata))
                             if wikidata_method_entry:
                                 #Check if on MaRDI Portal
                                 method_entry_check=self.entry_check(wikidata_method_entry[0]["label"]["value"],wikidata_method_entry[0]["quote"]["value"])
@@ -246,6 +254,7 @@ class MaRDIExport(Export):
                             #Create new Method Entity
                             #Get main subject of method
                             main_subject_id=methods[i::no_methods][3].split(':')
+                            print(main_subject_id)
                             if re.match(r"Q[0-9*]",main_subject_id[-1]):
                                 if main_subject_id[0] == 'mardi':
                                     #Check if mardi qid exists
@@ -257,7 +266,7 @@ class MaRDIExport(Export):
                                         #If QID does not exists, return error
                                         return render(self.request,'error18.html')
                                 elif main_subject_id[0] == 'wikidata':
-                                    wikidata_main_subject_entry=self.get_results(wikidata_endpoint,re.sub('MAIN SUBJECT','wd:'+main_subject_id[-1],main_subject_query))
+                                    wikidata_main_subject_entry=self.get_results(wikidata_endpoint,re.sub('MAIN SUBJECT','wd:'+main_subject_id[-1],main_subject_query_wikidata))
                                     if wikidata_main_subject_entry:
                                         #If on wikidata, generate dummy entry in portal and store QID
                                         if self.entry_check(wikidata_main_subject_entry[0]["label"]["value"],wikidata_main_subject_entry[0]["quote"]["value"]):
@@ -296,7 +305,7 @@ class MaRDIExport(Export):
                                 return render(self.request,'error13.html')
                         elif software_id[0] == 'wikidata':
                             #Check if wikidata qid exists
-                            wikidata_software_entry=self.get_results(wikidata_endpoint,re.sub('SOFTWARE','wd:'+software_id[-1],software_query))
+                            wikidata_software_entry=self.get_results(wikidata_endpoint,re.sub('SOFTWARE','wd:'+software_id[-1],software_query_wikidata))
                             if wikidata_software_entry:
                                 #If on wikidata, check if also on MaRDI Portal
                                 software_entry_check=self.entry_check(wikidata_software_entry[0]["label"]["value"],wikidata_software_entry[0]["quote"]["value"])
@@ -332,7 +341,7 @@ class MaRDIExport(Export):
                                             #If QID does not exists, return error
                                             return render(self.request,'error16.html')
                                     elif language_id[0] == 'wikidata':
-                                        wikidata_language_entry=self.get_results(wikidata_endpoint,re.sub('LANGUAGE','wd:'+language_id[-1],language_query))
+                                        wikidata_language_entry=self.get_results(wikidata_endpoint,re.sub('LANGUAGE','wd:'+language_id[-1],language_query_wikidata))
                                         if wikidata_language_entry:
                                             #Check if on MaRDI Portal
                                             language_entry_check=self.entry_check(wikidata_language_entry[0]["label"]["value"],wikidata_language_entry[0]["quote"]["value"])
@@ -374,7 +383,7 @@ class MaRDIExport(Export):
                                 return render(self.request,'error14.html')
                         elif input_id[0] == 'wikidata':
                             #Check if wikidata qid exists
-                            wikidata_input_entry=self.get_results(wikidata_endpoint,re.sub('INPUT','wd:'+input_id[-1],input_query))
+                            wikidata_input_entry=self.get_results(wikidata_endpoint,re.sub('INPUT','wd:'+input_id[-1],input_query_wikidata))
                             if wikidata_input_entry:
                                 #Check if on MaRDI Portal
                                 input_entry_check=self.entry_check(wikidata_input_entry[0]["label"]["value"],wikidata_input_entry[0]["quote"]["value"])
@@ -406,7 +415,6 @@ class MaRDIExport(Export):
                 wiki_disciplines=self.wikibase_answers(data,ws5)[0].split('; ')
                 disciplines_qid=[]
                 for discipline in wiki_disciplines:
-                    print(discipline)
                     discipline_id=re.search('\((.+?)\)',discipline).group(1).split(':')
                     if re.match(r"Q[0-9*]",discipline_id[-1]):
                         if discipline_id[0] == 'mardi':
@@ -419,8 +427,9 @@ class MaRDIExport(Export):
                                 #If QID does not exists, return error
                                 return render(self.request,'error15.html')
                         elif discipline_id[0] == 'wikidata':
-                            wikidata_discipline_entry=self.get_results(wikidata_endpoint,re.sub('DISCIPLINE','wd:'+discipline_id[-1],discipline_query))
+                            wikidata_discipline_entry=self.get_results(wikidata_endpoint,re.sub('DISCIPLINE','wd:'+discipline_id[-1],discipline_query_wikidata))
                             if wikidata_discipline_entry:
+                                print(wikidata_discipline_entry)
                                 #Check if on MaRDI Portal
                                 discipline_entry_check=self.entry_check(wikidata_discipline_entry[0]["label"]["value"],wikidata_discipline_entry[0]["quote"]["value"])
                                 if discipline_entry_check:
@@ -444,6 +453,7 @@ class MaRDIExport(Export):
                 if self.entry_check(self.project.title,wiki_res_obj):
                     #Check if Entity with same label and description is already on portal
                     return render(self.request,'error20.html')
+                print('CHECK')
                 self.workflow_entry(self.project.title, paper_qid, wiki_res_obj, disciplines_qid, model_qid, methods_qid, softwares_qid, inputs_qid) 
                 
                 return render(self.request,'export.html')
@@ -510,7 +520,7 @@ class MaRDIExport(Export):
 
             else:
                 return render(self.request,'error3.html')
-        
+            print(query) 
             results = self.get_results(mardi_endpoint, query)
         
             top="""<!DOCTYPE html>
@@ -631,15 +641,31 @@ class MaRDIExport(Export):
         CSRF_TOKEN = DATA['query']['tokens']['csrftoken']
 
         # Step 4: POST request to edit a page
-        PARAMS_3 = {
-            "action": "edit",
-            "title": title,
-            "token": CSRF_TOKEN,
-            "format": "json",
-            "appendtext": re.sub('<math display="block">','<math>',content)
-        }
 
-        R = S.post(URL, data=PARAMS_3) 
+
+        post_content=re.sub('<math display="block">','<math>',content)
+
+        for char in range(len(post_content)//2000+1):
+            # Step 4: POST request to edit a page
+            PARAMS_3 = {
+                "action": "edit",
+                "title": title,
+                "token": CSRF_TOKEN,
+                "format": "json",
+                "appendtext": post_content[2000*char:2000*(char+1)]
+            }
+            R = S.post(URL, data=PARAMS_3)
+            time.sleep(2)
+
+#        PARAMS_3 = {
+#            "action": "edit",
+#            "title": title,
+#            "token": CSRF_TOKEN,
+#            "format": "json",
+#            "appendtext": re.sub('<math display="block">','<math>',content)
+#        }
+#
+#       R = S.post(URL, data=PARAMS_3) 
 
         return
 
@@ -906,7 +932,14 @@ class MaRDIExport(Export):
     def workflow_entry(self, name, paper, res_obj, disciplines, model, methods, softwares, inputs):
         '''Takes all infos and creates workflow wikibase entry.'''
         wbi = self.wikibase_login()
-
+        print(name)
+        print(paper)
+        print(res_obj)
+        print(disciplines)
+        print(model)
+        print(methods)
+        print(softwares)
+        print(inputs)
         item = wbi.item.new()
         # Workflow  name as label, description as description
         item.labels.set(language='en', value=name)
@@ -938,11 +971,10 @@ class MaRDIExport(Export):
         return
 
     def get_results(self,endpoint_url, query):
-        user_agent = "MaRDMO v0.1 (https://github.com/MarcoReidelbach/MaRDI_RDMO; reidelbach@zib.de)"
-        sparql = SPARQLWrapper(endpoint_url,agent=user_agent)
-        sparql.setQuery(query)
-        sparql.setReturnFormat(JSON)
-        return sparql.query().convert()["results"]["bindings"]
+        '''Perform SPARQL Queries via Get requests'''
+        req=requests.get(endpoint_url, params = {'format': 'json', 'query': query}).json()
+        print(req)
+        return req["results"]["bindings"]
 
     def entry_check(self,label,description):
         '''Check if wikibase entry with certain label and description exists.'''

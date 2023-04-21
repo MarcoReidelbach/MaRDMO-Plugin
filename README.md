@@ -1,6 +1,6 @@
 # MaRDMO
 
-This repository contains a questionnaire and an Export/Query Plugin for the [Research Datamanagement Organizer](https://rdmorganiser.github.io/) developed within Task Area 4 "Interdisciplinary Mathematics" of the [Mathematical Research Data Initiative](https://www.mardi4nfdi.de/about/mission) (MaRDI). 
+This repository contains a questionnaire and an Export/Query Plugin for the [Research Datamanagement Organizer](https://rdmorganiser.github.io/) (RDMO) developed within Task Area 4 "Interdisciplinary Mathematics" of the [Mathematical Research Data Initiative](https://www.mardi4nfdi.de/about/mission) (MaRDI). 
 
 The questionnaire allows a standardized documentation of interdisciplinary workflows related to mathematics, where the connection to "real" experiments or theoretical approaches, like simulations, is possible and desired.
 
@@ -8,7 +8,7 @@ The Export/Query Plugin allows the user to export documented workflows into a st
 
 The functionality of the Export/Query Plugin is captured in the questionnaire, such that a single button controls everything. 
 
-So far, there is no connection to the *real* MaRDI Portal / Knowledge Graph. To test MaRDMO a local [instance of the MaRDI Portal](https://github.com/MaRDI4NFDI/portal-compose) or any other [wikibase](https://www.mediawiki.org/wiki/Wikibase/Installation) needs to be installed/uesd. 
+MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlying Knowledge Graph. To use MaRDMO with any other [wikibase](https://www.mediawiki.org/wiki/Wikibase/Installation) a script is provided to prepare the wikibase for MaRDMO. 
 
 ## Repository structure
 
@@ -23,11 +23,13 @@ So far, there is no connection to the *real* MaRDI Portal / Knowledge Graph. To 
 ├── environment.yml - File to set up MaRDMO conda environment 
 │ 
 ├── func - Export/Query Plugin Files
-│   ├─ citation.py - get citation from DOI and ORCID API 
+│   ├── citation.py - get citation from DOI and ORCID API 
 │   ├── config_empty.py - wikibase information 
 │   ├── export.py - Export/Query Function 
 │   ├── id.py - wikibase item and property ids 
-│   └── para.py - Export/Query parameters
+│   ├── para.py - Export/Query Parameters
+│   ├── sparql.py - SPARQL query selection
+│   └── setup.py - Setup File for other wikibases
 │ 
 ├── LICENSE.md
 │ 
@@ -64,7 +66,7 @@ Once cloned, setup a virtual conda environment:
 conda env create -f MaRDMO/environment.yml
 ```
 
-Thereby, a virtual environment "MaRDMO" is created in which the RDMO package and further packages, e.g. `PyPandoc`, `WikibaseIntegrator`, and `SPARQLWrapper`, for the Export/Query Plugin are installed.  
+Thereby, a virtual environment "MaRDMO" is created in which the RDMO package and further packages, e.g. `WikibaseIntegrator`, for the Export/Query Plugin are installed.  
 
 Setup the RDMO application:
 
@@ -99,7 +101,17 @@ PROJECT_EXPORTS += [
 
 Thereby, the Export/Query Plugin is installed and a "MaRDI Export/Query" Button is added in the Project View.
 
-Now, run your application and log in via your browser:
+To connect MaRDMO with the MaRDI portal do
+
+```bash
+mv MaRDMO/func/config_empty.py MaRDMO/func/config.py
+```
+
+and add the bot credeantials to the file. 
+
+If you want to use MaRDMO with a different wikibase adjust the URLs of the portal Wiki, API and SPARQL endpoint as well as the SPARQL prefixes in `MaRDMO/func/config.py`. As before, add the bot credentials.
+
+Now, run RDMO and log in via your browser:
 
 ```bash
 python manage.py runserver
@@ -107,18 +119,9 @@ python manage.py runserver
 
 To actually use RDMO, a questionnaire (or more than one) needs to be added. To do this, click on "Management", choose "Domain" and import `domains.xml` from `MaRDMO/catalog`. Do the same for `options.xml`, `conditions.xml` and `questions.xml` by choosing "Options", "Conditions" and "Questions", respectively. Ensure, that `questions.xml` is added last.
 
-### Wikibase Installation, Setup, and MaRDMO Coupling
-
-You may test MaRDMO with a local wikibase, e.g. a [local MaRDI Portal instance](https://github.com/MaRDI4NFDI/portal-compose) or any other [wikibase](https://www.mediawiki.org/wiki/Wikibase/Installation). Follow the individual installation guides. If you do not use the local MaRDI Portal instance make sure that all MaRDI requirements, e.g. [Math Extension](https://www.mediawiki.org/wiki/Extension:Math/de) are met.
-
-Once the local wikibase instance is set up, define a bot for creating and editing. Store the bot name (`lgname`) and bot password (`lgpassword`) in `MaRDMO/func/config_empty.py`. If you do not use the local MaRDI Portal instance adjust the URIs of the Wiki (`mardi_wiki`), the API (` mardi_api`), and the SPARQL endpoint (`mardi_endpoint`). Rename `config_empty.py` to `config.py`.
-
-To add workflows to the wikibase several Items and Properties need to be present in your wikibase instance. A complete list can be found in `MaRDMO/func/id.py`. Add the required Items and Properties to your wikibase and adjust `id.py` if your QIDs and PIDs differ. (Will be automated soon...)   
-
-
 ## Usage of RDMO and Export/Query Plugin
 
-Once you completed the installation, the MaRDMO Questionnaire can be used to document (loacal or wikibase) and query workflows. Therefore, select "Create New Project" in RDMO and choose a proper name for your project (this name will be used as wokflow name and label in the wikibase), assign the "MaRDI Workflow Documentation" catalog and click on "Create Project". Your project is now created. On the right hand side in the "Export" category you may notice the "MaRDI Export/Query" button.      
+Once you completed the installation, the MaRDMO Questionnaire can be used to document and query workflows. Therefore, select "Create New Project" in RDMO and choose a proper name for your project (this name will be used as wokflow name and label in the wikibase), assign the "MaRDI Workflow Documentation" catalog and click on "Create Project". Your project is now created. On the right hand side in the "Export" category you may notice the "MaRDI Export/Query" button.      
 
 Choose "Answer Questions" to start the interview. With the first question the Operation Modus of the Export/Query Plugin is determined:
 
