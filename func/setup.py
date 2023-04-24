@@ -49,7 +49,7 @@ properties = [['wikidata_pid','Wikidata PID','external-id'],['wikidata_qid','Wik
               ['author_name_string','author name string','string'],['language_of_work_or_name','language of work or name','wikibase-item'],['publication_date','publication date','time'],
               ['published_in','published in','wikibase-item'],['volume','volume','string'],['issue','issue','string'],['pages','page(s)','string'],['DOI','DOI','external-id'],
               ['main_subject','main subject','wikibase-item'],['defining_formula','defining formula','math'],['programmed_in','programmed in','wikibase-item'],
-              ['swMath_work_ID','swMath work ID','external-id'],['occupation','occupation','wikibase-item'],['ORCID_iD','ORCID iD','external-id']]
+              ['swMath_work_ID','swMath work ID','external-id'],['occupation','occupation','wikibase-item'],['ORCID_iD','ORCID iD','external-id'],['subclass_of','subclass of','wikibase-item']]
 
 
 query_item='''

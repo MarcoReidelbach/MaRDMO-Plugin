@@ -20,8 +20,6 @@ from wikibaseintegrator.datatypes import ExternalID, Item, String, Time, Monolin
 from wikibaseintegrator.wbi_enums import ActionIfExists
 from wikibaseintegrator.wbi_config import config as wbi_config
 
-from SPARQLWrapper import SPARQLWrapper, JSON
-
 import time
 
 class MaRDIExport(Export):
