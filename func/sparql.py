@@ -208,7 +208,7 @@ FILTER (lang(?label) = 'en')
 FILTER (lang(?quote) = 'en')
 }"""
 
-language_query="""
+plang_query="""
 PREFIX wdt: """+wdt+"""
 PREFIX wd: """+wd+"""
 
@@ -221,7 +221,7 @@ FILTER (lang(?label) = 'en')
 FILTER (lang(?quote) = 'en')
 }"""
 
-language_query_wikidata="""
+plang_query_wikidata="""
 SELECT ?label ?quote
 WHERE
 {
@@ -253,6 +253,33 @@ MAIN SUBJECT rdfs:label ?label;
 FILTER (lang(?label) = 'en')
 FILTER (lang(?quote) = 'en')
 }"""
+
+language_query="""
+PREFIX wdt: """+wdt+"""
+PREFIX wd: """+wd+"""
+
+SELECT ?qid
+WHERE {
+  ?language rdfs:label 'LANGUAGE'@en;
+            skos:altLabel 'LANG_SHORT'@en;
+  BIND(STRAFTER(STR(?language),STR(wd:)) AS ?qid)    
+  }
+LIMIT 1
+"""
+
+language_query_wikidata="""
+SELECT ?qid ?label ?quote
+WHERE {
+  ?language rdfs:label 'LANGUAGE'@en;
+            rdfs:label ?label;
+            schema:description ?quote;
+            skos:altLabel 'LANG_SHORT'@en.
+            FILTER (lang(?label) = 'en')
+            FILTER (lang(?quote) = 'en')
+  BIND(STRAFTER(STR(?language),STR(wd:)) AS ?qid)  
+  }
+LIMIT 1
+"""
 
 check_query="""
 PREFIX wdt: """+wdt+"""

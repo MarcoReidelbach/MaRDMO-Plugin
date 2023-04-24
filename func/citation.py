@@ -15,13 +15,14 @@ def GetCitation(doi):
     '''Function gets citation by DOI'''
     #Get Citation from DOI API as string
     citation=str(BibtexFromDoi(doi))
-
+    
     if 'DOI is incorrect' in citation:
         #Stop if Citation not found via DOI
         return render(self.request,'error6.html')
 
     #Citation as Dict
     citation_dict = bibtexparser.loads(citation).entries[0]
+
     #Remove Latex from Citation
     ln2t=LatexNodes2Text()
     for key in citation_dict:
@@ -89,7 +90,7 @@ def GetCitation(doi):
     author_with_orcid=[]
     author_with_orcid_plain=[]
 
-    if 'result' in orcid_paper:
+    if orcid_paper["result"]:
         for entry in orcid_paper["result"]:
             orcid_author = requests.get("https://pub.orcid.org/v3.0/"+entry["orcid-identifier"]["path"]+"/personal-details", headers={'Accept': 'application/json'}).json()
             author_with_orcid.append([orcid_author["name"]["given-names"]["value"]+' '+orcid_author["name"]["family-name"]["value"],entry["orcid-identifier"]["path"]])

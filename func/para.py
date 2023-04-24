@@ -241,7 +241,7 @@ math_ids=[['http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_1','h
            'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_6','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_7','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_8',
            'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_9']]
 
-# Stuff to generate Tables for Esp Template
+# Stuff to generate Tables for Exp Template
 
 exp_tables=['EXP_TAB_1','EXP_TAB_2','EXP_TAB_3','EXP_TAB_4','EXP_TAB_5','EXP_TAB_6','EXP_TAB_7','EXP_TAB_8']
 
@@ -327,6 +327,21 @@ ws7=['http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_0',
      'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_1']
 
 ws8='http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_1'
+
+# Language Dictionary
+
+lang_dict={'af':'Afrikaans','ar':'Arabic','bg':'Bulgarian','bn':'Bengali',
+           'ca':'Catalan','cs':'Czech','cy':'Welsh','da':'Danish','de':'German',
+           'el':'Greek','en':'English','es':'Spanish','et':'Estonian','fa':'Persian',
+           'fi':'Finnish','fr':'French','gu':'Gujarati','he':'Hebrew','hi':'Hindi',
+           'hr':'Croatian','hu':'Hungarian','id':'Indonesian','it':'Italian',
+           'ja':'Japanese','kn':'Kannada','ko':'Korean','lt':'Lithuanian','lv':'Latvian',
+           'mk':'Macedonian','ml':'Malayalam','mr':'Marathi','ne':'Nepali',
+           'nl':'Dutch','no':'Norwegian','pa':'Punjabi','pl':'Polish','pt':'Portuguese',
+           'ro':'Romanian','ru':'Russian','sk':'Slovak','sl':'Slovenian','so':'Somali',
+           'sq':'Albanian','sv':'Swedish','sw':'Swahili','ta':'Tamil','te':'Telugu',
+           'th':'Thai','tl':'Tagalog','tr':'Turkish','uk':'Ukrainian','ur':'Urdu',
+           'vi':'Vietnamese','zh-cn':'Putonghua','zh-tw':'Taiwanese Mandarin'}
 
 # Stuff to preview Documentation as HTML
 

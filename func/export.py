@@ -325,7 +325,7 @@ class MaRDIExport(Export):
                                 if re.match(r"Q[0-9*]",language_id[-1]):
                                     if language_id[0] == 'mardi':
                                         #Check if mardi qid exists
-                                        mardi_language_entry=self.get_results(mardi_endpoint,re.sub('LANGUAGE','wd:'+language_id[-1],language_query))
+                                        mardi_language_entry=self.get_results(mardi_endpoint,re.sub('LANGUAGE','wd:'+language_id[-1],plang_query))
                                         if mardi_language_entry:
                                             #If on Portal store QID
                                             languages_qid.append(language_id_id[-1])
@@ -333,7 +333,7 @@ class MaRDIExport(Export):
                                             #If QID does not exists, return error
                                             return render(self.request,'error16.html')
                                     elif language_id[0] == 'wikidata':
-                                        wikidata_language_entry=self.get_results(wikidata_endpoint,re.sub('LANGUAGE','wd:'+language_id[-1],language_query_wikidata))
+                                        wikidata_language_entry=self.get_results(wikidata_endpoint,re.sub('LANGUAGE','wd:'+language_id[-1],plang_query_wikidata))
                                         if wikidata_language_entry:
                                             #Check if on MaRDI Portal
                                             language_entry_check=self.entry_check(wikidata_language_entry[0]["label"]["value"],wikidata_language_entry[0]["quote"]["value"])
@@ -720,6 +720,24 @@ class MaRDIExport(Export):
 
         return qid
 
+    def language_entry(self,title):
+        '''Takes language name and generates entry.'''
+        wbi = self.wikibase_login()
+
+        item = wbi.item.new()
+        # Paper name as label, description is researcher
+        item.labels.set(language='en', value=title)
+        item.descriptions.set(language='en', value='language')
+
+        data=[]
+        data.append(Item(value=language, prop_nr=instance_of))
+
+        item.claims.add(data)
+        x=str(item.write())
+        qid=re.sub('\$',' ',re.search("Claim__id='(.*?)'",x).group(1)).split()[0]
+
+        return qid
+
     def journal_entry(self,title):
         '''Takes journal name and generates entry.'''
         wbi = self.wikibase_login()
@@ -773,8 +791,21 @@ class MaRDIExport(Export):
                 data.append(String(value=author, prop_nr=author_name_string))
 
         # language of work or name
-        if citdict['language'] == 'en':
-            data.append(Item(value=english, prop_nr=language_of_work_or_name))
+        if citdict['language']:
+            mardi_language_qid=self.get_results(mardi_endpoint,re.sub('LANGUAGE',lang_dict[citdict['language']],re.sub('LANG_SHORT',citdict['language'],language_query)))
+            if mardi_language_qid:
+                #If on Portal store QID
+                language_qid=mardi_language_qid[0]["qid"]["value"]
+            else:
+                #If not on Portal, check if language on Wikidata
+                wikidata_language_qid=self.get_results(wikidata_endpoint,re.sub('LANGUAGE',lang_dict[citdict['language']],re.sub('LANG_SHORT',citdict['language'],language_query_wikidata)))
+                if wikidata_language_qid:
+                    language_qid=self.mardi_dummy_entry(wikidata_language_qid[0]["label"]["value"],wikidata_language_qid[0]["quote"]["value"],wikidata_language_qid[0]["qid"]["value"])
+                else:
+                    #If not on Portal / Wikidata create language entry
+                    language_qid=self.language_entry(lang_dict[citdict['language']])
+
+            data.append(Item(value=language_qid, prop_nr=language_of_work_or_name))
 
         # publication date
         if citdict['pub_date']:

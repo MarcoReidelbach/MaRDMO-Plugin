@@ -24,7 +24,7 @@ def item_entry(ITEM):
     item = wbi.item.new()
     # Item name as label, description is 'MaRDMO Test Item'
     item.labels.set(language='en', value=ITEM)
-    item.descriptions.set(language='en', value='MaRDMO Test Item')
+    item.descriptions.set(language='en', value='MaRDMO Item')
     x=str(item.write())
     qid=re.search("_BaseEntity__id='(.*?)'",x).group(1)
     return qid
@@ -35,21 +35,22 @@ def property_entry(PROP):
     prop = wbi.property.new()
     # Item name as label, description is 'MaRDMO Test Property'
     prop.labels.set(language='en', value=PROP)
-    prop.descriptions.set(language='en', value='MaRDMO Test Property')
+    prop.descriptions.set(language='en', value='MaRDMO Property')
     prop.datatype = 'wikibase-item'
     x=str(prop.write())
     pid=re.search("_BaseEntity__id='(.*?)'",x).group(1)
     return pid
 
-items = [['scholarly_article','scholarly article'],['english','english'],['research_workflow','research workflow'],['mathematical_model','mathematical model'],['method','method'],
-         ['software','software'],['data_set','data set'],['human','human'],['researcher','researcher'],['scientific_journal','scientific journal'],['publication','publication']]
+items = [['scholarly_article','scholarly article'],['research_workflow','research workflow'],['mathematical_model','mathematical model'],['method','method'],
+         ['software','software'],['data_set','data set'],['human','human'],['researcher','researcher'],['scientific_journal','scientific journal'],['publication','publication'],
+         ['language','language']]
 
 properties = [['wikidata_pid','Wikidata PID','external-id'],['wikidata_qid','Wikidata QID','external-id'],['cites_work','cites work','wikibase-item'],['instance_of','instance of','wikibase-item'],
               ['field_of_work','field of work','wikibase-item'],['uses','uses','wikibase-item'],['title','title','monolingualtext'],['Author','author','wikibase-item'],
               ['author_name_string','author name string','string'],['language_of_work_or_name','language of work or name','wikibase-item'],['publication_date','publication date','time'],
               ['published_in','published in','wikibase-item'],['volume','volume','string'],['issue','issue','string'],['pages','page(s)','string'],['DOI','DOI','external-id'],
               ['main_subject','main subject','wikibase-item'],['defining_formula','defining formula','math'],['programmed_in','programmed in','wikibase-item'],
-              ['swMath_work_ID','swMath work ID','external-id'],['occupation','occupation','wikibase-item'],['ORCID_iD','ORCID iD','external-id'],['subclass_of','subclass of','wikibase-item']]
+              ['swMath_work_ID','swMath work ID','external-id'],['occupation','occupation','wikibase-item'],['ORCID_iD','ORCID iD','external-id']]
 
 
 query_item='''
