@@ -72,20 +72,16 @@ class MaRDIExport(Export):
             # Export to MaRDI Portal
             elif dec[2][1] in data and (dec[8][0] in data or dec[8][1] in data):
                 # Export Workflow Documentation to mediawiki portal 
-                #self.wikipage_export(self.project.title,re.sub('{\|','{| class="wikitable"',pypandoc.convert_text(temp,'mediawiki',format='md')))
+                self.wikipage_export(self.project.title,re.sub('{\|','{| class="wikitable"',pypandoc.convert_text(temp,'mediawiki',format='md')))
              
                 # Integrate related paper in wikibase
                 paper=self.wikibase_answers(data,paper_doi)
                 if paper[0]!= 'No':
                     #Check if Paper already on MaRDI Portal
                     mardi_paper_qid=self.get_results(mardi_endpoint,re.sub('DOI',re.split(':',paper[0])[-1],doi_query))
-                    print('HHH')
-                    print(mardi_paper_qid)
                     if mardi_paper_qid:
                         #If on Portal store QID
-                        print(mardi_paper_qid)
                         paper_qid=mardi_paper_qid[0]["qid"]["value"]
-                        print(paper_qid)
                     else:
                         #If not on Portal, check if Paper on wikidata
                         wikidata_paper_entry=self.get_results(wikidata_endpoint,re.sub('DOI',re.split(':',paper[0])[-1],doi_query_wikidata))
@@ -214,7 +210,6 @@ class MaRDIExport(Export):
 
                 # Integrate related methods in wikibase 
                 methods=self.wikibase_answers(data,ws3)
-                print(methods)
                 methods_qid=[]
                 no_methods=len(methods)//5
                 for i in range(no_methods):
@@ -254,7 +249,6 @@ class MaRDIExport(Export):
                             #Create new Method Entity
                             #Get main subject of method
                             main_subject_id=methods[i::no_methods][3].split(':')
-                            print(main_subject_id)
                             if re.match(r"Q[0-9*]",main_subject_id[-1]):
                                 if main_subject_id[0] == 'mardi':
                                     #Check if mardi qid exists
@@ -429,7 +423,6 @@ class MaRDIExport(Export):
                         elif discipline_id[0] == 'wikidata':
                             wikidata_discipline_entry=self.get_results(wikidata_endpoint,re.sub('DISCIPLINE','wd:'+discipline_id[-1],discipline_query_wikidata))
                             if wikidata_discipline_entry:
-                                print(wikidata_discipline_entry)
                                 #Check if on MaRDI Portal
                                 discipline_entry_check=self.entry_check(wikidata_discipline_entry[0]["label"]["value"],wikidata_discipline_entry[0]["quote"]["value"])
                                 if discipline_entry_check:
@@ -448,12 +441,11 @@ class MaRDIExport(Export):
 
                 #Get Research Objective 
                 wiki_res_obj=self.wikibase_answers(data,ws6)[0]
-                print(self.entry_check(self.project.title,wiki_res_obj))
                 #Insert Workflow in KG
                 if self.entry_check(self.project.title,wiki_res_obj):
                     #Check if Entity with same label and description is already on portal
                     return render(self.request,'error20.html')
-                print('CHECK')
+                
                 self.workflow_entry(self.project.title, paper_qid, wiki_res_obj, disciplines_qid, model_qid, methods_qid, softwares_qid, inputs_qid) 
                 
                 return render(self.request,'export.html')
@@ -520,7 +512,7 @@ class MaRDIExport(Export):
 
             else:
                 return render(self.request,'error3.html')
-            print(query) 
+         
             results = self.get_results(mardi_endpoint, query)
         
             top="""<!DOCTYPE html>
@@ -932,14 +924,6 @@ class MaRDIExport(Export):
     def workflow_entry(self, name, paper, res_obj, disciplines, model, methods, softwares, inputs):
         '''Takes all infos and creates workflow wikibase entry.'''
         wbi = self.wikibase_login()
-        print(name)
-        print(paper)
-        print(res_obj)
-        print(disciplines)
-        print(model)
-        print(methods)
-        print(softwares)
-        print(inputs)
         item = wbi.item.new()
         # Workflow  name as label, description as description
         item.labels.set(language='en', value=name)
@@ -973,7 +957,6 @@ class MaRDIExport(Export):
     def get_results(self,endpoint_url, query):
         '''Perform SPARQL Queries via Get requests'''
         req=requests.get(endpoint_url, params = {'format': 'json', 'query': query}).json()
-        print(req)
         return req["results"]["bindings"]
 
     def entry_check(self,label,description):
