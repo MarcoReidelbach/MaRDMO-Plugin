@@ -281,6 +281,31 @@ WHERE {
 LIMIT 1
 """
 
+title_query="""
+PREFIX wdt: """+wdt+"""
+PREFIX wd: """+wd+"""
+
+SELECT ?qid
+WHERE {
+  ?publication rdfs:label 'TITLE'@en.
+  BIND(STRAFTER(STR(?language),STR(wd:)) AS ?qid)    
+  }
+LIMIT 1
+"""
+
+title_query_wikidata="""
+SELECT ?qid ?label ?quote
+WHERE {
+  ?publication rdfs:label 'TITLE'@en;
+            rdfs:label ?label;
+            schema:description ?quote;
+            FILTER (lang(?label) = 'en')
+            FILTER (lang(?quote) = 'en')
+  BIND(STRAFTER(STR(?publication),STR(wd:)) AS ?qid)  
+  }
+LIMIT 1
+"""
+
 check_query="""
 PREFIX wdt: """+wdt+"""
 PREFIX wd: """+wd+"""

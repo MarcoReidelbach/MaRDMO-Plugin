@@ -58,6 +58,9 @@ def GetCitation(doi):
     if 'volume' not in citation_dict:
         citation_dict['volume']=''
 
+    if 'pages' not in citation_dict:
+        citation_dict['pages']=''
+
     if 'doi' not in citation_dict:
         citation_dict['doi']=''
 
@@ -65,12 +68,12 @@ def GetCitation(doi):
         citation_dict['ENTRY_TYPE']=''
 
     if 'month' not in citation_dict:
-        citation_dict['month']=''
+        citation_dict['month']='jan'
 
     if 'year' not in citation_dict:
         citation_dict['year']=''
 
-    if citation_dict['month'] and citation_dict['year']:
+    if citation_dict['year']:
         #Convert three letter month to number
         months = {'jan': '01','feb': '02','mar': '03','apr': '04','may': '05','jun': '06',
                   'jul': '07','aug': '08','sep': '09','oct': '10','nov': '11','dec': '12'}
@@ -81,6 +84,8 @@ def GetCitation(doi):
             if len(citation_dict['month']) == 1:
                 citation_dict['month']='0'+citation_dict['month']
         citation_dict['pub_date']=citation_dict['year']+'-'+citation_dict['month']+'-01'
+    else:
+        citation_dict['pub_date']=''
 
     citation_dict['language']=detect(citation_dict['title'])
 
