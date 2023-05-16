@@ -1,4 +1,4 @@
-name: MaRDI_RDMO
+name: MaRDMO
 channels:
   - anaconda
   - conda-forge
