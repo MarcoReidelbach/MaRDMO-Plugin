@@ -194,6 +194,9 @@ class MaRDIExport(Export):
                                                                                                    (MonolingualText,citation_dict['title'],title),(Time,citation_dict['pub_date']+'T00:00:00Z',publication_date),
                                                                                                    (String,citation_dict['volume'],volume),(String,citation_dict['number'],issue),(String,citation_dict['pages'],pages),
                                                                                                    (ExternalID,citation_dict['doi'],DOI)])  
+                else:
+                    paper_qid=[]
+
                 # Integrate related model in wikibase
                 model=self.wikibase_answers(data,ws2)
                 model_id=re.split(':',model[0])
@@ -691,7 +694,7 @@ class MaRDIExport(Export):
 
         post_content=re.sub('<math display="block">','<math>',content)
 
-        for char in range(len(post_content)//2000+1):
+        for char in range(len(post_content)//500+1):
             # Step 4: POST request to edit a page
             PARAMS_3 = {
                 "action": "edit",
