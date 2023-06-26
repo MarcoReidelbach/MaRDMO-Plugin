@@ -29,14 +29,14 @@ def item_entry(ITEM):
     qid=re.search("_BaseEntity__id='(.*?)'",x).group(1)
     return qid
 
-def property_entry(PROP):
+def property_entry(NAME,PROPTYPE):
     '''Generates Property for Testing'''
     wbi = wikibase_login()
     prop = wbi.property.new()
     # Item name as label, description is 'MaRDMO Test Property'
-    prop.labels.set(language='en', value=PROP)
+    prop.labels.set(language='en', value=NAME)
     prop.descriptions.set(language='en', value='MaRDMO Property')
-    prop.datatype = 'wikibase-item'
+    prop.datatype = PROPTYPE
     x=str(prop.write())
     pid=re.search("_BaseEntity__id='(.*?)'",x).group(1)
     return pid
@@ -89,7 +89,7 @@ for prop in properties:
     if pid:
         f.write(prop[0]+"='"+pid[0]["pid"]["value"][1:]+"'\n")
     else:
-        pid=property_entry(prop[1])
+        pid=property_entry(prop[1],prop[2])
         f.write(prop[0]+"='"+pid[1:]+"'\n")
 
 

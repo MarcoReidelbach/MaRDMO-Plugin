@@ -56,8 +56,8 @@
 		<dc:comment/>
 		<optionset dc:uri="http://example.com/terms/options/operation_modus"/>
 		<order>0</order>
-		<text lang="en">Workflow Finding</text>
-		<text lang="de">Workflow Findung</text>
+		<text lang="en">Workflow Search</text>
+		<text lang="de">Workflow Suche</text>
 		<additional_input>False</additional_input>
 	</option>
 	<optionset dc:uri="http://example.com/terms/options/publication_type">
@@ -116,8 +116,10 @@
 		<dc:comment/>
 		<optionset dc:uri="http://example.com/terms/options/search_topic"/>
 		<order>1</order>
-		<text lang="en">Model, Methods, Software and Input Data</text>
-		<text lang="de">Model, Methoden, Software und Eingabedaten</text>
+		<text lang="en">Model, Methods, Software and Input/Output Data</text>
+		<text lang="de">
+Model, Methoden, Software und Eingabe-/Ausgabedaten
+</text>
 		<additional_input>False</additional_input>
 	</option>
 	<option dc:uri="http://example.com/terms/options/search_topic/field_of_research">
@@ -129,6 +131,58 @@
 		<order>2</order>
 		<text lang="en">Field of Research</text>
 		<text lang="de">Forschungsfeld</text>
+		<additional_input>False</additional_input>
+	</option>
+	<optionset dc:uri="http://example.com/terms/options/size">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>size</key>
+		<dc:comment/>
+		<order>0</order>
+		<provider_key/>
+		<conditions/>
+	</optionset>
+	<option dc:uri="http://example.com/terms/options/size/KB">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>KB</key>
+		<path>size/KB</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/size"/>
+		<order>0</order>
+		<text lang="en">KB</text>
+		<text lang="de">KB</text>
+		<additional_input>False</additional_input>
+	</option>
+	<option dc:uri="http://example.com/terms/options/size/MB">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>MB</key>
+		<path>size/MB</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/size"/>
+		<order>1</order>
+		<text lang="en">MB</text>
+		<text lang="de">MB</text>
+		<additional_input>False</additional_input>
+	</option>
+	<option dc:uri="http://example.com/terms/options/size/GB">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>GB</key>
+		<path>size/GB</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/size"/>
+		<order>2</order>
+		<text lang="en">GB</text>
+		<text lang="de">GB</text>
+		<additional_input>False</additional_input>
+	</option>
+	<option dc:uri="http://example.com/terms/options/size/TB">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>TB</key>
+		<path>size/TB</path>
+		<dc:comment/>
+		<optionset dc:uri="http://example.com/terms/options/size"/>
+		<order>3</order>
+		<text lang="en">TB</text>
+		<text lang="de">TB</text>
 		<additional_input>False</additional_input>
 	</option>
 	<optionset dc:uri="http://example.com/terms/options/variable_type">
@@ -187,7 +241,7 @@
 		<dc:comment/>
 		<optionset dc:uri="http://example.com/terms/options/workflow_type"/>
 		<order>1</order>
-		<text lang="en">Mathematical Workflow</text>
+		<text lang="en">Theoretical Workflow</text>
 		<text lang="de">Mathematischer Workflow</text>
 		<additional_input>False</additional_input>
 	</option>

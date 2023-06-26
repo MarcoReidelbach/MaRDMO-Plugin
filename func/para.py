@@ -5,44 +5,48 @@ from .config import *
 
 math_temp=''' 
 
-PID (if applicable): http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_2
+PID (if applicable): http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_02
 
 ## Problem Statement
 
-http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_1
+http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_01
 
 ### Object of Research and Objective
 
-http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_1
+http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_01
 
 ### Procedure
 
-http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_2
+http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_02
 
 ### Involved Disciplines
 
-http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_1
+http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_01
 
 ### Data Streams
 
-http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_2
+http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_02
 
 ## Model
 
-http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_1
+ID: http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_01
 
-http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_2
+http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_01 
 
-http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_4
+http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_02
 
 ### Discretization
 
-* Time: http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_2
-* Space: http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_3
+* Time: http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_02
+* Space: http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_03
 
 ### Variables
 
-MATH_TAB_1 
+MATH_TAB_1
+
+### Parameters
+
+MATH_TAB_a1
 
 ## Process Information
 
@@ -74,27 +78,27 @@ MATH_TAB_7
 
 ### Mathematical Reproducibility 
 
-http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_1
+http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_01
 
 ### Runtime Reproducibility 
 
-http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_2
+http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_02
 
 ### Reproducibility of Results
 
-http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_3
+http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_03
 
 ### Reproducibility on original Hardware
 
-http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_4
+http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_04
 
 ### Reproducibility on other Hardware
 
-http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_5
+http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_05
 
 ### Transferability to
 
-http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_6
+http://example.com/terms/domain/MaRDI/Section_5/Set_1/Question_06
 
 ## Legend
 
@@ -106,47 +110,47 @@ sw: swMATH / https://swmath.org/software/
 
 wikidata: https://www.wikidata.org/wiki/
 
-mardi: https://portal.mardi4nfdi.de/wiki/Item:'''
+mardi: https://portal.mardi4nfdi.de/wiki/'''
 
 # Raw Exp Template
 
 exp_temp='''
 
-PID (if applicable): http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_2
+PID (if applicable): http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_02
 
 ## Problem Statement
 
-http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_1
+http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_01
 
 ### Object of Research and Objective
 
-http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_1
+http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_01
 
 ### Procedure
 
-http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_2
+http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_02
 
 ### Involved Disciplines
 
-http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_1
+http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_01
 
 ### Data Streams
 
-http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_2
+http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_02
 
 ## Model
 
-http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_1
+ID: http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_01
 
-http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_2
+http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_01
 
-http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_4
+http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_02
 
 ### Discretization
 (if applicable)
 
-* Time: http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_2
-* Space: http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_3
+* Time: http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_02
+* Space: http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_03
 
 ### Variables
 
@@ -187,15 +191,15 @@ EXP_TAB_8
 
 ### Reproducibility of the Experiments on the original Devices/Instruments/Hardware
 
-http://example.com/terms/domain/MaRDI/Section_5/Set_2/Question_1
+http://example.com/terms/domain/MaRDI/Section_5/Set_2/Question_01
 
 ### Reproducibility of the Experiments on other Devices/Instruments/Hardware
 
-http://example.com/terms/domain/MaRDI/Section_5/Set_2/Question_2
+http://example.com/terms/domain/MaRDI/Section_5/Set_2/Question_02
 
 ### Transferability of the  Experiments to
 
-http://example.com/terms/domain/MaRDI/Section_5/Set_2/Question_3
+http://example.com/terms/domain/MaRDI/Section_5/Set_2/Question_03
 
 ## Legend
 
@@ -207,13 +211,14 @@ sw: swMATH / https://swmath.org/software/
 
 wikidata: https://www.wikidata.org/wiki/
 
-mardi: https://portal.mardi4nfdi.de/wiki/Item:'''
+mardi: https://portal.mardi4nfdi.de/wiki/'''
 
 # Stuff to generate Tables for Math Template
 
-math_tables=['MATH_TAB_1','MATH_TAB_2','MATH_TAB_3','MATH_TAB_4','MATH_TAB_5','MATH_TAB_6','MATH_TAB_7']
+math_tables=['MATH_TAB_1','MATH_TAB_a1','MATH_TAB_2','MATH_TAB_3','MATH_TAB_4','MATH_TAB_5','MATH_TAB_6','MATH_TAB_7']
 
 math_topics=[['Name','Unit','Symbol'],
+             ['Name','Unit','Symbol'],
              ['Name','Description','Input','Output','Method','Parameter','Environment','Mathematical Area'],
              ['ID','Name','Process Step','Parameter','implemented by'],
              ['ID','Name','Description','Version','Programming Language','Dependencies','versioned','published','documented'],
@@ -221,25 +226,26 @@ math_topics=[['Name','Unit','Symbol'],
              ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive'],
              ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive']]
 
-math_ids=[['http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_1','http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_2','http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_3'],
-          ['http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_2','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_3',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_5','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_6',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_7','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_8'],
-          ['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_2','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_3',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_5'],
-          ['http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_2','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_3',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_5','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_6',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_7','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_8','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_9'],
-          ['http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_2','http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_3',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_5','http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_5'],
-          ['http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_0','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_2',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_3','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_5',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_6','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_7','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_8',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_9'],
-          ['http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_0','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_2',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_3','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_5',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_6','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_7','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_8',
-           'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_9']]
+math_ids=[['http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_01','http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_02','http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_03'],
+          ['http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_01','http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_02','http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_03'],
+          ['http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_02','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_03',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_05','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_06',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_07','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_08'],
+          ['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_02','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_03',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_05'],
+          ['http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_02','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_03',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_05','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_06',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_07','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_08','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_09'],
+          ['http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_02','http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_03',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_05','http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_05'],
+          ['http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_00','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_02',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_03','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_05',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_06','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_07','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_08',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_09'],
+          ['http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_00','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_02',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_03','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_05',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_06','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_07','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_08',
+           'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_09']]
 
 # Stuff to generate Tables for Exp Template
 
@@ -254,79 +260,83 @@ exp_topics=[['Name','Unit','Symbol','dependent (measured) / independent (control
             ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive'],
             ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive']]
 
-exp_ids=[['http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_1','http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_2','http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_3',
-          'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_4'],
-         ['http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_1','http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_2','http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_3'],
-         ['http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_2','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_3',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_5','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_6',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_7','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_8'],
-         ['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_2','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_3',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_5'],
-         ['http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_2','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_3',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_5','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_6',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_7','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_8','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_9'],
-         ['http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_2','http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_3',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_5','http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_6',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_7','http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_8'],
-         ['http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_0','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_2',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_3','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_5',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_6','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_7','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_8',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_9'],
-         ['http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_0','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_2',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_3','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_4','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_5',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_6','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_7','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_8',
-          'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_9']]
+exp_ids=[['http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_01','http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_02','http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_03', 'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_04'],
+         ['http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_01','http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_02','http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_03'],
+         ['http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_02','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_03',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_05','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_06',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_07','http://example.com/terms/domain/MaRDI/Section_4/Set_1/Question_08'],
+         ['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_02','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_03',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_05'],
+         ['http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_02','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_03',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_05','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_06',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_07','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_08','http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_09'],
+         ['http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_02','http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_03',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_05','http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_06',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_07','http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_08'],
+         ['http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_00','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_02',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_03','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_05',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_06','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_07','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_08',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_09'],
+         ['http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_00','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_02',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_03','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_04','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_05',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_06','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_07','http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_08',
+          'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_09']]
 
 # Stuff for KG export
 
-KG_export=['http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_1','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_2','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_1']
+KG_export=['http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_01','http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_02','http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01']
 
 # Stuff for Decisions
-
-dec=[[['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_1', 'Workflow Documentation'],['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_1', 'Workflow Dokumentation']],
-     [['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_1', 'Workflow Finding'],['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_1', 'Workflow Findung']],
-     [['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_1', 'Markdown File'],['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_1', 'MaRDI Portal']],
-     [['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Research Objective'],['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Forschungsziel']],
-     [['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Model, Methods, Software and Input Data'],['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Model, Methoden, Software und Eingabedaten']],
-     [['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Input Data'],['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Eingabedaten']],
-     [['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Mathematical Workflow'],['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Mathematischer Workflow']],
-     [['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Experimental Workflow'],['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_3', 'Experimenteller Workflow']],
-     [['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_2', 'No'],['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_2','Nein']],
-     [['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Field of Research'],['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_0', 'Forschungsfeld']]]
+dec=[['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_01', 'Workflow Documentation', 'Workflow Dokumentation'],
+     ['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_03', 'Theoretical Workflow', 'Theoretischer Workflow', 'Experimental Workflow', 'Experimenteller Workflow'],
+     ['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_01', 'Markdown File', 'MaRDI Portal'],
+     ['http://example.com/terms/domain/MaRDI/Section_6/Set_1/Question_02', 'No', 'Nein'],
+     ['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_01', 'Workflow Search', 'Workflow Suche'],
+     ['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_00', 'Research Objective', 'Forschungsziel',
+                                                                           'Model, Methods, Software and Input/Output Data', 'Model, Methoden, Software und Eingabe-/Ausgabedaten', 
+                                                                           'Field of Research', 'Forschungsfeld']]
 
 # Stuff for Wikibase Export
 
-w_no=['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_1',
-      'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_1',
-      'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_1']
+w_no=['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_01',
+      'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01',
+      'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01']
 
-paper_doi=['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_2']
+paper_doi=['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_02']
 
-ws2=['http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_1',
-     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_1',
-     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_2',
-     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_3',
-     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_4']
+ws2=['http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_01',
+     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_01',
+     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_02',
+     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_03',
+     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_04',
+     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_00']
 
-ws3=['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_1',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_2',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_2',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_3',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_4']
+ws3=['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_01',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_02',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_02',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_03',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_04',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_00']
 
-ws4=['http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_1',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_2',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_3',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_5']
+ws4=['http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_02',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_03',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_05',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_00']
 
-ws5=['http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_1']
+ws5=['http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_01']
 
-ws6=['http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_1']
+ws6=['http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_01']
 
-ws7=['http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_0',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_1']
+ws7=['http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_00',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01',
+     'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_10']
 
-ws8='http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_1'
+ws7a=['http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_00',
+      'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_01',
+      'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_10']
+
+ws8=['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_01']
 
 # Language Dictionary
 
