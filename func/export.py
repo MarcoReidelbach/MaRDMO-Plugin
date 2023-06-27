@@ -295,7 +295,7 @@ class MaRDIExport(Export):
             for i in range(no_inputs):
                 input_qid=None
                 inp=inputs[i::no_inputs]
-                input_id=re.split(':',inp[0])
+                input_id=re.split(':',inp[0].removeprefix("Yes: "))
                 if re.match(r"Q[0-9*]",input_id[-1]):
                     input_qid,entry=self.portal_wikidata_check(input_id,input_query,data)
                     if entry and input_qid:
@@ -332,7 +332,7 @@ class MaRDIExport(Export):
             for i in range(no_outputs):
                 output_qid=None
                 out=outputs[i::no_outputs]
-                output_id=re.split(':',out[0])
+                output_id=re.split(':',out[0].removeprefix("Yes: "))
                 if re.match(r"Q[0-9*]",output_id[-1]):
                     output_qid,entry=self.portal_wikidata_check(output_id,output_query,data)
                     if entry and output_qid:
