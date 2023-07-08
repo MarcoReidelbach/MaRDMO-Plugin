@@ -26,6 +26,7 @@ MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlyi
 │   ├── citation.py - get citation from DOI and ORCID API 
 │   ├── config_empty.py - wikibase information 
 │   ├── export.py - Export/Query Function 
+│   ├── display.py - HTTPResponse display information
 │   ├── id.py - wikibase item and property ids 
 │   ├── para.py - Export/Query Parameters
 │   ├── sparql.py - SPARQL query selection
@@ -33,11 +34,7 @@ MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlyi
 │ 
 ├── LICENSE.md
 │ 
-├── README.md 
-│ 
-└── templates - Files to render
-    ├── errors.html 
-    └── export.html 
+└── README.md 
 ```
   
 ## Installation

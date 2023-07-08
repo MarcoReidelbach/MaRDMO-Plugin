@@ -10,6 +10,7 @@ from .config import *
 from .citation import *
 from .id import *
 from .sparql import *
+from .display import *
 import requests
 
 import pypandoc
@@ -30,7 +31,7 @@ class MaRDIExport(Export):
        
         # Check if MaRDI Questionaire is used
         if str(self.project.catalog) != 'MaRDI':
-            return render(self.request,'error1.html')
+            return HttpResponse(response_temp.format(err1).format(self.project.catalog))
 
         # Get Data - Questions and User Answers
         queryset = self.project.values.filter(snapshot=None)
@@ -48,25 +49,25 @@ class MaRDIExport(Export):
             else:
                 values = queryset.filter(attribute=question.attribute).order_by('set_prefix', 'set_index', 'collection_index')
                 data[question.attribute.uri]=self.stringify_values(values)
-    
+        
         # Workflow Documentation
-        if data[dec[0][0]] == (dec[0][1] or dec[0][2]):
+        if data[dec[0][0]] in (dec[0][1],dec[0][2]):
             # Generate Markdown File
             # Adjust raw MaRDI templates to User answers
             temp=self.dyn_template(data)
             if len(temp) == 0:
-                return render(self.request,'error5.html')
+                return HttpResponse(response_temp.format(err5))
                                 
             #Get Research Objective 
             wiki_res_obj=self.wikibase_answers(data,ws6)[0]
             
             #Check if Workflow with same label/description already on portal, stop if portal integration is desired
-            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] == (dec[3][1] or dec[3][2]):
+            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                 if self.entry_check(self.project.title,wiki_res_obj):
-                    return render(self.request,'error20.html')
+                    return HttpResponse(response_temp.format(err18))
             
             # Get Article information from mardi/wikidata/orcid, only necessary if portal integration is desired
-            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] == (dec[3][1] or dec[3][2]):
+            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                 paper=self.wikibase_answers(data,paper_doi)
                 if paper[0]!= 'No':
                     #Get DOI
@@ -91,6 +92,8 @@ class MaRDIExport(Export):
                         else:
                             #If not on Portal / Wikidata get Paper via DOI
                             author_with_orcid,author_without_orcid,citation_dict=GetCitation(doi)
+                            if not citation_dict:
+                                return HttpResponse(response_temp.format(err6))
                             #Check if title from paper on MaRDI Portal
                             if citation_dict['title']:
                                 mardi_title_qid=self.get_results(mardi_endpoint,title_query[0].format(citation_dict['title']))
@@ -155,7 +158,7 @@ class MaRDIExport(Export):
                     data[ws2[1]] = entry[0]["label"]["value"]
                     data[ws2[2]] = entry[0]["quote"]["value"]
                 else:
-                    return render(self.request,'error10.html')
+                    return HttpResponse(response_temp.format(err7))
             elif model_id[0] == 'No':
                 # Check if Model Entity exists
                 model_entry_check=self.entry_check(model[1],model[2])
@@ -168,14 +171,16 @@ class MaRDIExport(Export):
                     #Create new Model Entity
                     main_subject_id=model[3].split(':')
                     #Get main subject of model
+                    print(main_subject_id)
                     if re.match(r"Q[0-9*]",main_subject_id[-1]):
                         main_subject_qid,entry=self.portal_wikidata_check(main_subject_id,main_subject_query,data)
+                        print(main_subject_qid,entry)
                         if not main_subject_qid:
-                            return render(self.request,'error17.html')
+                            return HttpResponse(response_temp.format(err9))
                     else:
-                        return render(self.request,'error17.html')
+                        return HttpResponse(response_temp.format(err9))
                     
-                    if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] == (dec[3][1] or dec[3][2]):
+                    if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                         # Generate Model Entry in MaRDI KG 
                         model_qid=self.entry(model[1],model[2],[(Item,mathematical_model,instance_of),(Item,main_subject_qid,main_subject)]+
                                                                [(String,re.sub("\$","",form.lstrip()),defining_formula) for form in re.split(';',model[4])]+
@@ -186,7 +191,7 @@ class MaRDIExport(Export):
                         # Update User answer, i.e. MaRDI ID to be determined if published on portal
                         data[ws2[0]] = 'mardi:tbd'
             else:
-                return render(self.request,'error10.html')
+                return HttpResponse(response_temp.format(err8))
             
             # Integrate related methods in wikibase
             methods=self.wikibase_answers(data,ws3)
@@ -204,7 +209,7 @@ class MaRDIExport(Export):
                         data[ws3[0]+'_'+str(i)] = 'mardi:'+method_qid
                         data[ws3[1]+'_'+str(i)] = entry[0]["label"]["value"]
                     else:
-                        return render(self.request,'error12.html')
+                        return HttpResponse(response_temp.format(err11.format(str(i))))
                 elif method_id[0] == 'No':
                     # Check if Method Entity exists
                     method_entry_check=self.entry_check(meth[1],meth[2])
@@ -220,10 +225,10 @@ class MaRDIExport(Export):
                         if re.match(r"Q[0-9*]",main_subject_id[-1]):
                             main_subject_qid=self.portal_wikidata_check(main_subject_id,main_subject_query,data)
                             if not main_subject_qid:
-                                return render(self.request,'error18.html')
+                                return HttpResponse(response_temp.format(err17))
                         else:
                             return render(self.request,'error18.html')
-                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] == (dec[3][1] or dec[3][2]):
+                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                             #Generate Method Entry in MaRDI KG
                             methods_qid.append(self.entry(meth[1],meth[2],[(Item,method,instance_of),(Item,main_subject_qid,main_subject),
                                                                            (String,re.sub("\$","",meth[4]),defining_formula),(ExternalID,meth[5],DOI)]))
@@ -233,7 +238,7 @@ class MaRDIExport(Export):
                             #Update User answers, i.e. MaRDI ID to be determined when published on portal
                             data[ws3[1]+'_'+str(i)] = 'mardi:tbd'
                 else:
-                    return render(self.request,'error12.html')
+                    return HttpResponse(response_temp.format(err11.format(str(i))))
 
             # Integrate related softwares in wikibase
             softwares=self.wikibase_answers(data,ws4)
@@ -252,7 +257,7 @@ class MaRDIExport(Export):
                         data[ws4[1]+'_'+str(i)] = entry[0]["label"]["value"]
                         data[ws4[2]+'_'+str(i)] = entry[0]["quote"]["value"]
                     if not software_qid:
-                        return render(self.request,'error13.html')
+                        return HttpResponse(response_temp.format(err12.format(str(i))))
                 elif software_id[0] == 'No':
                     # Check if Software Entity exists
                     software_entry_check=self.entry_check(soft[1],soft[2])
@@ -269,13 +274,13 @@ class MaRDIExport(Export):
                             planguage_qid=None
                             planguage_id=re.search('\((.+?)\)',planguage).group(1).split(':')
                             if re.match(r"Q[0-9*]",planguage_id[-1]):
-                                planguage_qidi,entry=self.portal_wikidata_check(planguage_id,planguage_query,data)
+                                planguage_qid,entry=self.portal_wikidata_check(planguage_id,planguage_query,data)
                                 planguages_qid.append(planguage_qid)
                                 if not planguage_qid:
-                                    return render(self.request,'error16.html')
+                                    return HttpResponse(response_temp.format(err16))
                             else:
                                 return render(self.request,'error16.html')
-                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] == (dec[3][1] or dec[3][2]):
+                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                             #Generate Method Entry in MaRDI KG
                             softwares_qid.append(self.entry(soft[1],soft[2],[(Item,software,instance_of)]+
                                                                             [(Item,plang,programmed_in) for plang in planguages_qid]+
@@ -286,7 +291,7 @@ class MaRDIExport(Export):
                             #Update User answers, i.e. MaRDI ID to be determined when published on portal
                             data[ws4[0]+'_'+str(i)] = 'mardi:tbd'
                 else:
-                    return render(self.request,'error13.html')
+                    return HttpResponse(response_temp.format(err12.format(str(i))))
 
             # Integrate related inputs in wikibase
             inputs=self.wikibase_answers(data,ws7)
@@ -304,7 +309,7 @@ class MaRDIExport(Export):
                         data[ws7[0]+'_'+str(i)] = 'mardi:'+input_qid
                         data[ws7[1]+'_'+str(i)] = entry[0]["label"]["value"]
                     else:
-                        return render(self.request,'error14.html')
+                        return HttpResponse(response_temp.format(err13.format(str(i))))
                 elif input_id[0] == 'No':
                     # Check if Input Data Entity exists
                     input_entry_check=self.entry_check(inp[1],'data set')
@@ -314,7 +319,7 @@ class MaRDIExport(Export):
                         #Update User answers, i.e. use existing MaRDI ID
                         data[ws7[0]+'_'+str(i)] = 'mardi:'+inputs_qid[-1]
                     else:
-                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] == (dec[3][1] or dec[3][2]):
+                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                             #Generate Input Entry in MaRDI KG
                             inputs_qid.append(self.entry(inp[1],'data set',[(ExternalID,re.split(':',inp[2])[-1],DOI)]))
                             #Update User answers, i.e. include MaRDI ID of newly created input entity
@@ -323,7 +328,7 @@ class MaRDIExport(Export):
                             #Update User answers, i.e. MaRDI ID to be determined once published on portal
                             data[ws7[0]+'_'+str(i)] = 'mardi:tbd'
                 else:
-                    return render(self.request,'error14.html')       
+                    return HttpResponse(response_temp.format(err13.format(str(i))))
                
             # Integrate related outputs in wikibase
             outputs=self.wikibase_answers(data,ws7a)
@@ -341,7 +346,7 @@ class MaRDIExport(Export):
                         data[ws7a[0]+'_'+str(i)] = 'mardi:'+output_qid
                         data[ws7a[1]+'_'+str(i)] = entry[0]["label"]["value"]
                     else:
-                        return render(self.request,'error14a.html')
+                        return HttpResponse(response_temp.format(err14.format(str(i))))
                 elif output_id[0] == 'No':
                     # Check if Input Data Entity exists
                     output_entry_check=self.entry_check(out[1],'data set')
@@ -351,7 +356,7 @@ class MaRDIExport(Export):
                         #Update User answers, i.e. use existing MaRDI ID
                         data[ws7a[0]+'_'+str(i)] = 'mardi:'+outputs_qid[-1]
                     else:
-                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] == (dec[3][1] or dec[3][2]):
+                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                             #Generate Input Entry in MaRDI KG
                             outputs_qid.append(self.entry(out[1],'data set',[(ExternalID,re.split(':',out[2])[-1],DOI)]))          
                             #Update User answers, i.e. include MaRDI ID of newly created output entity
@@ -360,7 +365,7 @@ class MaRDIExport(Export):
                             #Update User answers, i.e. MaRDI ID to be determined once published on portal
                             data[ws7a[0]+'_'+str(i)] = 'mardi:tbd'
                 else:
-                    return render(self.request,'error14a.html')    
+                    return HttpResponse(response_temp.format(err14.format(str(i))))
 
             #Integrate involved disciplines in wikidata
             wiki_disciplines=self.wikibase_answers(data,ws5)[0].split('; ')
@@ -377,11 +382,11 @@ class MaRDIExport(Export):
                         else:
                             data[ws5[0]] = '; '.join([data[ws5[0]],entry[0]["label"]["value"]]) 
                     else:
-                        return render(self.request,'error15.html')
+                        return HttpResponse(response_temp.format(err15))
                 else:
-                    return render(self.request,'error15.html')
+                    return HttpResponse(response_temp.format(err15))
             
-            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] == (dec[3][1] or dec[3][2]):
+            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                 workflow_qid=self.entry(self.project.title, wiki_res_obj,[(Item,research_workflow,instance_of),(Item,paper_qid,cites_work)]+
                                                                          [(Item,discipline,field_of_work) for discipline in disciplines_qid]+
                                                                          [(Item,mmsi,uses) for mmsi in [model_qid]+methods_qid+softwares_qid+inputs_qid+outputs_qid])
@@ -394,25 +399,25 @@ class MaRDIExport(Export):
                 response = HttpResponse(temp, content_type="application/md")
                 response['Content-Disposition'] = 'filename="workflow.md"'
                 return response
-            elif data[dec[2][0]] == dec[2][2] and data[dec[3][0]] != (dec[3][1] or dec[3][2]):
+            elif data[dec[2][0]] == dec[2][2] and data[dec[3][0]] not in (dec[3][1],dec[3][2]):
                 # Preview Markdown as HTML
                 return HttpResponse(html_front+pypandoc.convert_text(temp,'html',format='md')+html_end)
             # Export to MaRDI Portal
-            elif data[dec[2][0]] == dec[2][2] and data[dec[3][0]] == (dec[3][1] or dec[3][2]):
+            elif data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                 # Export Workflow Documentation to mediawiki portal
                 if lgname and lgpassword:
                     self.wikipage_export(self.project.title,re.sub('{\|','{| class="wikitable"',pypandoc.convert_text(temp,'mediawiki',format='md')))
                 else:
-                    return render(self.request,'error21.html')
+                    return HttpResponse(response_temp.format(err19))
 
-                return render(self.request,'export.html')
+                return HttpResponse(response_temp.format(export))
 
             # Not chosen
             else:
-                return render(self.request,'error2.html')
+                return HttpResponse(response_temp.format(err2))
 
         # Workflow Search
-        elif data[dec[4][0]] == (dec[4][1] or dec[4][2]):
+        elif data[dec[0][0]] in (dec[0][3],dec[0][4]):
             #QID and String Entities to search for
             search_objs=self.wikibase_answers(data,ws8)
             ent_string=[]
@@ -424,16 +429,16 @@ class MaRDIExport(Export):
                     ent_string.append(search_obj)
  
             # Entity Type
-            if data[dec[5][0]] == (dec[5][1] or dec[5][2]):
+            if data[dec[4][0]] in (dec[4][1],dec[4][2]):
                 # SPARQL Query for Research Objective
                 if len(ent_qid) > 0:
-                    return render(self.request,'error11.html')
+                    return HttpResponse(response_temp.format(err11))
                 else:
                     FILTER=""
                     for ent in ent_string:
                         FILTER=FILTER+"FILTER(CONTAINS(?quote, '"+ent+"'@en)).\n"
                     query=re.sub("STATEMENT",statement_obj,re.sub("FILTER",FILTER,re.sub("ITEMFINDER","",query_base)))
-            elif data[dec[5][0]] == (dec[5][3] or dec[5][4]):
+            elif data[dec[4][0]] in (dec[4][3],dec[4][4]):
                 # SPARQL Query for Model, Methods, and Software
                 ITEMFINDER1=""
                 for n,ent in enumerate(ent_string):
@@ -449,7 +454,7 @@ class MaRDIExport(Export):
 
                 query=re.sub("STATEMENT",statement_mms,re.sub("ITEMFINDER",ITEMFINDER1+ITEMFINDER2,re.sub("FILTER","",query_base)))
                      
-            elif data[dec[5][0]] == (dec[5][5] or dec[5][6]):
+            elif data[dec[4][0]] in (dec[4][5],dec[4][6]):
                 #SPARQL Query for Research Field
                 ITEMFINDER1=""
                 for n,ent in enumerate(ent_string):
@@ -466,7 +471,7 @@ class MaRDIExport(Export):
                 query=re.sub("STATEMENT",statement_mms,re.sub("ITEMFINDER",ITEMFINDER1+ITEMFINDER2,re.sub("FILTER","",query_base)))
 
             else:
-                return render(self.request,'error3.html')
+                return HttpResponse(response_temp.format(err3))
 
             results = self.get_results(mardi_endpoint, query)
         
@@ -491,7 +496,7 @@ class MaRDIExport(Export):
  
         # Not chosen
         else:
-            return render(self.request,'error4.html')
+            return HttpResponse(response_temp.format(err4))
 
     def stringify_values(self, values):
         '''Original function from csv export'''
@@ -526,12 +531,12 @@ class MaRDIExport(Export):
     def dyn_template(self, data):
         '''Function that chooses proper raw MaRDI template and
            inserts appropriate tables depending on user answers.'''
-        if data[dec[1][0]] == (dec[1][1] or dec[1][3]):
+        if data[dec[1][0]] in (dec[1][1],dec[1][2]):
             temp=math_temp
             tables=math_tables
             topics=math_topics
             ids=math_ids
-        elif data[dec[1][0]] == (dec[1][2] or dec[1][4]):
+        elif data[dec[1][0]] in (dec[1][3],dec[1][4]):
             temp=exp_temp
             tables=exp_tables
             topics=exp_topics
@@ -688,8 +693,8 @@ class MaRDIExport(Export):
                     #If Entity with same label and description is already on Portal use it.
                     qid = entrycheck[0]["qid"]["value"]
                 else:
-                    #Create dumme entry and store QID if portal publication ist desired
-                    if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] == (dec[3][1] or dec[3][2]): 
+                    #Create dummy entry and store QID if portal publication ist desired
+                    if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]): 
                         #Create dummy entry and store QID
                         qid = self.entry(entry[0]["label"]["value"],entry[0]["quote"]["value"],[(ExternalID,Id[-1],wikidata_qid)])
                     else:
