@@ -1,3 +1,4 @@
+**/__pycache__
 func/config.py
 func/config_own.py
 func/config_importer.py
