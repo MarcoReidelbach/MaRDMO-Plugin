@@ -1,9 +1,6 @@
-from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
-from django.conf import settings
+from django.http import HttpResponse
 from rdmo.projects.exports import Export
 from rdmo.questions.models import Question
-from rdmo.core.utils import render_to_csv
-from django.shortcuts import render
 
 from .para import *
 from .config import *
@@ -68,82 +65,91 @@ class MaRDIExport(Export):
             
             # Get Article information from mardi/wikidata/orcid, only necessary if portal integration is desired
             if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+                # Get User Answers related to publication
                 paper=self.wikibase_answers(data,paper_doi)
-                if paper[0]!= 'No':
-                    #Get DOI
-                    doi=re.split(':',paper[0])[-1]
-                    #Check if Paper already on MaRDI Portal
-                    mardi_paper_qid=self.get_results(mardi_endpoint,doi_query[0].format(doi.upper()))
-                    if mardi_paper_qid:
+                doi=re.split(':',paper[0])
+                if doi[0] == 'Yes':
+                    #Get Citation and author information via DOI, stop if no information available by provided DOI
+                    orcid,string,cit=GetCitation(doi[-1])
+                    if not cit:
+                        return HttpResponse(response_temp.format(err6))
+                    
+                    #Use Citation information to get all relevant information from  Wikidata and MaRDI KG
+                    
+                    #Set up query keys for Wikidata KG and MaRDI KG
+                    for i,_ in enumerate(orcid):
+                        wkeys.extend(['qid_'+str(i),'label_'+str(i),'quote_'+str(i)])
+                        mkeys.extend(['qid_aut_'+str(i),'qid2_aut_'+str(i),'qid3_aut_'+str(i)])
+
+                    #Query Wikidata to get Paper (DOI or Title), Journal, Language and ORCID Author Information. (Based on Citation Information.)
+                    wquery={**dict.fromkeys(wkeys,{"value":''}),**self.get_results(wikidata_endpoint,wquery_ini.format(''.join([''.join(wheader.format(i)) for i,_ in enumerate(orcid)]),
+                                                                                                                       doi[-1].upper(),cit['journal'].lower(),
+                                                                                                                       lang_dict[cit['language']],cit['language'],cit['title'],
+                                                                                                                       ''.join([''.join(wbody.format(i,aut[1])) for i,aut in enumerate(orcid)])
+                                                                                                                       ))[0]}
+                    
+                    #Query MaRDI to get Paper (DOI or Title), Journal, Language, ORCID Author Information. (Based on Citation Information and Wikidata Information.) 
+                    mquery={**dict.fromkeys(mkeys,{"value":''}),**self.get_results(mardi_endpoint,mquery_ini.format(''.join([''.join(mheader.format(i)) for i,_ in enumerate(orcid)]),
+                                                                                   doi[-1].upper(),wquery["label_doi"]["value"],wquery["quote_doi"]["value"],
+                                                                                   cit['journal'].lower(),wquery["label_jou"]["value"],wquery["quote_jou"]["value"],
+                                                                                   lang_dict[cit['language']],cit['language'],wquery["label_lan"]["value"],wquery["quote_lan"]["value"],
+                                                                                   cit['title'],
+                                                                                   ''.join([''.join(mbody.format(i,aut[1],wquery['label_'+str(i)]['value'],
+                                                                                   wquery['quote_'+str(i)]['value'],aut[0])) for i,aut in enumerate(orcid)])
+                                                                                   ))[0]}
+
+                    #Check by DOI if Paper on MaRDI Portal
+                    if mquery["qid_doi"]["value"]:
                	        #If on Portal store QID
-                        paper_qid=mardi_paper_qid[0]["qid"]["value"]
+                        paper_qid=mquery["qid_doi"]["value"]
                     else:
-                        #If not on Portal, check if Paper on wikidata
-                        wikidata_paper_entry=self.get_results(wikidata_endpoint,doi_query[1].format(doi.upper()))
-                        if wikidata_paper_entry:
+                        #If not on Portal, check by DOI if Paper on wikidata
+                        if wquery["qid_doi"]["value"]:
                             #Check if Entity with same label and description exists on MaRDI Portal
-                            paper_entry_check=self.entry_check(wikidata_paper_entry[0]["label"]["value"],wikidata_paper_entry[0]["quote"]["value"])
-                            if paper_entry_check:
+                            if mquery["qid_ch1"]["value"]:
                                 #If Entity exists store QID.
-                                paper_qid=paper_entry_check[0]["qid"]["value"]
+                                paper_qid=mquery["qid_ch1"]["value"]
                             else:
                                 #If only on wikidata, generate dummy entry and store QID. 
-                                paper_qid=self.entry(wikidata_paper_entry[0]["label"]["value"],wikidata_paper_entry[0]["quote"]["value"],[(ExternalID,wikidata_paper_entry[0]["qid"]["value"],wikidata_qid)])   
+                                paper_qid=self.entry(wquery["label_doi"]["value"],wquery["quote_doi"]["value"],[(ExternalID,wquery["qid_doi"]["value"],wikidata_qid)])
                         else:
-                            #If not on Portal / Wikidata get Paper via DOI
-                            author_with_orcid,author_without_orcid,citation_dict=GetCitation(doi)
-                            if not citation_dict:
-                                return HttpResponse(response_temp.format(err6))
-                            #Check if title from paper on MaRDI Portal
-                            if citation_dict['title']:
-                                mardi_title_qid=self.get_results(mardi_endpoint,title_query[0].format(citation_dict['title']))
-                                if mardi_title_qid:
+                            #Check by Title if paper on MaRDI Portal
+                            if cit['title']:
+                                if mquery["qid_tit"]["value"]:
                                     #If on Portal store QID
-                                    paper_qid=mardi_title_qid[0]["qid"]["value"]
+                                    paper_qid=mquery["qid_tit"]["value"]
                                 else:
-                                    #If not on Portal, check if title on Wikidata
-                                    wikidata_title_entry=self.get_results(wikidata_endpoint,title_query[1].format(citation_dict['title']))
-                                    if wikidata_title_entry:
-                                        title_entry_check=self.entry_check(wikidata_title_entry[0]["label"]["value"],wikidata_title_entry[0]["quote"]["value"])
-                                        if title_entry_check:
-                                            #If on Portal, store QID.
-                                            paper_qid=title_entry_check[0]["qid"]["value"]
-                                        else:
-                                            #If only on wikidata, generate dummy entry, store QID.
-                                            paper_qid=self.entry(wikidata_title_entry[0]["label"]["value"],wikidata_title_entry[0]["quote"]["value"],[(ExternalID,wikidata_title_entry[0]["qid"]["value"],wikidata_qid)])
+                                    #If not on Portal, check by Title if paper on Wikidata
+                                    if wquery["qid_tit"]["value"]:
+                                        #If only on wikidata, generate dummy entry, store QID.
+                                        paper_qid=self.entry(wquery["label_tit"]["value"],wquery["quote_tit"]["value"],[(ExternalID,wquery["qid_tit"]["value"],wikidata_qid)])
                                     else:
-                                        #If not on Portal / Wikidata create journal entry
-                                        entry_check=self.entry_check(citation_dict['title'],'publication')
-                                        if entry_check:
-                                            #If on Portal, store QID.
-                                            paper_qid=entry_check[0]["qid"]["value"]
-                                        else:
-                                            author_qids=[]
-                                            for author in author_with_orcid:
-                                                #Create author entry for publication 
-                                                author_qids.append(self.paper_prop_entry([query.format(author[1]) for query in author_query],
-                                                                                          author[0],
-                                                                                          ['researcher',[(Item,human,instance_of),(Item,researcher,occupation),(ExternalID,author[1],ORCID_iD)]]))
+                                        #If not on Portal/Wikidata, create new publication entry. Add ORCID authors, Journal, Language as required.
+                                        author_qids=[]
+                                        for i,aut in enumerate(orcid):
+                                            #Create author entries for publication
+                                            author_qids.append(self.paper_prop_entry({key.split('_')[0]: value for (key, value) in wquery.items() if '_'+str(i) in key},
+                                                                                     {key.split('_')[0]: value for (key, value) in mquery.items() if '_'+str(i) in key},
+                                                                                     [aut[0],'researcher',[(Item,human,instance_of),(Item,researcher,occupation),(ExternalID,aut[1],ORCID_iD)]]))
                                     
-                                            if citation_dict['language']:
-                                                #Create language entry publication
-                                                citation_dict['language']=self.paper_prop_entry([query.format(lang_dict[citation_dict['language']],citation_dict['language']) for query in language_query],
-                                                                                                 lang_dict[citation_dict['language']],
-                                                                                                 ['language',[(Item,language,instance_of)]])
-                                       
-                                            if citation_dict['journal']:
-                                                #Create journal entry for publication                                                     
-                                                citation_dict['journal']=self.paper_prop_entry([query.format(citation_dict['journal'].lower()) for query in journal_query],
-                                                                                                citation_dict['journal'],
-                                                                                                ['scientific journal',[(Item,scientific_journal,instance_of)]])
+                                        if cit['language']:
+                                            #Create language entry for publication
+                                            cit['language']=self.paper_prop_entry({key.split('_')[0]: value for (key, value) in wquery.items() if '_lan' in key},
+                                                                                  {key.split('_')[0]: value for (key, value) in mquery.items() if '_lan' in key},
+                                                                                  [lang_dict[cit['language']],'language',[(Item,language,instance_of)]])
 
-                                            #Create publication entry
-                                            paper_qid=self.entry(citation_dict['title'],'publication',[(Item,scholarly_article if citation_dict['ENTRYTYPE'] == 'article' else publication,instance_of)]+
-                                                                 [(Item,aut,Author) for aut in author_qids]+[(String,aut,author_name_string) for aut in author_without_orcid]+
-                                                                 [(Item,citation_dict['language'],language_of_work_or_name),(Item,citation_dict['journal'],published_in),
-                                                                  (MonolingualText,citation_dict['title'],title),(Time,citation_dict['pub_date']+'T00:00:00Z',publication_date),
-                                                                  (String,citation_dict['volume'],volume),(String,citation_dict['number'],issue),(String,citation_dict['pages'],pages),
-                                                                  (ExternalID,citation_dict['doi'],DOI)])  
+                                        if cit['journal']:
+                                            #Create journal entry for publication                                                     
+                                            cit['journal']=self.paper_prop_entry({key.split('_')[0]: value for (key, value) in wquery.items() if '_jou' in key},
+                                                                                 {key.split('_')[0]: value for (key, value) in mquery.items() if '_jou' in key},
+                                                                                 [cit['journal'],'scientific journal',[(Item,scientific_journal,instance_of)]])
+
+                                        #Create publication entry
+                                        paper_qid=self.entry(cit['title'],'publication',[(Item,scholarly_article if cit['ENTRYTYPE'] == 'article' else publication,instance_of)]+
+                                                             [(Item,aut,Author) for aut in author_qids]+[(String,aut,author_name_string) for aut in string]+
+                                                             [(Item,cit['language'],language_of_work_or_name),(Item,cit['journal'],published_in),(MonolingualText,cit['title'],title),
+                                                              (Time,cit['pub_date']+'T00:00:00Z',publication_date),(String,cit['volume'],volume),(String,cit['number'],issue),
+                                                              (String,cit['pages'],pages),(ExternalID,cit['doi'].upper(),DOI)])  
                 else:
                     paper_qid=[]
 
@@ -227,7 +233,7 @@ class MaRDIExport(Export):
                             if not main_subject_qid:
                                 return HttpResponse(response_temp.format(err17))
                         else:
-                            return render(self.request,'error18.html')
+                            return HttpResponse(response_temp.format(err17))
                         if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                             #Generate Method Entry in MaRDI KG
                             methods_qid.append(self.entry(meth[1],meth[2],[(Item,method,instance_of),(Item,main_subject_qid,main_subject),
@@ -279,7 +285,7 @@ class MaRDIExport(Export):
                                 if not planguage_qid:
                                     return HttpResponse(response_temp.format(err16))
                             else:
-                                return render(self.request,'error16.html')
+                                return HttpResponse(response_temp.format(err16))
                         if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                             #Generate Method Entry in MaRDI KG
                             softwares_qid.append(self.entry(soft[1],soft[2],[(Item,software,instance_of)]+
@@ -708,31 +714,27 @@ class MaRDIExport(Export):
             entry = None
         return qid, entry
         
-    def paper_prop_entry(self,query,entity,props,author_with_orcid='',citation_dict=''):
+    def paper_prop_entry(self,wquery,mquery,props):
         '''This function takes (a property of) a paper and creates the corresponding wikibase entries.'''
-        mardi_qid=self.get_results(mardi_endpoint,query[0])
-        if mardi_qid:
+        if mquery["qid"]["value"]:
             #If on Portal store QID
-            qid=mardi_qid[0]["qid"]["value"]
+            qid=mquery["qid"]["value"]
         else:
             #If not on Portal, check if on Wikidata
-            wikidata_entry=self.get_results(wikidata_endpoint,query[1])
-            if wikidata_entry:
-                entry_check=self.entry_check(wikidata_entry[0]["label"]["value"],wikidata_entry[0]["quote"]["value"])
-                if entry_check:
+            if wquery["qid"]["value"]:
+                if mquery["qid2"]["value"]:
                     #If on Portal, store QID.
-                    qid=entry_check[0]["qid"]["value"]
+                    qid=mquery["qid2"]["value"]
                 else:
                     #If only on wikidata, generate dummy entry, store QID.
-                    qid=self.entry(wikidata_entry[0]["label"]["value"],wikidata_entry[0]["quote"]["value"],[(ExternalID,wikidata_entry[0]["qid"]["value"],wikidata_qid)])
+                    qid=self.entry(wquery["label"]["value"],wquery["quote"]["value"],[(ExternalID,wquery["qid"]["value"],wikidata_qid)])
             else:
                 #If not on Portal / Wikidata create entry
-                entry_check=self.entry_check(entity,props[0])
-                if entry_check:
+                if mquery["qid3"]["value"]:
                     #If on Portal, store QID.
-                    qid=entry_check[0]["qid"]["value"]
+                    qid=mquery["qid3"]["value"]
                 else:
                     #Create entry, store QID.
-                    qid=self.entry(entity,props[0],props[1])
+                    qid=self.entry(props[0],props[1],props[2])
         return qid
 

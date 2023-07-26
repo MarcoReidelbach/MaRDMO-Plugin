@@ -111,7 +111,7 @@ def GetCitation(doi):
     for name in citation_dict['author']:
         if re.split(' ',name)[-1] not in '\t'.join(author_with_orcid_plain):
             author_without_orcid.append(name)
-    
+        
     return author_with_orcid, author_without_orcid, citation_dict
 
 

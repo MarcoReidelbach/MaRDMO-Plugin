@@ -44,4 +44,3 @@ err16 = err.format('Please, check the question \'Programming Language of the Sof
 err17 = err.format('Please, check the question \'State the main subject of the method.\'. The mardi:QID or wikidata:QID you provided does not exist!')
 err18 = err.format('A workflow with the same label and description already exists on the MaRDI Portal!')
 err19 = err.format('You don\'t have permission to write to the MaRDI Portal. Check your bot credentials.')
-
