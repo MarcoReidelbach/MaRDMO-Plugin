@@ -295,47 +295,35 @@ dec=[['http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_01', 'Work
                                                                            'Model, Methods, Software and Input/Output Data', 'Model, Methoden, Software und Eingabe-/Ausgabedaten', 
                                                                            'Field of Research', 'Forschungsfeld']]
 
-# Stuff for Wikibase Export
+# Question IDs for Wikibase Export
 
-w_no=['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_01',
-      'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01',
-      'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01']
-
-paper_doi=['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_02']
-
-ws2=['http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_01',
-     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_01',
-     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_02',
-     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_03',
-     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_04',
-     'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_00']
-
-ws3=['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_01',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_02',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_02',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_03',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_04',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_00']
-
-ws4=['http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_02',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_03',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_05',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_00']
-
-ws5=['http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_01']
-
-ws6=['http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_01']
-
-ws7=['http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_00',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01',
-     'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_10']
-
-ws7a=['http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_00',
-      'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_01',
-      'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_10']
-
-ws8=['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_01']
+ws = [['http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_02'],
+      ['http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_01',
+       'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_01',
+       'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_02',
+       'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_03',
+       'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_04',
+       'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_00'],
+      ['http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_01',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_02',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_02',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_03',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_04',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_00'],
+      ['http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_02',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_03',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_05',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_00'],
+      ['http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_01'],
+      ['http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_01'],
+      ['http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_00',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_10'],
+      ['http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_00',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_01',
+       'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_10'],
+      ['http://example.com/terms/domain/MaRDI/Section_1/Set_1/Question_01']]
 
 # Language Dictionary
 

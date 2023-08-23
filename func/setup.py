@@ -41,16 +41,15 @@ def property_entry(NAME,PROPTYPE):
     pid=re.search("_BaseEntity__id='(.*?)'",x).group(1)
     return pid
 
-items = [['scholarly_article','scholarly article'],['research_workflow','research workflow'],['mathematical_model','mathematical model'],['method','method'],
-         ['software','software'],['data_set','data set'],['human','human'],['researcher','researcher'],['scientific_journal','scientific journal'],['publication','publication'],
-         ['language','language']]
+items = [['Q1','scholarly article'],['Q2','research workflow'],['Q3','mathematical model'],['Q4','method'],['Q5','software'],
+        ['Q6','data set'],['Q7','human'],['Q8','researcher'],['Q9','scientific journal'],['Q10','publication'],['Q11','language']]
 
-properties = [['wikidata_pid','Wikidata PID','external-id'],['wikidata_qid','Wikidata QID','external-id'],['cites_work','cites work','wikibase-item'],['instance_of','instance of','wikibase-item'],
-              ['field_of_work','field of work','wikibase-item'],['uses','uses','wikibase-item'],['title','title','monolingualtext'],['Author','author','wikibase-item'],
-              ['author_name_string','author name string','string'],['language_of_work_or_name','language of work or name','wikibase-item'],['publication_date','publication date','time'],
-              ['published_in','published in','wikibase-item'],['volume','volume','string'],['issue','issue','string'],['pages','page(s)','string'],['DOI','DOI','external-id'],
-              ['main_subject','main subject','wikibase-item'],['defining_formula','defining formula','math'],['programmed_in','programmed in','wikibase-item'],
-              ['swMath_work_ID','swMath work ID','external-id'],['occupation','occupation','wikibase-item'],['ORCID_iD','ORCID iD','external-id']]
+properties = [['P1','Wikidata PID','external-id'],['P2','Wikidata QID','external-id'],['P3','cites work','wikibase-item'],['P4','instance of','wikibase-item'],
+              ['P5','field of work','wikibase-item'],['P6','uses','wikibase-item'],['P7','title','monolingualtext'],['P8','author','wikibase-item'],
+              ['P9','author name string','string'],['P10','language of work or name','wikibase-item'],['P11','publication date','time'],
+              ['P12','published in','wikibase-item'],['P13','volume','string'],['P14','issue','string'],['P15','page(s)','string'],['P16','DOI','external-id'],
+              ['P17','main subject','wikibase-item'],['P18','defining formula','math'],['P19','programmed in','wikibase-item'],
+              ['P20','swMath work ID','external-id'],['P21','occupation','wikibase-item'],['P22','ORCID iD','external-id']]
 
 
 query_item='''

@@ -19,6 +19,25 @@ response_temp='''
     </body>
 </html>'''
 
+done='''
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Successfull Export</title>
+    </head>
+    <body>
+            <br><br><br><br><br><br><br><br><br><br><br>
+        <div align='center'>
+           <p>
+              <span style="font-family:'Arial';color:DarkSlateBlue;font-size:200px;"><b>Ma</b></span>
+              <span style="font-family:'Arial';color:white;background-color:DarkSlateBlue;font-size:200px;"><b>RDMO</b></p></span>
+           </p>
+           <br><br><br>
+           {}
+        </div>
+    </body>
+</html>'''
+
 export='''<p style="color:blue;font-size:30px;">You're Workflow has been added to the local Knowledge Graph.</p>
 <p style="color:blue;font-size:30px;">See you soon on the MaRDI Portal!</p>'''
 
