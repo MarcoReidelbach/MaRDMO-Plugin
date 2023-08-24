@@ -541,27 +541,15 @@ class MaRDIExport(Export):
 
         post_content=re.sub('<math display="block">','<math>',content)
 
-        for char in range(len(post_content)//500+1):
-            # Step 4: POST request to edit a page
-            PARAMS_3 = {
-                "action": "edit",
-                "title": title,
-                "token": CSRF_TOKEN,
-                "format": "json",
-                "appendtext": post_content[2000*char:2000*(char+1)]
+        PARAMS_3 = {
+            "action": "edit",
+            "title": title,
+            "token": CSRF_TOKEN,
+            "format": "json",
+            "appendtext": post_content
             }
-            R = S.post(URL, data=PARAMS_3)
-            time.sleep(2)
 
-#        PARAMS_3 = {
-#            "action": "edit",
-#            "title": title,
-#            "token": CSRF_TOKEN,
-#            "format": "json",
-#            "appendtext": post_content
-#            }
-
-        R = S.post(URL , data=PARAMS_3)
+        R = S.post(URL , data=PARAMS_3, files=dict(foo='bar'))
         return
 
     def wikibase_answers(self, data, wiki):

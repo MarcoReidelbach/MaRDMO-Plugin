@@ -25,9 +25,8 @@ def item_entry(ITEM):
     # Item name as label, description is 'MaRDMO Test Item'
     item.labels.set(language='en', value=ITEM)
     item.descriptions.set(language='en', value='MaRDMO Item')
-    x=str(item.write())
-    qid=re.search("_BaseEntity__id='(.*?)'",x).group(1)
-    return qid
+    item.write()
+    return item.id
 
 def property_entry(NAME,PROPTYPE):
     '''Generates Property for Testing'''
@@ -37,9 +36,8 @@ def property_entry(NAME,PROPTYPE):
     prop.labels.set(language='en', value=NAME)
     prop.descriptions.set(language='en', value='MaRDMO Property')
     prop.datatype = PROPTYPE
-    x=str(prop.write())
-    pid=re.search("_BaseEntity__id='(.*?)'",x).group(1)
-    return pid
+    prop.write()
+    return prop.id
 
 items = [['Q1','scholarly article'],['Q2','research workflow'],['Q3','mathematical model'],['Q4','method'],['Q5','software'],
         ['Q6','data set'],['Q7','human'],['Q8','researcher'],['Q9','scientific journal'],['Q10','publication'],['Q11','language']]
