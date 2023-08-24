@@ -705,150 +705,106 @@ class MaRDIExport(Export):
         disciplines.append(self.wikibase_answers(data,ws[4])[0].split('; '))
         disciplines.append([re.split(':',discipline) for discipline in disciplines[0]])
         
-        #Create appropriate SPARQL Query keys
-
+        #Create appropriate SPARQL Keys
+        
+        keys=dict(Keys)
         for inds in zip([orcid,method[2],software[2],inputs[2],outputs[2],disciplines[1]],['pub','met','sof','inp','out','dis']):
             for i,_ in enumerate(inds[0]):
-                if type(keys_flex['wk'+inds[1]]) == str:
-                    keys['wk'+inds[1]]+=keys_flex['wk'+inds[1]].format(i)
-                    keys['mk'+inds[1]]+=keys_flex['mk'+inds[1]].format(i)
+                if type(keys_flex['wq'+inds[1]]) == str:
+                    keys['wq'+inds[1]]+=keys_flex['wq'+inds[1]].format(i)
+                    keys['mq'+inds[1]]+=keys_flex['mq'+inds[1]].format(i)
                 else:
-                    keys['wk'+inds[1]]+=keys_flex['wk'+inds[1]][0].format(i)
-                    keys['mk'+inds[1]]+=keys_flex['mk'+inds[1]][0].format(i)
+                    keys['wq'+inds[1]]+=keys_flex['wq'+inds[1]][0].format(i)
+                    keys['mq'+inds[1]]+=keys_flex['mq'+inds[1]][0].format(i)
                     for j,_ in enumerate(software[3][i]):
-                        keys['wk'+inds[1]]+=keys_flex['wk'+inds[1]][1].format(i,j)
-                        keys['mk'+inds[1]]+=keys_flex['mk'+inds[1]][1].format(i,j)
+                        keys['wq'+inds[1]]+=keys_flex['wq'+inds[1]][1].format(i,j)
+                        keys['mq'+inds[1]]+=keys_flex['mq'+inds[1]][1].format(i,j)
         
 
         #SPARQL Queries to Wikidata and MaRDI Knowledge Graph
 
-        wq={}
-        mq={}
+        wq = {}
+        mq = {}
 
-        print(wini.format(keys['wkpub'],wbpub.format(doi[-1].upper(),
-                                                                             cit['journal'].lower(),lang_dict[cit['language']],
-                                                                             cit['language'],cit['title'],''.join([''.join(wbaut.format(i,aut[1]))
-                                                                             for i,aut in enumerate(orcid)]))))
+        qw = {'wqpub' : wini.format(keys['wqpub'],wbpub.format(doi[-1].upper(),cit['journal'].lower(),lang_dict[cit['language']],
+                                    cit['language'],cit['title'],''.join([''.join(wbaut.format(i,aut[1])) for i,aut in enumerate(orcid)]))),
 
-        wq.update({'wqpub':{**dict.fromkeys(keys['wkpub'].split(' ?'),{"value":''}),
-                            **self.get_results(wikidata_endpoint,wini.format(keys['wkpub'],wbpub.format(doi[-1].upper(),
-                                                                             cit['journal'].lower(),lang_dict[cit['language']],
-                                                                             cit['language'],cit['title'],''.join([''.join(wbaut.format(i,aut[1])) 
-                                                                             for i,aut in enumerate(orcid)]))))[0]}})
+              'wqmod' : wini.format(keys['wqmod'],wbmod.format(model[1][1] if model[1][0] == 'wikidata' else '',model[2][1] if model[2][0] == 'wikidata' else '')),
 
-        wq.update({'wqmod':{**dict.fromkeys(keys['wkmod'].split(' ?'),{"value":''}),
-                            **self.get_results(wikidata_endpoint,wini.format(keys['wkmod'],wbmod.format(model[1][1] if model[1][0] == 'wikidata' 
-                                                                             else '',model[2][1] if model[2][0] == 'wikidata' else '')))[0]}})
+              'wqmet' : wini.format(keys['wqmet'],''.join([''.join(wbmet.format(i,Id[1] if Id[0] == 'wikidata' else '',method[3][i][1] if method[3][i][0] == 'wikidata' 
+                                    else '')) for i,Id in enumerate(method[2])])),
 
-        wq.update({'wqmet':{**dict.fromkeys(keys['wkmet'].split(' ?'),{"value":''}),
-                            **self.get_results(wikidata_endpoint,wini.format(keys['wkmet'],''.join([''.join(wbmet.format(i,Id[1] if Id[0] == 
-                                                                             'wikidata' else '',method[3][i][1] if method[3][i][0] == 'wikidata' 
-                                                                             else '')) for i,Id in enumerate(method[2])])))[0]}})
+              'wqsof' : wini.format(keys['wqsof'],''.join([''.join(wbsof.format(i,Id[1] if Id[0] == 'wikidata' else '',''.join([''.join(wbpla.format(i,j,ID.split(':')[1]
+                                    if ID.split(':')[0] == 'wikidata' else '')) for j,ID in enumerate(software[3][i])]))) for i,Id in enumerate(software[2])])),
 
-        wq.update({'wqsof':{**dict.fromkeys(keys['wksof'].split(' ?'),{"value":''}),
-                            **self.get_results(wikidata_endpoint,wini.format(keys['wksof'],''.join([''.join(wbsof.format(i,Id[1] if Id[0] == 
-                                                                             'wikidata' else '',''.join([''.join(wbpla.format(i,j,ID.split(':')[1] 
-                                                                             if ID.split(':')[0] == 'wikidata' else '')) for j,ID in enumerate(software[3][i])])))
-                                                                             for i,Id in enumerate(software[2])])))[0]}})
+              'wqinp' : wini.format(keys['wqinp'],''.join([''.join(wbinp.format(i,Id[1] if Id[0] == 'wikidata' else '')) for i,Id in enumerate(inputs[2])])),
 
-        wq.update({'wqinp':{**dict.fromkeys(keys['wkinp'].split(' ?'),{"value":''}),
-                            **self.get_results(wikidata_endpoint,wini.format(keys['wkinp'],''.join([''.join(wbinp.format(i,Id[1] if Id[0] == 'wikidata' 
-                                                                             else '')) for i,Id in enumerate(inputs[2])])))[0]}})
+              'wqout' : wini.format(keys['wqout'],''.join([''.join(wbout.format(i,Id[1] if Id[0] == 'wikidata' else '')) for i,Id in enumerate(outputs[2])])),
 
-        wq.update({'wqout':{**dict.fromkeys(keys['wkout'].split(' ?'),{"value":''}),
-                            **self.get_results(wikidata_endpoint,wini.format(keys['wkout'],''.join([''.join(wbout.format(i,Id[1] if Id[0] == 'wikidata' 
-                                                                             else '')) for i,Id in enumerate(outputs[2])])))[0]}})
+              'wqdis' : wini.format(keys['wqdis'],''.join([''.join(wbdis.format(i,Id[1] if Id[0] == 'wikidata' else '')) for i,Id in enumerate(disciplines[1])]))}
 
-        wq.update({'wqdis':{**dict.fromkeys(keys['wkdis'].split(' ?'),{"value":''}),
-                            **self.get_results(wikidata_endpoint,wini.format(keys['wkdis'],''.join([''.join(wbdis.format(i,Id[1] if Id[0] == 'wikidata' 
-                                                                             else '')) for i,Id in enumerate(disciplines[1])])))[0]}})
-        
-        mq.update({'mqpub':{**dict.fromkeys(keys['mkpub'].split(' ?'),{"value":''}),
-                            **self.get_results(mardi_endpoint,mini.format(keys['mkpub'],mbpub.format(doi[-1].upper(),wq['wqpub']["label_doi"]["value"],
-                                                                          wq['wqpub']["quote_doi"]["value"],cit['journal'].lower(),wq['wqpub']["label_jou"]["value"],
-                                                                          wq['wqpub']["quote_jou"]["value"],lang_dict[cit['language']],cit['language'],
-                                                                          wq['wqpub']["label_lan"]["value"],wq['wqpub']["quote_lan"]["value"],cit['title'],
-                                                                          ''.join([''.join(mbaut.format(i,aut[1],wq['wqpub']['label_'+str(i)]['value'],
-                                                                          wq['wqpub']['quote_'+str(i)]['value'],aut[0])) for i,aut in enumerate(orcid)]))))[0]}})
 
-        mq.update({'mqmod':{**dict.fromkeys(keys['mkmod'].split(' ?'),{"value":''}),
-                            **self.get_results(mardi_endpoint,mini.format(keys['mkmod'],mbmod.format(model[1][1] if model[1][0] == 'mardi' else '',
-                                                                          wq['wqmod']["label_model"]["value"], wq['wqmod']["quote_model"]["value"],model[0][1],
-                                                                          model[0][2],model[2][1] if model[2][0] == 'mardi' else '', wq['wqmod']["label_ms"]["value"],
-                                                                          wq['wqmod']["quote_ms"]["value"])))[0]}})
+        for ind in ['pub','mod','met','sof','inp','out','dis']:
+            wq.update({'wq'+ind:{**dict.fromkeys(keys['wq'+ind].split(' ?'),{"value":''}),**self.get_results(wikidata_endpoint,qw['wq'+ind])[0]}})
 
-        mq.update({'mqmet':{**dict.fromkeys(keys['mkmet'].split(' ?'),{"value":''}),
-                            **self.get_results(mardi_endpoint,mini.format(keys['mkmet'],''.join([''.join(mbmet.format(i,Id[1] if Id[0] == 'mardi' else '',
-                                                                          wq['wqmet']['label_m_'+str(i)]['value'],wq['wqmet']['quote_m_'+str(i)]['value'],
-                                                                          method[0][i::method[1]][1],method[0][i::method[1]][2],method[3][i][1] if method[3][i][0] == 
-                                                                          'mardi' else '',wq['wqmet']["label_ms_"+str(i)]["value"],wq['wqmet']["quote_ms_"+str(i)]["value"]))
-                                                                          for i,Id in enumerate(method[2])])))[0]}})
+        qm = {'mqpub' : mini.format(keys['mqpub'],mbpub.format(doi[-1].upper(),wq['wqpub']["label_doi"]["value"],wq['wqpub']["quote_doi"]["value"],cit['journal'].lower(),
+                                    wq['wqpub']["label_jou"]["value"],wq['wqpub']["quote_jou"]["value"],lang_dict[cit['language']],cit['language'],
+                                    wq['wqpub']["label_lan"]["value"],wq['wqpub']["quote_lan"]["value"],cit['title'],''.join([''.join(mbaut.format(i,aut[1],
+                                    wq['wqpub']['label_'+str(i)]['value'],wq['wqpub']['quote_'+str(i)]['value'],aut[0])) for i,aut in enumerate(orcid)]))),
+             
+              'mqmod' : mini.format(keys['mqmod'],mbmod.format(model[1][1] if model[1][0] == 'mardi' else '',wq['wqmod']["label_model"]["value"], 
+                                    wq['wqmod']["quote_model"]["value"],model[0][1],model[0][2],model[2][1] if model[2][0] == 'mardi' else '', 
+                                    wq['wqmod']["label_ms"]["value"],wq['wqmod']["quote_ms"]["value"])),
 
-        mq.update({'mqsof':{**dict.fromkeys(keys['mksof'].split(' ?'),{"value":''}),
-                            **self.get_results(mardi_endpoint,mini.format(keys['mksof'],''.join([''.join(mbsof.format(i,Id[1] if Id[0] == 'mardi' else '',
-                                                                          wq['wqsof']['label_s_'+str(i)]['value'],wq['wqsof']['quote_s_'+str(i)]['value'],
-                                                                          software[0][i::software[1]][1],software[0][i::software[1]][2],
-                                                                          ''.join([''.join(mbpla.format(i,j,ID.split(':')[1] if ID.split(':')[0] == 'mardi' else '',
-                                                                          wq['wqsof']['label_pl_'+str(i)+'_'+str(j)]['value'],wq['wqsof']['quote_pl_'+str(i)+'_'+str(j)]['value']))
-                                                                          for j,ID in enumerate(software[3][i])]))) for i,Id in enumerate(software[2])])))[0]}})
+              'mqmet' : mini.format(keys['mqmet'],''.join([''.join(mbmet.format(i,Id[1] if Id[0] == 'mardi' else '',wq['wqmet']['label_m_'+str(i)]['value'],
+                                    wq['wqmet']['quote_m_'+str(i)]['value'],method[0][i::method[1]][1],method[0][i::method[1]][2],method[3][i][1] if method[3][i][0] == 
+                                    'mardi' else '',wq['wqmet']["label_ms_"+str(i)]["value"],wq['wqmet']["quote_ms_"+str(i)]["value"])) for i,Id in enumerate(method[2])])),
 
-        mq.update({'mqinp':{**dict.fromkeys(keys['mkinp'].split(' ?'),{"value":''}),
-                            **self.get_results(mardi_endpoint,mini.format(keys['mkinp'],''.join([''.join(mbinp.format(i,Id[1] if Id[0] == 'mardi' else '',
-                                                                          wq['wqinp']['label_in_'+str(i)]['value'],wq['wqinp']['quote_in_'+str(i)]['value'],
-                                                                          inputs[0][i::inputs[1]][1],'data set')) for i,Id in enumerate(inputs[2])])))[0]}})
+              'mqsof' : mini.format(keys['mqsof'],''.join([''.join(mbsof.format(i,Id[1] if Id[0] == 'mardi' else '',wq['wqsof']['label_s_'+str(i)]['value'],
+                                    wq['wqsof']['quote_s_'+str(i)]['value'],software[0][i::software[1]][1],software[0][i::software[1]][2],''.join([''.join(mbpla.format(i,j,
+                                    ID.split(':')[1] if ID.split(':')[0] == 'mardi' else '',wq['wqsof']['label_pl_'+str(i)+'_'+str(j)]['value'],
+                                    wq['wqsof']['quote_pl_'+str(i)+'_'+str(j)]['value'])) for j,ID in enumerate(software[3][i])]))) for i,Id in enumerate(software[2])])),
 
-        mq.update({'mqout':{**dict.fromkeys(keys['mkout'].split(' ?'),{"value":''}),
-                            **self.get_results(mardi_endpoint,mini.format(keys['mkout'],''.join([''.join(mbout.format(i,Id[1] if Id[0] == 'mardi' else '',
-                                                                          wq['wqout']['label_ou_'+str(i)]['value'],wq['wqout']['quote_ou_'+str(i)]['value'],
-                                                                          outputs[0][i::outputs[1]][1],'data set')) for i,Id in enumerate(outputs[2])])))[0]}})
+              'mqinp' : mini.format(keys['mqinp'],''.join([''.join(mbinp.format(i,Id[1] if Id[0] == 'mardi' else '',wq['wqinp']['label_in_'+str(i)]['value'],
+                                    wq['wqinp']['quote_in_'+str(i)]['value'],inputs[0][i::inputs[1]][1],'data set')) for i,Id in enumerate(inputs[2])])),
 
-        mq.update({'mqdis':{**dict.fromkeys(keys['mkdis'].split(' ?'),{"value":''}),
-                            **self.get_results(mardi_endpoint,mini.format(keys['mkdis'],''.join([''.join(mbdis.format(i,Id[1] if Id[0] == 'mardi' else '',
-                                                                          wq['wqdis']['label_di_'+str(i)]['value'],wq['wqdis']['quote_di_'+str(i)]['value']))
-                                                                          for i,Id in enumerate(disciplines[1])])))[0]}})
+              'mqout' : mini.format(keys['mqout'],''.join([''.join(mbout.format(i,Id[1] if Id[0] == 'mardi' else '',wq['wqout']['label_ou_'+str(i)]['value'],
+                                    wq['wqout']['quote_ou_'+str(i)]['value'],outputs[0][i::outputs[1]][1],'data set')) for i,Id in enumerate(outputs[2])])),
+
+              'mqdis' : mini.format(keys['mqdis'],''.join([''.join(mbdis.format(i,Id[1] if Id[0] == 'mardi' else '',wq['wqdis']['label_di_'+str(i)]['value'],
+                                    wq['wqdis']['quote_di_'+str(i)]['value'])) for i,Id in enumerate(disciplines[1])]))}
+
+        for ind in ['pub','mod','met','sof','inp','out','dis']:
+            mq.update({'mq'+ind:{**dict.fromkeys(keys['mq'+ind].split(' ?'),{"value":''}),**self.get_results(mardi_endpoint,qm['mq'+ind])[0]}})
         
         #Extract specific SPARQL resulta
-
-        for i,_ in enumerate(orcid):
-            wq.update({'wqaut'+str(i):{key.split('_')[0]: value for (key, value) in wq['wqpub'].items() if '_'+str(i) in key}})
-            mq.update({'mqaut'+str(i):{key.split('_')[0]: value for (key, value) in mq['mqpub'].items() if '_'+str(i) in key}})
-
-        wq.update({'wqlan':{key.split('_')[0]: value for (key, value) in wq['wqpub'].items() if '_lan' in key}})
-        mq.update({'mqlan':{key.split('_')[0]: value for (key, value) in mq['mqpub'].items() if '_lan' in key}})
-
-        wq.update({'wqjou':{key.split('_')[0]: value for (key, value) in wq['wqpub'].items() if '_jou' in key}})
-        mq.update({'mqjou':{key.split('_')[0]: value for (key, value) in mq['mqpub'].items() if '_jou' in key}})
         
-        mq.update({'mqmog':{key.split('_')[0]: value for (key, value) in mq['mqmod'].items() if '_model' in key}})
-        wq.update({'wqmog':{key.split('_')[0]: value for (key, value) in wq['wqmod'].items() if '_model' in key}})
+        EXT = [['aut','pub','_',orcid],
+               ['lan','pub','_lan'],
+               ['jou','pub','_jou'],
+               ['mog','mod','_model'],
+               ['moms','mod','_ms'],
+               ['meg','met','_m_',method[2]],
+               ['mems','met','_ms_',method[2]],
+               ['sog','sof','_s_',software[2]],
+               ['sopl','sof','_pl_',software[2],software[3]],
+               ['ing','inp','_in_',inputs[2]],
+               ['oug','out','_ou_',outputs[2]],
+               ['dig','dis','_di_',disciplines[1]]]
 
-        mq.update({'mqmoms':{key.split('_')[0]: value for (key, value) in mq['mqmod'].items() if '_ms' in key}})
-        wq.update({'wqmoms':{key.split('_')[0]: value for (key, value) in wq['wqmod'].items() if '_ms' in key}})
-        
-        for i,_ in enumerate(method[2]):
-            mq.update({'mqmeg'+str(i):{key.split('_')[0]: value for (key, value) in mq['mqmet'].items() if '_m_'+str(i) in key}})
-            wq.update({'wqmeg'+str(i):{key.split('_')[0]: value for (key, value) in wq['wqmet'].items() if '_m_'+str(i) in key}})
-            mq.update({'mqmems'+str(i):{key.split('_')[0]: value for (key, value) in mq['mqmet'].items() if '_ms_'+str(i) in key}})
-            wq.update({'wqmems'+str(i):{key.split('_')[0]: value for (key, value) in wq['wqmet'].items() if '_ms_'+str(i) in key}})
-
-        for i,_ in enumerate(software[2]):
-            mq.update({'mqsog'+str(i):{key.split('_')[0]: value for (key, value) in mq['mqsof'].items() if '_s_'+str(i) in key}})
-            wq.update({'wqsog'+str(i):{key.split('_')[0]: value for (key, value) in wq['wqsof'].items() if '_s_'+str(i) in key}})
-            for j,_ in enumerate(software[3][i]):                
-                mq.update({'mqsopl'+str(i)+'_'+str(j):{key.split('_')[0]: value for (key, value) in mq['mqsof'].items() if '_pl_'+str(i)+'_'+str(j) in key}})
-                wq.update({'wqsopl'+str(i)+'_'+str(j):{key.split('_')[0]: value for (key, value) in wq['wqsof'].items() if '_pl_'+str(i)+'_'+str(j) in key}})
-        
-        for i,_ in enumerate(inputs[2]):
-            mq.update({'mqing'+str(i):{key.split('_')[0]: value for (key, value) in mq['mqinp'].items() if '_in_'+str(i) in key}})
-            wq.update({'wqing'+str(i):{key.split('_')[0]: value for (key, value) in wq['wqinp'].items() if '_in_'+str(i) in key}})
-
-        for i,_ in enumerate(outputs[2]):
-            mq.update({'mqoug'+str(i):{key.split('_')[0]: value for (key, value) in mq['mqout'].items() if '_ou_'+str(i) in key}})
-            wq.update({'wqoug'+str(i):{key.split('_')[0]: value for (key, value) in wq['wqout'].items() if '_ou_'+str(i) in key}})
-        
-        for i,_ in enumerate(disciplines[1]):            
-            mq.update({'mqdig'+str(i):{key.split('_')[0]: value for (key, value) in mq['mqdis'].items() if '_di_'+str(i) in key}})
-            wq.update({'wqdig'+str(i):{key.split('_')[0]: value for (key, value) in wq['wqdis'].items() if '_di_'+str(i) in key}})
+        for ext in EXT:
+            if len(ext) == 3:
+                wq.update({'wq'+ext[0]:{key.split('_')[0]: value for (key, value) in wq['wq'+ext[1]].items() if ext[2] in key}})
+                mq.update({'mq'+ext[0]:{key.split('_')[0]: value for (key, value) in mq['mq'+ext[1]].items() if ext[2] in key}})
+            elif len(ext) == 4:
+                for i,_ in enumerate(ext[3]):
+                    wq.update({'wq'+ext[0]+str(i):{key.split('_')[0]: value for (key, value) in wq['wq'+ext[1]].items() if ext[2]+str(i) in key}})
+                    mq.update({'mq'+ext[0]+str(i):{key.split('_')[0]: value for (key, value) in mq['mq'+ext[1]].items() if ext[2]+str(i) in key}})
+            else:
+                for i,_ in enumerate(ext[3]):
+                    for j,_ in enumerate(ext[4]):
+                        wq.update({'wq'+ext[0]+str(i)+'_'+str(j):{key.split('_')[0]: value for (key, value) in wq['wq'+ext[1]].items() if ext[2]+str(i)+'_'+str(j) in key}})
+                        mq.update({'mq'+ext[0]+str(i)+'_'+str(j):{key.split('_')[0]: value for (key, value) in mq['mq'+ext[1]].items() if ext[2]+str(i)+'_'+str(j) in key}})
 
         return model, method, software, inputs, outputs, disciplines, wq, mq
 

@@ -23,20 +23,20 @@ statement_mms="""?y rdfs:label ?label."""
 
 #SPARQL Keys for Queries
 
-keys={'wkpub':' ?qid_doi ?label_doi ?quote_doi ?qid_jou ?label_jou ?quote_jou ?qid_lan ?label_lan ?quote_lan ?qid_tit ?label_tit ?quote_tit',
-      'mkpub':' ?qid_doi ?qid_ch1 ?qid_jou ?qid2_jou ?qid3_jou ?qid_lan ?qid2_lan ?qid3_lan ?qid_tit ?qid_ch6 ?qid_ch7',
-      'wkmod':' ?label_model ?quote_model ?label_ms ?quote_ms',
-      'mkmod':' ?label_model ?quote_model ?qid_model ?qid2_model ?label_ms ?quote_ms ?qid_ms',
-      'wkmet':'','mkmet':'','wksof':'','mksof':'','wkinp':'','mkinp':'','wkout':'','mkout':'','wkdis':'','mkdis':''}
+Keys={'wqpub':' ?qid_doi ?label_doi ?quote_doi ?qid_jou ?label_jou ?quote_jou ?qid_lan ?label_lan ?quote_lan ?qid_tit ?label_tit ?quote_tit',
+      'mqpub':' ?qid_doi ?qid_ch1 ?qid_jou ?qid2_jou ?qid3_jou ?qid_lan ?qid2_lan ?qid3_lan ?qid_tit ?qid_ch6 ?qid_ch7',
+      'wqmod':' ?label_model ?quote_model ?label_ms ?quote_ms',
+      'mqmod':' ?label_model ?quote_model ?qid_model ?qid2_model ?label_ms ?quote_ms ?qid_ms',
+      'wqmet':'','mqmet':'','wqsof':'','mqsof':'','wqinp':'','mqinp':'','wqout':'','mqout':'','wqdis':'','mqdis':''}
 
-keys_flex={'wkpub':' ?qid_{0} ?label_{0} ?quote_{0}','mkpub':' ?qid_aut_{0} ?qid2_aut_{0} ?qid3_aut_{0}',
-           'wkmet':' ?label_m_{0} ?quote_m_{0} ?label_ms_{0} ?quote_ms_{0}','mkmet':' ?qid_m_{0} ?label_m_{0} ?quote_m_{0} ?qid2_m_{0} ?label_ms_{0} ?quote_ms_{0} ?qid_ms_{0}',
-           'wksof':[' ?label_s_{0} ?quote_s_{0}',' ?label_pl_{0}_{1} ?quote_pl_{0}_{1}'],
-           'mksof':[' ?qid_s_{0} ?label_s_{0} ?quote_s_{0} ?qid2_s_{0}',' ?qid_pl_{0}_{1} ?label_pl_{0}_{1} ?quote_pl_{0}_{1}'],
-           'wkinp':' ?label_in_{0} ?quote_in_{0}','mkinp':' ?qid_in_{0} ?label_in_{0} ?quote_in_{0} ?qid2_in_{0}',
-           'wkout':' ?label_ou_{0} ?quote_ou_{0}','mkout':' ?qid_ou_{0} ?label_ou_{0} ?quote_ou_{0} ?qid2_ou_{0}',
-           'wkdis':' ?label_di_{0} ?quote_di_{0}','mkdis':' ?qid_di_{0} ?label_di_{0} ?quote_di_{0}',
-           'wkmod':'','mkmod':''}
+keys_flex={'wqpub':' ?qid_{0} ?label_{0} ?quote_{0}','mqpub':' ?qid_aut_{0} ?qid2_aut_{0} ?qid3_aut_{0}',
+           'wqmet':' ?label_m_{0} ?quote_m_{0} ?label_ms_{0} ?quote_ms_{0}','mqmet':' ?qid_m_{0} ?label_m_{0} ?quote_m_{0} ?qid2_m_{0} ?label_ms_{0} ?quote_ms_{0} ?qid_ms_{0}',
+           'wqsof':[' ?label_s_{0} ?quote_s_{0}',' ?label_pl_{0}_{1} ?quote_pl_{0}_{1}'],
+           'mqsof':[' ?qid_s_{0} ?label_s_{0} ?quote_s_{0} ?qid2_s_{0}',' ?qid_pl_{0}_{1} ?label_pl_{0}_{1} ?quote_pl_{0}_{1}'],
+           'wqinp':' ?label_in_{0} ?quote_in_{0}','mqinp':' ?qid_in_{0} ?label_in_{0} ?quote_in_{0} ?qid2_in_{0}',
+           'wqout':' ?label_ou_{0} ?quote_ou_{0}','mqout':' ?qid_ou_{0} ?label_ou_{0} ?quote_ou_{0} ?qid2_ou_{0}',
+           'wqdis':' ?label_di_{0} ?quote_di_{0}','mqdis':' ?qid_di_{0} ?label_di_{0} ?quote_di_{0}',
+           'wqmod':'','mqmod':''}
 
 #SPARQL Bodies for Wikidata Queries
 
