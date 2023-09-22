@@ -29,6 +29,7 @@ MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlyi
 │   ├── display.py - HTTPResponse display information
 │   ├── id.py - wikibase item and property ids 
 │   ├── para.py - Export/Query Parameters
+│   ├── providers.py - Dynamic Option Sets via Wikidata / MaRDI KG
 │   ├── sparql.py - SPARQL query selection
 │   └── setup.py - Setup File for other wikibases
 │ 
