@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" ?>
 <rdmo xmlns:dc="http://purl.org/dc/elements/1.1/">
 	<optionset dc:uri="http://example.com/terms/options/data_type">
 		<uri_prefix>http://example.com/terms</uri_prefix>
@@ -215,6 +215,14 @@ Model, Methoden, Software und Eingabe-/Ausgabedaten
 		<text lang="de">Unabhängig</text>
 		<additional_input>False</additional_input>
 	</option>
+	<optionset dc:uri="http://example.com/terms/options/wikidata_search">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>wikidata_search</key>
+		<dc:comment/>
+		<order>0</order>
+		<provider_key>WikidataSearch</provider_key>
+		<conditions/>
+	</optionset>
 	<optionset dc:uri="http://example.com/terms/options/workflow_type">
 		<uri_prefix>http://example.com/terms</uri_prefix>
 		<key>workflow_type</key>

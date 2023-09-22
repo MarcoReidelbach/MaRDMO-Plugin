@@ -23,8 +23,9 @@ def GetCitation(doi):
     author_without_orcid = []
 
     #Get Citation from DOI API as string
+
     citation=str(BibtexFromDoi(doi))
-    
+   
     if 'DOI is incorrect' in citation:
         #Stop if Citation not found via DOI
         return author_with_orcid, author_without_orcid, citation_dict

@@ -165,14 +165,16 @@ Falls keine ausgewählt wird, führt der MaRDI Export/Query zu einem Fehler.
 		<help lang="en">
 Use a new text field for each entity to be searched. Searching is possible using free text, e.g. the name of a method, as well as mardi:QIDs. To search workflows with a specific research objective use concise key words in separate text fields. Remember that matching workflows must meet all of your search criteria, so keep your requirements as low as necessary.
 </help>
-		<text lang="en">Entity description</text>
+		<text lang="en">Provide a description of the entity to search for</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Verwenden Sie für jede zu suchende Entität ein neues Textfeld. Die Suche ist sowohl über Freitext, z. B. den Namen einer Methode, als auch über mardi:QIDs möglich. Für die Suche nach Workflows mit übereinstimmenden Forschungszielen sollten prägnante Schlüsselwörter in separaten Textfeldern verwendet werden. Denken Sie daran, dass passende Workflows alle Ihre Suchkriterien erfüllen müssen, also halten Sie Ihre Anforderungen so niedrig wie nötig.
 </help>
-		<text lang="de">Entitätenbeschreibung</text>
+		<text lang="de">
+Geben Sie eine Beschreibung der zu suchenden Entität an
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -229,7 +231,7 @@ Verwenden Sie für jede zu suchende Entität ein neues Textfeld. Die Suche ist s
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en">
-Export your documentation locally as markdown file (depreciated) or publish it on the MaRDI portal. To integrate the workflow in the Knowledge Graph additional questions may have to be answered. The RDMO project name will be used as title of the wikipage and label for the workflow entity.
+Export your documentation locally as markdown file (depreciated) or publish it on the MaRDI portal. To integrate the workflow in the Knowledge Graph additional may have to be answered. The RDMO project name will be used as title of the wikipage and label for the workflow entity.
 </help>
 		<text lang="en">Local Documentation or MaDRI portal export?</text>
 		<default_text lang="en"/>
@@ -269,14 +271,14 @@ Exportieren Sie Ihre Dokumentation lokal als Markdown-Datei (nicht empfohlen) od
 		<help lang="en">
 Get a preview of your documentation to check for errors. Once your documentation is correct, choose 'No'. This question is ignored for local export.
 </help>
-		<text lang="en">Documention Preview</text>
+		<text lang="en">Get a preview of the documentation?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Lassen Sie sich eine Vorschau Ihrer Dokumentation anzeigen, um sie auf Fehler zu überprüfen. Sobald Ihre Dokumentation korrekt ist, wählen Sie "Nein". Diese Frage wird beim lokalen Export ignoriert.
 </help>
-		<text lang="de">Dokumentations Vorschau</text>
+		<text lang="de">Eine Dokumentations-Vorschau erhalten?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -335,12 +337,12 @@ Lassen Sie sich eine Vorschau Ihrer Dokumentation anzeigen, um sie auf Fehler zu
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en">A concise sentence is sufficient.</help>
-		<text lang="en">Workflow Problem</text>
+		<text lang="en">State the Workflow Problem</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Ein prägnanter Satz ist ausreichend.</help>
-		<text lang="de">Problemstellung des Workflows</text>
+		<text lang="de">Geben Sie Problemstellung des Workflows an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -369,14 +371,14 @@ Lassen Sie sich eine Vorschau Ihrer Dokumentation anzeigen, um sie auf Fehler zu
 		<help lang="en">
 If neither is selected, the MaRDI Export/Query will result in an error.
 </help>
-		<text lang="en">Experimental or theoretical?</text>
+		<text lang="en">Is the workflows experimental or theoretical?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Falls keines von beiden ausgewählt wird, führt der MaRDI Export/Query zu einem Fehler.
 </help>
-		<text lang="de">Experimentell oder theoretisch?</text>
+		<text lang="de">Ist der Workflow experimentell oder theoretisch?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -407,14 +409,14 @@ Falls keines von beiden ausgewählt wird, führt der MaRDI Export/Query zu einem
 		<help lang="en">
 If so, under which DOI (e.g. doi:10...)? If the publication happened without DOI, select 'No'.
 </help>
-		<text lang="en">Published?</text>
+		<text lang="en">Is the workflow published?</text>
 		<default_text lang="en">doi:</default_text>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Wenn ja, unter welcher DOI (z.B. doi:10...)? Falls die Veröffentlichung ohne DOI geschah, wählen Sie 'Nein'.
 </help>
-		<text lang="de">Veröffentlicht?</text>
+		<text lang="de">Ist der Workflow veröffentlicht?</text>
 		<default_text lang="de">doi:</default_text>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -463,12 +465,12 @@ Wenn ja, unter welcher DOI (z.B. doi:10...)? Falls die Veröffentlichung ohne DO
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en">A concise sentence is sufficient.</help>
-		<text lang="en">Research objective</text>
+		<text lang="en">State the research objective</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Ein prägnanter Satz ist ausreichend.</help>
-		<text lang="de">Forschungsgegenstand</text>
+		<text lang="de">Nennen Sie den Forschungsgegenstand</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -497,14 +499,14 @@ Wenn ja, unter welcher DOI (z.B. doi:10...)? Falls die Veröffentlichung ohne DO
 		<help lang="en">
 The description is intended to help other people, who may not be familiar with the subject, to follow the underlying workflow. Please consider this in the depth of detail of the mathematical and experimental description. You may use HTML tags, e.g. for bold text, new line, ..., and Latex math (in $$...$$) to structure your answer.
 </help>
-		<text lang="en">Workflow procedure</text>
+		<text lang="en">Describe the workflow procedure</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Die Beschreibung soll anderen, möglicherweise fachfremden Personen, helfen dem zugrunde liegenden Workflow zu folgen. Bitte beachten Sie dies bei der Detailtiefe der mathematischen und experimentellen Beschreibung. Sie können HTML Tags, z.B. für fetten Text, neue Zeile, ..., und Latex Mathe (in $$...$$) nutzen um Ihre Antwort zu strukturieren.
 </help>
-		<text lang="de">Workflow Prozedere</text>
+		<text lang="de">Beschreiben Sie das Workflow Prozedere</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -550,26 +552,34 @@ Die Beschreibung soll anderen, möglicherweise fachfremden Personen, helfen dem 
 		<is_collection>True</is_collection>
 		<is_optional>False</is_optional>
 		<order>1</order>
-		<help lang="en">Use mardi:QIDs or wikidata:QIDs.</help>
-		<text lang="en">Involved disciplines</text>
-		<default_text lang="en">mardi:</default_text>
+		<help lang="en">
+For all disciplines the mardi/wikidata:QID, label and description are provided.
+</help>
+		<text lang="en">
+Select appropriate disciplines, involved in your workflow, from Wikidata or MaRDI KG!
+</text>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Verwenden Sie mardi:QIDs oder wikidata:QIDs.</help>
-		<text lang="de">Involvierte Disziplinen</text>
-		<default_text lang="de">mardi:</default_text>
+		<help lang="de">
+Für alle Disziplinen wird die mardi/wikidata:QID, das Label und die Beschreibung angezeigt.
+</help>
+		<text lang="de">
+Wählen Sie geeignete Disziplinen, im Zusammenhang mit ihrem Workflow, aus Wikidata oder dem MaRDI KG aus!
+</text>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
 		<default_external_id/>
-		<widget_type>text</widget_type>
+		<widget_type>autocomplete</widget_type>
 		<value_type>text</value_type>
 		<maximum/>
 		<minimum/>
 		<step/>
 		<unit/>
 		<width/>
-		<optionsets/>
+		<optionsets>
+			<optionset dc:uri="http://example.com/terms/options/wikidata_search"/>
+		</optionsets>
 		<conditions/>
 	</question>
 	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_2/Set_3/Question_02">
@@ -583,16 +593,16 @@ Die Beschreibung soll anderen, möglicherweise fachfremden Personen, helfen dem 
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en">
-Describe data streams between individual disciplines, e.g. time-resolved Raman spectrum from chemistry to mathematics.
+Data streams between individual disciplines, e.g. time-resolved Raman spectrum from chemistry to mathematics.
 </help>
-		<text lang="en">Data streams</text>
+		<text lang="en">Indicate the data streams of the workflow</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Beschreiben Sie Datenströme zwischen einzelnen Disziplinen, z. B. zeitaufgelöstes Raman-Spektrum von der Chemie zur Mathematik.
+Datenströme zwischen einzelnen Disziplinen, z. B. zeitaufgelöstes Raman-Spektrum von der Chemie zur Mathematik.
 </help>
-		<text lang="de">Datenströme</text>
+		<text lang="de">Geben Sie die Datenströme des Workflows an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -649,26 +659,26 @@ Beschreiben Sie Datenströme zwischen einzelnen Disziplinen, z. B. zeitaufgelös
 		<is_optional>False</is_optional>
 		<order>-2</order>
 		<help lang="en">
-If yes, provide the mardi:QID or wikidata:QID and continue with the next section.
+For all models the mardi/wikidata:QID, label and description are provided.
 </help>
 		<text lang="en">
-MoRDI or wikidata QID exists?
+Select an appropriate model from Wikidata or MaRDI KG!
 </text>
-		<default_text lang="en">mardi:</default_text>
+		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Falls ja, geben Sie die mardi:QID oder wikidata:QID an und fahren mit der nächste Sektion fort.
+Für alle Modelle wird die mardi/wikidata:QID, das Label und die Beschreibung angezeigt.
 </help>
 		<text lang="de">
-MoRDI oder wikidata QID existiert?
+Wählen Sie ein geeignetes Modell aus Wikidata oder dem MaRDI KG aus!
 </text>
-		<default_text lang="de">mardi:</default_text>
+		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no/yes"/>
 		<default_external_id/>
-		<widget_type>radio</widget_type>
+		<widget_type>autocomplete</widget_type>
 		<value_type>text</value_type>
 		<maximum/>
 		<minimum/>
@@ -676,44 +686,8 @@ MoRDI oder wikidata QID existiert?
 		<unit/>
 		<width/>
 		<optionsets>
-			<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
+			<optionset dc:uri="http://example.com/terms/options/wikidata_search"/>
 		</optionsets>
-		<conditions/>
-	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Question_00">
-		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Question_00</key>
-		<path>MaRDI/Section_3/Set_1/Question_00</path>
-		<dc:comment/>
-		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_00"/>
-		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
-		<is_collection>False</is_collection>
-		<is_optional>False</is_optional>
-		<order>-1</order>
-		<help lang="en"/>
-		<text lang="en">
-If no mardi:QID or wikidata:QID exists for the model, provide a DOI.
-</text>
-		<default_text lang="en">doi:</default_text>
-		<verbose_name lang="en"/>
-		<verbose_name_plural lang="en"/>
-		<help lang="de"/>
-		<text lang="de">
-Falls keine mardi:QID oder wikidata:QID für das Modell existiert, geben Sie eine DOI an.
-</text>
-		<default_text lang="de">doi:</default_text>
-		<verbose_name lang="de"/>
-		<verbose_name_plural lang="de"/>
-		<default_option/>
-		<default_external_id/>
-		<widget_type>text</widget_type>
-		<value_type>text</value_type>
-		<maximum/>
-		<minimum/>
-		<step/>
-		<unit/>
-		<width/>
-		<optionsets/>
 		<conditions/>
 	</question>
 	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Question_01">
@@ -725,18 +699,18 @@ Falls keine mardi:QID oder wikidata:QID für das Modell existiert, geben Sie ein
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>0</order>
-		<help lang="en">
-If no mardi:QID or wikidata:QID exists for the model.
-</help>
-		<text lang="en">Name</text>
+		<order>-1</order>
+		<help lang="en"/>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide a name for the model.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID für das Modell existiert.
-</help>
-		<text lang="de">Name</text>
+		<help lang="de"/>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie einen Namen für das Modell an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -761,18 +735,18 @@ Falls keine mardi:QID oder wikidata:QID für das Modell existiert.
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>2</order>
-		<help lang="en">
-If no mardi:QID or wikidata:QID exists for the model.
-</help>
-		<text lang="en">Description</text>
+		<order>0</order>
+		<help lang="en"/>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide a description for the model.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID für das Modell existiert.
-</help>
-		<text lang="de">Beschreibung</text>
+		<help lang="de"/>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie eine Beschreibung für das Modell an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -797,19 +771,65 @@ Falls keine mardi:QID oder wikidata:QID für das Modell existiert.
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>3</order>
+		<order>1</order>
 		<help lang="en">
-If no mardi:QID or wikidata:QID exists for the model. Use a mardi:QID or wikidata:QID for the main subject.
+For all subjects the mardi/wikidata:QID, label and description are provided.
 </help>
-		<text lang="en">Main subject</text>
-		<default_text lang="en">wikidata:</default_text>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide the main subject of the model.
+</text>
+		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID für das Modell existiert. Nutzen Sie für das Hauptthema eine mardi:QID oder wikidata:QID.
+Für alle Themen wird die mardi/wikidata:QID, das Label und die Beschreibung angezeigt.
 </help>
-		<text lang="de">Hauptthema</text>
-		<default_text lang="de">wikidata:</default_text>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie das Hauptthema des mathematischen Modells an.
+</text>
+		<default_text lang="de"/>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option/>
+		<default_external_id/>
+		<widget_type>autocomplete</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets>
+			<optionset dc:uri="http://example.com/terms/options/wikidata_search"/>
+		</optionsets>
+		<conditions/>
+	</question>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Wiki_04">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Wiki_04</key>
+		<path>MaRDI/Section_3/Set_1/Wiki_04</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_04"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
+		<is_collection>True</is_collection>
+		<is_optional>False</is_optional>
+		<order>2</order>
+		<help lang="en">
+Use Latex Math in $$...$$ for the formulas. Check the rendering using the preview option.
+</help>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide the defining formula of the model.
+</text>
+		<default_text lang="en"/>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">
+Nutzen Sie für die Formeln Latex Mathe in $$...$$. Überprüfen Sie das Rendering mit der Preview Option.
+</help>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie die relevanten Formeln des Modells an.
+</text>
+		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
@@ -824,28 +844,28 @@ Falls keine mardi:QID oder wikidata:QID für das Modell existiert. Nutzen Sie f�
 		<optionsets/>
 		<conditions/>
 	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Wiki_04">
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1/Question_00">
 		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Wiki_04</key>
-		<path>MaRDI/Section_3/Set_1/Wiki_04</path>
+		<key>Question_00</key>
+		<path>MaRDI/Section_3/Set_1/Question_00</path>
 		<dc:comment/>
-		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_3/Set_1/Wiki_04"/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_00"/>
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_3/Set_1"/>
-		<is_collection>True</is_collection>
+		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>4</order>
-		<help lang="en">
-If no mardi:QID or wikidata: QID exists for the model. Use Latex Math in $$...$$ for the formulas. Check the rendering using the preview option.
-</help>
-		<text lang="en">Defining formula</text>
-		<default_text lang="en"/>
+		<order>3</order>
+		<help lang="en">IDs provided: 'doi:'</help>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide an appropriate reference.
+</text>
+		<default_text lang="en">doi:</default_text>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID für das Modell existiert. Nutzen Sie für die Formeln Latex Mathe in $$...$$. Überprüfen Sie das Rendering mit der Preview Option.
-</help>
-		<text lang="de">Relevante Formeln</text>
-		<default_text lang="de"/>
+		<help lang="de">Mögliche IDs: 'doi:'</help>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie eine geeignete Referenz an. If not in Wikidata / MaRDI KG, provide an appropriate reference.
+</text>
+		<default_text lang="de">doi:</default_text>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
@@ -891,12 +911,12 @@ Falls keine mardi:QID oder wikidata:QID für das Modell existiert. Nutzen Sie f�
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en">If yes, how?</help>
-		<text lang="en">Time discretized?</text>
+		<text lang="en">Is time discretized?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Wenn ja, wie?</help>
-		<text lang="de">Zeit Diskretisierung?</text>
+		<text lang="de">Gibt es eine Diskretisierung der Zeit?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -925,12 +945,12 @@ Falls keine mardi:QID oder wikidata:QID für das Modell existiert. Nutzen Sie f�
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en">If yes, how?</help>
-		<text lang="en">Space discretized?</text>
+		<text lang="en">Is space discretized?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Wenn ja, wie?</help>
-		<text lang="de">Raum Diskretisierung?</text>
+		<text lang="de">Gibt es eine Diskretisierung des Raums?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -985,12 +1005,12 @@ Beschreiben Sie im folgenden die Variablen ihres Workflows. Verwenden Sie für j
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en"/>
-		<text lang="en">Name</text>
+		<text lang="en">Provide a name for the varibale</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
-		<text lang="de">Name</text>
+		<text lang="de">Geben Sie einen Namen für die Variable an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1017,12 +1037,12 @@ Beschreiben Sie im folgenden die Variablen ihres Workflows. Verwenden Sie für j
 		<is_optional>False</is_optional>
 		<order>1</order>
 		<help lang="en">Use SI units where applicable.</help>
-		<text lang="en">Unit</text>
+		<text lang="en">Provide a unit for the variable</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Verwenden Sie SI Einheiten, sofern anwendbar.</help>
-		<text lang="de">Einheit</text>
+		<text lang="de">Geben Sie eine Einheit für die Variable an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1049,12 +1069,12 @@ Beschreiben Sie im folgenden die Variablen ihres Workflows. Verwenden Sie für j
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en"/>
-		<text lang="en">Symbol</text>
+		<text lang="en">Provide a symbol for the variable</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
-		<text lang="de">Symbol</text>
+		<text lang="de">Geben Sie ein Symbol für die Variable an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1083,14 +1103,14 @@ Beschreiben Sie im folgenden die Variablen ihres Workflows. Verwenden Sie für j
 		<help lang="en">
 A dependent variable is measured, while an independent variable is controlled.
 </help>
-		<text lang="en">Dependent or independent?</text>
+		<text lang="en">Is the variable dependent or independent?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Eine abhängige Variable wird gemessen, während eine unabhängige Variable kontrolliert wird.
 </help>
-		<text lang="de">Abhängig oder unabhängig?</text>
+		<text lang="de">Ist die Variable abhängig oder unabhängig?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1145,12 +1165,12 @@ Beschreiben Sie im folgenden die Variablen ihres Workflows. Verwenden Sie für j
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en"/>
-		<text lang="en">Name</text>
+		<text lang="en">Provide a name for the variable</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
-		<text lang="de">Name</text>
+		<text lang="de">Geben Sie einen Namen für die Variable an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1177,12 +1197,12 @@ Beschreiben Sie im folgenden die Variablen ihres Workflows. Verwenden Sie für j
 		<is_optional>False</is_optional>
 		<order>1</order>
 		<help lang="en">Use SI units where applicable.</help>
-		<text lang="en">Unit</text>
+		<text lang="en">Provide a unit for the variable</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Verwenden Sie SI Einheiten, sofern anwendbar.</help>
-		<text lang="de">Einheit</text>
+		<text lang="de">Geben Sie eine Einheit für die Variable an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1209,12 +1229,12 @@ Beschreiben Sie im folgenden die Variablen ihres Workflows. Verwenden Sie für j
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en"/>
-		<text lang="en">Symbol</text>
+		<text lang="en">Provide a symbol for the variable</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
-		<text lang="de">Symbol</text>
+		<text lang="de">Geben Sie ein Symbol für die Variable an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1265,12 +1285,12 @@ Beschreiben Sie im folgenden die Parameter ihres Workflows. Verwenden Sie für j
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en"/>
-		<text lang="en">Name</text>
+		<text lang="en">Provide a name for the parameter</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
-		<text lang="de">Name</text>
+		<text lang="de">Geben Sie einen Namen für den Parameter an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1297,12 +1317,12 @@ Beschreiben Sie im folgenden die Parameter ihres Workflows. Verwenden Sie für j
 		<is_optional>False</is_optional>
 		<order>1</order>
 		<help lang="en">Use SI units where applicable.</help>
-		<text lang="en">Unit</text>
+		<text lang="en">Provide a unit for the parameter</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Verwenden Sie SI Einheiten, sofern anwendbar.</help>
-		<text lang="de">Einheit</text>
+		<text lang="de">Geben Sie eine Einheit für den Parameter an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1329,12 +1349,12 @@ Beschreiben Sie im folgenden die Parameter ihres Workflows. Verwenden Sie für j
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en"/>
-		<text lang="en">Symbol</text>
+		<text lang="en">Provide a symbol for the parameter</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
-		<text lang="de">Symbol</text>
+		<text lang="de">Geben Sie ein Symbol für den Parameter an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1397,14 +1417,14 @@ Beschreiben Sie im folgenden die Prozessschritte ihres Workflows. Verwenden Sie 
 		<help lang="en">
 Ideally referring to the workflow procedure described before.
 </help>
-		<text lang="en">Name</text>
+		<text lang="en">Provide a name for the process stepp</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Idealerweise bezugnehmend auf die zuvor beschriebene Workflow Prozedur.
 </help>
-		<text lang="de">Name</text>
+		<text lang="de">Geben Sie den Name des Prozessschrits an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1433,14 +1453,14 @@ Idealerweise bezugnehmend auf die zuvor beschriebene Workflow Prozedur.
 		<help lang="en">
 Short description of what happens in the process step.
 </help>
-		<text lang="en">Description</text>
+		<text lang="en">Provide a description for the process step</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Kurze Beschreibung davon was in dem Prozessschritt passiert.
 </help>
-		<text lang="de">Beschreibung</text>
+		<text lang="de">Geben Sie eine Beschreibung des Prozessschritts an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1467,14 +1487,14 @@ Kurze Beschreibung davon was in dem Prozessschritt passiert.
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en">What is the input (data) of the process step?</help>
-		<text lang="en">Input</text>
+		<text lang="en">State the input of the process step</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Was sind die Eingaben/Eingabedaten des Prozessschritts?
 </help>
-		<text lang="de">Input</text>
+		<text lang="de">Nennen Sie den Input des Prozessschritts</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1501,14 +1521,14 @@ Was sind die Eingaben/Eingabedaten des Prozessschritts?
 		<is_optional>False</is_optional>
 		<order>3</order>
 		<help lang="en">What is the output (data) of the process step?</help>
-		<text lang="en">Output</text>
+		<text lang="en">State the output of the process step</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Was sind die Ausgaben/Ausgabedaten des Prozessschritts?
 </help>
-		<text lang="de">Output</text>
+		<text lang="de">Nennen Sie den Output des Prozessschritts</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1534,15 +1554,15 @@ Was sind die Ausgaben/Ausgabedaten des Prozessschritts?
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>4</order>
-		<help lang="en">What methods are used in this process step?</help>
-		<text lang="en">Methods</text>
+		<help lang="en"/>
+		<text lang="en">State the methods used in this process step</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Welche Methoden werden in diesem Prozessschritt verwendet?
-</help>
-		<text lang="de">Methoden</text>
+		<help lang="de"/>
+		<text lang="de">
+Nennen Sie die Methoden, die in diesem Prozessschritt verwendet werden
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1568,17 +1588,15 @@ Welche Methoden werden in diesem Prozessschritt verwendet?
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>5</order>
-		<help lang="en">
-Which parameters are relevant for this process step?
-</help>
-		<text lang="en">Parameter</text>
+		<help lang="en"/>
+		<text lang="en">State the parameter relevant for this process step</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Welche Parameter sind für diesen Prozessschritt relevant?
-</help>
-		<text lang="de">Parameter</text>
+		<help lang="de"/>
+		<text lang="de">
+Nennen Sie die Parameter, die für diesen Prozessschritt relevant sind
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1605,12 +1623,12 @@ Welche Parameter sind für diesen Prozessschritt relevant?
 		<is_optional>False</is_optional>
 		<order>6</order>
 		<help lang="en">e.g. python, matlab, spectrometer, ...</help>
-		<text lang="en">Environment</text>
+		<text lang="en">State the environment of the process step</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">z. B. Python, Matlab, Spektrometer, ...</help>
-		<text lang="de">Umgebung</text>
+		<text lang="de">Nennen Sie die Umgebung des Prozessschritts</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1639,14 +1657,16 @@ Welche Parameter sind für diesen Prozessschritt relevant?
 		<help lang="en">
 e.g. optimization, linear algebra, numerical analysis, ...
 </help>
-		<text lang="en">Mathematical Area</text>
+		<text lang="en">State the mathematical area of the process step</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 z. B. Optimierung, lineare Algebra, numerische Analyse, ...
 </help>
-		<text lang="de">Mathematisches Gebiet</text>
+		<text lang="de">
+Nennen Sie das mathematische Gebiet des Prozessschritts
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1695,22 +1715,28 @@ Beschreiben Sie im folgenden die verwendeten Methode ihres Workflows. Verwenden 
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>-1</order>
-		<help lang="en">If yes, provide the mardi:QID or wikidata:QID.</help>
-		<text lang="en">MaRDI or wikidata QID exists?</text>
-		<default_text lang="en">mardi:</default_text>
+		<order>-2</order>
+		<help lang="en">
+For all methods the mardi/wikidata:QID, label and description are provided.
+</help>
+		<text lang="en">
+Select an appropriate method from Wikidata or MaRDI KG!
+</text>
+		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Falls ja, geben Sie die mardi:QID oder wikidata:QID an.
+Für alle Methoden wird die mardi/wikidata:QID, das Label und die Beschreibung angezeigt.
 </help>
-		<text lang="de">MaRDI oder Wikidata QID existiert?</text>
-		<default_text lang="de">mardi:</default_text>
+		<text lang="de">
+Wählen Sie eine geeignete Methode aus Wikidata oder dem MaRDI KG aus!
+</text>
+		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
 		<default_external_id/>
-		<widget_type>radio</widget_type>
+		<widget_type>autocomplete</widget_type>
 		<value_type>text</value_type>
 		<maximum/>
 		<minimum/>
@@ -1718,44 +1744,8 @@ Falls ja, geben Sie die mardi:QID oder wikidata:QID an.
 		<unit/>
 		<width/>
 		<optionsets>
-			<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
+			<optionset dc:uri="http://example.com/terms/options/wikidata_search"/>
 		</optionsets>
-		<conditions/>
-	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2/Question_00">
-		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Question_00</key>
-		<path>MaRDI/Section_4/Set_2/Question_00</path>
-		<dc:comment/>
-		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_00"/>
-		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2"/>
-		<is_collection>False</is_collection>
-		<is_optional>False</is_optional>
-		<order>0</order>
-		<help lang="en"/>
-		<text lang="en">
-If no mardi:QID or wikidata:QID exists for the method, provide a DOI.
-</text>
-		<default_text lang="en"/>
-		<verbose_name lang="en"/>
-		<verbose_name_plural lang="en"/>
-		<help lang="de"/>
-		<text lang="de">
-Falls keine mardi:QID oder wikidata:QID für die Methode existiert, geben Sie eine DOI an.
-</text>
-		<default_text lang="de"/>
-		<verbose_name lang="de"/>
-		<verbose_name_plural lang="de"/>
-		<default_option/>
-		<default_external_id/>
-		<widget_type>text</widget_type>
-		<value_type>text</value_type>
-		<maximum/>
-		<minimum/>
-		<step/>
-		<unit/>
-		<width/>
-		<optionsets/>
 		<conditions/>
 	</question>
 	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2/Question_02">
@@ -1767,18 +1757,18 @@ Falls keine mardi:QID oder wikidata:QID für die Methode existiert, geben Sie ei
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>1</order>
-		<help lang="en">
-If no mardi:QID or wikidata:QID exists for the method.
-</help>
-		<text lang="en">Name</text>
+		<order>-1</order>
+		<help lang="en"/>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide a name for the method.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID für die Methode existiert.
-</help>
-		<text lang="de">Name</text>
+		<help lang="de"/>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie einen Namen für die Methode an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1803,18 +1793,18 @@ Falls keine mardi:QID oder wikidata:QID für die Methode existiert.
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>1</order>
-		<help lang="en">
-If no mardi:QID or wikidata:QID exists for the method.
-</help>
-		<text lang="en">Description</text>
+		<order>0</order>
+		<help lang="en"/>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide a description for the method.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID für die Methode existiert.
-</help>
-		<text lang="de">Beschreibung</text>
+		<help lang="de"/>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie eine Beschreibung für die Methode an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1839,19 +1829,65 @@ Falls keine mardi:QID oder wikidata:QID für die Methode existiert.
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>2</order>
+		<order>1</order>
 		<help lang="en">
-If no mardi:QID or wikidata:QID exists for the method. Use a mardi:QID or wikidata:QID for the main subject.
+For all subjects the mardi/wikidata:QID, label and description are provided.
 </help>
-		<text lang="en">Main subject</text>
-		<default_text lang="en">mardi:</default_text>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide the main subject of the method.
+</text>
+		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID für die Methode existiert. Nutzen Sie zur Angabe des Hauptthemas eine mardi:QID oder wikidata:QID.
+Für alle Themen wird die mardi/wikidata:QID, das Label und die Beschreibung angezeigt.
 </help>
-		<text lang="de">Hauptthema</text>
-		<default_text lang="de">mardi:</default_text>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie das Hauptthema der Methode an.
+</text>
+		<default_text lang="de"/>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option/>
+		<default_external_id/>
+		<widget_type>autocomplete</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets>
+			<optionset dc:uri="http://example.com/terms/options/wikidata_search"/>
+		</optionsets>
+		<conditions/>
+	</question>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2/Wiki_04">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Wiki_04</key>
+		<path>MaRDI/Section_4/Set_2/Wiki_04</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_04"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2"/>
+		<is_collection>True</is_collection>
+		<is_optional>False</is_optional>
+		<order>2</order>
+		<help lang="en">
+Use Latex Math in $$...$$ for the formulas. Check the rendering using the preview option.
+</help>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide the defining formulas of the method.
+</text>
+		<default_text lang="en"/>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">
+Nutzen Sie Latex Math in $$...$$ für die Formeln. Überprüfen Sie das Rendering über die Preview Option.
+</help>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie die relevanten Formeln der Methode an.
+</text>
+		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
@@ -1866,27 +1902,27 @@ Falls keine mardi:QID oder wikidata:QID für die Methode existiert. Nutzen Sie z
 		<optionsets/>
 		<conditions/>
 	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2/Wiki_04">
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2/Question_00">
 		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Wiki_04</key>
-		<path>MaRDI/Section_4/Set_2/Wiki_04</path>
+		<key>Question_00</key>
+		<path>MaRDI/Section_4/Set_2/Question_00</path>
 		<dc:comment/>
-		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_2/Wiki_04"/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_00"/>
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_2"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>2</order>
-		<help lang="en">
-If no mardi:QID or wikidata:QID exists for the method. Use Latex Math in $$...$$ for the formulas. Check the rendering using the preview option.
-</help>
-		<text lang="en">Defining formulas</text>
+		<order>3</order>
+		<help lang="en">IDs provided: 'doi:'</help>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide an appropriate reference.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID für die Methode existiert. Nutzen Sie Latex Math in $$...$$ für die Formeln. Überprüfen Sie das Rendering über die Preview Option.
-</help>
-		<text lang="de">Relevante Formeln</text>
+		<help lang="de">Mögliche IDs: 'doi:'</help>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie eine geeignete Referenz an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1913,16 +1949,20 @@ Falls keine mardi:QID oder wikidata:QID für die Methode existiert. Nutzen Sie L
 		<is_optional>False</is_optional>
 		<order>3</order>
 		<help lang="en">
-Specify the name of the previously documented and relevant process step.
+Specify the name of the previously documented and relevant process step(s).
 </help>
-		<text lang="en">Associated process step</text>
+		<text lang="en">
+Provide the associated process step(s) of the method
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Geben Sie den Namen des zuvor dokumentierten und relevanten Prozessschritts an.
+Geben Sie den Namen des(/r) zuvor dokumentierten und relevanten Prozessschritts(/e) an.
 </help>
-		<text lang="de">Zugehöriger Prozessschritt</text>
+		<text lang="de">
+Geben Sie den(/die) zugehörigen Prozessschritt(e) der Methode an
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1948,13 +1988,15 @@ Geben Sie den Namen des zuvor dokumentierten und relevanten Prozessschritts an.
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>3</order>
-		<help lang="en">Which parameters are relevant for this method?</help>
-		<text lang="en">Parameter</text>
+		<help lang="en"/>
+		<text lang="en">Provide the relevant parameter(s) of the method</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Welche Parameter sind für diese Methode relevant?</help>
-		<text lang="de">Parameter</text>
+		<help lang="de"/>
+		<text lang="de">
+Geben Sie den(/die) relevanten Parameter der Methode an
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -1980,13 +2022,17 @@ Geben Sie den Namen des zuvor dokumentierten und relevanten Prozessschritts an.
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>4</order>
-		<help lang="en">e.g. python, matlab, ...</help>
-		<text lang="en">Realized or implemented by</text>
+		<help lang="en"/>
+		<text lang="en">
+Provide the software(s) realizing or implementing the method
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">z. B. Python, Matlab, ...</help>
-		<text lang="de">Implementiert oder realisiert durch</text>
+		<help lang="de"/>
+		<text lang="de">
+Geben Sie die Software(s) an, die die Methode realisieren oder implementieren.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2036,21 +2082,27 @@ Beschreiben Sie im folgenden die verwendeten Software ihres Workflows. Verwenden
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>-1</order>
-		<help lang="en">If yes, provide the mardi:QID or wikidata:QID.</help>
-		<text lang="en">MaRDI or wikidata QID exists?</text>
-		<default_text lang="en">mardi:</default_text>
+		<help lang="en">
+For all softwares the mardi/wikidata:QID, label and description are provided.
+</help>
+		<text lang="en">
+Select an appropriate software from Wikidata or MaRDI KG!
+</text>
+		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Falls ja, geben Sie die mardi:QID oder wikidata:QID an.
+Für alle Softwares wird die mardi/wikidata:QID, das Label und die Beschreibung angezeigt.
 </help>
-		<text lang="de">MaRDI oder Wikidata QID existiert?</text>
-		<default_text lang="de">mardi:</default_text>
+		<text lang="de">
+Wählen Sie eine geeignete Software aus Wikidata oder dem MaRDI Knowledge Graph aus!
+</text>
+		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
 		<default_external_id/>
-		<widget_type>radio</widget_type>
+		<widget_type>autocomplete</widget_type>
 		<value_type>text</value_type>
 		<maximum/>
 		<minimum/>
@@ -2058,44 +2110,8 @@ Falls ja, geben Sie die mardi:QID oder wikidata:QID an.
 		<unit/>
 		<width/>
 		<optionsets>
-			<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
+			<optionset dc:uri="http://example.com/terms/options/wikidata_search"/>
 		</optionsets>
-		<conditions/>
-	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3/Question_00">
-		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Question_00</key>
-		<path>MaRDI/Section_4/Set_3/Question_00</path>
-		<dc:comment/>
-		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_00"/>
-		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3"/>
-		<is_collection>False</is_collection>
-		<is_optional>False</is_optional>
-		<order>0</order>
-		<help lang="en"/>
-		<text lang="en">
-If no mardi:QID or wikidata:QID exists for the software, provide an swmath ID or DOI.
-</text>
-		<default_text lang="en"/>
-		<verbose_name lang="en"/>
-		<verbose_name_plural lang="en"/>
-		<help lang="de"/>
-		<text lang="de">
-Falls keine mardi:QID oder wikidata:QID für die Software existiert, geben Sie eine swmath ID oder DOI an.
-</text>
-		<default_text lang="de"/>
-		<verbose_name lang="de"/>
-		<verbose_name_plural lang="de"/>
-		<default_option/>
-		<default_external_id/>
-		<widget_type>text</widget_type>
-		<value_type>text</value_type>
-		<maximum/>
-		<minimum/>
-		<step/>
-		<unit/>
-		<width/>
-		<optionsets/>
 		<conditions/>
 	</question>
 	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3/Question_02">
@@ -2107,18 +2123,18 @@ Falls keine mardi:QID oder wikidata:QID für die Software existiert, geben Sie e
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>1</order>
-		<help lang="en">
-If no mardi:QID or wikidata:QID exists for the software. Software name without version number.
-</help>
-		<text lang="en">Name</text>
+		<order>0</order>
+		<help lang="en"/>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide a name for the software.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID der Software existiert. Name der Software ohne Versionsnummer.
-</help>
-		<text lang="de">Name</text>
+		<help lang="de"/>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie einen Namen für die Software an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2143,54 +2159,18 @@ Falls keine mardi:QID oder wikidata:QID der Software existiert. Name der Softwar
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>2</order>
-		<help lang="en">
-If no mardi:QID or wikidata:QID exists for the software.
-</help>
-		<text lang="en">Description</text>
+		<order>1</order>
+		<help lang="en"/>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide a description for the software.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID für die Software existiert.
-</help>
-		<text lang="de">Beschreibung</text>
-		<default_text lang="de"/>
-		<verbose_name lang="de"/>
-		<verbose_name_plural lang="de"/>
-		<default_option/>
-		<default_external_id/>
-		<widget_type>text</widget_type>
-		<value_type>text</value_type>
-		<maximum/>
-		<minimum/>
-		<step/>
-		<unit/>
-		<width/>
-		<optionsets/>
-		<conditions/>
-	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3/Question_04">
-		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Question_04</key>
-		<path>MaRDI/Section_4/Set_3/Question_04</path>
-		<dc:comment/>
-		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_04"/>
-		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3"/>
-		<is_collection>False</is_collection>
-		<is_optional>False</is_optional>
-		<order>3</order>
-		<help lang="en">
-As detailed as necessary to reproduce the workflow.
-</help>
-		<text lang="en">Version</text>
-		<default_text lang="en"/>
-		<verbose_name lang="en"/>
-		<verbose_name_plural lang="en"/>
-		<help lang="de">
-So detailliert wie nötig um den Workflow zu reproduzieren.
-</help>
-		<text lang="de">Version</text>
+		<help lang="de"/>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie eine Beschreibung für die Software an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2215,19 +2195,95 @@ So detailliert wie nötig um den Workflow zu reproduzieren.
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3"/>
 		<is_collection>True</is_collection>
 		<is_optional>False</is_optional>
-		<order>4</order>
+		<order>2</order>
 		<help lang="en">
-Use mardi:QID or wikidata:QID for the programming language.
+For all programming languages the mardi/wikidata:QID, label and description are provided.
 </help>
-		<text lang="en">Programming language</text>
-		<default_text lang="en">mardi:</default_text>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide the programming language(s) the software is based on.
+</text>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Nutzen Sie für die Programmiersprache eine mardi:QID oder wikidata:QID.
+Für alle Programmiersprachen wird die mardi/wikidata:QID, das Label und die Beschreibung angezeigt.
 </help>
-		<text lang="de">Programmiersprache</text>
-		<default_text lang="de">mardi:</default_text>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie die Programmiersprache(n) an auf denen die Software basiert.
+</text>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option/>
+		<default_external_id/>
+		<widget_type>autocomplete</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets>
+			<optionset dc:uri="http://example.com/terms/options/wikidata_search"/>
+		</optionsets>
+		<conditions/>
+	</question>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3/Question_00">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Question_00</key>
+		<path>MaRDI/Section_4/Set_3/Question_00</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_00"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3"/>
+		<is_collection>False</is_collection>
+		<is_optional>False</is_optional>
+		<order>3</order>
+		<help lang="en">IDs provided: 'doi:', 'swmath:'</help>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide an appropriate reference.
+</text>
+		<default_text lang="en"/>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">Mögliche IDs: 'doi:', 'swmath:'</help>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie eine geeignete Referenz an.
+</text>
+		<default_text lang="de"/>
+		<verbose_name lang="de"/>
+		<verbose_name_plural lang="de"/>
+		<default_option/>
+		<default_external_id/>
+		<widget_type>text</widget_type>
+		<value_type>text</value_type>
+		<maximum/>
+		<minimum/>
+		<step/>
+		<unit/>
+		<width/>
+		<optionsets/>
+		<conditions/>
+	</question>
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3/Question_04">
+		<uri_prefix>http://example.com/terms</uri_prefix>
+		<key>Question_04</key>
+		<path>MaRDI/Section_4/Set_3/Question_04</path>
+		<dc:comment/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_04"/>
+		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3"/>
+		<is_collection>False</is_collection>
+		<is_optional>False</is_optional>
+		<order>4</order>
+		<help lang="en">
+As detailed as necessary to reproduce the workflow.
+</help>
+		<text lang="en">Provide the version of the software used</text>
+		<default_text lang="en"/>
+		<verbose_name lang="en"/>
+		<verbose_name_plural lang="en"/>
+		<help lang="de">
+So detailliert wie nötig um den Workflow zu reproduzieren.
+</help>
+		<text lang="de">Geben Sie die Version der verwendeten Software an.</text>
+		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
@@ -2249,20 +2305,22 @@ Nutzen Sie für die Programmiersprache eine mardi:QID oder wikidata:QID.
 		<dc:comment/>
 		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_06"/>
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3"/>
-		<is_collection>False</is_collection>
+		<is_collection>True</is_collection>
 		<is_optional>False</is_optional>
 		<order>5</order>
 		<help lang="en">
-Operating system, compiler, drivers, other software packages and other as comma separated list.
+Operating system, compiler, drivers, other software packages and other.
 </help>
-		<text lang="en">Dependencies</text>
+		<text lang="en">Provide the dependencies of the software used</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Betriebssystem, Kompilierer, Treiber, andere Software Pakete und sonstiges als Komma separierte Liste.
+Betriebssystem, Kompilierer, Treiber, andere Software Pakete und sonstiges.
 </help>
-		<text lang="de">Abhängigkeiten</text>
+		<text lang="de">
+Geben Sie die Abhängigkeiten der verwendeten Software an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2275,7 +2333,9 @@ Betriebssystem, Kompilierer, Treiber, andere Software Pakete und sonstiges als K
 		<step/>
 		<unit/>
 		<width/>
-		<optionsets/>
+		<optionsets>
+			<optionset dc:uri="http://example.com/terms/options/wikidata_search"/>
+		</optionsets>
 		<conditions/>
 	</question>
 	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_3/Question_07">
@@ -2288,17 +2348,15 @@ Betriebssystem, Kompilierer, Treiber, andere Software Pakete und sonstiges als K
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>6</order>
-		<help lang="en">
-If yes, provide a link to the version history, if available.
-</help>
-		<text lang="en">Versioned?</text>
+		<help lang="en">If yes, provide a link to the version history.</help>
+		<text lang="en">Is the software versioned?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Falls ja geben Sie, sofern vorhanden, einen Link zur Versionsübersicht an.
+Falls ja geben Sie einen Link zur Versionsübersicht an.
 </help>
-		<text lang="de">Versioniert?</text>
+		<text lang="de">Ist die Software versioniert?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2327,16 +2385,16 @@ Falls ja geben Sie, sofern vorhanden, einen Link zur Versionsübersicht an.
 		<is_optional>False</is_optional>
 		<order>7</order>
 		<help lang="en">
-If yes, provide a link where the software can be obtained, if available.
+If yes, provide a link where the software can be obtained.
 </help>
-		<text lang="en">Published?</text>
+		<text lang="en">Is the software published?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Falls ja geben Sie, sofern vorhanden, einen Link an über den die Software bezogen werden kann.
+Falls ja geben Sie einen Link an über den die Software bezogen werden kann.
 </help>
-		<text lang="de">Veröffentlicht?</text>
+		<text lang="de">Ist die Software veröffentlicht?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2364,17 +2422,15 @@ Falls ja geben Sie, sofern vorhanden, einen Link an über den die Software bezog
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>8</order>
-		<help lang="en">
-If yes, provide a link to the documentation, if available.
-</help>
-		<text lang="en">Documented?</text>
+		<help lang="en">If yes, provide a link to the documentation.</help>
+		<text lang="en">Is the software documented?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Falls ja geben Sie, sofern vorhanden, einen Link zur Dokumentation an.
+Falls ja geben Sie einen Link zur Dokumentation an.
 </help>
-		<text lang="de">Dokumentiert?</text>
+		<text lang="de">Ist die Software dokumentiert?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2429,16 +2485,16 @@ Beschreiben Sie im folgenden die Hardware ihres Workflows. Verwenden Sie für je
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en">
-Use a mardi:QID, wikidata:QID or another ID. Leave blank if ID avaible.
+Use a mardi:QID, wikidata:QID or another ID. Leave blank if no ID avaible.
 </help>
-		<text lang="en">Identifier</text>
+		<text lang="en">Provide an identifier for the hardware</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Nutzen Sie eine mardi:QID, wikidata:QID oder eine andere ID. Freilassen falls keine ID verfügbar ist.
 </help>
-		<text lang="de">Identifier</text>
+		<text lang="de">Geben Sie einen Identifier für die Hardware an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2467,14 +2523,14 @@ Nutzen Sie eine mardi:QID, wikidata:QID oder eine andere ID. Freilassen falls ke
 		<help lang="en">
 Device name assigned by the producer, name of an HPC cluster, ...
 </help>
-		<text lang="en">Name</text>
+		<text lang="en">Provide a name for the hardware</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Vom Hersteller zugewiesener Gerätename, Name eines HPC-Clusters, ...
 </help>
-		<text lang="de">Name</text>
+		<text lang="de">Geben Sie einen Namen für die Hardware an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2501,12 +2557,12 @@ Vom Hersteller zugewiesener Gerätename, Name eines HPC-Clusters, ...
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en">Name assigned by the manufacturer</help>
-		<text lang="en">Processor name</text>
+		<text lang="en">Provide the processor name of the hardware</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Vom Hersteller zugewiesener Name</help>
-		<text lang="de">Prozessorname</text>
+		<text lang="de">Geben Sie den Prozessornamen der Hardware an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2533,12 +2589,12 @@ Vom Hersteller zugewiesener Gerätename, Name eines HPC-Clusters, ...
 		<is_optional>False</is_optional>
 		<order>3</order>
 		<help lang="en">Specify as comma-separated list.</help>
-		<text lang="en">Existing compiler</text>
+		<text lang="en">Provide the existing compiler of the hardware</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Als Komma-separierte Liste angeben.</help>
-		<text lang="de">Verfügbare Compiler</text>
+		<text lang="de">Geben Sie die verfügbare Compiler der Hardware an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2565,12 +2621,12 @@ Vom Hersteller zugewiesener Gerätename, Name eines HPC-Clusters, ...
 		<is_optional>False</is_optional>
 		<order>4</order>
 		<help lang="en">Number that is available in total.</help>
-		<text lang="en">Number of nodes</text>
+		<text lang="en">State the number of nodes of the hardware</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Anzahl die insgesamt zur Verfügung steht.</help>
-		<text lang="de">Anzahl der Nodes</text>
+		<text lang="de">Nennen Sie die Anzahl der Nodes der Hardware</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2597,12 +2653,12 @@ Vom Hersteller zugewiesener Gerätename, Name eines HPC-Clusters, ...
 		<is_optional>False</is_optional>
 		<order>5</order>
 		<help lang="en">Number that is available in total.</help>
-		<text lang="en">Number of cores</text>
+		<text lang="en">State the number of cores of the hardware</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Anzahl die insgesamt zur Verfügung steht.</help>
-		<text lang="de">Anzahl der Cores</text>
+		<text lang="de">Nennen Sie die Anzahl der Cores der Hardware</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2657,14 +2713,14 @@ Beschreiben Sie im folgenden die experimentellen Geräte und Hardware ihres Work
 		<help lang="en">
 Use a mardi:QID, wikidata:QID or another ID. Leave blank if no ID exists.
 </help>
-		<text lang="en">Identifier</text>
+		<text lang="en">Provide an identifier for the device</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Nutzen Sie eine mardi:QID, wikidata:QID oder eine andere ID. Freilassen falls keine ID verfügbar ist.
 </help>
-		<text lang="de">Identifier</text>
+		<text lang="de">Geben Sie einen Identifier für das Gerät an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2693,14 +2749,14 @@ Nutzen Sie eine mardi:QID, wikidata:QID oder eine andere ID. Freilassen falls ke
 		<help lang="en">
 Experimental device name or hardware name assigned by the producer, name of an HPC cluster, ...
 </help>
-		<text lang="en">Name</text>
+		<text lang="en">Provide a name for the device</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Vom Hersteller vergebener Name des experimentellen Geräts oder der Hardware, Name eines HPC Clusters, ...
 </help>
-		<text lang="de">Name</text>
+		<text lang="de">Geben Sie einen Namen für das Gerät an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2727,12 +2783,12 @@ Vom Hersteller vergebener Name des experimentellen Geräts oder der Hardware, Na
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en">Short, concise and workflow relevant.</help>
-		<text lang="en">Description</text>
+		<text lang="en">Provide a description for the device</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Kurz, prägnant und Workflow relevant.</help>
-		<text lang="de">Beschreibung</text>
+		<text lang="de">Geben Sie eine Beschreibung des Geräts an</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2761,14 +2817,14 @@ Vom Hersteller vergebener Name des experimentellen Geräts oder der Hardware, Na
 		<help lang="en">
 As detailed as necessary to reproduce the workflow.
 </help>
-		<text lang="en">Version</text>
+		<text lang="en">State the version of the device</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 So detailliert wie nötig um den Workflow zu reproduzieren.
 </help>
-		<text lang="de">Version</text>
+		<text lang="de">Nennen Sie die Version des Geräts</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2795,12 +2851,12 @@ So detailliert wie nötig um den Workflow zu reproduzieren.
 		<is_optional>False</is_optional>
 		<order>4</order>
 		<help lang="en">If available, if not leave empty.</help>
-		<text lang="en">Part number</text>
+		<text lang="en">State the part number of the device</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Sofern verfügbar, falls nicht frei lassen.</help>
-		<text lang="de">Teilenummer</text>
+		<text lang="de">Nennen Sie die Teilenummer des Geräts</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2827,12 +2883,12 @@ So detailliert wie nötig um den Workflow zu reproduzieren.
 		<is_optional>False</is_optional>
 		<order>5</order>
 		<help lang="en">If available, if not leave empty.</help>
-		<text lang="en">Serial number</text>
+		<text lang="en">State the serial number of the device</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Sofern vorhanden, falls nicht frei lassen.</help>
-		<text lang="de">Seriennummer</text>
+		<text lang="de">Nennen Sie die Seriennummer des Geräts</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2859,12 +2915,12 @@ So detailliert wie nötig um den Workflow zu reproduzieren.
 		<is_optional>False</is_optional>
 		<order>6</order>
 		<help lang="en">Institute, city, country</help>
-		<text lang="en">Location</text>
+		<text lang="en">State the location of the device</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Institut, Stadt, Land</help>
-		<text lang="de">Standort</text>
+		<text lang="de">Nennen Sie den Standort des Geräts</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2891,12 +2947,12 @@ So detailliert wie nötig um den Workflow zu reproduzieren.
 		<is_optional>False</is_optional>
 		<order>7</order>
 		<help lang="en">Short, concise, workflow relevant.</help>
-		<text lang="en">Available software</text>
+		<text lang="en">State the available software of the device</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Kurz, prägnant, Workflow relevant.</help>
-		<text lang="de">Verfügbare Software</text>
+		<text lang="de">Nennen Sie die verfügbare Software des Geräts</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -2946,21 +3002,27 @@ Beschreiben Sie im folgenden die Eingabedaten ihres Workflows. Verwenden Sie fü
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>-1</order>
-		<help lang="en">If yes, provide the mardi:QID or wikidata:QID.</help>
-		<text lang="en">MaRDI or wikidata QID exists?</text>
-		<default_text lang="en">mardi:</default_text>
+		<help lang="en">
+For all input data sets the mardi/wikidata:QID, label and description are provided.
+</help>
+		<text lang="en">
+Select an appropriate input data set from Wikidata or MaRDI KG!
+</text>
+		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Falls ja, geben Sie die mardi:QID oder wikidata:QID an.
+Für alle Eingabedatensätze wird die mardi/wikidata:QID, das Label und die Beschreibung angezeigt.
 </help>
-		<text lang="de">MaRDI oder Wikidata QID existiert?</text>
-		<default_text lang="de">mardi:</default_text>
+		<text lang="de">
+Wählen Sie einen geeigneten Eingabedatensatz aus Wikidata oder dem MaRDI KG aus!
+</text>
+		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
 		<default_external_id/>
-		<widget_type>radio</widget_type>
+		<widget_type>autocomplete</widget_type>
 		<value_type>text</value_type>
 		<maximum/>
 		<minimum/>
@@ -2968,30 +3030,30 @@ Falls ja, geben Sie die mardi:QID oder wikidata:QID an.
 		<unit/>
 		<width/>
 		<optionsets>
-			<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
+			<optionset dc:uri="http://example.com/terms/options/wikidata_search"/>
 		</optionsets>
 		<conditions/>
 	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_6/Question_10">
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_6/Question_01">
 		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Question_10</key>
-		<path>MaRDI/Section_4/Set_6/Question_10</path>
+		<key>Question_01</key>
+		<path>MaRDI/Section_4/Set_6/Question_01</path>
 		<dc:comment/>
-		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_10"/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01"/>
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_6"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en"/>
 		<text lang="en">
-If no mardi:QID or wikidata:QID exists for the input data, provide a DOI.
+If not in Wikidata / MaRDI KG, provide a name for the input data set.
 </text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
 		<text lang="de">
-Falls keine mardi:QID oder wikidata:QID für die Eingabedaten existiert, geben Sie eine DOI an.
+Falls nicht in Wikidata / MaRDI KG, geben Sie einen Namen für den Eingabedatensatz an.
 </text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -3008,27 +3070,27 @@ Falls keine mardi:QID oder wikidata:QID für die Eingabedaten existiert, geben S
 		<optionsets/>
 		<conditions/>
 	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_6/Question_01">
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_6/Question_10">
 		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Question_01</key>
-		<path>MaRDI/Section_4/Set_6/Question_01</path>
+		<key>Question_10</key>
+		<path>MaRDI/Section_4/Set_6/Question_10</path>
 		<dc:comment/>
-		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01"/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_10"/>
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_6"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
-		<order>1</order>
-		<help lang="en">
-If no mardi:QID or wikidata:QID exists for the input data.
-</help>
-		<text lang="en">Name</text>
+		<order>0</order>
+		<help lang="en">IDs provided: 'doi:'</help>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide an appropriate reference.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID für die Input Daten existiert.
-</help>
-		<text lang="de">Name</text>
+		<help lang="de">Mögliche IDs: 'doi:'</help>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie eine geeignete Referenz an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3055,12 +3117,12 @@ Falls keine mardi:QID oder wikidata:QID für die Input Daten existiert.
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en"/>
-		<text lang="en">Size</text>
+		<text lang="en">Provide the size of the input data set.</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
-		<text lang="de">Größe</text>
+		<text lang="de">Geben Sie die Größe des Eingabedatensatzes an.</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3088,13 +3150,15 @@ Falls keine mardi:QID oder wikidata:QID für die Input Daten existiert.
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>3</order>
-		<help lang="en">Numpy array, pandas dataframe, ...</help>
-		<text lang="en">Data structure</text>
+		<help lang="en">e.g. numpy array, pandas dataframe, ...</help>
+		<text lang="en">Provide the data structure of the input data set.</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Numpy Array, Pandas Dataframe, ...</help>
-		<text lang="de">Datenstruktur</text>
+		<help lang="de">z.B. Numpy Array, Pandas Dataframe, ...</help>
+		<text lang="de">
+Geben Sie die Datenstruktur des Eingabedatensatzes an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3120,13 +3184,17 @@ Falls keine mardi:QID oder wikidata:QID für die Input Daten existiert.
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>4</order>
-		<help lang="en">Comma separated sparse matrix, ...</help>
-		<text lang="en">Representation format</text>
+		<help lang="en">e.g. comma separated sparse matrix, ...</help>
+		<text lang="en">
+Provide the representation format of the input data set.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Komma separierte, dünnbesetzte Matrix, ...</help>
-		<text lang="de">Representationsformat</text>
+		<help lang="de">z.B. komma-separierte dünnbesetzte Matrix, ...</help>
+		<text lang="de">
+Geben Sie das Representationsformat des Eingabedatensatzes an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3152,13 +3220,15 @@ Falls keine mardi:QID oder wikidata:QID für die Input Daten existiert.
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>5</order>
-		<help lang="en">File format</help>
-		<text lang="en">Exchange format</text>
+		<help lang="en">e.g. .txt, .png, .csv, ...</help>
+		<text lang="en">Provide the exchange format of the input data set.</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Dateiformat</help>
-		<text lang="de">Austauschformat</text>
+		<help lang="de">z.B. .txt, .png, .csv, ...</help>
+		<text lang="de">
+Geben Sie das Austauschformat des Eingabedatensatzes an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3184,17 +3254,13 @@ Falls keine mardi:QID oder wikidata:QID für die Input Daten existiert.
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>6</order>
-		<help lang="en">
-e.g. csv (text), png (binary), xlsx (compressed xml files therefore text), ...
-</help>
-		<text lang="en">Binary or text?</text>
+		<help lang="en"/>
+		<text lang="en">Is the input data set binary or text?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-z. B. csv (Text), png (binär), xlsx (komprimierte xml-Dateien also Text), ...
-</help>
-		<text lang="de">Binär oder text?</text>
+		<help lang="de"/>
+		<text lang="de">Ist der Eingabedatensatz binär oder text?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3223,12 +3289,12 @@ z. B. csv (Text), png (binär), xlsx (komprimierte xml-Dateien also Text), ...
 		<is_optional>False</is_optional>
 		<order>6</order>
 		<help lang="en"/>
-		<text lang="en">Format prorietary?</text>
+		<text lang="en">Is the format of the input data set prorietary?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
-		<text lang="de">Format proprietär?</text>
+		<text lang="de">Ist das Format des Eingabedatensatzes proprietär?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3259,14 +3325,16 @@ z. B. csv (Text), png (binär), xlsx (komprimierte xml-Dateien also Text), ...
 		<help lang="en">
 If yes, data should be available via the identifier specified before.
 </help>
-		<text lang="en">Input data publication necessary?</text>
+		<text lang="en">Is a publication of the input data set necessary?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Falls ja, sollten die Daten über den zuvor angegeben Identifier abrufbar sein.
 </help>
-		<text lang="de">Eingabedaten Veröffentlichung notwendig?</text>
+		<text lang="de">
+Ist eine Veröffentlichung des Eingabedatensatzes notwendig?
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3295,12 +3363,14 @@ Falls ja, sollten die Daten über den zuvor angegeben Identifier abrufbar sein.
 		<is_optional>False</is_optional>
 		<order>9</order>
 		<help lang="en">If yes how long?</help>
-		<text lang="en">Input data archiving necessary?</text>
+		<text lang="en">Is an archiving of the input data set necessary?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Falls ja wie lang?</help>
-		<text lang="de">Eingabedaten Archivierung notwendig?</text>
+		<text lang="de">
+Ist eine Archivierung des Eingabedatensatzes notwendig?
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3352,21 +3422,27 @@ Beschreiben Sie im folgenden die Ausgabedaten ihres Workflows. Verwenden Sie fü
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>-1</order>
-		<help lang="en">If yes, provide the mardi:QID or wikidata:QID.</help>
-		<text lang="en">MaRDI or wikidata QID exists?</text>
-		<default_text lang="en">mardi:</default_text>
+		<help lang="en">
+For all output data sets the mardi/wikidata:QID, label and description are provided.
+</help>
+		<text lang="en">
+Select an appropriate output data set from Wikidata or MaRDI KG!
+</text>
+		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
-Falls ja geben Sie die mardi:QID oder wikidata:QID an.
+Für alle Ausgabedatensätze wird die mardi/wikidata:QID, das Label und die Beschreibung angezeigt.
 </help>
-		<text lang="de">MaRDI oder Wikidata QID existiert?</text>
-		<default_text lang="de">mardi:</default_text>
+		<text lang="de">
+Wählen Sie einen geeigneten Ausgabedatensatz aus Wikidata oder dem MaRDI Knowledge Graph aus!
+</text>
+		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
 		<default_option/>
 		<default_external_id/>
-		<widget_type>radio</widget_type>
+		<widget_type>autocomplete</widget_type>
 		<value_type>text</value_type>
 		<maximum/>
 		<minimum/>
@@ -3374,30 +3450,30 @@ Falls ja geben Sie die mardi:QID oder wikidata:QID an.
 		<unit/>
 		<width/>
 		<optionsets>
-			<optionset dc:uri="https://rdmorganiser.github.io/terms/options/yes_with_text_no"/>
+			<optionset dc:uri="http://example.com/terms/options/wikidata_search"/>
 		</optionsets>
 		<conditions/>
 	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_7/Question_10">
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_7/Question_01">
 		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Question_10</key>
-		<path>MaRDI/Section_4/Set_7/Question_10</path>
+		<key>Question_01</key>
+		<path>MaRDI/Section_4/Set_7/Question_01</path>
 		<dc:comment/>
-		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_10"/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_01"/>
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_7"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en"/>
 		<text lang="en">
-If no mardi:QID or wikidata:QID exists for the output data, provide a DOI.
+If not in Wikidata / MaRDI KG, provide a name for the output data set.
 </text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
 		<text lang="de">
-Falls keine mardi:QID oder wikidata:QID für die Ausgabedaten existiert, geben Sie eine DOI an.
+Falls nicht in Wikidata / MaRDI KG, geben Sie einen Namen für den Ausgabedatensatz an.
 </text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
@@ -3414,27 +3490,27 @@ Falls keine mardi:QID oder wikidata:QID für die Ausgabedaten existiert, geben S
 		<optionsets/>
 		<conditions/>
 	</question>
-	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_7/Question_01">
+	<question dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_7/Question_10">
 		<uri_prefix>http://example.com/terms</uri_prefix>
-		<key>Question_01</key>
-		<path>MaRDI/Section_4/Set_7/Question_01</path>
+		<key>Question_10</key>
+		<path>MaRDI/Section_4/Set_7/Question_10</path>
 		<dc:comment/>
-		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_01"/>
+		<attribute dc:uri="http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_10"/>
 		<questionset dc:uri="http://example.com/terms/questions/MaRDI/Section_4/Set_7"/>
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>1</order>
-		<help lang="en">
-If no mardi:QID or wikidata:QID exists for the output data.
-</help>
-		<text lang="en">Name</text>
+		<help lang="en">IDs provided: 'doi:'</help>
+		<text lang="en">
+If not in Wikidata / MaRDI KG, provide an appropriate reference.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-Falls keine mardi:QID oder wikidata:QID für die Ausgabedaten existiert.
-</help>
-		<text lang="de">Name</text>
+		<help lang="de">Mögliche IDs: 'doi:'</help>
+		<text lang="de">
+Falls nicht in Wikidata / MaRDI KG, geben Sie eine geeignete Referenz an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3461,12 +3537,12 @@ Falls keine mardi:QID oder wikidata:QID für die Ausgabedaten existiert.
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en"/>
-		<text lang="en">Size</text>
+		<text lang="en">Provide the size of the output data set.</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
-		<text lang="de">Größe</text>
+		<text lang="de">Geben Sie die Größe des Ausgabedatensatzes an.</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3494,13 +3570,15 @@ Falls keine mardi:QID oder wikidata:QID für die Ausgabedaten existiert.
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>3</order>
-		<help lang="en">Numpy array, pandas dataframe</help>
-		<text lang="en">Data structure</text>
+		<help lang="en">e.g. numpy array, pandas dataframe, ...</help>
+		<text lang="en">Provide the data structure of the output data set.</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Numpy Array, Pandas Dataframe, ...</help>
-		<text lang="de">Datenstruktur</text>
+		<help lang="de">z.B. Numpy Array, Pandas Dataframe, ...</help>
+		<text lang="de">
+Geben Sie die Datenstruktur des Ausgabedatensatzes an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3526,13 +3604,17 @@ Falls keine mardi:QID oder wikidata:QID für die Ausgabedaten existiert.
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>4</order>
-		<help lang="en">Comma separated sparse matrix, ...</help>
-		<text lang="en">Representation format</text>
+		<help lang="en">e.g. comma separated sparse matrix, ...</help>
+		<text lang="en">
+Provide the representation format of the output data set.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Komma separierte, dünnbesetzte Matrix, ...</help>
-		<text lang="de">Repräsentationsformat</text>
+		<help lang="de">z.B. komma-separierte dünnbesetzte Matrix, ...</help>
+		<text lang="de">
+Geben Sie das Representationsformat des Ausgabedatensatzes an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3558,13 +3640,17 @@ Falls keine mardi:QID oder wikidata:QID für die Ausgabedaten existiert.
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>5</order>
-		<help lang="en">File format</help>
-		<text lang="en">Exchange format</text>
+		<help lang="en">e.g. .txt, .png, .csv, ...</help>
+		<text lang="en">
+Provide the exchange format of the output data set.
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">Dateiformat</help>
-		<text lang="de">Austauschformat</text>
+		<help lang="de">z.B. .txt, .png, .csv, ...</help>
+		<text lang="de">
+Geben Sie das Austauschformat des Ausgabedatensatzes an.
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3590,17 +3676,13 @@ Falls keine mardi:QID oder wikidata:QID für die Ausgabedaten existiert.
 		<is_collection>False</is_collection>
 		<is_optional>False</is_optional>
 		<order>6</order>
-		<help lang="en">
-e.g. csv (text), png (binary), xlsx (compressed xml files therefore text), ...
-</help>
-		<text lang="en">Binary or text?</text>
+		<help lang="en"/>
+		<text lang="en">Is the output data set binary or text?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
-		<help lang="de">
-z. B. csv (Text), png (Binär), xlsx (komprimierte xml Files also Text), ...
-</help>
-		<text lang="de">Binär oder text?</text>
+		<help lang="de"/>
+		<text lang="de">Ist der Ausgabedatensatz binär oder text?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3629,12 +3711,12 @@ z. B. csv (Text), png (Binär), xlsx (komprimierte xml Files also Text), ...
 		<is_optional>False</is_optional>
 		<order>7</order>
 		<help lang="en"/>
-		<text lang="en">Format proprietary?</text>
+		<text lang="en">Is the format of the output data set prorietary?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de"/>
-		<text lang="de">Format proprietär?</text>
+		<text lang="de">Ist das Format des Ausgabedatensatzes proprietär?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3665,14 +3747,16 @@ z. B. csv (Text), png (Binär), xlsx (komprimierte xml Files also Text), ...
 		<help lang="en">
 If yes, data should be available via the identifier specified before.
 </help>
-		<text lang="en">Output data publication necessary?</text>
+		<text lang="en">Is a publication of the output data set necessary?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">
 Falls ja, sollten die Daten über den zuvor angegebenen Identifier abrufbar sein.
 </help>
-		<text lang="de">Ausgabedaten Veröffentlichung notwendig?</text>
+		<text lang="de">
+Ist eine Veröffentlichung des Ausgabedatensatzes notwendig?
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3701,12 +3785,14 @@ Falls ja, sollten die Daten über den zuvor angegebenen Identifier abrufbar sein
 		<is_optional>False</is_optional>
 		<order>9</order>
 		<help lang="en">If yes, how long?</help>
-		<text lang="en">Output data archiving necessary?</text>
+		<text lang="en">Is an archiving of the output data set necessary?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Falls ja, wie lang?</help>
-		<text lang="de">Ausgabedaten Archivierung notwendig?</text>
+		<text lang="de">
+Ist eine Archivierung des Ausgabedatensatzes notwendig?
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3767,12 +3853,12 @@ Falls ja, sollten die Daten über den zuvor angegebenen Identifier abrufbar sein
 		<is_optional>False</is_optional>
 		<order>0</order>
 		<help lang="en">If yes under which conditions?</help>
-		<text lang="en">Mathematical Reproducibility?</text>
+		<text lang="en">Is the workflow mathematically reproducible?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Falls ja unter welchen Bedingungen?</help>
-		<text lang="de">Mathematische Reproduzierbarkeit?</text>
+		<text lang="de">Ist der Workflow mathematisch reproduzierbar?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3801,12 +3887,12 @@ Falls ja, sollten die Daten über den zuvor angegebenen Identifier abrufbar sein
 		<is_optional>False</is_optional>
 		<order>1</order>
 		<help lang="en">If yes under which conditions?</help>
-		<text lang="en">Runtime reproducibility?</text>
+		<text lang="en">Is the runtime reproducibie?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Falls ja unter welchen Bedingungen?</help>
-		<text lang="de">Laufzeit Reproduziebrakeit?</text>
+		<text lang="de">Ist die Laufzeit reproduziebar?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3835,12 +3921,12 @@ Falls ja, sollten die Daten über den zuvor angegebenen Identifier abrufbar sein
 		<is_optional>False</is_optional>
 		<order>2</order>
 		<help lang="en">If yes under which conditions?</help>
-		<text lang="en">Reproducibility of Results?</text>
+		<text lang="en">Are the results reproducible?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Falls ja unter welchen Bedingungen?</help>
-		<text lang="de">Reproduzierbarkeit der Ergebnisse?</text>
+		<text lang="de">Sind die Ergebnisse reproduzierbar?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3869,12 +3955,16 @@ Falls ja, sollten die Daten über den zuvor angegebenen Identifier abrufbar sein
 		<is_optional>False</is_optional>
 		<order>3</order>
 		<help lang="en">If yes under which conditions?</help>
-		<text lang="en">Reproducibilty on original hardware?</text>
+		<text lang="en">
+Is a reproduction on the original hardware possible?
+</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Falls ja unter welchen Bedingungen?</help>
-		<text lang="de">Reproduzierbarkeit auf der Originalhardware?</text>
+		<text lang="de">
+Ist die Reproduktion auf der Originalhardware möglich?
+</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>
@@ -3903,12 +3993,12 @@ Falls ja, sollten die Daten über den zuvor angegebenen Identifier abrufbar sein
 		<is_optional>False</is_optional>
 		<order>4</order>
 		<help lang="en">If yes under which conditions?</help>
-		<text lang="en">Reproducibility on other hardware?</text>
+		<text lang="en">Is a reproduction on other hardware possible?</text>
 		<default_text lang="en"/>
 		<verbose_name lang="en"/>
 		<verbose_name_plural lang="en"/>
 		<help lang="de">Falls ja unter welchen Bedingungen?</help>
-		<text lang="de">Reproduzierbarkeit auf anderer Hardware?</text>
+		<text lang="de">Ist die Reproduktion auf anderer Hardware möglich?</text>
 		<default_text lang="de"/>
 		<verbose_name lang="de"/>
 		<verbose_name_plural lang="de"/>

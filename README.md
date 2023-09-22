@@ -94,9 +94,13 @@ INSTALLED_APPS = ['MaRDMO'] + INSTALLED_APPS
 PROJECT_EXPORTS += [
         ('mde', _('MaRDI Export/Query'), 'MaRDMO.func.export.MaRDIExport'),
         ]
+
+OPTIONSET_PROVIDERS = [
+    ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO.func.providers.WikidataSearch')
+    ]
 ```
 
-Thereby, the Export/Query Plugin is installed and a "MaRDI Export/Query" Button is added in the Project View.
+Thereby, the Export/Query Plugin is installed and a "MaRDI Export/Query" Button is added in the Project View. The option set provider allows direct Wikidata / MaRDI KG queries. 
 
 To connect MaRDMO with the MaRDI portal do
 
