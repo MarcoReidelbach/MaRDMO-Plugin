@@ -44,7 +44,7 @@ class MaRDIExport(Export):
             else:
                 values = queryset.filter(attribute=question.attribute).order_by('set_prefix', 'set_index', 'collection_index')
                 data[question.attribute.uri]=self.stringify_values(values)
-           
+                   
         # Workflow Documentation
         if data[dec[0][0]] in (dec[0][1],dec[0][2]):
 
@@ -561,7 +561,7 @@ class MaRDIExport(Export):
                 else:
                     data.append(fact[0](value=fact[1],prop_nr=fact[2]))
         item.claims.add(data)
-        
+            
         item.write()
 
         return item.id

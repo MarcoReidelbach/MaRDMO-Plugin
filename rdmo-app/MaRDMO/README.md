@@ -10,7 +10,7 @@ The functionality of the Export/Query Plugin is captured in the questionnaire, s
 
 MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlying Knowledge Graph. To use MaRDMO with any other [wikibase](https://www.mediawiki.org/wiki/Wikibase/Installation) a script is provided to prepare the wikibase for MaRDMO. 
 
-## Structure of MaRDMO directory in rdmo-app
+## Repository structure
 
 ```bash
 . 
@@ -20,11 +20,11 @@ MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlyi
 │   ├── options.xml - individual options of RDMO Questionnaire 
 │   └── questions.xml - individual questions for RDMO Questionnaire 
 │ 
-├── requirements.txt - File to set up virtual environment 
+├── environment.yml - File to set up MaRDMO conda environment 
 │ 
 ├── func - Export/Query Plugin Files
 │   ├── citation.py - get citation from DOI and ORCID API 
-│   ├── config_empty.py - wikibase information (API,SPARQL endpoint, bot credentials)
+│   ├── config_empty.py - wikibase information 
 │   ├── export.py - Export/Query Function 
 │   ├── display.py - HTTPResponse display information
 │   ├── id.py - wikibase item and property ids 
@@ -42,32 +42,41 @@ MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlyi
 
 ### RDMO and MaRDMO Plugin
 
-Check if you meet the [prerequisites](https://rdmo.readthedocs.io/en/latest/installation/prerequisites.html) of RDMO. Install them, if required.
+To install RDMO check if you meet their [prerequisites](https://rdmo.readthedocs.io/en/latest/installation/prerequisites.html). If so, obtain the app directory by cloning the corresponding repository:
 
-Clone the MaRDMO directory:
+```bash
+git clone https://github.com/rdmorganiser/rdmo-app
+```
+
+Likewise clone the MaRDMO directory:
+
+```bash
+cd rdmo-app
+```
 
 ```bash
 git clone https://github.com/MarcoReidelbach/MaRDMO.git
 ```
 
-**Note:** So far MaRDMO is provided for test operation with an old `rdmo-app directory` to ensure compatibility to `RDMO 1.9.0`. In the future MaRDMO will be implemented as an extension of `RDMO 2.0`. 
-
-Once cloned, setup a virtual environment in the `rdmo-app directory` containing `bibtexparser`, `langdetect`, `pylatexenc`, `pypandoc_binary` and `wikibaseintegrator`:
+Once cloned, setup a virtual conda environment:
 
 ```bash
-cd MaRDMO/rdmo-app
-python3 -m venv env 
-source env/bin/activate
-pip install --upgrade pip setuptools 
-pip install -r MaRDMO/requirements.txt
+conda env create -f MaRDMO/environment.yml
 ```
 
-**Note:** So far `RDMO 1.9.0` is also installed through `requirements.txt`. In the future MaRDMO should be added to an existing RDMO instance.
+Thereby, a virtual environment "MaRDMO" is created in which the RDMO package and further packages, e.g. `WikibaseIntegrator`, for the Export/Query Plugin are installed.  
 
 Setup the RDMO application:
 
 ```bash
+conda activate MaRDMO
+```
+
+```bash
 cp config/settings/sample.local.py config/settings/local.py
+```
+
+```python
 python manage.py migrate                
 python manage.py setup_groups           
 python manage.py createsuperuser
