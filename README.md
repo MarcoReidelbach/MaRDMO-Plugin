@@ -33,9 +33,7 @@ MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlyi
 │   ├── sparql.py - SPARQL query selection
 │   └── setup.py - Setup File for other wikibases
 │ 
-├── LICENSE.md
-│ 
-└── README.md 
+└── LICENSE.md 
 ```
   
 ## Installation
