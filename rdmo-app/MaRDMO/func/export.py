@@ -23,7 +23,7 @@ class MaRDIExport(Export):
     def render(self):
         '''Function that renders User answers to MaRDI template
            (adjusted from csv export)'''
-        
+         
         # Check if MaRDI Questionaire is used
         if str(self.project.catalog) != 'MaRDI':
             return HttpResponse(response_temp.format(err1).format(self.project.catalog))
@@ -46,6 +46,12 @@ class MaRDIExport(Export):
                 data[question.attribute.uri]=self.stringify_values(values)
                    
         # Workflow Documentation
+
+        # Initialize dictionaries for MaRDI KG and Wikidata queries
+
+        wq = {}
+        mq = {}
+
         if data[dec[0][0]] in (dec[0][1],dec[0][2]):
 
             #Check if research objective if provided
@@ -67,7 +73,9 @@ class MaRDIExport(Export):
             paper=self.wikibase_answers(data,ws[0])[0]
 
             # If Portal integration is desired, get further information about publication 
-            if data[dec[2][0]] == dec[2][2]:
+            #if data[dec[2][0]] == dec[2][2]:
+            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+            #if 1 == 1:
                 # Extract DOI
                 doi=re.split(':',paper)
                 if doi[0] == 'Yes':
@@ -132,181 +140,185 @@ class MaRDIExport(Export):
                                                               (String,cit['pages'],P15),(ExternalID,cit['doi'].upper(),P16)])  
                 else:
                     #Get User Answers to query Wikidata and MaRDI KG
-                    wq, mq = self.sparql(data,ws)
+                    #wq, mq = self.sparql(data,ws)
                     #If no related paper provided, no QID assigned
                     paper_qid=[]
 
-                # Integrate related model in wikibase
-                # Check if on Portal or in Wikidata, integrate Wikidata entry if desired
-                model_qid,entry=self.portal_wikidata_check(mq['mqmod'],wq['wqmod'],data)
-                if entry and model_qid:
-                    #Update User answers, i.e. use MaRDI ID, name and description
-                    data.update({ws[1][0]:'mardi:'+model_qid,ws[1][1]:entry[0],ws[1][2]:entry[1]})
-                #Get main subject of model
-                model_ms_qid=[]
-                if wq['wqmod_sub']['qid'][0]:
-                    #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
-                    model_ms_qid,entry=self.portal_wikidata_check(mq['mqmod_sub'],wq['wqmod_sub'],data)
-                if not (model_qid or model_ms_qid):
-                    #Stop if model has no QID and it main subject has no QID
-                    return HttpResponse(response_temp.format(err9))
-                if not model_qid:
-                    if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-                        # Generate Model Entry on Portal 
-                        if not (wq['wqmod']['label'] and wq['wqmod']['quote']):
-                            #Stop if no label and quote is provided for the model
-                            return HttpResponse(response_temp.format(err21))
-                        model_qid=self.entry(wq['wqmod']['label'],wq['wqmod']['quote'],[(Item,Q3,P4),(Item,model_ms_qid,P17)]+
-                                             [(String,re.sub("\$","",form.lstrip()),P18) for form in re.split(';',wq['wqmod']['form'])]+
-                                             [(ExternalID,wq['wqmod']['id'].split(':')[-1],P16)])
-                        # Update User answer, i.e. include ID of newly created Model entity
-                        data.update({ws[1][0]:'mardi:'+model_qid})
-                    else:
-                        # Update User answer, i.e. MaRDI ID to be determined if published on portal
-                        data.update({ws[1][0]:'mardi:tbd'})
-            
-                # Integrate related methods in wikibase
-                methods_qid=[]
-                for i in range(wq['no']['met']):
-                    #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
-                    method_qid,entry=self.portal_wikidata_check(mq['mqmet'+str(i)],wq['wqmet'+str(i)],data)
-                    if entry and method_qid:
-                        #Store QID
-                        methods_qid.append(method_qid)
-                        #Update User answers, i.e. use MaRDI ID and name
-                        data.update({ws[2][0]+'_'+str(i):'mardi:'+method_qid,ws[2][1]+'_'+str(i):entry[0]})
-                    #Get main subject of method
-                    method_ms_qid=[]
-                    if wq['wqmet_sub'+str(i)]['qid'][0]:
-                        #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
-                        method_ms_qid,entry=self.portal_wikidata_check(mq['mqmet_sub'+str(i)],wq['wqmet_sub'+str(i)],data)
-                    if not (method_qid or method_ms_qid):
-                        #Stop if method has no QID and its main subject has no QID
-                        return HttpResponse(response_temp.format(err17.format(i)))
-                    if not method_qid:
-                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-                            #Generate Method Entry in MaRDI KG
-                            if not (wq['wqmet'+str(i)]['label'] and wq['wqmet'+str(i)]['quote']):
-                                #Stop if no label and quote is provided for the method
-                                return HttpResponse(response_temp.format(err22.format(i)))
-                            methods_qid.append(self.entry(wq['wqmet'+str(i)]['label'],wq['wqmet'+str(i)]['quote'],[(Item,Q4,P4),(Item,method_ms_qid,P17)]+
-                                                                           [(String,re.sub("\$","",form.lstrip()),P18) for form in re.split(';',wq['wqmet'+str(i)]['form'])]+
-                                                                           [(ExternalID,wq['wqmet'+str(i)]['id'].split(':')[-1],P16)]))
-                            #Update User answers, i.e. include ID of newly created method entity
-                            data[ws[2][0]+'_'+str(i)] = 'mardi:'+methods_qid[-1]
-                        else:
-                            #Update User answers, i.e. MaRDI ID to be determined when published on portal
-                            data[ws[2][0]+'_'+str(i)] = 'mardi:tbd'
+            if not (wq and mq):
+                #Get User Answers to query Wikidata and MaRDI KG without citation queries
+                wq, mq = self.sparql(data,ws)
 
-                # Integrate related softwares in wikibase
-                softwares_qid=[]
-                for i in range(wq['no']['sof']):
-                    #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
-                    software_qid,entry=self.portal_wikidata_check(mq['mqsof'+str(i)],wq['wqsof'+str(i)],data)
-                    if entry and software_qid:
-                        #Store QID
-                        softwares_qid.append(software_qid)
-                        #Update User answers, i.e. use MaRDI ID, name and description
-                        data.update({ws[3][0]+'_'+str(i):'mardi:'+software_qid,ws[3][1]+'_'+str(i):entry[0],ws[3][2]+'_'+str(i):entry[1]})
-                    #Get programming languages of software (only relevant for software without QID)
-                    softwares_pl_qid=[]
-                    softwares_pl_qid_string=''
-                    for j in range(wq['pl'+str(i)]['no']): 
-                        if wq['wqsof_sub'+str(i)+'_'+str(j)]['qid'][0]:
-                            #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
-                            software_pl_qid,entry=self.portal_wikidata_check(mq['mqsof_sub'+str(i)+'_'+str(j)],wq['wqsof_sub'+str(i)+'_'+str(j)],data)
-                            #Store QID
-                            softwares_pl_qid.append(software_pl_qid)
-                            #Update User Answers, i.e. ID <|> Label <|> Description transformed to Label (ID)
-                            softwares_pl_qid_string+=data[ws[3][3]+'_'+str(i)].split('; ')[j].split(' <|> ')[1]+' (mardi:'+software_pl_qid+');'
-                    if not (software_qid or software_pl_qid):
-                        #Stop if software has no QID and its programming languages have no QID
-                        return HttpResponse(response_temp.format(err16.format(i)))
-                    #Update User answers, i.e. enter refined programming languages
-                    data.update({ws[3][3]+'_'+str(i):softwares_pl_qid_string})
-                    if not software_qid:
-                        #If not on Portal create new software entity if desired
-                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-                            #Generate Software Entry in MaRDI KG
-                            if not (wq['wqsof'+str(i)]['label'] and wq['wqsof'+str(i)]['quote']):
-                                #Stop if no label and quote is provided for the software
-                                return HttpResponse(response_temp.format(err23.format(i)))
-                            softwares_qid.append(self.entry(wq['wqsof'+str(i)]['label'],wq['wqsof'+str(i)]['quote'],[(Item,Q5,P4)]+
-                                                                            [(Item,plang,P19) for plang in softwares_pl_qid]+
-                                                                            [(ExternalID,wq['wqsof'+str(i)]['id'].split(':')[-1],P16 if wq['wqsof'+str(i)]['id'].split(':')[0] == 'doi' else P20)]))
-                            #Update User answers, i.e. include MaRDI ID of newly created software entity
-                            data.update({ws[3][0]+'_'+str(i):'mardi:'+softwares_qid[-1]})
-                        else:
-                            #Update User answers, i.e. MaRDI ID to be determined when published on portal
-                            data.update({ws[3][0]+'_'+str(i):'mardi:tbd'})
-                
-                # Integrate related inputs in wikibase
-                inputs_qid=[]
-                for i in range(wq['no']['inp']):
-                    #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
-                    input_qid,entry=self.portal_wikidata_check(mq['mqinp'+str(i)],wq['wqinp'+str(i)],data)
-                    if entry and input_qid:
-                        #Store QID
-                        inputs_qid.append(input_qid)
-                        #Update User answers, i.e. use MaRDI ID name 
-                        data.update({ws[6][0]+'_'+str(i):'mardi:'+input_qid,ws[6][1]+'_'+str(i):entry[0]})
-                    else:
-                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-                            #Generate Input Entry in MaRDI KG
-                            if not (wq['wqinp'+str(i)]['label'] and wq['wqinp'+str(i)]['quote']):
-                                #Stop if no label and quote provided for input data set
-                                return HttpResponse(response_temp.format(err24.format(i)))
-                            inputs_qid.append(self.entry(wq['wqinp'+str(i)]['label'],wq['wqinp'+str(i)]['quote'],[(Item,Q6,P4),(ExternalID,wq['wqinp'+str(i)]['id'].split(':')[-1],P16)]))
-                            #Update User answers, i.e. include MaRDI ID of newly created input entity
-                            data.update({ws[6][0]+'_'+str(i):'mardi:'+inputs_qid[-1]})
-                        else:
-                            #Update User answers, i.e. MaRDI ID to be determined once published on portal
-                            data.update({ws[6][0]+'_'+str(i):'mardi:tbd'})
-            
-                # Integrate related outputs in wikibase
-                outputs_qid=[]
-                for i in range(wq['no']['out']):
-                    #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
-                    output_qid,entry=self.portal_wikidata_check(mq['mqout'+str(i)],wq['wqout'+str(i)],data)
-                    if entry and output_qid:
-                        #Store QID
-                        outputs_qid.append(output_qid)
-                        #Update User answers, i.e. use MaRDI ID and name 
-                        data.update({ws[7][0]+'_'+str(i):'mardi:'+output_qid,ws[7][1]+'_'+str(i):entry[0]})
-                    else:
-                        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-                            #Generate Input Entry in MaRDI KG
-                            if not (wq['wqout'+str(i)]['label'] and wq['wqout'+str(i)]['quote']):
-                                #Stop if no label is provided for the output data set
-                                return HttpResponse(response_temp.format(err25.format(i)))
-                            outputs_qid.append(self.entry(wq['wqout'+str(i)]['label'],wq['wqout'+str(i)]['quote'],[(Item,Q6,P4),(ExternalID,wq['wqout'+str(i)]['id'].split(':')[-1],P16)]))          
-                            #Update User answers, i.e. include MaRDI ID of newly created output entity
-                            data.update({ws[7][0]+'_'+str(i):'mardi:'+outputs_qid[-1]})
-                        else:
-                            #Update User answers, i.e. MaRDI ID to be determined once published on portal
-                            data.update({ws[7][0]+'_'+str(i):'mardi:tbd'})
-            
-                #Integrate involved disciplines in wikidata
-                disciplines_qid=[]
-                for i in range(wq['no']['dis']):
-                    #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
-                    discipline_qid,entry=self.portal_wikidata_check(mq['mqdis'+str(i)],wq['wqdis'+str(i)],data)
-                    if entry and discipline_qid:
-                        #Store QID
-                        disciplines_qid.append(discipline_qid)
-                        #Update User answers, i.e. use entity label instead of ID for wiki page
-                        if i == 0:
-                            data.update({ws[4][0]:entry[0]})
-                        else:
-                            data.update({ws[4][0]:'; '.join([data[ws[4][0]],entry[0]])}) 
-                    else:
-                        return HttpResponse(response_temp.format(err15))
-         
-                #If desired create new workflow entry on Portal using all items generated/fetched before
+            # Integrate related model in wikibase
+            # Check if on Portal or in Wikidata, integrate Wikidata entry if desired
+            model_qid,entry=self.portal_wikidata_check(mq['mqmod'],wq['wqmod'],data)
+            if entry and model_qid:
+                #Update User answers, i.e. use MaRDI ID, name and description
+                data.update({ws[1][0]:'mardi:'+model_qid,ws[1][1]:entry[0],ws[1][2]:entry[1]})
+            #Get main subject of model
+            model_ms_qid=[]
+            if wq['wqmod_sub']['qid'][0]:
+                #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
+                model_ms_qid,entry=self.portal_wikidata_check(mq['mqmod_sub'],wq['wqmod_sub'],data)
+            if not (model_qid or model_ms_qid):
+                #Stop if model has no QID and it main subject has no QID
+                return HttpResponse(response_temp.format(err9))
+            if not model_qid:
                 if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-                    workflow_qid=self.entry(self.project.title, res_obj,[(Item,Q2,P4),(Item,paper_qid,P3)]+
-                                                                        [(Item,discipline,P5) for discipline in disciplines_qid]+
-                                                                        [(Item,mmsi,P6) for mmsi in [model_qid]+methods_qid+softwares_qid+inputs_qid+outputs_qid])
+                    # Generate Model Entry on Portal 
+                    if not (wq['wqmod']['label'] and wq['wqmod']['quote']):
+                        #Stop if no label and quote is provided for the model
+                        return HttpResponse(response_temp.format(err21))
+                    model_qid=self.entry(wq['wqmod']['label'],wq['wqmod']['quote'],[(Item,Q3,P4),(Item,model_ms_qid,P17)]+
+                                         [(String,re.sub("\$","",form.lstrip()),P18) for form in re.split(';',wq['wqmod']['form'])]+
+                                         [(ExternalID,wq['wqmod']['id'].split(':')[-1],P16)])
+                    # Update User answer, i.e. include ID of newly created Model entity
+                    data.update({ws[1][0]:'mardi:'+model_qid})
+                else:
+                     # Update User answer, i.e. MaRDI ID to be determined if published on portal
+                    data.update({ws[1][0]:'mardi:tbd'})
+            
+            # Integrate related methods in wikibase
+            methods_qid=[]
+            for i in range(wq['no']['met']):
+                #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
+                method_qid,entry=self.portal_wikidata_check(mq['mqmet'+str(i)],wq['wqmet'+str(i)],data)
+                if entry and method_qid:
+                   #Store QID
+                   methods_qid.append(method_qid)
+                   #Update User answers, i.e. use MaRDI ID and name
+                   data.update({ws[2][0]+'_'+str(i):'mardi:'+method_qid,ws[2][1]+'_'+str(i):entry[0]})
+                   #Get main subject of method
+                   method_ms_qid=[]
+                   if wq['wqmet_sub'+str(i)]['qid'][0]:
+                       #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
+                        method_ms_qid,entry=self.portal_wikidata_check(mq['mqmet_sub'+str(i)],wq['wqmet_sub'+str(i)],data)
+                   if not (method_qid or method_ms_qid):
+                       #Stop if method has no QID and its main subject has no QID
+                       return HttpResponse(response_temp.format(err17.format(i)))
+                if not method_qid:
+                    if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+                        #Generate Method Entry in MaRDI KG
+                        if not (wq['wqmet'+str(i)]['label'] and wq['wqmet'+str(i)]['quote']):
+                            #Stop if no label and quote is provided for the method
+                            return HttpResponse(response_temp.format(err22.format(i)))
+                        methods_qid.append(self.entry(wq['wqmet'+str(i)]['label'],wq['wqmet'+str(i)]['quote'],[(Item,Q4,P4),(Item,method_ms_qid,P17)]+
+                                                                       [(String,re.sub("\$","",form.lstrip()),P18) for form in re.split(';',wq['wqmet'+str(i)]['form'])]+
+                                                                       [(ExternalID,wq['wqmet'+str(i)]['id'].split(':')[-1],P16)]))
+                         #Update User answers, i.e. include ID of newly created method entity
+                        data[ws[2][0]+'_'+str(i)] = 'mardi:'+methods_qid[-1]
+                    else:
+                         #Update User answers, i.e. MaRDI ID to be determined when published on portal
+                        data[ws[2][0]+'_'+str(i)] = 'mardi:tbd'
+
+            # Integrate related softwares in wikibase
+            softwares_qid=[]
+            for i in range(wq['no']['sof']):
+                  #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
+                software_qid,entry=self.portal_wikidata_check(mq['mqsof'+str(i)],wq['wqsof'+str(i)],data)
+                if entry and software_qid:
+                    #Store QID
+                    softwares_qid.append(software_qid)
+                    #Update User answers, i.e. use MaRDI ID, name and description
+                    data.update({ws[3][0]+'_'+str(i):'mardi:'+software_qid,ws[3][1]+'_'+str(i):entry[0],ws[3][2]+'_'+str(i):entry[1]})
+                #Get programming languages of software (only relevant for software without QID)
+                softwares_pl_qid=[]
+                softwares_pl_qid_string=''
+                for j in range(wq['pl'+str(i)]['no']): 
+                    if wq['wqsof_sub'+str(i)+'_'+str(j)]['qid'][0]:
+                        #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
+                        software_pl_qid,entry=self.portal_wikidata_check(mq['mqsof_sub'+str(i)+'_'+str(j)],wq['wqsof_sub'+str(i)+'_'+str(j)],data)
+                        #Store QID
+                        softwares_pl_qid.append(software_pl_qid)
+                        #Update User Answers, i.e. ID <|> Label <|> Description transformed to Label (ID)
+                        softwares_pl_qid_string+=data[ws[3][3]+'_'+str(i)].split('; ')[j].split(' <|> ')[1]+' (mardi:'+software_pl_qid+');'
+                if not (software_qid or software_pl_qid):
+                    #Stop if software has no QID and its programming languages have no QID
+                    return HttpResponse(response_temp.format(err16.format(i)))
+                #Update User answers, i.e. enter refined programming languages
+                data.update({ws[3][3]+'_'+str(i):softwares_pl_qid_string})
+                if not software_qid:
+                    #If not on Portal create new software entity if desired
+                    if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+                        #Generate Software Entry in MaRDI KG
+                        if not (wq['wqsof'+str(i)]['label'] and wq['wqsof'+str(i)]['quote']):
+                            #Stop if no label and quote is provided for the software
+                            return HttpResponse(response_temp.format(err23.format(i)))
+                        softwares_qid.append(self.entry(wq['wqsof'+str(i)]['label'],wq['wqsof'+str(i)]['quote'],[(Item,Q5,P4)]+
+                                                                        [(Item,plang,P19) for plang in softwares_pl_qid]+
+                                                                        [(ExternalID,wq['wqsof'+str(i)]['id'].split(':')[-1],P16 if wq['wqsof'+str(i)]['id'].split(':')[0] == 'doi' else P20)]))
+                        #Update User answers, i.e. include MaRDI ID of newly created software entity
+                        data.update({ws[3][0]+'_'+str(i):'mardi:'+softwares_qid[-1]})
+                    else:
+                         #Update User answers, i.e. MaRDI ID to be determined when published on portal
+                        data.update({ws[3][0]+'_'+str(i):'mardi:tbd'})
+                
+            # Integrate related inputs in wikibase
+            inputs_qid=[]
+            for i in range(wq['no']['inp']):
+                #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
+                input_qid,entry=self.portal_wikidata_check(mq['mqinp'+str(i)],wq['wqinp'+str(i)],data)
+                if entry and input_qid:
+                    #Store QID
+                    inputs_qid.append(input_qid)
+                    #Update User answers, i.e. use MaRDI ID name 
+                    data.update({ws[6][0]+'_'+str(i):'mardi:'+input_qid,ws[6][1]+'_'+str(i):entry[0]})
+                else:
+                    if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+                        #Generate Input Entry in MaRDI KG
+                        if not (wq['wqinp'+str(i)]['label'] and wq['wqinp'+str(i)]['quote']):
+                            #Stop if no label and quote provided for input data set
+                            return HttpResponse(response_temp.format(err24.format(i)))
+                        inputs_qid.append(self.entry(wq['wqinp'+str(i)]['label'],wq['wqinp'+str(i)]['quote'],[(Item,Q6,P4),(ExternalID,wq['wqinp'+str(i)]['id'].split(':')[-1],P16)]))
+                        #Update User answers, i.e. include MaRDI ID of newly created input entity
+                        data.update({ws[6][0]+'_'+str(i):'mardi:'+inputs_qid[-1]})
+                    else:
+                        #Update User answers, i.e. MaRDI ID to be determined once published on portal
+                        data.update({ws[6][0]+'_'+str(i):'mardi:tbd'})
+            
+            # Integrate related outputs in wikibase
+            outputs_qid=[]
+            for i in range(wq['no']['out']):
+                #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
+                output_qid,entry=self.portal_wikidata_check(mq['mqout'+str(i)],wq['wqout'+str(i)],data)
+                if entry and output_qid:
+                    #Store QID
+                    outputs_qid.append(output_qid)
+                    #Update User answers, i.e. use MaRDI ID and name 
+                    data.update({ws[7][0]+'_'+str(i):'mardi:'+output_qid,ws[7][1]+'_'+str(i):entry[0]})
+                else:
+                    if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+                        #Generate Input Entry in MaRDI KG
+                        if not (wq['wqout'+str(i)]['label'] and wq['wqout'+str(i)]['quote']):
+                            #Stop if no label is provided for the output data set
+                            return HttpResponse(response_temp.format(err25.format(i)))
+                        outputs_qid.append(self.entry(wq['wqout'+str(i)]['label'],wq['wqout'+str(i)]['quote'],[(Item,Q6,P4),(ExternalID,wq['wqout'+str(i)]['id'].split(':')[-1],P16)]))          
+                        #Update User answers, i.e. include MaRDI ID of newly created output entity
+                        data.update({ws[7][0]+'_'+str(i):'mardi:'+outputs_qid[-1]})
+                    else:
+                        #Update User answers, i.e. MaRDI ID to be determined once published on portal
+                        data.update({ws[7][0]+'_'+str(i):'mardi:tbd'})
+            
+            #Integrate involved disciplines in wikidata
+            disciplines_qid=[]
+            for i in range(wq['no']['dis']):
+                #Check if on Portal or in Wikidata, integrate Wikidata entry if desired
+                discipline_qid,entry=self.portal_wikidata_check(mq['mqdis'+str(i)],wq['wqdis'+str(i)],data)
+                if entry and discipline_qid:
+                    #Store QID
+                    disciplines_qid.append(discipline_qid)
+                    #Update User answers, i.e. use entity label instead of ID for wiki page
+                    if i == 0:
+                        data.update({ws[4][0]:entry[0]})
+                    else:
+                        data.update({ws[4][0]:'; '.join([data[ws[4][0]],entry[0]])}) 
+                else:
+                    return HttpResponse(response_temp.format(err15))
+         
+            #If desired create new workflow entry on Portal using all items generated/fetched before
+            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+                workflow_qid=self.entry(self.project.title, res_obj,[(Item,Q2,P4),(Item,paper_qid,P3)]+
+                                                                    [(Item,discipline,P5) for discipline in disciplines_qid]+
+                                                                    [(Item,mmsi,P6) for mmsi in [model_qid]+methods_qid+softwares_qid+inputs_qid+outputs_qid])
             
             # Fill out MaRDI template
             for entry in data.items():
