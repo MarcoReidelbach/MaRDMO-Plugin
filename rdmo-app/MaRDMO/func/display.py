@@ -38,8 +38,8 @@ done='''
     </body>
 </html>'''
 
-export='''<p style="color:blue;font-size:30px;">You're Workflow has been added to the local Knowledge Graph.</p>
-<p style="color:blue;font-size:30px;">See you soon on the MaRDI Portal!</p>'''
+export='''<p style="color:blue;font-size:30px;">You're Workflow has been added to the MaRDI Portal.</p>
+<p style="color:blue;font-size:30px;"><a href="{0}" style="color:orange;">Wiki Page</a>\t<a href="{1}" style="color:orange;">Knowledge Graph Entry</a></p>'''
 
 err='''<p style="color:red;font-size:50px;">Ooops...</p>
 <p style="color:red;font-size:50px;">{}</p>'''

@@ -23,7 +23,7 @@ class MaRDIExport(Export):
     def render(self):
         '''Function that renders User answers to MaRDI template
            (adjusted from csv export)'''
-         
+ 
         # Check if MaRDI Questionaire is used
         if str(self.project.catalog) != 'MaRDI':
             return HttpResponse(response_temp.format(err1).format(self.project.catalog))
@@ -73,9 +73,7 @@ class MaRDIExport(Export):
             paper=self.wikibase_answers(data,ws[0])[0]
 
             # If Portal integration is desired, get further information about publication 
-            #if data[dec[2][0]] == dec[2][2]:
             if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-            #if 1 == 1:
                 # Extract DOI
                 doi=re.split(':',paper)
                 if doi[0] == 'Yes':
@@ -140,8 +138,6 @@ class MaRDIExport(Export):
                                                               (String,cit['pages'],P15),(ExternalID,cit['doi'].upper(),P16)])  
                 else:
                     #Get User Answers to query Wikidata and MaRDI KG
-                    #wq, mq = self.sparql(data,ws)
-                    #If no related paper provided, no QID assigned
                     paper_qid=[]
 
             if not (wq and mq):
@@ -330,7 +326,7 @@ class MaRDIExport(Export):
                 return response
             elif data[dec[2][0]] == dec[2][2] and data[dec[3][0]] not in (dec[3][1],dec[3][2]):
                 # Preview Markdown as HTML
-                return HttpResponse(html_front+pypandoc.convert_text(temp,'html',format='md')+html_end)
+                return HttpResponse(html.format(pypandoc.convert_text(temp,'html',format='md')))
             # Export to MaRDI Portal
             elif data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                 # Export Workflow Documentation to mediawiki portal
@@ -340,7 +336,7 @@ class MaRDIExport(Export):
                     #Stop if no bot credentials available
                     return HttpResponse(response_temp.format(err19))
                 #Successful Export to Portal
-                return HttpResponse(done.format(export))
+                return HttpResponse(done.format(export.format(mardi_wiki+self.project.title.replace(' ','_'),mardi_wiki+'Item:'+workflow_qid)))
             else:
                 #Stop if no export type is chosen
                 return HttpResponse(response_temp.format(err2))

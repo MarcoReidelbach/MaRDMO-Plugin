@@ -344,21 +344,21 @@ lang_dict={'af':'Afrikaans','ar':'Arabic','bg':'Bulgarian','bn':'Bengali',
 
 # Stuff to preview Documentation as HTML
 
-html_front="""
+html="""
 <head>
   <script type="text/javascript" id="MathJax-script" async
     src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-mml-chtml.js">
   </script>
   <style>
-    table {
+    table {{
       margin-left: 0;
       margin-right: auto;
       margin-bottom: 24px;
       border-spacing: 0;
       border-bottom: 2px solid black;
       border-top: 2px solid black;
-    }
-    table th {
+    }}
+    table th {{
       padding: 3px 10px;
       background-color: white;
       border-top: none;
@@ -366,21 +366,20 @@ html_front="""
       border-right: 1px solid black;
       border-bottom: 1px solid black;
       text-align: center;
-    }
-    table td {
+    }}
+    table td {{
       padding: 3px 10px;
       border-top: 1px solid black;
       border-left: 1px solid black;
       border-bottom: 1px solid black;
       border-right: 1px solid black;
       text-align: center;
-    }
+    }}
   </style>
 </head>
 <body>
-"""
-
-html_end="""
+{}
 </body>
-</html>"""
+</html>
+"""
 
