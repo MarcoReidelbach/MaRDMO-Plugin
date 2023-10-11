@@ -70,6 +70,46 @@ err23 = err.format('A new software (set {}) requires name and description!')
 err24 = err.format('A new input data set (set {}) requires a name!')
 err25 = err.format('A new output data set (set {}) requires a name!')
 
+# HTML stuff to preview Documentation
+
+html="""
+<head>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-mml-chtml.js">
+  </script>
+  <style>
+    table {{
+      margin-left: 0;
+      margin-right: auto;
+      margin-bottom: 24px;
+      border-spacing: 0;
+      border-bottom: 2px solid black;
+      border-top: 2px solid black;
+    }}
+    table th {{
+      padding: 3px 10px;
+      background-color: white;
+      border-top: none;
+      border-left: 1px solid black;
+      border-right: 1px solid black;
+      border-bottom: 1px solid black;
+      text-align: center;
+    }}
+    table td {{
+      padding: 3px 10px;
+      border-top: 1px solid black;
+      border-left: 1px solid black;
+      border-bottom: 1px solid black;
+      border-right: 1px solid black;
+      text-align: center;
+    }}
+  </style>
+</head>
+<body>
+{}
+</body>
+</html>
+"""
 
 
 

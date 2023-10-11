@@ -293,9 +293,8 @@ dec=[[BASE_URI+'Section_0/Set_1/Question_01', 'Workflow Documentation', 'Workflo
      [BASE_URI+'Section_2/Set_1/Question_03', 'Theoretical Workflow', 'Theoretischer Workflow', 'Experimental Workflow', 'Experimenteller Workflow'],
      [BASE_URI+'Section_6/Set_1/Question_01', 'Markdown File', 'MaRDI Portal'],
      [BASE_URI+'Section_6/Set_1/Question_02', 'No', 'Nein'],
-     [BASE_URI+'Section_1/Set_1/Question_00', 'Research Objective', 'Forschungsziel',
-                                                                           'Model, Methods, Software and Input/Output Data', 'Model, Methoden, Software und Eingabe-/Ausgabedaten', 
-                                                                           'Field of Research', 'Forschungsfeld']]
+     [BASE_URI+'Section_1/Set_1/Question_00', 'Research Objective', 'Forschungsziel', 'Model, Methods, Software and Input/Output Data', 
+                                              'Model, Methoden, Software und Eingabe-/Ausgabedaten', 'Field of Research', 'Forschungsfeld']]
 
 # Question IDs for Wikibase Export
 
@@ -327,6 +326,14 @@ ws = [[BASE_URI+'Section_2/Set_1/Question_02'],
        BASE_URI+'Section_4/Set_7/Question_10'],
       [BASE_URI+'Section_1/Set_1/Question_01']]
 
+
+# Set IDs
+
+sts=['Section_4/Set_2',
+     'Section_4/Set_3',
+     'Section_4/Set_6',
+     'Section_4/Set_7']
+
 # Language Dictionary
 
 lang_dict={'af':'Afrikaans','ar':'Arabic','bg':'Bulgarian','bn':'Bengali',
@@ -341,45 +348,4 @@ lang_dict={'af':'Afrikaans','ar':'Arabic','bg':'Bulgarian','bn':'Bengali',
            'sq':'Albanian','sv':'Swedish','sw':'Swahili','ta':'Tamil','te':'Telugu',
            'th':'Thai','tl':'Tagalog','tr':'Turkish','uk':'Ukrainian','ur':'Urdu',
            'vi':'Vietnamese','zh-cn':'Putonghua','zh-tw':'Taiwanese Mandarin'}
-
-# Stuff to preview Documentation as HTML
-
-html="""
-<head>
-  <script type="text/javascript" id="MathJax-script" async
-    src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-mml-chtml.js">
-  </script>
-  <style>
-    table {{
-      margin-left: 0;
-      margin-right: auto;
-      margin-bottom: 24px;
-      border-spacing: 0;
-      border-bottom: 2px solid black;
-      border-top: 2px solid black;
-    }}
-    table th {{
-      padding: 3px 10px;
-      background-color: white;
-      border-top: none;
-      border-left: 1px solid black;
-      border-right: 1px solid black;
-      border-bottom: 1px solid black;
-      text-align: center;
-    }}
-    table td {{
-      padding: 3px 10px;
-      border-top: 1px solid black;
-      border-left: 1px solid black;
-      border-bottom: 1px solid black;
-      border-right: 1px solid black;
-      text-align: center;
-    }}
-  </style>
-</head>
-<body>
-{}
-</body>
-</html>
-"""
 

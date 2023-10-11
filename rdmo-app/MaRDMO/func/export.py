@@ -18,6 +18,9 @@ from wikibaseintegrator.datatypes import ExternalID, Item, String, Time, Monolin
 from wikibaseintegrator.wbi_enums import ActionIfExists
 from wikibaseintegrator.wbi_config import config as wbi_config
 
+from rdmo.views.utils import ProjectWrapper
+from rdmo.views.templatetags import view_tags
+
 class MaRDIExport(Export):
 
     def render(self):
@@ -25,26 +28,63 @@ class MaRDIExport(Export):
            (adjusted from csv export)'''
  
         # Check if MaRDI Questionaire is used
-        if str(self.project.catalog) != 'MaRDI':
+        if str(self.project.catalog)[-5:] != 'MaRDI':
             return HttpResponse(response_temp.format(err1).format(self.project.catalog))
 
-        # Get Data - Questions and User Answers in data dict
-        queryset = self.project.values.filter(snapshot=None)
+       # # Get Data - Questions and User Answers in data dict
+       # queryset = self.project.values.filter(snapshot=None)
+       # data = {}
+       # for question in Question.objects.order_by_catalog(self.project.catalog):
+       #     if question.questionset.is_collection and question.questionset.attribute:
+       #         if question.questionset.attribute.uri.endswith('/id'):
+       #             set_attribute_uri = question.questionset.attribute
+       #         else:
+       #             set_attribute_uri = question.questionset.attribute.uri.rstrip('/') + '/id'
+       #         for value_set in queryset.filter(attribute__uri=question.questionset.attribute.uri):
+       #             values = queryset.filter(attribute=question.attribute, set_index=value_set.set_index) \
+       #                              .order_by('set_prefix', 'set_index', 'collection_index')
+       #             data[re.sub('b/','/',question.attribute.uri)+'_'+self.stringify(value_set.value)] = self.stringify_values(values)
+       #     else:
+       #         values = queryset.filter(attribute=question.attribute).order_by('set_prefix', 'set_index', 'collection_index')
+       #         data[question.attribute.uri]=self.stringify_values(values)
+        
+        # create project wrapper as for the views
+        project_wrapper = ProjectWrapper(self.project, self.snapshot)
+
         data = {}
-        for question in Question.objects.order_by_catalog(self.project.catalog):
-            if question.questionset.is_collection and question.questionset.attribute:
-                if question.questionset.attribute.uri.endswith('/id'):
-                    set_attribute_uri = question.questionset.attribute
-                else:
-                    set_attribute_uri = question.questionset.attribute.uri.rstrip('/') + '/id'
-                for value_set in queryset.filter(attribute__uri=question.questionset.attribute.uri):
-                    values = queryset.filter(attribute=question.attribute, set_index=value_set.set_index) \
-                                     .order_by('set_prefix', 'set_index', 'collection_index')
-                    data[re.sub('b/','/',question.attribute.uri)+'_'+self.stringify(value_set.value)] = self.stringify_values(values)
-            else:
-                values = queryset.filter(attribute=question.attribute).order_by('set_prefix', 'set_index', 'collection_index')
-                data[question.attribute.uri]=self.stringify_values(values)
-                   
+        #print(project_wrapper.questions[:2])
+        for question in project_wrapper.questions:
+            # use the same template tags as in project_answers_element.html
+            # get labels and to correctly attribute for conditions
+            set_prefixes = view_tags.get_set_prefixes({}, question['attribute'], project=project_wrapper)
+            for set_prefix in set_prefixes:
+                set_indexes = view_tags.get_set_indexes({}, question['attribute'], set_prefix=set_prefix,
+                                                        project=project_wrapper)
+                for set_index in set_indexes:
+                    values = view_tags.get_values(
+                        {}, question['attribute'], set_prefix=set_prefix, set_index=set_index, project=project_wrapper
+                    )
+                
+                    labels = view_tags.get_labels(
+                        {}, question, set_prefix=set_prefix, set_index=set_index, project=project_wrapper
+                    )
+                
+                    result = view_tags.check_element(
+                        {}, question, set_prefix=set_prefix, set_index=set_index, project=project_wrapper
+                    )
+
+                    #if result:
+                    if labels:
+                        data[question['attribute']+'_'+str(set_index)]=self.stringify_values(values)
+                    else:
+                        data[question['attribute']]=self.stringify_values(values)
+                       # data.append({
+                       #     'question': question['attribute'],
+                       #     'set': ' '.join(labels),
+                       #     'values': self.stringify_values(values)
+                       # })
+
+        
         # Workflow Documentation
 
         # Initialize dictionaries for MaRDI KG and Wikidata queries
@@ -319,6 +359,11 @@ class MaRDIExport(Export):
             # Fill out MaRDI template
             for entry in data.items():
                 temp=re.sub(";","<br/>",re.sub("Yes: |'","",re.sub(entry[0],repr(entry[1]),temp)))
+            #Remove IDs of unanswered questions
+            temp=re.sub(BASE_URI+"Section_\d{1}/Set_\d{1}/Question_\d{2}_\d", "", temp)
+            temp=re.sub(BASE_URI+"Section_\d{1}/Set_\d{1}/Question_\d{2}", "", temp)
+            temp=re.sub(BASE_URI+"Section_\d{1}/Set_\d{1}/Wiki_\d{2}_\d", "", temp)
+            temp=re.sub(BASE_URI+"Section_\d{1}/Set_\d{1}/Wiki_\d{2}", "", temp)
             if data[dec[2][0]] == dec[2][1]: 
                 # Download as Markdown
                 response = HttpResponse(temp, content_type="application/md")
@@ -426,7 +471,7 @@ class MaRDIExport(Export):
     def stringify_values(self, values):
         '''Original function from csv export'''
         if values is not None:
-            return '; '.join([self.stringify(value.value_and_unit) for value in values])
+            return '; '.join([self.stringify(value['value_and_unit']) for value in values])
         else:
             return ''
 
@@ -532,12 +577,35 @@ class MaRDIExport(Export):
         R = S.post(URL , data=PARAMS_3, files=dict(foo='bar'))
         return
 
-    def wikibase_answers(self, data, wiki):
+    def set_lengths(self, data):
+        '''Get length of the User sets'''
+        length=[]
+        sts=['Section_4/Set_2','Section_4/Set_3','Section_4/Set_6','Section_4/Set_7']
+        for st in sts:
+            i=0
+            data_filter = dict(filter(lambda item: st in item[0], data.items()))
+            for key in data_filter.keys():
+                if int(key.split('_')[-1])>i:
+                    i=int(key.split('_')[-1])+1
+            length.append(i)
+        return length
+
+    def wikibase_answers(self, data, wiki, length=-1):
         '''Takes data and extracts answers relevant for Wiki'''
         wiki_answers=[]
-        for question in wiki:
-            data_filter = dict(filter(lambda item: question in item[0], data.items()))
-            wiki_answers.extend(list(data_filter.values()))
+        if length >= 0:
+            for question in wiki:
+                for idx in range(length):
+                    if question+'_'+str(idx) in data:
+                        wiki_answers.append(data[question+'_'+str(idx)])
+                    else:
+                        wiki_answers.append('')
+        else:
+            for question in wiki:
+                if question in data:
+                    wiki_answers.append(data[question])
+                else:
+                    wiki_answers.append('')
         return wiki_answers
 
     def wikibase_login(self):
@@ -638,23 +706,25 @@ class MaRDIExport(Export):
     def sparql(self,data,ws,orcid=None,doi=None,cit=None):
         '''This function takes user answers and performs SPARQL queries to Wikidata and MaRDI portal.'''
         
+        length=self.set_lengths(data)
+        print(length)
         #Get User answers for Model
         model=[]
         model.append(self.wikibase_answers(data,ws[1]))
         model.append(re.split(' <\|> ',model[0][0]) if model[0][0] else ['',model[0][1],model[0][2]])
         model.append(re.split(' <\|> ',model[0][3]) if model[0][3] else ['','',''])
-        
+        print(model) 
         #Get User answers for Methods
         method=[]
-        method.append(self.wikibase_answers(data,ws[2]))
+        method.append(self.wikibase_answers(data,ws[2],length[0]))
         method.append(len(method[0])//6)
         method.append([re.split(' <\|> ',method[0][i]) if method[0][i] else ['',method[0][method[1]+i],method[0][method[1]*2+i]] for i in range(method[1])])
         method.append([re.split(' <\|> ',method[0][i]) if method[0][i] else ['','',''] for i in range(method[1]*3,method[1]*4)])
         method.append([[method[2][i][0],method[2][i][1],method[2][i][2],method[3][i][0],method[0][method[1]*4+i],method[0][method[1]*5+i]] for i in range(method[1])]) 
-        
+        print(method)
         #Get User answers for Softwares
         software=[]
-        software.append(self.wikibase_answers(data,ws[3]))
+        software.append(self.wikibase_answers(data,ws[3],length[1]))
         software.append(len(software[0])//5)
         software.append([re.split(' <\|> ',software[0][i]) if software[0][i] else ['',software[0][software[1]+i],software[0][software[1]*2+i]] for i in range(software[1])])
         software.append([[re.split(' <\|> ',X) if X else ['','',''] for X in software[0][i].split('; ')] for i in range(software[1]*3,software[1]*4)])
@@ -663,14 +733,14 @@ class MaRDIExport(Export):
          
         #Get User answers for Inputs
         inputs=[]
-        inputs.append(self.wikibase_answers(data,ws[6]))
+        inputs.append(self.wikibase_answers(data,ws[6],length[2]))
         inputs.append(len(inputs[0])//3)
         inputs.append([re.split(' <\|> ',inputs[0][i]) if inputs[0][i] else ['',inputs[0][inputs[1]+i],'data set'] for i in range(inputs[1])])
         inputs.append([[inputs[2][i][0],inputs[2][i][1],inputs[2][i][2],inputs[0][inputs[1]*2+i]] for i in range(inputs[1])])
         
         #Get User answers for Outputs
         outputs=[]
-        outputs.append(self.wikibase_answers(data,ws[7]))
+        outputs.append(self.wikibase_answers(data,ws[7],length[3]))
         outputs.append(len(outputs[0])//3)
         outputs.append([re.split(' <\|> ',outputs[0][i]) if outputs[0][i] else ['',outputs[0][outputs[1]+i],'data set'] for i in range(outputs[1])])
         outputs.append([[outputs[2][i][0],outputs[2][i][1],outputs[2][i][2],outputs[0][outputs[1]*2+i]] for i in range(outputs[1])])
@@ -724,6 +794,8 @@ class MaRDIExport(Export):
         qm.update({'mqinp'+str(i) : mini.format('?qid',mbody.format(wq['wqinp'+str(i)]['label'],wq['wqinp'+str(i)]['quote'])) for i in range(inputs[1])})
         qm.update({'mqout'+str(i) : mini.format('?qid',mbody.format(wq['wqout'+str(i)]['label'],wq['wqout'+str(i)]['quote'])) for i in range(outputs[1])})
         qm.update({'mqdis'+str(i) : mini.format('?qid',mbody.format(wq['wqdis'+str(i)]['label'],wq['wqdis'+str(i)]['quote'])) for i in range(disciplines[1])})
+        
+        print(wq)
 
         for key in qm.keys():
             #Request Data from MaRDI KG
