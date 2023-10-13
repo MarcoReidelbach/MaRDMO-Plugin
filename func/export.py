@@ -53,7 +53,7 @@ class MaRDIExport(Export):
                     )
 
                     if labels:
-                        data[question['attribute']+'_'+str(set_index)]=self.stringify_values(values)
+                        data[re.sub('b','',question['attribute'])+'_'+str(set_index)]=self.stringify_values(values)
                     else:
                         data[question['attribute']]=self.stringify_values(values)
         
@@ -683,13 +683,13 @@ class MaRDIExport(Export):
         '''This function takes user answers and performs SPARQL queries to Wikidata and MaRDI portal.'''
         
         length=self.set_lengths(data)
-        print(length)
+        
         #Get User answers for Model
         model=[]
         model.append(self.wikibase_answers(data,ws[1]))
         model.append(re.split(' <\|> ',model[0][0]) if model[0][0] else ['',model[0][1],model[0][2]])
         model.append(re.split(' <\|> ',model[0][3]) if model[0][3] else ['','',''])
-        print(model) 
+        
         #Get User answers for Methods
         method=[]
         method.append(self.wikibase_answers(data,ws[2],length[0]))
@@ -697,7 +697,7 @@ class MaRDIExport(Export):
         method.append([re.split(' <\|> ',method[0][i]) if method[0][i] else ['',method[0][method[1]+i],method[0][method[1]*2+i]] for i in range(method[1])])
         method.append([re.split(' <\|> ',method[0][i]) if method[0][i] else ['','',''] for i in range(method[1]*3,method[1]*4)])
         method.append([[method[2][i][0],method[2][i][1],method[2][i][2],method[3][i][0],method[0][method[1]*4+i],method[0][method[1]*5+i]] for i in range(method[1])]) 
-        print(method)
+        
         #Get User answers for Softwares
         software=[]
         software.append(self.wikibase_answers(data,ws[3],length[1]))
@@ -770,8 +770,6 @@ class MaRDIExport(Export):
         qm.update({'mqinp'+str(i) : mini.format('?qid',mbody.format(wq['wqinp'+str(i)]['label'],wq['wqinp'+str(i)]['quote'])) for i in range(inputs[1])})
         qm.update({'mqout'+str(i) : mini.format('?qid',mbody.format(wq['wqout'+str(i)]['label'],wq['wqout'+str(i)]['quote'])) for i in range(outputs[1])})
         qm.update({'mqdis'+str(i) : mini.format('?qid',mbody.format(wq['wqdis'+str(i)]['label'],wq['wqdis'+str(i)]['quote'])) for i in range(disciplines[1])})
-        
-        print(wq)
 
         for key in qm.keys():
             #Request Data from MaRDI KG
