@@ -56,7 +56,7 @@ pip install -r MaRDMO/requirements.txt
 To connect the MaRDMO Plugin with the RDMO installation add the following lines to `config/settings/local.py` (if not already present):
 
 ```python
-from django.utils.translation import ugettext_lazy as _ 
+from django.utils.translation import gettext_lazy as _ 
 ``` 
 
 ```python
