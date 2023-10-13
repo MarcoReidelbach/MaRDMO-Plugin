@@ -8,7 +8,7 @@ The Export/Query Plugin allows the user to export documented workflows into a st
 
 The functionality of the Export/Query Plugin is captured in the questionnaire, such that a single button controls everything. 
 
-MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlying Knowledge Graph. To use MaRDMO with any other [wikibase](https://www.mediawiki.org/wiki/Wikibase/Installation) a setup script (`func/export.py`) is provided to prepare the wikibase for MaRDMO. 
+MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlying Knowledge Graph. To use MaRDMO with any other [wikibase](https://www.mediawiki.org/wiki/Wikibase/Installation) a setup script (`prepare_wikibase.py`) is provided to prepare the wikibase for MaRDMO. 
 
 ## Structure of MaRDMO directory
 
@@ -20,7 +20,7 @@ MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlyi
 │   ├── options.xml - individual options of Questionnaire 
 │   └── questions.xml - individual questions for Questionnaire 
 │ 
-├── requirements.txt - File to set up virtual environment 
+├── prepare_wikibase.py - prepare arbitrary wikibase for MaRDMO
 │ 
 ├── func - Plugin Files
 │   ├── citation.py - get citation from DOI and ORCID API 
@@ -30,8 +30,7 @@ MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlyi
 │   ├── id.py - wikibase item and property ids 
 │   ├── para.py - Export/Query Parameters
 │   ├── providers.py - Dynamic Option Sets via Wikidata / MaRDI KG
-│   ├── sparql.py - SPARQL query selection
-│   └── setup.py - Setup File for other wikibases
+│   └── sparql.py - SPARQL query selection
 │ 
 └── LICENSE.md 
 ```
@@ -49,8 +48,7 @@ git clone https://github.com/MarcoReidelbach/MaRDMO.git
 In the virtual environment of the RDMO installation install the requirements of the MaRDMO Plugin:
 
 ```bash
-pip install --upgrade pip setuptools 
-pip install -r MaRDMO/requirements.txt
+pip install MaRDMO/
 ```
 
 To connect the MaRDMO Plugin with the RDMO installation add the following lines to `config/settings/local.py` (if not already present):
