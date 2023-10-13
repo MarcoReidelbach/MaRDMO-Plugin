@@ -3,4 +3,3 @@ langdetect==1.0.9
 pylatexenc==2.10
 pypandoc_binary
 wikibaseintegrator==0.12.3
-rdmo

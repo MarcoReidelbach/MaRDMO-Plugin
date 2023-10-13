@@ -1,7 +1,5 @@
 # MaRDMO
 
-**Work in Progress**
-
 This repository contains a questionnaire and an Export/Query Plugin for the [Research Datamanagement Organizer](https://rdmorganiser.github.io/) (RDMO) developed within Task Area 4 "Interdisciplinary Mathematics" of the [Mathematical Research Data Initiative](https://www.mardi4nfdi.de/about/mission) (MaRDI). 
 
 The questionnaire allows a standardized documentation of interdisciplinary workflows related to mathematics, where the connection to "real" experiments or theoretical approaches, like simulations, is possible and desired.
@@ -10,21 +8,21 @@ The Export/Query Plugin allows the user to export documented workflows into a st
 
 The functionality of the Export/Query Plugin is captured in the questionnaire, such that a single button controls everything. 
 
-MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlying Knowledge Graph. To use MaRDMO with any other [wikibase](https://www.mediawiki.org/wiki/Wikibase/Installation) a script is provided to prepare the wikibase for MaRDMO. 
+MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlying Knowledge Graph. To use MaRDMO with any other [wikibase](https://www.mediawiki.org/wiki/Wikibase/Installation) a setup script (`func/export.py`) is provided to prepare the wikibase for MaRDMO. 
 
-## Structure of MaRDMO directory in rdmo-app
+## Structure of MaRDMO directory
 
 ```bash
 . 
-├── catalog - RDMO Questionnaire Files 
-│   ├── conditions.xml - individual conditions of RDMO Questionnaire 
-│   ├── domains.xml - individual domains of RDMO Questionnaire 
-│   ├── options.xml - individual options of RDMO Questionnaire 
-│   └── questions.xml - individual questions for RDMO Questionnaire 
+├── catalog - Questionnaire Files 
+│   ├── conditions.xml - individual conditions of Questionnaire 
+│   ├── domains.xml - individual domains of Questionnaire 
+│   ├── options.xml - individual options of Questionnaire 
+│   └── questions.xml - individual questions for Questionnaire 
 │ 
 ├── requirements.txt - File to set up virtual environment 
 │ 
-├── func - Export/Query Plugin Files
+├── func - Plugin Files
 │   ├── citation.py - get citation from DOI and ORCID API 
 │   ├── config_empty.py - wikibase information (API,SPARQL endpoint, bot credentials)
 │   ├── export.py - Export/Query Function 
@@ -38,47 +36,28 @@ MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlyi
 └── LICENSE.md 
 ```
   
-## Installation
+## MaRDMO Installation
 
-### RDMO and MaRDMO Plugin
+To use the MaRDMO Plugin at least `RDMO v2.0.0` is required. Follow the installation / update instructions of [RDMO](https://rdmo.readthedocs.io/en/latest/installation) if required. 
 
-Check if you meet the [prerequisites](https://rdmo.readthedocs.io/en/latest/installation/prerequisites.html) of RDMO. Install them, if required.
-
-Clone the MaRDMO directory:
+Go to the `rdmo-app` directory of your RDMO installation and clone the MaRDMO Plugin directory:
 
 ```bash
 git clone https://github.com/MarcoReidelbach/MaRDMO.git
 ```
 
-**Note:** So far MaRDMO is provided for test operation with an old `rdmo-app directory` to ensure compatibility to `RDMO 1.9.0`. In the future MaRDMO will be implemented as an extension of `RDMO 2.0`. 
-
-Once cloned, setup a virtual environment in the `rdmo-app directory` containing `bibtexparser`, `langdetect`, `pylatexenc`, `pypandoc_binary` and `wikibaseintegrator`:
+In the virtual environment of the RDMO installation install the requirements of the MaRDMO Plugin:
 
 ```bash
-cd MaRDMO/rdmo-app
-python3 -m venv env 
-source env/bin/activate
 pip install --upgrade pip setuptools 
 pip install -r MaRDMO/requirements.txt
 ```
 
-**Note:** So far `RDMO 1.9.0` is also installed through `requirements.txt`. In the future MaRDMO should be added to an existing RDMO instance.
-
-Setup the RDMO application:
-
-```bash
-cp config/settings/sample.local.py config/settings/local.py
-python manage.py migrate                
-python manage.py setup_groups           
-python manage.py createsuperuser
-```
-
-Your RDMO instance is now ready. To install the Export/Query Plugin add the following lines to `config/settings/local.py` and set **Debug = True**:
+To connect the MaRDMO Plugin with the RDMO installation add the following lines to `config/settings/local.py` (if not already present):
 
 ```python
-from django.utils.translation import ugettext_lazy as _  
-from . import BASE_DIR, INSTALLED_APPS, PROJECT_EXPORTS
-```
+from django.utils.translation import ugettext_lazy as _ 
+``` 
 
 ```python
 INSTALLED_APPS = ['MaRDMO'] + INSTALLED_APPS
@@ -92,33 +71,30 @@ OPTIONSET_PROVIDERS = [
     ]
 ```
 
-Thereby, the Export/Query Plugin is installed and a "MaRDI Export/Query" Button is added in the Project View. The option set provider allows direct Wikidata / MaRDI KG queries. 
+Thereby, the MaRDMO Plugin is installed and a "MaRDI Export/Query" Button is added in the Project View. The optionset provider allows direct Wikidata / MaRDI KG queries while answering the questionnaire. 
+## MaRDI Portal Connection
 
-To connect MaRDMO with the MaRDI portal do
+To connect the MaRDMO Plugin with the MaRDI Portal adjust the config file:
 
 ```bash
 mv MaRDMO/func/config_empty.py MaRDMO/func/config.py
 ```
 
-and add the bot credeantials to the file. 
+The config file holds important information for MaRDMO, namely, URIs of the Wiki, API and SPARQL endpoint of the MaRDI Portal, the SPARQL endpoint of Wikidata and prefixes for MaRDI Portal SPARQL queries. If MaRDMO should be used with a Wikibase other than the MaRDI Portal, the Wikibase information need to be adjusted. 
 
-If you want to use MaRDMO with a different wikibase adjust the URLs of the portal Wiki, API and SPARQL endpoint as well as the SPARQL prefixes in `MaRDMO/func/config.py`. As before, add the bot credentials.
+Until now, edits on the MaRDI Portal require a login. In MaRDMO this is facilitated using a bot. To set up the bot visit the MaRDI Portal, log in with your user credentials, choose `Special Pages` and `Bot passwords`. Provide a name for the new bot, select `Create`, grant the bot permission for `High-volume (bot) access`, `Edit existing pages` and `Create, edit, and move pages` and seelct again `Create`. Thereby, a bot is created. Add the name of the bot `username@botname` (lgname) and the password (lgpassword) to the config file of the MaRDMO Plugin. Non-MaRDI users may contact the owner of the repository.
 
-Now, run RDMO and log in via your browser:
+## MaRDMO Questionnaire        
 
-```bash
-python manage.py runserver
-```
+The MaRDMO Plugin requires the MaRDMO Questionnaire. To use the Questionnaire visit the web interface of the RDMO installation, select `Management` and import the `domains.xml`, `options.xml`, `conditions.xml` and `questions.xml` from the `MaRDMO/catalog` directory othe MaRDMO Plugin.
 
-To actually use RDMO, a questionnaire (or more than one) needs to be added. To do this, click on "Management", choose "Domain" and import `domains.xml` from `MaRDMO/catalog`. Do the same for `options.xml`, `conditions.xml` and `questions.xml` by choosing "Options", "Conditions" and "Questions", respectively. Ensure, that `questions.xml` is added last.
+## Usage of MaRDMO
 
-## Usage of RDMO and Export/Query Plugin
+Once MaRDMO is set up, the Questionnaire can be used to document and query interdisciplinary workflows. Therefore, select "Create New Project" in RDMO, choose a proper project name (project name will be used as wokflow name and label in the wikibase), assign the "MaRDI Workflow Documentation" catalog and select "Create Project". The project is created. On the right hand side in the "Export" category the "MaRDI Export/Query" button is located to process the completed Questionnaire.     
 
-Once you completed the installation, the MaRDMO Questionnaire can be used to document and query workflows. Therefore, select "Create New Project" in RDMO and choose a proper name for your project (this name will be used as wokflow name and label in the wikibase), assign the "MaRDI Workflow Documentation" catalog and click on "Create Project". Your project is now created. On the right hand side in the "Export" category you may notice the "MaRDI Export/Query" button.      
+Choose "Answer Questions" to start the interview. With the first question the Operation Modus of the MaRDMO Plugin is determined:
 
-Choose "Answer Questions" to start the interview. With the first question the Operation Modus of the Export/Query Plugin is determined:
+1) Choose **"Workflow Documentation"** and click on "Save and proceed". Next, decide whether the completed Questionnaire should be exported locally or publicly on the MaRDI Portal. If a public export is desired a preview of the rendered Wiki Page could be displayed. Please, check the preview before publishing the workflow on the MaRDI Portal. Once the general settings are completed the workflow will be documented by providing general information, model information, process information and reproducibility information. Upon completion return to the project page and choose "MaRDI Export/Query" to compile the answers and return it in the desired format. 
 
-1) If you choose **"Workflow Documentation"** and click on "Save and proceed", you have to decide in a next step if you want to do the documentation locally (as Markdown File) or if you want to publish the documentation as Wiki Page. If you choose Wiki Page publication, you can get an HTML preview before the actual export. Please, use the HTML preview to check if your documentation is rendered correctly (e.g. Latex Math Equations). Once again click "Save and proceed". Now, you will be guided through a series of questions (the individual questions are listed below) in order to document your workflow. For some of these questions you have to add sets, e.g. each variable of your workflow gets his own question set. Make sure to use integer numbers starting from 0 for the individual question set names. Once you have answered all questions return to the project page and choose "MaRDI Export/Query" to add your workflow documentation to the knowledge graph or download it. 
-
-2) If you choose **"Workflow Finding"** and click on "Save and proceed", you will be directed to a page where you have to choose by which component you would like to search existing workflow documentations and describe your needs. Once described, click on "Save", return to the project page and choose "MaRDI Export/Query". If MaRDMO detects workflows in the wikibase which could be interesting for you, you will receive the URIs of the corresponding Wiki pages.
+2) Choose **"Workflow Search"** and click on "Save and proceed". Next, choose by which component existing workflow documentations should be searched and specify the component. Once completed, return to the project page and choose "MaRDI Export/Query". If appropriate workflow documentations are located on the MaRDI Portal, the corresponding URIs are displayed. 
 
