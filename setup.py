@@ -3,7 +3,7 @@ import re
 from setuptools import find_packages, setup
 
 # get metadata from mudule using a regexp
-with open('func/__init__.py') as f:
+with open('MaRDMO/__init__.py') as f:
     metadata = dict(re.findall(r'__(.*)__ = [\']([^\']*)[\']', f.read()))
 
 setup(

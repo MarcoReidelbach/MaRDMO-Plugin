@@ -71,7 +71,7 @@ BIND(STRAFTER(STR(?item),STR(wd:)) AS ?pid)
 }
 LIMIT 1'''
 
-f=open('id.py','w')
+f=open('MaRDMO/id.py','w')
 f.write('#Item IDs (QIDs)\n\n')
 for item in items:
     qid = get_results(mardi_endpoint,re.sub('ITEM',item[1],query_item))

@@ -22,7 +22,7 @@ MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlyi
 │ 
 ├── prepare_wikibase.py - prepare arbitrary wikibase for MaRDMO
 │ 
-├── func - Plugin Files
+├── MaRDMO - Plugin Files
 │   ├── citation.py - get citation from DOI and ORCID API 
 │   ├── config_empty.py - wikibase information (API,SPARQL endpoint, bot credentials)
 │   ├── export.py - Export/Query Function 
@@ -61,11 +61,11 @@ from django.utils.translation import gettext_lazy as _
 INSTALLED_APPS = ['MaRDMO'] + INSTALLED_APPS
 
 PROJECT_EXPORTS += [
-        ('mde', _('MaRDI Export/Query'), 'MaRDMO.func.export.MaRDIExport'),
+        ('mde', _('MaRDI Export/Query'), 'MaRDMO.MaRDMO.export.MaRDIExport'),
         ]
 
 OPTIONSET_PROVIDERS = [
-    ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO.func.providers.WikidataSearch')
+    ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO.MaRDMO.providers.WikidataSearch')
     ]
 ```
 
@@ -75,7 +75,7 @@ Thereby, the MaRDMO Plugin is installed and a "MaRDI Export/Query" Button is add
 To connect the MaRDMO Plugin with the MaRDI Portal adjust the config file:
 
 ```bash
-mv MaRDMO/func/config_empty.py MaRDMO/func/config.py
+mv MaRDMO/MaRDMO/config_empty.py MaRDMO/MaRDMO/config.py
 ```
 
 The config file holds important information for MaRDMO, namely, URIs of the Wiki, API and SPARQL endpoint of the MaRDI Portal, the SPARQL endpoint of Wikidata and prefixes for MaRDI Portal SPARQL queries. If MaRDMO should be used with a Wikibase other than the MaRDI Portal, the Wikibase information need to be adjusted. 
