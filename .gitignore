@@ -1,8 +1,8 @@
 **/__pycache__
-func/config.py
-func/config_own.py
-func/config_importer.py
-func/config_mardi.py
-func/id_own.py
-func/id_importer.py
-func/id_mardi.py
+MaRDMO/config.py
+MaRDMO/config_own.py
+MaRDMO/config_importer.py
+MaRDMO/config_mardi.py
+MaRDMO/id_own.py
+MaRDMO/id_importer.py
+MaRDMO/id_mardi.py
