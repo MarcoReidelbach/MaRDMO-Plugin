@@ -61,11 +61,11 @@ from django.utils.translation import gettext_lazy as _
 INSTALLED_APPS = ['MaRDMO'] + INSTALLED_APPS
 
 PROJECT_EXPORTS += [
-        ('mde', _('MaRDI Export/Query'), 'MaRDMO.MaRDMO.export.MaRDIExport'),
+        ('mde', _('MaRDI Export/Query'), 'MaRDMO.export.MaRDIExport'),
         ]
 
 OPTIONSET_PROVIDERS = [
-    ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO.MaRDMO.providers.WikidataSearch')
+    ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO.providers.WikidataSearch')
     ]
 ```
 
