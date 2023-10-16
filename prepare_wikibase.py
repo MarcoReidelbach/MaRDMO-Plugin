@@ -3,7 +3,7 @@ from wikibaseintegrator.datatypes import Item, Property
 from wikibaseintegrator.wbi_enums import ActionIfExists
 from wikibaseintegrator.wbi_config import config as wbi_config
 
-from config import *
+from MaRDMO.config import *
 import re, requests
 
 def wikibase_login():
