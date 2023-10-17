@@ -6,9 +6,7 @@ The questionnaire allows a standardized documentation of interdisciplinary workf
 
 The Export/Query Plugin allows the user to export documented workflows into a standardized template, which could be stored locally as Markdown File (depreciated) or shared with others as Wiki Page on the [MaRDI Portal](https://portal.mardi4nfdi.de/wiki/Portal). Furthermore, integral aspects of the workflows are integrated into the MaRDI Knowledge Graph thus enabling specific workflow queries. 
 
-The functionality of the Export/Query Plugin is captured in the questionnaire, such that a single button controls everything. 
-
-MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlying Knowledge Graph. To use MaRDMO with any other [wikibase](https://www.mediawiki.org/wiki/Wikibase/Installation) a setup script (`prepare_wikibase.py`) is provided to prepare the wikibase for MaRDMO. 
+The functionality of the Export/Query Plugin is captured in the questionnaire, such that a single button controls everything.  
 
 ## Structure of MaRDMO directory
 
@@ -20,11 +18,9 @@ MaRDMO connects individual RDMO instances with the MaRDI Portal and its underlyi
 │   ├── options.xml - individual options of Questionnaire 
 │   └── questions.xml - individual questions for Questionnaire 
 │ 
-├── prepare_wikibase.py - prepare arbitrary wikibase for MaRDMO
-│ 
 ├── MaRDMO - Plugin Files
 │   ├── citation.py - get citation from DOI and ORCID API 
-│   ├── config_empty.py - wikibase information (API,SPARQL endpoint, bot credentials)
+│   ├── config.py - MaRDI portal information (API,SPARQL endpoint)
 │   ├── export.py - Export/Query Function 
 │   ├── display.py - HTTPResponse display information
 │   ├── id.py - wikibase item and property ids 
@@ -72,15 +68,14 @@ OPTIONSET_PROVIDERS = [
 Thereby, the MaRDMO Plugin is installed and a "MaRDI Export/Query" Button is added in the Project View. The optionset provider allows direct Wikidata / MaRDI KG queries while answering the questionnaire. 
 ## MaRDI Portal Connection
 
-To connect the MaRDMO Plugin with the MaRDI Portal adjust the config file:
+To add data to the MaRDI Portal, so far, a login is required. In MaRDMO this is facilitated using a bot. To set up the bot visit the MaRDI Portal, log in with your user credentials, choose `Special Pages` and `Bot passwords`. Provide a name for the new bot, select `Create`, grant the bot permission for `High-volume (bot) access`, `Edit existing pages` and `Create, edit, and move pages` and seelct again `Create`. Thereby, a bot is created. Add its credentials `confif/settigs/local.py`:
 
-```bash
-mv MaRDMO/MaRDMO/config_empty.py MaRDMO/MaRDMO/config.py
+```python
+lgname = 'username@botname'
+lgpassword = 'password'
 ```
 
-The config file holds important information for MaRDMO, namely, URIs of the Wiki, API and SPARQL endpoint of the MaRDI Portal, the SPARQL endpoint of Wikidata and prefixes for MaRDI Portal SPARQL queries. If MaRDMO should be used with a Wikibase other than the MaRDI Portal, the Wikibase information need to be adjusted. 
-
-Until now, edits on the MaRDI Portal require a login. In MaRDMO this is facilitated using a bot. To set up the bot visit the MaRDI Portal, log in with your user credentials, choose `Special Pages` and `Bot passwords`. Provide a name for the new bot, select `Create`, grant the bot permission for `High-volume (bot) access`, `Edit existing pages` and `Create, edit, and move pages` and seelct again `Create`. Thereby, a bot is created. Add the name of the bot `username@botname` (lgname) and the password (lgpassword) to the config file of the MaRDMO Plugin. Non-MaRDI users may contact the owner of the repository.
+Workflow search and local documentations are possible without login credentials. Non-MaRDI users may contact the owner of the repository to facilitate the login.
 
 ## MaRDMO Questionnaire        
 

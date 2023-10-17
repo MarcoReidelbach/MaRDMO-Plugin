@@ -20,6 +20,13 @@ from .id import *
 from .sparql import *
 from .display import *
 
+try:
+    # Get login credentials if available 
+    from config.settings import lgname, lgpassword
+except:
+    lgname=''
+    lgpassword=''
+
 class MaRDIExport(Export):
 
     def render(self):
@@ -56,7 +63,13 @@ class MaRDIExport(Export):
                         data[re.sub('b','',question['attribute'])+'_'+str(set_index)]=self.stringify_values(values)
                     else:
                         data[question['attribute']]=self.stringify_values(values)
-        
+       
+        # Check if MaRDI Portal export is desired check if login credential are provided
+        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+            if not (lgname and lgpassword):
+                #Stop if no login credentials are provided
+                return HttpResponse(response_temp.format(err19))
+
         # Workflow Documentation
         # Initialize dictionaries for MaRDI KG and Wikidata queries
 
@@ -351,11 +364,7 @@ class MaRDIExport(Export):
             # Export to MaRDI Portal
             elif data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                 # Export Workflow Documentation to mediawiki portal
-                if lgname and lgpassword:
-                    self.wikipage_export(self.project.title,re.sub('{\|','{| class="wikitable"',pypandoc.convert_text(temp,'mediawiki',format='md')))
-                else:
-                    #Stop if no bot credentials available
-                    return HttpResponse(response_temp.format(err19))
+                self.wikipage_export(self.project.title,re.sub('{\|','{| class="wikitable"',pypandoc.convert_text(temp,'mediawiki',format='md')))
                 #Successful Export to Portal
                 return HttpResponse(done.format(export.format(mardi_wiki+self.project.title.replace(' ','_'),mardi_wiki+'Item:'+workflow_qid)))
             else:
