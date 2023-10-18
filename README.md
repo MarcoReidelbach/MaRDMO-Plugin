@@ -27,13 +27,7 @@ This repository contains the MaRDMO-Export-Plugin for the [Research Datamanageme
 
 To use the MaRDMO-Export-Plugin at least `RDMO v2.0.0` is required. Follow the installation / update instructions of [RDMO](https://rdmo.readthedocs.io/en/latest/installation) if required. 
 
-Go to the `rdmo-app` directory of your RDMO installation and clone the MaRDMO-Export-Plugin directory:
-
-```bash
-git clone https://github.com/MarcoReidelbach/MaRDMO-Export-Plugin.git
-```
-
-In the virtual environment of the RDMO installation install the requirements of the MaRDMO-Export-Plugin:
+Go to the `rdmo-app` directory of your RDMO installation. In the virtual environment of the RDMO installation install the MaRDMO-Export-Plugin:
 
 ```bash
 pip install git+https://github.com/MarcoReidelbach/MaRDMO-Export-Plugin
@@ -46,14 +40,14 @@ from django.utils.translation import gettext_lazy as _
 ``` 
 
 ```python
-INSTALLED_APPS = ['MaRDMO-Export-Plugin'] + INSTALLED_APPS
+INSTALLED_APPS = ['MaRDMO'] + INSTALLED_APPS
 
 PROJECT_EXPORTS += [
-        ('mde', _('MaRDI Export/Query'), 'MaRDMO-Export-Plugin.export.MaRDIExport'),
+        ('mde', _('MaRDI Export/Query'), 'MaRDMO.export.MaRDIExport'),
         ]
 
 OPTIONSET_PROVIDERS = [
-    ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO-Export-Plugin.providers.WikidataSearch')
+    ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO.providers.WikidataSearch')
     ]
 ```
 
@@ -61,7 +55,7 @@ Thereby, the MaRDMO-Export-Plugin is installed and a "MaRDI Export/Query" button
 
 ## MaRDI Portal Connection
 
-To add data to the MaRDI Portal, so far, a login is required. In the MaRDMO-Export-Plugin this is facilitated using a bot. To set up the bot visit the MaRDI Portal, log in with your user credentials, choose `Special Pages` and `Bot passwords`. Provide a name for the new bot, select `Create`, grant the bot permission for `High-volume (bot) access`, `Edit existing pages` and `Create, edit, and move pages` and select again `Create`. Thereby, a bot is created. Add its credentials to `confif/settigs/local.py`:
+To add data to the MaRDI Portal, so far, a login is required. In the MaRDMO-Export-Plugin this is facilitated using a bot. To set up the bot visit the MaRDI Portal, log in with your user credentials, choose `Special Pages` and `Bot passwords`. Provide a name for the new bot, select `Create`, grant the bot permission for `High-volume (bot) access`, `Edit existing pages` and `Create, edit, and move pages` and select again `Create`. Thereby, a bot is created. Add its credentials to `config/settigs/local.py`:
 
 ```python
 lgname = 'username@botname'
