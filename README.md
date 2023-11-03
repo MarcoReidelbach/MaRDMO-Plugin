@@ -79,6 +79,7 @@ python manage.py import /path/to/MaRDMO-Questionnaire/catalog/domains.xml
 python manage.py import /path/to/MaRDMO-Questionnaire/catalog/optionss.xml
 python manage.py import /path/to/MaRDMO-Questionnaire/catalog/conditionss.xml
 python manage.py import /path/to/MaRDMO-Questionnaire/catalog/questions.xml
+```
 
 ## Usage of MaRDMO-Export-Plugin
 
