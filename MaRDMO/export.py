@@ -60,7 +60,6 @@ class MaRDIExport(Export):
                     )
 
                     if labels:
-                        print(re.sub('b','',question['attribute'])+'_'+str(idx))
                         data[re.sub('b','',question['attribute'])+'_'+str(idx)]=self.stringify_values(values)
                     else:
                         data[question['attribute']]=self.stringify_values(values)
@@ -368,17 +367,18 @@ class MaRDIExport(Export):
                                                                     [(Item,mmsi,P6) for mmsi in [model_qid]+methods_qid+softwares_qid+inputs_qid+outputs_qid])
             
             # Generate MaRDI template
-            print(data)
             temp=self.dyn_template(data)
+            
             # Fill out MaRDI template
             for entry in data.items():
                 temp=re.sub(";","<br/>",re.sub("Yes: |'","",re.sub(entry[0],repr(entry[1]),temp)))
+        
             # Remove IDs of unanswered questions
             temp=re.sub(BASE_URI+"Section_\d{1}/Set_\d{1}/Question_\d{2}_\d", "", temp)
             temp=re.sub(BASE_URI+"Section_\d{1}/Set_\d{1}/Question_\d{2}", "", temp)
             temp=re.sub(BASE_URI+"Section_\d{1}/Set_\d{1}/Wiki_\d{2}_\d", "", temp)
             temp=re.sub(BASE_URI+"Section_\d{1}/Set_\d{1}/Wiki_\d{2}", "", temp)
-            print(temp)
+        
             if data[dec[2][0]] == dec[2][1]: 
                 # Download as Markdown
                 response = HttpResponse(temp, content_type="application/md")
