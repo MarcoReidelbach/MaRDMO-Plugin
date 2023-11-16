@@ -47,11 +47,12 @@ PROJECT_EXPORTS += [
         ]
 
 OPTIONSET_PROVIDERS = [
-    ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO.providers.WikidataSearch')
+    ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO.providers.WikidataSearch'),
+    ('ComponentSearch', _('Options for MaRDI Search'), 'MaRDMO.providers.ComponentSearch')
     ]
 ```
 
-Thereby, the MaRDMO-Export-Plugin is installed and a "MaRDI Export/Query" button is added in the project view. The optionset provider allows direct Wikidata / MaRDI knowledge graph queries while answering the questionnaire. 
+Thereby, the MaRDMO-Export-Plugin is installed and a "MaRDI Export/Query" button is added in the project view.
 
 ## MaRDI Portal Connection
 
@@ -89,5 +90,5 @@ Choose "Answer Questions" to start the interview. With the first question the Op
 
 1) Choose **"Workflow Documentation"** and click on "Save and proceed". Next, decide whether the completed Questionnaire should be exported locally or publicly to the MaRDI Portal. If a public export is desired a preview of the rendered Wiki Page could be displayed. Please, check the preview before publishing the workflow on the MaRDI Portal. Once the general settings are completed the workflow will be documented by providing general information, model information, process information and reproducibility information. Upon completion return to the project page and choose "MaRDI Export/Query" to compile the answers and return it in the desired format. 
 
-2) Choose **"Workflow Search"** and click on "Save and proceed". Next, choose by which component existing workflow documentations should be searched and specify the component. Once completed, return to the project page and choose "MaRDI Export/Query". If appropriate workflow documentations are located on the MaRDI Portal, the corresponding URIs are displayed. 
+2) Choose **"Workflow Search"** and click on "Save and proceed". Next, choose by which components (keywords of research objective, associated research disciplines, and applied mathematical models, methods, software, input or output data sets) existing workflow documentations should be searched and specify the component. Once completed, return to the project page and choose "MaRDI Export/Query". If appropriate workflow documentations are located on the MaRDI Portal, the title of the workflow and links to the corresponding Wiki Page and Knowledge Graph entry are provided.
 

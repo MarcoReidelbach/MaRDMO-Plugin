@@ -38,11 +38,34 @@ done='''
     </body>
 </html>'''
 
+search_done="""
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Workflows Found!</title>
+    </head>
+    <body>
+        <br><br><br>
+        <div align='center'>
+           <p>
+              <span style="font-family:'Arial';color:DarkSlateBlue;font-size:200px;"><b>Ma</b></span>
+              <span style="font-family:'Arial';color:white;background-color:DarkSlateBlue;font-size:200px;"><b>RDMO</b></p></span>
+           </p>
+           <br><br><br>
+           <p style="color:blue;font-size:30px;">We found {0}  possibly matching Workflow(s) on the MaRDI Portal!</p>
+           <p style="color:blue;font-size:30px;">Here are the Links to the Documentations:</p>
+           {1}
+        </div>
+    </body>
+</html>"""
+
 export='''<p style="color:blue;font-size:30px;">You're Workflow has been added to the MaRDI Portal.</p>
 <p style="color:blue;font-size:30px;"><a href="{0}" style="color:orange;">Wiki Page</a>\t<a href="{1}" style="color:orange;">Knowledge Graph Entry</a></p>'''
 
 err='''<p style="color:red;font-size:50px;">Ooops...</p>
 <p style="color:red;font-size:50px;">{}</p>'''
+
+link='<p style="color:blue;font-size:20px;">{0}  (<a href="{1}" style="color:orange;">Wiki Page</a>\t<a href="{2}" style="color:orange;">Knowledge Graph Entry</a>)</p><br>'
 
 err1  = err.format('The Questionnaire \'{}\' is not suitable for the MaRDI Export!')
 err2  = err.format('You haven\'t chosen an export type!')

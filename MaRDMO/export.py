@@ -64,19 +64,14 @@ class MaRDIExport(Export):
                     else:
                         data[question['attribute']]=self.stringify_values(values)
        
-        # Check if MaRDI Portal export is desired check if login credential are provided
-        if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-            if not (lgname and lgpassword):
-                #Stop if no login credentials are provided
-                return HttpResponse(response_temp.format(err19))
-
         # Workflow Documentation
-        # Initialize dictionaries for MaRDI KG and Wikidata queries
-
-        wq = {}
-        mq = {}
-
         if data[dec[0][0]] in (dec[0][1],dec[0][2]):
+
+            # Check if MaRDI Portal export is desired check if login credential are provided
+            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+                if not (lgname and lgpassword):
+                    #Stop if no login credentials are provided
+                    return HttpResponse(response_temp.format(err19))
 
             # Check if research objective is provided
             res_obj=self.wikibase_answers(data,ws[5])[0] 
@@ -97,6 +92,10 @@ class MaRDIExport(Export):
                 
             # Get Paper information provided by user
             paper=self.wikibase_answers(data,ws[0])[0]
+
+            # Initialize dictionaries for MaRDI KG and Wikidata queries
+            wq = {}
+            mq = {}
 
             # If Portal integration is desired, get further information about publication 
             if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
@@ -399,81 +398,74 @@ class MaRDIExport(Export):
 
         # Workflow Search
         elif data[dec[0][0]] in (dec[0][3],dec[0][4]):
-            # QID and String Entities to search for
+
+            # Key Word and Entities to filter Workflows
             search_objs=self.wikibase_answers(data,ws[8])
-            ent_string=[]
-            ent_qid=[]
-            for search_obj in re.split('; ',search_objs[0]):
-                if re.split(':',search_obj)[0] == 'mardi' and re.match(r"Q[0-9*]",re.split(':',search_obj)[-1]):
-                    ent_qid.append('wd:'+re.split(':',search_obj)[-1])
-                else:
-                    ent_string.append(search_obj)
- 
-            # Entity Type
+         
+            ### SPARQL via Research Objectives ###
+            
+            # SPARQL string definitions
+            quote_str = ''
+            res_obj_strs = ''
+
+            # If SPARQL query via research objective desired
             if data[dec[4][0]] in (dec[4][1],dec[4][2]):
-                # SPARQL Query for Research Objective
-                if len(ent_qid) > 0:
-                    return HttpResponse(response_temp.format(err11))
-                else:
-                    FILTER=""
-                    for ent in ent_string:
-                        FILTER=FILTER+"FILTER(CONTAINS(?quote, '"+ent+"'@en)).\n"
-                    query=re.sub("STATEMENT",statement_obj,re.sub("FILTER",FILTER,re.sub("ITEMFINDER","",query_base)))
-            elif data[dec[4][0]] in (dec[4][3],dec[4][4]):
-                # SPARQL Query for Model, Methods, and Software
-                ITEMFINDER1=""
-                for n,ent in enumerate(ent_string):
-                    ITEMFINDER1=ITEMFINDER1+"?item"+str(n)+" rdfs:label ?itemlabel"+str(n)+".\nFILTER(CONTAINS(?itemlabel"+str(n)+", '"+ent+"'@en)).\n"
-                    ent_qid.append("?item"+str(n))
-                ITEMFINDER2=""
-                for n,ent in enumerate(ent_qid):
-                    if n == 0:
-                        ITEMFINDER2=ITEMFINDER2+"?y wdt:P"+P6+" "+ent+";\n"
-                    else:
-                        ITEMFINDER2=ITEMFINDER2+"wdt:P"+P6+" "+ent+";\n"
-                ITEMFINDER2=ITEMFINDER2+"wdt:P"+P4+" wd:"+Q2+".\n"
+                # Get description of workflow
+                quote_str = quote_sparql
+                # Separate key words for SPARQL query vie research objective
+                res_objs=search_objs[0].split('; ')
+                if res_objs:
+                    # Define Filters for SPARQL queries
+                    for res_obj in res_objs:
+                        res_obj_strs+=res_obj_sparql.format(res_obj.lower())
 
-                query=re.sub("STATEMENT",statement_mms,re.sub("ITEMFINDER",ITEMFINDER1+ITEMFINDER2,re.sub("FILTER","",query_base)))
-                     
-            elif data[dec[4][0]] in (dec[4][5],dec[4][6]):
-                #SPARQL Query for Research Field
-                ITEMFINDER1=""
-                for n,ent in enumerate(ent_string):
-                    ITEMFINDER1=ITEMFINDER1+"?item"+str(n)+" rdfs:label ?itemlabel"+str(n)+".\nFILTER(CONTAINS(?itemlabel"+str(n)+", '"+ent+"'@en)).\n"
-                    ent_qid.append("?item"+str(n))
-                ITEMFINDER2=""
-                for n,ent in enumerate(ent_qid):
-                    if n == 0:
-                        ITEMFINDER2=ITEMFINDER2+"?y wdt:P"+P5+" "+ent+";\n"
-                    else:
-                        ITEMFINDER2=ITEMFINDER2+"wdt:P"+P5+" "+ent+";\n"
-                ITEMFINDER2=ITEMFINDER2+"wdt:P"+P4+" wd:"+Q2+".\n"
+            ### SPARQL via Research Disciplines ###
 
-                query=re.sub("STATEMENT",statement_mms,re.sub("ITEMFINDER",ITEMFINDER1+ITEMFINDER2,re.sub("FILTER","",query_base)))
+            # SPARQL string definitions
+            res_disc_str = ''
 
-            else:
-                return HttpResponse(response_temp.format(err3))
+            # If SPARQL query via research discipline desired
+            if data[dec[5][0]] in (dec[5][1],dec[5][2]):
+                # Separate disciplines for SPARQL query via research discipline 
+                res_discs=search_objs[1].split('; ')
+                if res_discs:
+                    for res_disc in res_discs:
+                        # Get ID of research discipline
+                        res_disc_id = res_disc.split('<|>')[0].split(':')[1]
+                        # Define Filters for SPARQL queries
+                        res_disc_str += res_disc_sparql.format(P5,res_disc_id)
 
+            ### SPARQL via Mathematical Models, Methods, Softwares, Input or Output Data Sets ###
+
+            # SPARQL string definitions
+            mmsios_str = ''
+
+            # If SPARQL query via Mathematical Models, Methods, Softwares, Input or Output Data Sets
+            if data[dec[6][0]] in (dec[6][1],dec[6][2]):
+                # Separate Mathematical Model, Methods, Software, Input or Output Data Sets
+                mmsios=search_objs[2].split('; ')
+                if mmsios:
+                    for mmsio in mmsios:
+                        # Get ID of mathematical model, method, software, input or output data set
+                        mmsio_id = mmsio.split('<|>')[0].split(':')[1]
+                        # Define Filters for SPARQL queries
+                        mmsios_str += mmsio_sparql.format(P6,mmsio_id)
+
+            # Set up entire SPARQL query
+            query = query_base.format(P4,Q2,res_disc_str,mmsios_str,quote_str,res_obj_strs)
+            
+            # Query MaRDI Portal
             results = self.get_results(mardi_endpoint, query)
-        
-            top="""<!DOCTYPE html>
-<html>
-    <head>
-        <title>Workflows Found!</title>
-    </head>
-    <body>
-        <div align='center'>
-           <img src="https://www.nfdi.de/wp-content/uploads/2021/12/MaRDI_Logo_rgba.png" style="vertical-align: middle;" width="400px"/>
-           <p style="color:blue;font-size:30px;">We found """+str(len(results))+""" possibly matching Workflow(s) on the MaRDI Portal!</p>
-           <p style="color:blue;font-size:30px;">Here are the Links to the Documentations:</p>"""
 
-            middle=""
+            # Number of Results
+            no_results = str(len(results))
+            
+            # Generate Links to Wikipage and Knowledge Graoh Entry of Results
+            links =''
             for result in results:
-                middle=middle+"<a href='"+mardi_wiki+re.sub(" ","_",result["label"]["value"])+"'>"+result["label"]["value"]+"</a><br>"
-            end="""</div>
-    </body>
-</html>"""
-            return HttpResponse(top+middle+end)
+                links+=link.format(result["label"]["value"],mardi_wiki+result["label"]["value"].replace(' ','_'),mardi_wiki+'Item:'+result["qid"]["value"])
+
+            return HttpResponse(search_done.format(no_results,links))
  
         # Not chosen
         else:
