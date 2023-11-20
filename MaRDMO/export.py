@@ -86,7 +86,7 @@ class MaRDIExport(Export):
             
             # Check if Workflow with same label/description already on portal
             if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-                if self.entry_check(self.project.title,res_obj):
+                if self.entry_check(self.project.title.replace("'",r"\'"),res_obj.replace("'",r"\'")):
                     # Stop if on Portal and portal integration desired
                     return HttpResponse(response_temp.format(err18))
                 
@@ -367,10 +367,10 @@ class MaRDIExport(Export):
             
             # Generate MaRDI template
             temp=self.dyn_template(data)
-            
+             
             # Fill out MaRDI template
             for entry in data.items():
-                temp=re.sub(";","<br/>",re.sub("Yes: |'","",re.sub(entry[0],repr(entry[1]),temp)))
+                temp=re.sub('"','',re.sub(";","<br/>",re.sub("Yes: |'","",re.sub(entry[0],repr(entry[1]),temp))))
         
             # Remove IDs of unanswered questions
             temp=re.sub(BASE_URI+"Section_\d{1}/Set_\d{1}/Question_\d{2}_\d", "", temp)
@@ -782,22 +782,22 @@ class MaRDIExport(Export):
         wq.update({'wqdis'+str(i): {'qid':discipline[0].split(':'), 'label':discipline[1], 'quote':discipline[2]} for i,discipline in enumerate(disciplines[2])})
 
         #Model + Main Subject SPARQL query for MaRDI KG
-        qm.update({'mqmod' : mini.format('?qid',mbody.format(wq['wqmod']['label'],wq['wqmod']["quote"]))})
-        qm.update({'mqmod_sub' : mini.format('?qid',mbody.format(wq['wqmod_sub']['label'],wq['wqmod_sub']['quote']))})
+        qm.update({'mqmod' : mini.format('?qid',mbody.format(wq['wqmod']['label'].replace("'",r"\'"),wq['wqmod']["quote"].replace("'",r"\'")))})
+        qm.update({'mqmod_sub' : mini.format('?qid',mbody.format(wq['wqmod_sub']['label'].replace("'",r"\'"),wq['wqmod_sub']['quote'].replace("'",r"\'")))})
 
         #Methods + Main Subjects SPARQL query for MaRDI KG
-        qm.update({'mqmet'+str(i): mini.format('?qid',mbody.format(wq['wqmet'+str(i)]['label'],wq['wqmet'+str(i)]['quote'])) for i in range(method[1])})
-        qm.update({'mqmet_sub'+str(i): mini.format('?qid',mbody.format(wq['wqmet_sub'+str(i)]['label'],wq['wqmet_sub'+str(i)]['quote'])) for i in range(method[1])})
+        qm.update({'mqmet'+str(i): mini.format('?qid',mbody.format(wq['wqmet'+str(i)]['label'].replace("'",r"\'"),wq['wqmet'+str(i)]['quote'].replace("'",r"\'"))) for i in range(method[1])})
+        qm.update({'mqmet_sub'+str(i): mini.format('?qid',mbody.format(wq['wqmet_sub'+str(i)]['label'].replace("'",r"\'"),wq['wqmet_sub'+str(i)]['quote'].replace("'",r"\'"))) for i in range(method[1])})
 
         #Softwares + Programming Languages SPARQL query for MaRDI KG
-        qm.update({'mqsof'+str(i) : mini.format('?qid',mbody.format(wq['wqsof'+str(i)]['label'],wq['wqsof'+str(i)]['quote'])) for i in range(software[1])}),
-        qm.update({'mqsof_sub'+str(i)+'_'+str(j) : mini.format('?qid',mbody.format(wq['wqsof_sub'+str(i)+'_'+str(j)]['label'],wq['wqsof_sub'+str(i)+'_'+str(j)]['quote'])) 
+        qm.update({'mqsof'+str(i) : mini.format('?qid',mbody.format(wq['wqsof'+str(i)]['label'].replace("'",r"\'"),wq['wqsof'+str(i)]['quote'].replace("'",r"\'"))) for i in range(software[1])}),
+        qm.update({'mqsof_sub'+str(i)+'_'+str(j) : mini.format('?qid',mbody.format(wq['wqsof_sub'+str(i)+'_'+str(j)]['label'].replace("'",r"\'"),wq['wqsof_sub'+str(i)+'_'+str(j)]['quote'].replace("'",r"\'"))) 
                                                                for i,ss in enumerate(software[4]) for j,s in enumerate(ss[3])}) 
         
         #Inputs, Outputs, Disciplines SPARQL queries for MaRDI KG
-        qm.update({'mqinp'+str(i) : mini.format('?qid',mbody.format(wq['wqinp'+str(i)]['label'],wq['wqinp'+str(i)]['quote'])) for i in range(inputs[1])})
-        qm.update({'mqout'+str(i) : mini.format('?qid',mbody.format(wq['wqout'+str(i)]['label'],wq['wqout'+str(i)]['quote'])) for i in range(outputs[1])})
-        qm.update({'mqdis'+str(i) : mini.format('?qid',mbody.format(wq['wqdis'+str(i)]['label'],wq['wqdis'+str(i)]['quote'])) for i in range(disciplines[1])})
+        qm.update({'mqinp'+str(i) : mini.format('?qid',mbody.format(wq['wqinp'+str(i)]['label'].replace("'",r"\'"),wq['wqinp'+str(i)]['quote'].replace("'",r"\'"))) for i in range(inputs[1])})
+        qm.update({'mqout'+str(i) : mini.format('?qid',mbody.format(wq['wqout'+str(i)]['label'].replace("'",r"\'"),wq['wqout'+str(i)]['quote'].replace("'",r"\'"))) for i in range(outputs[1])})
+        qm.update({'mqdis'+str(i) : mini.format('?qid',mbody.format(wq['wqdis'+str(i)]['label'].replace("'",r"\'"),wq['wqdis'+str(i)]['quote'].replace("'",r"\'"))) for i in range(disciplines[1])})
 
         for key in qm.keys():
             #Request Data from MaRDI KG
