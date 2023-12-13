@@ -17,7 +17,8 @@ class WikidataSearch(Provider):
         qmard=requests.get(mardi_api+'?action=wbsearchentities&format=json&language=en&type=item&limit=10&search={0}'.format(search),
                            headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['search']
         
-        options=[]
+        options=[{'id':'default','text':'<N/A>'}]
+
         for index in range(10):
             
             if index < len(qwiki):
@@ -31,7 +32,7 @@ class WikidataSearch(Provider):
                     options.append({'id':'M'+str(index),'text':'mardi:'+qmard[index]['id']+' <|> '+qmard[index]['display']['label']['value']+' <|> '+qmard[index]['display']['description']['value']})
                 except:
                     options.append({'id':'M'+str(index),'text':'mardi:'+qmard[index]['id']+' <|> '+qmard[index]['display']['label']['value'][1:]+' <|> No Description Provided!'})
-        
+
         return options
 
 class ComponentSearch(Provider):
@@ -46,7 +47,8 @@ class ComponentSearch(Provider):
         qmard=requests.get(mardi_api+'?action=wbsearchentities&format=json&language=en&type=item&limit=10&search={0}'.format(search),
                            headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['search']
 
-        options=[]
+        options=[{'id':'default','text':'<N/A>'}]
+
         for index in range(20):
 
             if index < len(qmard):

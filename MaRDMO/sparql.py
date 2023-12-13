@@ -23,7 +23,7 @@ res_obj_sparql = "FILTER(CONTAINS(lcase(str(?quote)), '{}'@en)).\n"
 res_disc_sparql = "wdt:P{0} wd:{1};\n"
 mmsio_sparql = "wdt:P{0} wd:{1};\n"
 
-#SPARQL Keys for Queries
+#SPARQL Keys for Queries related to Publication
 
 Keys={'wqpub':' ?qid_doi ?label_doi ?quote_doi ?qid_jou ?label_jou ?quote_jou ?qid_lan ?label_lan ?quote_lan ?qid_tit ?label_tit ?quote_tit',
       'mqpub':' ?qid_doi ?qid_ch1 ?qid_jou ?qid2_jou ?qid3_jou ?qid_lan ?qid2_lan ?qid3_lan ?qid_tit ?qid_ch6 ?qid_ch7'}
@@ -80,16 +80,4 @@ LIMIT 1'''
 
 mini='''
 PREFIX wdt:'''+wdt+''' PREFIX wd:'''+wd+wini
-
-check_query="""
-PREFIX wdt: """+wdt+"""
-PREFIX wd: """+wd+"""
-
-SELECT ?item ?qid 
-WHERE 
-{
-?item rdfs:label "LABEL"@en;
-      schema:description "DESCRIPTION"@en.
-BIND(STRAFTER(STR(?item),STR(wd:)) AS ?qid)
-}"""
 

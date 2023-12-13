@@ -7,40 +7,40 @@ BASE_URI='http://example.com/terms/domain/MaRDI/'
 
 math_temp=''' 
 
-PID (if applicable): '''+BASE_URI+'''Section_2/Set_1/Question_02
+PID (if applicable): '''+BASE_URI+'''Section_2/Set_1/Question_02_0
 
 ## Problem Statement
 
-'''+BASE_URI+'''Section_2/Set_1/Question_01
+'''+BASE_URI+'''Section_2/Set_1/Question_01_0
 
 ### Object of Research and Objective
 
-'''+BASE_URI+'''Section_2/Set_2/Question_01
+'''+BASE_URI+'''Section_2/Set_2/Question_01_0
 
 ### Procedure
 
-'''+BASE_URI+'''Section_2/Set_2/Question_02
+'''+BASE_URI+'''Section_2/Set_2/Question_02_0
 
 ### Involved Disciplines
 
-'''+BASE_URI+'''Section_2/Set_3/Question_01
+DISCIPLINES
 
 ### Data Streams
 
-'''+BASE_URI+'''Section_2/Set_3/Question_02
+'''+BASE_URI+'''Section_2/Set_3/Question_02_0
 
 ## Model
 
-ID: '''+BASE_URI+'''Section_3/Set_1/Wiki_01
+ID: '''+BASE_URI+'''Section_3/Set_1/Wiki_01_0
 
-'''+BASE_URI+'''Section_3/Set_1/Question_01 
+'''+BASE_URI+'''Section_3/Set_1/Question_01_0 
 
-'''+BASE_URI+'''Section_3/Set_1/Wiki_02
+'''+BASE_URI+'''Section_3/Set_1/Wiki_02_0
 
 ### Discretization
 
-* Time: '''+BASE_URI+'''Section_3/Set_1/Question_02
-* Space: '''+BASE_URI+'''Section_3/Set_1/Question_03
+* Time: '''+BASE_URI+'''Section_3/Set_1/Question_02_0
+* Space: '''+BASE_URI+'''Section_3/Set_1/Question_03_0
 
 ### Variables
 
@@ -80,27 +80,27 @@ MATH_TAB_7
 
 ### Mathematical Reproducibility 
 
-'''+BASE_URI+'''Section_5/Set_1/Question_01
+'''+BASE_URI+'''Section_5/Set_1/Question_01_0
 
 ### Runtime Reproducibility 
 
-'''+BASE_URI+'''Section_5/Set_1/Question_02
+'''+BASE_URI+'''Section_5/Set_1/Question_02_0
 
 ### Reproducibility of Results
 
-'''+BASE_URI+'''Section_5/Set_1/Question_03
+'''+BASE_URI+'''Section_5/Set_1/Question_03_0
 
 ### Reproducibility on original Hardware
 
-'''+BASE_URI+'''Section_5/Set_1/Question_04
+'''+BASE_URI+'''Section_5/Set_1/Question_04_0
 
 ### Reproducibility on other Hardware
 
-'''+BASE_URI+'''Section_5/Set_1/Question_05
+'''+BASE_URI+'''Section_5/Set_1/Question_05_0
 
 ### Transferability to
 
-'''+BASE_URI+'''Section_5/Set_1/Question_06
+'''+BASE_URI+'''Section_5/Set_1/Question_06_0
 
 ## Legend
 
@@ -118,41 +118,41 @@ mardi: https://portal.mardi4nfdi.de/wiki/'''
 
 exp_temp='''
 
-PID (if applicable): '''+BASE_URI+'''Section_2/Set_1/Question_02
+PID (if applicable): '''+BASE_URI+'''Section_2/Set_1/Question_02_0
 
 ## Problem Statement
 
-'''+BASE_URI+'''Section_2/Set_1/Question_01
+'''+BASE_URI+'''Section_2/Set_1/Question_01_0
 
 ### Object of Research and Objective
 
-'''+BASE_URI+'''Section_2/Set_2/Question_01
+'''+BASE_URI+'''Section_2/Set_2/Question_01_0
 
 ### Procedure
 
-'''+BASE_URI+'''Section_2/Set_2/Question_02
+'''+BASE_URI+'''Section_2/Set_2/Question_02_0
 
 ### Involved Disciplines
 
-'''+BASE_URI+'''Section_2/Set_3/Question_01
+'''+BASE_URI+'''Section_2/Set_3/Question_01_0
 
 ### Data Streams
 
-'''+BASE_URI+'''Section_2/Set_3/Question_02
+'''+BASE_URI+'''Section_2/Set_3/Question_02_0
 
 ## Model
 
-ID: '''+BASE_URI+'''Section_3/Set_1/Wiki_01
+ID: '''+BASE_URI+'''Section_3/Set_1/Wiki_01_0
 
-'''+BASE_URI+'''Section_3/Set_1/Question_01
+'''+BASE_URI+'''Section_3/Set_1/Question_01_0
 
-'''+BASE_URI+'''Section_3/Set_1/Wiki_02
+'''+BASE_URI+'''Section_3/Set_1/Wiki_02_0
 
 ### Discretization
 (if applicable)
 
-* Time: '''+BASE_URI+'''Section_3/Set_1/Question_02
-* Space: '''+BASE_URI+'''Section_3/Set_1/Question_03
+* Time: '''+BASE_URI+'''Section_3/Set_1/Question_02_0
+* Space: '''+BASE_URI+'''Section_3/Set_1/Question_03_0
 
 ### Variables
 
@@ -193,15 +193,15 @@ EXP_TAB_8
 
 ### Reproducibility of the Experiments on the original Devices/Instruments/Hardware
 
-'''+BASE_URI+'''Section_5/Set_2/Question_01
+'''+BASE_URI+'''Section_5/Set_2/Question_01_0
 
 ### Reproducibility of the Experiments on other Devices/Instruments/Hardware
 
-'''+BASE_URI+'''Section_5/Set_2/Question_02
+'''+BASE_URI+'''Section_5/Set_2/Question_02_0
 
 ### Transferability of the  Experiments to
 
-'''+BASE_URI+'''Section_5/Set_2/Question_03
+'''+BASE_URI+'''Section_5/Set_2/Question_03_0
 
 ## Legend
 
@@ -284,51 +284,47 @@ exp_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Quest
           BASE_URI+'Section_4/Set_7/Question_06',BASE_URI+'Section_4/Set_7/Question_07',BASE_URI+'Section_4/Set_7/Question_08',
           BASE_URI+'Section_4/Set_7/Question_09']]
 
-# Stuff for KG export
-
-KG_export=[BASE_URI+'Section_2/Set_2/Question_01',BASE_URI+'Section_4/Set_2/Question_02',BASE_URI+'Section_4/Set_6/Question_01']
-
 # Stuff for Decisions
-dec=[[BASE_URI+'Section_0/Set_1/Question_01', 'Workflow Documentation', 'Workflow Dokumentation', 'Workflow Search', 'Workflow Suche'],
-     [BASE_URI+'Section_2/Set_1/Question_03', 'Theoretical Workflow', 'Theoretischer Workflow', 'Experimental Workflow', 'Experimenteller Workflow'],
-     [BASE_URI+'Section_6/Set_1/Question_01', 'Markdown File', 'MaRDI Portal'],
-     [BASE_URI+'Section_6/Set_1/Question_02', 'No', 'Nein'],
-     [BASE_URI+'Section_1/Set_1/Question_00', 'Yes', 'Ja'],
-     [BASE_URI+'Section_1/Set_1/Question_02', 'Yes', 'Ja'],
-     [BASE_URI+'Section_1/Set_1/Question_04', 'Yes', 'Ja']]
 
-# Question IDs for Wikibase Export
+dec=[[BASE_URI+'Section_0/Set_1/Question_01_0', 'Workflow Documentation', 'Workflow Dokumentation', 'Workflow Search', 'Workflow Suche'],
+     [BASE_URI+'Section_2/Set_1/Question_03_0', 'Theoretical Workflow', 'Theoretischer Workflow', 'Experimental Workflow', 'Experimenteller Workflow'],
+     [BASE_URI+'Section_6/Set_1/Question_01_0', 'Markdown File', 'MaRDI Portal'],
+     [BASE_URI+'Section_6/Set_1/Question_02_0', 'No', 'Nein'],
+     [BASE_URI+'Section_1/Set_1/Question_00_0', 'Yes', 'Ja'],
+     [BASE_URI+'Section_1/Set_1/Question_02_0', 'Yes', 'Ja'],
+     [BASE_URI+'Section_1/Set_1/Question_04_0', 'Yes', 'Ja']]
 
-ws = [[BASE_URI+'Section_2/Set_1/Question_02'],
-      [BASE_URI+'Section_3/Set_1/Wiki_01',
-       BASE_URI+'Section_3/Set_1/Question_01',
-       BASE_URI+'Section_3/Set_1/Wiki_02',
-       BASE_URI+'Section_3/Set_1/Wiki_03',
-       BASE_URI+'Section_3/Set_1/Wiki_04',
-       BASE_URI+'Section_3/Set_1/Question_00'],
-      [BASE_URI+'Section_4/Set_2/Question_01',
-       BASE_URI+'Section_4/Set_2/Question_02',
-       BASE_URI+'Section_4/Set_2/Wiki_02',
-       BASE_URI+'Section_4/Set_2/Wiki_03',
-       BASE_URI+'Section_4/Set_2/Wiki_04',
-       BASE_URI+'Section_4/Set_2/Question_00'],
-      [BASE_URI+'Section_4/Set_3/Question_01',
-       BASE_URI+'Section_4/Set_3/Question_02',
-       BASE_URI+'Section_4/Set_3/Question_03',
-       BASE_URI+'Section_4/Set_3/Question_05',
-       BASE_URI+'Section_4/Set_3/Question_00'],
-      [BASE_URI+'Section_2/Set_3/Question_01'],
-      [BASE_URI+'Section_2/Set_2/Question_01'],
-      [BASE_URI+'Section_4/Set_6/Question_00',
-       BASE_URI+'Section_4/Set_6/Question_01',
-       BASE_URI+'Section_4/Set_6/Question_10'],
-      [BASE_URI+'Section_4/Set_7/Question_00',
-       BASE_URI+'Section_4/Set_7/Question_01',
-       BASE_URI+'Section_4/Set_7/Question_10'],
-      [BASE_URI+'Section_1/Set_1/Question_01',
-       BASE_URI+'Section_1/Set_1/Question_03',
-       BASE_URI+'Section_1/Set_1/Question_05']]
+# Question IDs required for data integration into MaRDI KG
 
+ws = {'doi': [BASE_URI+'Section_2/Set_1/Question_02_0'],    # Question for cited paper
+      'mod': [BASE_URI+'Section_3/Set_1/Wiki_01',           # Questions for applied model
+              BASE_URI+'Section_3/Set_1/Question_01',
+              BASE_URI+'Section_3/Set_1/Wiki_02',
+              BASE_URI+'Section_3/Set_1/Wiki_03',
+              BASE_URI+'Section_3/Set_1/Wiki_04',
+              BASE_URI+'Section_3/Set_1/Question_00'],
+      'met': [BASE_URI+'Section_4/Set_2/Question_01',       # Questions for applied methods
+              BASE_URI+'Section_4/Set_2/Question_02',
+              BASE_URI+'Section_4/Set_2/Wiki_02',
+              BASE_URI+'Section_4/Set_2/Wiki_03',
+              BASE_URI+'Section_4/Set_2/Wiki_04',
+              BASE_URI+'Section_4/Set_2/Question_00'],
+      'sof': [BASE_URI+'Section_4/Set_3/Question_01',       # Questions for applied softwares
+              BASE_URI+'Section_4/Set_3/Question_02',
+              BASE_URI+'Section_4/Set_3/Question_03',
+              BASE_URI+'Section_4/Set_3/Question_05',
+              BASE_URI+'Section_4/Set_3/Question_00'],
+      'dis': [BASE_URI+'Section_2/Set_3/Question_01_0'],    # Question for related disciplines
+      'obj': [BASE_URI+'Section_2/Set_2/Question_01_0'],    # Question for related research objective
+      'inp': [BASE_URI+'Section_4/Set_6/Question_00',       # Questions for related input data sets
+              BASE_URI+'Section_4/Set_6/Question_01',
+              BASE_URI+'Section_4/Set_6/Question_10'],
+      'out': [BASE_URI+'Section_4/Set_7/Question_00',       # Questions for related output data sets
+              BASE_URI+'Section_4/Set_7/Question_01',
+              BASE_URI+'Section_4/Set_7/Question_10'],
+      'sea': [BASE_URI+'Section_1/Set_1/Question_01_0',       # Questions for Workflow search
+              BASE_URI+'Section_1/Set_1/Question_03_0',
+              BASE_URI+'Section_1/Set_1/Question_05_0']}
 
 # Set IDs
 
@@ -351,3 +347,27 @@ lang_dict={'af':'Afrikaans','ar':'Arabic','bg':'Bulgarian','bn':'Bengali',
            'sq':'Albanian','sv':'Swedish','sw':'Swahili','ta':'Tamil','te':'Telugu',
            'th':'Thai','tl':'Tagalog','tr':'Turkish','uk':'Ukrainian','ur':'Urdu',
            'vi':'Vietnamese','zh-cn':'Putonghua','zh-tw':'Taiwanese Mandarin'}
+
+# DEFAULT ANSWERS
+
+defs=[['<N/A>', '<N/A>'],
+      ['<NAME>','<NAME>'],
+      ['<DESCRIPTION>','<BESCHREIBUNG>'],
+      ['<EXTERNAL ID>','<EXTERNE ID>'],
+      ['<KEY WORD>','<SCHLAGWORT>'],
+      ['<RESEARCH OBJECTIVE>','<FORSCHUNGSGEGENSTAND>']]
+
+# Refine Stuff
+
+refine_strs=[BASE_URI+"Section_\d{1}/Set_\d{1}/Question_\d{2}_\d",
+             BASE_URI+"Section_\d{1}/Set_\d{1}/Question_\d{2}",
+             BASE_URI+"Section_\d{1}/Set_\d{1}/Wiki_\d{2}_\d",
+             BASE_URI+"Section_\d{1}/Set_\d{1}/Wiki_\d{2}"]
+
+# Link Stuff
+
+linkers = [['mardi:','[Q0-9]+',mardi_wiki+'Item:'],
+           ['wikidata:','[Q0-9]+','https://www.wikidata.org/wiki/Item:'],
+           ['sw:','[0-9]+','https://swmath.org/software/'],
+           ['doi:','10.\d{4,9}/[-._;()/:a-z0-9A-Z]+','https://dx.doi.org/']]
+
