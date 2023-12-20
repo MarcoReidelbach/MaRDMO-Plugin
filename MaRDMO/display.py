@@ -81,7 +81,7 @@ err11 = err.format('Please, check the question \'Provide an ID for the method.\'
 err12 = err.format('Please, check the question \'Provide an ID for the software.\'. The mardi:QID or wikidata:QID you provided in set {} does not exist!')
 err13 = err.format('Please, check the question \'Provide an ID for the Input Data\'. The mardi:QID or wikidata:QID you provided in set {} does not exist!')
 err14 = err.format('Please, check the question \'Provide an ID for the Output Data\'. The mardi:QID or wikidata:QID you provided in set {} does not exist!')
-err15 = err.format('A new workflow needs to be related to scientific disciplines!')
+err15 = err.format('A new workflow needs to be related to non-mathematical disciplines!')
 err16 = err.format('A new software (set {}) requires a programming language!')
 err17 = err.format('A new method (set {}) requires a main subject!')
 err18 = err.format('A workflow with the same label and description already exists on the MaRDI Portal!')
@@ -92,6 +92,7 @@ err22 = err.format('A new method (set {}) requires name and description!')
 err23 = err.format('A new software (set {}) requires name and description!')
 err24 = err.format('A new input data set (set {}) requires a name!')
 err25 = err.format('A new output data set (set {}) requires a name!')
+err26 = err.format('A new workflow needs to be related to mathematical fields!')
 
 # HTML stuff to preview Documentation
 

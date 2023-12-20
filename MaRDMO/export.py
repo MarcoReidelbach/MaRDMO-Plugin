@@ -282,9 +282,9 @@ class MaRDIExport(Export):
                 # Stop if no Name and Description provided for new output data set
                 return HttpResponse(response_temp.format(err25.format(error[1])))
 
-### Integrate related Disciplines in MaRDI KG #####################################################################################################################################################
+### Integrate related non-mathematical Disciplines in MaRDI KG ####################################################################################################################################
 
-            disciplines, data, error = self.Entry_Generator('dis','',               # Entry of Disciplines (dis) with no Subproperty
+            disciplines, data, error = self.Entry_Generator('dis','',               # Entry of non-mathmatical Disciplines (dis) with no Subproperty
                                                             [False,False,False],    # Generation not wanted, QID Generation not wanted, String Generation not wanted
                                                             ['',''],                # nothing
                                                             wq,mq,data)             # data from wikidata (wq), MaRDI KG (mq) and user (data)
@@ -292,7 +292,18 @@ class MaRDIExport(Export):
             if error[0] == 2:
                 # Stop if no Discipline provided by User
                 return HttpResponse(response_temp.format(err15.format(error[1])))
-         
+
+### Integrate related mathematical Fields in MaRDI KG #############################################################################################################################################
+
+            fields, data, error = self.Entry_Generator('fie','',               # Entry of mathmatical fields (fie) with no Subproperty
+                                                       [False,False,False],    # Generation not wanted, QID Generation not wanted, String Generation not wanted
+                                                       ['',''],                # nothing
+                                                       wq,mq,data)             # data from wikidata (wq), MaRDI KG (mq) and user (data)
+
+            if error[0] == 2:
+                # Stop if no Discipline provided by User
+                return HttpResponse(response_temp.format(err26.format(error[1])))
+
 ### Integrate Workflow in MaRDI KG ################################################################################################################################################################
 
             if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
@@ -301,6 +312,7 @@ class MaRDIExport(Export):
                                         [(Item,Q2,P4),                                                     # instance of (P4) research workflow (Q2)
                                          (Item,paper_qid,P3)]+                                             # cites work (P3) paper (paper_qid) provided by user
                                         [(Item,discipline,P5) for discipline in disciplines]+              # field of work (P5) disciplines (discipline) provided by user
+                                        [(Item,field,P5) for field in fields]+                             # field of work (P5) mathematical fields (field) provided by user
                                         [(Item,i,P6) for i in models+methods+softwares+inputs+outputs])    # uses (P6) models, methods, softwares, inputs, outputs
             
 ### Generate Workflow Page ########################################################################################################################################################################
@@ -399,7 +411,7 @@ class MaRDIExport(Export):
                         res_disc_id = res_disc.split('<|>')[0].split(':')[1]
                         # Define Filters for SPARQL queries
                         res_disc_str += res_disc_sparql.format(P5,res_disc_id)
-
+            
 ### SPARQL via Mathematical Models, Methods, Softwares, Input or Output Data Sets #################################################################################################################
 
             # SPARQL string definitions
@@ -488,8 +500,9 @@ class MaRDIExport(Export):
             temp=[]
             return temp
        
-        # Set up involved discipines
+        # Set up involved discipines & fields
         temp=re.sub('DISCIPLINES','; '.join([key for key in data.keys() if ws['dis'][0]+'_' in key]),temp)
+        temp=re.sub('FIELDS','; '.join([key for key in data.keys() if ws['fie'][0]+'_' in key]),temp)
 
         # Set up tables through set numbers (n_max)
         for n,table in enumerate(tables):
@@ -683,8 +696,8 @@ class MaRDIExport(Export):
         
         length = self.set_lengths(data)
 
-        types = ['model', 'method', 'software', 'inputs', 'outputs', 'disciplines']
-        strings = ['mod', 'met', 'sof', 'inp', 'out', 'dis']
+        types = ['model', 'method', 'software', 'inputs', 'outputs', 'disciplines','fields']
+        strings = ['mod', 'met', 'sof', 'inp', 'out', 'dis','fie']
         strings2 = ['moms','mems','pl']
 
         user_answers ={}
@@ -704,9 +717,9 @@ class MaRDIExport(Export):
 
             x = []
 
-            x.append(self.wikibase_answers(data, ws[ABBR], length[IDX]) if ABBR != 'dis' else self.wikibase_answers(data, ws[ABBR])[0].split('; '))
+            x.append(self.wikibase_answers(data, ws[ABBR], length[IDX]) if ABBR not in ('dis','fie') else self.wikibase_answers(data, ws[ABBR])[0].split('; '))
             
-            x.append(length[IDX] if ABBR != 'dis' else len(x[0]) if x else 0)
+            x.append(length[IDX] if ABBR not in ('dis','fie') else len(x[0]) if x else 0)
             
             x.append([re.split(' <\|> ', x[0][i]) if x[0][i] else 
                      ['', x[0][x[1] + i] if ABBR in strings[:5] else '',
@@ -824,8 +837,8 @@ class MaRDIExport(Export):
             # Update User answers
             if entry and qid:
                 qids.append(qid)
-                if Type == 'dis':
-                    data.update({ws[Type][0]+'_'+str(i):entry[0]})
+                if Type in ('dis','fie'):
+                    data.update({ws[Type][0]+'_'+str(i):'{0} - {1} (mardi:{2})'.format(str(i+1),entry[0],qid)})
                 else:
                     data.update({ws[Type][0]+'_'+str(i):'mardi:'+qid,ws[Type][1]+'_'+str(i):entry[0],ws[Type][2]+'_'+str(i):entry[1]})
     

@@ -23,6 +23,12 @@ PID (if applicable): '''+BASE_URI+'''Section_2/Set_1/Question_02_0
 
 ### Involved Disciplines
 
+<b>Mathematical Areas:</b>
+
+FIELDS
+
+<b>Non-Mathematical Disciplines:</b>
+
 DISCIPLINES
 
 ### Data Streams
@@ -134,7 +140,13 @@ PID (if applicable): '''+BASE_URI+'''Section_2/Set_1/Question_02_0
 
 ### Involved Disciplines
 
-'''+BASE_URI+'''Section_2/Set_3/Question_01_0
+<b>Mathematical Areas:</b>
+
+FIELDS
+
+<b>Non-Mathematical Disciplines:</b>
+
+DISCIPLINES
 
 ### Data Streams
 
@@ -314,6 +326,7 @@ ws = {'doi': [BASE_URI+'Section_2/Set_1/Question_02_0'],    # Question for cited
               BASE_URI+'Section_4/Set_3/Question_03',
               BASE_URI+'Section_4/Set_3/Question_05',
               BASE_URI+'Section_4/Set_3/Question_00'],
+      'fie': [BASE_URI+'Section_2/Set_3/Question_00_0'],    # Question for mathematical fields
       'dis': [BASE_URI+'Section_2/Set_3/Question_01_0'],    # Question for related disciplines
       'obj': [BASE_URI+'Section_2/Set_2/Question_01_0'],    # Question for related research objective
       'inp': [BASE_URI+'Section_4/Set_6/Question_00',       # Questions for related input data sets
