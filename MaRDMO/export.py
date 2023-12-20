@@ -47,7 +47,7 @@ class MaRDIExport(Export):
             for set_prefix in set_prefixes:
                 set_indexes = view_tags.get_set_indexes({}, question['attribute'], set_prefix=set_prefix,
                                                         project=project_wrapper)
-                for idx,set_index in enumerate(set_indexes):
+                for set_index in set_indexes:
                     values = view_tags.get_values(
                         {}, question['attribute'], set_prefix=set_prefix, set_index=set_index, project=project_wrapper)
                 
@@ -58,7 +58,7 @@ class MaRDIExport(Export):
                         {}, question, set_prefix=set_prefix, set_index=set_index, project=project_wrapper)
 
                     if labels:
-                        data[re.sub('b','',question['attribute'])+'_'+str(idx)]=self.stringify_values(values)
+                        data[question['attribute']+'_'+str(set_index)]=self.stringify_values(values)
                     else:
                         data[question['attribute']+'_0']=self.stringify_values(values)
 
@@ -90,7 +90,7 @@ class MaRDIExport(Export):
 
             # Research Objective Provided
             res_obj=self.wikibase_answers(data,ws['obj'])[0] 
-            if res_obj in defs[5]:
+            if not res_obj:
                 # Stop if no Research Objective is provided
                 return HttpResponse(response_temp.format(err20))
             
@@ -379,7 +379,7 @@ class MaRDIExport(Export):
                 quote_str = quote_sparql
                 # Separate key words for SPARQL query vie research objective
                 res_objs=search_objs[0].split('; ')
-                if res_objs[0] not in defs[4]:
+                if res_objs:
                     # Define Filters for SPARQL queries
                     for res_obj in res_objs:
                         res_obj_strs+=res_obj_sparql.format(res_obj.lower())
@@ -393,7 +393,7 @@ class MaRDIExport(Export):
             if data[dec[5][0]] in (dec[5][1],dec[5][2]):
                 # Separate disciplines for SPARQL query via research discipline 
                 res_discs=search_objs[1].split('; ')
-                if res_discs[0] not in defs[0]:
+                if res_discs:
                     for res_disc in res_discs:
                         # Get ID of research discipline
                         res_disc_id = res_disc.split('<|>')[0].split(':')[1]
@@ -409,8 +409,7 @@ class MaRDIExport(Export):
             if data[dec[6][0]] in (dec[6][1],dec[6][2]):
                 # Separate Mathematical Model, Methods, Software, Input or Output Data Sets
                 mmsios=search_objs[2].split('; ')
-                
-                if mmsios[0] not in defs[0]:
+                if mmsios:
                     for mmsio in mmsios:
                         # Get ID of mathematical model, method, software, input or output data set
                         mmsio_id = mmsio.split('<|>')[0].split(':')[1]
@@ -474,11 +473,13 @@ class MaRDIExport(Export):
         '''Function that chooses proper raw MaRDI template and
            inserts appropriate tables depending on user answers.'''
         if data[dec[1][0]] in (dec[1][1],dec[1][2]):
+            # Theoretical workflow properties
             temp=math_temp
             tables=math_tables
             topics=math_topics
             ids=math_ids
         elif data[dec[1][0]] in (dec[1][3],dec[1][4]):
+            # Experimental Workflow properties
             temp=exp_temp
             tables=exp_tables
             topics=exp_topics
@@ -486,11 +487,14 @@ class MaRDIExport(Export):
         else:
             temp=[]
             return temp
-
+       
+        # Set up involved discipines
         temp=re.sub('DISCIPLINES','; '.join([key for key in data.keys() if ws['dis'][0]+'_' in key]),temp)
 
+        # Set up tables through set numbers (n_max)
         for n,table in enumerate(tables):
-            t=self.create_table(topics[n],ids[n],sum(ids[n][0] in s for s in data.keys())+2)
+            n_max=max([int(x.split('_')[-1]) if y in x else 0 for x in data.keys() for y in ids[n]])+1
+            t=self.create_table(topics[n],ids[n],n_max+2)
             temp=re.sub(table,t,temp)
         return(temp)
        
@@ -704,13 +708,13 @@ class MaRDIExport(Export):
             
             x.append(length[IDX] if ABBR != 'dis' else len(x[0]) if x else 0)
             
-            x.append([re.split(' <\|> ', x[0][i]) if x and x[0][i] not in defs[0] else
+            x.append([re.split(' <\|> ', x[0][i]) if x[0][i] else 
                      ['', x[0][x[1] + i] if ABBR in strings[:5] else '',
                       x[0][x[1] * 2 + i] if ABBR in strings[:3] else 'data set' if ABBR in strings[3:5] else ''] for i in range(x[1])])
             
-            x.append([[re.split(' <\|> ', X) if X and X not in defs[0] else ['', '', '']
+            x.append([[re.split(' <\|> ', X) if X  else ['', '', '']
                       for X in x[0][i].split('; ')] for i in range(x[1] * 3, x[1] * 4)] if ABBR in strings[:3] else [])
-            
+         
             x.append([[x[2][i][j] for j in range(3)] + [x[3][i] if ABBR in strings[:3] else '',
                       x[0][x[1] * 4 + i] if ABBR in strings[:2] else '',
                       x[0][len(x[0]) - x[1] + i] if ABBR in strings[:5] else ''] for i in range(x[1])])
@@ -718,7 +722,7 @@ class MaRDIExport(Export):
             x.append([len(s) if x and s[0][0] else 0 for s in x[3]] if ABBR in strings[:3] else 0)
 
             user_answers.update({TYPE: x})
-         
+
         ### Number of Methods, Software, Inputs, Outputs, Disciplines entered by User
        
         wq.update({'no' : {s : user_answers[d][1] for s,d in zip(strings,types)}})
@@ -827,7 +831,7 @@ class MaRDIExport(Export):
     
             if Generate[0]:
                 # Stop if no label and quote is provided for entry to generate
-                if not qid and (wq['wq'+Type+str(i)]['label'] in defs[1] or wq['wq'+Type+str(i)]['quote'] in defs[2]):
+                if not (qid or wq['wq'+Type+str(i)]['label'] and wq['wq'+Type+str(i)]['quote']):
                     return qids, data, [0,i]
     
                 # Get subproperty of 'new' entity
@@ -859,7 +863,7 @@ class MaRDIExport(Export):
                                                [(Item,Relations[0],P4)]+
                                                [(Item,sub_qid,Relations[1]) for sub_qid in sub_qids]+
                                                [(String,re.sub("\$","",form.lstrip()),P18) for form in re.split(';',wq['wq'+Type+str(i)]['form'])]+
-                                               [(ExternalID,wq['wq'+Type+str(i)]['id'].split(':')[-1] if wq['wq'+Type+str(i)]['id'].split(':')[-1] not in defs[3] else '',
+                                               [(ExternalID,wq['wq'+Type+str(i)]['id'].split(':')[-1] if wq['wq'+Type+str(i)]['id'].split(':')[-1] else '',
                                                    P16 if wq['wq'+Type+str(i)]['id'].split(':')[0] == 'doi' else P20)]))
                         data.update({ws[Type][0]+'_'+str(i):'mardi:'+qids[-1]})
                     else:

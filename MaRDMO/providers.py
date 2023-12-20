@@ -17,7 +17,7 @@ class WikidataSearch(Provider):
         qmard=requests.get(mardi_api+'?action=wbsearchentities&format=json&language=en&type=item&limit=10&search={0}'.format(search),
                            headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['search']
         
-        options=[{'id':'default','text':'<N/A>'}]
+        options=[]
 
         for index in range(10):
             
@@ -47,7 +47,7 @@ class ComponentSearch(Provider):
         qmard=requests.get(mardi_api+'?action=wbsearchentities&format=json&language=en&type=item&limit=10&search={0}'.format(search),
                            headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['search']
 
-        options=[{'id':'default','text':'<N/A>'}]
+        options=[]
 
         for index in range(20):
 

@@ -348,15 +348,6 @@ lang_dict={'af':'Afrikaans','ar':'Arabic','bg':'Bulgarian','bn':'Bengali',
            'th':'Thai','tl':'Tagalog','tr':'Turkish','uk':'Ukrainian','ur':'Urdu',
            'vi':'Vietnamese','zh-cn':'Putonghua','zh-tw':'Taiwanese Mandarin'}
 
-# DEFAULT ANSWERS
-
-defs=[['<N/A>', '<N/A>'],
-      ['<NAME>','<NAME>'],
-      ['<DESCRIPTION>','<BESCHREIBUNG>'],
-      ['<EXTERNAL ID>','<EXTERNE ID>'],
-      ['<KEY WORD>','<SCHLAGWORT>'],
-      ['<RESEARCH OBJECTIVE>','<FORSCHUNGSGEGENSTAND>']]
-
 # Refine Stuff
 
 refine_strs=[BASE_URI+"Section_\d{1}/Set_\d{1}/Question_\d{2}_\d",
