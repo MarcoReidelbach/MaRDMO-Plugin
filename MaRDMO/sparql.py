@@ -76,8 +76,16 @@ WHERE
 {{
 {1}
 }}
-LIMIT 1'''
+LIMIT {2}'''
 
 mini='''
 PREFIX wdt:'''+wdt+''' PREFIX wd:'''+wd+wini
+
+#SPARQL Query for additional programming language queries
+
+pl_vars = '?qid ?label ?quote'
+
+pl_query = '''
+OPTIONAL{{wd:{0} wdt:{1} ?pl. ?pl rdfs:label ?label; schema:description ?quote.BIND(STRAFTER(STR(?pl),STR(wd:)) AS ?qid).FILTER (lang(?label) = 'en').FILTER (lang(?quote) = 'en').}}
+'''
 

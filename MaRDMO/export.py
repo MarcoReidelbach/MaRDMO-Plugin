@@ -101,7 +101,7 @@ class MaRDIExport(Export):
             
             # Identical Workflow on MaRDI Portal
             if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-                if self.get_results(mardi_endpoint,mini.format('?qid',mbody.format(self.project.title.replace("'",r"\'"),res_obj.replace("'",r"\'"))))[0]:
+                if self.get_results(mardi_endpoint,mini.format('?qid',mbody.format(self.project.title.replace("'",r"\'"),res_obj.replace("'",r"\'")),'1'))[0]:
                     # Stop if Workflow with similar Label and Description on MaRDI Portal
                     return HttpResponse(response_temp.format(err18))
                 
@@ -720,14 +720,21 @@ class MaRDIExport(Export):
             x.append(self.wikibase_answers(data, ws[ABBR], length[IDX]) if ABBR not in ('dis','fie') else self.wikibase_answers(data, ws[ABBR])[0].split('; '))
             
             x.append(length[IDX] if ABBR not in ('dis','fie') else len(x[0]) if x else 0)
-            
+
             x.append([re.split(' <\|> ', x[0][i]) if x[0][i] else 
                      ['', x[0][x[1] + i] if ABBR in strings[:5] else '',
                       x[0][x[1] * 2 + i] if ABBR in strings[:3] else 'data set' if ABBR in strings[3:5] else ''] for i in range(x[1])])
+
+            # For existing software get programming languages from KGs (might be extended for further information)
+            if ABBR in ('sof'):
+                for i in range(x[1]):
+                    res = self.get_pl(x[2][i][0])
+                    if res:
+                        x[0][3*x[1]+i] = res
             
             x.append([[re.split(' <\|> ', X) if X  else ['', '', '']
                       for X in x[0][i].split('; ')] for i in range(x[1] * 3, x[1] * 4)] if ABBR in strings[:3] else [])
-         
+             
             x.append([[x[2][i][j] for j in range(3)] + [x[3][i] if ABBR in strings[:3] else '',
                       x[0][x[1] * 4 + i] if ABBR in strings[:2] else '',
                       x[0][len(x[0]) - x[1] + i] if ABBR in strings[:5] else ''] for i in range(x[1])])
@@ -735,7 +742,7 @@ class MaRDIExport(Export):
             x.append([len(s) if x and s[0][0] else 0 for s in x[3]] if ABBR in strings[:3] else 0)
 
             user_answers.update({TYPE: x})
-
+        
         ### Number of Methods, Software, Inputs, Outputs, Disciplines entered by User
        
         wq.update({'no' : {s : user_answers[d][1] for s,d in zip(strings,types)}})
@@ -752,7 +759,7 @@ class MaRDIExport(Export):
             wq.update({'wq'+s+str(i): {'qid':m[0].split(':'), 'label':m[1], 'quote':m[2], 'form':m[4], 'id':m[5]} for i,m in enumerate(user_answers[d][4])})
             
             qm.update({'mq'+s+str(i) : mini.format('?qid',mbody.format(wq['wq'+s+str(i)]['label'].replace("'",r"\'"),
-                                                                       wq['wq'+s+str(i)]["quote"].replace("'",r"\'")))
+                                                                       wq['wq'+s+str(i)]["quote"].replace("'",r"\'")),'1')
                                                                        for i in range(user_answers[d][1])})
 
             if s in strings[:3]:
@@ -760,9 +767,9 @@ class MaRDIExport(Export):
                 wq.update({'wq'+s+'_sub'+str(i)+'_'+str(j): {'qid': f[0].split(':'), 'label':f[1], 'quote':f[2]} for i,ss in enumerate(user_answers[d][4]) for j,f in enumerate(ss[3])})
 
                 qm.update({'mq'+s+'_sub'+str(i)+'_'+str(j) : mini.format('?qid',mbody.format(wq['wq'+s+'_sub'+str(i)+'_'+str(j)]['label'].replace("'",r"\'"),
-                                                                                             wq['wq'+s+'_sub'+str(i)+'_'+str(j)]['quote'].replace("'",r"\'")))
+                                                                                             wq['wq'+s+'_sub'+str(i)+'_'+str(j)]['quote'].replace("'",r"\'")),'1')
                                                                                              for i,ss in enumerate(user_answers[d][4]) for j,_ in enumerate(ss[3])})
-
+        
         ### Request Data from MaRDI KG
 
         for key in qm.keys():
@@ -790,7 +797,7 @@ class MaRDIExport(Export):
             #Set up SPRQL query and request data from wikidata
 
             qw.update({'wqpub' : wini.format(keys['wqpub'],wbpub.format(doi[-1].upper(),cit['journal'].lower(),lang_dict[cit['language']],
-                                    cit['language'],cit['title'],''.join([''.join(wbaut.format(i,aut[1])) for i,aut in enumerate(orcid)])))})
+                                    cit['language'],cit['title'],''.join([''.join(wbaut.format(i,aut[1])) for i,aut in enumerate(orcid)])),'1')})
             
             wq.update({'wqpub':{**dict.fromkeys(keys['wqpub'].split(' ?'),{"value":''}),**self.get_results(wikidata_endpoint,qw['wqpub'])[0]}})
 
@@ -799,7 +806,7 @@ class MaRDIExport(Export):
             qm.update({'mqpub' : mini.format(keys['mqpub'],mbpub.format(doi[-1].upper(),wq['wqpub']["label_doi"]["value"],wq['wqpub']["quote_doi"]["value"],cit['journal'].lower(),
                                     wq['wqpub']["label_jou"]["value"],wq['wqpub']["quote_jou"]["value"],lang_dict[cit['language']],cit['language'],
                                     wq['wqpub']["label_lan"]["value"],wq['wqpub']["quote_lan"]["value"],cit['title'],''.join([''.join(mbaut.format(i,aut[1],
-                                    wq['wqpub']['label_'+str(i)]['value'],wq['wqpub']['quote_'+str(i)]['value'],aut[0])) for i,aut in enumerate(orcid)])))})
+                                    wq['wqpub']['label_'+str(i)]['value'],wq['wqpub']['quote_'+str(i)]['value'],aut[0])) for i,aut in enumerate(orcid)])),'1')})
             
             mq.update({'mqpub':{**dict.fromkeys(keys['mqpub'].split(' ?'),{"value":''}),**self.get_results(mardi_endpoint,qm['mqpub'])[0]}})
             
@@ -853,12 +860,11 @@ class MaRDIExport(Export):
     
                 if Generate[1]:
                     for j in range(wq[Sub_Type+str(i)]['no']):
-    
                         # Check if subproperty on Portal or in Wikidata (store QID and string)
                         if wq['wq'+Type+'_sub'+str(i)+'_'+str(j)]['qid'][0]:
                             sub_qid,entry=self.portal_wikidata_check(mq['mq'+Type+'_sub'+str(i)+'_'+str(j)],wq['wq'+Type+'_sub'+str(i)+'_'+str(j)],data)
                             sub_qids.append(sub_qid)
-                            sub_qid_str+=data[ws[Type][3]+'_'+str(i)].split('; ')[j].split(' <|> ')[1]+' (mardi:'+sub_qid+');'
+                            sub_qid_str+=entry[0]+' (mardi:'+sub_qid+');'
                      
                     # Stop if entry has no QID and its subproperty has no QID    
                     if not (qid or sub_qids):
@@ -886,4 +892,17 @@ class MaRDIExport(Export):
                     return qids, data, [2,i]
 
         return qids, data, [-1,-1]
+
+    def get_pl(self,soft_id):
+        '''Frunction gets programming language information from KGs if User selects existing software'''
+        R=''
+        if soft_id.split(':')[0] == 'wikidata':
+            res = self.get_results(wikidata_endpoint,wini.format(pl_vars,pl_query.format(soft_id.split(':')[-1],'P277'),'100')) #test.format(soft_id.split(':')[-1],'P277'))
+            R=('; ').join(['wikidata:'+r['qid']['value']+' <|> '+r['label']['value']+' <|> '+r['quote']['value'] for r in res])
+        elif soft_id.split(':')[0] == 'mardi':
+            res = self.get_results(mardi_endpoint,mini.format(pl_vars,pl_query.format(soft_id.split(':')[-1],P19),'100'))        #test.format(soft_id.split(':')[-1],P19))
+            R=('; ').join(['mardi:'+r['qid']['value']+' <|> '+r['label']['value']+' <|> '+r['quote']['value'] for r in res])
+        return R
+
+            
 

@@ -335,7 +335,7 @@ ws = {'doi': [BASE_URI+'Section_2/Set_1/Question_02_0'],    # Question for cited
       'out': [BASE_URI+'Section_4/Set_7/Question_00',       # Questions for related output data sets
               BASE_URI+'Section_4/Set_7/Question_01',
               BASE_URI+'Section_4/Set_7/Question_10'],
-      'sea': [BASE_URI+'Section_1/Set_1/Question_01_0',       # Questions for Workflow search
+      'sea': [BASE_URI+'Section_1/Set_1/Question_01_0',     # Questions for Workflow search
               BASE_URI+'Section_1/Set_1/Question_03_0',
               BASE_URI+'Section_1/Set_1/Question_05_0']}
 
@@ -374,4 +374,5 @@ linkers = [['mardi:','[Q0-9]+',mardi_wiki+'Item:'],
            ['wikidata:','[Q0-9]+','https://www.wikidata.org/wiki/Item:'],
            ['sw:','[0-9]+','https://swmath.org/software/'],
            ['doi:','10.\d{4,9}/[-._;()/:a-z0-9A-Z]+','https://dx.doi.org/']]
+
 
