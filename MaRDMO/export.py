@@ -50,7 +50,7 @@ class MaRDIExport(Export):
                 for set_index in set_indexes:
                     values = view_tags.get_values(
                         {}, question['attribute'], set_prefix=set_prefix, set_index=set_index, project=project_wrapper)
-                
+
                     labels = view_tags.get_labels(
                         {}, question, set_prefix=set_prefix, set_index=set_index, project=project_wrapper)
                 
@@ -61,7 +61,6 @@ class MaRDIExport(Export):
                         data[question['attribute']+'_'+str(set_index)]=self.stringify_values(values)
                     else:
                         data[question['attribute']+'_0']=self.stringify_values(values)
-
 
        ###################################################################################################################################################
        ###################################################################################################################################################
@@ -319,7 +318,7 @@ class MaRDIExport(Export):
 
             # Create Template with Tables
             temp=self.dyn_template(data)
-                      
+
             # Fill out MaRDI Template
             for entry in data.items():
                 temp=re.sub('"','',re.sub(";","<br/>",re.sub("Yes: |'","",re.sub(entry[0],repr(entry[1]),temp))))
@@ -706,8 +705,7 @@ class MaRDIExport(Export):
 
         ### Gather all User Answers relevant for MaRDI KG
 
-        for IDX, (TYPE, ABBR) in enumerate(zip(types, strings)):
-            
+        for IDX, (TYPE, ABBR) in enumerate(zip(types, strings)): 
             # x[0] all user answers for model, methods, software, inputs, outputs and disciplines
             # x[1] number of models, methods, softwares, inputs, outputs and disciplines
             # x[2] qid, name and description of model, methods, softwares, inputs, outputs and disciplines
@@ -718,7 +716,7 @@ class MaRDIExport(Export):
             x = []
 
             x.append(self.wikibase_answers(data, ws[ABBR], length[IDX]) if ABBR not in ('dis','fie') else self.wikibase_answers(data, ws[ABBR])[0].split('; '))
-            
+
             x.append(length[IDX] if ABBR not in ('dis','fie') else len(x[0]) if x else 0)
 
             x.append([re.split(' <\|> ', x[0][i]) if x[0][i] else 
@@ -840,7 +838,7 @@ class MaRDIExport(Export):
     
             # Check if on Portal or in Wikidata, integrate Wikidata entry if desired
             qid,entry=self.portal_wikidata_check(mq['mq'+Type+str(i)],wq['wq'+Type+str(i)],data)
-         
+
             # Update User answers
             if entry and qid:
                 qids.append(qid)

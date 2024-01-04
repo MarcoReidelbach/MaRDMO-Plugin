@@ -48,7 +48,13 @@ PROJECT_EXPORTS += [
 
 OPTIONSET_PROVIDERS = [
     ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO.providers.WikidataSearch'),
-    ('ComponentSearch', _('Options for MaRDI Search'), 'MaRDMO.providers.ComponentSearch')
+    ('ComponentSearch', _('Options for MaRDI Search'), 'MaRDMO.providers.ComponentSearch'),
+    ('MathAreaProvider', _('Options for Math Areas'), 'MaRDMO.providers.MathAreaProvider'),
+    ('EnvironmentProvider', _('Options for Environments'), 'MaRDMO.providers.EnvironmentProvider'),
+    ('MethodProvider', _('Options for Methods'), 'MaRDMO.providers.MethodProvider'),
+    ('InputDataProvider', _('Options for Input Data Sets'), 'MaRDMO.providers.InputDataProvider'),
+    ('OutputDataProvider', _('Options for Output Data Sets'), 'MaRDMO.providers.OutputDataProvider'),
+    ('SoftwareProvider', _('Options for Software'), 'MaRDMO.providers.SoftwareProvider')
     ]
 ```
 
