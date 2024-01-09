@@ -843,7 +843,7 @@ class MaRDIExport(Export):
             if entry and qid:
                 qids.append(qid)
                 if Type in ('dis','fie'):
-                    data.update({ws[Type][0]+'_'+str(i):'{0} - {1} (mardi:{2})'.format(str(i+1),entry[0],qid)})
+                    data.update({ws[Type][0]+'_'+str(i):'{0} - [{1}]({2}Item:{3})'.format(str(i+1),entry[0],mardi_wiki,qid)})
                 else:
                     data.update({ws[Type][0]+'_'+str(i):'mardi:'+qid,ws[Type][1]+'_'+str(i):entry[0],ws[Type][2]+'_'+str(i):entry[1]})
     
@@ -862,7 +862,7 @@ class MaRDIExport(Export):
                         if wq['wq'+Type+'_sub'+str(i)+'_'+str(j)]['qid'][0]:
                             sub_qid,entry=self.portal_wikidata_check(mq['mq'+Type+'_sub'+str(i)+'_'+str(j)],wq['wq'+Type+'_sub'+str(i)+'_'+str(j)],data)
                             sub_qids.append(sub_qid)
-                            sub_qid_str+=entry[0]+' (mardi:'+sub_qid+');'
+                            sub_qid_str+='[{0}]({1}Item:{2});'.format(entry[0],mardi_wiki,sub_qid)
                      
                     # Stop if entry has no QID and its subproperty has no QID    
                     if not (qid or sub_qids):
@@ -895,11 +895,11 @@ class MaRDIExport(Export):
         '''Frunction gets programming language information from KGs if User selects existing software'''
         R=''
         if soft_id.split(':')[0] == 'wikidata':
-            res = self.get_results(wikidata_endpoint,wini.format(pl_vars,pl_query.format(soft_id.split(':')[-1],'P277'),'100')) #test.format(soft_id.split(':')[-1],'P277'))
-            R=('; ').join(['wikidata:'+r['qid']['value']+' <|> '+r['label']['value']+' <|> '+r['quote']['value'] for r in res])
+            res = self.get_results(wikidata_endpoint,wini.format(pl_vars,pl_query.format(soft_id.split(':')[-1],'P277'),'100'))
+            R=('; ').join(['wikidata:'+r['qid']['value']+' <|> '+r['label']['value']+' <|> '+r['quote']['value'] if ('qid' and 'label' and 'quote') in r.keys() else '' for r in res])
         elif soft_id.split(':')[0] == 'mardi':
-            res = self.get_results(mardi_endpoint,mini.format(pl_vars,pl_query.format(soft_id.split(':')[-1],P19),'100'))        #test.format(soft_id.split(':')[-1],P19))
-            R=('; ').join(['mardi:'+r['qid']['value']+' <|> '+r['label']['value']+' <|> '+r['quote']['value'] for r in res])
+            res = self.get_results(mardi_endpoint,mini.format(pl_vars,pl_query.format(soft_id.split(':')[-1],P19),'100'))
+            R=('; ').join(['mardi:'+r['qid']['value']+' <|> '+r['label']['value']+' <|> '+r['quote']['value'] if ('qid' and 'label' and 'quote') in r.keys() else '' for r in res])
         return R
 
             
