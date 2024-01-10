@@ -375,4 +375,8 @@ linkers = [['mardi:','[Q0-9]+',mardi_wiki+'Item:'],
            ['sw:','[0-9]+','https://swmath.org/software/'],
            ['doi:','10.\d{4,9}/[-._;()/:a-z0-9A-Z]+','https://dx.doi.org/']]
 
+# Links for Version, Docs, Publish
 
+VDP = [BASE_URI+'Section_4/Set_3/Question_07',
+       BASE_URI+'Section_4/Set_3/Question_08',
+       BASE_URI+'Section_4/Set_3/Question_09']

@@ -835,7 +835,13 @@ class MaRDIExport(Export):
     
         qids=[]
         for i in range(wq['no'][Type]):
-    
+            
+            # Hyperlinks for Software (extendable to others)
+            if Type == 'sof':
+                for vdp in VDP:
+                    if vdp+'_'+str(i) in data.keys():
+                        data.update({vdp+'_'+str(i):re.sub(r'Yes: (\S+)',r'[Yes](\1)',data[vdp+'_'+str(i)])})
+
             # Check if on Portal or in Wikidata, integrate Wikidata entry if desired
             qid,entry=self.portal_wikidata_check(mq['mq'+Type+str(i)],wq['wq'+Type+str(i)],data)
 
