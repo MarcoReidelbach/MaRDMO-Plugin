@@ -23,48 +23,7 @@ res_obj_sparql = "FILTER(CONTAINS(lcase(str(?quote)), '{}'@en)).\n"
 res_disc_sparql = "wdt:P{0} wd:{1};\n"
 mmsio_sparql = "wdt:P{0} wd:{1};\n"
 
-#SPARQL Keys for Queries related to Publication
-
-Keys={'wqpub':' ?qid_doi ?label_doi ?quote_doi ?qid_jou ?label_jou ?quote_jou ?qid_lan ?label_lan ?quote_lan ?qid_tit ?label_tit ?quote_tit',
-      'mqpub':' ?qid_doi ?qid_ch1 ?qid_jou ?qid2_jou ?qid3_jou ?qid_lan ?qid2_lan ?qid3_lan ?qid_tit ?qid_ch6 ?qid_ch7'}
-
-keys_flex={'wqpub':' ?qid_{0} ?label_{0} ?quote_{0}',
-           'mqpub':' ?qid_aut_{0} ?qid2_aut_{0} ?qid3_aut_{0}'}
-
-#SPARQL Bodies for Wikidata Queries
-
-wbpub = '''
-OPTIONAL{{?doi wdt:P356 '{0}';rdfs:label ?label_doi;schema:description ?quote_doi.BIND(STRAFTER(STR(?doi),STR(wd:)) AS ?qid_doi).FILTER (lang(?label_doi) = 'en').FILTER (lang(?quote_doi) = 'en').}}
-OPTIONAL{{?jou wdt:P31 wd:Q5633421;rdfs:label ?label_jou;schema:description ?quote_jou.FILTER (lcase(str(?label_jou)) = '{1}').FILTER (lang(?quote_jou) = 'en').BIND(STRAFTER(STR(?jou),STR(wd:)) AS ?qid_jou).}}
-OPTIONAL{{?lan rdfs:label '{2}'@en;rdfs:label ?label_lan;schema:description ?quote_lan;skos:altLabel '{3}'@en.FILTER (lang(?label_lan) = 'en').FILTER (lang(?quote_lan) = 'en').BIND(STRAFTER(STR(?lan),STR(wd:)) AS ?qid_lan).}}
-OPTIONAL{{?tit rdfs:label '{4}'@en;rdfs:label ?label_tit;schema:description ?quote_tit.FILTER (lang(?label_tit) = 'en').FILTER (lang(?quote_tit) = 'en').BIND(STRAFTER(STR(?tit),STR(wd:)) AS ?qid_tit).}}
-{5}
-'''
-
-wbaut  = '''
-OPTIONAL{{?aut_{0} wdt:P496 '{1}';rdfs:label ?label_{0};schema:description ?quote_{0}.BIND(STRAFTER(STR(?aut_{0}),STR(wd:)) AS ?qid_{0}).FILTER (lang(?label_{0}) = 'en').FILTER (lang(?quote_{0}) = 'en')}}
-'''
-
-#SPARQL Bodies for MaRDI Queries
-
-mbpub = '''
-OPTIONAL{{?doi wdt:P'''+P16+''' '{0}'.BIND(STRAFTER(STR(?doi),STR(wd:)) AS ?qid_doi).}}
-OPTIONAL{{?ch1 rdfs:label '{1}'@en;schema:description '{2}'@en.BIND(STRAFTER(STR(?ch1),STR(wd:)) AS ?qid_ch1).}}
-OPTIONAL{{?jou rdfs:label ?label.FILTER (lcase(str(?label)) = '{3}') BIND(STRAFTER(STR(?jou),STR(wd:)) AS ?qid_jou).}}
-OPTIONAL{{?ch2 rdfs:label '{4}'@en;schema:description '{5}'@en.BIND(STRAFTER(STR(?ch2),STR(wd:)) AS ?qid2_jou).}}
-OPTIONAL{{?ch3 rdfs:label '{3}'@en;schema:description 'scientific journal'@en.BIND(STRAFTER(STR(?ch3),STR(wd:)) AS ?qid3_jou).}}
-OPTIONAL{{?lan rdfs:label '{6}'@en; skos:altLabel '{7}'@en; BIND(STRAFTER(STR(?lan),STR(wd:)) AS ?qid_lan)}}
-OPTIONAL{{?ch4 rdfs:label '{8}'@en;schema:description '{9}'@en.BIND(STRAFTER(STR(?ch4),STR(wd:)) AS ?qid2_lan).}}
-OPTIONAL{{?ch5 rdfs:label '{6}'@en;schema:description 'language'@en.BIND(STRAFTER(STR(?ch5),STR(wd:)) AS ?qid3_lan).}}
-OPTIONAL{{?tit rdfs:label '{10}'@en.BIND(STRAFTER(STR(?tit),STR(wd:)) AS ?qid_tit)}}
-{11}
-'''
-
-mbaut = '''
-OPTIONAL{{?aut_{0} wdt:P'''+P22+''' '{1}'.BIND(STRAFTER(STR(?aut_{0}),STR(wd:)) AS ?qid_aut_{0})}}
-OPTIONAL{{?achk_{0}a rdfs:label '{2}'@en;schema:description '{3}'@en.BIND(STRAFTER(STR(?achk_{0}a),STR(wd:)) AS ?qid2_aut_{0}).}}
-OPTIONAL{{?achk_{0}b rdfs:label '{4}'@en;schema:description 'researcher'@en.BIND(STRAFTER(STR(?achk_{0}b),STR(wd:)) AS ?qid3_aut_{0}).}}
-'''
+#SPARQL Query parts
 
 mbody = '''
 OPTIONAL{{?chk rdfs:label '{0}'@en;schema:description '{1}'@en.BIND(STRAFTER(STR(?chk),STR(wd:)) AS ?qid).}}
@@ -88,4 +47,113 @@ pl_vars = '?qid ?label ?quote'
 pl_query = '''
 OPTIONAL{{wd:{0} wdt:{1} ?pl. ?pl rdfs:label ?label; schema:description ?quote.BIND(STRAFTER(STR(?pl),STR(wd:)) AS ?qid).FILTER (lang(?label) = 'en').FILTER (lang(?quote) = 'en').}}
 '''
+
+#Queries to MaRDI KG and Wikidata for Publication Handler
+
+query_1  = '''SELECT ?publicationQid ?publicationLabel ?publicationDescription1         
+                     ?authorInfo                                                        
+                     ?entrytypeQid ?entrytypeLabel ?entrytypeDescription1               
+                     ?journalQid ?journalLabel ?journalDescription1                     
+                     ?languageQid ?languageLabel ?languageDescription1                  
+                     ?title ?otherAuthor ?publicationDate ?volume ?issue ?page          
+
+              WHERE {{?publication wdt:P{0} "{1}";
+                              rdfs:label ?publicationLabel.
+                      OPTIONAL {{?publication schema:description ?publicationDescription.}}
+                      FILTER (lang(?publicationLabel) = 'en')
+                      FILTER (lang(?publicationDescription) = 'en') 
+                      BIND(COALESCE(?publicationDescription, "") As ?publicationDescription1)
+                      BIND(STRAFTER(STR(?publication),STR(wd:)) AS ?publicationQid).
+                      OPTIONAL {{?publication wdt:P{2} ?author.
+                                 ?author rdfs:label ?authorLabel;
+                                 OPTIONAL {{?author schema:description ?authorDescription.}}  
+                                 OPTIONAL {{?author wdt:P{3} ?authorOrcid.}}
+                                 OPTIONAL {{?author wdt:P{13} ?authorWikidataQid}}
+                                 OPTIONAL {{?author wdt:P{14} ?authorZbmathID}}
+                                 BIND(COALESCE(?authorOrcid, "") As ?authorOrcid1)
+                                 BIND(COALESCE(?authorWikidataQid, "") As ?authorWikidataQid1)
+                                 BIND(COALESCE(?authorZbmathID, "") As ?authorZbmathID1)
+                                 BIND(COALESCE(?authorDescription, "") As ?authorDescription1)
+                                 BIND(STRAFTER(STR(?author),STR(wd:)) AS ?authorQid).
+                                 FILTER (lang(?authorLabel) = 'en')
+                                 FILTER (lang(?authorDescription) = 'en')
+                                 BIND(concat(?authorQid," <|> ",?authorLabel," <|> ",?authorDescription1," <|> ",?authorOrcid1,
+                                             " <|> ",?authorWikidataQid1, " <|> ",?authorZbmathID1) AS ?authorInfo)}} 
+                     OPTIONAL {{?publication wdt:P{4} ?entrytype.
+                                ?entrytype rdfs:label ?entrytypeLabel.
+                                OPTIONAL {{?entrytype schema:description ?entrytypeDescription.}}
+                                FILTER (lang(?entrytypeLabel) = 'en')
+                                FILTER (lang(?entrytypeDescription) = 'en')
+                                BIND(COALESCE(?entrytypeDescription, "") As ?entrytypeDescription1)
+                                BIND(STRAFTER(STR(?entrytype),STR(wd:)) AS ?entrytypeQid).}}
+                     OPTIONAL {{?publication wdt:P{5} ?journal.
+                                ?journal rdfs:label ?journalLabel.
+                                OPTIONAL {{?journal schema:description ?journalDescription.}}
+                                FILTER (lang(?journalLabel) = 'en')
+                                FILTER (lang(?journalDescription) = 'en')
+                                BIND(COALESCE(?journalDescription, "") As ?journalDescription1)
+                                BIND(STRAFTER(STR(?journal),STR(wd:)) AS ?journalQid).}}
+                     OPTIONAL {{?publication wdt:P{6} ?language.
+                                ?language rdfs:label ?languageLabel.
+                                OPTIONAL {{?language schema:description ?languageDescription.}}
+                                FILTER (lang(?languageLabel) = 'en')
+                                FILTER (lang(?languageDescription) = 'en')
+                                BIND(COALESCE(?languageDescription, "") As ?languageDescription1)
+                                BIND(STRAFTER(STR(?language),STR(wd:)) AS ?languageQid).}}
+                     OPTIONAL {{?publication wdt:P{7} ?title.}}
+                     OPTIONAL {{?publication wdt:P{8} ?otherAuthor.}}
+                     OPTIONAL {{?publication wdt:P{9} ?publicationDate.}}
+                     OPTIONAL {{?publication wdt:P{10} ?volume.}}
+                     OPTIONAL {{?publication wdt:P{11} ?issue.}}
+                     OPTIONAL {{?publication wdt:P{12} ?page.}}}}'''
+
+query_2 = '''# Query for MaRDI portal                                              
+
+             SELECT  ?publicationQid ?publicationLabel ?publicationDescription1                                               
+             
+             WHERE {{
+                     # Publication via Wikidata QID
+
+                     ?publication wdt:P{0} "{1}";
+                             rdfs:label ?publicationLabel.
+                     OPTIONAL {{?publication schema:description ?publicationDescription.}}
+
+                     BIND(COALESCE(?publicationDescription, "") As ?publicationDescription1)
+                     BIND(STRAFTER(STR(?publication),STR(wd:)) AS ?publicationQid).
+                   
+                   }}'''
+
+
+query_3 = '''SELECT ?authorQid ?authorLabel ?authorDescription ?authorId        # Author of Publication via ORCID/zbMath
+
+             WHERE {{
+
+                     VALUES ?authorId {{{0}}}
+
+                     OPTIONAL {{
+                                # Author via ORCID
+                                ?author wdt:P{1} ?authorId
+                                BIND(STRAFTER(STR(?author),STR(wd:)) AS ?authorQid)
+                              }}
+
+                      SERVICE wikibase:label {{bd:serviceParam wikibase:language "en,en".}}
+
+                    }}'''
+
+query_4 = '''SELECT ?wikidataQid ?mardiQid ?authorLabel ?authorDescription         # Author of Publication via Wikidata QID
+
+             WHERE {{
+
+                     VALUES ?wikidataQid {{{0}}}
+
+                     OPTIONAL {{
+                                # Author via Wikidata QID
+                                ?author wdt:P{1} ?wikidataQid
+                                BIND(STRAFTER(STR(?author),STR(wd:)) AS ?mardiQid)
+                              }}
+
+                     SERVICE wikibase:label {{bd:serviceParam wikibase:language "en,en".}}
+
+                   }}'''
+
 

@@ -3,10 +3,13 @@ import re
 import requests
 
 from django.http import HttpResponse
+from django.shortcuts import redirect, render, reverse
+from django.utils.translation import gettext_lazy as _
 
 from rdmo.projects.exports import Export
 from rdmo.views.utils import ProjectWrapper
 from rdmo.views.templatetags import view_tags
+from rdmo.domain.models import Attribute
 
 from wikibaseintegrator import wbi_login, WikibaseIntegrator
 from wikibaseintegrator.datatypes import ExternalID, Item, String, Time, MonolingualText
@@ -19,7 +22,7 @@ from .citation import *
 from .id import *
 from .sparql import *
 from .display import *
-
+from .handlers import *
 try:
     # Get login credentials if available 
     from config.settings import lgname, lgpassword
@@ -40,7 +43,7 @@ class MaRDIExport(Export):
 ### Gather all User Answers in Dictionary (modified RDMO Code) ####################################################################################################################################
 
         project_wrapper = ProjectWrapper(self.project, self.snapshot)
-        
+
         data = {}
         for question in project_wrapper.questions:
             set_prefixes = view_tags.get_set_prefixes({}, question['attribute'], project=project_wrapper)
@@ -62,6 +65,7 @@ class MaRDIExport(Export):
                     else:
                         data[question['attribute']+'_0']=self.stringify_values(values)
 
+    
        ###################################################################################################################################################
        ###################################################################################################################################################
        ##                                                                                                                                               ##
@@ -74,7 +78,7 @@ class MaRDIExport(Export):
        ###################################################################################################################################################
        ###################################################################################################################################################
 
-        
+              
         # If Workflow Documentation wanted
         if data[dec[0][0]] in (dec[0][1],dec[0][2]):
 
@@ -104,115 +108,142 @@ class MaRDIExport(Export):
                     # Stop if Workflow with similar Label and Description on MaRDI Portal
                     return HttpResponse(response_temp.format(err18))
                 
-### Get Paper Information provided by User ########################################################################################################################################################
+### Get Publication Information provided by User ##################################################################################################################################################
 
-            paper=self.wikibase_answers(data,ws['doi'])[0]
+            pub_info = {}
 
-### MaRDI KG and Wikidata Queries #################################################################################################################################################################
-
-            # Initialize dictionaries for MaRDI KG (mq) and Wikidata (wq) queries
-            wq = {}
-            mq = {}
+            pub_properties = ['paper', 'all_authors', 'publication', 'entrytype', 'title', 'authors',
+                              'languages' , 'journals', 'volume', 'issue', 'pages' ,'date']
+            
+            for pub_property, pub_id in zip(pub_properties, pub_ids):
+                pub_info[pub_property] = self.get_answer(pub_id) if self.get_answer(pub_id) != ['NONE'] else ['']
+              
+### If Portal Integration desired, check if Paper already exists on MaRDI Portal or Wikidata  #####################################################################################################
 
             # If Portal integration wanted, get further publication information
             if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-                # Extract Paper DOI
-                doi=re.split(':',paper)
                 
-                if doi[0] == 'Yes':
+                # Extract Paper DOI
+                doi=re.split(':', pub_info['paper'][1])
+                             
+                if pub_info['paper'][0] == 'Yes':
                     
                     if not doi[-1]:
                         # Stop if no DOI provided
                         return HttpResponse(response_temp.format(err6))
-                
-                    # Get Citation and Author Information
-                    orcid,string,cit=GetCitation(doi[-1])
-                    
-                    if not cit:
+
+                    if not pub_info['publication']:
                         # Stop if no Information available via DOI
-                        return HttpResponse(response_temp.format(err6))
-
-                    # Query Wikidata and MaRDI KG by all User Answers and Citation Information 
-                    wq, mq = self.sparql(data,ws,orcid,doi,cit)
-
-### Checkout Paper via DOI ########################################################################################################################################################################
-
-                    if mq['mqpub']["qid_doi"]["value"]:
+                        return HttpResponse(response_temp.format(err6)) 
+                    
+                    # Get Publication ID, Label and Description
+                    pub_info['publication'] = pub_info['publication'][0].split(' <|> ')
+                    
+                    if re.match(r"mardi:Q[0-9]+", pub_info['publication'][0]):
                         # If Paper with DOI on MaRDI Portal store QID
-                        paper_qid=mq['mqpub']["qid_doi"]["value"]
+                        paper_qid= pub_info['publication'][0].split(':')[1]
+
+                    elif re.match(r"wikidata:Q[0-9]+", pub_info['publication'][0]): 
+                        # If Paper with DOI on Wikidata, generate dummy entry  store QID
+                        paper_qid= self.entry(pub_info['publication'][1], pub_info['publication'][2], [(ExternalID, pub_info['publication'][0].split(':')[1], P2)])
 
                     else:
-
-                        # If no Paper with DOI on MaRDI Portal, check if Paper with DOI on Wikidata
-                        if wq['wqpub']["qid_doi"]["value"]:
-
-                            # If on Wikidata check if Paper with same label and description is on MaRDI Portal
-                            if mq['mqpub']["qid_ch1"]["value"]:
-                                # If Paper exists on MaRDI Portal store QID.
-                                paper_qid=mq['mqpub']["qid_ch1"]["value"]
-
-                            else:
-                                # If Paper only on Wikidata, generate Dummy Entry (i.e. Wikidata Label, Description, QID Mapping) and store QID. 
-                                paper_qid=self.entry(wq['wqpub']["label_doi"]["value"],wq['wqpub']["quote_doi"]["value"],[(ExternalID,wq['wqpub']["qid_doi"]["value"],P2)])
-
-                        else:
-
-### Checkout Paper via Title ######################################################################################################################################################################
-
-                            # If Title in Citation
-                            if cit['title']:
-
-                                if mq['mqpub']["qid_tit"]["value"]:
-                                    # If Paper with Title on MaRDI Portal store QID
-                                    paper_qid=mq['mqpub']["qid_tit"]["value"]
-
-                                else:
-
-                                    # If no Paper with Title on MaRDI Portal, check if Paper with Title on Wikidata
-                                    if wq['wqpub']["qid_tit"]["value"]:
-                                        # If Paper only on Wikidata, generate Dummy Entry (i.e. Wikidata Label, Description, QID Mapping) and store QID.
-                                        paper_qid=self.entry(wq['wqpub']["label_tit"]["value"],wq['wqpub']["quote_tit"]["value"],[(ExternalID,wq['wqpub']["qid_tit"]["value"],P2)])
-
-                                    else:
-
+                        
 ### Create New Publication Entry ##################################################################################################################################################################
 
-### Add Authors of Paper with ORCID ID to MaRDI Portal ############################################################################################################################################
+### Prepare User edited Authors  ##################################################################################################################################################################
+                        
+                        orcid_ids = []
+                        orcid_authors = []
+                        zbmath_ids = []
+                        zbmath_authors = []
+                        authors_remove = []
+                        
+                        # Identify Authors with ID added by User
 
-                                        author_qids=[]
-                                        for i,aut in enumerate(orcid):
-                                            # If authors not on MaRDI Portal, add them.
-                                            author_qids.append(self.paper_prop_entry(wq['wqaut'+str(i)],mq['mqaut'+str(i)],[aut[0],'researcher',
-                                                                                     [(Item,Q7,P4),(Item,Q8,P21),(ExternalID,aut[1],P22)]]))
-                                    
-### Add Language of Paper to MaRDI Portal ######################################################################################################################################################### 
+                        other_authors = pub_info['all_authors'][len(pub_info['authors']):]
 
-                                        if cit['language']:
-                                            # If language not on MaRDI Portal, add it.
-                                            cit['language']=self.paper_prop_entry(wq['wqlan'],mq['mqlan'],[lang_dict[cit['language']],'language',
-                                                                                  [(Item,Q11,P4)]])
+                        for author in other_authors:
+                            try:
+                                author_ids = re.search('\((.*)\)',author).group(1)
+                            except:
+                                author_ids = ''
+                            
+                            for author_id in author_ids.split('; '):
+                                if author_id.split(':')[0] == 'orcid':
+                                    orcid_ids.append(author_id.split(':')[1])
+                                    orcid_authors.append([author.split(' (')[0],author_id.split(':')[1]])
+                                    authors_remove.append(author)
+                                elif author_id.split(':')[0] == 'zbmath':
+                                    zbmath_ids.append(author_id.split(':')[1])
+                                    zbmath_authors.append([author.split(' (')[0],author_id.split(':')[1]])
+                                    authors_remove.append(author)
+                        
+                        # Remove Authors with ID added by User from non-ID Author List
+                        for author in authors_remove:
+                            try:
+                                other_authors.remove(author)
+                            except ValueError:
+                                pass
+                         
+                        author_dict_merged = Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors)
 
-### Add Journal of Paper to MaRDI Portal ##########################################################################################################################################################
+                        # Store Publication Authors from Citation via ORCID and zbMath
+                        
+                        for author_id, author_data in author_dict_merged.items():
+                            if author_data['mardiQID']:
+                                pub_info['authors'].append('mardi:{0}'.format(author_data['mardiQID']))
+                            elif author_data['wikiQID']:
+                                pub_info['authors'].append('wikidata:{0} <|> {1} <|> {2}'.format(
+                                    author_data['wikiQID'],
+                                    author_data['wikiLabel'],
+                                    author_data['wikiDescription']))
+                            else:
+                                if author_data['orcid']:
+                                    orcid_info = 'orcid:{0}'.format(author_data['orcid'])
+                                    if author_data['zbmath']:
+                                        orcid_info += '; zbmath:{0}'.format(author_data['zbmath'])
+                                    pub_info['authors'].append('{0} <|> {1} <|> researcher (ORCID {2})'.format(
+                                        orcid_info,
+                                        author_id,
+                                        author_data['orcid']))
+                                elif author_data['zbmath']:
+                                    pub_info['authors'].append('zbmath:{0} <|> {1} <|> researcher (zbMath {2})'.format(
+                                        author_data['zbmath'],
+                                        author_id,
+                                        author_data['zbmath']))
+                    
+### Add Authors, Language an Journal of Paper to MaRDI Portal #####################################################################################################################################
 
-                                        if cit['journal']:
-                                            # If journal not in Portal, create journal entry for publication                                                     
-                                            cit['journal']=self.paper_prop_entry(wq['wqjou'],mq['mqjou'],[cit['journal'],'scientific journal',
-                                                                                 [(Item,Q9,P4)]])
+                        author_qids = self.Entry_Generator_Paper_Supplements(pub_info['authors'],
+                                                                             [(Item, Q7, P4), (Item, Q8, P21)],
+                                                                             True)
 
-### Create Publication Entry on MaRDI Portal #####################################################################################################################################################
+                        language_qids = self.Entry_Generator_Paper_Supplements(pub_info['languages'],
+                                                                               [(Item, Q11, P4)],
+                                                                               False)
 
-                                        paper_qid=self.entry(cit['title'],'publication',[(Item,Q1 if cit['ENTRYTYPE'] == 'article' else Q10,P4)]+
-                                                             [(Item,aut,P8) for aut in author_qids]+[(String,aut,P9) for aut in string]+
-                                                             [(Item,cit['language'],P10),(Item,cit['journal'],P12),(MonolingualText,cit['title'],P7),
-                                                              (Time,cit['pub_date']+'T00:00:00Z',P11),(String,cit['volume'],P13),(String,cit['number'],P14),
-                                                              (String,cit['pages'],P15),(ExternalID,cit['doi'].upper(),P16)])  
+                        journal_qids = self.Entry_Generator_Paper_Supplements(pub_info['journals'],
+                                                                              [(Item, Q9, P4)],
+                                                                              False)
+
+### Add Paper to  MaRDI Portal ####################################################################################################################################################################
+                         
+                        paper_qid=self.entry(pub_info['publication'][1], pub_info['publication'][2], 
+                                             [(Item, pub_info['entrytype'][0].split(' <|> ')[0].split(':')[1], P4)] +
+                                             [(Item, author, P8) for author in author_qids] +
+                                             [(String, author, P9) for author in other_authors] +
+                                             [(Item,language_qids[0],P10),(Item,journal_qids[0] if journal_qids else None, P12),
+                                              (MonolingualText,pub_info['title'][0],P7),(Time,pub_info['date'][0][:10]+'T00:00:00Z',P11),
+                                              (String,pub_info['volume'][0],P13),(String,pub_info['issue'][0],P14),
+                                              (String,pub_info['pages'][0],P15),(ExternalID,doi[-1].upper(),P16)])  
                 else:
                     # No DOI provided
                     paper_qid=[]
 
-            if not (wq and mq):
-                # Query Wikidata and MaRDI KG by all User Answers without Citation Information 
-                wq, mq = self.sparql(data,ws)
+### Query Wikidata and MaRDI KG by all User Answers for Models, Methods, Software, etc ############################################################################################################
+
+            wq, mq = self.sparql(data,ws)
 
 ### Integrate related Model in MaRDI KG ###########################################################################################################################################################
 
@@ -612,8 +643,7 @@ class MaRDIExport(Export):
 
     def entry(self,label,description,facts):
         '''Takes arbitrary information and generates MaRDI portal entry.'''
-        wbi = self.wikibase_login()
-        
+        wbi = self.wikibase_login()  
         item = wbi.item.new()
         item.labels.set('en', label)
         item.descriptions.set('en', description)
@@ -666,29 +696,57 @@ class MaRDIExport(Export):
 
         return qid, entry
         
-    def paper_prop_entry(self,wquery,mquery,props):
-        '''This function takes (a property of) a paper and creates the corresponding wikibase entries.'''
-        if mquery["qid"]["value"]:
-            #If on Portal store QID
-            qid=mquery["qid"]["value"]
-        else:
-            #If not on Portal, check if on Wikidata
-            if wquery["qid"]["value"]:
-                if mquery["qid2"]["value"]:
-                    #If on Portal, store QID.
-                    qid=mquery["qid2"]["value"]
+    def Entry_Generator_Paper_Supplements(self, props, relations, add_relations):
+        '''This function takes a paper supplement (i.e. authors, languages, journal) and creates the corresponding wikibase entries.'''
+        qids = []
+        for prop in props:
+            if prop:
+                prop = prop.split(' <|> ')
+                if re.match(r"mardi:Q[0-9]+", prop[0]):
+                    # If supplement  on MaRDI Portal store QID
+                    qids.append(prop[0].split(':')[1])
+                elif re.match(r"wikidata:Q[0-9]+", prop[0]):
+                    # If supplement on Wikidata check if similar entity exist in MarDI KG and use or create dummy Wikidata entry
+                    req = {}
+                    try:
+                        req = requests.get(mardi_api+'?action=wbsearchentities&format=json&language=en&type=item&limit=10&search={0}'.format(prop[1]),
+                                           headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}
+                                          ).json()['search'][0]
+                    except (KeyError,IndexError):
+                        # KeyError: search string is empty
+                        # IndexError: no result found for string
+                        pass
+                    if req:
+                        #If supplement with Wikidata Label Description on MaRDI Portal, store QID
+                        if req['display']['label']['value'] == prop[1] and req['display']['description']['value'] == prop[2]:
+                            qids.append(req['id'])
+                        else:
+                            qids.append(self.entry(prop[1], prop[2], [(ExternalID, prop[0].split(':')[1], P2)]))
+                    else:
+                        qids.append(self.entry(prop[1], prop[2], [(ExternalID, prop[0].split(':')[1], P2)]))
                 else:
-                    #If only on wikidata, generate dummy entry, store QID.
-                    qid=self.entry(wquery["label"]["value"],wquery["quote"]["value"],[(ExternalID,wquery["qid"]["value"],P2)])
-            else:
-                #If not on Portal / Wikidata create entry
-                if mquery["qid3"]["value"]:
-                    #If on Portal, store QID.
-                    qid=mquery["qid3"]["value"]
-                else:
-                    #Create entry, store QID.
-                    qid=self.entry(props[0],props[1],props[2])
-        return qid
+                    # If supplement not on MaRDI KG or Wikidata check if Entity with standard label and description exists and use it or create it
+                    req = {}
+                    try:
+                        req = requests.get(mardi_api+'?action=wbsearchentities&format=json&language=en&type=item&limit=10&search={0}'.format(prop[1]),
+                                           headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}
+                                          ).json()['search'][0]
+                    except (KeyError,IndexError):
+                        # KeyError: search string is empty
+                        # IndexError: no result found for string
+                        pass
+                    if add_relations:
+                        # For Authors additional relations are required
+                        relations += [(ExternalID, p.split(':')[1], P22 if p.split(':')[0] == 'orcid' else P23 if p.split(':')[0] == 'zbmath' else '') for p in prop[0].split('; ')] 
+                    if req:
+                        #If supplement with Wikidata Label Description on MaRDI Portal, store QID
+                        if req['display']['label']['value'] == prop[1] and req['display']['description']['value'] == prop[2]:
+                            qids.append(req['id'])
+                        else:
+                            qids.append(self.entry(prop[1], prop[2], relations))
+                    else:
+                        qids.append(self.entry(prop[1], prop[2], relations))
+        return qids
 
     def sparql(self,data,ws,orcid=None,doi=None,cit=None):
         '''This function takes user answers and performs SPARQL queries to Wikidata and MaRDI portal.'''
@@ -773,56 +831,6 @@ class MaRDIExport(Export):
         for key in qm.keys():
             mq.update({key:{**dict.fromkeys({'qid'},{'value':''}),**self.get_results(mardi_endpoint,qm[key])[0]}})
         
-        ### Additional Queries if Publication is provided
-
-        if cit:
-            
-            #Generate Keys for Publication queries
-
-            keys = dict(Keys)
-            key_dat=[orcid]
-            key_ind=['pub']
-
-            for inds in zip(key_dat,key_ind):
-                for i,_ in enumerate(inds[0]):
-                    if type(keys_flex['wq'+inds[1]]) == str:
-                        keys['wq'+inds[1]]+=keys_flex['wq'+inds[1]].format(i)
-                        keys['mq'+inds[1]]+=keys_flex['mq'+inds[1]].format(i)
-                    else:
-                        keys['wq'+inds[1]]+=keys_flex['wq'+inds[1]][0].format(i)
-                        keys['mq'+inds[1]]+=keys_flex['mq'+inds[1]][0].format(i)
-
-            #Set up SPRQL query and request data from wikidata
-
-            qw.update({'wqpub' : wini.format(keys['wqpub'],wbpub.format(doi[-1].upper(),cit['journal'].lower(),lang_dict[cit['language']],
-                                    cit['language'],cit['title'],''.join([''.join(wbaut.format(i,aut[1])) for i,aut in enumerate(orcid)])),'1')})
-            
-            wq.update({'wqpub':{**dict.fromkeys(keys['wqpub'].split(' ?'),{"value":''}),**self.get_results(wikidata_endpoint,qw['wqpub'])[0]}})
-
-            #Set up SPARQL query and request data from MaRDI KG
-            
-            qm.update({'mqpub' : mini.format(keys['mqpub'],mbpub.format(doi[-1].upper(),wq['wqpub']["label_doi"]["value"],wq['wqpub']["quote_doi"]["value"],cit['journal'].lower(),
-                                    wq['wqpub']["label_jou"]["value"],wq['wqpub']["quote_jou"]["value"],lang_dict[cit['language']],cit['language'],
-                                    wq['wqpub']["label_lan"]["value"],wq['wqpub']["quote_lan"]["value"],cit['title'],''.join([''.join(mbaut.format(i,aut[1],
-                                    wq['wqpub']['label_'+str(i)]['value'],wq['wqpub']['quote_'+str(i)]['value'],aut[0])) for i,aut in enumerate(orcid)])),'1')})
-            
-            mq.update({'mqpub':{**dict.fromkeys(keys['mqpub'].split(' ?'),{"value":''}),**self.get_results(mardi_endpoint,qm['mqpub'])[0]}})
-            
-            #Separate author, language and journal data requested from Wikidata and MaRDI KG
-            
-            EXT=(['aut','_',orcid],
-                 ['lan','_lan'],
-                 ['jou','_jou'])
-
-            for ext in EXT:
-                if len(ext) == 2:
-                    wq.update({'wq'+ext[0]:{key.split('_')[0]: value for (key, value) in wq['wqpub'].items() if ext[1] in key}})
-                    mq.update({'mq'+ext[0]:{key.split('_')[0]: value for (key, value) in mq['mqpub'].items() if ext[1] in key}})
-                else:
-                    for i,_ in enumerate(ext[2]):
-                        wq.update({'wq'+ext[0]+str(i):{key.split('_')[0]: value for (key, value) in wq['wqpub'].items() if ext[1]+str(i) in key}})
-                        mq.update({'mq'+ext[0]+str(i):{key.split('_')[0]: value for (key, value) in mq['mqpub'].items() if ext[1]+str(i) in key}})
-
         return wq, mq
 
     def Entry_Generator(self,Type,Sub_Type,Generate,Relations,wq,mq,data):
@@ -909,4 +917,14 @@ class MaRDIExport(Export):
         return R
 
             
+    def get_answer(self, uri):
+        '''Function that retrieves individual User answers'''
+        val =[]
+        values = self.project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
+        for value in values:
+            if value.option_text:
+                val.append(value.option_text)
+            if value.text:
+                val.append(value.text)
+        return val
 

@@ -15,11 +15,11 @@ PID (if applicable): '''+BASE_URI+'''Section_2/Set_1/Question_02_0
 
 ### Object of Research and Objective
 
-'''+BASE_URI+'''Section_2/Set_2/Question_01_0
+'''+BASE_URI+'''Section_2/Set_1/Question_04_0
 
 ### Procedure
 
-'''+BASE_URI+'''Section_2/Set_2/Question_02_0
+'''+BASE_URI+'''Section_2/Set_1/Question_05_0
 
 ### Involved Disciplines
 
@@ -132,11 +132,11 @@ PID (if applicable): '''+BASE_URI+'''Section_2/Set_1/Question_02_0
 
 ### Object of Research and Objective
 
-'''+BASE_URI+'''Section_2/Set_2/Question_01_0
+'''+BASE_URI+'''Section_2/Set_1/Question_04_0
 
 ### Procedure
 
-'''+BASE_URI+'''Section_2/Set_2/Question_02_0
+'''+BASE_URI+'''Section_2/Set_1/Question_05_0
 
 ### Involved Disciplines
 
@@ -328,7 +328,7 @@ ws = {'doi': [BASE_URI+'Section_2/Set_1/Question_02_0'],    # Question for cited
               BASE_URI+'Section_4/Set_3/Question_00'],
       'fie': [BASE_URI+'Section_2/Set_3/Question_00_0'],    # Question for mathematical fields
       'dis': [BASE_URI+'Section_2/Set_3/Question_01_0'],    # Question for related disciplines
-      'obj': [BASE_URI+'Section_2/Set_2/Question_01_0'],    # Question for related research objective
+      'obj': [BASE_URI+'Section_2/Set_1/Question_04_0'],    # Question for related research objective
       'inp': [BASE_URI+'Section_4/Set_6/Question_00',       # Questions for related input data sets
               BASE_URI+'Section_4/Set_6/Question_01',
               BASE_URI+'Section_4/Set_6/Question_10'],
@@ -348,18 +348,61 @@ sts=['Section_4/Set_2',
 
 # Language Dictionary
 
-lang_dict={'af':'Afrikaans','ar':'Arabic','bg':'Bulgarian','bn':'Bengali',
-           'ca':'Catalan','cs':'Czech','cy':'Welsh','da':'Danish','de':'German',
-           'el':'Greek','en':'English','es':'Spanish','et':'Estonian','fa':'Persian',
-           'fi':'Finnish','fr':'French','gu':'Gujarati','he':'Hebrew','hi':'Hindi',
-           'hr':'Croatian','hu':'Hungarian','id':'Indonesian','it':'Italian',
-           'ja':'Japanese','kn':'Kannada','ko':'Korean','lt':'Lithuanian','lv':'Latvian',
-           'mk':'Macedonian','ml':'Malayalam','mr':'Marathi','ne':'Nepali',
-           'nl':'Dutch','no':'Norwegian','pa':'Punjabi','pl':'Polish','pt':'Portuguese',
-           'ro':'Romanian','ru':'Russian','sk':'Slovak','sl':'Slovenian','so':'Somali',
-           'sq':'Albanian','sv':'Swedish','sw':'Swahili','ta':'Tamil','te':'Telugu',
-           'th':'Thai','tl':'Tagalog','tr':'Turkish','uk':'Ukrainian','ur':'Urdu',
-           'vi':'Vietnamese','zh-cn':'Putonghua','zh-tw':'Taiwanese Mandarin'}
+lang_dict={'af':['wikidata:Q14196', 'Afrikaans', 'West Germanic language, spoken in South Africa and Namibia'],
+           'ar':['wikidata:Q13955', 'Arabic', 'Semitic language and lingua franca of the Arab world'],
+           'bg':['wikidata:Q7918', 'Bulgarian', 'South Slavic language'],
+           'bn':['wikidata:Q9610', 'Bangla', 'Indo-Aryan language mostly spoken in Bangladesh and India'],
+           'ca':['wikidata:Q7026', 'Catalan', 'Western Romance language'],
+           'cs':['wikidata:Q9056', 'Czech', 'West Slavic language'],
+           'cy':['wikidata:Q9309', 'Welsh', 'Brythonic language spoken natively in Wales'],
+           'da':['wikidata:Q9035', 'Danish', 'North Germanic language spoken in Denmark'],
+           'de':['wikidata:Q188', 'German', 'West Germanic language spoken mainly in Central Europe'],
+           'el':['wikidata:Q9129', 'Greek', 'Indo-European language'],
+           'en':['wikidata:Q1860', 'English', 'West Germanic language'],
+           'es':['wikidata:Q1321', 'Spanish', 'Romanic language originating in the Iberian Peninsula'],
+           'et':['wikidata:Q9072', 'Estonian', 'Uralic language'],
+           'fa':['wikidata:Q9168', 'Persian', 'Southwestern Iranian dialect continuum spoken in the Caucasus, Central Asia, Iran, Kuwait, and Pakistan'],
+           'fi':['wikidata:Q1412', 'Finnish', 'Finno-Ugric language mostly spoken in Finland'],
+           'fr':['wikidata:Q150', 'French', 'Romance language'],
+           'gu':['wikidata:Q5137', 'Gujarati', 'Indo-Aryan language that is spoken on the state of Gujarat'],
+           'he':['wikidata:Q9288', 'Hebrew', 'Northwest Semitic language'],
+           'hi':['wikidata:Q1568', 'Hindi', 'Indo-Aryan language spoken in India'],
+           'hr':['wikidata:Q6654', 'Croatian', 'standardized variety of Serbo-Croatian language, used by Croats'],
+           'hu':['wikidata:Q9067', 'Hungarian', 'Urlaic language'],
+           'id':['wikidata:Q9240', 'Indonesian', 'official language of Indonesia'],
+           'it':['wikidata:Q652', 'Italian', 'Romance language'],
+           'ja':['wikidata:Q5287', 'Japanese', 'language spoken in East Asia'],
+           'kn':['wikidata:Q33673', 'Kannada', 'Dravidian language'],
+           'ko':['wikidata:Q9176', 'Korean', 'language spoken in Korean Peninsula and some part of North-eastern China'],
+           'lt':['wikidata:Q9083', 'Lithuanian', 'Baltic language spoken in Lithuania'],
+           'lv':['wikidata:Q9078', 'Latvian', 'Baltic language, official in Latvia and the European Union'],
+           'mk':['wikidata:Q9296', 'Macedonian', 'South Slavic language mostly spoken in North Macedonia and its neighbouring countries'],
+           'ml':['wikidata:Q36236', 'Malayalam', 'Dravidian language of India'],
+           'mr':['wikidata:Q1571', 'Marathi', 'Indo-Aryan language'],
+           'ne':['wikidata:Q33823', 'Nepali', 'official language of Nepal'],
+           'nl':['wikidata:Q7411', 'Dutch', 'West Germanic language'],
+           'no':['wikidata:Q9043', 'Norwegian', 'North Germanic language spoken in Norway'],
+           'pa':['wikidata:Q58635', 'Punjabi', 'Indo-Aryan language spoken in the Punjab region of Pakistan and India'],
+           'pl':['wikidata:Q809', 'Polish', 'West Slavic language'],
+           'pt':['wikidata:Q5146', 'Portuguese', 'Western Romance language of the Indo-European language family'],
+           'ro':['wikidata:Q7913', 'Romanian', 'Eastern Romance language, official of Romania'],
+           'ru':['wikidata:Q7737', 'Russian', 'East Slavic language'],
+           'sk':['wikidata:Q9058', 'Slovak', 'West Slavic language spoken in Slovakia'],
+           'sl':['wikidata:Q9063', 'Slovene', 'South Slavic language spoken primarily in Slovenia'],
+           'so':['wikidata:Q13275', 'Somali', 'Afroasiatic language belonging to the Cushitic branch'],
+           'sq':['wikidata:Q8748', 'Albanian', 'Indo-European language, spoken in Albania, Kosovo, North Macedonia and Montenegro as well as Italy, Croatia, Romania and Sebia'],
+           'sv':['wikidata:Q9027', 'Swedish', 'North Germanic language spoken in Sweden and Finland'],
+           'sw':['wikidata:Q7838', 'Swahili', 'Bantu language spoken mainly in East Africa'],
+           'ta':['wikidata:Q5885', 'Tamil', 'Dravidian language native to South India and Sri Lanka'],
+           'te':['wikidata:Q8097', 'Telugu', 'Dravidian language native to South India'],
+           'th':['wikidata:Q9217', 'Thai', 'Tai language'],
+           'tl':['wikidata:Q34057', 'Tagalog', 'Austronesian language and the national language of the Philippines'],
+           'tr':['wikidata:Q256', 'Turkish', 'Oghuz Turkic language of the Turkish people'],
+           'uk':['wikidata:Q8798', 'Ukrainian', 'East Slavic language'],
+           'ur':['wikidata:Q1617', 'Urdu', 'Indo-Aryan language spoken in South Asia'],
+           'vi':['wikidata:Q9199', 'Vietnamese', 'Austroasiatic language originating in Vietnam'],
+           'zh-cn':['wikidata:Q727694', 'Standard Mandarin', 'standard form of Chinese and the official language of China'],
+           'zh-tw':['wikidata:Q262828', 'Standard Taiwanese Mandarin', 'variety of Mandarin serving as the official language of the Republic of China (Taiwan)']}
 
 # Refine Stuff
 
@@ -380,3 +423,26 @@ linkers = [['mardi:','[Q0-9]+',mardi_wiki+'Item:'],
 VDP = [BASE_URI+'Section_4/Set_3/Question_07',
        BASE_URI+'Section_4/Set_3/Question_08',
        BASE_URI+'Section_4/Set_3/Question_09']
+
+# IDs for Publication
+
+pub_ids = [BASE_URI + 'Section_2/Set_1/Question_02',
+           BASE_URI + 'Section_2/Set_2/Question_03',
+           BASE_URI + 'Section_2/Set_2/Question_00_hidden',
+           BASE_URI + 'Section_2/Set_2/Question_01_hidden',
+           BASE_URI + 'Section_2/Set_2/Question_02_hidden',
+           BASE_URI + 'Section_2/Set_2/Question_03_hidden',
+           BASE_URI + 'Section_2/Set_2/Question_04_hidden',
+           BASE_URI + 'Section_2/Set_2/Question_05_hidden',
+           BASE_URI + 'Section_2/Set_2/Question_06_hidden',
+           BASE_URI + 'Section_2/Set_2/Question_07_hidden',
+           BASE_URI + 'Section_2/Set_2/Question_08_hidden',
+           BASE_URI + 'Section_2/Set_2/Question_09_hidden']
+
+# Keys for publication handler
+
+keys = ['publicationQid', 'publicationLabel', 'publicationDescription1', 'authorInfo',
+        'entrytypeQid', 'entrytypeLabel', 'entrytypeDescription1',
+        'journalQid', 'journalLabel', 'journalDescription1',
+        'languageQid', 'languageLabel', 'languageDescription1',
+        'title', 'otherAuthor', 'publicationDate', 'volume', 'issue', 'page']

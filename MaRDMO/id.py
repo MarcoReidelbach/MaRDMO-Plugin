@@ -36,3 +36,4 @@ P19='114' #programmed in
 P20='13' #swMath work ID
 P21='598' #occupation
 P22='20' #ORCID iD
+P23='676' #zbMath ID
