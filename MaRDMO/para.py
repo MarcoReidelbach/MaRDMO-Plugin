@@ -299,7 +299,7 @@ exp_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Quest
 # Stuff for Decisions
 
 dec=[[BASE_URI+'Section_0/Set_1/Question_01_0', 'Workflow Documentation', 'Workflow Dokumentation', 'Workflow Search', 'Workflow Suche'],
-     [BASE_URI+'Section_2/Set_1/Question_03_0', 'Theoretical Workflow', 'Theoretischer Workflow', 'Experimental Workflow', 'Experimenteller Workflow'],
+     [BASE_URI+'Section_2/Set_1/Question_03_0', 'Computational Workflow', 'Komputationaler Workflow', 'Measurement Data Analysis Workflow', 'Messdatenanalyse Workflow'],
      [BASE_URI+'Section_6/Set_1/Question_01_0', 'Markdown File', 'MaRDI Portal'],
      [BASE_URI+'Section_6/Set_1/Question_02_0', 'No', 'Nein'],
      [BASE_URI+'Section_1/Set_1/Question_00_0', 'Yes', 'Ja'],
