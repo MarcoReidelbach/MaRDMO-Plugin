@@ -93,7 +93,9 @@ err23 = err.format('A new software (set {}) requires name and description!')
 err24 = err.format('A new input data set (set {}) requires a name!')
 err25 = err.format('A new output data set (set {}) requires a name!')
 err26 = err.format('A new workflow needs to be related to mathematical fields!')
-
+err27 = err.format('Workflow Author ID-Type wrong, must be ORCID or zbMath ID!')
+err28 = err.format('No Name provided for Workflow Author!')
+err29 = err.format('No ID(s) provided for Workflow Author!')
 # HTML stuff to preview Documentation
 
 html="""

@@ -101,13 +101,64 @@ class MaRDIExport(Export):
             if data[dec[1][0]] not in (dec[1][1],dec[1][2],dec[1][3],dec[1][4]):
                 # Stop if no Workflow Type is chosen
                 return HttpResponse(response_temp.format(err5))
-            
+
             # Identical Workflow on MaRDI Portal
             if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
-                if self.get_results(mardi_endpoint,mini.format('?qid',mbody.format(self.project.title.replace("'",r"\'"),res_obj.replace("'",r"\'")),'1'))[0]:
-                    # Stop if Workflow with similar Label and Description on MaRDI Portal
-                    return HttpResponse(response_temp.format(err18))
-                
+                # Get user-defined Workflow Author Name and ID(s)
+                user_name = self.get_answer('http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_02')
+                user_ids = self.get_answer('http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_03')
+                if not user_name:
+                    # Stop if no Workflow Author Name provided
+                    return HttpResponse(response_temp.format(err28))
+                if user_ids:
+                    # If ID(s) provided, check if they match the author ID(s) on MaRDI Portal. If yes, allow edits.
+                    creator_orcid_id = []; creator_zbmath_id = []
+                    orcid_creator = []; zbmath_creator = []
+                    for user_id in user_ids:
+                        user_id = user_id.split(':')
+                        if user_id[0] == 'orcid':
+                            creator_orcid_id.append(user_id[1])
+                            orcid_creator.extend([[user_name[0],user_id[1]]])
+                        elif user_id[0] == 'zbmath':
+                            creator_zbmath_id.append(user_id[1])
+                            zbmath_creator.extend([[user_name[0], user_id[1]]])
+                        else:
+                            # Stop if wrong ID type provided for Workflow author
+                            return HttpResponse(response_temp.format(err27))
+                else:
+                    # Stop if no ID(s) provided
+                    return HttpResponse(response_temp.format(err29))
+                # Check if Workflow with same Label and Description on MaRDI Portal, get workflow author credntials
+                req = self.get_results(mardi_endpoint,mini.format('?qid ?orcid ?zbmath',mbody2.format(self.project.title.replace("'",r"\'"),res_obj.replace("'",r"\'"),P8,P22,P23),'1'))[0]
+                existing_workflow_qid = None
+                if req.get('qid', {}).get('value'):
+                    # Store Workflow QID and Workflow Author  credentials
+                    existing_workflow_qid = req['qid']['value']
+                    workflow_author_orcid = req.get('orcid', {}).get('value')
+                    workflow_author_zbmath = req.get('zbmath', {}).get('value')
+                    if user_ids:
+                        # If ID(s) provided, check if they match the author ID(s) on MaRDI Portal. If yes, allow edits.
+                        edit_allowed = True
+                        for user_id in user_ids:
+                            user_id = user_id.split(':')
+                            if user_id[0] == 'orcid': 
+                                if workflow_author_orcid:
+                                    if user_id[1] == workflow_author_orcid:
+                                        edit_allowed *= True
+                                    else:
+                                        edit_allowed *= False
+                            elif user_id[0] == 'zbmath': 
+                                if workflow_author_zbmath:
+                                    if user_id[1] == workflow_author_zbmath:
+                                        edit_allowed *= True
+                                    else:
+                                        edit_allowed *= False
+                            else:
+                                edit_allowed *= False
+                    if not edit_allowed:
+                        # Stop if Workflow with similar Label and Description on MaRDI Portal and edit is not allowed
+                        return HttpResponse(response_temp.format(err18))
+                            
 ### Get Publication Information provided by User ##################################################################################################################################################
 
             pub_info = {}
@@ -212,7 +263,7 @@ class MaRDIExport(Export):
                                         author_data['zbmath'],
                                         author_id,
                                         author_data['zbmath']))
-                    
+
 ### Add Authors, Language an Journal of Paper to MaRDI Portal #####################################################################################################################################
 
                         author_qids = self.Entry_Generator_Paper_Supplements(pub_info['authors'],
@@ -240,6 +291,38 @@ class MaRDIExport(Export):
                 else:
                     # No DOI provided
                     paper_qid=[]
+
+### Get Information of Workflow Creator and add Information to MaRDI Portal  ######################################################################################################################
+            
+            creator_dict_merged = Author_Search(creator_orcid_id, creator_zbmath_id, orcid_creator, zbmath_creator)
+            
+            pub_info['creator'] = []
+            for author_id, author_data in creator_dict_merged.items():
+                if author_data['mardiQID']:
+                    pub_info['creator'].append('mardi:{0}'.format(author_data['mardiQID']))
+                elif author_data['wikiQID']:
+                    pub_info['creator'].append('wikidata:{0} <|> {1} <|> {2}'.format(
+                        author_data['wikiQID'],
+                        author_data['wikiLabel'],
+                        author_data['wikiDescription']))
+                else:
+                    if author_data['orcid']:
+                        orcid_info = 'orcid:{0}'.format(author_data['orcid'])
+                        if author_data['zbmath']:
+                            orcid_info += '; zbmath:{0}'.format(author_data['zbmath'])
+                        pub_info['creator'].append('{0} <|> {1} <|> researcher (ORCID {2})'.format(
+                            orcid_info,
+                            author_id,
+                            author_data['orcid']))
+                    elif author_data['zbmath']:
+                        pub_info['creator'].append('zbmath:{0} <|> {1} <|> researcher (zbMath {2})'.format(
+                            author_data['zbmath'],
+                            author_id,
+                            author_data['zbmath']))
+
+            creator_qids = self.Entry_Generator_Paper_Supplements(pub_info['creator'],
+                                                                 [(Item, Q7, P4), (Item, Q8, P21)],
+                                                                 True)
 
 ### Query Wikidata and MaRDI KG by all User Answers for Models, Methods, Software, etc ############################################################################################################
 
@@ -338,12 +421,39 @@ class MaRDIExport(Export):
 
             if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                 # If MaRDI KG integration is desired
-                workflow_qid=self.entry(self.project.title, res_obj,                                       # Name (self.project.title) and Description (res_obj) of Workflow
-                                        [(Item,Q2,P4),                                                     # instance of (P4) research workflow (Q2)
-                                         (Item,paper_qid,P3)]+                                             # cites work (P3) paper (paper_qid) provided by user
-                                        [(Item,discipline,P5) for discipline in disciplines]+              # field of work (P5) disciplines (discipline) provided by user
-                                        [(Item,field,P5) for field in fields]+                             # field of work (P5) mathematical fields (field) provided by user
-                                        [(Item,i,P6) for i in models+methods+softwares+inputs+outputs])    # uses (P6) models, methods, softwares, inputs, outputs
+                if existing_workflow_qid:
+                    wbi = self.wikibase_login()
+                    item = wbi.item.get(existing_workflow_qid)
+                    for claim in item.claims.claims:
+                        item.claims.remove(claim)
+                    item.write()
+                    wbi = self.wikibase_login()
+                    item = wbi.item.get(existing_workflow_qid)
+                    facts = [(Item,Q2,P4),(Item,paper_qid,P3)]+ \
+                             [(Item,discipline,P5) for discipline in disciplines]+ \
+                             [(Item,field,P5) for field in fields]+ \
+                             [(Item,i,P6) for i in models+methods+softwares+inputs+outputs]+ \
+                             [(Item, creator, P8) for creator in creator_qids]              
+                    d=[]
+                    for fact in facts:
+                        if fact[1]:
+                            if fact[0] == MonolingualText:
+                                d.append(fact[0](text=fact[1],prop_nr=fact[2]))
+                            elif fact[0] == Time:
+                                d.append(fact[0](time=fact[1],prop_nr=fact[2]))
+                            else:
+                                d.append(fact[0](value=fact[1],prop_nr=fact[2]))
+                    item.claims.add(d)
+                    item.write()
+                    workflow_qid = item.id
+                else:
+                    workflow_qid=self.entry(self.project.title, res_obj,                                       # Name (self.project.title) and Description (res_obj) of Workflow
+                                            [(Item,Q2,P4),                                                     # instance of (P4) research workflow (Q2)
+                                             (Item,paper_qid,P3)]+                                             # cites work (P3) paper (paper_qid) provided by user
+                                            [(Item,discipline,P5) for discipline in disciplines]+              # field of work (P5) disciplines (discipline) provided by user
+                                            [(Item,field,P5) for field in fields]+                             # field of work (P5) mathematical fields (field) provided by user
+                                            [(Item,i,P6) for i in models+methods+softwares+inputs+outputs]+    # uses (P6) models, methods, softwares, inputs, outputs
+                                            [(Item, creator, P8) for creator in creator_qids])                 # documentation authored by creator
             
 ### Generate Workflow Page ########################################################################################################################################################################
 
@@ -593,7 +703,7 @@ class MaRDIExport(Export):
             "title": title,
             "token": CSRF_TOKEN,
             "format": "json",
-            "appendtext": post_content
+            "text": post_content
             }
 
         R = S.post(URL , data=PARAMS_3, files=dict(foo='bar'))

@@ -29,6 +29,15 @@ mbody = '''
 OPTIONAL{{?chk rdfs:label '{0}'@en;schema:description '{1}'@en.BIND(STRAFTER(STR(?chk),STR(wd:)) AS ?qid).}}
 '''
 
+mbody2 = '''
+OPTIONAL{{?chk rdfs:label '{0}'@en;schema:description '{1}'@en.BIND(STRAFTER(STR(?chk),STR(wd:)) AS ?qid).}}
+OPTIONAL{{?chk wdt:P{2} ?author.}}
+OPTIONAL{{?author wdt:P{3} ?orcid.}}
+OPTIONAL{{?author wdt:P{4} ?zbmath.}}
+'''
+
+
+
 wini='''
 SELECT {0}
 WHERE
