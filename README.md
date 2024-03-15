@@ -52,9 +52,24 @@ OPTIONSET_PROVIDERS = [
     ('MathAreaProvider', _('Options for Math Areas'), 'MaRDMO.providers.MathAreaProvider'),
     ('EnvironmentProvider', _('Options for Environments'), 'MaRDMO.providers.EnvironmentProvider'),
     ('MethodProvider', _('Options for Methods'), 'MaRDMO.providers.MethodProvider'),
-    ('InputDataProvider', _('Options for Input Data Sets'), 'MaRDMO.providers.InputDataProvider'),
-    ('OutputDataProvider', _('Options for Output Data Sets'), 'MaRDMO.providers.OutputDataProvider'),
-    ('SoftwareProvider', _('Options for Software'), 'MaRDMO.providers.SoftwareProvider')
+    ('DataProvider', _('Options for Data Sets'), 'MaRDMO.providers.DataProvider'),
+    ('SoftwareProvider', _('Options for Software'), 'MaRDMO.providers.SoftwareProvider'),
+    ('ResearchField', _('Options for Research Fields'), 'MaRDMO.providers.ResearchField'),
+    ('ResearchField2', _('Options for Research Fields2'), 'MaRDMO.providers.ResearchField2'),
+    ('ResearchProblem', _('Options for Research Problems'), 'MaRDMO.providers.ResearchProblem'),
+    ('ResearchProblem2', _('Options for Research Problems2'), 'MaRDMO.providers.ResearchProblem2'),
+    ('MathematicalModel', _('Options for Mathematical Models'), 'MaRDMO.providers.MathematicalModel'),
+    ('MathematicalModel2', _('Options for Mathematical Models2'), 'MaRDMO.providers.MathematicalModel2'),
+    ('Quantity', _('Options for Quantities'), 'MaRDMO.providers.Quantity'),
+    ('Quantity2', _('Options for Quantities2'), 'MaRDMO.providers.Quantity2'),
+    ('QuantityKind', _('Options for Quantity Kinds'), 'MaRDMO.providers.QuantityKind'),
+    ('QuantityKind2', _('Options for Quantitiy Kinds2'), 'MaRDMO.providers.QuantityKind2'),
+    ('MathematicalFormulation', _('Options for Mathematical Formulation'), 'MaRDMO.providers.MathematicalFormulation'),
+    ('MathematicalFormulation2', _('Options for Mathematical Formulation2'), 'MaRDMO.providers.MathematicalFormulation2'),
+    ('QuantityAndQuantityKind', _('Options for Quantity and Quantity Kind'), 'MaRDMO.providers.QuantityAndQuantityKind'),
+    ('MathematicalTask', _('Options for Mathematical Task'), 'MaRDMO.providers.MathematicalTask'),
+    ('MathematicalTask2', _('Options for Mathematical Task2'), 'MaRDMO.providers.MathematicalTask2'),
+    ('AllEntities', _('Options for All Entities'), 'MaRDMO.providers.AllEntities')
     ]
 ```
 

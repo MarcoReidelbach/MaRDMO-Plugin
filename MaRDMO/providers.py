@@ -1,12 +1,13 @@
 import requests
+import itertools
 from rdmo.options.providers import Provider
 from rdmo.domain.models import Attribute
 from .config import *
+import re
 
 class WikidataSearch(Provider):
     
     search = True
-    refresh = True
 
     def get_options(self, project, search):
         '''Function which queries wikidata and mardi KG, for user input.''' 
@@ -188,12 +189,17 @@ class MethodProvider(Provider):
 
         return options
 
-class InputDataProvider(Provider):
+class DataProvider(Provider):
 
     #Input Data from MaRDI KG /Wikidata
     subject_attribute_1 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_00'
     #Input Data (self-defined) 
     subject_attribute_2 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01'
+
+    #Output Data from MaRDI KG /Wikidata
+    subject_attribute_3 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_00'
+    #Output Data (self-defined) 
+    subject_attribute_4 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_01'
 
     def get_options(self, project, search=None):
         '''Function providing the user-defined input data sets.'''
@@ -201,12 +207,21 @@ class InputDataProvider(Provider):
         try:
             subject_attribute_1 = Attribute.objects.get(uri=self.subject_attribute_1)
         except Attribute.DoesNotExist:
-            return {}
+            try:
+                subject_attribute_2 = Attribute.objects.get(uri=self.subject_attribute_2)
+            except Attribute.DoesNotExist:
+                try:
+                    subject_attribute_3 = Attribute.objects.get(uri=self.subject_attribute_3)
+                except Attribute.DoesNotExist:
+                    try:
+                        subject_attribute_4 = Attribute.objects.get(uri=self.subject_attribute_4)
+                    except Attribute.DoesNotExist:
+                        return {}
 
-        try:
-            subject_attribute_2 = Attribute.objects.get(uri=self.subject_attribute_2)
-        except Attribute.DoesNotExist:
-            return {}
+        subject_attribute_1 = Attribute.objects.get(uri=self.subject_attribute_1)
+        subject_attribute_2 = Attribute.objects.get(uri=self.subject_attribute_2)
+        subject_attribute_3 = Attribute.objects.get(uri=self.subject_attribute_3)
+        subject_attribute_4 = Attribute.objects.get(uri=self.subject_attribute_4)
 
         options=[]
 
@@ -228,32 +243,8 @@ class InputDataProvider(Provider):
                 options.append({'id':'Input'+str(index),'text':value.text})
                 index+=1
 
-        return options
-
-class OutputDataProvider(Provider):
-
-    #Output Data from MaRDI KG /Wikidata
-    subject_attribute_1 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_00'
-    #Output Data (self-defined) 
-    subject_attribute_2 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_01'
-
-    def get_options(self, project, search=None):
-        '''Function providing the user-defined output data sets.'''
-
-        try:
-            subject_attribute_1 = Attribute.objects.get(uri=self.subject_attribute_1)
-        except Attribute.DoesNotExist:
-            return {}
-
-        try:
-            subject_attribute_2 = Attribute.objects.get(uri=self.subject_attribute_2)
-        except Attribute.DoesNotExist:
-            return {}
-
-        options=[]
-
         # get current values for MaRDI KG /Wikidata Method
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_1)
+        values = project.values.filter(snapshot=None, attribute=subject_attribute_3)
 
         index = 0
 
@@ -263,7 +254,7 @@ class OutputDataProvider(Provider):
                 index+=1
 
         # get current values for Method (self-defined)
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_2)
+        values = project.values.filter(snapshot=None, attribute=subject_attribute_4)
 
         for value in values:
             if value.text:
@@ -313,5 +304,521 @@ class SoftwareProvider(Provider):
                 index+=1
 
         return options
+
+class ResearchField(Provider):
+
+    def get_options(self, project, search=None):
+        
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q266;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query}, 
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        options=[{'id':'default','text':'not in MathModDB'}]
+
+        for re in req:
+            options.append({'id':re['qid']['value'],'text':re['label']['value']+' (mardi:'+re['qid']['value']+')'})
+
+        return options
+
+class ResearchField2(Provider):
+
+    def get_options(self, project, search=None):
+        options =[]
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q266;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_0/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'user_'+str(idx),'text':value.text})
+
+        options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
+
+        return options
+
+class ResearchProblem(Provider):
+
+    def get_options(self, project, search=None):
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q268;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+        
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        options=[{'id':'default','text':'not in MathModDB'}]
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+        return options
+
+class ResearchProblem2(Provider):
+
+    def get_options(self, project, search=None):
+        options =[]
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q268;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'user_'+str(idx),'text':value.text})
+
+        options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
+
+        return options
+
+class MathematicalModel(Provider):
+
+    def get_options(self, project, search=None):
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q270;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        options=[{'id':'default','text':'not in MathModDB'}]
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+        
+        return options
+
+class MathematicalModel2(Provider):
+
+    def get_options(self, project, search=None):
+        options =[]
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q270;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_0a'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':str(idx),'text':value.text})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_01'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':str(idx),'text':value.text})
+
+        options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
+
+        return options
+
+class Quantity(Provider):
+
+    def get_options(self, project, search=None):
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q272;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        options=[{'id':'default','text':'not in MathModDB'}]
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+        return options
+
+class Quantity2(Provider):
+
+    def get_options(self, project, search=None):
+        options =[]
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q272;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':str(idx),'text':value.text})
+
+        options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
+
+        return options
+
+class QuantityKind(Provider):
+
+    def get_options(self, project, search=None):
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q274;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        options=[{'id':'default','text':'not in MathModDB'}]
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+        return options
+
+class QuantityKind2(Provider):
+
+    def get_options(self, project, search=None):
+        options =[]
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q274;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_4/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':str(idx),'text':value.text})
+
+        options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
+
+        return options
+
+class MathematicalFormulation(Provider):
+
+    def get_options(self, project, search=None):
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q276;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        options=[{'id':'default','text':'not in MathModDB'}]
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+        return options
+
+class MathematicalFormulation2(Provider):
+
+    def get_options(self, project, search=None):
+        options =[]
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q276;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Question_0a'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':str(idx),'text':value.text})
+
+        options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
+
+        return options
+
+class QuantityAndQuantityKind(Provider):
+
+    def get_options(self, project, search=None):
+        options = []
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_07'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'Q'+str(idx),'text':value.text})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_09'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_4/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'QK'+str(idx),'text':value.text})
+
+        return options
+
+class MathematicalTask(Provider):
+
+    def get_options(self, project, search=None):
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q278;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        options=[{'id':'default','text':'not in MathModDB'}]
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+        return options
+
+class MathematicalTask2(Provider):
+
+    def get_options(self, project, search=None):
+        options =[]
+
+        query='''PREFIX wdt:'''+wdt+'''
+                 PREFIX wd:'''+wd+'''
+                 SELECT  ?qid ?label
+                 WHERE {
+                        ?id wdt:P4 wd:Q278;
+                            rdfs:label ?label.
+                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
+                        }'''
+
+        req=requests.get(mardi_endpoint,
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        for r in req:
+            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Question_0a'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':str(idx),'text':value.text})
+
+        options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
+
+        return options
+
+class AllEntities(Provider):
+
+    def get_options(self, project, search=None):
+        options =[]
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_04'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Research Field)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_0/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'RF'+str(idx),'text':value.text + ' (Research Field)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_05'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Research Problem)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'RP'+str(idx),'text':value.text + ' (Research Problem)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Mathematical Model)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_01'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'MMa'+str(idx),'text':value.text + ' (Mathematical Model)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Mathematical Model)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_0a'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'MMb'+str(idx),'text':value.text + ' (Mathematical Model)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_07'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Quantity)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'Q'+str(idx),'text':value.text + ' (Quantity)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_09'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Quantity Kind)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_4/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'QK'+str(idx),'text':value.text + ' (Quantity Kind)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Mathematical Formulation)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Question_0a'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'MF'+str(idx),'text':value.text + ' (Mathematical Formulation)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Question_0'))
+        for idx, value in enumerate(values):
+            if value.text and value.text != 'not in MathModDB':
+                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Mathematical Task)'})
+
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Question_0a'))
+        for idx, value in enumerate(values):
+            if value.text:
+                options.append({'id':'MT'+str(idx),'text':value.text + ' (Mathematical Task)'})
+
+        options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
+
+        return options
+
 
 

@@ -294,6 +294,126 @@ def publication(sender, **kwargs):
  
             return
 
+@receiver(post_save, sender=Value)
+def model(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01':
+        if instance.text == 'not in MathModDB':
+            val = 1
+        else:
+            val = 0
+        for i in range(9):
+            attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_{0}'.format(i))
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val
+                    }
+                )
+    return
+
+@receiver(post_save, sender=Value)
+def researchField(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_04':
+        if instance.text == 'not in MathModDB':
+            val = 1
+        else:
+            val = 0
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_1')
+        obj, created = Value.objects.update_or_create(
+            project=instance.project,
+            attribute=attribute_object,
+            defaults={
+                'project': instance.project,
+                'attribute': attribute_object,
+                'text': val
+                }
+            )
+    return
+
+@receiver(post_save, sender=Value)
+def researchProblem(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_05':
+        if instance.text == 'not in MathModDB':
+            val = 1
+        else:
+            val = 0
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_2')
+        obj, created = Value.objects.update_or_create(
+            project=instance.project,
+            attribute=attribute_object,
+            defaults={
+                'project': instance.project,
+                'attribute': attribute_object,
+                'text': val
+                }
+            )
+    return
+
+@receiver(post_save, sender=Value)
+def model2(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_06':
+        if instance.option_text == 'Yes' or instance.option_text == 'Ja':
+            val = 1
+        else:
+            val = 0
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_3')
+        obj, created = Value.objects.update_or_create(
+            project=instance.project,
+            attribute=attribute_object,
+            defaults={
+                'project': instance.project,
+                'attribute': attribute_object,
+                'text': val
+                }
+            )
+    return
+
+@receiver(post_save, sender=Value)
+def quantity(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_08':
+        if instance.option_text == 'Yes' or instance.option_text == 'Ja':
+            val = 1
+        else:
+            val = 0
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_4')
+        obj, created = Value.objects.update_or_create(
+            project=instance.project,
+            attribute=attribute_object,
+            defaults={
+                'project': instance.project,
+                'attribute': attribute_object,
+                'text': val
+                }
+            )
+    return
+
+@receiver(post_save, sender=Value)
+def quantityKind(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_10':
+        if instance.option_text == 'Yes' or instance.option_text == 'Ja':
+            val = 1
+        else:
+            val = 0
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_5')
+        obj, created = Value.objects.update_or_create(
+            project=instance.project,
+            attribute=attribute_object,
+            defaults={
+                'project': instance.project,
+                'attribute': attribute_object,
+                'text': val
+                }
+            )
+    return
 
 def kg_req(sparql_endpoint, query):
     '''Function performing SPARQL query at specific endpoint'''

@@ -37,11 +37,11 @@ DISCIPLINES
 
 ## Model
 
-ID: '''+BASE_URI+'''Section_3/Set_1/Wiki_01_0
+ID: '''+BASE_URI+'''Section_3/Set_0/Wiki_01_0
 
-'''+BASE_URI+'''Section_3/Set_1/Question_01_0 
+'''+BASE_URI+'''Section_3/Set_0/Set_0/Question_01_0 
 
-'''+BASE_URI+'''Section_3/Set_1/Wiki_02_0
+'''+BASE_URI+'''Section_3/Set_0/Set_0/Wiki_02_0
 
 ### Discretization
 
@@ -154,11 +154,11 @@ DISCIPLINES
 
 ## Model
 
-ID: '''+BASE_URI+'''Section_3/Set_1/Wiki_01_0
+ID: '''+BASE_URI+'''Section_3/Set_0/Wiki_01_0
 
-'''+BASE_URI+'''Section_3/Set_1/Question_01_0
+'''+BASE_URI+'''Section_3/Set_0/Set_0/Question_01_0
 
-'''+BASE_URI+'''Section_3/Set_1/Wiki_02_0
+'''+BASE_URI+'''Section_3/Set_0/Set_0/Wiki_02_0
 
 ### Discretization
 (if applicable)
@@ -251,7 +251,7 @@ math_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Ques
            BASE_URI+'Section_4/Set_3/Question_04',BASE_URI+'Section_4/Set_3/Question_05',BASE_URI+'Section_4/Set_3/Question_06',
            BASE_URI+'Section_4/Set_3/Question_07',BASE_URI+'Section_4/Set_3/Question_08',BASE_URI+'Section_4/Set_3/Question_09'],
           [BASE_URI+'Section_4/Set_4/Question_01',BASE_URI+'Section_4/Set_4/Question_02',BASE_URI+'Section_4/Set_4/Question_03',
-           BASE_URI+'Section_4/Set_4/Question_04',BASE_URI+'Section_4/Set_4/Question_05',BASE_URI+'Section_4/Set_4/Question_05'],
+           BASE_URI+'Section_4/Set_4/Question_04',BASE_URI+'Section_4/Set_4/Question_05',BASE_URI+'Section_4/Set_4/Question_06'],
           [BASE_URI+'Section_4/Set_6/Question_00',BASE_URI+'Section_4/Set_6/Question_01',BASE_URI+'Section_4/Set_6/Question_02',
            BASE_URI+'Section_4/Set_6/Question_03',BASE_URI+'Section_4/Set_6/Question_04',BASE_URI+'Section_4/Set_6/Question_05',
            BASE_URI+'Section_4/Set_6/Question_06',BASE_URI+'Section_4/Set_6/Question_07',BASE_URI+'Section_4/Set_6/Question_08',
@@ -299,7 +299,7 @@ exp_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Quest
 # Stuff for Decisions
 
 dec=[[BASE_URI+'Section_0/Set_1/Question_01_0', 'Workflow Documentation', 'Workflow Dokumentation', 'Workflow Search', 'Workflow Suche'],
-     [BASE_URI+'Section_2/Set_1/Question_03_0', 'Computational Workflow', 'Komputationaler Workflow', 'Measurement Data Analysis Workflow', 'Messdatenanalyse Workflow'],
+     [BASE_URI+'Section_2/Set_1/Question_03_0', 'Computational Workflow', 'Komputationaler Workflow', '(Measurement) Data Analysis Workflow', '(Mess-)datenanalyse Workflow'],
      [BASE_URI+'Section_6/Set_1/Question_01_0', 'Markdown File', 'MaRDI Portal'],
      [BASE_URI+'Section_6/Set_1/Question_02_0', 'No', 'Nein'],
      [BASE_URI+'Section_1/Set_1/Question_00_0', 'Yes', 'Ja'],
@@ -309,12 +309,12 @@ dec=[[BASE_URI+'Section_0/Set_1/Question_01_0', 'Workflow Documentation', 'Workf
 # Question IDs required for data integration into MaRDI KG
 
 ws = {'doi': [BASE_URI+'Section_2/Set_1/Question_02_0'],    # Question for cited paper
-      'mod': [BASE_URI+'Section_3/Set_1/Wiki_01',           # Questions for applied model
-              BASE_URI+'Section_3/Set_1/Question_01',
-              BASE_URI+'Section_3/Set_1/Wiki_02',
-              BASE_URI+'Section_3/Set_1/Wiki_03',
-              BASE_URI+'Section_3/Set_1/Wiki_04',
-              BASE_URI+'Section_3/Set_1/Question_00'],
+      'mod': [BASE_URI+'Section_3/Set_0/Wiki_01',           # Questions for applied model
+              BASE_URI+'Section_3/Set_0/Set_0/Question_01',
+              BASE_URI+'Section_3/Set_0/Set_0/Wiki_02',
+              BASE_URI+'Section_3/Set_0/Wiki_03',
+              BASE_URI+'Section_3/Set_0/Wiki_04',
+              BASE_URI+'Section_3/Set_0/Question_00'],
       'met': [BASE_URI+'Section_4/Set_2/Question_01',       # Questions for applied methods
               BASE_URI+'Section_4/Set_2/Question_02',
               BASE_URI+'Section_4/Set_2/Wiki_02',

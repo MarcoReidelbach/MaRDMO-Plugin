@@ -158,7 +158,10 @@ class MaRDIExport(Export):
                     if not edit_allowed:
                         # Stop if Workflow with similar Label and Description on MaRDI Portal and edit is not allowed
                         return HttpResponse(response_temp.format(err18))
-                            
+            else:
+                creator_orcid_id = ''; orcid_creator = ''
+                creator_zbmath_id = ''; zbmath_creator = ''
+
 ### Get Publication Information provided by User ##################################################################################################################################################
 
             pub_info = {}
@@ -175,7 +178,7 @@ class MaRDIExport(Export):
             if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                 
                 # Extract Paper DOI
-                doi=re.split(':', pub_info['paper'][1])
+                doi=re.split(':', pub_info['paper'][-1])
                              
                 if pub_info['paper'][0] == 'Yes':
                     
@@ -331,7 +334,7 @@ class MaRDIExport(Export):
 ### Integrate related Model in MaRDI KG ###########################################################################################################################################################
 
             models, data, error = self.Entry_Generator('mod','moms',                # Entry of Model (mod) with Main Subject (moms) as Subproperty
-                                                       [True,True,False],           # Generation wanted, QID Generation wanted, String Generation not wanted
+                                                       [True,False,False],           # Generation wanted, QID Generation wanted, String Generation not wanted
                                                        [Q3,P17],                    # instance of mathematical model (Q3), main subject (P17)
                                                        wq,mq,data)                  # data from wikidata (wq), MaRDI KG (mq) and user (data)
             
