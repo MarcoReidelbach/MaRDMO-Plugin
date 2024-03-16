@@ -355,34 +355,40 @@ class MaRDIExport(Export):
             data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_02_0':'Yes' if 'is time continuous' in model_properties else 'No'})
             data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_03_0':'Yes' if 'is space continuous' in model_properties else 'No'})
 
-            i=0
+            i=0; variables = []
             for pidx, task_property in enumerate(task_properties):
                 if task_property == 'contains as input':
                     for qidx, quantity_name in enumerate(quantity_names):
-                        if quantity_name == task_quantities[pidx]:
-                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_01_'+str(i):task_quantities[pidx]})
-                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_02_'+str(i):''})
-                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_03_'+str(i):quantity_symbols[qidx]})
-                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_04_'+str(i):'independent'})
-                            i+=1
+                        if quantity_name.lower() == task_quantities[pidx].lower():
+                            if quantity_name not in variables:
+                                data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_01_'+str(i):task_quantities[pidx]})
+                                data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_02_'+str(i):''})
+                                data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_03_'+str(i):quantity_symbols[qidx]})
+                                data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_04_'+str(i):'independent'})
+                                variables.append(quantity_name)
+                                i+=1
                 elif task_property == 'contains as output':
                     for qidx, quantity_name in enumerate(quantity_names):
-                        if quantity_name == task_quantities[pidx]:
-                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_01_'+str(i):task_quantities[pidx]})
-                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_02_'+str(i):''})
-                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_03_'+str(i):quantity_symbols[qidx]})
-                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_04_'+str(i):'dependent'})
-                            i+=1
+                        if quantity_name.lower() == task_quantities[pidx].lower():
+                            if quantity_name not in variables:
+                                data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_01_'+str(i):task_quantities[pidx]})
+                                data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_02_'+str(i):''})
+                                data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_03_'+str(i):quantity_symbols[qidx]})
+                                data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_04_'+str(i):'dependent'})
+                                variables.append(quantity_name)
+                                i+=1
 
-            i=0
+            i=0; properties = []
             for pidx, task_property in enumerate(task_properties):
                 if task_property == 'contains as parameter':
                     for qidx, quantity_name in enumerate(quantity_names):
-                        if quantity_name == task_quantities[pidx]:
-                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_01_'+str(i):task_quantities[pidx]})
-                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_02_'+str(i):''})
-                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_03_'+str(i):quantity_symbols[qidx]})
-                            i+=1
+                        if quantity_name.lower() == task_quantities[pidx].lower():
+                            if quantity_name not in properties:
+                                data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_01_'+str(i):task_quantities[pidx]})
+                                data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_02_'+str(i):''})
+                                data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_03_'+str(i):quantity_symbols[qidx]})
+                                properties.append(quantity_name)
+                                i+=1
 
 ### Integrate related Methods in MaRDI KG #########################################################################################################################################################
 
@@ -1045,8 +1051,8 @@ class MaRDIExport(Export):
                                                [(Item,Relations[0],P4)]+
                                                [(Item,sub_qid,Relations[1]) for sub_qid in sub_qids]+
                                                [(String,re.sub("\$","",form.lstrip()),P18) for form in re.split(';',wq['wq'+Type+str(i)]['form'])]+
-                                               [(ExternalID,wq['wq'+Type+str(i)]['id'].split(':')[-1] if wq['wq'+Type+str(i)]['id'].split(':')[-1] else '',
-                                                   P16 if wq['wq'+Type+str(i)]['id'].split(':')[0] == 'doi' else P20)]))
+                                               [(ExternalID,wq['wq'+Type+str(i)]['id'].split(':',1)[-1] if wq['wq'+Type+str(i)]['id'].split(':',1)[-1] else '',
+                                                   P16 if wq['wq'+Type+str(i)]['id'].split(':',1)[0] == 'doi' else P20 if wq['wq'+Type+str(i)]['id'].split(':',1)[0] == 'swmath' else P24)]))
                         data.update({ws[Type][0]+'_'+str(i):'mardi:'+qids[-1]})
                     else:
                         data.update({ws[Type][0]+'_'+str(i):'mardi:tbd'})
