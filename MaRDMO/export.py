@@ -330,11 +330,11 @@ class MaRDIExport(Export):
 ### Query Wikidata and MaRDI KG by all User Answers for Models, Methods, Software, etc ############################################################################################################
 
             wq, mq = self.sparql(data,ws)
-
+        
 ### Integrate related Model in MaRDI KG ###########################################################################################################################################################
 
             models, data, error = self.Entry_Generator('mod','moms',                # Entry of Model (mod) with Main Subject (moms) as Subproperty
-                                                       [True,False,False],           # Generation wanted, QID Generation wanted, String Generation not wanted
+                                                       [True,False,False],          # Generation wanted, QID Generation wanted, String Generation not wanted
                                                        [Q3,P17],                    # instance of mathematical model (Q3), main subject (P17)
                                                        wq,mq,data)                  # data from wikidata (wq), MaRDI KG (mq) and user (data)
             
@@ -715,7 +715,7 @@ class MaRDIExport(Export):
     def set_lengths(self, data):
         '''Get length of the User sets'''
         length=[]
-        sts=['Section_3/Set_1','Section_4/Set_2','Section_4/Set_3','Section_4/Set_6','Section_4/Set_7']
+        sts=['Section_3/Set_0','Section_4/Set_2','Section_4/Set_3','Section_4/Set_6','Section_4/Set_7']
         for st in sts:
             i=0
             data_filter = dict(filter(lambda item: st in item[0], data.items()))
@@ -885,12 +885,12 @@ class MaRDIExport(Export):
             # x[5] number of main subjects of model and methods or programming languages of softwares
 
             x = []
-
+            
             x.append(self.wikibase_answers(data, ws[ABBR], length[IDX]) if ABBR not in ('dis','fie') else self.wikibase_answers(data, ws[ABBR])[0].split('; '))
-
+            
             x.append(length[IDX] if ABBR not in ('dis','fie') else len(x[0]) if x else 0)
 
-            x.append([re.split(' <\|> ', x[0][i]) if x[0][i] else 
+            x.append([re.split(' <\|> ', x[0][i]) if x[0][i] and x[0][i] != 'not in MathModDB' else 
                      ['', x[0][x[1] + i] if ABBR in strings[:5] else '',
                       x[0][x[1] * 2 + i] if ABBR in strings[:3] else 'data set' if ABBR in strings[3:5] else ''] for i in range(x[1])])
 
@@ -903,7 +903,7 @@ class MaRDIExport(Export):
             
             x.append([[re.split(' <\|> ', X) if X  else ['', '', '']
                       for X in x[0][i].split('; ')] for i in range(x[1] * 3, x[1] * 4)] if ABBR in strings[:3] else [])
-             
+            
             x.append([[x[2][i][j] for j in range(3)] + [x[3][i] if ABBR in strings[:3] else '',
                       x[0][x[1] * 4 + i] if ABBR in strings[:2] else '',
                       x[0][len(x[0]) - x[1] + i] if ABBR in strings[:5] else ''] for i in range(x[1])])
