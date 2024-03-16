@@ -345,7 +345,45 @@ class MaRDIExport(Export):
             elif error[0] == 1:
                 #Stop if no main subject provided for new model entry
                 return HttpResponse(response_temp.format(err9.format(error[1])))
-            
+
+            model_properties = self.get_answer('http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_02')
+            task_properties = self.get_answer('http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Set_1/Question_1')
+            task_quantities = self.get_answer('http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Set_1/Question_0')
+            quantity_names = self.get_answer('http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Set_0/Question_1')
+            quantity_symbols = self.get_answer('http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Set_0/Question_0')
+
+            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_02_0':'Yes' if 'is time continuous' in model_properties else 'No'})
+            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_03_0':'Yes' if 'is space continuous' in model_properties else 'No'})
+
+            i=0
+            for pidx, task_property in enumerate(task_properties):
+                if task_property == 'contains as input':
+                    for qidx, quantity_name in enumerate(quantity_names):
+                        if quantity_name == task_quantities[pidx]:
+                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_01_'+str(i):task_quantities[pidx]})
+                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_02_'+str(i):''})
+                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_03_'+str(i):quantity_symbols[qidx]})
+                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_04_'+str(i):'independent'})
+                            i+=1
+                elif task_property == 'contains as output':
+                    for qidx, quantity_name in enumerate(quantity_names):
+                        if quantity_name == task_quantities[pidx]:
+                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_01_'+str(i):task_quantities[pidx]})
+                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_02_'+str(i):''})
+                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_03_'+str(i):quantity_symbols[qidx]})
+                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_04_'+str(i):'dependent'})
+                            i+=1
+
+            i=0
+            for pidx, task_property in enumerate(task_properties):
+                if task_property == 'contains as parameter':
+                    for qidx, quantity_name in enumerate(quantity_names):
+                        if quantity_name == task_quantities[pidx]:
+                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_01_'+str(i):task_quantities[pidx]})
+                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_02_'+str(i):''})
+                            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_3/Question_03_'+str(i):quantity_symbols[qidx]})
+                            i+=1
+
 ### Integrate related Methods in MaRDI KG #########################################################################################################################################################
 
             methods, data, error = self.Entry_Generator('met','mems',               # Entry of Methods (met) with Main Subject (mems) as Subproperty
