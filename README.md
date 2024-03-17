@@ -7,7 +7,9 @@ This repository contains the MaRDMO-Export-Plugin for the [Research Datamanageme
 ```bash
 .  
 ├── MaRDMO - Plugin Files
-│   ├── citation.py - get citation from DOI and ORCID API 
+│   ├── citation.py - get citation from DOI and ORCID API
+│   ├── apps.py - application configuration
+│   ├── handlers.py - Additional Functions in background upon click 
 │   ├── config.py - MaRDI portal information (API,SPARQL endpoint)
 │   ├── export.py - Export/Query Function 
 │   ├── display.py - HTTPResponse display information
