@@ -12,11 +12,15 @@ This repository contains the MaRDMO-Export-Plugin for the [Research Datamanageme
 │   ├── handlers.py - Additional Functions in background upon click 
 │   ├── config.py - MaRDI portal information (API,SPARQL endpoint)
 │   ├── export.py - Export/Query Function 
-│   ├── display.py - HTTPResponse display information
 │   ├── id.py - wikibase item and property ids 
 │   ├── para.py - Export/Query Parameters
 │   ├── providers.py - Dynamic Option Sets via Wikidata / MaRDI KG
-│   └── sparql.py - SPARQL query selection
+│   ├── sparql.py - SPARQL query selection
+│   └── templates
+│       ├── workflowError.html - HTML Template for MaRDMO Errors
+│       ├── workflowExport.html - HTML Template for MaRDMO Export
+│       ├── workflowPreview.html - HTML Template for MaRDMO Preview
+│	└── workflowSearch.html - HTML Template for MaRDMO Search
 │
 ├── setup.py 
 │
