@@ -21,7 +21,6 @@ from .config import *
 from .citation import *
 from .id import *
 from .sparql import *
-from .display import *
 from .handlers import *
 try:
     # Get login credentials if available 
@@ -38,9 +37,8 @@ class MaRDIExport(Export):
  
 ### Check if MaRDI Questionaire is used ###########################################################################################################################################################
         if str(self.project.catalog)[-5:] != 'MaRDI':
-            return render(self.request,'core/error.html', {
-                'title': _('Wrong Questionnaire Selected!'),
-                'errors': [_('The Questionnaire \'{}\' is not suitable for the MaRDI Export!'.format(str(self.project.catalog).split('/')[-1]))]
+            return render(self.request,'MaRDMO/workflowError.html', {
+                'error': 'Questionnaire \'{}\' not suitable for MaRDI Export!'.format(str(self.project.catalog).split('/')[-1])
                 }, status=200)
         
 ### Gather all User Answers in Dictionary (modified RDMO Code) ####################################################################################################################################
@@ -92,26 +90,23 @@ class MaRDIExport(Export):
             if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
                 if not (lgname and lgpassword):
                     #Stop if no Login Credentials are provided
-                    return render(self.request,'core/error.html', {
-                        'title': _('Missing Credentials!'),
-                        'errors': [_('You don\'t have permission to write to the MaRDI Portal. Check your bot credentials.')]
+                    return render(self.request,'MaRDMO/workflowError.html', {
+                        'error': 'No permission to write to MaRDI Portal. Check Bot Credentials.'
                         }, status=200)
 
             # Research Objective Provided
             res_obj=self.wikibase_answers(data,ws['obj'])[0] 
             if not res_obj:
                 # Stop if no Research Objective is provided
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing Research Objective!'),
-                    'errors': [_('Please, provide a research objective!')]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Research Objective!'
                     }, status=200)
             
             # Workflow Type (THEO/EXP)
             if data[dec[1][0]] not in (dec[1][1],dec[1][2],dec[1][3],dec[1][4]):
                 # Stop if no Workflow Type is chosen
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing Workflow Type!'),
-                    'errors': [_('Please, provide a workflow type!')]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Workflow Type!'
                     }, status=200)
 
             # Identical Workflow on MaRDI Portal
@@ -121,9 +116,8 @@ class MaRDIExport(Export):
                 user_ids = self.get_answer('http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_03')
                 if not user_name:
                     # Stop if no Workflow Author Name provided
-                    return render(self.request,'core/error.html', {
-                        'title': _('Missing Workflow Author Name!'),
-                        'errors': [_('Please, provide a workflow author name!')]
+                    return render(self.request,'MaRDMO/workflowError.html', {
+                        'error': 'Missing Name of Workflow Documentation Author'
                         }, status=200)
                 if user_ids:
                     # If ID(s) provided, check if they match the author ID(s) on MaRDI Portal. If yes, allow edits.
@@ -139,15 +133,13 @@ class MaRDIExport(Export):
                             zbmath_creator.extend([[user_name[0], user_id[1]]])
                         else:
                             # Stop if wrong ID type provided for Workflow author
-                            return render(self.request,'core/error.html', {
-                                'title': _('Wrong ID-type for Workflow Author Identification!'),
-                                'errors': [_('Please, provide an ORCID or zbMath ID!')]
+                            return render(self.request,'MaRDMO/workflowError.html', {
+                                'error': [_('Identifier of Workflow Documentation Author not supported')]
                                 }, status=200)
                 else:
                     # Stop if no ID(s) provided
-                    return render(self.request,'core/error.html', {
-                        'title': _('Missing Workflow Author ID!'),
-                        'errors': [_('Please, provide a workflow author ID!')]
+                    return render(self.request,'MaRDMO/workflowError.html', {
+                        'error': 'Missing Identifier of Workflow Documentation Author'
                         }, status=200)
                 # Check if Workflow with same Label and Description on MaRDI Portal, get workflow author credntials
                 req = self.get_results(mardi_endpoint,mini.format('?qid ?orcid ?zbmath',mbody2.format(self.project.title.replace("'",r"\'"),res_obj.replace("'",r"\'"),P8,P22,P23),'1'))[0]
@@ -178,9 +170,8 @@ class MaRDIExport(Export):
                                 edit_allowed *= False
                     if not edit_allowed:
                         # Stop if Workflow with similar Label and Description on MaRDI Portal and edit is not allowed
-                        return render(self.request,'core/error.html', {
-                            'title': _('Workflow Documentation Creation Error!'),
-                            'errors': [_('A workflow with the same label and description already exists on the MaRDI Portal!')]
+                        return render(self.request,'MaRDMO/workflowError.html', {
+                            'error': 'Workflow already exists of MaRDI Portal'
                             }, status=200)
             else:
                 creator_orcid_id = ''; orcid_creator = ''
@@ -189,7 +180,6 @@ class MaRDIExport(Export):
 ### Get Publication Information provided by User ##################################################################################################################################################
 
             pub_info = {}
-
             pub_properties = ['paper', 'all_authors', 'publication', 'entrytype', 'title', 'authors',
                               'languages' , 'journals', 'volume', 'issue', 'pages' ,'date']
             
@@ -208,16 +198,14 @@ class MaRDIExport(Export):
                     
                     if not doi[-1]:
                         # Stop if no DOI provided
-                        return render(self.request,'core/error.html', {
-                            'title': _('Missing DOI of related Publication!'),
-                            'errors': [_('Please, provide a DOI for the related Publication!')]
+                        return render(self.request,'MaRDMO/workflowError.html', {
+                            'error': 'Missing DOI of related Publication!'
                             }, status=200)
 
                     if not pub_info['publication']:
                         # Stop if no Information available via DOI
-                        return render(self.request,'core/error.html', {
-                            'title': _('Citation Retrieval Error!'),
-                            'errors': [_('Please, check the DOI provided for the related Publication!')]
+                        return render(self.request,'MaRDMO/workflowError.html', {
+                            'error': 'DOI for related Publication returns no Information!'
                             }, status=200)
                     
                     # Get Publication ID, Label and Description
@@ -370,16 +358,14 @@ class MaRDIExport(Export):
             
             if error[0] == 0:
                 # Stop if no Name and Description provided for new model entry
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing Name and/or Description of new Mathematical Model!'),
-                    'errors': [_('Please, provide a name and/or description for the new mathematical model!')]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Name and/or Description of new Mathematical Model!'
                     }, status=200)
 
             elif error[0] == 1:
                 #Stop if no main subject provided for new model entry
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing Main Subject of new Mathematical Model!'),
-                    'errors': [_('Please, provide a main subject for the new mathematical model!')]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': [_('Missing Main Subject of new Mathematical Model!')]
                     }, status=200)
 
             model_properties = self.get_answer('http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_02')
@@ -435,16 +421,14 @@ class MaRDIExport(Export):
 
             if error[0] == 0:
                 # Stop if no Name and Description provided for new method entry
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing Name and/or Description of new Mathematical Method!'),
-                    'errors': [_('Please, provide a name and/or description for the new mathematical method in set {}!'.format(error[1]))]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Name and/or Description of new Mathematical Method in Set {}!'.format(error[1])
                     }, status=200)
             
             elif error[0] == 1:
                 #Stop if no main subject provided for new method entry
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing Main Subject of new Mathematical Method!'),
-                    'errors': [_('Please, provide a main subject for the new mathematical method in set {}!'.format(error[1]))]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Main Subject of new Mathematical Method in Set {}!'.format(error[1])
                     }, status=200)
 
 ### Integrate related Softwares in MaRDI KG #######################################################################################################################################################
@@ -456,16 +440,14 @@ class MaRDIExport(Export):
 
             if error[0] == 0:
                 # Stop if no Name and Description provided for new software entry
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing Name and/or Description of new Software!'),
-                    'errors': [_('Please, provide a name and/or description for the new software in set {}!'.format(error[1]))]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Name and/or Description of new Software in Set {}!'.format(error[1])
                     }, status=200)
             
             elif error[0] == 1:
                 #Stop if no programming language provided for new software entry
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing Programming Language of new Software!'),
-                    'errors': [_('Please, provide the programming language(s) for the new software in set {}!'.format(error[1]))]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Programming Language(s) of new Software in Set {}!'.format(error[1])
                     }, status=200)
             
 ### Integrate related Input Data Sets in MaRDI KG #################################################################################################################################################
@@ -477,9 +459,8 @@ class MaRDIExport(Export):
 
             if error[0] == 0:
                 # Stop if no Name and Description provided for new input data set
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing Name of new Input Data Set!'),
-                    'errors': [_('Please, provide the name for the new input data set in set {}!'.format(error[1]))]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Name of new Input Data in Set {}!'.format(error[1])
                     }, status=200)
 
 ### Integrate related Output Data Sets in MaRDI KG ################################################################################################################################################
@@ -491,9 +472,8 @@ class MaRDIExport(Export):
 
             if error[0] == 0:
                 # Stop if no Name and Description provided for new output data set
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing Name of new Output Data Set!'),
-                    'errors': [_('Please, provide the name for the new output data set in set {}!'.format(error[1]))]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Name of new Output Data in Set {}!'.format(error[1])
                     }, status=200)
 
 ### Integrate related non-mathematical Disciplines in MaRDI KG ####################################################################################################################################
@@ -505,9 +485,8 @@ class MaRDIExport(Export):
 
             if error[0] == 2:
                 # Stop if no Discipline provided by User
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing related Non-Mathematical Discipline!'),
-                    'errors': [_('Please, provide non-mathematical disciplines related to the workflow!'.format(error[1]))]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Non-Mathematical Disciplines of Workflow!'.format(error[1])
                     }, status=200)
 
 ### Integrate related mathematical Fields in MaRDI KG #############################################################################################################################################
@@ -519,9 +498,8 @@ class MaRDIExport(Export):
 
             if error[0] == 2:
                 # Stop if no Discipline provided by User
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing related Mathematical Field!'),
-                    'errors': [_('Please, provide mathematical fields related to the workflow!'.format(error[1]))]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Mathematical Fields of Workflow!'.format(error[1])
                     }, status=200)
 
 ### Integrate Workflow in MaRDI KG ################################################################################################################################################################
@@ -585,9 +563,8 @@ class MaRDIExport(Export):
             
             elif data[dec[2][0]] == dec[2][2] and data[dec[3][0]] not in (dec[3][1],dec[3][2]):
                 # Preview Markdown as HTML
-                return render(self.request,'MaRDMO/display.html', {
-                    'title': _('Workflow Documentation Preview!'),
-                    'test': html.format(pypandoc.convert_text(temp,'html',format='md'))
+                return render(self.request,'MaRDMO/workflowPreview.html', {
+                    'preview': pypandoc.convert_text(temp,'html',format='md')
                     }, status=200)
             
             elif data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
@@ -603,16 +580,15 @@ class MaRDIExport(Export):
                 self.wikipage_export(self.project.title,page)
                
                 # Successful Export to Portal
-                return render(self.request,'MaRDMO/display.html', {
-                    'title': _('Successful Export to MaRDI Portal'),
-                    'test': done.format(export.format(mardi_wiki+self.project.title.replace(' ','_'),mardi_wiki+'Item:'+workflow_qid))
+                return render(self.request,'MaRDMO/workflowExport.html', {
+                    'WikiLink': mardi_wiki+self.project.title.replace(' ','_'),
+                    'KGLink': mardi_wiki+'Item:'+workflow_qid
                     }, status=200)
             
             else:
                 # Stop if no Export Type is chosen
-                return render(self.request,'core/error.html', {
-                    'title': _('Missing Export Type'),
-                    'errors': [_('Please, select an Export Type!')]
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': [_('Missing Export Type!')]
                     }, status=200)
 
 
@@ -696,20 +672,19 @@ class MaRDIExport(Export):
             no_results = str(len(results))
             
             # Generate Links to Wikipage and Knowledge Graoh Entry of Results
-            links =''
+            links=[]
             for result in results:
-                links+=link.format(result["label"]["value"],mardi_wiki+result["label"]["value"].replace(' ','_'),mardi_wiki+'Item:'+result["qid"]["value"])
-            
-            return render(self.request,'MaRDMO/display.html', {
-                    'title': _('Workflows found on the  MaRDI Portal'),
-                    'test': search_done.format(no_results,links)
+                links.append([result["label"]["value"],mardi_wiki+result["label"]["value"].replace(' ','_'),mardi_wiki+'Item:'+result["qid"]["value"]])
+
+            return render(self.request,'MaRDMO/workflowSearch.html', {
+                    'noResults': no_results,
+                    'links': links
                     }, status=200)
         
         else:
             # Stop if Workflow Documentation or Search not chosen
-            return render(self.request,'core/error.html', {
-                    'title': _('Missing Operation Modus!'),
-                    'errors': [_('Please, select an Operation Modus!')]
+            return render(self.request,'MaRDMO/workflowError.html', {
+                    'errors': [_('Missing Operation Modus!')]
                     }, status=200)
 
     def stringify_values(self, values):
