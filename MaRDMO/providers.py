@@ -1,43 +1,56 @@
 import requests
 import itertools
+import re
+
 from rdmo.options.providers import Provider
 from rdmo.domain.models import Attribute
+from multiprocessing.pool import ThreadPool
+
 from .config import *
-import re
 
 class WikidataSearch(Provider):
     
     search = True
 
+    def query_api(self, api_url, search_term):
+        '''Function to query an API and return the JSON response.'''
+        response = requests.get(api_url, params={
+            'action': 'wbsearchentities',
+            'format': 'json',
+            'language': 'en',
+            'type': 'item',
+            'limit': 10,
+            'search': search_term
+        }, headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'})
+        return response.json().get('search', [])
+
+    def process_result(self, result):
+        '''Function to process the result and return a dictionary with id, text, and description.'''
+        try:
+            description = result['display']['description']['value']
+        except (KeyError, TypeError):
+            description = 'No Description Provided!'
+    
+        return {
+            'id': result['id'],
+            'text': f"{result['id']} <|> {result['display']['label']['value']} <|> {description}"
+        }
+
     def get_options(self, project, search):
-        '''Function which queries wikidata and mardi KG, for user input.''' 
-        if not search or len(search)<3:
+        '''Function which queries Wikidata and MARDI KG for user input.'''
+        if not search or len(search) < 3:
             return []
 
-        qwiki=requests.get(wikidata_api+'?action=wbsearchentities&format=json&language=en&type=item&limit=10&search={0}'.format(search),
-                           headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['search']
-
-        qmard=requests.get(mardi_api+'?action=wbsearchentities&format=json&language=en&type=item&limit=10&search={0}'.format(search),
-                           headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['search'] 
-        options=[]
-
-        for index in range(10):
-            
-            if index < len(qwiki):
-                try:
-                    options.append({'id':'W'+str(index),
-                                    'text':'wikidata:'+qwiki[index]['id']+' <|> '+qwiki[index]['display']['label']['value']+' <|> '+qwiki[index]['display']['description']['value']})
-                except:
-                    options.append({'id':'W'+str(index),
-                                    'text':'wikidata:'+qwiki[index]['id']+' <|> '+qwiki[index]['display']['label']['value']+' <|> No Description Provided!'})
-            
-            if index < len(qmard):
-                try:
-                    options.append({'id':'M'+str(index),
-                                    'text':'mardi:'+qmard[index]['id']+' <|> '+qmard[index]['display']['label']['value']+' <|> '+qmard[index]['display']['description']['value']})
-                except:
-                    options.append({'id':'M'+str(index),
-                                    'text':'mardi:'+qmard[index]['id']+' <|> '+qmard[index]['display']['label']['value']+' <|> No Description Provided!'})
+        # Use a ThreadPool to make concurrent API requests
+        pool = ThreadPool(processes=2)
+        wikidata_results, mardi_results = pool.map(lambda api_url: query_api(api_url, search), [wikidata_api, mardi_api])
+       
+        options = [ 
+            process_result(result) for result in wikidata_results[:10]
+        ]
+        options += [
+            process_result(result) for result in mardi_results[:10]
+        ]
 
         return options
 
@@ -46,22 +59,16 @@ class ComponentSearch(Provider):
     search = True
 
     def get_options(self, project, search):
-        '''Function which queries mardi KG, for user input.'''
-        if not search or len(search)<3:
+        '''Function which queries Wikidata and MARDI KG for user input.'''
+        if not search or len(search) < 3:
             return []
 
-        qmard=requests.get(mardi_api+'?action=wbsearchentities&format=json&language=en&type=item&limit=10&search={0}'.format(search),
-                           headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['search']
+        mardi_results = query_api(mardi_api, search)
 
-        options=[]
+        options = [
+            process_result(result) for result in mardi_results[:20]
+        ]
 
-        for index in range(20):
-
-            if index < len(qmard):
-                try:
-                    options.append({'id':'M'+str(index),'text':'mardi:'+qmard[index]['id']+' <|> '+qmard[index]['display']['label']['value']+' <|> '+qmard[index]['display']['description']['value']})
-                except:
-                    options.append({'id':'M'+str(index),'text':'mardi:'+qmard[index]['id']+' <|> '+qmard[index]['display']['label']['value'][1:]+' <|> No Description Provided!'})
         return options
 
 class MathAreaProvider(Provider):
@@ -306,9 +313,9 @@ class SoftwareProvider(Provider):
         return options
 
 class ResearchField(Provider):
-
+   
     def get_options(self, project, search=None):
-        
+
         query='''PREFIX wdt:'''+wdt+'''
                  PREFIX wd:'''+wd+'''
                  SELECT  ?qid ?label
@@ -821,4 +828,26 @@ class AllEntities(Provider):
         return options
 
 
+def query_api(api_url, search_term):
+    '''Function to query an API and return the JSON response.'''
+    response = requests.get(api_url, params={
+        'action': 'wbsearchentities',
+        'format': 'json',
+        'language': 'en',
+        'type': 'item',
+        'limit': 10,
+        'search': search_term
+    }, headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'})
+    return response.json().get('search', [])
+
+def process_result(result):
+    '''Function to process the result and return a dictionary with id, text, and description.'''
+    try:
+        description = result['display']['description']['value']
+    except (KeyError, TypeError):
+        description = 'No Description Provided!'
+    return {
+        'id': result['id'],
+        'text': f"{result['id']} <|> {result['display']['label']['value']} <|> {description}"
+    }
 
