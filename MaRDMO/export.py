@@ -66,7 +66,6 @@ class MaRDIExport(Export):
                     else:
                         data[question['attribute']+'_0']=self.stringify_values(values)
 
-    
        ###################################################################################################################################################
        ###################################################################################################################################################
        ##                                                                                                                                               ##
@@ -81,13 +80,12 @@ class MaRDIExport(Export):
 
               
         # If Workflow Documentation wanted
-        if data[dec[0][0]] in (dec[0][1],dec[0][2]):
-
+        if self.get_answer(BASE_URI+'Section_0/Set_1/Question_01')[0] == option['Documentation']:
 
 ### Checks for Workflow Documentation #############################################################################################################################################################
 
             # Login Credentials for MaRDI Portal Export
-            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+            if self.get_answer(BASE_URI+'Section_6/Set_1/Question_01')[0] == option['Public'] and self.get_answer(BASE_URI+'Section_6/Set_1/Question_02')[0] == option['No']:
                 if not (lgname and lgpassword):
                     #Stop if no Login Credentials are provided
                     return render(self.request,'MaRDMO/workflowError.html', {
@@ -95,7 +93,7 @@ class MaRDIExport(Export):
                         }, status=200)
 
             # Research Objective Provided
-            res_obj=self.wikibase_answers(data,ws['obj'])[0] 
+            res_obj = self.get_answer(answer['ResearchObjective'])[0]
             if not res_obj:
                 # Stop if no Research Objective is provided
                 return render(self.request,'MaRDMO/workflowError.html', {
@@ -103,14 +101,14 @@ class MaRDIExport(Export):
                     }, status=200)
             
             # Workflow Type (THEO/EXP)
-            if data[dec[1][0]] not in (dec[1][1],dec[1][2],dec[1][3],dec[1][4]):
+            if self.get_answer(BASE_URI+'Section_2/Set_1/Question_03')[0]  not in (option['Computation'],option['Analysis']): 
                 # Stop if no Workflow Type is chosen
                 return render(self.request,'MaRDMO/workflowError.html', {
                     'error': 'Missing Workflow Type!'
                     }, status=200)
 
             # Identical Workflow on MaRDI Portal
-            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+            if self.get_answer(BASE_URI+'Section_6/Set_1/Question_01')[0] == option['Public'] and self.get_answer(BASE_URI+'Section_6/Set_1/Question_02')[0] == option['No']: 
                 # Get user-defined Workflow Author Name and ID(s)
                 user_name = self.get_answer('http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_02')
                 user_ids = self.get_answer('http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_03')
@@ -184,17 +182,21 @@ class MaRDIExport(Export):
                               'languages' , 'journals', 'volume', 'issue', 'pages' ,'date']
             
             for pub_property, pub_id in zip(pub_properties, pub_ids):
-                pub_info[pub_property] = self.get_answer(pub_id) if self.get_answer(pub_id) != ['NONE'] else ['']
-              
+                info = self.get_answer(pub_id)
+                if info != ['NONE']:
+                    pub_info[pub_property] = info 
+                else:
+                    ['']
+     
 ### If Portal Integration desired, check if Paper already exists on MaRDI Portal or Wikidata  #####################################################################################################
 
             # If Portal integration wanted, get further publication information
-            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+            if self.get_answer(BASE_URI+'Section_6/Set_1/Question_01')[0] == option['Public'] and self.get_answer(BASE_URI+'Section_6/Set_1/Question_02')[0] == option['No']:
                 
                 # Extract Paper DOI
                 doi=re.split(':', pub_info['paper'][-1])
-                             
-                if pub_info['paper'][0] == 'Yes':
+                                             
+                if pub_info['paper'][0] == option['YesText']:
                     
                     if not doi[-1]:
                         # Stop if no DOI provided
@@ -374,12 +376,12 @@ class MaRDIExport(Export):
             quantity_names = self.get_answer('http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Set_0/Question_1')
             quantity_symbols = self.get_answer('http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Set_0/Question_0')
 
-            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_02_0':'Yes' if 'is time continuous' in model_properties else 'No'})
-            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_03_0':'Yes' if 'is space continuous' in model_properties else 'No'})
+            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_02_0':'Yes' if option['TimeDiscrete'] in model_properties else 'No'})
+            data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_1/Question_03_0':'Yes' if option['SpaceDiscrete'] in model_properties else 'No'})
 
             i=0; variables = []
             for pidx, task_property in enumerate(task_properties):
-                if task_property == 'contains as input':
+                if task_property == option['Input']:
                     for qidx, quantity_name in enumerate(quantity_names):
                         if quantity_name.lower() == task_quantities[pidx].lower():
                             if quantity_name not in variables:
@@ -389,7 +391,7 @@ class MaRDIExport(Export):
                                 data.update({'http://example.com/terms/domain/MaRDI/Section_3/Set_2/Question_04_'+str(i):'independent'})
                                 variables.append(quantity_name)
                                 i+=1
-                elif task_property == 'contains as output':
+                elif task_property == option['Output']:
                     for qidx, quantity_name in enumerate(quantity_names):
                         if quantity_name.lower() == task_quantities[pidx].lower():
                             if quantity_name not in variables:
@@ -402,7 +404,7 @@ class MaRDIExport(Export):
 
             i=0; properties = []
             for pidx, task_property in enumerate(task_properties):
-                if task_property == 'contains as parameter':
+                if task_property == option['Parameter']:
                     for qidx, quantity_name in enumerate(quantity_names):
                         if quantity_name.lower() == task_quantities[pidx].lower():
                             if quantity_name not in properties:
@@ -504,7 +506,7 @@ class MaRDIExport(Export):
 
 ### Integrate Workflow in MaRDI KG ################################################################################################################################################################
 
-            if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+            if self.get_answer(BASE_URI+'Section_6/Set_1/Question_01')[0] == option['Public'] and self.get_answer(BASE_URI+'Section_6/Set_1/Question_02')[0] == option['No']:
                 # If MaRDI KG integration is desired
                 if existing_workflow_qid:
                     wbi = self.wikibase_login()
@@ -555,19 +557,19 @@ class MaRDIExport(Export):
 
 ### Publish Workflow Page #########################################################################################################################################################################
 
-            if data[dec[2][0]] == dec[2][1]: 
+            if self.get_answer(BASE_URI+'Section_6/Set_1/Question_01')[0] == option['Local']: 
                 # Download as Markdown
                 response = HttpResponse(temp, content_type="application/md")
                 response['Content-Disposition'] = 'filename="workflow.md"'
                 return response
             
-            elif data[dec[2][0]] == dec[2][2] and data[dec[3][0]] not in (dec[3][1],dec[3][2]):
+            elif self.get_answer(BASE_URI+'Section_6/Set_1/Question_01')[0] == option['Public'] and self.get_answer(BASE_URI+'Section_6/Set_1/Question_02')[0] != option['No']:
                 # Preview Markdown as HTML
                 return render(self.request,'MaRDMO/workflowPreview.html', {
                     'preview': pypandoc.convert_text(temp,'html',format='md')
                     }, status=200)
             
-            elif data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+            elif self.get_answer(BASE_URI+'Section_6/Set_1/Question_01')[0] == option['Public'] and self.get_answer(BASE_URI+'Section_6/Set_1/Question_02')[0] == option['No']:
 
                 # Convert to Mediawiki Format
                 page = re.sub('{\|','{| class="wikitable"',pypandoc.convert_text(temp,'mediawiki',format='md'))
@@ -588,7 +590,7 @@ class MaRDIExport(Export):
             else:
                 # Stop if no Export Type is chosen
                 return render(self.request,'MaRDMO/workflowError.html', {
-                    'error': [_('Missing Export Type!')]
+                    'error': 'Missing Export Type!'
                     }, status=200)
 
 
@@ -606,7 +608,7 @@ class MaRDIExport(Export):
 
 
         # If Workflow Search wanted
-        elif data[dec[0][0]] in (dec[0][3],dec[0][4]):
+        elif self.get_answer(BASE_URI+'Section_0/Set_1/Question_01')[0] == option['Search']:
 
             # Key Word and Entities to filter Workflows
             search_objs=self.wikibase_answers(data,ws['sea'])
@@ -618,7 +620,7 @@ class MaRDIExport(Export):
             res_obj_strs = ''
 
             # If SPARQL query via research objective desired
-            if data[dec[4][0]] in (dec[4][1],dec[4][2]):
+            if self.get_answer(BASE_URI+'Section_1/Set_1/Question_00')[0] == option['Yes']:
                 # Get description of workflow
                 quote_str = quote_sparql
                 # Separate key words for SPARQL query vie research objective
@@ -634,7 +636,7 @@ class MaRDIExport(Export):
             res_disc_str = ''
 
             # If SPARQL query via research discipline desired
-            if data[dec[5][0]] in (dec[5][1],dec[5][2]):
+            if self.get_answer(BASE_URI+'Section_1/Set_1/Question_02')[0] == option['Yes']:
                 # Separate disciplines for SPARQL query via research discipline 
                 res_discs=search_objs[1].split('; ')
                 if res_discs:
@@ -650,7 +652,7 @@ class MaRDIExport(Export):
             mmsios_str = ''
 
             # If SPARQL query via Mathematical Models, Methods, Softwares, Input or Output Data Sets
-            if data[dec[6][0]] in (dec[6][1],dec[6][2]):
+            if self.get_answer(BASE_URI+'Section_1/Set_1/Question_04')[0] == option['Yes']:
                 # Separate Mathematical Model, Methods, Software, Input or Output Data Sets
                 mmsios=search_objs[2].split('; ')
                 if mmsios:
@@ -664,7 +666,7 @@ class MaRDIExport(Export):
 
             # Set up entire SPARQL query
             query = query_base.format(P4,Q2,res_disc_str,mmsios_str,quote_str,res_obj_strs)
-            
+
             # Query MaRDI Portal
             results = self.get_results(mardi_endpoint, query)
 
@@ -684,7 +686,7 @@ class MaRDIExport(Export):
         else:
             # Stop if Workflow Documentation or Search not chosen
             return render(self.request,'MaRDMO/workflowError.html', {
-                    'errors': [_('Missing Operation Modus!')]
+                    'error': 'Missing Operation Modus!'
                     }, status=200)
 
     def stringify_values(self, values):
@@ -720,13 +722,13 @@ class MaRDIExport(Export):
     def dyn_template(self, data):
         '''Function that chooses proper raw MaRDI template and
            inserts appropriate tables depending on user answers.'''
-        if data[dec[1][0]] in (dec[1][1],dec[1][2]):
+        if self.get_answer(BASE_URI+'Section_2/Set_1/Question_03')[0] == option['Computation']: 
             # Theoretical workflow properties
             temp=math_temp
             tables=math_tables
             topics=math_topics
             ids=math_ids
-        elif data[dec[1][0]] in (dec[1][3],dec[1][4]):
+        elif self.get_answer(BASE_URI+'Section_2/Set_1/Question_03')[0] == option['Analysis']:
             # Experimental Workflow properties
             temp=exp_temp
             tables=exp_tables
@@ -887,7 +889,7 @@ class MaRDIExport(Export):
                 qid = mquery['qid']['value']
             else:
                 #Create dummy entry and store QID if portal publication is desired
-                if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+                if self.get_answer(BASE_URI+'Section_6/Set_1/Question_01')[0] == option['Public'] and self.get_answer(BASE_URI+'Section_6/Set_1/Question_02')[0] == option['No']:
                     #Create dummy entry and store QID
                     qid = self.entry(wquery['label'],wquery['quote'],[(ExternalID,wquery['qid'][-1],P2)])
                 else:
@@ -1095,7 +1097,7 @@ class MaRDIExport(Export):
                 # Generate Entry QID
                 if not qid:
                     # If desired generate Entry in MaRDI KG and update User answers
-                    if data[dec[2][0]] == dec[2][2] and data[dec[3][0]] in (dec[3][1],dec[3][2]):
+                    if self.get_answer(BASE_URI+'Section_6/Set_1/Question_01')[0] == option['Public'] and self.get_answer(BASE_URI+'Section_6/Set_1/Question_02')[0] == option['No']:
                         qids.append(self.entry(wq['wq'+Type+str(i)]['label'],wq['wq'+Type+str(i)]['quote'], 
                                                [(Item,Relations[0],P4)]+
                                                [(Item,sub_qid,Relations[1]) for sub_qid in sub_qids]+
@@ -1123,14 +1125,19 @@ class MaRDIExport(Export):
         return R
 
             
-    def get_answer(self, uri):
+    def get_answer(self, uri, option_text=False):
         '''Function that retrieves individual User answers'''
         val =[]
         values = self.project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
         for value in values:
-            if value.option_text:
-                val.append(value.option_text)
+            if value.option:
+                if option_text:
+                    val.append([value.option_uri,value.option_text])
+                else:
+                    val.append(value.option_uri)
             if value.text:
                 val.append(value.text)
+        if not val:
+            val = [None]
         return val
 

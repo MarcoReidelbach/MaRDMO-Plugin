@@ -296,16 +296,6 @@ exp_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Quest
           BASE_URI+'Section_4/Set_7/Question_06',BASE_URI+'Section_4/Set_7/Question_07',BASE_URI+'Section_4/Set_7/Question_08',
           BASE_URI+'Section_4/Set_7/Question_09']]
 
-# Stuff for Decisions
-
-dec=[[BASE_URI+'Section_0/Set_1/Question_01_0', 'Workflow Documentation', 'Workflow Dokumentation', 'Workflow Search', 'Workflow Suche'],
-     [BASE_URI+'Section_2/Set_1/Question_03_0', 'Computational Workflow', 'Komputationaler Workflow', '(Measurement) Data Analysis Workflow', '(Mess-)datenanalyse Workflow'],
-     [BASE_URI+'Section_6/Set_1/Question_01_0', 'Markdown File', 'MaRDI Portal'],
-     [BASE_URI+'Section_6/Set_1/Question_02_0', 'No', 'Nein'],
-     [BASE_URI+'Section_1/Set_1/Question_00_0', 'Yes', 'Ja'],
-     [BASE_URI+'Section_1/Set_1/Question_02_0', 'Yes', 'Ja'],
-     [BASE_URI+'Section_1/Set_1/Question_04_0', 'Yes', 'Ja']]
-
 # Question IDs required for data integration into MaRDI KG
 
 ws = {'doi': [BASE_URI+'Section_2/Set_1/Question_02_0'],    # Question for cited paper
@@ -446,3 +436,25 @@ keys = ['publicationQid', 'publicationLabel', 'publicationDescription1', 'author
         'journalQid', 'journalLabel', 'journalDescription1',
         'languageQid', 'languageLabel', 'languageDescription1',
         'title', 'otherAuthor', 'publicationDate', 'volume', 'issue', 'page']
+
+# Option Dictionary
+
+option = {'YesText': 'https://rdmorganiser.github.io/terms/options/yes_with_text_no/yes',
+          'Input': 'http://example.com/terms/options/QuantityAndQuantityKind_kind0',
+          'Output': 'http://example.com/terms/options/QuantityAndQuantityKind_kind1',
+          'Parameter': 'http://example.com/terms/options/QuantityAndQuantityKind_kind3',
+          'TimeDiscrete': 'http://example.com/terms/options/MathematicalModel_proerpty6',
+          'SpaceDiscrete': 'http://example.com/terms/options/MathematicalModel_proerpty5',
+          'Documentation': 'http://example.com/terms/options/operation_modus/modus_0',
+          'Search': 'http://example.com/terms/options/operation_modus/modus_1',
+          'Local': 'http://example.com/terms/options/publication_type/type_1',
+          'Public': 'http://example.com/terms/options/publication_type/type_0',
+          'No': 'http://example.com/terms/options/yes_no/no',
+          'Yes': 'http://example.com/terms/options/yes_no/yes',
+          'Analysis': 'http://example.com/terms/options/workflow_type/type_0',
+          'Computation': 'http://example.com/terms/options/workflow_type/type_1'}
+
+# Answer Dictionary
+
+answer = {'ResearchObjective': BASE_URI+'Section_2/Set_1/Question_04'}
+
