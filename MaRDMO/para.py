@@ -304,9 +304,6 @@ ws = {'doi': [BASE_URI+'Section_2/Set_1/Question_02_0'],    # Question for cited
       'inp': [BASE_URI+'Section_4/Set_6/Question_00',       # Questions for related input data sets
               BASE_URI+'Section_4/Set_6/Question_01',
               BASE_URI+'Section_4/Set_6/Question_10'],
-      'out': [BASE_URI+'Section_4/Set_7/Question_00',       # Questions for related output data sets
-              BASE_URI+'Section_4/Set_7/Question_01',
-              BASE_URI+'Section_4/Set_7/Question_10'],
       'sea': [BASE_URI+'Section_1/Set_1/Question_01_0',     # Questions for Workflow search
               BASE_URI+'Section_1/Set_1/Question_03_0',
               BASE_URI+'Section_1/Set_1/Question_05_0']}
@@ -315,8 +312,7 @@ ws = {'doi': [BASE_URI+'Section_2/Set_1/Question_02_0'],    # Question for cited
 
 sts=['Section_4/Set_2',
      'Section_4/Set_3',
-     'Section_4/Set_6',
-     'Section_4/Set_7']
+     'Section_4/Set_6']
 
 # Language Dictionary
 
