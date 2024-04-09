@@ -74,13 +74,9 @@ MATH_TAB_4
 
 MATH_TAB_5
 
-### Input Data
+### Data
 
 MATH_TAB_6
-
-### Output Data
-
-MATH_TAB_7
 
 ## Reproducibility
 
@@ -229,7 +225,7 @@ mardi: https://portal.mardi4nfdi.de/wiki/'''
 
 # Stuff to generate Tables for Math Template
 
-math_tables=['MATH_TAB_1','MATH_TAB_a1','MATH_TAB_2','MATH_TAB_3','MATH_TAB_4','MATH_TAB_5','MATH_TAB_6','MATH_TAB_7']
+math_tables=['MATH_TAB_1','MATH_TAB_a1','MATH_TAB_2','MATH_TAB_3','MATH_TAB_4','MATH_TAB_5','MATH_TAB_6']
 
 math_topics=[['Name','Unit','Symbol'],
              ['Name','Unit','Symbol'],
@@ -237,7 +233,6 @@ math_topics=[['Name','Unit','Symbol'],
              ['ID','Name','Process Step','Parameter','implemented by'],
              ['ID','Name','Description','Version','Programming Language','Dependencies','versioned','published','documented'],
              ['ID','Name','Processor','Compiler','#Nodes','#Cores'],
-             ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive'],
              ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive']]
 
 math_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Question_02',BASE_URI+'Section_3/Set_2/Question_03'],
