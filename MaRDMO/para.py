@@ -189,13 +189,9 @@ EXP_TAB_5
 
 EXP_TAB_6
 
-### Input Data
+### Data
 
 EXP_TAB_7
-
-### Output Data
-
-EXP_TAB_8
 
 ## Reproducibility
 
@@ -254,7 +250,7 @@ math_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Ques
 
 # Stuff to generate Tables for Exp Template
 
-exp_tables=['EXP_TAB_1','EXP_TAB_2','EXP_TAB_3','EXP_TAB_4','EXP_TAB_5','EXP_TAB_6','EXP_TAB_7','EXP_TAB_8']
+exp_tables=['EXP_TAB_1','EXP_TAB_2','EXP_TAB_3','EXP_TAB_4','EXP_TAB_5','EXP_TAB_6','EXP_TAB_7']
 
 exp_topics=[['Name','Unit','Symbol','dependent (measured) / independent (controlled)'],
             ['Name','Unit','Symbol'],
@@ -262,7 +258,6 @@ exp_topics=[['Name','Unit','Symbol','dependent (measured) / independent (control
             ['ID','Name','Process Step','Parameter','realised / implemented by'],
             ['ID','Name','Description','Version','Programming Language','Dependencies','versioned','published','documented'],
             ['ID','Name','Description','Version','Part Nr','Serial Nr','Location','Software'],
-            ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive'],
             ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive']]
 
 exp_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Question_02',BASE_URI+'Section_3/Set_2/Question_03', BASE_URI+'Section_3/Set_2/Question_04'],
@@ -281,11 +276,7 @@ exp_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Quest
          [BASE_URI+'Section_4/Set_6/Question_00',BASE_URI+'Section_4/Set_6/Question_01',BASE_URI+'Section_4/Set_6/Question_02',
           BASE_URI+'Section_4/Set_6/Question_03',BASE_URI+'Section_4/Set_6/Question_04',BASE_URI+'Section_4/Set_6/Question_05',
           BASE_URI+'Section_4/Set_6/Question_06',BASE_URI+'Section_4/Set_6/Question_07',BASE_URI+'Section_4/Set_6/Question_08',
-          BASE_URI+'Section_4/Set_6/Question_09'],
-         [BASE_URI+'Section_4/Set_7/Question_00',BASE_URI+'Section_4/Set_7/Question_01',BASE_URI+'Section_4/Set_7/Question_02',
-          BASE_URI+'Section_4/Set_7/Question_03',BASE_URI+'Section_4/Set_7/Question_04',BASE_URI+'Section_4/Set_7/Question_05',
-          BASE_URI+'Section_4/Set_7/Question_06',BASE_URI+'Section_4/Set_7/Question_07',BASE_URI+'Section_4/Set_7/Question_08',
-          BASE_URI+'Section_4/Set_7/Question_09']]
+          BASE_URI+'Section_4/Set_6/Question_09']]
 
 # Question IDs required for data integration into MaRDI KG
 
