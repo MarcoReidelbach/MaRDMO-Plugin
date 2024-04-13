@@ -467,16 +467,16 @@ class MaRDIExport(Export):
 
 ### Integrate related Output Data Sets in MaRDI KG ################################################################################################################################################
 
-            outputs, data, error = self.Entry_Generator('out','',                   # Entry of Output Data Sets (out) with no Subproperty
-                                                        [True,False,False],         # Generation wanted, QID Generation not wanted, String Generation not wanted
-                                                        [Q6,''],                    # instance of data set (Q6)
-                                                        wq,mq,data)                 # data from wikidata (wq), MaRDI KG (mq) and user (data)
-
-            if error[0] == 0:
-                # Stop if no Name and Description provided for new output data set
-                return render(self.request,'MaRDMO/workflowError.html', {
-                    'error': 'Missing Name of new Output Data in Set {}!'.format(error[1])
-                    }, status=200)
+#            outputs, data, error = self.Entry_Generator('out','',                   # Entry of Output Data Sets (out) with no Subproperty
+#                                                        [True,False,False],         # Generation wanted, QID Generation not wanted, String Generation not wanted
+#                                                        [Q6,''],                    # instance of data set (Q6)
+#                                                        wq,mq,data)                 # data from wikidata (wq), MaRDI KG (mq) and user (data)
+#
+#            if error[0] == 0:
+#                # Stop if no Name and Description provided for new output data set
+#                return render(self.request,'MaRDMO/workflowError.html', {
+#                    'error': 'Missing Name of new Output Data in Set {}!'.format(error[1])
+#                    }, status=200)
 
 ### Integrate related non-mathematical Disciplines in MaRDI KG ####################################################################################################################################
 
@@ -962,7 +962,7 @@ class MaRDIExport(Export):
         length = self.set_lengths(data)
 
         types = ['model', 'method', 'software', 'inputs', 'outputs', 'disciplines','fields']
-        strings = ['mod', 'met', 'sof', 'inp', 'out', 'dis','fie']
+        strings = ['mod', 'met', 'sof', 'inp', 'dis','fie']
         strings2 = ['moms','mems','pl']
 
         user_answers ={}
