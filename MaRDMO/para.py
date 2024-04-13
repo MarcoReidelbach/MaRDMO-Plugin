@@ -74,13 +74,9 @@ MATH_TAB_4
 
 MATH_TAB_5
 
-### Input Data
+### Data
 
 MATH_TAB_6
-
-### Output Data
-
-MATH_TAB_7
 
 ## Reproducibility
 
@@ -193,13 +189,9 @@ EXP_TAB_5
 
 EXP_TAB_6
 
-### Input Data
+### Data
 
 EXP_TAB_7
-
-### Output Data
-
-EXP_TAB_8
 
 ## Reproducibility
 
@@ -229,7 +221,7 @@ mardi: https://portal.mardi4nfdi.de/wiki/'''
 
 # Stuff to generate Tables for Math Template
 
-math_tables=['MATH_TAB_1','MATH_TAB_a1','MATH_TAB_2','MATH_TAB_3','MATH_TAB_4','MATH_TAB_5','MATH_TAB_6','MATH_TAB_7']
+math_tables=['MATH_TAB_1','MATH_TAB_a1','MATH_TAB_2','MATH_TAB_3','MATH_TAB_4','MATH_TAB_5','MATH_TAB_6']
 
 math_topics=[['Name','Unit','Symbol'],
              ['Name','Unit','Symbol'],
@@ -237,7 +229,6 @@ math_topics=[['Name','Unit','Symbol'],
              ['ID','Name','Process Step','Parameter','implemented by'],
              ['ID','Name','Description','Version','Programming Language','Dependencies','versioned','published','documented'],
              ['ID','Name','Processor','Compiler','#Nodes','#Cores'],
-             ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive'],
              ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive']]
 
 math_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Question_02',BASE_URI+'Section_3/Set_2/Question_03'],
@@ -255,15 +246,11 @@ math_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Ques
           [BASE_URI+'Section_4/Set_6/Question_00',BASE_URI+'Section_4/Set_6/Question_01',BASE_URI+'Section_4/Set_6/Question_02',
            BASE_URI+'Section_4/Set_6/Question_03',BASE_URI+'Section_4/Set_6/Question_04',BASE_URI+'Section_4/Set_6/Question_05',
            BASE_URI+'Section_4/Set_6/Question_06',BASE_URI+'Section_4/Set_6/Question_07',BASE_URI+'Section_4/Set_6/Question_08',
-           BASE_URI+'Section_4/Set_6/Question_09'],
-          [BASE_URI+'Section_4/Set_7/Question_00',BASE_URI+'Section_4/Set_7/Question_01',BASE_URI+'Section_4/Set_7/Question_02',
-           BASE_URI+'Section_4/Set_7/Question_03',BASE_URI+'Section_4/Set_7/Question_04',BASE_URI+'Section_4/Set_7/Question_05',
-           BASE_URI+'Section_4/Set_7/Question_06',BASE_URI+'Section_4/Set_7/Question_07',BASE_URI+'Section_4/Set_7/Question_08',
-           BASE_URI+'Section_4/Set_7/Question_09']]
+           BASE_URI+'Section_4/Set_6/Question_09']]
 
 # Stuff to generate Tables for Exp Template
 
-exp_tables=['EXP_TAB_1','EXP_TAB_2','EXP_TAB_3','EXP_TAB_4','EXP_TAB_5','EXP_TAB_6','EXP_TAB_7','EXP_TAB_8']
+exp_tables=['EXP_TAB_1','EXP_TAB_2','EXP_TAB_3','EXP_TAB_4','EXP_TAB_5','EXP_TAB_6','EXP_TAB_7']
 
 exp_topics=[['Name','Unit','Symbol','dependent (measured) / independent (controlled)'],
             ['Name','Unit','Symbol'],
@@ -271,7 +258,6 @@ exp_topics=[['Name','Unit','Symbol','dependent (measured) / independent (control
             ['ID','Name','Process Step','Parameter','realised / implemented by'],
             ['ID','Name','Description','Version','Programming Language','Dependencies','versioned','published','documented'],
             ['ID','Name','Description','Version','Part Nr','Serial Nr','Location','Software'],
-            ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive'],
             ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive']]
 
 exp_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Question_02',BASE_URI+'Section_3/Set_2/Question_03', BASE_URI+'Section_3/Set_2/Question_04'],
@@ -290,11 +276,7 @@ exp_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Quest
          [BASE_URI+'Section_4/Set_6/Question_00',BASE_URI+'Section_4/Set_6/Question_01',BASE_URI+'Section_4/Set_6/Question_02',
           BASE_URI+'Section_4/Set_6/Question_03',BASE_URI+'Section_4/Set_6/Question_04',BASE_URI+'Section_4/Set_6/Question_05',
           BASE_URI+'Section_4/Set_6/Question_06',BASE_URI+'Section_4/Set_6/Question_07',BASE_URI+'Section_4/Set_6/Question_08',
-          BASE_URI+'Section_4/Set_6/Question_09'],
-         [BASE_URI+'Section_4/Set_7/Question_00',BASE_URI+'Section_4/Set_7/Question_01',BASE_URI+'Section_4/Set_7/Question_02',
-          BASE_URI+'Section_4/Set_7/Question_03',BASE_URI+'Section_4/Set_7/Question_04',BASE_URI+'Section_4/Set_7/Question_05',
-          BASE_URI+'Section_4/Set_7/Question_06',BASE_URI+'Section_4/Set_7/Question_07',BASE_URI+'Section_4/Set_7/Question_08',
-          BASE_URI+'Section_4/Set_7/Question_09']]
+          BASE_URI+'Section_4/Set_6/Question_09']]
 
 # Question IDs required for data integration into MaRDI KG
 
@@ -322,9 +304,6 @@ ws = {'doi': [BASE_URI+'Section_2/Set_1/Question_02_0'],    # Question for cited
       'inp': [BASE_URI+'Section_4/Set_6/Question_00',       # Questions for related input data sets
               BASE_URI+'Section_4/Set_6/Question_01',
               BASE_URI+'Section_4/Set_6/Question_10'],
-      'out': [BASE_URI+'Section_4/Set_7/Question_00',       # Questions for related output data sets
-              BASE_URI+'Section_4/Set_7/Question_01',
-              BASE_URI+'Section_4/Set_7/Question_10'],
       'sea': [BASE_URI+'Section_1/Set_1/Question_01_0',     # Questions for Workflow search
               BASE_URI+'Section_1/Set_1/Question_03_0',
               BASE_URI+'Section_1/Set_1/Question_05_0']}
@@ -333,8 +312,7 @@ ws = {'doi': [BASE_URI+'Section_2/Set_1/Question_02_0'],    # Question for cited
 
 sts=['Section_4/Set_2',
      'Section_4/Set_3',
-     'Section_4/Set_6',
-     'Section_4/Set_7']
+     'Section_4/Set_6']
 
 # Language Dictionary
 

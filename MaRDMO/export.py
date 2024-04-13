@@ -810,7 +810,7 @@ class MaRDIExport(Export):
     def set_lengths(self, data):
         '''Get length of the User sets'''
         length=[]
-        sts=['Section_3/Set_0','Section_4/Set_2','Section_4/Set_3','Section_4/Set_6','Section_4/Set_7']
+        sts=['Section_3/Set_0','Section_4/Set_2','Section_4/Set_3','Section_4/Set_6']
         for st in sts:
             i=0
             data_filter = dict(filter(lambda item: st in item[0], data.items()))

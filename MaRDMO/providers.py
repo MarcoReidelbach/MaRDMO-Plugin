@@ -198,15 +198,10 @@ class MethodProvider(Provider):
 
 class DataProvider(Provider):
 
-    #Input Data from MaRDI KG /Wikidata
+    #Data from MaRDI KG /Wikidata
     subject_attribute_1 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_00'
-    #Input Data (self-defined) 
+    #Data (self-defined) 
     subject_attribute_2 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01'
-
-    #Output Data from MaRDI KG /Wikidata
-    subject_attribute_3 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_00'
-    #Output Data (self-defined) 
-    subject_attribute_4 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_7/Question_01'
 
     def get_options(self, project, search=None):
         '''Function providing the user-defined input data sets.'''
