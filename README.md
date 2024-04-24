@@ -22,7 +22,7 @@ This repository contains the MaRDMO-Export-Plugin for the [Research Datamanageme
 │       ├── workflowTemplate.html - HTML Template for Workflow Documentation
 │       ├── workflowTemplate.md - Markdown Template for Workflow Documentation
 │       ├── workflowTemplate.mediawiki - Mediawiki Template for Workflow Documentation
-│	      └── workflowSearch.html - HTML Template for MaRDMO Search
+│       └── workflowSearch.html - HTML Template for MaRDMO Search
 │
 ├── setup.py 
 │
