@@ -12,32 +12,8 @@ class WikidataSearch(Provider):
     
     search = True
 
-    def query_api(self, api_url, search_term):
-        '''Function to query an API and return the JSON response.'''
-        response = requests.get(api_url, params={
-            'action': 'wbsearchentities',
-            'format': 'json',
-            'language': 'en',
-            'type': 'item',
-            'limit': 10,
-            'search': search_term
-        }, headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'})
-        return response.json().get('search', [])
-
-    def process_result(self, result):
-        '''Function to process the result and return a dictionary with id, text, and description.'''
-        try:
-            description = result['display']['description']['value']
-        except (KeyError, TypeError):
-            description = 'No Description Provided!'
-    
-        return {
-            'id': result['id'],
-            'text': f"{result['id']} <|> {result['display']['label']['value']} <|> {description}"
-        }
-
     def get_options(self, project, search):
-        '''Function which queries Wikidata and MARDI KG for user input.'''
+        '''Function which queries Wikidata and MaRDI KG for user input.'''
         if not search or len(search) < 3:
             return []
 
@@ -46,12 +22,11 @@ class WikidataSearch(Provider):
         wikidata_results, mardi_results = pool.map(lambda api_url: query_api(api_url, search), [wikidata_api, mardi_api])
        
         options = [ 
-            process_result(result) for result in wikidata_results[:10]
+            process_result(result, 'mardi') for result in mardi_results[:10]
         ]
         options += [
-            process_result(result) for result in mardi_results[:10]
+            process_result(result, 'wikidata') for result in wikidata_results[:10]
         ]
-
         return options
 
 class ComponentSearch(Provider):
@@ -59,304 +34,193 @@ class ComponentSearch(Provider):
     search = True
 
     def get_options(self, project, search):
-        '''Function which queries Wikidata and MARDI KG for user input.'''
+        '''Function which queries MaRDI KG for user input.'''
         if not search or len(search) < 3:
             return []
 
         mardi_results = query_api(mardi_api, search)
 
         options = [
-            process_result(result) for result in mardi_results[:20]
+            process_result(result, 'mardi') for result in mardi_results[:20]
         ]
 
         return options
 
 class MathAreaProvider(Provider):
+    
+    SUBJECT_ATTRIBUTE = 'http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_00'
 
-    subject_attribute = 'http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_00'
+    def get_options(self, project, search=None):
+        """
+        Function providing the user-defined mathematical areas.
+        """
+        subject_attribute = get_attribute(self.SUBJECT_ATTRIBUTE)
+        if not subject_attribute:
+            return []
 
-    def get_options(self, project, search=None):    
-        '''Function providing the user-defined mathematical areas.'''
+        options = []
+        values = get_attribute_values(project, subject_attribute)
 
-        try:
-            subject_attribute = Attribute.objects.get(uri=self.subject_attribute)
-        except Attribute.DoesNotExist:
-            return {}
-
-        options=[]
-
-        # get current values for the subject attribute
-        values = project.values.filter(snapshot=None, attribute=subject_attribute)
-
-        index = 0
-
-        for value in values:
-            if value.text:
-                options.append({'id':'MathArea'+str(index),'text':value.text.split(' <|> ')[1]})
-                index+=1
+        options = add_options(options, values, 0)
 
         return options
 
 class EnvironmentProvider(Provider):
-
-    #Software from MaRDI KG /Wikidata
-    subject_attribute_1 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01'
-    #Software (self-defined) 
-    subject_attribute_2 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_02'
-    #Experimental Device (self-defined)
-    subject_attribute_3 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_02'
+    
+    SUBJECT_ATTRIBUTES = [
+        'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01',
+        'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_02',
+        'http://example.com/terms/domain/MaRDI/Section_4/Set_5/Question_02'
+    ]
 
     def get_options(self, project, search=None):
-        '''Function providing the user-defined environments.'''
+        """
+        Function providing the user-defined environments.
+        """
+        options = []
 
-        try:
-            subject_attribute_1 = Attribute.objects.get(uri=self.subject_attribute_1)
-        except Attribute.DoesNotExist:
-            return {}
+        for index, attribute_uri in enumerate(self.SUBJECT_ATTRIBUTES):
+            subject_attribute = get_attribute(attribute_uri)
+            if not subject_attribute:
+                continue
 
-        try:
-            subject_attribute_2 = Attribute.objects.get(uri=self.subject_attribute_2)
-        except Attribute.DoesNotExist:
-            return {}
+            values = get_attribute_values(project, subject_attribute)
 
-        try:
-            subject_attribute_3 = Attribute.objects.get(uri=self.subject_attribute_3)
-        except Attribute.DoesNotExist:
-            return {}
+            # Define a lambda function for text processing
+            process_text_fn = lambda text: text.split(' <|> ')[1] if ' <|> ' in text else text
 
-        options=[]
-
-        # get current values for MaRDI KG /Wikidata Software
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_1)
-
-        index = 0
-
-        for value in values:
-            if value.text:
-                options.append({'id':'Environment'+str(index),'text':value.text.split(' <|> ')[1]})
-                index+=1
-
-        # get current values for Software (self-defined)
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_2)
-
-        for value in values:
-            if value.text:
-                options.append({'id':'Environment'+str(index),'text':value.text})
-                index+=1
-
-        # get current values for Experimental Devices (self-defined)
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_3)
-
-        for value in values:
-            if value.text:
-                options.append({'id':'Environment'+str(index),'text':value.text})
-                index+=1
+            options = add_options(options, values, len(options), process_text_fn=process_text_fn)
 
         return options
 
 class MethodProvider(Provider):
-
-    #Method from MaRDI KG /Wikidata
-    subject_attribute_1 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_01'
-    #Method (self-defined) 
-    subject_attribute_2 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_02'
+    
+    SUBJECT_ATTRIBUTES = [
+        'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_01',
+        'http://example.com/terms/domain/MaRDI/Section_4/Set_2/Question_02'
+    ]
 
     def get_options(self, project, search=None):
-        '''Function providing the user-defined methods.'''
+        """
+        Function providing the user-defined methods.
+        """
+        options = []
 
-        try:
-            subject_attribute_1 = Attribute.objects.get(uri=self.subject_attribute_1)
-        except Attribute.DoesNotExist:
-            return {}
+        for index, attribute_uri in enumerate(self.SUBJECT_ATTRIBUTES):
+            subject_attribute = get_attribute(attribute_uri)
+            if not subject_attribute:
+                continue
 
-        try:
-            subject_attribute_2 = Attribute.objects.get(uri=self.subject_attribute_2)
-        except Attribute.DoesNotExist:
-            return {}
+            values = get_attribute_values(project, subject_attribute)
 
-        options=[]
+            # Process text differently for each subject_attribute
+            if index == 0:
+                process_text_fn = lambda text: text.split(' <|> ')[1] if ' <|> ' in text else text
+            else:
+                process_text_fn = lambda text: text
 
-        # get current values for MaRDI KG /Wikidata Method
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_1)
-
-        index = 0
-
-        for value in values:
-            if value.text:
-                options.append({'id':'Method'+str(index),'text':value.text.split(' <|> ')[1]})
-                index+=1
-
-        # get current values for Method (self-defined)
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_2)
-
-        for value in values:
-            if value.text:
-                options.append({'id':'Method'+str(index),'text':value.text})
-                index+=1
+            options = add_options(options, values, len(options), process_text_fn=process_text_fn)
 
         return options
 
 class DataProvider(Provider):
-
-    #Data from MaRDI KG /Wikidata
-    subject_attribute_1 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_00'
-    #Data (self-defined) 
-    subject_attribute_2 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01'
+    
+    SUBJECT_ATTRIBUTES = [
+        'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_00',
+        'http://example.com/terms/domain/MaRDI/Section_4/Set_6/Question_01',
+    ]
 
     def get_options(self, project, search=None):
-        '''Function providing the user-defined input data sets.'''
+        """
+        Function providing the user-defined input and output data sets.
+        """
+        options = []
 
-        try:
-            subject_attribute_1 = Attribute.objects.get(uri=self.subject_attribute_1)
-        except Attribute.DoesNotExist:
-            try:
-                subject_attribute_2 = Attribute.objects.get(uri=self.subject_attribute_2)
-            except Attribute.DoesNotExist:
-                try:
-                    subject_attribute_3 = Attribute.objects.get(uri=self.subject_attribute_3)
-                except Attribute.DoesNotExist:
-                    try:
-                        subject_attribute_4 = Attribute.objects.get(uri=self.subject_attribute_4)
-                    except Attribute.DoesNotExist:
-                        return {}
+        for index, attribute_uri in enumerate(self.SUBJECT_ATTRIBUTES):
+            subject_attribute = get_attribute(attribute_uri)
+            if not subject_attribute:
+                continue
 
-        subject_attribute_1 = Attribute.objects.get(uri=self.subject_attribute_1)
-        subject_attribute_2 = Attribute.objects.get(uri=self.subject_attribute_2)
-        subject_attribute_3 = Attribute.objects.get(uri=self.subject_attribute_3)
-        subject_attribute_4 = Attribute.objects.get(uri=self.subject_attribute_4)
+            values = get_attribute_values(project, subject_attribute)
 
-        options=[]
+            if index in (0, 2):  # Split text for zeroth and second attributes
+                process_text_fn = lambda text: text.split(' <|> ')[1] if ' <|> ' in text else text
+            else:
+                process_text_fn = lambda text: text
 
-        # get current values for MaRDI KG /Wikidata Method
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_1)
-
-        index = 0
-
-        for value in values:
-            if value.text:
-                options.append({'id':'Input'+str(index),'text':value.text.split(' <|> ')[1]})
-                index+=1
-
-        # get current values for Method (self-defined)
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_2)
-
-        for value in values:
-            if value.text:
-                options.append({'id':'Input'+str(index),'text':value.text})
-                index+=1
-
-        # get current values for MaRDI KG /Wikidata Method
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_3)
-
-        index = 0
-
-        for value in values:
-            if value.text:
-                options.append({'id':'Output'+str(index),'text':value.text.split(' <|> ')[1]})
-                index+=1
-
-        # get current values for Method (self-defined)
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_4)
-
-        for value in values:
-            if value.text:
-                options.append({'id':'Output'+str(index),'text':value.text})
-                index+=1
+            options = add_options(options, values, len(options), process_text_fn=process_text_fn)
 
         return options
 
 class SoftwareProvider(Provider):
-
-    #Software from MaRDI KG /Wikidata
-    subject_attribute_1 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01'
-    #Software (self-defined) 
-    subject_attribute_2 = 'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_02'
+    
+    SUBJECT_ATTRIBUTES = [
+        'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01',
+        'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_02'
+    ]
 
     def get_options(self, project, search=None):
-        '''Function providing the user-defined software.'''
+        """
+        Function providing the user-defined software.
+        """
+        options = []
 
-        try:
-            subject_attribute_1 = Attribute.objects.get(uri=self.subject_attribute_1)
-        except Attribute.DoesNotExist:
-            return {}
+        for index, attribute_uri in enumerate(self.SUBJECT_ATTRIBUTES):
+            subject_attribute = get_attribute(attribute_uri)
+            if not subject_attribute:
+                continue
 
-        try:
-            subject_attribute_2 = Attribute.objects.get(uri=self.subject_attribute_2)
-        except Attribute.DoesNotExist:
-            return {}
+            values = get_attribute_values(project, subject_attribute)
 
-        options=[]
+            # Process text differently for each subject_attribute
+            if index == 0:
+                process_text_fn = lambda text: text.split(' <|> ')[1] if ' <|> ' in text else text
+            else:
+                process_text_fn = lambda text: text
 
-        # get current values for MaRDI KG /Wikidata Method
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_1)
-
-        index = 0
-
-        for value in values:
-            if value.text:
-                options.append({'id':'Software'+str(index),'text':value.text.split(' <|> ')[1]})
-                index+=1
-
-        # get current values for Method (self-defined)
-        values = project.values.filter(snapshot=None, attribute=subject_attribute_2)
-
-        for value in values:
-            if value.text:
-                options.append({'id':'Software'+str(index),'text':value.text})
-                index+=1
+            options = add_options(options, values, len(options), process_text_fn=process_text_fn)
 
         return options
 
 class ResearchField(Provider):
    
     def get_options(self, project, search=None):
+        """
+        Function providing Research Fields from MathModDB.
+        """
 
-        query='''PREFIX wdt:'''+wdt+'''
-                 PREFIX wd:'''+wd+'''
-                 SELECT  ?qid ?label
-                 WHERE {
-                        ?id wdt:P4 wd:Q266;
-                            rdfs:label ?label.
-                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
-                        }'''
-
-        req=requests.get(mardi_endpoint,
-                         params = {'format': 'json', 'query': query}, 
-                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+        responses = MathModDB_request(wd, wdt, 'Q266')
 
         options=[{'id':'default','text':'not in MathModDB'}]
 
-        for re in req:
-            options.append({'id':re['qid']['value'],'text':re['label']['value']+' (mardi:'+re['qid']['value']+')'})
+        for response in responses:
+            options.append({'id': response['qid']['value'],
+                            'text': response['label']['value']+f" (mardi:{response['qid']['value']})"})
 
         return options
 
 class ResearchField2(Provider):
 
+    SUBJECT_ATTRIBUTE = 'http://example.com/terms/domain/MaRDI/Section_3a/Set_0/Question_0'
+
     def get_options(self, project, search=None):
+        """
+        Function providing Research Fields from MathModDB and User.
+        """
+
         options =[]
 
-        query='''PREFIX wdt:'''+wdt+'''
-                 PREFIX wd:'''+wd+'''
-                 SELECT  ?qid ?label
-                 WHERE {
-                        ?id wdt:P4 wd:Q266;
-                            rdfs:label ?label.
-                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
-                        }'''
+        responses = MathModDB_request(wd, wdt, 'Q266')
 
-        req=requests.get(mardi_endpoint,
-                         params = {'format': 'json', 'query': query},
-                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+        for response in responses:
+            options.append({'id':response['qid']['value'],
+                            'text':response['label']['value']+f" (mardi:{response['qid']['value']})"})
 
-        for r in req:
-            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+        subject_attribute = get_attribute(self.SUBJECT_ATTRIBUTE)
+        values = get_attribute_values(project, subject_attribute)
 
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_0/Question_0'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':'user_'+str(idx),'text':value.text})
-
+        options = add_options(options, values, len(options), process_text_fn=lambda text: text)
+        
         options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
 
         return options
@@ -364,52 +228,41 @@ class ResearchField2(Provider):
 class ResearchProblem(Provider):
 
     def get_options(self, project, search=None):
+        """
+        Function providing Research Problem from MathModDB.
+        """
 
-        query='''PREFIX wdt:'''+wdt+'''
-                 PREFIX wd:'''+wd+'''
-                 SELECT  ?qid ?label
-                 WHERE {
-                        ?id wdt:P4 wd:Q268;
-                            rdfs:label ?label.
-                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
-                        }'''
-        
-        req=requests.get(mardi_endpoint,
-                         params = {'format': 'json', 'query': query},
-                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+        responses = MathModDB_request(wd, wdt, 'Q268')
 
         options=[{'id':'default','text':'not in MathModDB'}]
 
-        for r in req:
-            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+        for response in responses:
+            options.append({'id':response['qid']['value'],
+                            'text':response['label']['value']+f" (mardi:{response['qid']['value']})"})
 
         return options
 
 class ResearchProblem2(Provider):
 
+    SUBJECT_ATTRIBUTE = 'http://example.com/terms/domain/MaRDI/Section_3a/Set_1/Question_0'
+
     def get_options(self, project, search=None):
+        """
+        Function providing Research Problem from MathModDB and User.
+        """
+
         options =[]
 
-        query='''PREFIX wdt:'''+wdt+'''
-                 PREFIX wd:'''+wd+'''
-                 SELECT  ?qid ?label
-                 WHERE {
-                        ?id wdt:P4 wd:Q268;
-                            rdfs:label ?label.
-                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
-                        }'''
+        responses = MathModDB_request(wd, wdt, 'Q268')
 
-        req=requests.get(mardi_endpoint,
-                         params = {'format': 'json', 'query': query},
-                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+        for response in responses:
+            options.append({'id':response['qid']['value'],
+                            'text':response['label']['value']+f" (mardi:{response['qid']['value']})"})
 
-        for r in req:
-            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+        subject_attribute = get_attribute(self.SUBJECT_ATTRIBUTE)
+        values = get_attribute_values(project, subject_attribute)
 
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1/Question_0'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':'user_'+str(idx),'text':value.text})
+        options = add_options(options, values, len(options), process_text_fn=lambda text: text)
 
         options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
 
@@ -421,10 +274,12 @@ class MathematicalModel(Provider):
 
         query='''PREFIX wdt:'''+wdt+'''
                  PREFIX wd:'''+wd+'''
-                 SELECT  ?qid ?label
+                 SELECT  ?qid ?label ?quote
                  WHERE {
                         ?id wdt:P4 wd:Q270;
-                            rdfs:label ?label.
+                            rdfs:label ?label;
+                            schema:description ?quote.
+
                         BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
                         }'''
 
@@ -435,7 +290,7 @@ class MathematicalModel(Provider):
         options=[{'id':'default','text':'not in MathModDB'}]
 
         for r in req:
-            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+            options.append({'id':r['qid']['value'],'text':'mardi:'+r['qid']['value'] + ' <|> ' + r['label']['value'] + ' <|> ' + r['quote']['value']})
         
         return options
 
@@ -835,14 +690,59 @@ def query_api(api_url, search_term):
     }, headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'})
     return response.json().get('search', [])
 
-def process_result(result):
+def process_result(result, location):
     '''Function to process the result and return a dictionary with id, text, and description.'''
     try:
         description = result['display']['description']['value']
     except (KeyError, TypeError):
         description = 'No Description Provided!'
     return {
-        'id': result['id'],
-        'text': f"{result['id']} <|> {result['display']['label']['value']} <|> {description}"
+        'id': f"{result['id']}",
+        'text': f"{location}:{result['id']} <|> {result['display']['label']['value']} <|> {description}"
     }
 
+def get_attribute(uri):
+    """
+    Retrieve attribute object based on URI.
+    """
+    try:
+        return Attribute.objects.get(uri=uri)
+    except Attribute.DoesNotExist:
+        return None
+
+def get_attribute_values(project, attribute):
+    """
+    Retrieve values for a given attribute in a project.
+    """
+    if attribute:
+        return project.values.filter(snapshot=None, attribute=attribute)
+    return []
+
+def add_options(options, values, start_index, process_text_fn=None):
+    """
+    Add options to the list based on values.
+    """
+    for index, value in enumerate(values, start=start_index):
+        if value.text:
+            text = value.text
+            if process_text_fn:
+                text = process_text_fn(text)
+            options.append({'id': f'Environment{index}', 'text': text})
+    return options
+
+def MathModDB_request(item_pref, prop_pref, item):
+    """
+    Retrieve Entity from MathModDB Classes.
+    """
+    query=f'''PREFIX wdt:{prop_pref} 
+              PREFIX wd:{item_pref} 
+              SELECT ?qid ?label 
+              WHERE {{?id wdt:P4 wd:{item};
+                          rdfs:label ?label.
+              BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).}}'''
+
+    responses = requests.get(mardi_endpoint,
+                             params = {'format': 'json', 'query': query},
+                             headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json().get('results', {}).get('bindings', '')
+
+    return responses

@@ -1,318 +1,5 @@
-from .id import *
-from .config import *
 
 BASE_URI='http://example.com/terms/domain/MaRDI/'
-
-# Raw Math Template
-
-math_temp=''' 
-
-PID (if applicable): '''+BASE_URI+'''Section_2/Set_1/Question_02_0
-
-## Problem Statement
-
-'''+BASE_URI+'''Section_2/Set_1/Question_01_0
-
-### Object of Research and Objective
-
-'''+BASE_URI+'''Section_2/Set_1/Question_04_0
-
-### Procedure
-
-'''+BASE_URI+'''Section_2/Set_1/Question_05_0
-
-### Involved Disciplines
-
-<b>Mathematical Areas:</b>
-
-FIELDS
-
-<b>Non-Mathematical Disciplines:</b>
-
-DISCIPLINES
-
-### Data Streams
-
-'''+BASE_URI+'''Section_2/Set_3/Question_02_0
-
-## Model
-
-ID: '''+BASE_URI+'''Section_3/Set_0/Wiki_01_0
-
-'''+BASE_URI+'''Section_3/Set_0/Set_0/Question_01_0 
-
-'''+BASE_URI+'''Section_3/Set_0/Set_0/Wiki_02_0
-
-### Discretization
-
-* Time: '''+BASE_URI+'''Section_3/Set_1/Question_02_0
-* Space: '''+BASE_URI+'''Section_3/Set_1/Question_03_0
-
-### Variables
-
-MATH_TAB_1
-
-### Parameters
-
-MATH_TAB_a1
-
-## Process Information
-
-### Process Steps
-
-MATH_TAB_2
-
-### Applied Methods 
-
-MATH_TAB_3
-
-### Software used
-
-MATH_TAB_4
-
-### Hardware
-
-MATH_TAB_5
-
-### Data
-
-MATH_TAB_6
-
-## Reproducibility
-
-### Mathematical Reproducibility 
-
-'''+BASE_URI+'''Section_5/Set_1/Question_01_0
-
-### Runtime Reproducibility 
-
-'''+BASE_URI+'''Section_5/Set_1/Question_02_0
-
-### Reproducibility of Results
-
-'''+BASE_URI+'''Section_5/Set_1/Question_03_0
-
-### Reproducibility on original Hardware
-
-'''+BASE_URI+'''Section_5/Set_1/Question_04_0
-
-### Reproducibility on other Hardware
-
-'''+BASE_URI+'''Section_5/Set_1/Question_05_0
-
-### Transferability to
-
-'''+BASE_URI+'''Section_5/Set_1/Question_06_0
-
-## Legend
-
-The following abbreviations are used in the document to indicate/resolve IDs:
-
-doi: DOI / https://dx.doi.org/
-
-sw: swMATH / https://swmath.org/software/
-
-wikidata: https://www.wikidata.org/wiki/
-
-mardi: https://portal.mardi4nfdi.de/wiki/'''
-
-# Raw Exp Template
-
-exp_temp='''
-
-PID (if applicable): '''+BASE_URI+'''Section_2/Set_1/Question_02_0
-
-## Problem Statement
-
-'''+BASE_URI+'''Section_2/Set_1/Question_01_0
-
-### Object of Research and Objective
-
-'''+BASE_URI+'''Section_2/Set_1/Question_04_0
-
-### Procedure
-
-'''+BASE_URI+'''Section_2/Set_1/Question_05_0
-
-### Involved Disciplines
-
-<b>Mathematical Areas:</b>
-
-FIELDS
-
-<b>Non-Mathematical Disciplines:</b>
-
-DISCIPLINES
-
-### Data Streams
-
-'''+BASE_URI+'''Section_2/Set_3/Question_02_0
-
-## Model
-
-ID: '''+BASE_URI+'''Section_3/Set_0/Wiki_01_0
-
-'''+BASE_URI+'''Section_3/Set_0/Set_0/Question_01_0
-
-'''+BASE_URI+'''Section_3/Set_0/Set_0/Wiki_02_0
-
-### Discretization
-(if applicable)
-
-* Time: '''+BASE_URI+'''Section_3/Set_1/Question_02_0
-* Space: '''+BASE_URI+'''Section_3/Set_1/Question_03_0
-
-### Variables
-
-EXP_TAB_1
-
-### Parameter
-
-EXP_TAB_2
-
-## Process Information
-
-### Process Steps
-
-EXP_TAB_3
-
-
-### Applied Methods 
-
-EXP_TAB_4
-
-### Software used
-
-EXP_TAB_5
-
-### Experimental Devices/Instruments and Computer-Hardware
-
-EXP_TAB_6
-
-### Data
-
-EXP_TAB_7
-
-## Reproducibility
-
-### Reproducibility of the Experiments on the original Devices/Instruments/Hardware
-
-'''+BASE_URI+'''Section_5/Set_2/Question_01_0
-
-### Reproducibility of the Experiments on other Devices/Instruments/Hardware
-
-'''+BASE_URI+'''Section_5/Set_2/Question_02_0
-
-### Transferability of the  Experiments to
-
-'''+BASE_URI+'''Section_5/Set_2/Question_03_0
-
-## Legend
-
-The following abbreviations are used in the document to indicate/resolve IDs:
-
-doi: DOI / https://dx.doi.org/
-
-sw: swMATH / https://swmath.org/software/
-
-wikidata: https://www.wikidata.org/wiki/
-
-mardi: https://portal.mardi4nfdi.de/wiki/'''
-
-# Stuff to generate Tables for Math Template
-
-math_tables=['MATH_TAB_1','MATH_TAB_a1','MATH_TAB_2','MATH_TAB_3','MATH_TAB_4','MATH_TAB_5','MATH_TAB_6']
-
-math_topics=[['Name','Unit','Symbol'],
-             ['Name','Unit','Symbol'],
-             ['Name','Description','Input','Output','Method','Parameter','Environment','Mathematical Area'],
-             ['ID','Name','Process Step','Parameter','implemented by'],
-             ['ID','Name','Description','Version','Programming Language','Dependencies','versioned','published','documented'],
-             ['ID','Name','Processor','Compiler','#Nodes','#Cores'],
-             ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive']]
-
-math_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Question_02',BASE_URI+'Section_3/Set_2/Question_03'],
-          [BASE_URI+'Section_3/Set_3/Question_01',BASE_URI+'Section_3/Set_3/Question_02',BASE_URI+'Section_3/Set_3/Question_03'],
-          [BASE_URI+'Section_4/Set_1/Question_01',BASE_URI+'Section_4/Set_1/Question_02',BASE_URI+'Section_4/Set_1/Question_03',
-           BASE_URI+'Section_4/Set_1/Question_04',BASE_URI+'Section_4/Set_1/Question_05',BASE_URI+'Section_4/Set_1/Question_06',
-           BASE_URI+'Section_4/Set_1/Question_07',BASE_URI+'Section_4/Set_1/Question_08'],
-          [BASE_URI+'Section_4/Set_2/Question_01',BASE_URI+'Section_4/Set_2/Question_02',BASE_URI+'Section_4/Set_2/Question_03',
-           BASE_URI+'Section_4/Set_2/Question_04',BASE_URI+'Section_4/Set_2/Question_05'],
-          [BASE_URI+'Section_4/Set_3/Question_01',BASE_URI+'Section_4/Set_3/Question_02',BASE_URI+'Section_4/Set_3/Question_03',
-           BASE_URI+'Section_4/Set_3/Question_04',BASE_URI+'Section_4/Set_3/Question_05',BASE_URI+'Section_4/Set_3/Question_06',
-           BASE_URI+'Section_4/Set_3/Question_07',BASE_URI+'Section_4/Set_3/Question_08',BASE_URI+'Section_4/Set_3/Question_09'],
-          [BASE_URI+'Section_4/Set_4/Question_01',BASE_URI+'Section_4/Set_4/Question_02',BASE_URI+'Section_4/Set_4/Question_03',
-           BASE_URI+'Section_4/Set_4/Question_04',BASE_URI+'Section_4/Set_4/Question_05',BASE_URI+'Section_4/Set_4/Question_06'],
-          [BASE_URI+'Section_4/Set_6/Question_00',BASE_URI+'Section_4/Set_6/Question_01',BASE_URI+'Section_4/Set_6/Question_02',
-           BASE_URI+'Section_4/Set_6/Question_03',BASE_URI+'Section_4/Set_6/Question_04',BASE_URI+'Section_4/Set_6/Question_05',
-           BASE_URI+'Section_4/Set_6/Question_06',BASE_URI+'Section_4/Set_6/Question_07',BASE_URI+'Section_4/Set_6/Question_08',
-           BASE_URI+'Section_4/Set_6/Question_09']]
-
-# Stuff to generate Tables for Exp Template
-
-exp_tables=['EXP_TAB_1','EXP_TAB_2','EXP_TAB_3','EXP_TAB_4','EXP_TAB_5','EXP_TAB_6','EXP_TAB_7']
-
-exp_topics=[['Name','Unit','Symbol','dependent (measured) / independent (controlled)'],
-            ['Name','Unit','Symbol'],
-            ['Name','Description','Input','Output','Method','Parameter','Environment','Mathematical Area'],
-            ['ID','Name','Process Step','Parameter','realised / implemented by'],
-            ['ID','Name','Description','Version','Programming Language','Dependencies','versioned','published','documented'],
-            ['ID','Name','Description','Version','Part Nr','Serial Nr','Location','Software'],
-            ['ID','Name','Size','Data Structure','Format Representation','Format Exchange','binary/text','proprietary','to publish','to archive']]
-
-exp_ids=[[BASE_URI+'Section_3/Set_2/Question_01',BASE_URI+'Section_3/Set_2/Question_02',BASE_URI+'Section_3/Set_2/Question_03', BASE_URI+'Section_3/Set_2/Question_04'],
-         [BASE_URI+'Section_3/Set_3/Question_01',BASE_URI+'Section_3/Set_3/Question_02',BASE_URI+'Section_3/Set_3/Question_03'],
-         [BASE_URI+'Section_4/Set_1/Question_01',BASE_URI+'Section_4/Set_1/Question_02',BASE_URI+'Section_4/Set_1/Question_03',
-          BASE_URI+'Section_4/Set_1/Question_04',BASE_URI+'Section_4/Set_1/Question_05',BASE_URI+'Section_4/Set_1/Question_06',
-          BASE_URI+'Section_4/Set_1/Question_07',BASE_URI+'Section_4/Set_1/Question_08'],
-         [BASE_URI+'Section_4/Set_2/Question_01',BASE_URI+'Section_4/Set_2/Question_02',BASE_URI+'Section_4/Set_2/Question_03',
-          BASE_URI+'Section_4/Set_2/Question_04',BASE_URI+'Section_4/Set_2/Question_05'],
-         [BASE_URI+'Section_4/Set_3/Question_01',BASE_URI+'Section_4/Set_3/Question_02',BASE_URI+'Section_4/Set_3/Question_03',
-          BASE_URI+'Section_4/Set_3/Question_04',BASE_URI+'Section_4/Set_3/Question_05',BASE_URI+'Section_4/Set_3/Question_06',
-          BASE_URI+'Section_4/Set_3/Question_07',BASE_URI+'Section_4/Set_3/Question_08',BASE_URI+'Section_4/Set_3/Question_09'],
-         [BASE_URI+'Section_4/Set_5/Question_01',BASE_URI+'Section_4/Set_5/Question_02',BASE_URI+'Section_4/Set_5/Question_03',
-          BASE_URI+'Section_4/Set_5/Question_04',BASE_URI+'Section_4/Set_5/Question_05',BASE_URI+'Section_4/Set_5/Question_06',
-          BASE_URI+'Section_4/Set_5/Question_07',BASE_URI+'Section_4/Set_5/Question_08'],
-         [BASE_URI+'Section_4/Set_6/Question_00',BASE_URI+'Section_4/Set_6/Question_01',BASE_URI+'Section_4/Set_6/Question_02',
-          BASE_URI+'Section_4/Set_6/Question_03',BASE_URI+'Section_4/Set_6/Question_04',BASE_URI+'Section_4/Set_6/Question_05',
-          BASE_URI+'Section_4/Set_6/Question_06',BASE_URI+'Section_4/Set_6/Question_07',BASE_URI+'Section_4/Set_6/Question_08',
-          BASE_URI+'Section_4/Set_6/Question_09']]
-
-# Question IDs required for data integration into MaRDI KG
-
-ws = {'doi': [BASE_URI+'Section_2/Set_1/Question_02_0'],    # Question for cited paper
-      'mod': [BASE_URI+'Section_3/Set_0/Wiki_01',           # Questions for applied model
-              BASE_URI+'Section_3/Set_0/Set_0/Question_01',
-              BASE_URI+'Section_3/Set_0/Set_0/Wiki_02',
-              BASE_URI+'Section_3/Set_0/Wiki_03',
-              BASE_URI+'Section_3/Set_0/Wiki_04',
-              BASE_URI+'Section_3/Set_0/Question_00'],
-      'met': [BASE_URI+'Section_4/Set_2/Question_01',       # Questions for applied methods
-              BASE_URI+'Section_4/Set_2/Question_02',
-              BASE_URI+'Section_4/Set_2/Wiki_02',
-              BASE_URI+'Section_4/Set_2/Wiki_03',
-              BASE_URI+'Section_4/Set_2/Wiki_04',
-              BASE_URI+'Section_4/Set_2/Question_00'],
-      'sof': [BASE_URI+'Section_4/Set_3/Question_01',       # Questions for applied softwares
-              BASE_URI+'Section_4/Set_3/Question_02',
-              BASE_URI+'Section_4/Set_3/Question_03',
-              BASE_URI+'Section_4/Set_3/Question_05',
-              BASE_URI+'Section_4/Set_3/Question_00'],
-      'fie': [BASE_URI+'Section_2/Set_3/Question_00_0'],    # Question for mathematical fields
-      'dis': [BASE_URI+'Section_2/Set_3/Question_01_0'],    # Question for related disciplines
-      'obj': [BASE_URI+'Section_2/Set_1/Question_04_0'],    # Question for related research objective
-      'inp': [BASE_URI+'Section_4/Set_6/Question_00',       # Questions for related input data sets
-              BASE_URI+'Section_4/Set_6/Question_01',
-              BASE_URI+'Section_4/Set_6/Question_10'],
-      'sea': [BASE_URI+'Section_1/Set_1/Question_01_0',     # Questions for Workflow search
-              BASE_URI+'Section_1/Set_1/Question_03_0',
-              BASE_URI+'Section_1/Set_1/Question_05_0']}
-
-# Set IDs
-
-sts=['Section_4/Set_2',
-     'Section_4/Set_3',
-     'Section_4/Set_6']
 
 # Language Dictionary
 
@@ -372,40 +59,29 @@ lang_dict={'af':['wikidata:Q14196', 'Afrikaans', 'West Germanic language, spoken
            'zh-cn':['wikidata:Q727694', 'Standard Mandarin', 'standard form of Chinese and the official language of China'],
            'zh-tw':['wikidata:Q262828', 'Standard Taiwanese Mandarin', 'variety of Mandarin serving as the official language of the Republic of China (Taiwan)']}
 
-# Refine Stuff
+# Option Dictionary
 
-refine_strs=[BASE_URI+"Section_\d{1}/Set_\d{1}/Question_\d{2}_\d",
-             BASE_URI+"Section_\d{1}/Set_\d{1}/Question_\d{2}",
-             BASE_URI+"Section_\d{1}/Set_\d{1}/Wiki_\d{2}_\d",
-             BASE_URI+"Section_\d{1}/Set_\d{1}/Wiki_\d{2}"]
-
-# Link Stuff
-
-linkers = [['mardi:','[Q0-9]+',mardi_wiki+'Item:'],
-           ['wikidata:','[Q0-9]+','https://www.wikidata.org/wiki/Item:'],
-           ['sw:','[0-9]+','https://swmath.org/software/'],
-           ['doi:','10.\d{4,9}/[-._;()/:a-z0-9A-Z]+','https://dx.doi.org/']]
-
-# Links for Version, Docs, Publish
-
-VDP = [BASE_URI+'Section_4/Set_3/Question_07',
-       BASE_URI+'Section_4/Set_3/Question_08',
-       BASE_URI+'Section_4/Set_3/Question_09']
-
-# IDs for Publication
-
-pub_ids = [BASE_URI + 'Section_2/Set_1/Question_02',
-           BASE_URI + 'Section_2/Set_2/Question_03',
-           BASE_URI + 'Section_2/Set_2/Question_00_hidden',
-           BASE_URI + 'Section_2/Set_2/Question_01_hidden',
-           BASE_URI + 'Section_2/Set_2/Question_02_hidden',
-           BASE_URI + 'Section_2/Set_2/Question_03_hidden',
-           BASE_URI + 'Section_2/Set_2/Question_04_hidden',
-           BASE_URI + 'Section_2/Set_2/Question_05_hidden',
-           BASE_URI + 'Section_2/Set_2/Question_06_hidden',
-           BASE_URI + 'Section_2/Set_2/Question_07_hidden',
-           BASE_URI + 'Section_2/Set_2/Question_08_hidden',
-           BASE_URI + 'Section_2/Set_2/Question_09_hidden']
+option = {'YesText': 'https://rdmorganiser.github.io/terms/options/yes_with_text_no/yes',
+          'NoText': 'https://rdmorganiser.github.io/terms/options/yes_with_text_no/no',
+          'TaskInput': 'http://example.com/terms/options/QuantityAndQuantityKind_kind0',
+          'TaskOutput': 'http://example.com/terms/options/QuantityAndQuantityKind_kind1',
+          'TaskParameter': 'http://example.com/terms/options/QuantityAndQuantityKind_kind3',
+          'TimeDiscrete': 'http://example.com/terms/options/MathematicalModel_property6',
+          'SpaceDiscrete': 'http://example.com/terms/options/MathematicalModel_property5',
+          'Documentation': 'http://example.com/terms/options/operation_modus/modus_0',
+          'Search': 'http://example.com/terms/options/operation_modus/modus_1',
+          'Local': 'http://example.com/terms/options/publication_type/type_1',
+          'Public': 'http://example.com/terms/options/publication_type/type_0',
+          'No': 'http://example.com/terms/options/yes_no/no',
+          'Yes': 'http://example.com/terms/options/yes_no/yes',
+          'Analysis': 'http://example.com/terms/options/workflow_type/type_0',
+          'Computation': 'http://example.com/terms/options/workflow_type/type_1',
+          'Small': 'http://example.com/terms/options/size/KB',
+          'Medium': 'http://example.com/terms/options/size/MB',
+          'Large': 'http://example.com/terms/options/size/GB',
+          'VeryLarge': 'http://example.com/terms/options/size/TB',
+          'Binary': 'http://example.com/terms/options/data_type/type_0',
+          'Text': 'http://example.com/terms/options/data_type/type_1'}
 
 # Keys for publication handler
 
@@ -415,24 +91,124 @@ keys = ['publicationQid', 'publicationLabel', 'publicationDescription1', 'author
         'languageQid', 'languageLabel', 'languageDescription1',
         'title', 'otherAuthor', 'publicationDate', 'volume', 'issue', 'page']
 
-# Option Dictionary
-
-option = {'YesText': 'https://rdmorganiser.github.io/terms/options/yes_with_text_no/yes',
-          'Input': 'http://example.com/terms/options/QuantityAndQuantityKind_kind0',
-          'Output': 'http://example.com/terms/options/QuantityAndQuantityKind_kind1',
-          'Parameter': 'http://example.com/terms/options/QuantityAndQuantityKind_kind3',
-          'TimeDiscrete': 'http://example.com/terms/options/MathematicalModel_proerpty6',
-          'SpaceDiscrete': 'http://example.com/terms/options/MathematicalModel_proerpty5',
-          'Documentation': 'http://example.com/terms/options/operation_modus/modus_0',
-          'Search': 'http://example.com/terms/options/operation_modus/modus_1',
-          'Local': 'http://example.com/terms/options/publication_type/type_1',
-          'Public': 'http://example.com/terms/options/publication_type/type_0',
-          'No': 'http://example.com/terms/options/yes_no/no',
-          'Yes': 'http://example.com/terms/options/yes_no/yes',
-          'Analysis': 'http://example.com/terms/options/workflow_type/type_0',
-          'Computation': 'http://example.com/terms/options/workflow_type/type_1'}
-
 # Answer Dictionary
 
-answer = {'ResearchObjective': BASE_URI+'Section_2/Set_1/Question_04'}
+uNames =['Settings', 'GeneralInformation', 'Creator', 'ProcessStep', 'Publication', 'Model', 'Software', 'Hardware', 'ExperimentalDevice', 'MathematicalArea', 'NonMathematicalDiscipline',
+         'DataSet', 'Method', 'Quantity', 'Task', 'ReproducibilityComputational', 'ReproducibilityAnalysis', 'Search']
 
+questions = {# Export and Workflow Settings
+              uNames[0]+' Documentation': {'uName':uNames[0],'dName':'Documentation','Id': BASE_URI+'Section_0/Set_1/Question_01', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[0]+' Public': {'uName':uNames[0],'dName':'Public','Id': BASE_URI+'Section_6/Set_1/Question_01', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[0]+' Preview': {'uName':uNames[0],'dName':'Preview','Id': BASE_URI+'Section_6/Set_1/Question_02', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[0]+' WorkflowType': {'uName':uNames[0],'dName':'WorkflowType','Id': BASE_URI+'Section_2/Set_1/Question_03', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              # General Workflow Information
+              uNames[1]+' ProblemStatement': {'uName':uNames[1],'dName':'ProblemStatement','Id': BASE_URI + 'Section_2/Set_1/Question_01', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[1]+' ResearchObjective': {'uName':uNames[1],'dName':'ResearchObjective','Id': BASE_URI + 'Section_2/Set_1/Question_04', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[1]+' Procedure': {'uName':uNames[1],'dName':'Procedure','Id': BASE_URI + 'Section_2/Set_1/Question_05', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[1]+' DataStream': {'uName':uNames[1],'dName':'DataStream','Id': BASE_URI + 'Section_2/Set_3/Question_02', 'set_prefix':False, 'set_index': False, 'collection_index': True},
+              # Mathematical Area Information
+              uNames[9]+' ID': {'uName':uNames[9],'dName':'ID','Id': BASE_URI+'Section_2/Set_3/Question_00', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              # Non-Mathematical Discipline Information
+              uNames[10]+' ID': {'uName':uNames[10],'dName':'ID','Id': BASE_URI+'Section_2/Set_3/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              # Workflow Documentation Creator Information
+              uNames[2]+' Name': {'uName':uNames[2],'dName':'Name','Id': BASE_URI + 'Section_0/Set_1/Question_02', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[2]+' IDs': {'uName':uNames[2],'dName':'IDs','Id': BASE_URI + 'Section_0/Set_1/Question_03', 'set_prefix':False, 'set_index': False, 'collection_index': True},
+              # Related Publication Information
+              uNames[4]+' Exists': {'uName':uNames[4],'dName':'Exists','Id': BASE_URI + 'Section_2/Set_1/Question_02', 'set_prefix':False, 'set_index': False, 'collection_index': False, 'option_text': True},
+              uNames[4]+' All Authors': {'uName':uNames[4],'dName':'All Authors','Id': BASE_URI + 'Section_2/Set_2/Question_03', 'set_prefix':False, 'set_index': False, 'collection_index': True},
+              uNames[4]+' Info': {'uName':uNames[4],'dName':'Info','Id': BASE_URI + 'Section_2/Set_2/Question_00_hidden', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[4]+' Type': {'uName':uNames[4],'dName':'Type','Id': BASE_URI + 'Section_2/Set_2/Question_01_hidden', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[4]+' Title': {'uName':uNames[4],'dName':'Title','Id': BASE_URI + 'Section_2/Set_2/Question_02_hidden', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[4]+' Identified Authors': {'uName':uNames[4],'dName':'Identified Authors','Id':BASE_URI + 'Section_2/Set_2/Question_03_hidden', 'set_prefix':False, 'set_index': False, 'collection_index': True},
+              uNames[4]+' Language': {'uName':uNames[4],'dName':'Language','Id': BASE_URI + 'Section_2/Set_2/Question_04_hidden', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[4]+' Journal': {'uName':uNames[4],'dName':'Journal','Id': BASE_URI + 'Section_2/Set_2/Question_05_hidden', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[4]+' Volume': {'uName':uNames[4],'dName':'Volume','Id': BASE_URI + 'Section_2/Set_2/Question_06_hidden', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[4]+' Issue': {'uName':uNames[4],'dName':'Issue','Id': BASE_URI + 'Section_2/Set_2/Question_07_hidden', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[4]+' Pages': {'uName':uNames[4],'dName':'Pages','Id': BASE_URI + 'Section_2/Set_2/Question_08_hidden', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[4]+' Date': {'uName':uNames[4],'dName':'Date','Id': BASE_URI + 'Section_2/Set_2/Question_09_hidden', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              # Model Information
+              uNames[5]+' ID': {'uName':uNames[5],'dName':'ID','Id': BASE_URI+'Section_3/Set_0/Wiki_01', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[5]+' Name': {'uName':uNames[5],'dName':'Name','Id': BASE_URI+'Section_3/Set_0/Set_0/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[5]+' Description': {'uName':uNames[5],'dName':'Description','Id': BASE_URI+'Section_3/Set_0/Set_0/Wiki_02', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[5]+' Properties': {'uName':uNames[5],'dName':'Properties','Id': BASE_URI+'Section_3/Set_0/Set_0/Question_02', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              uNames[5]+' Reference': {'uName':uNames[5],'dName':'Reference','Id': BASE_URI+'Section_3/Set_0/Set_0/Question_03', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[13]+' Name': {'uName':uNames[13],'dName':'Name','Id': BASE_URI+'Section_3a/Set_5/Set_0/Question_1', 'set_prefix':True, 'set_index':True, 'collection_index':False},
+              uNames[13]+' Symbol': {'uName':uNames[13],'dName':'Symbol','Id': BASE_URI+'Section_3a/Set_5/Set_0/Question_0', 'set_prefix':True, 'set_index':True, 'collection_index':False},
+              uNames[14]+' Property': {'uName':uNames[14],'dName':'Property','Id': BASE_URI+'Section_3a/Set_6/Set_1/Question_1', 'set_prefix':True, 'set_index':True, 'collection_index':False},
+              uNames[14]+' Quantity': {'uName':uNames[14],'dName':'Quantity','Id': BASE_URI+'Section_3a/Set_6/Set_1/Question_0', 'set_prefix':True, 'set_index':True, 'collection_index':False},
+              # more to come...
+              # Software Information
+              uNames[6]+' ID': {'uName':uNames[6],'dName':'ID','Id': BASE_URI+'Section_4/Set_3/Question_01', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[6]+' Name': {'uName':uNames[6],'dName':'Name','Id': BASE_URI+'Section_4/Set_3/Question_02', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[6]+' Description': {'uName':uNames[6],'dName':'Description','Id': BASE_URI+'Section_4/Set_3/Question_03', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[6]+' SubProperty': {'uName':uNames[6],'dName':'SubProperty','Id': BASE_URI+'Section_4/Set_3/Question_05', 'set_prefix':False, 'set_index': True, 'collection_index': True},
+              uNames[6]+' Reference': {'uName':uNames[6],'dName':'Reference','Id': BASE_URI+'Section_4/Set_3/Question_00', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[6]+' Version': {'uName':uNames[6],'dName':'Version','Id': BASE_URI+'Section_4/Set_3/Question_04', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[6]+' Dependency': {'uName':uNames[6],'dName':'Dependency','Id': BASE_URI+'Section_4/Set_3/Question_06', 'set_prefix':False, 'set_index': True, 'collection_index': True},
+              uNames[6]+' Versioned': {'uName':uNames[6],'dName':'Versioned','Id': BASE_URI+'Section_4/Set_3/Question_07', 'set_prefix':False, 'set_index': True, 'collection_index': False, 'option_text': True},
+              uNames[6]+' Published': {'uName':uNames[6],'dName':'Published','Id': BASE_URI+'Section_4/Set_3/Question_08',  'set_prefix':False, 'set_index': True, 'collection_index': False, 'option_text': True},
+              uNames[6]+' Documented': {'uName':uNames[6],'dName':'Documented','Id': BASE_URI+'Section_4/Set_3/Question_09', 'set_prefix':False, 'set_index': True, 'collection_index': False, 'option_text': True},
+              # Hardware Information
+              uNames[7]+' ID': {'uName':uNames[7],'dName':'ID','Id': BASE_URI+'Section_4/Set_4/Question_01', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[7]+' Name': {'uName':uNames[7],'dName':'Name','Id': BASE_URI+'Section_4/Set_4/Question_02', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[7]+' Processor': {'uName':uNames[7],'dName':'Processor','Id': BASE_URI+'Section_4/Set_4/Question_03', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[7]+' Compiler': {'uName':uNames[7],'dName':'Compiler','Id': BASE_URI+'Section_4/Set_4/Question_04', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[7]+' Node': {'uName':uNames[7],'dName':'Node','Id': BASE_URI+'Section_4/Set_4/Question_05', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[7]+' Core': {'uName':uNames[7],'dName':'Core','Id': BASE_URI+'Section_4/Set_4/Question_06', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              # Experimental Device Information
+              uNames[8]+' ID': {'uName':uNames[8],'dName':'ID','Id': BASE_URI+'Section_4/Set_5/Question_01', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[8]+' Name': {'uName':uNames[8],'dName':'Name','Id': BASE_URI+'Section_4/Set_5/Question_02', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[8]+' Description': {'uName':uNames[8],'dName':'Description','Id': BASE_URI+'Section_4/Set_5/Question_03', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[8]+' Version': {'uName':uNames[8],'dName':'Version','Id': BASE_URI+'Section_4/Set_5/Question_04', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[8]+' PartNumber': {'uName':uNames[8],'dName':'PartNumber','Id': BASE_URI+'Section_4/Set_5/Question_05', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[8]+' SerialNumber': {'uName':uNames[8],'dName':'SerialNumber','Id': BASE_URI+'Section_4/Set_5/Question_06', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[8]+' Location': {'uName':uNames[8],'dName':'Location','Id': BASE_URI+'Section_4/Set_5/Question_07', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[8]+' Software': {'uName':uNames[8],'dName':'Software','Id': BASE_URI+'Section_4/Set_5/Question_08', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              # Data Set Information
+              uNames[11]+' ID': {'uName':uNames[11],'dName':'ID','Id': BASE_URI+'Section_4/Set_6/Question_00', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' Name': {'uName':uNames[11],'dName':'Name','Id':  BASE_URI+'Section_4/Set_6/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' Description': {'uName':uNames[11],'dName':'Description','Id':  BASE_URI+'Section_4/Set_6/Question_11', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' Reference': {'uName':uNames[11],'dName':'Reference','Id': BASE_URI+'Section_4/Set_6/Question_10', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' Size': {'uName':uNames[11],'dName':'Size','Id':  BASE_URI+'Section_4/Set_6/Question_02', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' DataStructure': {'uName':uNames[11],'dName':'DataStructure','Id':  BASE_URI+'Section_4/Set_6/Question_03', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' RepresentationFormat': {'uName':uNames[11],'dName':'RepresentationFormat','Id':  BASE_URI+'Section_4/Set_6/Question_04', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' ExchangeFormat': {'uName':uNames[11],'dName':'ExchangeFormat','Id':  BASE_URI+'Section_4/Set_6/Question_05', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' BinaryText': {'uName':uNames[11],'dName':'BinaryText','Id':  BASE_URI+'Section_4/Set_6/Question_06', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' Proprietary': {'uName':uNames[11],'dName':'Proprietary','Id':  BASE_URI+'Section_4/Set_6/Question_07', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' Publication': {'uName':uNames[11],'dName':'Publication','Id':  BASE_URI+'Section_4/Set_6/Question_08', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' Archiving': {'uName':uNames[11],'dName':'Archiving','Id':  BASE_URI+'Section_4/Set_6/Question_09', 'set_prefix':False, 'set_index':True, 'collection_index':False, 'option_text':True},
+              # Method Information
+              uNames[12]+' ID': {'uName':uNames[12],'dName':'ID','Id': BASE_URI+'Section_4/Set_2/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[12]+' Name': {'uName':uNames[12],'dName':'Name','Id': BASE_URI+'Section_4/Set_2/Question_02', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[12]+' Description': {'uName':uNames[12],'dName':'Description','Id':  BASE_URI+'Section_4/Set_2/Wiki_02', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[12]+' Sub Property': {'uName':uNames[12],'dName':'Sub Property','Id': BASE_URI+'Section_4/Set_2/Wiki_03', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              uNames[12]+' Formular': {'uName':uNames[12],'dName':'Formular','Id': BASE_URI+'Section_4/Set_2/Wiki_04', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              uNames[12]+' Reference': {'uName':uNames[12],'dName':'Reference','Id': BASE_URI+'Section_4/Set_2/Question_00', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[12]+' Parameter': {'uName':uNames[12],'dName':'Parameter','Id': BASE_URI+'Section_4/Set_2/Question_04', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[12]+' Software': {'uName':uNames[12],'dName':'Software','Id': BASE_URI+'Section_4/Set_2/Question_05', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              # Process Step Information
+              uNames[3]+' Name': {'uName':uNames[3],'dName':'Name','Id': BASE_URI+'Section_4/Set_1/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[3]+' Description': {'uName':uNames[3],'dName':'Description','Id': BASE_URI+'Section_4/Set_1/Question_02', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[3]+' Input': {'uName':uNames[3],'dName':'Input','Id': BASE_URI+'Section_4/Set_1/Question_03', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              uNames[3]+' Output': {'uName':uNames[3],'dName':'Output','Id': BASE_URI+'Section_4/Set_1/Question_04', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              uNames[3]+' Method': {'uName':uNames[3],'dName':'Method','Id': BASE_URI+'Section_4/Set_1/Question_05', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              uNames[3]+' Parameter': {'uName':uNames[3],'dName':'Parameter','Id': BASE_URI+'Section_4/Set_1/Question_06', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[3]+' Environment': {'uName':uNames[3],'dName':'Environment','Id': BASE_URI+'Section_4/Set_1/Question_07', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              uNames[3]+' MathArea': {'uName':uNames[3],'dName':'MathArea','Id': BASE_URI+'Section_4/Set_1/Question_08', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              # Reproducibility Computational
+              uNames[15]+ ' Mathematically': {'uName':uNames[15], 'dName':'Mathematically', 'Id':BASE_URI+'Section_5/Set_1/Question_01', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
+              uNames[15]+ ' Runtime': {'uName':uNames[15], 'dName':'Runtime', 'Id':BASE_URI+'Section_5/Set_1/Question_02', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
+              uNames[15]+ ' Result': {'uName':uNames[15], 'dName':'Result', 'Id':BASE_URI+'Section_5/Set_1/Question_03', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
+              uNames[15]+ ' OriginalHardware': {'uName':uNames[15], 'dName':'OriginalHardware', 'Id':BASE_URI+'Section_5/Set_1/Question_04', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
+              uNames[15]+ ' OtherHardware': {'uName':uNames[15], 'dName':'OtherHardware', 'Id':BASE_URI+'Section_5/Set_1/Question_05', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
+              uNames[15]+ ' Transferability': {'uName':uNames[15], 'dName':'Transferability', 'Id':BASE_URI+'Section_5/Set_1/Question_06', 'set_prefix':False,'set_index':False,'collection_index':True},
+              # Reproducibility Analysis
+              uNames[16]+' OriginalDevice': {'uName':uNames[16], 'dName':'OriginalDevice', 'Id':BASE_URI+'Section_5/Set_2/Question_01', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
+              uNames[16]+' OtherDevice': {'uName':uNames[16], 'dName':'OtherDevice', 'Id':BASE_URI+'Section_5/Set_2/Question_02','set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
+              uNames[16]+' Transferability': {'uName':uNames[16], 'dName':'Transferability', 'Id':BASE_URI+'Section_5/Set_2/Question_03', 'set_prefix':False,'set_index':False,'collection_index':True},
+              uNames[17]+' Search Objective': {'uName':uNames[17], 'dName':'Search Objective', 'Id':BASE_URI+'Section_1/Set_1/Question_00', 'set_prefix':False, 'set_index':False, 'collection_index':False},
+              uNames[17]+' Objective Keywords': {'uName':uNames[17], 'dName':'Objective Keywords', 'Id':BASE_URI+'Section_1/Set_1/Question_01', 'set_prefix':False, 'set_index':False, 'collection_index':True},
+              uNames[17]+' Search Discipline': {'uName':uNames[17], 'dName':'Search Discipline', 'Id':BASE_URI+'Section_1/Set_1/Question_02', 'set_prefix':False, 'set_index':False, 'collection_index':False},
+              uNames[17]+' Discipline Keywords': {'uName':uNames[17], 'dName':'Discipline Keywords', 'Id':BASE_URI+'Section_1/Set_1/Question_03', 'set_prefix':False, 'set_index':False, 'collection_index':True},
+              uNames[17]+' Search Entities': {'uName':uNames[17], 'dName':'Search Entities', 'Id':BASE_URI+'Section_1/Set_1/Question_04', 'set_prefix':False, 'set_index':False, 'collection_index':False},
+              uNames[17]+' Entities Keywords': {'uName':uNames[17], 'dName':'Entities Keywords', 'Id':BASE_URI+'Section_1/Set_1/Question_05', 'set_prefix':False, 'set_index':False, 'collection_index':True}}

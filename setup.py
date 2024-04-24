@@ -28,6 +28,6 @@ setup(
     package_data = {'MaRDMO':['templates/MaRDMO/*.html']},
     include_package_data=True,
 
-    install_requires=['bibtexparser','langdetect','pylatexenc','pypandoc_binary','wikibaseintegrator']
+    install_requires=['bibtexparser','langdetect','pylatexenc','wikibaseintegrator']
 )
 

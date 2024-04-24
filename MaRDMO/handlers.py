@@ -545,3 +545,49 @@ def make_api_requests(api, search_objects, dict_merged, prefix):
                 '{0}_{1}Label'.format(prefix, prop): display_label,
                 '{0}_{1}Description1'.format(prefix, prop): display_desc
             })
+
+@receiver(post_save, sender=Value)
+def programmingLanguages(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_01':
+       
+        software_id = instance.text.split(' <|> ')[0]
+        
+        if software_id.split(':')[0] == 'wikidata':
+            
+            res = kg_req(wikidata_endpoint,wini.format(pl_vars,pl_query.format(software_id.split(':')[-1],'P277'),'100'))
+            for idx, r in enumerate(res):
+                if r.get('qid',{}).get('value'): 
+                    attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_05')
+                    obj, created = Value.objects.update_or_create(
+                    project=instance.project,
+                    attribute=attribute_object,
+                    set_index=instance.set_index,
+                    collection_index=idx,
+                    defaults={
+                              'project': instance.project,
+                              'attribute': attribute_object,
+                              'text': 'wikidata:' + res[idx]['qid']['value'] + ' <|> ' + res[idx]['label']['value'] + ' <|> ' + res[idx]['quote']['value']
+                             }
+                    )
+
+        elif software_id.split(':')[0] == 'mardi':
+            
+            res = kg_req(mardi_endpoint,mini.format(pl_vars,pl_query.format(software_id.split(':')[-1],P19),'100')) 
+            for idx, r in enumerate(res):
+                if r.get('qid',{}).get('value'):
+                    attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_05')
+                    obj, created = Value.objects.update_or_create(
+                    project=instance.project,
+                    attribute=attribute_object,
+                    set_index=instance.set_index,
+                    collection_index=idx, 
+                    defaults={
+                              'project': instance.project,
+                              'attribute': attribute_object,
+                              'text': 'mardi:' + res[idx]['qid']['value'] + ' <|> ' + res[idx]['label']['value'] + ' <|> ' + res[idx]['quote']['value']
+                             }
+                    )
+
+    return
+
