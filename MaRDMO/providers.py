@@ -1,13 +1,14 @@
 import requests
 import itertools
-import re
+import re, os
+import json
 
 from rdmo.options.providers import Provider
 from rdmo.domain.models import Attribute
 from multiprocessing.pool import ThreadPool
 
 from .config import *
-from .para import *
+
 
 class WikidataSearch(Provider):
     
@@ -49,6 +50,11 @@ class ComponentSearch(Provider):
 
 class MSCProvider(Provider):
 
+    path = os.path.join(os.path.dirname(__file__), 'data', 'msc2020.json')
+
+    with open(path, "r") as json_file:
+        msc = json.load(json_file)
+
     search = True
 
     def get_options(self, project, search):
@@ -58,7 +64,7 @@ class MSCProvider(Provider):
 
         options = []
 
-        options = [{'id': msc[key]['id'] + ' - ' + key , 'text': key} for key in msc if search.lower() in key.lower()]
+        options = [{'id': self.msc[key]['id'] + ' - ' + key , 'text': key} for key in self.msc if search.lower() in key.lower()]
 
         return options[:20]
 
