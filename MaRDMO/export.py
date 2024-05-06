@@ -49,7 +49,7 @@ class MaRDIExport(Export):
         answers ={}
         for label, info in questions.items():
             answers = self.get_answer(answers,**info)
-        
+                
        ###################################################################################################################################################
        ###################################################################################################################################################
        ##                                                                                                                                               ##
@@ -417,22 +417,17 @@ class MaRDIExport(Export):
             if error[0] == 2:
                 # Stop if no Discipline provided by User
                 return render(self.request,'MaRDMO/workflowError.html', {
-                    'error': 'Missing Non-Mathematical Disciplines of Workflow!'.format(error[1])
+                    'error': 'Missing Non-Mathematical Disciplines of Workflow!'
                     }, status=200)
                 
-### Integrate related mathematical Fields in MaRDI KG #############################################################################################################################################
-
-            answers.update({'MathematicalArea':answers['MathematicalArea'][0]['ID']})
-
-            fields, answers, error = self.Entry_Generator('MathematicalArea',             # Entry of mathmatical Fields
-                                                          [False,False,False],             # Generation not wanted, QID Generation not wanted, String Generation not wanted
-                                                          ['',''],                         # nothing
-                                                          answers)                         # refined and all useranswers
-        
-            if error[0] == 2:
-                # Stop if no Discipline provided by User
+### Mathematical Fields ###########################################################################################################################################################################
+            
+            if answers['MathematicalArea'].get(0,{}).get('ID'):
+                answers.update({'MathematicalArea':answers['MathematicalArea'][0]['ID']})
+            else:
+                # Stop if no Mathematical Field provided by User
                 return render(self.request,'MaRDMO/workflowError.html', {
-                    'error': 'Missing Mathematical Fields of Workflow!'.format(error[1])
+                    'error': 'Missing Mathematical Fields of Workflow!'
                     }, status=200)
         
 ### Integrate Workflow in MaRDI KG ################################################################################################################################################################
@@ -442,7 +437,7 @@ class MaRDIExport(Export):
                 # Facts for MaRDI KG Integration
                 facts = [(Item,Q2,P4),(Item,paper_qid,P3)] +\
                         [(Item,discipline,P5) for discipline in disciplines] +\
-                        [(Item,field,P5) for field in fields] +\
+                        [(ExternalID,field,P25) for field in answers['MathematicalArea'].values()] +\
                         [(Item,i,P6) for i in models+methods+softwares+datas] +\
                         [(Item, creator, P8) for creator in creator_qids]           
 
@@ -794,7 +789,7 @@ class MaRDIExport(Export):
     def refine(self,answers):
         '''This function takes user answers and performs SPARQL queries to MaRDI portal.'''
         
-        entities = ['MathematicalArea','NonMathematicalDiscipline','Model','Software','DataSet','Method']
+        entities = ['NonMathematicalDiscipline','Model','Software','DataSet','Method']
 
         for entity in entities:
             for key in answers[entity]:
@@ -912,7 +907,7 @@ class MaRDIExport(Export):
             # No matching item found
             return None
 
-    def get_answer(self, val, uName, dName, Id, set_prefix=False, set_index=False, collection_index=False, option_text=False):
+    def get_answer(self, val, uName, dName, Id, set_prefix=False, set_index=False, collection_index=False, option_text=False, external_id=False):
         '''Function that retrieves individual User answers'''
         val.setdefault(uName, {})
         values = self.project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=Id))
@@ -922,98 +917,126 @@ class MaRDIExport(Export):
                     if set_prefix:
                         if set_index:
                             if collection_index:
-                                val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.text]})
-                                #val.append([value.option_uri, value.text, value.set_index, value.collection_index])
+                                if external_id:
+                                    val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.external_id]})
+                                else:
+                                    val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.text]})
                             else:
-                                val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).update({dName:[value.option_uri, value.text]})
-                                #val.append([value.option_uri, value.text, value.set_index])
+                                if external_id:
+                                    val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).update({dName:[value.option_uri, value.external_id]})
+                                else:
+                                    val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).update({dName:[value.option_uri, value.text]})
                         else:
                             if collection_index:
-                                val[uName].setdefault(value.set_prefix, {}).setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.text]})
+                                if external_id:
+                                    val[uName].setdefault(value.set_prefix, {}).setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.external_id]})
+                                else:
+                                    val[uName].setdefault(value.set_prefix, {}).setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.text]})
                             else:
-                                val[uName].setdefault(value.set_prefix, {}).update({dName:[value.option_uri, value.text]})
-                                #val.append([value.option_uri, value.text])
+                                if external_id:
+                                    val[uName].setdefault(value.set_prefix, {}).update({dName:[value.option_uri, value.external_id]})
+                                else:
+                                    val[uName].setdefault(value.set_prefix, {}).update({dName:[value.option_uri, value.text]})
                     else:
                         if set_index:
                             if collection_index:
-                                val[uName].setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.text]})
-                                #val.append([value.option_uri, value.text, value.set_index, value.collection_index])
+                                if external_id:
+                                    val[uName].setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.external_id]})
+                                else:
+                                    val[uName].setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.text]})
                             else:
-                                val[uName].setdefault(value.set_index, {}).update({dName:[value.option_uri, value.text]})
-                                #val.append([value.option_uri, value.text, value.set_index])
+                                if external_id:
+                                    val[uName].setdefault(value.set_index, {}).update({dName:[value.option_uri, value.external_id]})
+                                else:
+                                    val[uName].setdefault(value.set_index, {}).update({dName:[value.option_uri, value.text]})
                         else:
                             if collection_index:
-                                val[uName].setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.text]})
+                                if external_id:
+                                    val[uName].setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.external_id]})
+                                else:
+                                    val[uName].setdefault(dName, {}).update({value.collection_index:[value.option_uri, value.text]})
                             else:
-                                val[uName].update({dName:[value.option_uri, value.text]})
-                                #val.append([value.option_uri, value.text])
+                                if external_id:
+                                    val[uName].update({dName:[value.option_uri, value.external_id]})
+                                else:
+                                    val[uName].update({dName:[value.option_uri, value.text]})
                 else:
                     if set_prefix:
                         if set_index:
                             if collection_index:
                                 val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:value.option_uri})
-                                #val.append([value.option_uri, value.set_index, value.collection_index])
                             else:
                                 val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).update({dName:value.option_uri})
-                                #val.append([value.option_uri, value.set_index])
                         else:
                             if collection_index:
                                 val[uName].setdefault(value.set_prefix, {}).setdefault(dName, {}).update({value.collection_index:value.option_uri})
                             else:
                                 val[uName].setdefault(value.set_prefix, {}).update({dName:value.option_uri})
-                                #val.append(value.option_uri)
                     else:
                         if set_index:
                             if collection_index:
                                 val[uName].setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:value.option_uri})
-                                #val.append([value.option_uri, value.set_index, value.collection_index])
                             else:
                                 val[uName].setdefault(value.set_index, {}).update({dName:value.option_uri})
-                                #val.append([value.option_uri, value.set_index])
                         else:
                             if collection_index:
                                 val[uName].setdefault(dName, {}).update({value.collection_index:value.option_uri})
                             else:
                                 val[uName].update({dName:value.option_uri})
-                                #val.append(value.option_uri)
             elif value.text and value.text != 'NONE':
                 if set_prefix:
                     if set_index:
                         if collection_index:
-                            val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:value.text})
-                            #val.append([value.text, value.set_index, value.collection_index])
+                            if external_id:
+                                val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:value.external_id})
+                            else:
+                                val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:value.text})
                         else:
-                            val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).update({dName:value.text})
-                            #val.append([value.text, value.set_index])
+                            if external_id:
+                                val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).update({dName:value.external_id})
+                            else:
+                                val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).update({dName:value.text})
                     else:
                         if collection_index:
-                            val[uName].setdefault(value.set_prefix, {}).setdefault(dName, {}).update({value.collection_index:value.text})
+                            if external_id:
+                                val[uName].setdefault(value.set_prefix, {}).setdefault(dName, {}).update({value.collection_index:value.external_id})
+                            else:
+                                val[uName].setdefault(value.set_prefix, {}).setdefault(dName, {}).update({value.collection_index:value.text})
                         else:
-                            val[uName].setdefault(value.set_prefix, {}).update({dName:value.text})
-                            #val.append(value.text)
+                            if external_id:
+                                val[uName].setdefault(value.set_prefix, {}).update({dName:value.external_id})
+                            else:
+                                val[uName].setdefault(value.set_prefix, {}).update({dName:value.text})
                 else:
                     if set_index:
                         if collection_index:
-                            val[uName].setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:value.text})
-                            #val.append([value.text, value.set_index, value.collection_index])
+                            if external_id:
+                                val[uName].setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:value.external_id})
+                            else:
+                                val[uName].setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:value.text})
                         else:
-                            val[uName].setdefault(value.set_index, {}).update({dName:value.text})
-                            #val.append([value.text, value.set_index])
+                            if external_id:
+                                val[uName].setdefault(value.set_index, {}).update({dName:value.external_id})
+                            else:
+                                val[uName].setdefault(value.set_index, {}).update({dName:value.text})
                     else:
                         if collection_index:
-                            val[uName].setdefault(dName, {}).update({value.collection_index:value.text})
+                            if external_id:
+                                val[uName].setdefault(dName, {}).update({value.collection_index:value.external_id})
+                            else:
+                                val[uName].setdefault(dName, {}).update({value.collection_index:value.text})
                         else:
-                            val[uName].update({dName:value.text})
-                            #val.append(value.text)
+                            if external_id:
+                                val[uName].update({dName:value.external_id})
+                            else:
+                                val[uName].update({dName:value.text})
             elif value.set_index:
                 if set_prefix:
                     if set_index:
                         if collection_index:
                             val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:None})
-                            #val.append([None, value.set_index, value.collection_index])
                         else:
                             val[uName].setdefault(value.set_prefix, {}).setdefault(value.set_index, {}).update({dName:None})
-                            #val.append([None, value.set_index])
                     else:
                         if collection_index:
                             val[uName].setdefault(value.set_prefix, {}).setdefault(dName, {}).update({value.collection_index:None})
@@ -1023,10 +1046,8 @@ class MaRDIExport(Export):
                     if set_index:
                         if collection_index:
                             val[uName].setdefault(value.set_index, {}).setdefault(dName, {}).update({value.collection_index:None})
-                            #val.append([None, value.set_index, value.collection_index])
                         else:
                             val[uName].setdefault(value.set_index, {}).update({dName:None})
-                            #val.append([None, value.set_index])
                     else:
                         if collection_index:
                             val[uName].setdefault(dName, {}).update({value.collection_index:None})

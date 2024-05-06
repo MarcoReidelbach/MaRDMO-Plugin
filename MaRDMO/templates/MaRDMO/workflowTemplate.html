@@ -51,12 +51,9 @@
 <p> {{ answers.GeneralInformation.Procedure }} </p>    
 <h3 id="involved-disciplines">Involved Disciplines</h3>    
 <p><b>Mathematical Areas:</b></p>
-{% for value in answers.MathematicalArea.values %}
-{% if value.mardiId != 'tbd' %}
-{{ forloop.counter }} - <a href=" {{value.uri}} ">{{ value.Name }}</a> <br>
-{% endif %}
-{% if value.mardiId == 'tbd' %}
-{{ forloop.counter }} - {{ value.Name }}  <br>
+{% for value in answers.MathematicalArea.values %} 
+{% if value %} 
+{{ forloop.counter }} - {{ value }} <br>  
 {% endif %}
 {% endfor %}
 <br>        

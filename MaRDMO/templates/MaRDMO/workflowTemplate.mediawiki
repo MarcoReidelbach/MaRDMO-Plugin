@@ -20,7 +20,7 @@
 
 '''Mathematical Areas:'''<br>
 
-{% for value in MathematicalArea.values %} {% if value.mardiId != 'tbd' %} {{ forloop.counter }} - [{{ value.uri }} {{ value.Name }}]<br> {% endif %} {% if value.mardiId == 'tbd' %} {{ forloop.counter }} - {{ value.Name }}<br> {% endif %} {% endfor %}
+{% for value in MathematicalArea.values %} {% if value %} {{ forloop.counter }} - {{ value }}<br>  {% endif %} {% endfor %}
 
 <br>'''Non-Mathematical Disciplines:'''<br>
 

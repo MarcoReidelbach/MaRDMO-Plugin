@@ -7,6 +7,7 @@ from rdmo.domain.models import Attribute
 from multiprocessing.pool import ThreadPool
 
 from .config import *
+from .para import *
 
 class WikidataSearch(Provider):
     
@@ -45,6 +46,21 @@ class ComponentSearch(Provider):
         ]
 
         return options
+
+class MSCProvider(Provider):
+
+    search = True
+
+    def get_options(self, project, search):
+        '''Function which get MSC Classification.'''
+        if not search or len(search) < 3:
+            return []
+
+        options = []
+
+        options = [{'id': msc[key]['id'] + ' - ' + key , 'text': key} for key in msc if search.lower() in key.lower()]
+
+        return options[:20]
 
 class MathAreaProvider(Provider):
     

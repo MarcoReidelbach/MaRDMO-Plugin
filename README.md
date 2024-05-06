@@ -58,6 +58,7 @@ OPTIONSET_PROVIDERS = [
     ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO.providers.WikidataSearch'),
     ('ComponentSearch', _('Options for MaRDI Search'), 'MaRDMO.providers.ComponentSearch'),
     ('MathAreaProvider', _('Options for Math Areas'), 'MaRDMO.providers.MathAreaProvider'),
+    ('MSCProvider', _('Options for MSC Search'), 'MaRDMO.providers.MSCProvider'),
     ('EnvironmentProvider', _('Options for Environments'), 'MaRDMO.providers.EnvironmentProvider'),
     ('MethodProvider', _('Options for Methods'), 'MaRDMO.providers.MethodProvider'),
     ('DataProvider', _('Options for Data Sets'), 'MaRDMO.providers.DataProvider'),

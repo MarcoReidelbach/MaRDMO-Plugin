@@ -38,3 +38,4 @@ P21='598' #occupation
 P22='20' #ORCID iD
 P23='676' #zbMath ID
 P24='188' #URL
+P25='266' # Mathematical Subject Classification ID

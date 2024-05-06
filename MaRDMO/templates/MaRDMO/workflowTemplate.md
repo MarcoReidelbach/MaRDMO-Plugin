@@ -22,7 +22,7 @@ PID (if applicable): no related publication
     
 **Mathematical Areas:**
 
-{% for value in MathematicalArea.values %} {% if value.mardiId != 'tbd' %} {{ forloop.counter }} - [{{ value.Name }}]({{ value.uri }}) {% endif %} {% if value.mardiId == 'tbd' %} {{ forloop.counter }} - {{ value.Name }} {% endif %} 
+{% for value in MathematicalArea.values %} {% if value %} {{ forloop.counter }} - {{ value }}  {% endif %} 
 {% endfor %}
 
 **Non-Mathematical Disciplines:**
