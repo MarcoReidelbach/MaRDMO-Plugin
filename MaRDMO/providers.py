@@ -9,7 +9,6 @@ from multiprocessing.pool import ThreadPool
 
 from .config import *
 
-
 class WikidataSearch(Provider):
     
     search = True
@@ -18,17 +17,22 @@ class WikidataSearch(Provider):
         '''Function which queries Wikidata and MaRDI KG for user input.'''
         if not search or len(search) < 3:
             return []
-
+        
         # Use a ThreadPool to make concurrent API requests
         pool = ThreadPool(processes=2)
         wikidata_results, mardi_results = pool.map(lambda api_url: query_api(api_url, search), [wikidata_api, mardi_api])
-       
-        options = [ 
-            process_result(result, 'mardi') for result in mardi_results[:10]
-        ]
-        options += [
+
+        # Process Results to fit RDMO Provider Output Requirements
+        options = [
             process_result(result, 'wikidata') for result in wikidata_results[:10]
         ]
+        options += [ 
+            process_result(result, 'mardi') for result in mardi_results[:10]
+        ]
+
+        # Return unique options (if similar Results returned from MaRDI KG and Wikidata, only keep the MaRDI KG result)
+        options = list({option['text']:option for option in options}.values())
+        
         return options
 
 class ComponentSearch(Provider):
@@ -719,8 +723,8 @@ def process_result(result, location):
     except (KeyError, TypeError):
         description = 'No Description Provided!'
     return {
-        'id': f"{result['id']}",
-        'text': f"{location}:{result['id']} <|> {result['display']['label']['value']} <|> {description}"
+         'id': f"{location}:{result['id']} <|> {result['display']['label']['value']} <|> {description}",
+         'text': f"{result['display']['label']['value']} ({description})"
     }
 
 def get_attribute(uri):

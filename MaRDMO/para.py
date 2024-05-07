@@ -109,7 +109,7 @@ questions = {# Export and Workflow Settings
               # Mathematical Area Information
               uNames[9]+' ID': {'uName':uNames[9],'dName':'ID','Id': BASE_URI+'Section_2/Set_3/Question_00', 'set_prefix':False, 'set_index':True, 'collection_index':True, 'option_text':False, 'external_id':True},
               # Non-Mathematical Discipline Information
-              uNames[10]+' ID': {'uName':uNames[10],'dName':'ID','Id': BASE_URI+'Section_2/Set_3/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              uNames[10]+' ID': {'uName':uNames[10],'dName':'ID','Id': BASE_URI+'Section_2/Set_3/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':True, 'option_text':False, 'external_id':True},
               # Workflow Documentation Creator Information
               uNames[2]+' Name': {'uName':uNames[2],'dName':'Name','Id': BASE_URI + 'Section_0/Set_1/Question_02', 'set_prefix':False, 'set_index': False, 'collection_index': False},
               uNames[2]+' IDs': {'uName':uNames[2],'dName':'IDs','Id': BASE_URI + 'Section_0/Set_1/Question_03', 'set_prefix':False, 'set_index': False, 'collection_index': True},
@@ -138,7 +138,7 @@ questions = {# Export and Workflow Settings
               uNames[14]+' Quantity': {'uName':uNames[14],'dName':'Quantity','Id': BASE_URI+'Section_3a/Set_6/Set_1/Question_0', 'set_prefix':True, 'set_index':True, 'collection_index':False},
               # more to come...
               # Software Information
-              uNames[6]+' ID': {'uName':uNames[6],'dName':'ID','Id': BASE_URI+'Section_4/Set_3/Question_01', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[6]+' ID': {'uName':uNames[6],'dName':'ID','Id': BASE_URI+'Section_4/Set_3/Question_01', 'set_prefix':False, 'set_index': True, 'collection_index': False, 'option_text':False, 'external_id':True},
               uNames[6]+' Name': {'uName':uNames[6],'dName':'Name','Id': BASE_URI+'Section_4/Set_3/Question_02', 'set_prefix':False, 'set_index': True, 'collection_index': False},
               uNames[6]+' Description': {'uName':uNames[6],'dName':'Description','Id': BASE_URI+'Section_4/Set_3/Question_03', 'set_prefix':False, 'set_index': True, 'collection_index': False},
               uNames[6]+' SubProperty': {'uName':uNames[6],'dName':'SubProperty','Id': BASE_URI+'Section_4/Set_3/Question_05', 'set_prefix':False, 'set_index': True, 'collection_index': True},
@@ -165,7 +165,7 @@ questions = {# Export and Workflow Settings
               uNames[8]+' Location': {'uName':uNames[8],'dName':'Location','Id': BASE_URI+'Section_4/Set_5/Question_07', 'set_prefix':False, 'set_index': True, 'collection_index': False},
               uNames[8]+' Software': {'uName':uNames[8],'dName':'Software','Id': BASE_URI+'Section_4/Set_5/Question_08', 'set_prefix':False, 'set_index': True, 'collection_index': False},
               # Data Set Information
-              uNames[11]+' ID': {'uName':uNames[11],'dName':'ID','Id': BASE_URI+'Section_4/Set_6/Question_00', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[11]+' ID': {'uName':uNames[11],'dName':'ID','Id': BASE_URI+'Section_4/Set_6/Question_00', 'set_prefix':False, 'set_index':True, 'collection_index':False, 'option_text':False, 'external_id':True},
               uNames[11]+' Name': {'uName':uNames[11],'dName':'Name','Id':  BASE_URI+'Section_4/Set_6/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':False},
               uNames[11]+' Description': {'uName':uNames[11],'dName':'Description','Id':  BASE_URI+'Section_4/Set_6/Question_11', 'set_prefix':False, 'set_index':True, 'collection_index':False},
               uNames[11]+' Reference': {'uName':uNames[11],'dName':'Reference','Id': BASE_URI+'Section_4/Set_6/Question_10', 'set_prefix':False, 'set_index':True, 'collection_index':False},
@@ -178,7 +178,7 @@ questions = {# Export and Workflow Settings
               uNames[11]+' Publication': {'uName':uNames[11],'dName':'Publication','Id':  BASE_URI+'Section_4/Set_6/Question_08', 'set_prefix':False, 'set_index':True, 'collection_index':False},
               uNames[11]+' Archiving': {'uName':uNames[11],'dName':'Archiving','Id':  BASE_URI+'Section_4/Set_6/Question_09', 'set_prefix':False, 'set_index':True, 'collection_index':False, 'option_text':True},
               # Method Information
-              uNames[12]+' ID': {'uName':uNames[12],'dName':'ID','Id': BASE_URI+'Section_4/Set_2/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              uNames[12]+' ID': {'uName':uNames[12],'dName':'ID','Id': BASE_URI+'Section_4/Set_2/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':False, 'option_text':False, 'external_id':True},
               uNames[12]+' Name': {'uName':uNames[12],'dName':'Name','Id': BASE_URI+'Section_4/Set_2/Question_02', 'set_prefix':False, 'set_index':True, 'collection_index':False},
               uNames[12]+' Description': {'uName':uNames[12],'dName':'Description','Id':  BASE_URI+'Section_4/Set_2/Wiki_02', 'set_prefix':False, 'set_index':True, 'collection_index':False},
               uNames[12]+' Sub Property': {'uName':uNames[12],'dName':'Sub Property','Id': BASE_URI+'Section_4/Set_2/Wiki_03', 'set_prefix':False, 'set_index':True, 'collection_index':True},
@@ -206,11 +206,12 @@ questions = {# Export and Workflow Settings
               uNames[16]+' OriginalDevice': {'uName':uNames[16], 'dName':'OriginalDevice', 'Id':BASE_URI+'Section_5/Set_2/Question_01', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
               uNames[16]+' OtherDevice': {'uName':uNames[16], 'dName':'OtherDevice', 'Id':BASE_URI+'Section_5/Set_2/Question_02','set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
               uNames[16]+' Transferability': {'uName':uNames[16], 'dName':'Transferability', 'Id':BASE_URI+'Section_5/Set_2/Question_03', 'set_prefix':False,'set_index':False,'collection_index':True},
+              # Workflow Search 
               uNames[17]+' Search Objective': {'uName':uNames[17], 'dName':'Search Objective', 'Id':BASE_URI+'Section_1/Set_1/Question_00', 'set_prefix':False, 'set_index':False, 'collection_index':False},
               uNames[17]+' Objective Keywords': {'uName':uNames[17], 'dName':'Objective Keywords', 'Id':BASE_URI+'Section_1/Set_1/Question_01', 'set_prefix':False, 'set_index':False, 'collection_index':True},
               uNames[17]+' Search Discipline': {'uName':uNames[17], 'dName':'Search Discipline', 'Id':BASE_URI+'Section_1/Set_1/Question_02', 'set_prefix':False, 'set_index':False, 'collection_index':False},
-              uNames[17]+' Discipline Keywords': {'uName':uNames[17], 'dName':'Discipline Keywords', 'Id':BASE_URI+'Section_1/Set_1/Question_03', 'set_prefix':False, 'set_index':False, 'collection_index':True},
+              uNames[17]+' Discipline Keywords': {'uName':uNames[17], 'dName':'Discipline Keywords', 'Id':BASE_URI+'Section_1/Set_1/Question_03', 'set_prefix':False, 'set_index':False, 'collection_index':True, 'option_text':False, 'external_id':True},
               uNames[17]+' Search Entities': {'uName':uNames[17], 'dName':'Search Entities', 'Id':BASE_URI+'Section_1/Set_1/Question_04', 'set_prefix':False, 'set_index':False, 'collection_index':False},
-              uNames[17]+' Entities Keywords': {'uName':uNames[17], 'dName':'Entities Keywords', 'Id':BASE_URI+'Section_1/Set_1/Question_05', 'set_prefix':False, 'set_index':False, 'collection_index':True}}
+              uNames[17]+' Entities Keywords': {'uName':uNames[17], 'dName':'Entities Keywords', 'Id':BASE_URI+'Section_1/Set_1/Question_05', 'set_prefix':False, 'set_index':False, 'collection_index':True, 'option_text':False, 'external_id':True}}
               
 
