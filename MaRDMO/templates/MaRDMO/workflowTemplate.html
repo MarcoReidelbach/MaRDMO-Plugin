@@ -392,14 +392,43 @@
                 <tbody>
                     <tr>
                         {% for values in answers.Hardware.values %}
-                            <td style="text-align: center; vertical-align: middle;">{{ values.ID }}</td>
+                            <td style="text-align: center; vertical-align: middle;">
+				    			    {% if values.mardiId != 'tbd' %}
+                                                            	    mardi:<a href=" {{values.uri}} ">{{ values.mardiId }}</a> <br>
+                                                            {% endif %}
+                                                            {% if values.mardiId == 'tbd' %}
+                                                                    mardi:{{ values.mardiId }}</a> <br>
+                                                            {% endif %}
+			    </td>
                             <td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ values.Processor }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ values.Compiler }}</td>
+                            <td style="text-align: center; vertical-align: middle;">
+				{% for subproperty in values.SubProperty.values %}
+                                                                {% if subproperty.mardiId != 'tbd' %}
+                                                                    <a href=" {{subproperty.uri}} ">{{ subproperty.Name }}</a> <br>
+                                                            {% endif %}
+                                                            {% if subproperty.mardiId == 'tbd' %}
+                                                                    {{ subproperty.Name }}</a> <br>
+                                                            {% endif %}
+                                                                {% if not forloop.last %}, {% endif %}
+                                                        {% endfor %}
+
+			    </td>
+                            <td style="text-align: center; vertical-align: middle;">
+				{% for subproperty2 in values.SubProperty2.values %}
+                                                                {% if subproperty2.mardiId != 'tbd' %}
+                                                                    <a href=" {{subproperty2.uri}} ">{{ subproperty2.Name }}</a> <br>
+                                                            {% endif %}
+                                                            {% if subproperty2.mardiId == 'tbd' %}
+                                                                    {{ subproperty2.Name }}</a> <br>
+                                                            {% endif %}
+                                                                {% if not forloop.last %}, {% endif %}
+                                                        {% endfor %}
+
+			    </td>
                             <td style="text-align: center; vertical-align: middle;">{{ values.Node }}</td>
                             <td style="text-align: center; vertical-align: middle;">{{ values.Core }}</td>
-                        {% endfor %}
-                    </tr>
+                    	</tr>
+		    {% endfor %}
                 </tbody>
             </table>
     {% endif %}

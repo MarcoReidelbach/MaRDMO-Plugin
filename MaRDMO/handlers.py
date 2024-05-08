@@ -591,3 +591,40 @@ def programmingLanguages(sender, **kwargs):
 
     return
 
+@receiver(post_save, sender=Value)
+def processor(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_03':
+        try:
+            url, label, quote = instance.external_id.split(' <|> ')
+            
+            # Get "real" URL
+            r = requests.get(url)
+            tmp = r.text.replace('<link rel="canonical" href="', 'r@ndom}-=||').split('r@ndom}-=||')[-1]
+            idx = tmp.find('"/>')
+            
+            if 'https://en.wikichip.org/wiki/' in tmp[:idx]:
+                real_link = tmp[:idx].replace('https://en.wikichip.org/wiki/','')
+            else:
+                real_link = url.replace('https://en.wikichip.org/wiki/','')
+            
+            res = kg_req(wikidata_endpoint,wini.format(pro_vars,pro_query.format('P12029',real_link),'1'))
+            
+            if res[0]:
+                info = 'wikidata:'+res[0]['qid']['value'] + ' <|> ' + res[0]['label']['value'] + ' <|> ' + res[0]['quote']['value']
+            else:
+                info = real_link + ' <|> ' + label + ' <|> ' + quote
+            
+            attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_4/Set_4/Question_03')
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                set_index=instance.set_index,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'external_id': info
+                    }
+            )
+        except:
+            pass

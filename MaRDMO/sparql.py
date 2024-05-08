@@ -49,13 +49,20 @@ LIMIT {2}'''
 mini='''
 PREFIX wdt:'''+wdt+''' PREFIX wd:'''+wd+wini
 
-#SPARQL Query for additional programming language queries
+#SPARQL Query for additional entities
 
 pl_vars = '?qid ?label ?quote'
 
 pl_query = '''
 OPTIONAL{{wd:{0} wdt:{1} ?pl. ?pl rdfs:label ?label; schema:description ?quote.BIND(STRAFTER(STR(?pl),STR(wd:)) AS ?qid).FILTER (lang(?label) = 'en').FILTER (lang(?quote) = 'en').}}
 '''
+
+pro_vars = '?qid ?label ?quote'
+
+pro_query = '''
+OPTIONAL{{?pro wdt:{0} '{1}'. ?pro rdfs:label ?label; schema:description ?quote.BIND(STRAFTER(STR(?pro),STR(wd:)) AS ?qid).FILTER (lang(?label) = 'en').FILTER (lang(?quote) = 'en').}}
+'''
+
 
 #Queries to MaRDI KG and Wikidata for Publication Handler
 

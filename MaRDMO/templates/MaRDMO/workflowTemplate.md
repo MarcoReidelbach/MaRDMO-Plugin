@@ -88,7 +88,7 @@ PID (if applicable): no related publication
 
 | ID | Name | Processor | Compiler | #Nodes | #Cores |
 |----|------|-----------|----------|--------|--------|
-{% for values in Hardware.values %} | {{ values.ID }} | {{ values.Name }} | {{ values.Processor }} | {{ values.Compiler }} | {{ values.Node }} | {{ values.Core }} |
+{% for values in Hardware.values %} | {% if values.mardiId != 'tbd' %} mardi:[{{ values.mardiId }}]({{ values.uri }}) {% elif values.mardiId == 'tbd' %} mardi:{{ values.mardiId }} {% endif %} | {{ values.Name }} | {% for subproperty in values.SubProperty.values %} {% if subproperty.mardiId != 'tbd' %} [{{ subproperty.Name }}]({{ subproperty.uri }}) {% elif subproperty.mardiId == 'tbd' %} {{ subproperty.Name }} {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %} | {% for subproperty2 in values.SubProperty2.values %} {% if subproperty2.mardiId != 'tbd' %} [{{ subproperty2.Name }}]({{ subproperty2.uri }}) {% elif subproperty2.mardiId == 'tbd' %} {{ subproperty2.Name }} {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %} | {{ values.Node }} | {{ values.Core }} |
 {% endfor %}
 {% endif %}
 

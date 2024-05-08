@@ -306,7 +306,7 @@ class MaRDIExport(Export):
 ### Refine User Answers via External Data Sources #################################################################################################################################################
 
             answers = self.refine(answers)
-
+            
 ### Integrate related Model in MaRDI KG ###########################################################################################################################################################
             
             models, answers, error = self.Entry_Generator('Model',              # Entry of Model
@@ -407,19 +407,31 @@ class MaRDIExport(Export):
         
 ### Integrate related non-mathematical Disciplines in MaRDI KG ####################################################################################################################################
             
-            answers.update({'NonMathematicalDiscipline':answers['NonMathematicalDiscipline'][0]['ID']})
+            if answers['NonMathematicalDiscipline'].get(0,{}).get('ID'):
+                answers.update({'NonMathematicalDiscipline':answers['NonMathematicalDiscipline'][0]['ID']})
+            else:
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Non-Mathematical Disciplines of Workflow!'
+                    }, status=200)
 
-            disciplines, answers, error = self.Entry_Generator('NonMathematicalDiscipline',   # Entry of non-mathmatical Disciplines
+            disciplines, answers, error = self.Entry_Generator('NonMathematicalDiscipline',     # Entry of non-mathmatical Disciplines
                                                                [False,False,False],             # Generation not wanted, QID Generation not wanted, String Generation not wanted
                                                                ['',''],                         # nothing
                                                                answers)                         # refined user answers
 
-            if error[0] == 2:
-                # Stop if no Discipline provided by User
+### Hardware ######################################################################################################################################################################################
+
+            hardwares, answers, error = self.Entry_Generator('Hardware',                        # Entry of Hardware
+                                                             [True,True,False],                 # Generation wanted, QID Generation wanted, String Generation not wanted
+                                                             [Q12,P26,P6],                      # nothing
+                                                             answers)                           # refined user answers  
+
+            if error[0] == 0:
+                # Stop if no Name and Description provided for new method entry
                 return render(self.request,'MaRDMO/workflowError.html', {
-                    'error': 'Missing Non-Mathematical Disciplines of Workflow!'
+                    'error': 'Missing Name and/or Description of new Hardware in Set {}!'.format(error[1])
                     }, status=200)
-                
+
 ### Mathematical Fields ###########################################################################################################################################################################
             
             if answers['MathematicalArea'].get(0,{}).get('ID'):
@@ -429,7 +441,7 @@ class MaRDIExport(Export):
                 return render(self.request,'MaRDMO/workflowError.html', {
                     'error': 'Missing Mathematical Fields of Workflow!'
                     }, status=200)
-        
+            
 ### Integrate Workflow in MaRDI KG ################################################################################################################################################################
 
             if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
@@ -438,7 +450,7 @@ class MaRDIExport(Export):
                 facts = [(Item,Q2,P4),(Item,paper_qid,P3)] +\
                         [(Item,discipline,P5) for discipline in disciplines] +\
                         [(ExternalID,field,P25) for field in answers['MathematicalArea'].values()] +\
-                        [(Item,i,P6) for i in models+methods+softwares+datas] +\
+                        [(Item,i,P6) for i in models+methods+softwares+datas+hardwares] +\
                         [(Item, creator, P8) for creator in creator_qids]           
 
                 # If MaRDI KG integration is desired
@@ -713,7 +725,7 @@ class MaRDIExport(Export):
            or on Wikidata and copies the entry to the MaRDI portal and returns
            its QID.'''
         # Store Label and Description
-        entry = [answers['Name'], answers['Description']]
+        entry = [answers.get('Name'), answers.get('Description')]
         if answers['ID']:
             # IF ID exists, split in prefix and qnumber
             prefix, qnumber = answers['ID'].split(':')
@@ -721,7 +733,7 @@ class MaRDIExport(Export):
                 # Store MaRDI QID
                 qid = qnumber
             elif prefix == 'wikidata':
-                # If Wikidata QID, check Publication Type
+                # IF Wikidata QID, check Publication Type
                 if public == option['Public'] and preview == option['No']:
                     #Create Entry on MaRDI Portal and store MaRDI QID
                     qid = self.entry(entry[0], entry[1] , [(ExternalID, qnumber, P2)])
@@ -789,7 +801,7 @@ class MaRDIExport(Export):
     def refine(self,answers):
         '''This function takes user answers and performs SPARQL queries to MaRDI portal.'''
         
-        entities = ['NonMathematicalDiscipline','Model','Software','DataSet','Method']
+        entities = ['NonMathematicalDiscipline','Model','Software','DataSet','Method','Hardware']
 
         for entity in entities:
             for key in answers[entity]:
@@ -837,6 +849,18 @@ class MaRDIExport(Export):
                                 answers[entity][key]['SubProperty'].update({ikey:{'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description}})
                             else:
                                 answers[entity][key]['SubProperty'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
+                if answers[entity][key].get('SubProperty2'):
+                    for ikey in answers[entity][key]['SubProperty2']:
+                        ID, Name, Description = answers[entity][key]['SubProperty2'][ikey].split(' <|> ')
+                        if re.match(r"mardi:Q[0-9]+", ID):
+                            answers[entity][key]['SubProperty2'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
+                        else:
+                            mardiID = self.find_item(Name,Description)
+                            if mardiID:
+                                answers[entity][key]['SubProperty2'].update({ikey:{'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description}})
+                            else:
+                                answers[entity][key]['SubProperty2'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
+
                     
         return answers
 
@@ -844,12 +868,10 @@ class MaRDIExport(Export):
         '''Function queries Wikidata/MaRDI KG, uses and generates entries in MaRDI Knowledge Graph.'''
         
         qids=[]
-
         for key in answers[Type].keys():
-            
             # Check if on Portal or in Wikidata, integrate Wikidata entry if desired
             qid, entry = self.portal_wikidata_check(answers[Type][key], answers['Settings']['Public'], answers['Settings']['Preview'])
-            
+                    
             # Update User answers
             if qid: 
                 qids.append(qid)
@@ -862,15 +884,34 @@ class MaRDIExport(Export):
     
                 # Get subproperty of 'new' entity
                 subqids = []
+                subqids2 = []
  
                 if Generate[1]:
                     for subkey in answers[Type][key].get('SubProperty', {}).keys():
                         # Check if subproperty on Portal or in Wikidata (store QID and string)
-                        if answers[Type][key]['SubProperty'][subkey]: 
-                            subqid, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'])
+                        if Type == 'Hardware':
+                            subqid = self.find_item(answers[Type][key]['SubProperty'][subkey]['Name'],answers[Type][key]['SubProperty'][subkey]['Description'])
+                            if not subqid:
+                                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                                    subqid = self.entry(answers[Type][key]['SubProperty'][subkey]['Name'],answers[Type][key]['SubProperty'][subkey]['Description'],
+                                                        [(Item,Relations[0],P4)]+
+                                                        [(ExternalID,answers[Type][key]['SubProperty'][subkey]['ID'].split(':')[-1],P2 if 'wikidata' in answers[Type][key]['SubProperty'][subkey]['ID'] else P27)])
+                                else:
+                                    subqid = 'tbd'
                             answers[Type][key]['SubProperty'][subkey].update({'mardiId': subqid, 'uri': f"{mardi_wiki}Item:{subqid}"})
                             subqids.append(subqid)
-                    
+                        else:
+                            if answers[Type][key]['SubProperty'][subkey]: 
+                                subqid, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'])
+                                answers[Type][key]['SubProperty'][subkey].update({'mardiId': subqid, 'uri': f"{mardi_wiki}Item:{subqid}"})
+                                subqids.append(subqid)
+                    for subkey in answers[Type][key].get('SubProperty2', {}).keys():
+                        # Check if subproperty2 on Portal or in Wikidata (store QID and string)
+                        if answers[Type][key]['SubProperty2'][subkey]:
+                                subqid2, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'])
+                                answers[Type][key]['SubProperty2'][subkey].update({'mardiId': subqid2, 'uri': f"{mardi_wiki}Item:{subqid2}"})
+                                subqids2.append(subqid2)
+
                     # Stop if entry has no QID and its subproperty has no QID    
                     if not (qid or subqids):
                         return qids, answers, [1,key]
@@ -882,9 +923,10 @@ class MaRDIExport(Export):
                         qids.append(self.entry(entry[0],entry[1], 
                                                [(Item,Relations[0],P4)]+
                                                [(Item,subqid,Relations[1]) for subqid in subqids]+
+                                               [(Item,subqid2,Relations[2]) for subqid2 in subqids2]+ 
                                                [(String,re.sub("\$","",form.lstrip()),P18) for form in answers[Type][key].get('Formular',{}).values()]+
-                                               [(ExternalID,answers[Type][key].get('Reference').split(':')[-1],
-                                                 P16 if answers[Type][key].get('Reference').split(':')[0] == 'doi' else P20 if answers[Type][key].get('Reference').split(':')[-1] == 'swmath' else P24)]))
+                                               [(ExternalID,answers[Type][key].get('Reference','').split(':')[-1],
+                                                 P16 if answers[Type][key].get('Reference','').split(':')[0] == 'doi' else P20 if answers[Type][key].get('Reference','').split(':')[-1] == 'swmath' else P24 if answers[Type][key].get('Reference','').split(':')[-1] == 'url' else '')]))
                         answers[Type][key].update({'mardiId': qids[-1], 'uri': f"{mardi_wiki}Item:{qids[-1]}"})
                     else:
                         answers[Type][key].update({'mardiId': 'tbd', 'uri': f"{mardi_wiki}Item:{qid}"})
@@ -896,7 +938,14 @@ class MaRDIExport(Export):
             
     def find_item(self, label, description, api=mardi_api, language="en"):
         # Perform label-based search
-        response = requests.get(f"{api}?action=wbsearchentities&search={label}&language={language}&format=json")
+        response = requests.get(api, params={
+            'action': 'wbsearchentities',
+            'format': 'json',
+            'language': 'en',
+            'type': 'item',
+            'limit': 10,
+            'search': label
+        }, headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'})
         data = response.json()
         # Filter results based on description
         matched_items = [item for item in data['search'] if item.get('description') == description] 

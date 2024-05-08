@@ -72,6 +72,29 @@ class MSCProvider(Provider):
 
         return options[:20]
 
+class ProcessorProvider(Provider):
+
+    search = True
+    api_url = 'https://en.wikichip.org/w/api.php?' 
+
+    def get_options(self, project, search):
+        '''Function which get MSC Classification.'''
+        if not search or len(search) < 3:
+            return []
+        
+        response = requests.get(self.api_url, params={
+            'action': 'opensearch',
+            'search': search
+            }, headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()
+        
+        if response[1]:
+            options = [{'id': wikichipId + ' <|> ' + wikichipLabel + ' <|> processor', 'text': wikichipLabel} for wikichipId, wikichipLabel in zip(response[-1],response[1])]
+        else:
+            options = []
+    
+        return options[:20]
+
+
 class MathAreaProvider(Provider):
     
     SUBJECT_ATTRIBUTE = 'http://example.com/terms/domain/MaRDI/Section_2/Set_3/Question_00'

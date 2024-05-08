@@ -107,7 +107,7 @@ questions = {# Export and Workflow Settings
               uNames[1]+' Procedure': {'uName':uNames[1],'dName':'Procedure','Id': BASE_URI + 'Section_2/Set_1/Question_05', 'set_prefix':False, 'set_index': False, 'collection_index': False},
               uNames[1]+' DataStream': {'uName':uNames[1],'dName':'DataStream','Id': BASE_URI + 'Section_2/Set_3/Question_02', 'set_prefix':False, 'set_index': False, 'collection_index': True},
               # Mathematical Area Information
-              uNames[9]+' ID': {'uName':uNames[9],'dName':'ID','Id': BASE_URI+'Section_2/Set_3/Question_00', 'set_prefix':False, 'set_index':True, 'collection_index':True, 'option_text':False, 'external_id':True},
+              uNames[9]+' ID': {'uName':uNames[9],'dName':'ID','Id': BASE_URI+'Section_2/Set_3/Question_00', 'set_prefix':False, 'set_index':True, 'collection_index':True},
               # Non-Mathematical Discipline Information
               uNames[10]+' ID': {'uName':uNames[10],'dName':'ID','Id': BASE_URI+'Section_2/Set_3/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':True, 'option_text':False, 'external_id':True},
               # Workflow Documentation Creator Information
@@ -149,10 +149,11 @@ questions = {# Export and Workflow Settings
               uNames[6]+' Published': {'uName':uNames[6],'dName':'Published','Id': BASE_URI+'Section_4/Set_3/Question_08',  'set_prefix':False, 'set_index': True, 'collection_index': False, 'option_text': True},
               uNames[6]+' Documented': {'uName':uNames[6],'dName':'Documented','Id': BASE_URI+'Section_4/Set_3/Question_09', 'set_prefix':False, 'set_index': True, 'collection_index': False, 'option_text': True},
               # Hardware Information
-              uNames[7]+' ID': {'uName':uNames[7],'dName':'ID','Id': BASE_URI+'Section_4/Set_4/Question_01', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[7]+' ID': {'uName':uNames[7],'dName':'ID','Id': BASE_URI+'Section_4/Set_4/Question_01', 'set_prefix':False, 'set_index': True, 'collection_index': False, 'option_text':False, 'external_id':True},
               uNames[7]+' Name': {'uName':uNames[7],'dName':'Name','Id': BASE_URI+'Section_4/Set_4/Question_02', 'set_prefix':False, 'set_index': True, 'collection_index': False},
-              uNames[7]+' Processor': {'uName':uNames[7],'dName':'Processor','Id': BASE_URI+'Section_4/Set_4/Question_03', 'set_prefix':False, 'set_index': True, 'collection_index': False},
-              uNames[7]+' Compiler': {'uName':uNames[7],'dName':'Compiler','Id': BASE_URI+'Section_4/Set_4/Question_04', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[7]+' Description': {'uName':uNames[7],'dName':'Description','Id': BASE_URI+'Section_4/Set_4/Question_07', 'set_prefix':False, 'set_index': True, 'collection_index': False},
+              uNames[7]+' SubProperty': {'uName':uNames[7],'dName':'SubProperty','Id': BASE_URI+'Section_4/Set_4/Question_03', 'set_prefix':False, 'set_index': True, 'collection_index': True, 'option_text':False, 'external_id':True},
+              uNames[7]+' SubProperty2': {'uName':uNames[7],'dName':'SubProperty2','Id': BASE_URI+'Section_4/Set_4/Question_04', 'set_prefix':False, 'set_index': True, 'collection_index': True, 'option_text':False, 'external_id':True},
               uNames[7]+' Node': {'uName':uNames[7],'dName':'Node','Id': BASE_URI+'Section_4/Set_4/Question_05', 'set_prefix':False, 'set_index': True, 'collection_index': False},
               uNames[7]+' Core': {'uName':uNames[7],'dName':'Core','Id': BASE_URI+'Section_4/Set_4/Question_06', 'set_prefix':False, 'set_index': True, 'collection_index': False},
               # Experimental Device Information
@@ -181,7 +182,7 @@ questions = {# Export and Workflow Settings
               uNames[12]+' ID': {'uName':uNames[12],'dName':'ID','Id': BASE_URI+'Section_4/Set_2/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':False, 'option_text':False, 'external_id':True},
               uNames[12]+' Name': {'uName':uNames[12],'dName':'Name','Id': BASE_URI+'Section_4/Set_2/Question_02', 'set_prefix':False, 'set_index':True, 'collection_index':False},
               uNames[12]+' Description': {'uName':uNames[12],'dName':'Description','Id':  BASE_URI+'Section_4/Set_2/Wiki_02', 'set_prefix':False, 'set_index':True, 'collection_index':False},
-              uNames[12]+' Sub Property': {'uName':uNames[12],'dName':'Sub Property','Id': BASE_URI+'Section_4/Set_2/Wiki_03', 'set_prefix':False, 'set_index':True, 'collection_index':True},
+              uNames[12]+' SubProperty': {'uName':uNames[12],'dName':'SubProperty','Id': BASE_URI+'Section_4/Set_2/Wiki_03', 'set_prefix':False, 'set_index':True, 'collection_index':True},
               uNames[12]+' Formular': {'uName':uNames[12],'dName':'Formular','Id': BASE_URI+'Section_4/Set_2/Wiki_04', 'set_prefix':False, 'set_index':True, 'collection_index':True},
               uNames[12]+' Reference': {'uName':uNames[12],'dName':'Reference','Id': BASE_URI+'Section_4/Set_2/Question_00', 'set_prefix':False, 'set_index':True, 'collection_index':False},
               uNames[12]+' Parameter': {'uName':uNames[12],'dName':'Parameter','Id': BASE_URI+'Section_4/Set_2/Question_04', 'set_prefix':False, 'set_index':True, 'collection_index':False},
