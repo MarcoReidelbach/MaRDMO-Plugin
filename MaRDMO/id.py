@@ -11,6 +11,8 @@ Q8='Q57163'  #researcher
 Q9='Q56973'  #scientific journal
 Q10='Q56751' #publication
 Q11='Q56525' #language
+Q12='Q56583' #computer hardware
+Q13='tbd'    #physical tool (wikidata:Q39546)
 
 #Property IDs (PIDs)
 
@@ -39,3 +41,5 @@ P22='20' #ORCID iD
 P23='676' #zbMath ID
 P24='188' #URL
 P25='266' # Mathematical Subject Classification ID
+P26='tbd' #CPU (wikidata:P880)
+P27='tbd' #WikiChip article ID (wikidata:P12029)
