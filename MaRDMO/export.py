@@ -13,9 +13,10 @@ from rdmo.views.templatetags import view_tags
 from rdmo.domain.models import Attribute
 
 from wikibaseintegrator import wbi_login, WikibaseIntegrator
-from wikibaseintegrator.datatypes import ExternalID, Item, String, Time, MonolingualText
+from wikibaseintegrator.datatypes import ExternalID, Item, String, Time, MonolingualText, Quantity
 from wikibaseintegrator.wbi_enums import ActionIfExists
 from wikibaseintegrator.wbi_config import config as wbi_config
+from wikibaseintegrator.models import Qualifiers
 
 from .para import *
 from .config import *
@@ -36,7 +37,7 @@ class MaRDIExport(Export):
     def render(self):
         '''Function that renders User answers to MaRDI template
            (adjusted from csv export)'''
- 
+        
 ### Check if MaRDI Questionaire is used ###########################################################################################################################################################
 
         if str(self.project.catalog)[-5:] != 'MaRDI':
@@ -304,9 +305,9 @@ class MaRDIExport(Export):
                                                                  True)
 
 ### Refine User Answers via External Data Sources #################################################################################################################################################
-
-            answers = self.refine(answers)
             
+            answers = self.refine(answers)
+ 
 ### Integrate related Model in MaRDI KG ###########################################################################################################################################################
             
             models, answers, error = self.Entry_Generator('Model',              # Entry of Model
@@ -380,6 +381,43 @@ class MaRDIExport(Export):
                 return render(self.request,'MaRDMO/workflowError.html', {
                     'error': 'Missing Programming Language(s) of new Software in Set {}!'.format(error[1])
                     }, status=200)
+             
+            for skey in answers['Software']:
+                for dkey in answers['ExperimentalDevice']:
+                    if answers['ExperimentalDevice'][dkey].get('SubProperty2'):
+                        for dkey2 in answers['ExperimentalDevice'][dkey]['SubProperty2']:
+                            if answers['Software'][skey]['Name'] == answers['ExperimentalDevice'][dkey]['SubProperty2'][dkey2]['Name'] and answers['Software'][skey]['Description'] == answers['ExperimentalDevice'][dkey]['SubProperty2'][dkey2]['Description']:
+                                answers['ExperimentalDevice'][dkey]['SubProperty2'][dkey2]['ID'] = 'mardi:'+answers['Software'][skey]['mardiId']
+
+### Hardware/Devices #############################################################################################################################################################################
+
+            if answers['Settings']['WorkflowType'] == option['Computation']: 
+                
+                # Hardware
+                hardwares, answers, error = self.Entry_Generator('Hardware',                     # Entry of Hardware
+                                                                 [True,True,False],              # Generation wanted, QID Generation wanted, String Generation not wanted
+                                                                 [Q12,P26,P6,P4,P32,P2,P27,P31], # nothing
+                                                                 answers)                        # refined user answers  
+
+                if error[0] == 0:
+                    # Stop if no Name and Description provided for new method entry
+                    return render(self.request,'MaRDMO/workflowError.html', {
+                        'error': 'Missing Name and/or Description of new Hardware in Set {}!'.format(error[1])
+                        }, status=200)
+            
+            elif answers['Settings']['WorkflowType'] == option['Analysis']:
+            
+                # Devices
+                devices, answers, error = self.Entry_Generator('ExperimentalDevice',           # Entry of Hardware
+                                                               [True,True,False],              # Generation wanted, QID Generation wanted, String Generation not wanted
+                                                               [Q13,P28,P6,P29,P30],           # nothing
+                                                               answers)                        # refined user answers  
+
+                if error[0] == 0:
+                    # Stop if no Name and Description provided for new method entry
+                    return render(self.request,'MaRDMO/workflowError.html', {
+                        'error': 'Missing Name and/or Description of new Hardware in Set {}!'.format(error[1])
+                        }, status=200)
 
 ### Integrate related Data Sets in MaRDI KG #######################################################################################################################################################
             
@@ -419,19 +457,6 @@ class MaRDIExport(Export):
                                                                ['',''],                         # nothing
                                                                answers)                         # refined user answers
 
-### Hardware ######################################################################################################################################################################################
-
-            hardwares, answers, error = self.Entry_Generator('Hardware',                        # Entry of Hardware
-                                                             [True,True,False],                 # Generation wanted, QID Generation wanted, String Generation not wanted
-                                                             [Q12,P26,P6],                      # nothing
-                                                             answers)                           # refined user answers  
-
-            if error[0] == 0:
-                # Stop if no Name and Description provided for new method entry
-                return render(self.request,'MaRDMO/workflowError.html', {
-                    'error': 'Missing Name and/or Description of new Hardware in Set {}!'.format(error[1])
-                    }, status=200)
-
 ### Mathematical Fields ###########################################################################################################################################################################
             
             if answers['MathematicalArea'].get(0,{}).get('ID'):
@@ -450,8 +475,22 @@ class MaRDIExport(Export):
                 facts = [(Item,Q2,P4),(Item,paper_qid,P3)] +\
                         [(Item,discipline,P5) for discipline in disciplines] +\
                         [(ExternalID,field,P25) for field in answers['MathematicalArea'].values()] +\
-                        [(Item,i,P6) for i in models+methods+softwares+datas+hardwares] +\
-                        [(Item, creator, P8) for creator in creator_qids]           
+                        [(Item, creator, P8) for creator in creator_qids] +\
+                        [(Item,i,P6) for i in methods]
+                        
+                        #[(Item,i,P6) for i in models+methods+softwares+datas+hardwares+devices] +\
+                        #[(Item, creator, P8) for creator in creator_qids]           
+
+                if answers['Settings']['WorkflowType'] == option['Computation']:
+
+                    # Add Hardware Facts for Computational Workflow
+                    facts += [(Item,i,P6,answers['Hardware'][idx]['Qualifiers']) for idx,i in enumerate(hardwares)] 
+
+                elif answers['Settings']['WorkflowType'] == option['Analysis']:
+
+                    # Add Device Facts for Data Analysis Workflow
+                    facts += [(Item,i,P6,answers['ExperimentalDevice'][idx]['Qualifiers']) for idx,i in enumerate(devices)]
+
 
                 # If MaRDI KG integration is desired
                 if existing_workflow_qid:
@@ -470,7 +509,10 @@ class MaRDIExport(Export):
                             elif fact[0] == Time:
                                 d.append(fact[0](time=fact[1],prop_nr=fact[2]))
                             else:
-                                d.append(fact[0](value=fact[1],prop_nr=fact[2]))
+                                if len(fact) == 3:
+                                    d.append(fact[0](value=fact[1],prop_nr=fact[2]))
+                                elif len(fact) == 4:
+                                    d.append(fact[0](value=fact[1],prop_nr=fact[2],qualifiers=fact[3]))
                     item.claims.add(d)
                     item.write()
                     workflow_qid = item.id
@@ -707,8 +749,16 @@ class MaRDIExport(Export):
                     data.append(fact[0](text=fact[1],prop_nr=fact[2]))
                 elif fact[0] == Time:
                     data.append(fact[0](time=fact[1],prop_nr=fact[2]))
+                elif fact[0] == Quantity:
+                    if len(fact) == 3:
+                        data.append(fact[0](fact[1],prop_nr=fact[2]))
+                    elif len(fact) == 4:
+                        data.append(fact[0](fact[1],prop_nr=fact[2],qualifiers=fact[3]))
                 else:
-                    data.append(fact[0](value=fact[1],prop_nr=fact[2]))
+                    if len(fact) == 3:
+                        data.append(fact[0](value=fact[1],prop_nr=fact[2]))
+                    elif len(fact) == 4:
+                        data.append(fact[0](value=fact[1],prop_nr=fact[2],qualifiers=fact[3]))
         item.claims.add(data)
             
         item.write()
@@ -801,7 +851,7 @@ class MaRDIExport(Export):
     def refine(self,answers):
         '''This function takes user answers and performs SPARQL queries to MaRDI portal.'''
         
-        entities = ['NonMathematicalDiscipline','Model','Software','DataSet','Method','Hardware']
+        entities = ['NonMathematicalDiscipline','Model','Software','DataSet','Method','Hardware','ExperimentalDevice']
 
         for entity in entities:
             for key in answers[entity]:
@@ -870,8 +920,7 @@ class MaRDIExport(Export):
         qids=[]
         for key in answers[Type].keys():
             # Check if on Portal or in Wikidata, integrate Wikidata entry if desired
-            qid, entry = self.portal_wikidata_check(answers[Type][key], answers['Settings']['Public'], answers['Settings']['Preview'])
-                    
+            qid, entry = self.portal_wikidata_check(answers[Type][key], answers['Settings']['Public'], answers['Settings']['Preview'])        
             # Update User answers
             if qid: 
                 qids.append(qid)
@@ -887,46 +936,104 @@ class MaRDIExport(Export):
                 subqids2 = []
  
                 if Generate[1]:
-                    for subkey in answers[Type][key].get('SubProperty', {}).keys():
-                        # Check if subproperty on Portal or in Wikidata (store QID and string)
-                        if Type == 'Hardware':
-                            subqid = self.find_item(answers[Type][key]['SubProperty'][subkey]['Name'],answers[Type][key]['SubProperty'][subkey]['Description'])
-                            if not subqid:
+                    
+                    # Define Qualifier for Entries
+                    answers[Type][key].update({'Qualifiers':Qualifiers()})
+
+                    if Type == 'ExperimentalDevice' and answers['Settings']['WorkflowType'] == option['Analysis']:
+
+                        if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                            # Add Version as qualifier of 'uses' statement
+                            if answers[Type][key].get('Version'):
+                                answers[Type][key]['Qualifiers'].add(String(prop_nr=Relations[3], value=answers[Type][key].get('Version')))
+                            # Add Serial Number as qualifier of 'uses' statement
+                            if answers[Type][key].get('SerialNumber'):
+                                answers[Type][key]['Qualifiers'].add(String(prop_nr=Relations[4], value=answers[Type][key].get('SerialNumber')))
+                        
+                        # Search and add Location as qualifier of 'uses' statement 
+                        for subkey in answers[Type][key].get('SubProperty', {}).keys():
+                            if answers[Type][key]['SubProperty'][subkey]: 
+                                location, _ = self.portal_wikidata_check(answers[Type][key]['SubProperty'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'])
+                                answers[Type][key]['SubProperty'][subkey].update({'mardiId': location, 'uri': f"{mardi_wiki}Item:{location}"})
                                 if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
-                                    subqid = self.entry(answers[Type][key]['SubProperty'][subkey]['Name'],answers[Type][key]['SubProperty'][subkey]['Description'],
-                                                        [(Item,Relations[0],P4)]+
-                                                        [(ExternalID,answers[Type][key]['SubProperty'][subkey]['ID'].split(':')[-1],P2 if 'wikidata' in answers[Type][key]['SubProperty'][subkey]['ID'] else P27)])
+                                    answers[Type][key]['Qualifiers'].add(Item(prop_nr=Relations[1], value=location))
+                        
+                        # Search and add available Software as qualifier of 'uses' statement
+                        for subkey in answers[Type][key].get('SubProperty2', {}).keys():
+                            if answers[Type][key]['SubProperty2'][subkey]:
+                                availSoftware, _ = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'])
+                                answers[Type][key]['SubProperty2'][subkey].update({'mardiId': availSoftware, 'uri': f"{mardi_wiki}Item:{availSoftware}"})
+                                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                                    answers[Type][key]['Qualifiers'].add(Item(prop_nr=Relations[2], value=availSoftware))
+                    
+                    elif Type == 'Hardware' and answers['Settings']['WorkflowType'] == option['Computation']:
+                        
+                        # Search and add CPU, with number of cores and ID (wikidata / wikichip)
+                        cpuIDs=[]
+                        for subkey in answers[Type][key].get('SubProperty', {}).keys():
+                            cpuID = self.find_item(answers[Type][key]['SubProperty'][subkey]['Name'],answers[Type][key]['SubProperty'][subkey]['Description'])
+                            if not cpuID:
+                                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                                    cpuID = self.entry(
+                                                answers[Type][key]['SubProperty'][subkey]['Name'],answers[Type][key]['SubProperty'][subkey]['Description'],
+                                                [(Item,Relations[0],Relations[3]),(Quantity,answers['Hardware'][key].get('Core') if answers['Hardware'][key].get('Core') else '1',Relations[4])]+
+                                                [(ExternalID,answers[Type][key]['SubProperty'][subkey]['ID'].split(':')[-1],Relations[5] if 'wikidata' in answers[Type][key]['SubProperty'][subkey]['ID'] else Relations[6])]
+                                                )
                                 else:
-                                    subqid = 'tbd'
-                            answers[Type][key]['SubProperty'][subkey].update({'mardiId': subqid, 'uri': f"{mardi_wiki}Item:{subqid}"})
-                            subqids.append(subqid)
-                        else:
+                                    cpuID = 'tbd'
+                            answers[Type][key]['SubProperty'][subkey].update({'mardiId': cpuID, 'uri': f"{mardi_wiki}Item:{cpuID}"})
+                            cpuIDs.append(cpuID)
+
+                        # Search and add Compilers as qualifiers of 'uses' statement
+                        for subkey in answers[Type][key].get('SubProperty2', {}).keys():
+                            if answers[Type][key]['SubProperty2'][subkey]:
+                                compiler, _ = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'])
+                                answers[Type][key]['SubProperty2'][subkey].update({'mardiId': compiler, 'uri': f"{mardi_wiki}Item:{compiler}"})
+                                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                                    answers[Type][key]['Qualifiers'].add(Item(prop_nr=Relations[2], value=compiler))
+
+                    else:
+                        for subkey in answers[Type][key].get('SubProperty', {}).keys():
+                            # Check if subproperty on Portal or in Wikidata (store QID and string)
                             if answers[Type][key]['SubProperty'][subkey]: 
                                 subqid, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'])
                                 answers[Type][key]['SubProperty'][subkey].update({'mardiId': subqid, 'uri': f"{mardi_wiki}Item:{subqid}"})
                                 subqids.append(subqid)
-                    for subkey in answers[Type][key].get('SubProperty2', {}).keys():
-                        # Check if subproperty2 on Portal or in Wikidata (store QID and string)
-                        if answers[Type][key]['SubProperty2'][subkey]:
-                                subqid2, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'])
-                                answers[Type][key]['SubProperty2'][subkey].update({'mardiId': subqid2, 'uri': f"{mardi_wiki}Item:{subqid2}"})
-                                subqids2.append(subqid2)
+                                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                                    answers[Type][key]['Qualifiers'].add(Item(prop_nr=Relations[1], value=subqid))
 
-                    # Stop if entry has no QID and its subproperty has no QID    
-                    if not (qid or subqids):
-                        return qids, answers, [1,key]
+                        for subkey in answers[Type][key].get('SubProperty2', {}).keys():
+                            # Check if subproperty2 on Portal or in Wikidata (store QID and string)
+                            if answers[Type][key]['SubProperty2'][subkey]:
+                                    subqid2, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'])
+                                    answers[Type][key]['SubProperty2'][subkey].update({'mardiId': subqid2, 'uri': f"{mardi_wiki}Item:{subqid2}"})
+                                    subqids2.append(subqid2)
+
+                        # Stop if entry has no QID and its subproperty has no QID    
+                        if not (qid or subqids):
+                            return qids, answers, [1,key]
     
                 # Generate Entry QID
                 if not qid:
                     # If desired generate Entry in MaRDI KG and update User answers
                     if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
-                        qids.append(self.entry(entry[0],entry[1], 
-                                               [(Item,Relations[0],P4)]+
-                                               [(Item,subqid,Relations[1]) for subqid in subqids]+
-                                               [(Item,subqid2,Relations[2]) for subqid2 in subqids2]+ 
-                                               [(String,re.sub("\$","",form.lstrip()),P18) for form in answers[Type][key].get('Formular',{}).values()]+
-                                               [(ExternalID,answers[Type][key].get('Reference','').split(':')[-1],
-                                                 P16 if answers[Type][key].get('Reference','').split(':')[0] == 'doi' else P20 if answers[Type][key].get('Reference','').split(':')[-1] == 'swmath' else P24 if answers[Type][key].get('Reference','').split(':')[-1] == 'url' else '')]))
+                        if Type == 'Hardware':
+                            qids.append(self.entry(
+                                entry[0],entry[1],
+                                [(Item,Relations[0],Relations[3])] +
+                                [(Item,cpuID,Relations[1],Qualifiers().add(Quantity(answers['Hardware'][key].get('Node') if answers['Hardware'][key].get('Node') else '1',prop_nr=Relations[7]))) for cpuID in cpuIDs]))
+                        elif Type == 'ExperimentalDevice':
+                            qids.append(self.entry(
+                                entry[0],entry[1],
+                                [(Item,Relations[0],P4)]))
+                        else:
+                            qids.append(self.entry(entry[0],entry[1], 
+                                                   [(Item,Relations[0],P4)]+
+                                                   [(Item,subqid,Relations[1]) for subqid in subqids]+
+                                                   [(Item,subqid2,Relations[2]) for subqid2 in subqids2]+ 
+                                                   [(String,re.sub("\$","",form.lstrip()),P18) for form in answers[Type][key].get('Formular',{}).values()]+
+                                                   [(ExternalID,answers[Type][key].get('Reference','').split(':')[-1],
+                                                     P16 if answers[Type][key].get('Reference','').split(':')[0] == 'doi' else P20 if answers[Type][key].get('Reference','').split(':')[-1] == 'swmath' else P24 if answers[Type][key].get('Reference','').split(':')[-1] == 'url' else '')]))
                         answers[Type][key].update({'mardiId': qids[-1], 'uri': f"{mardi_wiki}Item:{qids[-1]}"})
                     else:
                         answers[Type][key].update({'mardiId': 'tbd', 'uri': f"{mardi_wiki}Item:{qid}"})

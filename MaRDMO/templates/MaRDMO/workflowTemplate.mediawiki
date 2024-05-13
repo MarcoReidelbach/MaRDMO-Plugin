@@ -209,14 +209,14 @@
 ! Software
 |-
 {% for values in ExperimentalDevice.values %}
-| {{ values.ID }}
+| {% if values.mardiId != 'tbd' %} mardi:[{{ values.uri }} {{ values.mardiId }}] {% elif values.mardiId == 'tbd' %} mardi:{{ values.mardiId }} {% endif %}
 | {{ values.Name }}
 | {{ values.Description }}
 | {{ values.Version }}
 | {{ values.PartNumber }}
 | {{ values.SerialNumber }}
-| {{ values.Location }}
-| {{ values.Software }}
+| {% for subproperty in values.SubProperty.values %} {% if subproperty.mardiId != 'tbd' %} [{{ subproperty.uri }} {{ subproperty.Name }}] {% elif subproperty.mardiId == 'tbd' %} {{ subproperty.Name }} {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}
+| {% for subproperty2 in values.SubProperty2.values %} {% if subproperty2.mardiId != 'tbd' %} [{{ subproperty2.uri }} {{ subproperty2.Name }}] {% elif subproperty2.mardiId == 'tbd' %} {{ subproperty2.Name }} {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}
 |-
 {% endfor %}
 |}

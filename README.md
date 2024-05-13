@@ -16,14 +16,15 @@ This repository contains the MaRDMO-Export-Plugin for the [Research Datamanageme
 │   ├── para.py - Export/Query Parameters
 │   ├── providers.py - Dynamic Option Sets via Wikidata / MaRDI KG
 │   ├── sparql.py - SPARQL query selection
-│   └── templates
-│       ├── workflowError.html - HTML Template for MaRDMO Errors
-│       ├── workflowExport.html - HTML Template for MaRDMO Export
-│       ├── workflowTemplate.html - HTML Template for Workflow Documentation
-│       ├── workflowTemplate.md - Markdown Template for Workflow Documentation
-│       ├── workflowTemplate.mediawiki - Mediawiki Template for Workflow Documentation
-│       └── workflowSearch.html - HTML Template for MaRDMO Search
-│
+│   ├── templates
+│   │   ├── workflowError.html - HTML Template for MaRDMO Errors
+│   │   ├── workflowExport.html - HTML Template for MaRDMO Export
+│   │   ├── workflowTemplate.html - HTML Template for Workflow Documentation
+│   │   ├── workflowTemplate.md - Markdown Template for Workflow Documentation
+│   │   ├── workflowTemplate.mediawiki - Mediawiki Template for Workflow Documentation
+│   │   └── workflowSearch.html - HTML Template for MaRDMO Search
+│   └── data
+│       └── msc2020.json - Mathematics Subject Classification 2020
 ├── setup.py 
 │
 ├── README.md
@@ -57,9 +58,10 @@ PROJECT_EXPORTS += [
 OPTIONSET_PROVIDERS = [
     ('WikidataSearch', _('Options for Wikidata Search'), 'MaRDMO.providers.WikidataSearch'),
     ('ComponentSearch', _('Options for MaRDI Search'), 'MaRDMO.providers.ComponentSearch'),
-    ('MathAreaProvider', _('Options for Math Areas'), 'MaRDMO.providers.MathAreaProvider'),
     ('MSCProvider', _('Options for MSC Search'), 'MaRDMO.providers.MSCProvider'),
     ('ProcessorProvider', _('Options for Processor Search'), 'MaRDMO.providers.ProcessorProvider'),
+    ('AvailableSoftware', _('Options for Available Software'), 'MaRDMO.providers.AvailableSoftware'),
+    ('MathAreaProvider', _('Options for Math Areas'), 'MaRDMO.providers.MathAreaProvider'),
     ('EnvironmentProvider', _('Options for Environments'), 'MaRDMO.providers.EnvironmentProvider'),
     ('MethodProvider', _('Options for Methods'), 'MaRDMO.providers.MethodProvider'),
     ('DataProvider', _('Options for Data Sets'), 'MaRDMO.providers.DataProvider'),

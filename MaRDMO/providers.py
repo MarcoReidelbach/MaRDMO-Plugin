@@ -35,6 +35,47 @@ class WikidataSearch(Provider):
         
         return options
 
+class AvailableSoftware(Provider):
+
+    search = True
+
+    SUBJECT_ATTRIBUTES = [
+        'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_02',
+        'http://example.com/terms/domain/MaRDI/Section_4/Set_3/Question_03'
+    ]
+
+    def get_options(self, project, search):
+        '''Function which queries Wikidata and MaRDI KG for user input.'''
+        if not search or len(search) < 3:
+            return []
+
+        options = []
+
+        values1 = get_attribute_values(project, get_attribute(self.SUBJECT_ATTRIBUTES[0]))
+        values2 = get_attribute_values(project, get_attribute(self.SUBJECT_ATTRIBUTES[1]))
+
+        for v1, v2 in zip(values1, values2):
+            if v1.text or v2.text:
+                print(v1.text,v2.text)
+                options.append({'id': 'no ID <|> ' + v1.text + ' <|> ' + v2.text, 'text': v1.text + ' (' + v2.text + ')'})
+
+        # Use a ThreadPool to make concurrent API requests
+        pool = ThreadPool(processes=2)
+        wikidata_results, mardi_results = pool.map(lambda api_url: query_api(api_url, search), [wikidata_api, mardi_api])
+
+        # Process Results to fit RDMO Provider Output Requirements
+        options += [
+            process_result(result, 'wikidata') for result in wikidata_results[:10]
+        ]
+        options += [
+            process_result(result, 'mardi') for result in mardi_results[:10]
+        ]
+
+        # Return unique options (if similar Results returned from MaRDI KG and Wikidata, only keep the MaRDI KG result)
+        options = list({option['text']:option for option in options}.values())
+
+        return options
+
 class ComponentSearch(Provider):
 
     search = True
@@ -228,7 +269,7 @@ class SoftwareProvider(Provider):
                 process_text_fn = lambda text: text
 
             options = add_options(options, values, len(options), process_text_fn=process_text_fn)
-
+            print(options)
         return options
 
 class ResearchField(Provider):
@@ -772,8 +813,11 @@ def add_options(options, values, start_index, process_text_fn=None):
     Add options to the list based on values.
     """
     for index, value in enumerate(values, start=start_index):
-        if value.text:
-            text = value.text
+        if value.text or value.external_id:
+            if value.external_id:
+                text = value.external_id
+            else:
+                text = value.text
             if process_text_fn:
                 text = process_text_fn(text)
             options.append({'id': f'Environment{index}', 'text': text})

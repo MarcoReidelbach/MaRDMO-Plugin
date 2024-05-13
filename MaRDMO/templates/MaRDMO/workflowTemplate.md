@@ -97,7 +97,7 @@ PID (if applicable): no related publication
 
 | ID | Name | Description | Version | Part Number | Serial Number | Location | Software|
 |----|------|-------------|---------|-------------|---------------|----------|---------|
-{% for values in ExperimentalDevice.values %} | {{ values.ID }} | {{ values.Name }} | {{ values.Description }} | {{ values.Version }} | {{ values.PartNumber }} | {{ values.SerialNumber }} | {{ values.Location }} | {{ values.Software }} |
+{% for values in ExperimentalDevice.values %} | {% if values.mardiId != 'tbd' %} mardi:[{{ values.mardiId }}]({{ values.uri }}) {% elif values.mardiId == 'tbd' %} mardi:{{ values.mardiId }} {% endif %} | {{ values.Name }} | {{ values.Description }} | {{ values.Version }} | {{ values.PartNumber }} | {{ values.SerialNumber }} | {% for subproperty in values.SubProperty.values %} {% if subproperty.mardiId != 'tbd' %} [{{ subproperty.Name }}]({{ subproperty.uri }}) {% elif subproperty.mardiId == 'tbd' %} {{ subproperty.Name }} {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %} | {% for subproperty2 in values.SubProperty2.values %} {% if subproperty2.mardiId != 'tbd' %} [{{ subproperty2.Name }}]({{ subproperty2.uri }}) {% elif subproperty2.mardiId == 'tbd' %} {{ subproperty2.Name }} {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %} |
 {% endfor %}
 {% endif %}
 
