@@ -279,18 +279,36 @@ def publication(sender, **kwargs):
                            'http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_09',
                            'http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_09_hidden']
             for paper_info, object_uri in zip(paper_infos, object_uris):
-                for idx,val in enumerate(paper_info):
-                    attribute_object = Attribute.objects.get(uri=object_uri)
-                    obj, created = Value.objects.update_or_create(
-                        project=instance.project,
-                        attribute=attribute_object,
-                        collection_index = idx,
-                        defaults={
-                            'project': instance.project,
-                            'attribute': attribute_object,
-                            'text': val,
-                        }
-                    )
+                if object_uri == 'http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_04':
+                    for idx,val in enumerate(paper_info):
+                        option = 0 if val == 'English' else 1 if val == 'German' else ''
+                        print(option)
+                        if option:
+                            for idx,val in enumerate(paper_info):
+                                attribute_object = Attribute.objects.get(uri=object_uri)
+                                obj, created = Value.objects.update_or_create(
+                                    project=instance.project,
+                                    attribute=attribute_object,
+                                    collection_index = idx,
+                                    defaults={
+                                        'project': instance.project,
+                                        'attribute': attribute_object,
+                                        'id': option,
+                                    }
+                                )
+                else:
+                    for idx,val in enumerate(paper_info):
+                        attribute_object = Attribute.objects.get(uri=object_uri)
+                        obj, created = Value.objects.update_or_create(
+                            project=instance.project,
+                            attribute=attribute_object,
+                            collection_index = idx,
+                            defaults={
+                                'project': instance.project,
+                                'attribute': attribute_object,
+                                'text': val,
+                            }
+                        )
  
             return
 
