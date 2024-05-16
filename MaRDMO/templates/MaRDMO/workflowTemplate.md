@@ -136,13 +136,14 @@ Yes: {{ ReproducibilityComputational.Result.1 }}
 {% elif ReproducibilityComputational.Result.0 == NoText %}
 No
 {% endif %}
-### Reproducibility on original Hardware
+{% endif %}
+### Reproducibility on original {% if Settings.WorkflowType == Computation %}Hardware{% elif Settings.WorkflowType == Analysis %}Devices/Instruments/Hardware{% endif %}
 {% if ReproducibilityComputational.OriginalHardware.0 == YesText %}
 Yes: {{ ReproducibilityComputational.OriginalHardware.1 }}
 {% elif ReproducibilityComputational.OriginalHardware.0 == NoText %}
 No
 {% endif %}
-###Reproducibility on other Hardware
+###Reproducibility on other {% if Settings.WorkflowType == Computation %}Hardware{% elif Settings.WorkflowType == Analysis %}Devices/Instruments/Hardware{% endif %}
 {% if ReproducibilityComputational.OtherHardware.0 == YesText %}
 Yes: {{ ReproducibilityComputational.OtherHardware.1 }}
 {% elif ReproducibilityComputational.OtherHardware.0 == NoText %}
@@ -153,26 +154,7 @@ No
 {{ value }}
 {% if not forloop.last %}<br>{% endif %}
 {% endfor %}
-{% endif %}
 
-{% if Settings.WorkflowType == Analysis %}
-### Reproducibility on original Device/Instrument/Hardware
-{% if ReproducibilityAnalysis.OriginalDevice.0 == YesText %}
-Yes: {{ ReproducibilityAnalysis.OriginalDevice.1 }}
-{% elif ReproducibilityAnalysis.OriginalDevice.0 == NoText %}
-No
-{% endif %}
-### Reproducibility on other Device/Instrument/Hardware
-{% if ReproducibilityAnalysis.OtherDevice.0 == YesText %}
-Yes: {{ ReproducibilityAnalysis.OtherDevice.1 }}
-{% elif ReproducibilityAnalysis.OtherDevice.0 == NoText %}
-No
-{% endif %}
-### Transferability to
-{% for value in ReproducibilityAnalysis.Transferability.values %}
-{{ value }}
-{% endfor %}
-{% endif %}
 
 ## Legend
 The following abbreviations are used in the document to indicate/resolve IDs:

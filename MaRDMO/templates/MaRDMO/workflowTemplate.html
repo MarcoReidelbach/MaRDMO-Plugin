@@ -701,13 +701,14 @@
                         {% elif answers.ReproducibilityComputational.Result.0 == option.NoText %}
                                 <p>No</p>
             {% endif %}
-        <h3 id="reproducibility-on-original-hardware">Reproducibility on original Hardware</h3>
+    {% endif %}
+        <h3 id="reproducibility-on-original-hardware">Reproducibility on original {% if answers.Settings.WorkflowType == option.Computation %}Hardware{% elif answers.Settings.WorkflowType == option.Analysis %}Devices/Instruments/Hardware{% endif %}</h3>
                         {% if answers.ReproducibilityComputational.OriginalHardware.0 == option.YesText %}
                                 <p>Yes: {{ answers.ReproducibilityComputational.OriginalHardware.1 }}</p>
                         {% elif answers.ReproducibilityComputational.OriginalHardware.0 == option.NoText %}
                                 <p>No</p>
             {% endif %}
-        <h3 id="reproducibility-on-other-hardware">Reproducibility on other Hardware</h3>
+        <h3 id="reproducibility-on-other-hardware">Reproducibility on other {% if answers.Settings.WorkflowType == option.Computation %}Hardware{% elif answers.Settings.WorkflowType == option.Analysis %}Devices/Instruments/Hardware{% endif %}</h3>
                         {% if answers.ReproducibilityComputational.OtherHardware.0 == option.YesText %}
                                 <p>Yes: {{ answers.ReproducibilityComputational.OtherHardware.1 }}</p>
                         {% elif answers.ReproducibilityComputational.OtherHardware.0 == option.NoText %}
@@ -718,28 +719,6 @@
                             {{ value }}
                 {% if not forloop.last %}<br>{% endif %}
                         {% endfor %}
-    {% endif %}
-
-    {% if answers.Settings.WorkflowType == option.Analysis %}
-        <h3 id="reproducibility-on-original-device">Reproducibility on original Device/Instrument/Hardware</h3>
-                        {% if answers.ReproducibilityAnalysis.OriginalDevice.0 == option.YesText %}
-                                <p>Yes: {{ answers.ReproducibilityAnalysis.OriginalDevice.1 }}</p>
-                        {% elif answers.ReproducibilityAnalysis.OriginalDevice.0 == option.NoText %}
-                                <p>No</p>
-                        {% endif %}
-                <h3 id="reproducibility-on-other-device">Reproducibility on other Device/Instrument/Hardware</h3>
-                        {% if answers.ReproducibilityAnalysis.OtherDevice.0 == option.YesText %}
-                                <p>Yes: {{ answers.ReproducibilityAnalysis.OtherDevice.1 }}</p>
-                        {% elif answers.ReproducibilityAnalysis.OtherDevice.0 == option.NoText %}
-                                <p>No</p>
-                        {% endif %}
-                <h3 id="transferability-to">Transferability to</h3>
-                        {% for value in answers.ReproducibilityAnalysis.Transferability.values %}
-                                {{ value }}
-                                {% if not forloop.last %}<br>{% endif %}
-                        {% endfor %}
-        {% endif %}
-
                 
     <h2 id="legend">Legend</h2>
         <p>The following abbreviations are used in the document to indicate/resolve IDs:</p>

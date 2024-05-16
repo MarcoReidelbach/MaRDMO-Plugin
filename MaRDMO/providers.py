@@ -56,7 +56,6 @@ class AvailableSoftware(Provider):
 
         for v1, v2 in zip(values1, values2):
             if v1.text or v2.text:
-                print(v1.text,v2.text)
                 options.append({'id': 'no ID <|> ' + v1.text + ' <|> ' + v2.text, 'text': v1.text + ' (' + v2.text + ')'})
 
         # Use a ThreadPool to make concurrent API requests
@@ -269,7 +268,6 @@ class SoftwareProvider(Provider):
                 process_text_fn = lambda text: text
 
             options = add_options(options, values, len(options), process_text_fn=process_text_fn)
-            print(options)
         return options
 
 class ResearchField(Provider):
@@ -377,7 +375,7 @@ class MathematicalModel(Provider):
                          params = {'format': 'json', 'query': query},
                          headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
 
-        options=[{'id':'default','text':'not in MathModDB'}]
+        options=[{'id':'not in MathModDB','text':'not in MathModDB'}]
 
         for r in req:
             options.append({'id':r['qid']['value'],'text':'mardi:'+r['qid']['value'] + ' <|> ' + r['label']['value'] + ' <|> ' + r['quote']['value']})

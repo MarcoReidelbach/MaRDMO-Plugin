@@ -308,16 +308,17 @@ No
 Yes: {{ ReproducibilityComputational.Result.1 }} 
 {% elif ReproducibilityComputational.Result.0 == NoText %} 
 No 
+{% endif %}
 {% endif %} 
 <span id="reproducibility-on-original-hardware"></span>
-=== Reproducibility on original Harwdare === 
+=== Reproducibility on original {% if Settings.WorkflowType == Computation %}Hardware{% elif Settings.WorkflowType == Analysis %}Devices/Instruments/Hardware{% endif %} === 
 {% if ReproducibilityComputational.OriginalHardware.0 == YesText %} 
 Yes: {{ ReproducibilityComputational.OriginalHardware.1 }} 
 {% elif ReproducibilityComputational.OriginalHardware.0 == NoText %} 
 No 
 {% endif %} 
 <span id="reproducibility-on-other-hardware"></span>
-=== Reproducibility on other Hardware ===
+=== Reproducibility on other {% if Settings.WorkflowType == Computation %}Hardware{% elif Settings.WorkflowType == Analysis %}Devices/Instruments/Hardware{% endif %} ===
 {% if ReproducibilityComputational.OtherHardware.0 == YesText %} 
 Yes: {{ ReproducibilityComputational.OtherHardware.1 }} 
 {% elif ReproducibilityComputational.OtherHardware.0 == NoText %} 
@@ -329,29 +330,6 @@ No
 {{ value }} 
 {% if not forloop.last %}<br>{% endif %} 
 {% endfor %} 
-{% endif %}
-
-{% if Settings.WorkflowType == Analysis %} 
-<span id="reproducibility-on-original-device-instrument-hardware-"></span>
-=== Reproducibility on original Hardware/Instrument/Device ===
-{% if ReproducibilityAnalysis.OriginalDevice.0 == YesText %} 
-Yes: {{ ReproducibilityAnalysis.OriginalDevice.1 }} 
-{% elif ReproducibilityAnalysis.OriginalDevice.0 == NoText %} 
-No 
-{% endif %} 
-<span id="reproducibility-on-other-device-instrument-hardware-"></span>
-=== Reproducibility on other Hardware/Instrument/Device ===
-{% if ReproducibilityAnalysis.OtherDevice.0 == YesText %} 
-Yes: {{ ReproducibilityAnalysis.OtherDevice.1 }} 
-{% elif ReproducibilityAnalysis.OtherDevice.0 == NoText %} 
-No 
-{% endif %} 
-<span id="transferability"></span>
-=== Transferability ===
-{% for value in ReproducibilityAnalysis.Transferability.values %} 
-{{ value }}<br> 
-{% endfor %} 
-{% endif %}
 
 <span id="legend"></span>
 == Legend ==

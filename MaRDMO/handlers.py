@@ -7,6 +7,7 @@ from django.db.models.signals import post_save
 
 from rdmo.projects.models import Value
 from rdmo.domain.models import Attribute
+from rdmo.options.models import Option
 
 from .citation import *
 from .para import *
@@ -16,10 +17,45 @@ from .id import *
 from difflib import SequenceMatcher
 
 @receiver(post_save, sender=Value)
-def publication(sender, **kwargs):
-    
+def publication(sender, **kwargs): 
     instance = kwargs.get("instance", None)
     if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_02':
+        if instance.option_text == 'Yes':
+            uri = 'http://example.com/terms/domain/MaRDI/Section_2/Set_2'
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': 1
+                    }
+                )
+        elif instance.option_text == 'No':
+            uri = 'http://example.com/terms/domain/MaRDI/Section_2/Set_2'
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': 0
+                    }
+                )
+        else: 
+            uri = 'http://example.com/terms/domain/MaRDI/Section_2/Set_2'
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': 0
+                    }
+                )
         if re.match(r'doi:10.\d{4,9}/[-._;()/:a-z0-9A-Z]+', instance.text):
             # Extract DOI and Initialize different dictionaries
             doi = instance.text.split(':')[1]   
@@ -281,21 +317,18 @@ def publication(sender, **kwargs):
             for paper_info, object_uri in zip(paper_infos, object_uris):
                 if object_uri == 'http://example.com/terms/domain/MaRDI/Section_2/Set_2/Question_04':
                     for idx,val in enumerate(paper_info):
-                        option = 0 if val == 'English' else 1 if val == 'German' else ''
-                        print(option)
-                        if option:
-                            for idx,val in enumerate(paper_info):
-                                attribute_object = Attribute.objects.get(uri=object_uri)
-                                obj, created = Value.objects.update_or_create(
-                                    project=instance.project,
-                                    attribute=attribute_object,
-                                    collection_index = idx,
-                                    defaults={
-                                        'project': instance.project,
-                                        'attribute': attribute_object,
-                                        'id': option,
-                                    }
-                                )
+                        language_option = 'english' if val == 'English' else 1 if val == 'german' else None
+                        if language_option is not None:
+                            attribute_object = Attribute.objects.get(uri=object_uri)
+                            obj, created = Value.objects.update_or_create(
+                                project=instance.project,
+                                attribute=attribute_object,
+                                defaults={
+                                    'project': instance.project,
+                                    'attribute': attribute_object,
+                                    'option': Option.objects.get(uri=f'http://example.com/terms/options/languages/{language_option}')
+                                }
+                            )
                 else:
                     for idx,val in enumerate(paper_info):
                         attribute_object = Attribute.objects.get(uri=object_uri)
@@ -313,6 +346,281 @@ def publication(sender, **kwargs):
             return
 
 @receiver(post_save, sender=Value)
+def doctype(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_02':
+        mod = ['http://example.com/terms/domain/MaRDI/Section_3/Set_0']
+        moddetail = ['http://example.com/terms/domain/MaRDI/Section_3a/Set_0',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_2',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_3',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_4',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_5',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_6',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_7']
+        doc = ['http://example.com/terms/domain/MaRDI/Section_2/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_2/Set_3',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_3',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_4',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_5',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_6',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_2',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_5/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_5/Set_2',
+               'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
+        ident = ['http://example.com/terms/domain/MaRDI/Section_0a/Set_1']
+        pub = ['http://example.com/terms/domain/MaRDI/Section_2/Set_2']
+        if instance.option_text == 'Workflow' or instance.option_text == 'Workflow':
+            val = [1,1,1,0,0]
+        elif instance.option_text == 'Mathematical Model' or instance.option_text == 'Mathematisches Modell':
+            val = [1,0,1,0,0]
+        else:
+            val = [0,0,1,0,0]
+        
+        for uri in mod:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[0]
+                    }
+                )
+
+        for uri in doc:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[1]
+                    }
+                )
+
+        for uri in ident:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[2]
+                    }
+                )
+
+        for uri in pub:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[3]
+                    }
+                )
+
+        for uri in moddetail:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[4]
+                    }
+                )
+
+    return
+
+@receiver(post_save, sender=Value)
+def type(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_01':
+        search = ['http://example.com/terms/domain/MaRDI/Section_1/Set_1']
+        pub = ['http://example.com/terms/domain/MaRDI/Section_2/Set_2']
+        doc = ['http://example.com/terms/domain/MaRDI/Section_2/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_2/Set_3',
+               'http://example.com/terms/domain/MaRDI/Section_3/Set_0',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_3',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_4',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_5',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_6',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_2',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_5/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_5/Set_2',
+               'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
+        ident = ['http://example.com/terms/domain/MaRDI/Section_0a/Set_1']
+        moddetail = ['http://example.com/terms/domain/MaRDI/Section_3a/Set_0',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_1',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_2',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_3',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_4',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_5',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_6',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_7']
+
+        if instance.option_text == 'Document' or instance.option_text == 'Dokumentieren':
+            val = [0,1,1,0,0]
+        elif instance.option_text == 'Search' or instance.option_text == 'Suchen':
+            val = [1,0,0,0,0]
+        else:
+            val = [0,0,1,0,0]
+
+        for uri in search:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[0]
+                    }
+                )
+
+        for uri in doc:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[1]
+                    }
+                )
+
+        for uri in ident:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[2]
+                    }
+                )
+
+        for uri in pub:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[3]
+                    }
+                )
+
+        for uri in moddetail:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[4]
+                    }
+                )
+
+    return
+
+@receiver(post_save, sender=Value)
+def workflowtype(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_03':
+        pub = ['http://example.com/terms/domain/MaRDI/Section_2/Set_2']
+        doc = ['http://example.com/terms/domain/MaRDI/Section_2/Set_3',
+               'http://example.com/terms/domain/MaRDI/Section_3/Set_0',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_0',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_2',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_3',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_4',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_5',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_6',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_7',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_3',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_6',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_2',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_5/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_5/Set_2',
+               'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
+        comp = ['http://example.com/terms/domain/MaRDI/Section_4/Set_4']
+
+        exp = ['http://example.com/terms/domain/MaRDI/Section_4/Set_5']
+
+        if instance.option_text == '(Measurement) Data Analysis Workflow' or instance.option_text == '(Mess-)datenanalyse Workflow':
+            val = [1,0,1]
+        elif instance.option_text == 'Computational Workflow' or instance.option_text == 'Komputationaler Workflow':
+            val = [1,1,0]
+        else:
+            val = [0,0,0,0]
+        
+        for uri in doc:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[0]
+                    }
+                )
+
+        for uri in comp:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[1]
+                    }
+                )
+
+        for uri in exp:
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': val[2]
+                    }
+                )
+        if len(val) == 4:
+            for uri in pub:
+                attribute_object = Attribute.objects.get(uri=uri)
+                obj, created = Value.objects.update_or_create(
+                    project=instance.project,
+                    attribute=attribute_object,
+                    defaults={
+                        'project': instance.project,
+                        'attribute': attribute_object,
+                        'text': val[3]
+                        }
+                    )
+
+    return
+
+@receiver(post_save, sender=Value)
 def model(sender, **kwargs):
     instance = kwargs.get("instance", None)
     if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01':
@@ -320,8 +628,19 @@ def model(sender, **kwargs):
             val = 1
         else:
             val = 0
-        for i in range(9):
-            attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_{0}'.format(i))
+
+        uris = ['http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_0',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_1',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_2',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_3',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_4',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_5',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_6',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_7']
+
+        for uri in uris:
+            attribute_object = Attribute.objects.get(uri=uri)
             obj, created = Value.objects.update_or_create(
                 project=instance.project,
                 attribute=attribute_object,
@@ -341,7 +660,7 @@ def researchField(sender, **kwargs):
             val = 1
         else:
             val = 0
-        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_1')
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_0')
         obj, created = Value.objects.update_or_create(
             project=instance.project,
             attribute=attribute_object,
@@ -361,7 +680,7 @@ def researchProblem(sender, **kwargs):
             val = 1
         else:
             val = 0
-        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_2')
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1')
         obj, created = Value.objects.update_or_create(
             project=instance.project,
             attribute=attribute_object,
@@ -381,7 +700,7 @@ def model2(sender, **kwargs):
             val = 1
         else:
             val = 0
-        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_3')
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2')
         obj, created = Value.objects.update_or_create(
             project=instance.project,
             attribute=attribute_object,
@@ -401,7 +720,7 @@ def quantity(sender, **kwargs):
             val = 1
         else:
             val = 0
-        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_4')
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3')
         obj, created = Value.objects.update_or_create(
             project=instance.project,
             attribute=attribute_object,
@@ -421,7 +740,7 @@ def quantityKind(sender, **kwargs):
             val = 1
         else:
             val = 0
-        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01_hidden_5')
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_4')
         obj, created = Value.objects.update_or_create(
             project=instance.project,
             attribute=attribute_object,

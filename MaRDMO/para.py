@@ -81,7 +81,9 @@ option = {'YesText': 'https://rdmorganiser.github.io/terms/options/yes_with_text
           'Large': 'http://example.com/terms/options/size/GB',
           'VeryLarge': 'http://example.com/terms/options/size/TB',
           'Binary': 'http://example.com/terms/options/data_type/type_0',
-          'Text': 'http://example.com/terms/options/data_type/type_1'}
+          'Text': 'http://example.com/terms/options/data_type/type_1',
+          'Workflow': 'http://example.com/terms/options/operation_modus_2/workflow',
+          'Model': 'http://example.com/terms/options/operation_modus_2/model'}
 
 # Keys for publication handler
 
@@ -98,6 +100,7 @@ uNames =['Settings', 'GeneralInformation', 'Creator', 'ProcessStep', 'Publicatio
 
 questions = {# Export and Workflow Settings
               uNames[0]+' Documentation': {'uName':uNames[0],'dName':'Documentation','Id': BASE_URI+'Section_0/Set_1/Question_01', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[0]+' DocumentationType': {'uName':uNames[0],'dName':'DocumentationType','Id': BASE_URI+'Section_0/Set_1/Question_02', 'set_prefix':False, 'set_index': False, 'collection_index': False},
               uNames[0]+' Public': {'uName':uNames[0],'dName':'Public','Id': BASE_URI+'Section_6/Set_1/Question_01', 'set_prefix':False, 'set_index': False, 'collection_index': False},
               uNames[0]+' Preview': {'uName':uNames[0],'dName':'Preview','Id': BASE_URI+'Section_6/Set_1/Question_02', 'set_prefix':False, 'set_index': False, 'collection_index': False},
               uNames[0]+' WorkflowType': {'uName':uNames[0],'dName':'WorkflowType','Id': BASE_URI+'Section_2/Set_1/Question_03', 'set_prefix':False, 'set_index': False, 'collection_index': False},
@@ -111,8 +114,8 @@ questions = {# Export and Workflow Settings
               # Non-Mathematical Discipline Information
               uNames[10]+' ID': {'uName':uNames[10],'dName':'ID','Id': BASE_URI+'Section_2/Set_3/Question_01', 'set_prefix':False, 'set_index':True, 'collection_index':True, 'option_text':False, 'external_id':True},
               # Workflow Documentation Creator Information
-              uNames[2]+' Name': {'uName':uNames[2],'dName':'Name','Id': BASE_URI + 'Section_0/Set_1/Question_02', 'set_prefix':False, 'set_index': False, 'collection_index': False},
-              uNames[2]+' IDs': {'uName':uNames[2],'dName':'IDs','Id': BASE_URI + 'Section_0/Set_1/Question_03', 'set_prefix':False, 'set_index': False, 'collection_index': True},
+              uNames[2]+' Name': {'uName':uNames[2],'dName':'Name','Id': BASE_URI + 'Section_0a/Set_1/Question_01', 'set_prefix':False, 'set_index': False, 'collection_index': False},
+              uNames[2]+' IDs': {'uName':uNames[2],'dName':'IDs','Id': BASE_URI + 'Section_0a/Set_1/Question_02', 'set_prefix':False, 'set_index': False, 'collection_index': True},
               # Related Publication Information
               uNames[4]+' Exists': {'uName':uNames[4],'dName':'Exists','Id': BASE_URI + 'Section_2/Set_1/Question_02', 'set_prefix':False, 'set_index': False, 'collection_index': False, 'option_text': True},
               uNames[4]+' All Authors': {'uName':uNames[4],'dName':'All Authors','Id': BASE_URI + 'Section_2/Set_2/Question_03', 'set_prefix':False, 'set_index': False, 'collection_index': True},
@@ -196,17 +199,13 @@ questions = {# Export and Workflow Settings
               uNames[3]+' Parameter': {'uName':uNames[3],'dName':'Parameter','Id': BASE_URI+'Section_4/Set_1/Question_06', 'set_prefix':False, 'set_index':True, 'collection_index':False},
               uNames[3]+' Environment': {'uName':uNames[3],'dName':'Environment','Id': BASE_URI+'Section_4/Set_1/Question_07', 'set_prefix':False, 'set_index':True, 'collection_index':True},
               uNames[3]+' MathArea': {'uName':uNames[3],'dName':'MathArea','Id': BASE_URI+'Section_4/Set_1/Question_08', 'set_prefix':False, 'set_index':True, 'collection_index':True},
-              # Reproducibility Computational
+              # Reproducibility
               uNames[15]+ ' Mathematically': {'uName':uNames[15], 'dName':'Mathematically', 'Id':BASE_URI+'Section_5/Set_1/Question_01', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
               uNames[15]+ ' Runtime': {'uName':uNames[15], 'dName':'Runtime', 'Id':BASE_URI+'Section_5/Set_1/Question_02', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
               uNames[15]+ ' Result': {'uName':uNames[15], 'dName':'Result', 'Id':BASE_URI+'Section_5/Set_1/Question_03', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
               uNames[15]+ ' OriginalHardware': {'uName':uNames[15], 'dName':'OriginalHardware', 'Id':BASE_URI+'Section_5/Set_1/Question_04', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
               uNames[15]+ ' OtherHardware': {'uName':uNames[15], 'dName':'OtherHardware', 'Id':BASE_URI+'Section_5/Set_1/Question_05', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
               uNames[15]+ ' Transferability': {'uName':uNames[15], 'dName':'Transferability', 'Id':BASE_URI+'Section_5/Set_1/Question_06', 'set_prefix':False,'set_index':False,'collection_index':True},
-              # Reproducibility Analysis
-              uNames[16]+' OriginalDevice': {'uName':uNames[16], 'dName':'OriginalDevice', 'Id':BASE_URI+'Section_5/Set_2/Question_01', 'set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
-              uNames[16]+' OtherDevice': {'uName':uNames[16], 'dName':'OtherDevice', 'Id':BASE_URI+'Section_5/Set_2/Question_02','set_prefix':False,'set_index':False,'collection_index':False,'option_text':True},
-              uNames[16]+' Transferability': {'uName':uNames[16], 'dName':'Transferability', 'Id':BASE_URI+'Section_5/Set_2/Question_03', 'set_prefix':False,'set_index':False,'collection_index':True},
               # Workflow Search 
               uNames[17]+' Search Objective': {'uName':uNames[17], 'dName':'Search Objective', 'Id':BASE_URI+'Section_1/Set_1/Question_00', 'set_prefix':False, 'set_index':False, 'collection_index':False},
               uNames[17]+' Objective Keywords': {'uName':uNames[17], 'dName':'Objective Keywords', 'Id':BASE_URI+'Section_1/Set_1/Question_01', 'set_prefix':False, 'set_index':False, 'collection_index':True},
