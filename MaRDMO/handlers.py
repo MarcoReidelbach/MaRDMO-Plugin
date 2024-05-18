@@ -542,7 +542,7 @@ def workflowtype(sender, **kwargs):
     instance = kwargs.get("instance", None)
     if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_03':
         pub = ['http://example.com/terms/domain/MaRDI/Section_2/Set_2']
-        doc = ['http://example.com/terms/domain/MaRDI/Section_2/Set_3',
+        doc = ['http://example.com/terms/domain/MaRDI/Section_2/Set_1',
                'http://example.com/terms/domain/MaRDI/Section_3/Set_0',
                'http://example.com/terms/domain/MaRDI/Section_3a/Set_0',
                'http://example.com/terms/domain/MaRDI/Section_3a/Set_1',
