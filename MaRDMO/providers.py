@@ -272,18 +272,34 @@ class SoftwareProvider(Provider):
 
 class ResearchField(Provider):
    
-    def get_options(self, project, search=None):
-        """
-        Function providing Research Fields from MathModDB.
-        """
+    search = True
 
-        responses = MathModDB_request(wd, wdt, 'Q266')
+    def get_options(self, project, search):
 
-        options=[{'id':'default','text':'not in MathModDB'}]
+        if not search or len(search) < 3:
+            return []
 
-        for response in responses:
-            options.append({'id': response['qid']['value'],
-                            'text': response['label']['value']+f" (mardi:{response['qid']['value']})"})
+        query = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
+                        SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
+                        WHERE { 
+                               ?answer a <https://mardi4nfdi.de/mathmoddb#ResearchField> .
+                               ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
+                               FILTER (lang(?l) = 'en')
+                               }
+                        GROUP BY ?answer ?label'''
+
+        req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        dic = {}
+
+        for r in req:
+            dic.update({r['label']['value']:{'id':r['answer']['value']}})
+
+        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+
+        options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
         return options
 
@@ -315,18 +331,34 @@ class ResearchField2(Provider):
 
 class ResearchProblem(Provider):
 
-    def get_options(self, project, search=None):
-        """
-        Function providing Research Problem from MathModDB.
-        """
+    search = True
 
-        responses = MathModDB_request(wd, wdt, 'Q268')
+    def get_options(self, project, search):
 
-        options=[{'id':'default','text':'not in MathModDB'}]
+        if not search or len(search) < 3:
+            return []
 
-        for response in responses:
-            options.append({'id':response['qid']['value'],
-                            'text':response['label']['value']+f" (mardi:{response['qid']['value']})"})
+        query = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
+                        SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
+                        WHERE { 
+                               ?answer a <https://mardi4nfdi.de/mathmoddb#ResearchProblem> .
+                               ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
+                               FILTER (lang(?l) = 'en')
+                               }
+                        GROUP BY ?answer ?label'''
+
+        req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        dic = {}
+
+        for r in req:
+            dic.update({r['label']['value']:{'id':r['answer']['value']}})
+
+        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+
+        options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
         return options
 
@@ -366,14 +398,13 @@ class MathematicalModel(Provider):
             return []
 
         query = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
-                   SELECT DISTINCT ?answer ?comment (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
-                   WHERE { 
-                          ?answer a <https://mardi4nfdi.de/mathmoddb#MathematicalModel> .
-	                      ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
-	                      ?answer <http://www.w3.org/2000/01/rdf-schema#comment> ?comment .
-	                      FILTER (lang(?comment) = 'en')
-                          }
-	               GROUP BY ?answer ?comment ?label'''
+                        SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
+                        WHERE { 
+                               ?answer a <https://mardi4nfdi.de/mathmoddb#MathematicalModel> .
+                               ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
+                               FILTER (lang(?l) = 'en')
+                               }
+                        GROUP BY ?answer ?label'''
 
         req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
                          params = {'format': 'json', 'query': query},
@@ -382,7 +413,7 @@ class MathematicalModel(Provider):
         dic = {}
 
         for r in req:
-            dic.update({r['label']['value']:{'id':r['answer']['value'],'quote':r['comment']['value']}})
+            dic.update({r['label']['value']:{'id':r['answer']['value']}})
 
         options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
 
@@ -432,111 +463,139 @@ class MathematicalModel2(Provider):
 
 class Quantity(Provider):
 
-    def get_options(self, project, search=None):
+    search = True
 
-        query='''PREFIX wdt:'''+wdt+'''
-                 PREFIX wd:'''+wd+'''
-                 SELECT  ?qid ?label
-                 WHERE {
-                        ?id wdt:P4 wd:Q272;
-                            rdfs:label ?label.
-                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
-                        }'''
+    def get_options(self, project, search):
 
-        req=requests.get(mardi_endpoint,
-                         params = {'format': 'json', 'query': query},
-                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+        if not search or len(search) < 3:
+            return []
 
-        options=[{'id':'default','text':'not in MathModDB'}]
+        query1 = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
+                        SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
+                        WHERE { 
+                               ?answer a <https://mardi4nfdi.de/mathmoddb#Quantity> .
+                               ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
+                               FILTER (lang(?l) = 'en')
+                               }
+                        GROUP BY ?answer ?label'''
 
-        for r in req:
-            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+        req1=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
+                          params = {'format': 'json', 'query': query1},
+                          headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
 
-        return options
+        query2 = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
+                        SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
+                        WHERE { 
+                               ?answer a <https://mardi4nfdi.de/mathmoddb#QuantityKind> .
+                               ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
+                               FILTER (lang(?l) = 'en')
+                               }
+                        GROUP BY ?answer ?label'''
 
-class Quantity2(Provider):
+        req2=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
+                          params = {'format': 'json', 'query': query2},
+                          headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
 
-    def get_options(self, project, search=None):
-        options =[]
 
-        query='''PREFIX wdt:'''+wdt+'''
-                 PREFIX wd:'''+wd+'''
-                 SELECT  ?qid ?label
-                 WHERE {
-                        ?id wdt:P4 wd:Q272;
-                            rdfs:label ?label.
-                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
-                        }'''
+        dic = {}
 
-        req=requests.get(mardi_endpoint,
-                         params = {'format': 'json', 'query': query},
-                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+        for r in req1:
+            dic.update({r['label']['value'] + ' (Quantity)':{'id':r['answer']['value']}})
 
-        for r in req:
-            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+        for r in req2:
+            dic.update({r['label']['value'] + ' (Quantity Kind)':{'id':r['answer']['value']}})
 
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':str(idx),'text':value.text})
 
-        options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
+        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+
+        options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
         return options
 
-class QuantityKind(Provider):
+class QuantityRelations(Provider):
+
+    search = True
 
     def get_options(self, project, search=None):
 
-        query='''PREFIX wdt:'''+wdt+'''
-                 PREFIX wd:'''+wd+'''
-                 SELECT  ?qid ?label
-                 WHERE {
-                        ?id wdt:P4 wd:Q274;
-                            rdfs:label ?label.
-                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
-                        }'''
+        if not search or len(search) < 3:
+            return []
 
-        req=requests.get(mardi_endpoint,
-                         params = {'format': 'json', 'query': query},
-                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+        query = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
+                        SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
+                        WHERE { 
+                               ?answer a <https://mardi4nfdi.de/mathmoddb#Quantity> .
+                               ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
+                               FILTER (lang(?l) = 'en')
+                               }
+                        GROUP BY ?answer ?label'''
 
-        options=[{'id':'default','text':'not in MathModDB'}]
+        req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
+                          params = {'format': 'json', 'query': query},
+                          headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        
+        dic = {}
 
         for r in req:
-            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+            dic.update({r['label']['value']:{'id':r['answer']['value']}})
+
+
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_4'))
+        
+        for idx, (value1, value2) in enumerate(zip(values1,values2)):
+            if value1.text:
+                if value2.option_text == 'Quantity' or value2.option_text == 'Quantität':
+                    dic.update({value1.text:{'id':str(idx)}})
+        
+        options = []
+        options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
         return options
 
-class QuantityKind2(Provider):
+class QuantityKindRelations(Provider):
+
+    search = True
 
     def get_options(self, project, search=None):
-        options =[]
 
-        query='''PREFIX wdt:'''+wdt+'''
-                 PREFIX wd:'''+wd+'''
-                 SELECT  ?qid ?label
-                 WHERE {
-                        ?id wdt:P4 wd:Q274;
-                            rdfs:label ?label.
-                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
-                        }'''
+        if not search or len(search) < 3:
+            return []
 
-        req=requests.get(mardi_endpoint,
-                         params = {'format': 'json', 'query': query},
-                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+        query = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
+                        SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
+                        WHERE { 
+                               ?answer a <https://mardi4nfdi.de/mathmoddb#QuantityKind> .
+                               ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
+                               FILTER (lang(?l) = 'en')
+                               }
+                        GROUP BY ?answer ?label'''
+
+        req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
+                          params = {'format': 'json', 'query': query},
+                          headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+
+        dic = {}
 
         for r in req:
-            options.append({'id':r['qid']['value'],'text':r['label']['value']+' (mardi:'+r['qid']['value']+')'})
+            dic.update({r['label']['value']:{'id':r['answer']['value']}})
 
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_4/Question_0'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':str(idx),'text':value.text})
 
-        options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_4'))
+
+        for idx, (value1, value2) in enumerate(zip(values1,values2)):
+            if value1.text:
+                if value2.option_text == 'Quantity Kind' or value2.option_text == 'Quantitätsart':
+                    dic.update({value1.text:{'id':str(idx)}})
+
+        options = []
+        options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
         return options
+
 
 class MathematicalFormulation(Provider):
 
