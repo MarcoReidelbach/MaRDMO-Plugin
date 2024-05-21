@@ -1,9 +1,13 @@
 # {{ title }}
 
 {% if Publication.Exists.1 %}
-PID (if applicable): doi:[{{ Publication.Exists.1|cut:"doi:" }}](https://doi.org/{{ Publication.Exists.1|cut:"doi:" }})
+{% if 'doi' in Publication.Exists.1 %}
+Workflow ID: doi:[{{ Publication.Exists.1|cut:"doi:" }}](https://doi.org/{{ Publication.Exists.1|cut:"doi:" }})
+{% elif 'url' in Publication.Exists.1 %}
+Workflow ID: url:[{{ Publication.Exists.1|cut:"url:" }}]({{ Publication.Exists.1|cut:"url:" }})
+{% endif %}
 {% else %}
-PID (if applicable): no related publication
+Workflow ID: workflow not published
 {% endif %}
 
 ## Problem Statement

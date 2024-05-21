@@ -38,10 +38,14 @@
 <body>
 <h1 id="title"> {{ title }} </h1>
 {% if answers.Publication.Exists.1 %}
-<p>PID (if applicable): doi:<a href="https://doi.org/{{ answers.Publication.Exists.1|cut:"doi:" }}">{{ answers.Publication.Exists.1|cut:"doi:" }}</a></p>
+{% if 'doi' in answers.Publication.Exists.1 %}
+<p>Workflow ID: doi:<a href="https://doi.org/{{ answers.Publication.Exists.1|cut:"doi:" }}">{{ answers.Publication.Exists.1|cut:"doi:" }}</a></p>
+{% elif 'url' in answers.Publication.Exists.1 %}
+<p>Workflow ID: url:<a href="{{ answers.Publication.Exists.1|cut:"url:" }}">{{ answers.Publication.Exists.1|cut:"url:" }}</a></p>
+{% endif %}
 {% endif %}
 {% if not answers.Publication.Exists.1 %}
-<p>PID (if applicable): no related publication</p>
+<p>Workflow ID: workflow not published</p>
 {% endif %}
 <h2 id="problem-statement">Problem Statement</h2>
 <p> {{ answers.GeneralInformation.ProblemStatement }}</p>    

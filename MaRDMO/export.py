@@ -170,114 +170,119 @@ class MaRDIExport(Export):
                 if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
                     if answers['Publication']['Exists'][0] == option['YesText']:
                         # Extract Paper DOI
-                        doi=re.split(':', answers['Publication']['Exists'][1])
+                        doi=re.split(':', answers['Publication']['Exists'][1],1)
 
-                        if not doi[-1]:
-                            # Stop if no DOI provided
-                            return render(self.request,'MaRDMO/workflowError.html', {
-                                'error': 'Missing DOI of related Publication!'
-                                }, status=200)
+                        if doi[0] == 'doi':
+                            
+                            if not doi[-1]:
+                                # Stop if no DOI provided
+                                return render(self.request,'MaRDMO/workflowError.html', {
+                                    'error': 'Missing DOI of related Publication!'
+                                    }, status=200)
 
-                        if not answers['Publication']['Info']:
-                            # Stop if no Information available via DOI
-                            return render(self.request,'MaRDMO/workflowError.html', {
-                                'error': 'DOI for related Publication returns no Information!'
-                                }, status=200)
+                            if not answers['Publication']['Info']:
+                                # Stop if no Information available via DOI
+                                return render(self.request,'MaRDMO/workflowError.html', {
+                                    'error': 'DOI for related Publication returns no Information!'
+                                    }, status=200)
 
-                        # Get Publication ID, Label and Description
-                        answers['Publication']['Info'] = answers['Publication']['Info'].split(' <|> ')
+                            # Get Publication ID, Label and Description
+                            answers['Publication']['Info'] = answers['Publication']['Info'].split(' <|> ')
                 
-                        if re.match(r"mardi:Q[0-9]+", answers['Publication']['Info'][0]):
-                            # If Paper with DOI on MaRDI Portal store QID
-                            paper_qid= answers['Publication']['Info'][0].split(':')[1]
+                            if re.match(r"mardi:Q[0-9]+", answers['Publication']['Info'][0]):
+                                # If Paper with DOI on MaRDI Portal store QID
+                                paper_qid= answers['Publication']['Info'][0].split(':')[1]
 
-                        elif re.match(r"wikidata:Q[0-9]+", answers['Publication']['Info'][0]): 
-                            # If Paper with DOI on Wikidata, generate dummy entry  store QID
-                            paper_qid= self.entry(answers['Publication']['Info'][1], answers['Publication']['Info'][2], [(ExternalID, answers['Publication']['Info'][0].split(':')[1], P2)])
+                            elif re.match(r"wikidata:Q[0-9]+", answers['Publication']['Info'][0]): 
+                                # If Paper with DOI on Wikidata, generate dummy entry  store QID
+                                paper_qid= self.entry(answers['Publication']['Info'][1], answers['Publication']['Info'][2], [(ExternalID, answers['Publication']['Info'][0].split(':')[1], P2)])
 
-                        else:
+                            else:
                         
 ### Create New Publication Entry ##################################################################################################################################################################
 ### Prepare User edited Authors  ##################################################################################################################################################################
                         
-                            orcid_ids = []
-                            orcid_authors = []
-                            zbmath_ids = []
-                            zbmath_authors = []
-                            authors_remove = []
+                                orcid_ids = []
+                                orcid_authors = []
+                                zbmath_ids = []
+                                zbmath_authors = []
+                                authors_remove = []
                         
-                            # Identify Authors with ID added by User
-                            other_authors = list(answers['Publication'].get('All Authors',{}).values())[len(list(answers['Publication'].get('Identified Authors',{}).values())):]
+                                # Identify Authors with ID added by User
+                                other_authors = list(answers['Publication'].get('All Authors',{}).values())[len(list(answers['Publication'].get('Identified Authors',{}).values())):]
                     
-                            for author in other_authors:
-                                try:
-                                    author_ids = re.search('\((.*)\)',author).group(1)
-                                except:
-                                    author_ids = ''
+                                for author in other_authors:
+                                    try:
+                                        author_ids = re.search('\((.*)\)',author).group(1)
+                                    except:
+                                        author_ids = ''
                             
-                                for author_id in author_ids.split('; '):
-                                    if author_id.split(':')[0] == 'orcid':
-                                        orcid_ids.append(author_id.split(':')[1])
-                                        orcid_authors.append([author.split(' (')[0],author_id.split(':')[1]])
-                                        authors_remove.append(author)
-                                    elif author_id.split(':')[0] == 'zbmath':
-                                        zbmath_ids.append(author_id.split(':')[1])
-                                        zbmath_authors.append([author.split(' (')[0],author_id.split(':')[1]])
-                                        authors_remove.append(author)
+                                    for author_id in author_ids.split('; '):
+                                        if author_id.split(':')[0] == 'orcid':
+                                            orcid_ids.append(author_id.split(':')[1])
+                                            orcid_authors.append([author.split(' (')[0],author_id.split(':')[1]])
+                                            authors_remove.append(author)
+                                        elif author_id.split(':')[0] == 'zbmath':
+                                            zbmath_ids.append(author_id.split(':')[1])
+                                            zbmath_authors.append([author.split(' (')[0],author_id.split(':')[1]])
+                                            authors_remove.append(author)
                         
-                            # Remove Authors with ID added by User from non-ID Author List
-                            for author in authors_remove:
-                                try:
-                                    other_authors.remove(author)
-                                except ValueError:
-                                    pass
+                                # Remove Authors with ID added by User from non-ID Author List
+                                for author in authors_remove:
+                                    try:
+                                        other_authors.remove(author)
+                                    except ValueError:
+                                        pass
                          
-                            author_dict_merged = Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors)
+                                author_dict_merged = Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors)
 
-                            # Store Publication Authors from Citation via ORCID and zbMath
-                            answers['Publication'].setdefault('Identified Authors',{})
-                            for idx, (author_id, author_data) in enumerate(author_dict_merged.items()):
-                                if author_data['mardiQID']:
-                                    answers['Publication']['Identified Authors'].update({f"n{idx}":f"mardi:{author_data['mardiQID']}"})
-                                elif author_data['wikiQID']:
-                                    answers['Publication']['Identified Authors'].update({f"n{idx}":f"wikidata:{author_data['wikiQID']} <|> {author_data['wikiLabel']} <|> {author_data['wikiDescription']}"})
-                                else:
-                                    if author_data['orcid']:
-                                        orcid_info = f"orcid:{author_data['orcid']}"
-                                        if author_data['zbmath']:
-                                            orcid_info += f"; zbmath:{author_data['zbmath']}"
-                                        answers['Publication']['Identified Authors'].update({f"n{idx}":f"{orcid_info} <|> {author_id} <|> researcher (ORCID {author_data['orcid']})"})
-                                    elif author_data['zbmath']:
-                                        answers['Publication']['Identified Authors'].update({f"n{idx}":f"zbmath:{author_data['zbmath']} <|> {author_id} <|> researcher (zbMath {author_data['zbmath']})"})
+                                # Store Publication Authors from Citation via ORCID and zbMath
+                                answers['Publication'].setdefault('Identified Authors',{})
+                                for idx, (author_id, author_data) in enumerate(author_dict_merged.items()):
+                                    if author_data['mardiQID']:
+                                        answers['Publication']['Identified Authors'].update({f"n{idx}":f"mardi:{author_data['mardiQID']}"})
+                                    elif author_data['wikiQID']:
+                                        answers['Publication']['Identified Authors'].update({f"n{idx}":f"wikidata:{author_data['wikiQID']} <|> {author_data['wikiLabel']} <|> {author_data['wikiDescription']}"})
+                                    else:
+                                        if author_data['orcid']:
+                                            orcid_info = f"orcid:{author_data['orcid']}"
+                                            if author_data['zbmath']:
+                                                orcid_info += f"; zbmath:{author_data['zbmath']}"
+                                            answers['Publication']['Identified Authors'].update({f"n{idx}":f"{orcid_info} <|> {author_id} <|> researcher (ORCID {author_data['orcid']})"})
+                                        elif author_data['zbmath']:
+                                            answers['Publication']['Identified Authors'].update({f"n{idx}":f"zbmath:{author_data['zbmath']} <|> {author_id} <|> researcher (zbMath {author_data['zbmath']})"})
 
 ### Add Authors, Language and Journal of Paper to MaRDI Portal #####################################################################################################################################
                         
-                            author_qids = self.Entry_Generator_Paper_Supplements(answers['Publication']['Identified Authors'],
-                                                                                 [(Item, Q7, P4), (Item, Q8, P21)],
-                                                                                 True)
+                                author_qids = self.Entry_Generator_Paper_Supplements(answers['Publication']['Identified Authors'],
+                                                                                     [(Item, Q7, P4), (Item, Q8, P21)],
+                                                                                     True)
                          
-                            language_qids = self.Entry_Generator_Paper_Supplements({'Language':answers['Publication'].get('Language')},
-                                                                                   [(Item, Q11, P4)],
-                                                                                   False)
+                                language_qids = self.Entry_Generator_Paper_Supplements({'Language':answers['Publication'].get('Language')},
+                                                                                       [(Item, Q11, P4)],
+                                                                                       False)
 
-                            journal_qids = self.Entry_Generator_Paper_Supplements({'Journal':answers['Publication'].get('Journal')},
-                                                                                  [(Item, Q9, P4)],
-                                                                                  False)
+                                journal_qids = self.Entry_Generator_Paper_Supplements({'Journal':answers['Publication'].get('Journal')},
+                                                                                      [(Item, Q9, P4)],
+                                                                                      False)
 
 ### Add Paper to  MaRDI Portal ####################################################################################################################################################################
                         
-                            paper_qid=self.entry(answers['Publication']['Info'][1], answers['Publication']['Info'][2], 
-                                                 [(Item, answers['Publication']['Type'].split(' <|> ')[0].split(':')[1], P4)] +
-                                                 [(Item, author, P8) for author in author_qids] +
-                                                 [(String, author, P9) for author in other_authors] +
-                                                 [(Item, language, P10) for language in language_qids] +
-                                                 [(Item, journal, P12) for journal in journal_qids] +
-                                                 [(MonolingualText, answers['Publication'].get('Title'), P7),
-                                                  (Time, answers['Publication'].get('Date')[:10]+'T00:00:00Z', P11),
-                                                  (String, answers['Publication'].get('Volume'), P13),
-                                                  (String, answers['Publication'].get('Issue'), P14),
-                                                  (String, answers['Publication'].get('Pages'), P15),
-                                                  (ExternalID,doi[-1].upper(),P16)])  
+                                paper_qid=self.entry(answers['Publication']['Info'][1], answers['Publication']['Info'][2], 
+                                                     [(Item, answers['Publication']['Type'].split(' <|> ')[0].split(':')[1], P4)] +
+                                                     [(Item, author, P8) for author in author_qids] +
+                                                     [(String, author, P9) for author in other_authors] +
+                                                     [(Item, language, P10) for language in language_qids] +
+                                                     [(Item, journal, P12) for journal in journal_qids] +
+                                                     [(MonolingualText, answers['Publication'].get('Title'), P7),
+                                                      (Time, answers['Publication'].get('Date')[:10]+'T00:00:00Z', P11),
+                                                      (String, answers['Publication'].get('Volume'), P13),
+                                                      (String, answers['Publication'].get('Issue'), P14),
+                                                      (String, answers['Publication'].get('Pages'), P15),
+                                                      (ExternalID,doi[-1].upper(),P16)])
+                        
+                        elif doi[0] == 'url':
+                            paper_qid = doi[1]
 
                     else:
                         # No DOI provided
@@ -474,7 +479,7 @@ class MaRDIExport(Export):
                 if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
                 
                     # Facts for MaRDI KG Integration
-                    facts = [(Item,Q2,P4),(Item,paper_qid,P3)] +\
+                    facts = [(Item,Q2,P4),(Item,paper_qid,P3) if re.match(r"Q[0-9]+",paper_qid) else (ExternalID,paper_qid,P24)] +\
                             [(Item,discipline,P5) for discipline in disciplines] +\
                             [(ExternalID,field,P25) for field in answers['MathematicalArea'].values()] +\
                             [(Item, creator, P8) for creator in creator_qids] +\

@@ -358,27 +358,35 @@ class ResearchProblem2(Provider):
 
 class MathematicalModel(Provider):
 
-    def get_options(self, project, search=None):
+    search = True
 
-        query='''PREFIX wdt:'''+wdt+'''
-                 PREFIX wd:'''+wd+'''
-                 SELECT  ?qid ?label ?quote
-                 WHERE {
-                        ?id wdt:P4 wd:Q270;
-                            rdfs:label ?label;
-                            schema:description ?quote.
+    def get_options(self, project, search):
+        
+        if not search or len(search) < 3:
+            return []
 
-                        BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).
-                        }'''
+        query = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
+                   SELECT DISTINCT ?answer ?comment (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
+                   WHERE { 
+                          ?answer a <https://mardi4nfdi.de/mathmoddb#MathematicalModel> .
+	                      ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
+	                      ?answer <http://www.w3.org/2000/01/rdf-schema#comment> ?comment .
+	                      FILTER (lang(?comment) = 'en')
+                          }
+	               GROUP BY ?answer ?comment ?label'''
 
-        req=requests.get(mardi_endpoint,
+        req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
                          params = {'format': 'json', 'query': query},
                          headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
 
-        options=[{'id':'not in MathModDB','text':'not in MathModDB'}]
+        dic = {}
 
         for r in req:
-            options.append({'id':r['qid']['value'],'text':'mardi:'+r['qid']['value'] + ' <|> ' + r['label']['value'] + ' <|> ' + r['quote']['value']})
+            dic.update({r['label']['value']:{'id':r['answer']['value'],'quote':r['comment']['value']}})
+
+        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+
+        options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
         
         return options
 

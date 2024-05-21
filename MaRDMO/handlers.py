@@ -20,6 +20,7 @@ from difflib import SequenceMatcher
 def publication(sender, **kwargs): 
     instance = kwargs.get("instance", None)
     if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_2/Set_1/Question_02':
+        # Activate (Yes)  / Deactivate (No or nothin) Publication Information Section
         if instance.option_text == 'Yes':
             uri = 'http://example.com/terms/domain/MaRDI/Section_2/Set_2'
             attribute_object = Attribute.objects.get(uri=uri)
@@ -30,18 +31,6 @@ def publication(sender, **kwargs):
                     'project': instance.project,
                     'attribute': attribute_object,
                     'text': 1
-                    }
-                )
-        elif instance.option_text == 'No':
-            uri = 'http://example.com/terms/domain/MaRDI/Section_2/Set_2'
-            attribute_object = Attribute.objects.get(uri=uri)
-            obj, created = Value.objects.update_or_create(
-                project=instance.project,
-                attribute=attribute_object,
-                defaults={
-                    'project': instance.project,
-                    'attribute': attribute_object,
-                    'text': 0
                     }
                 )
         else: 
@@ -56,7 +45,22 @@ def publication(sender, **kwargs):
                     'text': 0
                     }
                 )
-        if re.match(r'doi:10.\d{4,9}/[-._;()/:a-z0-9A-Z]+', instance.text):
+        # Evaluate Information provided for Yes case
+        if instance.text.split(':')[0] == 'url':
+            # If url provided, deactivate Publication Information section 
+            # the URL will only be integrated into Workflow documentation as link
+            uri = 'http://example.com/terms/domain/MaRDI/Section_2/Set_2'
+            attribute_object = Attribute.objects.get(uri=uri)
+            obj, created = Value.objects.update_or_create(
+                project=instance.project,
+                attribute=attribute_object,
+                defaults={
+                    'project': instance.project,
+                    'attribute': attribute_object,
+                    'text': 0
+                    }
+                )
+        elif re.match(r'doi:10.\d{4,9}/[-._;()/:a-z0-9A-Z]+', instance.text):
             # Extract DOI and Initialize different dictionaries
             doi = instance.text.split(':')[1]   
             dict_merged = {}
@@ -350,22 +354,22 @@ def doctype(sender, **kwargs):
     instance = kwargs.get("instance", None)
     if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_02':
         mod = ['http://example.com/terms/domain/MaRDI/Section_3/Set_0']
-        moddetail = ['http://example.com/terms/domain/MaRDI/Section_3a/Set_0',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_1',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_2',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_3',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_4',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_5',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_6',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_7']
+        moddetail = ['http://example.com/terms/domain/MaRDI/Section_3a/Set_0_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_1_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_2_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_3_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_4_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_5_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_6_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_7_hidden']
         doc = ['http://example.com/terms/domain/MaRDI/Section_2/Set_1',
                'http://example.com/terms/domain/MaRDI/Section_2/Set_3',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_3',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_4',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_5',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_6',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_2',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_3_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_4_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_5_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_6_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_2_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_1_hidden',
                'http://example.com/terms/domain/MaRDI/Section_5/Set_1',
                'http://example.com/terms/domain/MaRDI/Section_5/Set_2',
                'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
@@ -449,24 +453,24 @@ def type(sender, **kwargs):
         doc = ['http://example.com/terms/domain/MaRDI/Section_2/Set_1',
                'http://example.com/terms/domain/MaRDI/Section_2/Set_3',
                'http://example.com/terms/domain/MaRDI/Section_3/Set_0',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_3',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_4',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_5',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_6',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_2',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_3_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_4_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_5_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_6_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_2_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_1_hidden',
                'http://example.com/terms/domain/MaRDI/Section_5/Set_1',
                'http://example.com/terms/domain/MaRDI/Section_5/Set_2',
                'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
         ident = ['http://example.com/terms/domain/MaRDI/Section_0a/Set_1']
-        moddetail = ['http://example.com/terms/domain/MaRDI/Section_3a/Set_0',
-                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_1',
-                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_2',
-                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_3',
-                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_4',
-                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_5',
-                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_6',
-                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_7']
+        moddetail = ['http://example.com/terms/domain/MaRDI/Section_3a/Set_0_hidden',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_1_hidden',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_2_hidden',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_3_hidden',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_4_hidden',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_5_hidden',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_6_hidden',
+                     'http://example.com/terms/domain/MaRDI/Section_3a/Set_7_hidden']
 
         if instance.option_text == 'Document' or instance.option_text == 'Dokumentieren':
             val = [0,1,1,0,0]
@@ -544,24 +548,24 @@ def workflowtype(sender, **kwargs):
         pub = ['http://example.com/terms/domain/MaRDI/Section_2/Set_2']
         doc = ['http://example.com/terms/domain/MaRDI/Section_2/Set_1',
                'http://example.com/terms/domain/MaRDI/Section_3/Set_0',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_0',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_1',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_2',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_3',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_4',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_5',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_6',
-               'http://example.com/terms/domain/MaRDI/Section_3a/Set_7',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_3',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_6',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_2',
-               'http://example.com/terms/domain/MaRDI/Section_4/Set_1',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_0_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_1_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_2_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_3_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_4_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_5_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_6_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_3a/Set_7_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_3_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_6_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_2_hidden',
+               'http://example.com/terms/domain/MaRDI/Section_4/Set_1_hidden',
                'http://example.com/terms/domain/MaRDI/Section_5/Set_1',
                'http://example.com/terms/domain/MaRDI/Section_5/Set_2',
                'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
-        comp = ['http://example.com/terms/domain/MaRDI/Section_4/Set_4']
+        comp = ['http://example.com/terms/domain/MaRDI/Section_4/Set_4_hidden']
 
-        exp = ['http://example.com/terms/domain/MaRDI/Section_4/Set_5']
+        exp = ['http://example.com/terms/domain/MaRDI/Section_4/Set_5_hidden']
 
         if instance.option_text == '(Measurement) Data Analysis Workflow' or instance.option_text == '(Mess-)datenanalyse Workflow':
             val = [1,0,1]
@@ -630,14 +634,14 @@ def model(sender, **kwargs):
             val = 0
 
         uris = ['http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0',
-                'http://example.com/terms/domain/MaRDI/Section_3a/Set_0',
-                'http://example.com/terms/domain/MaRDI/Section_3a/Set_1',
-                'http://example.com/terms/domain/MaRDI/Section_3a/Set_2',
-                'http://example.com/terms/domain/MaRDI/Section_3a/Set_3',
-                'http://example.com/terms/domain/MaRDI/Section_3a/Set_4',
-                'http://example.com/terms/domain/MaRDI/Section_3a/Set_5',
-                'http://example.com/terms/domain/MaRDI/Section_3a/Set_6',
-                'http://example.com/terms/domain/MaRDI/Section_3a/Set_7']
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_0_hidden',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_1_hidden',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_2_hidden',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_3_hidden',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_4_hidden',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_5_hidden',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_6_hidden',
+                'http://example.com/terms/domain/MaRDI/Section_3a/Set_7_hidden']
 
         for uri in uris:
             attribute_object = Attribute.objects.get(uri=uri)
@@ -660,7 +664,7 @@ def researchField(sender, **kwargs):
             val = 1
         else:
             val = 0
-        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_0')
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_0_hidden')
         obj, created = Value.objects.update_or_create(
             project=instance.project,
             attribute=attribute_object,
@@ -680,7 +684,7 @@ def researchProblem(sender, **kwargs):
             val = 1
         else:
             val = 0
-        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1')
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1_hidden')
         obj, created = Value.objects.update_or_create(
             project=instance.project,
             attribute=attribute_object,
@@ -700,7 +704,7 @@ def model2(sender, **kwargs):
             val = 1
         else:
             val = 0
-        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2')
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2_hidden')
         obj, created = Value.objects.update_or_create(
             project=instance.project,
             attribute=attribute_object,
@@ -720,7 +724,7 @@ def quantity(sender, **kwargs):
             val = 1
         else:
             val = 0
-        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3')
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3_hidden')
         obj, created = Value.objects.update_or_create(
             project=instance.project,
             attribute=attribute_object,
@@ -740,7 +744,7 @@ def quantityKind(sender, **kwargs):
             val = 1
         else:
             val = 0
-        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_4')
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_4_hidden')
         obj, created = Value.objects.update_or_create(
             project=instance.project,
             attribute=attribute_object,
