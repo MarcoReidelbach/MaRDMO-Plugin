@@ -67,7 +67,7 @@ OPTIONSET_PROVIDERS = [
     ('DataProvider', _('Options for Data Sets'), 'MaRDMO.providers.DataProvider'),
     ('SoftwareProvider', _('Options for Software'), 'MaRDMO.providers.SoftwareProvider'),
     ('ResearchField', _('Options for Research Fields'), 'MaRDMO.providers.ResearchField'),
-    ('ResearchField2', _('Options for Research Fields2'), 'MaRDMO.providers.ResearchField2'),
+    ('ResearchFieldRelations', _('Options for Research Field Relations'), 'MaRDMO.providers.ResearchFieldRelations'),
     ('ResearchProblem', _('Options for Research Problems'), 'MaRDMO.providers.ResearchProblem'),
     ('ResearchProblem2', _('Options for Research Problems2'), 'MaRDMO.providers.ResearchProblem2'),
     ('MathematicalModel', _('Options for Mathematical Models'), 'MaRDMO.providers.MathematicalModel'),
