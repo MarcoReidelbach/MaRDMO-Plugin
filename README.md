@@ -109,10 +109,10 @@ git clone https://github.com/MarcoReidelbach/MaRDMO-Questionnaire.git
 Integrate the MaRDMO-Questionnaire into your RDMO instance through the user interface of your RDMO instance (`Management -> Import -> domains.xml/options.xml/conditions.xml/questions.xml`) or via 
 
 ```bash
-python manage.py import /path/to/MaRDMO-Questionnaire/catalog/domains.xml
-python manage.py import /path/to/MaRDMO-Questionnaire/catalog/options.xml
+python manage.py import /path/to/MaRDMO-Questionnaire/catalog/attributes.xml
+python manage.py import /path/to/MaRDMO-Questionnaire/catalog/optionsets.xml
 python manage.py import /path/to/MaRDMO-Questionnaire/catalog/conditions.xml
-python manage.py import /path/to/MaRDMO-Questionnaire/catalog/questions.xml
+python manage.py import /path/to/MaRDMO-Questionnaire/catalog/catalogs.xml
 ```
 
 ## Usage of MaRDMO-Export-Plugin
