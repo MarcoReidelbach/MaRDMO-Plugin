@@ -75,6 +75,7 @@ OPTIONSET_PROVIDERS = [
     ('MathematicalModelAdditional', _('Options for additional Mathematical Models'), 'MaRDMO.providers.MathematicalModelAdditional'),
     ('MathematicalModelRelation', _('Options for Mathematical Model Relations'), 'MaRDMO.providers.MathematicalModelRelation'),
     ('Quantity', _('Options for Quantities'), 'MaRDMO.providers.Quantity'),
+    ('QuantityKind', _('Options for Quantity Kinds'), 'MaRDMO.providers.QuantityKind'),
     ('QuantityRelations', _('Options for Quantity Relations'), 'MaRDMO.providers.QuantityRelations'),
     ('QuantityKindRelations', _('Options for Quantity Kind Relations'), 'MaRDMO.providers.QuantityKindRelations'),
     ('MathematicalFormulation', _('Options for Mathematical Formulation'), 'MaRDMO.providers.MathematicalFormulation'),

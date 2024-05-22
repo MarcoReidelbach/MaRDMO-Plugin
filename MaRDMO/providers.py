@@ -564,7 +564,7 @@ class Quantity(Provider):
         if not search or len(search) < 3:
             return []
 
-        query1 = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
+        query = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
                         SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
                         WHERE { 
                                ?answer a <https://mardi4nfdi.de/mathmoddb#Quantity> .
@@ -573,11 +573,31 @@ class Quantity(Provider):
                                }
                         GROUP BY ?answer ?label'''
 
-        req1=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                          params = {'format': 'json', 'query': query1},
+        req = requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
+                          params = {'format': 'json', 'query': query},
                           headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
 
-        query2 = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
+        dic = {}
+
+        for r in req:
+            dic.update({r['label']['value']:{'id':r['answer']['value']}})
+
+        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+
+        options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
+
+        return options
+
+class QuantityKind(Provider):
+
+    search = True
+
+    def get_options(self, project, search):
+
+        if not search or len(search) < 3:
+            return []
+
+        query = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
                         SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
                         WHERE { 
                                ?answer a <https://mardi4nfdi.de/mathmoddb#QuantityKind> .
@@ -586,25 +606,27 @@ class Quantity(Provider):
                                }
                         GROUP BY ?answer ?label'''
 
-        req2=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                          params = {'format': 'json', 'query': query2},
+        req = requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
+                          params = {'format': 'json', 'query': query},
                           headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-
 
         dic = {}
 
-        for r in req1:
-            dic.update({r['label']['value'] + ' (Quantity)':{'id':r['answer']['value']}})
+        for r in req:
+            dic.update({r['label']['value']:{'id':r['answer']['value']}})
 
-        for r in req2:
-            dic.update({r['label']['value'] + ' (Quantity Kind)':{'id':r['answer']['value']}})
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_6'))
 
+        for idx, value in enumerate(values):
+            if value.text:
+                dic.update({value.text:{'id':str(idx)}})
 
         options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
 
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
         return options
+
 
 class QuantityRelations(Provider):
 
@@ -634,15 +656,16 @@ class QuantityRelations(Provider):
         for r in req:
             dic.update({r['label']['value']:{'id':r['answer']['value']}})
 
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_5'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_0'))
 
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_4'))
-        
-        for idx, (value1, value2) in enumerate(zip(values1,values2)):
+        for idx, value1 in enumerate(values1):
             if value1.text:
-                if value2.option_text == 'Quantity' or value2.option_text == 'Quantität':
-                    dic.update({value1.text:{'id':str(idx)}})
-        
+                dic.update({value1.text:{'id':value1.external_id}})
+        for idx, value2 in enumerate(values2):
+            if value2.text:
+                dic.update({value2.text:{'id':str(idx)}})
+
         options = []
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
@@ -676,15 +699,16 @@ class QuantityKindRelations(Provider):
         for r in req:
             dic.update({r['label']['value']:{'id':r['answer']['value']}})
 
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_6'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_7'))
 
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_4'))
-
-        for idx, (value1, value2) in enumerate(zip(values1,values2)):
+        for idx, value1 in enumerate(values1):
             if value1.text:
-                if value2.option_text == 'Quantity Kind' or value2.option_text == 'Quantitätsart':
-                    dic.update({value1.text:{'id':str(idx)}})
-
+                dic.update({value1.text:{'id':value1.external_id}})
+        for idx, value2 in enumerate(values2):
+            if value2.text:
+                dic.update({value2.text:{'id':str(idx)}})
+        
         options = []
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
