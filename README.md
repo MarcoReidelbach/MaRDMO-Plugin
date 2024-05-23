@@ -112,7 +112,7 @@ The MaRDMO-Export-Plugin requires the [MaRDMO-Questionnaire](https://github.com/
 git clone https://github.com/MarcoReidelbach/MaRDMO-Questionnaire.git
 ```
 
-Integrate the MaRDMO-Questionnaire into your RDMO instance through the user interface of your RDMO instance (`Management -> Import -> domains.xml/options.xml/conditions.xml/questions.xml`) or via 
+Integrate the MaRDMO-Questionnaire into your RDMO instance through the user interface of your RDMO instance (`Management -> Import -> attributes.xml/optionsets.xml/conditions.xml/catalogs.xml`) or via 
 
 ```bash
 python manage.py import /path/to/MaRDMO-Questionnaire/catalog/attributes.xml
