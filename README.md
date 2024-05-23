@@ -86,6 +86,7 @@ OPTIONSET_PROVIDERS = [
     ('QuantityAll', _('Options for all Quantities'), 'MaRDMO.providers.QuantityAll'),
     ('MathematicalTask', _('Options for Mathematical Task'), 'MaRDMO.providers.MathematicalTask'),
     ('MathematicalTask2', _('Options for Mathematical Task2'), 'MaRDMO.providers.MathematicalTask2'),
+    ('Publication', _('Options for Publications'), 'MaRDMO.providers.Publication'),
     ('AllEntities', _('Options for All Entities'), 'MaRDMO.providers.AllEntities')
     ]
 ```

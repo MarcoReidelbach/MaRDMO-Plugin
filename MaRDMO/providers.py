@@ -303,6 +303,39 @@ class ResearchField(Provider):
 
         return options
 
+class Publication(Provider):
+
+    search = True
+
+    def get_options(self, project, search):
+
+        if not search or len(search) < 3:
+            return []
+
+        query = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>  
+                        SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
+                        WHERE { 
+                               ?answer a <https://mardi4nfdi.de/mathmoddb#Publication> .
+                               ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
+                               FILTER (lang(?l) = 'en')
+                               }
+                        GROUP BY ?answer ?label'''
+
+        req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
+                         params = {'format': 'json', 'query': query},
+                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+        dic = {}
+
+        for r in req:
+            dic.update({r['label']['value']:{'id':r['answer']['value']}})
+
+        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+
+        options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
+
+        return options
+
 class ResearchFieldRelations(Provider):
 
     search = True
@@ -957,87 +990,83 @@ class AllEntities(Provider):
     def get_options(self, project, search=None):
         options =[]
 
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_04'))
-        for idx, value in enumerate(values):
-            if value.text and value.text != 'not in MathModDB':
-                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Research Field)'})
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_04'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_0/Question_3'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_0/Question_0'))
+        values4 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_05'))
+        values5 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1/Question_5'))
+        values6 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1/Question_0'))
+        values7 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_01'))
+        values8 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_0'))
+        values9 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_0a'))
+        values10 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_07'))
+        values11 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_5'))
+        values12 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
+        values13 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_4'))
+        values14 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_6'))
+        values15 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_7'))
+        values16 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Question_0'))
+        values17 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Question_0a'))
+        values18 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Question_0'))
+        values19 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Question_0a'))
 
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_0/Question_0'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':'RF'+str(idx),'text':value.text + ' (Research Field)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_05'))
-        for idx, value in enumerate(values):
-            if value.text and value.text != 'not in MathModDB':
-                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Research Problem)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1/Question_0'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':'RP'+str(idx),'text':value.text + ' (Research Problem)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01'))
-        for idx, value in enumerate(values):
-            if value.text and value.text != 'not in MathModDB':
-                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Mathematical Model)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_01'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':'MMa'+str(idx),'text':value.text + ' (Mathematical Model)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_0'))
-        for idx, value in enumerate(values):
-            if value.text and value.text != 'not in MathModDB':
-                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Mathematical Model)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_0a'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':'MMb'+str(idx),'text':value.text + ' (Mathematical Model)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_07'))
-        for idx, value in enumerate(values):
-            if value.text and value.text != 'not in MathModDB':
-                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Quantity)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':'Q'+str(idx),'text':value.text + ' (Quantity)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_09'))
-        for idx, value in enumerate(values):
-            if value.text and value.text != 'not in MathModDB':
-                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Quantity Kind)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_4/Question_0'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':'QK'+str(idx),'text':value.text + ' (Quantity Kind)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Question_0'))
-        for idx, value in enumerate(values):
-            if value.text and value.text != 'not in MathModDB':
-                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Mathematical Formulation)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Question_0a'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':'MF'+str(idx),'text':value.text + ' (Mathematical Formulation)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Question_0'))
-        for idx, value in enumerate(values):
-            if value.text and value.text != 'not in MathModDB':
-                options.append({'id':re.search('\(mardi:(.*)\)',value.text).group(1),'text':value.text + ' (Mathematical Task)'})
-
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Question_0a'))
-        for idx, value in enumerate(values):
-            if value.text:
-                options.append({'id':'MT'+str(idx),'text':value.text + ' (Mathematical Task)'})
-
-        options = [dict(entry) for entry in {tuple(dicts.items()) for dicts in options}]
+        for idx, value1 in enumerate(values1):
+            if value1.text and value1.text != 'not in MathModDB':
+                options.append({'id':value1.external_id,'text':value1.text + ' (Research Field)'})
+        for idx, value2 in enumerate(values2):
+            if value2.text:
+                options.append({'id':value2.external_id,'text':value2.text + ' (Research Field)'})
+        for idx, value3 in enumerate(values3):
+            if value3.text:
+                options.append({'id':'RF'+str(idx),'text':value3.text + ' (Research Field)'})
+        for idx, value4 in enumerate(values4):
+            if value4.text and value4.text != 'not in MathModDB':
+                options.append({'id':value4.external_id,'text':value4.text + ' (Research Problem)'})
+        for idx, value5 in enumerate(values5):
+            if value5.text:
+                options.append({'id':value5.external_id,'text':value5.text + ' (Research Problem)'})
+        for idx, value6 in enumerate(values6):
+            if value6.text:
+                options.append({'id':'RP'+str(idx),'text':value6.text + ' (Research Problem)'})
+        for idx, value7 in enumerate(values7):
+            if value7.text:
+                options.append({'id':'MMa'+str(idx),'text':value7.text + ' (Mathematical Model)'})
+        for idx, value8 in enumerate(values8):
+            if value8.text:
+                options.append({'id':value8.external_id,'text':value8.text + ' (Mathematical Model)'})
+        for idx, value9 in enumerate(values9):
+            if value9.text:
+                options.append({'id':'MMb'+str(idx),'text':value9.text + ' (Mathematical Model)'})
+        for idx, value10 in enumerate(values10):
+            if value10.text and value10.text != 'not in MathModDB':
+                options.append({'id':value10.external_id,'text':value10.text + ' (Quantity)'})
+        for idx, value11 in enumerate(values11):
+            if value11.text:
+                options.append({'id':value11.external_id,'text':value11.text + ' (Quantity)'})
+        for idx, value12 in enumerate(values12):
+            if value12.text:
+                options.append({'id':'Q'+str(idx),'text':value12.text + ' (Quantity)'})
+        for idx, value13 in enumerate(values13):
+            if value13.text and value13.text != 'not in MathModDB':
+                options.append({'id':value13.external_id,'text':value13.text + ' (Quantity Kind)'})
+        for idx, value14 in enumerate(values14):
+            if value14.text:
+                options.append({'id':value14.external_id,'text':value14.text + ' (Quantity Kind)'})
+        for idx, value15 in enumerate(values15):
+            if value15.text:
+                options.append({'id':'QK'+str(idx),'text':value15.text + ' (Quantity Kind)'})
+        for idx, value16 in enumerate(values16):
+            if value16.text:
+                options.append({'id':value16.external_id,'text':value16.text + ' (Mathematical Formulation)'})
+        for idx, value17 in enumerate(values17):
+            if value17.text:
+                options.append({'id':'MF'+str(idx),'text':value17.text + ' (Mathematical Formulation)'})
+        for idx, value18 in enumerate(values18):
+            if value18.text:
+                options.append({'id':value18.external_id,'text':value18.text + ' (Task)'})
+        for idx, value19 in enumerate(values19):
+            if value19.text:
+                options.append({'id':'MF'+str(idx),'text':value19.text + ' (Task)'})
 
         return options
 
