@@ -371,9 +371,9 @@ def doctype(sender, **kwargs):
                'http://example.com/terms/domain/MaRDI/Section_4/Set_2_hidden',
                'http://example.com/terms/domain/MaRDI/Section_4/Set_1_hidden',
                'http://example.com/terms/domain/MaRDI/Section_5/Set_1',
-               'http://example.com/terms/domain/MaRDI/Section_5/Set_2',
-               'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
-        ident = ['http://example.com/terms/domain/MaRDI/Section_0a/Set_1']
+               'http://example.com/terms/domain/MaRDI/Section_5/Set_2']
+        ident = ['http://example.com/terms/domain/MaRDI/Section_0a/Set_1',
+                'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
         pub = ['http://example.com/terms/domain/MaRDI/Section_2/Set_2']
         if instance.option_text == 'Workflow' or instance.option_text == 'Workflow':
             val = [1,1,1,0,0]
@@ -460,9 +460,9 @@ def type(sender, **kwargs):
                'http://example.com/terms/domain/MaRDI/Section_4/Set_2_hidden',
                'http://example.com/terms/domain/MaRDI/Section_4/Set_1_hidden',
                'http://example.com/terms/domain/MaRDI/Section_5/Set_1',
-               'http://example.com/terms/domain/MaRDI/Section_5/Set_2',
-               'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
-        ident = ['http://example.com/terms/domain/MaRDI/Section_0a/Set_1']
+               'http://example.com/terms/domain/MaRDI/Section_5/Set_2']
+        ident = ['http://example.com/terms/domain/MaRDI/Section_0a/Set_1',
+                 'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
         moddetail = ['http://example.com/terms/domain/MaRDI/Section_3a/Set_0_hidden',
                      'http://example.com/terms/domain/MaRDI/Section_3a/Set_1_hidden',
                      'http://example.com/terms/domain/MaRDI/Section_3a/Set_2_hidden',
