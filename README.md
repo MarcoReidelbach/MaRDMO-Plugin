@@ -79,8 +79,8 @@ OPTIONSET_PROVIDERS = [
     ('QuantityRelations', _('Options for Quantity Relations'), 'MaRDMO.providers.QuantityRelations'),
     ('QuantityKindRelations', _('Options for Quantity Kind Relations'), 'MaRDMO.providers.QuantityKindRelations'),
     ('MathematicalFormulation', _('Options for Mathematical Formulation'), 'MaRDMO.providers.MathematicalFormulation'),
-    ('MathematicalFormulation2', _('Options for Mathematical Formulation2'), 'MaRDMO.providers.MathematicalFormulation2'),
-    ('QuantityAndQuantityKind', _('Options for Quantity and Quantity Kind'), 'MaRDMO.providers.QuantityAndQuantityKind'),
+    ('MathematicalFormulation2', _('Options for Mathematical Formulation 2'), 'MaRDMO.providers.MathematicalFormulation2'),
+    ('QuantityAll', _('Options for all Quantities'), 'MaRDMO.providers.QuantityAll'),
     ('MathematicalTask', _('Options for Mathematical Task'), 'MaRDMO.providers.MathematicalTask'),
     ('MathematicalTask2', _('Options for Mathematical Task2'), 'MaRDMO.providers.MathematicalTask2'),
     ('AllEntities', _('Options for All Entities'), 'MaRDMO.providers.AllEntities')
