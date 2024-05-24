@@ -445,7 +445,7 @@ def doctype(sender, **kwargs):
     return
 
 @receiver(post_save, sender=Value)
-def type(sender, **kwargs):
+def types(sender, **kwargs):
     instance = kwargs.get("instance", None)
     if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_0/Set_1/Question_01':
         search = ['http://example.com/terms/domain/MaRDI/Section_1/Set_1']
