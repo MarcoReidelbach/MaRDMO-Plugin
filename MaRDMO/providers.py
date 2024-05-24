@@ -375,8 +375,8 @@ class ResearchFieldRelations(Provider):
 
         
         options = []
-        options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
-        
+        options.extend([{'id': dic[key]['id'] + ' <|> ' + key if len(dic[key]['id'].split(' <|> ')) == 1 else dic[key]['id'], 'text': key } for key in dic if search.lower() in key.lower()])
+
         return options
 
 class ResearchProblem(Provider):
@@ -462,6 +462,7 @@ class ResearchProblemRelations2(Provider):
 
         values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1/Question_5'))
         values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1/Question_0'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_05'))
 
         for idx, value1 in enumerate(values1):
             if value1.text:
@@ -469,6 +470,9 @@ class ResearchProblemRelations2(Provider):
         for idx, value2 in enumerate(values2):
             if value2.text:
                 dic.update({value2.text:{'id':str(idx)}})
+        for idx, value3 in enumerate(values3):
+            if value3.text:
+                dic.update({value3.text:{'id':value3.external_id}})
 
         options = []
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic])
@@ -905,7 +909,7 @@ class QuantityAll(Provider):
                 dic.update({value2.text:{'id':str(idx)}})
 
         options = []
-        options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key} for key in dic])
+        options.extend([{'id': dic[key]['id'] + ' <|> ' + key if len(dic[key]['id'].split(' <|> ')) == 1 else dic[key]['id'], 'text': key } for key in dic])
 
         return options
 
