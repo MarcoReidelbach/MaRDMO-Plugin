@@ -488,6 +488,7 @@ class ResearchFieldUser(Provider):
     
             values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_0/Question_3'))
             values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_0/Question_0'))
+            values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_04'))
 
             for idx, value1 in enumerate(values1):
                 if value1.text:
@@ -495,6 +496,9 @@ class ResearchFieldUser(Provider):
             for idx, value2 in enumerate(values2):
                 if value2.text:
                     dic.update({value2.text:{'id':str(idx)}})
+            for idx, value3 in enumerate(values3):
+                if value3.text:
+                    dic.update({value3.text:{'id':value3.external_id}})
 
             options = []
             options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key} for key in dic])
