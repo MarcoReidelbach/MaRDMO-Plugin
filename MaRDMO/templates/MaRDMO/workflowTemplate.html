@@ -85,18 +85,20 @@
 {% endfor %}
 <h3 id="discretization">Discretization</h3>
 <ul>
-{% for value in answers.Model.values %}
-{% if option.TimeDiscrete in value.Properties.values %}
+{% for value in answers.Models.values %}
+{% if option.IsTimeDiscrete in value.Properties.values %}
 <li> Time: Yes</li>
-{% endif %}
-{% if option.TimeDiscrete not in value.Properties.values %}
+{% elif option.IsTimeContinuous in value.Properties.values %}
 <li> Time: No</li>
+{% elif option.IsTimeIndependent in value.Properties.values %}
+<li> Time: Independent</li>
 {% endif %}
-{% if option.SpaceDiscrete in value.Properties.values %}
+{% if option.IsSpaceDiscrete in value.Properties.values %}
 <li> Space: Yes</li>
-{% endif %}
-{% if option.SpaceDiscrete not in value.Properties.values %}
+{% elif option.IsSpaceContinuous in value.Properties.values %}
 <li> Space: No</li>
+{% elif option.IsSpaceIndependent in value.Properties.values %}
+<li> Space: Independent</li>
 {% endif %}
 {% endfor %}
 </ul>    
@@ -118,16 +120,16 @@
 </thead>
 <tbody>
 {% for values in answers.Task.values %}
-{% for value in values.values %}
-{% if value.Property == option.TaskInput or value.Property == option.TaskOutput %}
+{% for value in values.RelationQ.values %}
+{% if value.0 == option.TaskInput or value.0 == option.TaskOutput %}
 <tr>
-<td style="text-align: center; vertical-align: middle;">{{ value.Quantity }}</td>
+<td style="text-align: center; vertical-align: middle;">{{ value.1 }}</td>
 <td style="text-align: center; vertical-align: middle;"></td>
-<td style="text-align: center; vertical-align: middle;">{{ value.Symbol }}</td>
-{% if option.TaskInput == value.Property %}
+<td style="text-align: center; vertical-align: middle;">{{ value.2 }}</td>
+{% if option.TaskInput == value.0 %}
 <td style="text-align: center; vertical-align: middle;">independent</td>
 {% endif %}
-{% if option.TaskOutput == value.Property %}
+{% if option.TaskOutput == value.0 %}
 <td style="text-align: center; vertical-align: middle;">dependent</td>
 {% endif %}
 </tr>
@@ -153,13 +155,13 @@
                                 </tr>
                         </thead>
                         <tbody>
-                                {% for values in answers.Task.values %}
-                    {% for value in values.values %}
-                        {% if value.Property == option.TaskParameter %}
+                    {% for values in answers.Task.values %}
+                    {% for value in values.RelationQ.values %}
+                        {% if value.0 == option.TaskParameter %}
                                             <tr>
-                                                    <td style="text-align: center; vertical-align: middle;">{{ value.Quantity }}</td>
+                                                    <td style="text-align: center; vertical-align: middle;">{{ value.1 }}</td>
                                                     <td style="text-align: center; vertical-align: middle;"></td>
-                                                    <td style="text-align: center; vertical-align: middle;">{{ value.Symbol }}</td>
+                                                    <td style="text-align: center; vertical-align: middle;">{{ value.2 }}</td>
                                             </tr>
                         {% endif %}
                     {% endfor %}
@@ -688,34 +690,34 @@
 
     {% if answers.Settings.WorkflowType == option.Computation %}
         <h3 id="mathematical-reproducibility">Mathematical Reproducibility</h3>
-            {% if answers.ReproducibilityComputational.Mathematically.0 == option.YesText %}
-                <p>Yes: {{ answers.ReproducibilityComputational.Mathematically.1 }}</p>
-            {% elif answers.ReproducibilityComputational.Mathematically.0 == option.NoText %}
+            {% if answers.ReproducibilityComputational.Mathematically == option.Yes %}
+                <p>Yes: {{ answers.ReproducibilityComputational.MathematicallyInfo }}</p>
+            {% elif answers.ReproducibilityComputational.Mathematically == option.No %}
                                 <p>No</p>
             {% endif %}
         <h3 id="runtime-reproducibility">Runtime Reproducibility</h3>
-                        {% if answers.ReproducibilityComputational.Runtime.0 == option.YesText %}
-                                <p>Yes: {{ answers.ReproducibilityComputational.Runtime.1 }}</p>
-                        {% elif answers.ReproducibilityComputational.Runtime.0 == option.NoText %}
+                        {% if answers.ReproducibilityComputational.Runtime == option.Yes %}
+                                <p>Yes: {{ answers.ReproducibilityComputational.RuntimeInfo }}</p>
+                        {% elif answers.ReproducibilityComputational.Runtime == option.No %}
                                 <p>No</p>
             {% endif %}
         <h3 id="reproducibility-of-results">Reproducibility of Results</h3>
-                        {% if answers.ReproducibilityComputational.Result.0 == option.YesText %}
-                                <p>Yes: {{ answers.ReproducibilityComputational.Result.1 }}</p>
-                        {% elif answers.ReproducibilityComputational.Result.0 == option.NoText %}
+                        {% if answers.ReproducibilityComputational.Result == option.Yes %}
+                                <p>Yes: {{ answers.ReproducibilityComputational.ResultInfo }}</p>
+                        {% elif answers.ReproducibilityComputational.Result == option.No %}
                                 <p>No</p>
             {% endif %}
     {% endif %}
         <h3 id="reproducibility-on-original-hardware">Reproducibility on original {% if answers.Settings.WorkflowType == option.Computation %}Hardware{% elif answers.Settings.WorkflowType == option.Analysis %}Devices/Instruments/Hardware{% endif %}</h3>
-                        {% if answers.ReproducibilityComputational.OriginalHardware.0 == option.YesText %}
-                                <p>Yes: {{ answers.ReproducibilityComputational.OriginalHardware.1 }}</p>
-                        {% elif answers.ReproducibilityComputational.OriginalHardware.0 == option.NoText %}
+                        {% if answers.ReproducibilityComputational.OriginalHardware == option.Yes %}
+                                <p>Yes: {{ answers.ReproducibilityComputational.OriginalHardwareInfo }}</p>
+                        {% elif answers.ReproducibilityComputational.OriginalHardware == option.No %}
                                 <p>No</p>
             {% endif %}
         <h3 id="reproducibility-on-other-hardware">Reproducibility on other {% if answers.Settings.WorkflowType == option.Computation %}Hardware{% elif answers.Settings.WorkflowType == option.Analysis %}Devices/Instruments/Hardware{% endif %}</h3>
-                        {% if answers.ReproducibilityComputational.OtherHardware.0 == option.YesText %}
-                                <p>Yes: {{ answers.ReproducibilityComputational.OtherHardware.1 }}</p>
-                        {% elif answers.ReproducibilityComputational.OtherHardware.0 == option.NoText %}
+                        {% if answers.ReproducibilityComputational.OtherHardware == option.Yes %}
+                                <p>Yes: {{ answers.ReproducibilityComputational.OtherHardwareInfo }}</p>
+                        {% elif answers.ReproducibilityComputational.OtherHardware == option.No %}
                                 <p>No</p>
             {% endif %}
         <h3 id="transferability-to">Transferability to</h3>

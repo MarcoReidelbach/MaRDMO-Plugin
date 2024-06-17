@@ -34,21 +34,25 @@
 <span id="model"></span>
 == Model ==
 
-{% for value in Model.values %} {% if value.mardiId != 'tbd' %} [{{ value.uri }} {{ value.Name }}] ({{ value.Description }}) {% elif value.mardiId == 'tbd' %} {{ value.Name }} ({{ value.Description}}) {% endif %} {% endfor %}
+{% for value in Models.values %} {% if value.mardiId != 'tbd' %} [{{ value.uri }} {{ value.Name }}] ({{ value.Description }}) {% elif value.mardiId == 'tbd' %} {{ value.Name }} ({{ value.Description}}) {% endif %} {% endfor %}
 
 <span id="discretization"></span>
 === Discretization ===
 
-{% for value in Model.values %} 
-{% if TimeDiscrete in value.Properties.values %} 
+{% for value in Models.values %} 
+{% if IsTimeDiscrete in value.Properties.values %} 
 * Time: Yes<br> 
-{% else %} 
+{% elif IsTimeContinuous in value.Properties.values %} 
 * Time: No<br> 
+{% elif IsTimeIndependent in value.Properties.values %} 
+* Time: Independent<br>
 {% endif %} 
-{% if SpaceDiscrete in value.Properties.values %} 
+{% if IsSpaceDiscrete in value.Properties.values %} 
 * Space: Yes<br> 
-{% else %} 
-* Space: No<br> 
+{% elif IsSpaceContinuous in value.Properties.values %} 
+* Space: No<br>
+{% elif IsSpaceIndependent in value.Properties.values %}
+* Space: Independent<br> 
 {% endif %} 
 {% endfor %}
 
@@ -62,11 +66,11 @@
 ! Symbol
 ! dependent/independent
 |-
-{% for values in Task.values %} {% for value in values.values %} {% if value.Property == TaskInput or value.Property == TaskOutput %}
-| {{ value.Quantity }}
+{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == TaskInput or value.0 == TaskOutput %}
+| {{ value.1 }}
 |
-| {{ value.Symbol }}
-| {% if TaskInput == value.Property %} independent {% elif TaskOutput == value.Property %} dependent {% endif %}
+| {{ value.2 }}
+| {% if TaskInput == value.0 %} independent {% elif TaskOutput == value.0 %} dependent {% endif %}
 |-
 {% endif %} {% endfor %} {% endfor %}
 |}
@@ -80,10 +84,10 @@
 ! Unit
 ! Symbol
 |-
-{% for values in Task.values %} {% for value in values.values %} {% if value.Property == TaskParameter %}
-| {{value.Quantity }}
+{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == TaskParameter %}
+| {{value.1 }}
 |
-| {{value.Symbol }}
+| {{value.2 }}
 |-
 {% endif %} {% endfor %} {% endfor %}
 |}
@@ -290,38 +294,38 @@
 
 <span id="mathematical-reproducibility"></span>
 === Mathematical Reproducibility ===
-{% if ReproducibilityComputational.Mathematically.0 == YesText %} 
-Yes: {{ ReproducibilityComputational.Mathematically.1 }} 
-{% elif ReproducibilityComputational.Mathematically.0 == NoText %} 
+{% if ReproducibilityComputational.Mathematically == Yes %} 
+Yes: {{ ReproducibilityComputational.MathematicallyInfo }} 
+{% elif ReproducibilityComputational.Mathematically == No %} 
 No 
 {% endif %} 
 <span id="runtime-reproducibility"></span>
 === Runtime Reproducibility ===
-{% if ReproducibilityComputational.Runtime.0 == YesText %} 
-Yes: {{ ReproducibilityComputational.Runtime.1 }} 
-{% elif ReproducibilityComputational.Runtime.0 == NoText %} 
+{% if ReproducibilityComputational.Runtime == Yes %} 
+Yes: {{ ReproducibilityComputational.RuntimeInfo }} 
+{% elif ReproducibilityComputational.Runtime == No %} 
 No 
 {% endif %} 
 <span id="reproducibility-of-results"></span>
 === Reproducibility of Results ===
-{% if ReproducibilityComputational.Result.0 == YesText %} 
-Yes: {{ ReproducibilityComputational.Result.1 }} 
-{% elif ReproducibilityComputational.Result.0 == NoText %} 
+{% if ReproducibilityComputational.Result == Yes %} 
+Yes: {{ ReproducibilityComputational.ResultInfo }} 
+{% elif ReproducibilityComputational.Result == No %} 
 No 
 {% endif %}
 {% endif %} 
 <span id="reproducibility-on-original-hardware"></span>
 === Reproducibility on original {% if Settings.WorkflowType == Computation %}Hardware{% elif Settings.WorkflowType == Analysis %}Devices/Instruments/Hardware{% endif %} === 
-{% if ReproducibilityComputational.OriginalHardware.0 == YesText %} 
-Yes: {{ ReproducibilityComputational.OriginalHardware.1 }} 
-{% elif ReproducibilityComputational.OriginalHardware.0 == NoText %} 
+{% if ReproducibilityComputational.OriginalHardware == Yes %} 
+Yes: {{ ReproducibilityComputational.OriginalHardwareInfo }} 
+{% elif ReproducibilityComputational.OriginalHardware == No %} 
 No 
 {% endif %} 
 <span id="reproducibility-on-other-hardware"></span>
 === Reproducibility on other {% if Settings.WorkflowType == Computation %}Hardware{% elif Settings.WorkflowType == Analysis %}Devices/Instruments/Hardware{% endif %} ===
-{% if ReproducibilityComputational.OtherHardware.0 == YesText %} 
-Yes: {{ ReproducibilityComputational.OtherHardware.1 }} 
-{% elif ReproducibilityComputational.OtherHardware.0 == NoText %} 
+{% if ReproducibilityComputational.OtherHardware == Yes %} 
+Yes: {{ ReproducibilityComputational.OtherHardwareInfo }} 
+{% elif ReproducibilityComputational.OtherHardware == No %} 
 No 
 {% endif %} 
 <span id="transferability"></span>

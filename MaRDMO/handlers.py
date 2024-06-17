@@ -330,7 +330,7 @@ def publication(sender, **kwargs):
                                 defaults={
                                     'project': instance.project,
                                     'attribute': attribute_object,
-                                    'option': Option.objects.get(uri=f'http://example.com/terms/options/languages/{language_option}')
+                                    'option': Option.objects.get(uri=f'http://example.com/terms/options/MaRDI/languages/{language_option}')
                                 }
                             )
                 else:
@@ -348,6 +348,95 @@ def publication(sender, **kwargs):
                         )
  
             return
+
+@receiver(post_save, sender=Value)
+def additionalMM(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_0':
+        if instance.text == 'not in MathModDB':
+            val = 1
+        else:
+            val = 0
+ 
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Set_1')
+        obj, created = Value.objects.update_or_create(
+            project=instance.project,
+            attribute=attribute_object,
+            set_index=instance.set_index,
+            defaults={
+                'project': instance.project,
+                'attribute': attribute_object,
+                'text': val
+                }
+            )
+    return
+
+@receiver(post_save, sender=Value)
+def MF(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Question_0':
+        if instance.text == 'not in MathModDB':
+            val = 1
+        else:
+            val = 0
+
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_5/Set_4')
+        obj, created = Value.objects.update_or_create(
+            project=instance.project,
+            attribute=attribute_object,
+            set_index=instance.set_index,
+            defaults={
+                'project': instance.project,
+                'attribute': attribute_object,
+                'text': val
+                }
+            )
+    return
+
+@receiver(post_save, sender=Value)
+def MT(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Question_0':
+        if instance.text == 'not in MathModDB':
+            val = 1
+        else:
+            val = 0
+
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_6/Set_0')
+        obj, created = Value.objects.update_or_create(
+            project=instance.project,
+            attribute=attribute_object,
+            set_index=instance.set_index,
+            defaults={
+                'project': instance.project,
+                'attribute': attribute_object,
+                'text': val
+                }
+            )
+    return
+
+@receiver(post_save, sender=Value)
+def PUB(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == 'http://example.com/terms/domain/MaRDI/Section_3a/Set_7/Question_0':
+        if instance.text == 'not in MathModDB':
+            val = 1
+        else:
+            val = 0
+
+        attribute_object = Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_7/Set_1')
+        obj, created = Value.objects.update_or_create(
+            project=instance.project,
+            attribute=attribute_object,
+            set_index=instance.set_index,
+            defaults={
+                'project': instance.project,
+                'attribute': attribute_object,
+                'text': val
+                }
+            )
+    return
+
 
 @receiver(post_save, sender=Value)
 def doctype(sender, **kwargs):
