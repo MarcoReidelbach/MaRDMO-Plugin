@@ -22,7 +22,8 @@ This repository contains the MaRDMO-Export-Plugin for the [Research Datamanageme
 │   │   ├── workflowTemplate.html - HTML Template for Workflow Documentation
 │   │   ├── workflowTemplate.md - Markdown Template for Workflow Documentation
 │   │   ├── workflowTemplate.mediawiki - Mediawiki Template for Workflow Documentation
-│   │   └── workflowSearch.html - HTML Template for MaRDMO Search
+│   │   ├── workflowSearch.html - HTML Template for MaRDMO Search
+│   │   └── modelTemplate.md - Markdown Template for Model Documentation
 │   └── data
 │       └── msc2020.json - Mathematics Subject Classification 2020
 ├── setup.py 
@@ -82,10 +83,9 @@ OPTIONSET_PROVIDERS = [
     ('QuantityKindRelations', _('Options for Quantity Kind Relations'), 'MaRDMO.providers.QuantityKindRelations'),
     ('MathematicalFormulation', _('Options for Mathematical Formulation'), 'MaRDMO.providers.MathematicalFormulation'),
     ('MathematicalFormulation2', _('Options for Mathematical Formulation 2'), 'MaRDMO.providers.MathematicalFormulation2'),
-    ('MathematicalFormulation3', _('Options for Mathematical Formulation 3'), 'MaRDMO.providers.MathematicalFormulation3'),
     ('QuantityAll', _('Options for all Quantities'), 'MaRDMO.providers.QuantityAll'),
-    ('MathematicalTask', _('Options for Mathematical Task'), 'MaRDMO.providers.MathematicalTask'),
-    ('MathematicalTask2', _('Options for Mathematical Task2'), 'MaRDMO.providers.MathematicalTask2'),
+    ('Task', _('Options for Task'), 'MaRDMO.providers.Task'),
+    ('Task2', _('Options for Task2'), 'MaRDMO.providers.Task2'),
     ('Publication', _('Options for Publications'), 'MaRDMO.providers.Publication'),
     ('AllEntities', _('Options for All Entities'), 'MaRDMO.providers.AllEntities')
     ]
