@@ -883,7 +883,7 @@ class MaRDIExport(Export):
                 # Get additional Task Information
 
                 search_string = ''
-
+                
                 for key in answers['Task']:
                     if answers['Task'][key]['MathModID'] and answers['Task'][key]['MathModID'] != 'not in MathModDB':
 
@@ -1064,7 +1064,7 @@ class MaRDIExport(Export):
                                                 new_form.setdefault('Other4', {}).update({f'in{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
                                     
                                         elif Class.split('#')[-1] == 'Quantity' or Class.split('#')[-1] == 'QuantityKind':
-                                            answers['Task'][key].setdefault('Relation2',{}).update({'in'+str(idx):option['ContainsAsInput2']})
+                                            answers['Task'][key].setdefault('Relation2',{}).update({'in'+str(idx):option['ContainsInput']})
                                             if Class.split('#')[-1] == 'Quantity':
                                                 answers['Task'][key].setdefault('Other2',{}).update({'in'+str(idx):Id + ' <|> ' + label + ' (Quantity)'})
                                             else:
@@ -1091,7 +1091,7 @@ class MaRDIExport(Export):
                                                 new_form.setdefault('Other4', {}).update({f'out{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
                                     
                                         elif Class.split('#')[-1] == 'Quantity' or Class.split('#')[-1] == 'QuantityKind':
-                                            answers['Task'][key].setdefault('Relation2',{}).update({'out'+str(idx):option['ContainsAsOutput2']})
+                                            answers['Task'][key].setdefault('Relation2',{}).update({'out'+str(idx):option['ContainsOutput']})
                                             if Class.split('#')[-1] == 'Quantity':
                                                 answers['Task'][key].setdefault('Other2',{}).update({'out'+str(idx):Id + ' <|> ' + label + ' (Quantity)'})
                                             else:
@@ -1118,7 +1118,7 @@ class MaRDIExport(Export):
                                                 new_form.setdefault('Other4', {}).update({f'obj{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
 
                                         elif Class.split('#')[-1] == 'Quantity' or Class.split('#')[-1] == 'QuantityKind':
-                                            answers['Task'][key].setdefault('Relation2',{}).update({'obj'+str(idx):option['ContainsAsObjective2']})
+                                            answers['Task'][key].setdefault('Relation2',{}).update({'obj'+str(idx):option['ContainsObjective']})
                                             if Class.split('#')[-1] == 'Quantity':
                                                 answers['Task'][key].setdefault('Other2',{}).update({'obj'+str(idx):Id + ' <|> ' + label + ' (Quantity)'})
                                             else:
@@ -1145,7 +1145,7 @@ class MaRDIExport(Export):
                                                 new_form.setdefault('Other4', {}).update({f'pa{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
 
                                         elif Class.split('#')[-1] == 'Quantity' or Class.split('#')[-1] == 'QuantityKind':
-                                            answers['Task'][key].setdefault('Relation2',{}).update({'pa'+str(idx):option['ContainsAsParameter2']})
+                                            answers['Task'][key].setdefault('Relation2',{}).update({'pa'+str(idx):option['ContainsParameter']})
                                             if Class.split('#')[-1] == 'Quantity':
                                                 answers['Task'][key].setdefault('Other2',{}).update({'pa'+str(idx):Id + ' <|> ' + label + ' (Quantity)'})
                                             else:
@@ -1212,34 +1212,34 @@ class MaRDIExport(Export):
                                         answers['Task'][key].setdefault('Other3',{}).update({'s'+str(idx):Id + ' <|> ' + label})
                 
                 # Get additional Mathematical Formulation Information
-                if answers['Quantity'].get('MathModID',{}).get('ID'):
+                if 'ID' in answers['Quantity'].get('MathModID',{}).keys():
                     del answers['Quantity']['MathModID']['ID']
                 
                 # Add Mathematical Formulation from Task to Formulation List
                 for idx, key in enumerate(answers['Task']):
                     for key2 in answers['Task'][key].get('Relation1',{}):
                         
-                        if answers['Task'][key]['Relation1'][key2] == option['ContainsAsAssumption2']:
+                        if answers['Task'][key]['Relation1'][key2] == option['ContainsAssumption']:
                             relation = option['ContainedAsAssumptionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsAsBoundaryCondition2']:
+                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsBoundaryCondition']:
                             relation = option['ContainedAsBoundaryConditionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsAsConstraintCondition2']:
+                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsConstraintCondition']:
                             relation = option['ContainedAsConstraintConditionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsAsCouplingCondition2']:
+                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsCouplingCondition']:
                             relation = option['ContainedAsCouplingConditionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsAsFormulation2']:
+                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsFormulation']:
                             relation = option['ContainedAsFormulationIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsAsInitialCondition2']:
+                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsInitialCondition']:
                             relation = option['ContainedAsInitialConditionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsAsFinalCondition2']:
+                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsFinalCondition']:
                             relation = option['ContainedAsFinalConditionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsAsInput']:
+                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsInput']:
                             relation = option['ContainedAsInputIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsAsOutput']:
+                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsOutput']:
                             relation = option['ContainedAsOutputIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsAsObjective']:
+                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsObjective']:
                             relation = option['ContainedAsObjectiveIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsAsParameter']:
+                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsParameter']:
                             relation = option['ContainedAsParameterIn']
 
                         Id,label = answers['Task'][key]['Other1'][key2].split(' <|> ')[:2]
@@ -1330,37 +1330,37 @@ class MaRDIExport(Export):
 
                                 if r.get('F', {}).get('value') and r.get('FL', {}).get('value'):
                                     for idx, (Id, label) in enumerate(zip(r['F']['value'].split(' <|> '),r['FL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'fff{idx}': option['ContainsAsFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'fff{idx}': option['ContainsFormulation']})
                                         answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'fff{idx}': f'{Id} <|> {label}'})
                             
                                 if r.get('A', {}).get('value') and r.get('AL', {}).get('value'):
                                     for idx, (Id, label) in enumerate(zip(r['A']['value'].split(' <|> '),r['AL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'aaa{idx}': option['ContainsAsAssumption']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'aaa{idx}': option['ContainsAssumption']})
                                         answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'aaa{idx}': f'{Id} <|> {label}'})
 
                                 if r.get('BC', {}).get('value') and r.get('BCL', {}).get('value'):
                                     for idx, (Id, label) in enumerate(zip(r['BC']['value'].split(' <|> '),r['BCL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'bcbcbc{idx}': option['ContainsAsBoundaryCondition']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'bcbcbc{idx}': option['ContainsBoundaryCondition']})
                                         answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'bcbcbc{idx}': f'{Id} <|> {label}'})
 
                                 if r.get('CC', {}).get('value') and r.get('CCL', {}).get('value'):
                                     for idx, (Id, label) in enumerate(zip(r['CC']['value'].split(' <|> '),r['CCL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'cccccc{idx}': option['ContainsAsConstraintCondition']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'cccccc{idx}': option['ContainsConstraintCondition']})
                                         answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'cccccc{idx}': f'{Id} <|> {label}'})
 
                                 if r.get('CPC', {}).get('value') and r.get('CPCL', {}).get('value'):
                                     for idx, (Id, label) in enumerate(zip(r['CPC']['value'].split(' <|> '),r['CPCL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'cpccpccpc{idx}': option['ContainsAsCouplingCondition']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'cpccpccpc{idx}': option['ContainsCouplingCondition']})
                                         answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'cpccpccpc{idx}': f'{Id} <|> {label}'})
 
                                 if r.get('IC', {}).get('value') and r.get('ICL', {}).get('value'):
                                     for idx, (Id, label) in enumerate(zip(r['IC']['value'].split(' <|> '),r['ICL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'icicic{idx}': option['ContainsAsInitialCondition']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'icicic{idx}': option['ContainsInitialCondition']})
                                         answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'icicic{idx}': f'{Id} <|> {label}'})
 
                                 if r.get('FC', {}).get('value') and r.get('FCL', {}).get('value'):
                                     for idx, (Id, label) in enumerate(zip(r['FC']['value'].split(' <|> '),r['FCL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'fcfcfc{idx}': option['ContainsAsFinalCondition']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'fcfcfc{idx}': option['ContainsFinalCondition']})
                                         answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'fcfcfc{idx}': f'{Id} <|> {label}'})
 
                                 if r.get('formula',{}).get('value'):
@@ -1377,7 +1377,11 @@ class MaRDIExport(Export):
                                             if answers['Quantity']['MathModID'][k] == f'{Id} <|> {label} ({Class.split("#")[1]})':
                                                 break
                                         else:
-                                            answers['Quantity']['MathModID'].update({max(answers['Quantity']['MathModID'].keys())+1:f'{Id} <|> {label} ({Class.split("#")[1]})'})
+                                            if answers['Quantity']['MathModID'].keys():
+                                                val = max(answers['Quantity']['MathModID'].keys())+1
+                                            else:
+                                                val = 0
+                                            answers['Quantity']['MathModID'].update({val:f'{Id} <|> {label} ({Class.split("#")[1]})'})
 
                 if req2:
 
@@ -1692,7 +1696,7 @@ class MaRDIExport(Export):
                 if req_qk2:
 
                     for r in req_qk2:
-                        for key in answers['QuantityKind_refined']:
+                        for key in answers.get('QuantityKind_refined',[]):
                             if r.get('q', {}).get('value') == answers['QuantityKind_refined'][key]['MathModID']:
 
                                 if r.get('GBQUANTITY', {}).get('value') and r.get('GBQLabel', {}).get('value') and r.get('GBCLASS', {}).get('value'):
@@ -2138,7 +2142,7 @@ class MaRDIExport(Export):
                                         answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],'T'+str(idx+1)]})
                                 if not answers['PublicationModel'][key].get('RelationP',{}).get(key2):
                                     answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],Id]})             
-                
+                 
                 # Load MaRDI Markdown Workflow Template
                 path = os.path.join(os.path.dirname(__file__), 'templates', 'MaRDMO', 'modelTemplate.md')
                 with open(path, 'r') as file:

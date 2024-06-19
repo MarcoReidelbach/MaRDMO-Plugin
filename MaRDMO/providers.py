@@ -1067,7 +1067,7 @@ class AllEntities(Provider):
                 options.append({'id':value7.external_id + ' (Mathematical Model)','text':value7.text + ' (Mathematical Model)'})
         for idx, value8 in enumerate(values8):
             if value8.text:
-                options.append({'id':'MMa'+str(idx+1) + ' <|> ' + value8.text,'text':value8.text + ' (Mathematical Model)'})
+                options.append({'id':'MMa'+str(idx+1) + ' <|> ' + value8.text + ' (Mathematical Model)','text':value8.text + ' (Mathematical Model)'})
         for idx, value9 in enumerate(values9):
             if value9.text:
                 options.append({'id':value9.external_id + ' (Mathematical Model)','text':value9.text + ' (Mathematical Model)'})

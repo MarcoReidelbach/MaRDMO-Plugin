@@ -116,17 +116,17 @@ models: {{ models }}
 
 {% if values.0 == ContainsAssumption %} contains as Assumption: {{ values.1 }}
 {% elif values.0 == ContainedAsAssumptionIn %} contained as Assumption in: {{ values.1 }}
-{% elif values.0 == ContainsAsBoundaryCondition %} contains as Boundary Condition: {{ values.1 }}
+{% elif values.0 == ContainsBoundaryCondition %} contains as Boundary Condition: {{ values.1 }}
 {% elif values.0 == ContainedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.1 }} 
-{% elif values.0 == ContainsAsConstraintCondition %} contains as Constraint Condition: {{ values.1 }}
+{% elif values.0 == ContainsConstraintCondition %} contains as Constraint Condition: {{ values.1 }}
 {% elif values.0 == ContainedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.1 }} 
-{% elif values.0 == ContainsAsDefintion %} contains as Defintion: {{ values.1 }}
-{% elif values.0 == ContainedAsDefintionIn %} contained as Defintion in: {{ values.1 }} 
-{% elif values.0 == ContainsAsFormulation %} contains as Formulation: {{ values.1 }}
+{% elif values.0 == ContainsCouplingCondition %} contains as Coupling Condition: {{ values.1 }}
+{% elif values.0 == ContainedAsCouplingConditionIn %} contained as Coupling Condition in: {{ values.1 }} 
+{% elif values.0 == ContainsFormulation %} contains as Formulation: {{ values.1 }}
 {% elif values.0 == ContainedAsFormulationIn %} contained as Formulation in: {{ values.1 }} 
-{% elif values.0 == ContainsAsInitialCondition %} contains as Initial Condition: {{ values.1 }}
+{% elif values.0 == ContainsInitialCondition %} contains as Initial Condition: {{ values.1 }}
 {% elif values.0 == ContainedAsInitialConditionIn %} contained as Initial Condition in: {{ values.1 }} 
-{% elif values.0 == ContainsAsFinalCondition %} contains as Final Condition: {{ values.1 }}
+{% elif values.0 == ContainsFinalCondition %} contains as Final Condition: {{ values.1 }}
 {% elif values.0 == ContainedAsFinalConditionIn %} contained as Final Condition in: {{ values.1 }}
 {% endif %} 
 {% endfor %}
@@ -209,10 +209,10 @@ applies Mathematical Model: {{ value }}
 
 {% endif %}
 
-{% if value.0 == ContainsAsInput2 %} contains Input: {{ value.1 }}
-{% elif value.0 == ContainsAsOutput2 %} contains Output: {{ value.1 }}
-{% elif value.0 == ContainsAsObjective2 %} contains Objective: {{ value.1 }}
-{% elif value.0 == ContainsAsParameter2 %} contains Parameter: {{ value.1 }}
+{% if value.0 == ContainsInput %} contains Input: {{ value.1 }}
+{% elif value.0 == ContainsOutput %} contains Output: {{ value.1 }}
+{% elif value.0 == ContainsObjective %} contains Objective: {{ value.1 }}
+{% elif value.0 == ContainsParameter %} contains Parameter: {{ value.1 }}
 {% endif %}
 {% endfor %}
 
@@ -319,17 +319,17 @@ applies Mathematical Model: {{ value }}
 
 {% if values.0 == ContainsAssumption %} contains as Assumption: {{ values.1 }}
 {% elif values.0 == ContainedAsAssumptionIn %} contained as Assumption in: {{ values.1 }}
-{% elif values.0 == ContainsAsBoundaryCondition %} contains as Boundary Condition: {{ values.1 }}
+{% elif values.0 == ContainsBoundaryCondition %} contains as Boundary Condition: {{ values.1 }}
 {% elif values.0 == ContainedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.1 }}
-{% elif values.0 == ContainsAsConstraintCondition %} contains as Constraint Condition: {{ values.1 }}
+{% elif values.0 == ContainsConstraintCondition %} contains as Constraint Condition: {{ values.1 }}
 {% elif values.0 == ContainedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.1 }}
-{% elif values.0 == ContainsAsDefintion %} contains as Defintion: {{ values.1 }}
-{% elif values.0 == ContainedAsDefintionIn %} contained as Defintion in: {{ values.1 }}
-{% elif values.0 == ContainsAsFormulation %} contains as Formulation: {{ values.1 }}
+{% elif values.0 == ContainsCouplingCondition %} contains as Coupling Condition: {{ values.1 }}
+{% elif values.0 == ContainedAsCouplingConditionIn %} contained as Coupling Condition in: {{ values.1 }}
+{% elif values.0 == ContainsFormulation %} contains as Formulation: {{ values.1 }}
 {% elif values.0 == ContainedAsFormulationIn %} contained as Formulation in: {{ values.1 }}
-{% elif values.0 == ContainsAsInitialCondition %} contains as Initial Condition: {{ values.1 }}
+{% elif values.0 == ContainsInitialCondition %} contains as Initial Condition: {{ values.1 }}
 {% elif values.0 == ContainedAsInitialConditionIn %} contained as Initial Condition in: {{ values.1 }}
-{% elif values.0 == ContainsAsFinalCondition %} contains as Final Condition: {{ values.1 }}
+{% elif values.0 == ContainsFinalCondition %} contains as Final Condition: {{ values.1 }}
 {% elif values.0 == ContainedAsFinalConditionIn %} contained as Final Condition in: {{ values.1 }}
 {% endif %}
 {% endfor %}
