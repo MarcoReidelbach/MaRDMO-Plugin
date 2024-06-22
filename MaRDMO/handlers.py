@@ -459,8 +459,7 @@ def doctype(sender, **kwargs):
                'http://example.com/terms/domain/MaRDI/Section_4/Set_6_hidden',
                'http://example.com/terms/domain/MaRDI/Section_4/Set_2_hidden',
                'http://example.com/terms/domain/MaRDI/Section_4/Set_1_hidden',
-               'http://example.com/terms/domain/MaRDI/Section_5/Set_1',
-               'http://example.com/terms/domain/MaRDI/Section_5/Set_2']
+               'http://example.com/terms/domain/MaRDI/Section_5/Set_1']
         ident = ['http://example.com/terms/domain/MaRDI/Section_0a/Set_1',
                 'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
         pub = ['http://example.com/terms/domain/MaRDI/Section_2/Set_2']
@@ -548,8 +547,7 @@ def types(sender, **kwargs):
                'http://example.com/terms/domain/MaRDI/Section_4/Set_6_hidden',
                'http://example.com/terms/domain/MaRDI/Section_4/Set_2_hidden',
                'http://example.com/terms/domain/MaRDI/Section_4/Set_1_hidden',
-               'http://example.com/terms/domain/MaRDI/Section_5/Set_1',
-               'http://example.com/terms/domain/MaRDI/Section_5/Set_2']
+               'http://example.com/terms/domain/MaRDI/Section_5/Set_1']
         ident = ['http://example.com/terms/domain/MaRDI/Section_0a/Set_1',
                  'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
         moddetail = ['http://example.com/terms/domain/MaRDI/Section_3a/Set_0_hidden',
@@ -650,10 +648,8 @@ def workflowtype(sender, **kwargs):
                'http://example.com/terms/domain/MaRDI/Section_4/Set_2_hidden',
                'http://example.com/terms/domain/MaRDI/Section_4/Set_1_hidden',
                'http://example.com/terms/domain/MaRDI/Section_5/Set_1',
-               'http://example.com/terms/domain/MaRDI/Section_5/Set_2',
                'http://example.com/terms/domain/MaRDI/Section_6/Set_1']
         comp = ['http://example.com/terms/domain/MaRDI/Section_4/Set_4_hidden']
-
         exp = ['http://example.com/terms/domain/MaRDI/Section_4/Set_5_hidden']
 
         if instance.option_text == '(Measurement) Data Analysis Workflow' or instance.option_text == '(Mess-)datenanalyse Workflow':

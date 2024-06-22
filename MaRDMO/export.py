@@ -1260,7 +1260,8 @@ class MaRDIExport(Export):
                 search_string = ''
 
                 for key in answers['MathematicalFormulation']:
-                    if answers['MathematicalFormulation'][key]['MathModID'] and answers['MathematicalFormulation'][key]['MathModID'] != 'not in MathModDB':
+                
+                    if answers['MathematicalFormulation'][key].get('MathModID') and answers['MathematicalFormulation'][key]['MathModID'] != 'not in MathModDB':
 
                         search_string = search_string + f' :{answers["MathematicalFormulation"][key]["MathModID"].split("#")[1]}'
                 
@@ -1277,7 +1278,7 @@ class MaRDIExport(Export):
                     for r in req:
                         for key in answers['MathematicalFormulation']:
                             
-                            if r.get('mf', {}).get('value') == answers['MathematicalFormulation'][key]['MathModID']:
+                            if r.get('mf', {}).get('value') == answers['MathematicalFormulation'][key].get('MathModID'):
 
                                 if r.get('quote', {}).get('value'):
                                     answers['MathematicalFormulation'][key].update({'Description':r['quote']['value']})
@@ -1387,7 +1388,7 @@ class MaRDIExport(Export):
 
                     for r in req2:
                         for key in answers['MathematicalFormulation']:
-                            if r.get('mf', {}).get('value') == answers['MathematicalFormulation'][key]['MathModID']:
+                            if r.get('mf', {}).get('value') == answers['MathematicalFormulation'][key].get('MathModID'):
 
                                 if r.get('GBFORMULA', {}).get('value') and r.get('GBFLabel', {}).get('value'):
 
@@ -1798,14 +1799,14 @@ class MaRDIExport(Export):
                                 answers['ResearchProblem'][key].setdefault('RelationRP1',{}).update({key2:[answers['ResearchProblem'][key]['Relation1'][key2],'RP'+str(idx+1)]})
                         if not answers['ResearchProblem'][key].get('RelationRP1',{}).get(key2):
                             answers['ResearchProblem'][key].setdefault('RelationRP1',{}).update({key2:[answers['ResearchProblem'][key]['Relation1'][key2],Id]})
-               
+                 
                 # Add Research Problem to Model
                 for idx,key in enumerate(answers['ResearchProblem']):
-                    if answers['ResearchProblem'][key].get('MathModID') != 'not in MathModDB':
+                    if answers['ResearchProblem'][key].get('MathModID') and answers['ResearchProblem'][key].get('MathModID') != 'not in MathModDB':
                         answers['Models'][0].setdefault('RelationRP1',{}).update({idx:'RP'+str(idx+1)})
                     elif answers['ResearchProblem'][key].get('Models') == option['Yes']:
                         answers['Models'][0].setdefault('RelationRP1',{}).update({idx:'RP'+str(idx+1)})
-
+                
                 # Convert Research Problems in additional Models
                 for key in answers['AdditionalModel']:
                     if answers['AdditionalModel'][key].get('ResearchProblem'):
@@ -1829,7 +1830,7 @@ class MaRDIExport(Export):
                     answers.update({'AllModels':answers['Models']|answers['AdditionalModel']})
                 else:
                     answers.update({'AllModels':answers['Models']})
-
+            
                 # Add Mathematical Model to Mathematical Model Relations
                 for key in answers['AllModels']:
                     for key2 in answers['AllModels'][key].get('Relation1',{}):

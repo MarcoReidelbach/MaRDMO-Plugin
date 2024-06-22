@@ -2,6 +2,8 @@
 
 This repository contains the MaRDMO-Export-Plugin for the [Research Datamanagement Organizer](https://rdmorganiser.github.io/) (RDMO) developed within Task Area 4 "Interdisciplinary Mathematics" of the [Mathematical Research Data Initiative](https://www.mardi4nfdi.de/about/mission) (MaRDI). The plugin allows a standardized documentation of interdisciplinary workflows (Math + X), where the connection to experiments or theoretical approaches, like simulations, is possible and desired. Documented workflows can be stored locally (depreciated) or shared with other scientists on the [MaRDI Portal](https://portal.mardi4nfdi.de/wiki/Portal). In the latter case a Wiki Page is created for the documented workflow and integral aspects of the workflow are integrated into the MaRDI knowledge grarph. Integration into the MaRDI knowledge graph allows specific workflow queries which are also possible through the MaRDMO plugin.
 
+To document the underlying mathematical model(s) MaRDMO relies on the [MathModDB](https://portal.mardi4nfdi.de/wiki/MathModDB) ontology developed within Task Area 4 of MaRDI. Existing model documentations are retrieved from the MathModDB Knowledge Graph, direct publication of documented models into the MathModDB Knowledge Graph will be enabled in the near future. So far, documented models can only be exported into a Model Documentation Template. Upon request these documentations will be reviewed and integrated into the Knowledge Graph. Model documentations are possible as part of the workflow documentation and individually. 
+
 ## Structure of MaRDMO-Export-Plugin directory
 
 ```bash
@@ -76,9 +78,7 @@ OPTIONSET_PROVIDERS = [
     ('MathematicalModel', _('Options for Mathematical Models'), 'MaRDMO.providers.MathematicalModel'),
     ('MathematicalModelRelation', _('Options for Mathematical Model Relations'), 'MaRDMO.providers.MathematicalModelRelation'),
     ('MathematicalModelRelation2', _('Options for Mathematical Model Relations 2'), 'MaRDMO.providers.MathematicalModelRelation2'),
-    ('MathematicalModelAdditional', _('Options for additional Mathematical Models'), 'MaRDMO.providers.MathematicalModelAdditional'),
     ('Quantity', _('Options for Quantities'), 'MaRDMO.providers.Quantity'),
-    ('QuantityKind', _('Options for Quantity Kinds'), 'MaRDMO.providers.QuantityKind'),
     ('QuantityRelations', _('Options for Quantity Relations'), 'MaRDMO.providers.QuantityRelations'),
     ('QuantityKindRelations', _('Options for Quantity Kind Relations'), 'MaRDMO.providers.QuantityKindRelations'),
     ('MathematicalFormulation', _('Options for Mathematical Formulation'), 'MaRDMO.providers.MathematicalFormulation'),
@@ -89,6 +89,7 @@ OPTIONSET_PROVIDERS = [
     ('Publication', _('Options for Publications'), 'MaRDMO.providers.Publication'),
     ('AllEntities', _('Options for All Entities'), 'MaRDMO.providers.AllEntities')
     ]
+
 ```
 
 Thereby, the MaRDMO-Export-Plugin is installed and a "MaRDI Export/Query" button is added in the project view.
