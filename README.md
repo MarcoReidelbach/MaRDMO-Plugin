@@ -27,7 +27,7 @@ To document the underlying mathematical model(s) MaRDMO relies on the [MathModDB
 │   │   ├── workflowSearch.html - HTML Template for MaRDMO Search
 │   │   └── modelTemplate.md - Markdown Template for Model Documentation
 │   └── data
-│       ├── lang,json - Language Classification
+│       ├── lang.json - Language Classification
 │       └── msc2020.json - Mathematics Subject Classification 2020
 ├── setup.py 
 │
