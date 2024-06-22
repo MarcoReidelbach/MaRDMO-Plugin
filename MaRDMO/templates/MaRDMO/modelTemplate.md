@@ -44,17 +44,17 @@ models: {{ models }}
 
 {% endif %}
 
-{% if relation.0 == GeneralizedByModel %} generalized by Model: {{relation.1 }}
-{% elif relation.0 == GeneralizesModel %} generalizes Model: {{relation.1 }}
-{% elif relation.0 == DiscretizedByModel %} discretized by Model: {{relation.1 }}
-{% elif relation.0 == DiscretizesModel %} discretizes Model: {{relation.1 }}
-{% elif relation.0 == ContainedInModel %} contained in Model: {{relation.1 }}
-{% elif relation.0 == ContainsModel %} contains Model: {{relation.1 }}
-{% elif relation.0 == ApproximatedByModel %} approximated by Model: {{relation.1 }}
-{% elif relation.0 == ApproximatesModel %} approximates Model: {{relation.1 }}
-{% elif relation.0 == LinearizedByModel %} linearized by Model: {{relation.1 }}
-{% elif relation.0 == LinearizesModel %} linearizes Model: {{relation.1 }}
-{% elif relation.0 == SimilarToModel %} similar to Model: {{relation.1 }}
+{% if relation.0 == GeneralizedBy %} generalized by Model: {{relation.1 }}
+{% elif relation.0 == Generalizes %} generalizes Model: {{relation.1 }}
+{% elif relation.0 == DiscretizedBy %} discretized by Model: {{relation.1 }}
+{% elif relation.0 == Discretizes %} discretizes Model: {{relation.1 }}
+{% elif relation.0 == ContainedIn %} contained in Model: {{relation.1 }}
+{% elif relation.0 == Contains %} contains Model: {{relation.1 }}
+{% elif relation.0 == ApproximatedBy %} approximated by Model: {{relation.1 }}
+{% elif relation.0 == Approximates %} approximates Model: {{relation.1 }}
+{% elif relation.0 == LinearizedBy %} linearized by Model: {{relation.1 }}
+{% elif relation.0 == Linearizes %} linearizes Model: {{relation.1 }}
+{% elif relation.0 == SimilarTo %} similar to Model: {{relation.1 }}
 {% endif %}
 {% endfor %}
 
@@ -139,18 +139,18 @@ models: {{ models }}
 **Relations to other Mathematical Formulations II**:
 
 {% endif %}
-
-{% if values.0 == ApproximatedByFormulation %} approximated by Formulation: {{ values.1 }}
-{% elif values.0 == ApproximatesFormulation %} approximates Formulation: {{ values.1 }}
-{% elif values.0 == DiscretizedByFormulation %} discretized by Formulation: {{ values.1 }}
-{% elif values.0 == DiscretizesFormulation %} discretizes Formulation: {{ values.1 }}
-{% elif values.0 == GeneralizedByFormulation %} generalized by Formulation: {{ values.1 }}
-{% elif values.0 == GeneralizesFormulation %} generalizes Formulation: {{ values.1 }}
-{% elif values.0 == NondimensionalizedByFormulation %} nondimensionalized by Formulation: {{ values.1 }}
-{% elif values.0 == NondimensionalzesFormulation %} nondimensionalizes Formulation: {{ values.1 }}
-{% elif values.0 == LinearizedByFormulation %} linearized by Formulation: {{ values.1 }}
-{% elif values.0 == LinearizesFormulation %} linearizes Formulation: {{ values.1 }}
-{% elif values.0 == SimilarToFormulation %} similar to Formulation: {{ values.1 }}
+{{ value.0 }} {{ value.1 }}
+{% if values.0 == ApproximatedBy %} approximated by Formulation: {{ values.1 }}
+{% elif values.0 == Approximates %} approximates Formulation: {{ values.1 }}
+{% elif values.0 == DiscretizedBy %} discretized by Formulation: {{ values.1 }}
+{% elif values.0 == Discretizes %} discretizes Formulation: {{ values.1 }}
+{% elif values.0 == GeneralizedBy %} generalized by Formulation: {{ values.1 }}
+{% elif values.0 == Generalizes %} generalizes Formulation: {{ values.1 }}
+{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Formulation: {{ values.1 }}
+{% elif values.0 == Nondimensionalzes %} nondimensionalizes Formulation: {{ values.1 }}
+{% elif values.0 == LinearizedBy %} linearized by Formulation: {{ values.1 }}
+{% elif values.0 == Linearizes %} linearizes Formulation: {{ values.1 }}
+{% elif values.0 == SimilarTo %} similar to Formulation: {{ values.1 }}
 {% endif %}
 {% endfor %}
 
@@ -225,15 +225,15 @@ applies Mathematical Model: {{ value }}
 
 {% endif %}
 
-{% if value.0 == GeneralizedByTask %} generalized by Task: {{ value.1 }}
-{% elif value.0 == GeneralizesTask %} generalizes Task: {{ value.1 }}
-{% elif value.0 == DiscretizedByTask %} discretized by Task: {{ value.1 }}
-{% elif value.0 == DiscretizesTask %} discretizes Task: {{ value.1 }}
-{% elif value.0 == ApproximatedByTask %} approximated by Task: {{ value.1 }}
-{% elif value.0 == ApproximatesTask %} approximates Task: {{ value.1 }}
-{% elif value.0 == LinearizedByTask %} linearized by Task: {{ value.1 }}
-{% elif value.0 == LinearizesTask %} linearizes Task: {{ value.1 }}
-{% elif value.0 == SimilarToTask %} similar to Task: {{ value.1 }}
+{% if value.0 == GeneralizedBy %} generalized by Task: {{ value.1 }}
+{% elif value.0 == Generalizes %} generalizes Task: {{ value.1 }}
+{% elif value.0 == DiscretizedBy %} discretized by Task: {{ value.1 }}
+{% elif value.0 == Discretizes %} discretizes Task: {{ value.1 }}
+{% elif value.0 == ApproximatedBy %} approximated by Task: {{ value.1 }}
+{% elif value.0 == Approximates %} approximates Task: {{ value.1 }}
+{% elif value.0 == LinearizedBy %} linearized by Task: {{ value.1 }}
+{% elif value.0 == Linearizes %} linearizes Task: {{ value.1 }}
+{% elif value.0 == SimilarTo %} similar to Task: {{ value.1 }}
 {% endif %}
 {% endfor %}
 
@@ -343,17 +343,17 @@ applies Mathematical Model: {{ value }}
 
 {% endif %}
 
-{% if values.0 == ApproximatedByFormulation %} approximated by Formulation: {{ values.1 }}
-{% elif values.0 == ApproximatesFormulation %} approximates Formulation: {{ values.1 }}
-{% elif values.0 == DiscretizedByFormulation %} discretized by Formulation: {{ values.1 }}
-{% elif values.0 == DiscretizesFormulation %} discretizes Formulation: {{ values.1 }}
-{% elif values.0 == GeneralizedByFormulation %} generalized by Formulation: {{ values.1 }}
-{% elif values.0 == GeneralizesFormulation %} generalizes Formulation: {{ values.1 }}
-{% elif values.0 == NondimensionalizedByFormulation %} nondimensionalized by Formulation: {{ values.1 }}
-{% elif values.0 == NondimensionalzesFormulation %} nondimensionalizes Formulation: {{ values.1 }}
-{% elif values.0 == LinearizedByFormulation %} linearized by Formulation: {{ values.1 }}
-{% elif values.0 == LinearizesFormulation %} linearizes Formulation: {{ values.1 }}
-{% elif values.0 == SimilarToFormulation %} similar to Formulation: {{ values.1 }}
+{% if values.0 == ApproximatedBy %} approximated by Formulation: {{ values.1 }}
+{% elif values.0 == Approximates %} approximates Formulation: {{ values.1 }}
+{% elif values.0 == DiscretizedBy %} discretized by Formulation: {{ values.1 }}
+{% elif values.0 == Discretizes %} discretizes Formulation: {{ values.1 }}
+{% elif values.0 == GeneralizedBy %} generalized by Formulation: {{ values.1 }}
+{% elif values.0 == Generalizes %} generalizes Formulation: {{ values.1 }}
+{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Formulation: {{ values.1 }}
+{% elif values.0 == Nondimensionalzes %} nondimensionalizes Formulation: {{ values.1 }}
+{% elif values.0 == LinearizedBy %} linearized by Formulation: {{ values.1 }}
+{% elif values.0 == Linearizes %} linearizes Formulation: {{ values.1 }}
+{% elif values.0 == SimilarTo %} similar to Formulation: {{ values.1 }}
 {% endif %}
 {% endfor %}
 
@@ -411,9 +411,9 @@ URL:{% if 'url' in values.Reference %} {{ values.Reference|cut:"url:" }} {% endi
 
 {% endif %}
 
-{% if relation.0 == GeneralizedByField %} generalized by Field: {{relation.1 }} 
-{% elif relation.0 == GeneralizesField %} generalizes Field: {{relation.1 }}
-{% elif relation.0 == SimilarToField %} similar to Field: {{relation.1 }}
+{% if relation.0 == GeneralizedBy %} generalized by Field: {{relation.1 }} 
+{% elif relation.0 == Generalizes %} generalizes Field: {{relation.1 }}
+{% elif relation.0 == SimilarTo %} similar to Field: {{relation.1 }}
 {% endif %}
 {% endfor %} 
 
@@ -451,9 +451,9 @@ contained in Field: {{ researchfield }}
 
 {% endif %}
 
-{% if relation.0 == GeneralizedByProblem %} generalized by Problem: {{relation.1 }}
-{% elif relation.0 == GeneralizesProblem %} generalizes Problem: {{relation.1 }}
-{% elif relation.0 == SimilarToProblem %} similar to Problem: {{relation.1 }}
+{% if relation.0 == GeneralizedBy %} generalized by Problem: {{relation.1 }}
+{% elif relation.0 == Generalizes %} generalizes Problem: {{relation.1 }}
+{% elif relation.0 == SimilarTo %} similar to Problem: {{relation.1 }}
 {% endif %}
 {% endfor %}
 

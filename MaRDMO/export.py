@@ -829,55 +829,55 @@ class MaRDIExport(Export):
                             if r.get('GBMODEL', {}).get('value') and r.get('GBMLabel', {}).get('value'):
 
                                 for idx, (Id, label) in enumerate(zip(r['GBMODEL']['value'].split(' <|> '),r['GBMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['GeneralizedByModel']})
+                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['GeneralizedBy']})
                                     answers['AdditionalModel'][key].setdefault('Other1',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
 
                             elif r.get('GMODEL', {}).get('value') and r.get('GMLabel', {}).get('value'):
 
                                 for idx, (Id, label) in enumerate(zip(r['GMODEL']['value'].split(' <|> '),r['GMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'g'+str(idx):option['GeneralizesModel']})
+                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'g'+str(idx):option['Generalizes']})
                                     answers['AdditionalModel'][key].setdefault('Other1',{}).update({'g'+str(idx):Id + ' <|> ' + label})
 
                             elif r.get('ABMODEL', {}).get('value') and r.get('ABMLabel', {}).get('value'):
 
                                 for idx, (Id, label) in enumerate(zip(r['ABMODEL']['value'].split(' <|> '),r['ABMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['ApproximatedByModel']})
+                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['ApproximatedBy']})
                                     answers['AdditionalModel'][key].setdefault('Other1',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
 
                             elif r.get('AMODEL', {}).get('value') and r.get('AMLabel', {}).get('value'):
 
                                 for idx, (Id, label) in enumerate(zip(r['AMODEL']['value'].split(' <|> '),r['AMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'a'+str(idx):option['ApproximatesModel']})
+                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'a'+str(idx):option['Approximates']})
                                     answers['AdditionalModel'][key].setdefault('Other1',{}).update({'a'+str(idx):Id + ' <|> ' + label})
 
                             elif r.get('DBMODEL', {}).get('value') and r.get('DBMLabel', {}).get('value'):
 
                                 for idx, (Id, label) in enumerate(zip(r['DBMODEL']['value'].split(' <|> '),r['DBMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'db'+str(idx):option['DiscretizedByModel']})
+                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'db'+str(idx):option['DiscretizedBy']})
                                     answers['AdditionalModel'][key].setdefault('Other1',{}).update({'db'+str(idx):Id + ' <|> ' + label})
 
                             elif r.get('DMODEL', {}).get('value') and r.get('DMLabel', {}).get('value'):
 
                                 for idx, (Id, label) in enumerate(zip(r['DMODEL']['value'].split(' <|> '),r['DMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'d'+str(idx):option['DiscretizesModel']})
+                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'d'+str(idx):option['Discretizes']})
                                     answers['AdditionalModel'][key].setdefault('Other1',{}).update({'d'+str(idx):Id + ' <|> ' + label})
 
                             elif r.get('LBMODEL', {}).get('value') and r.get('LBMLabel', {}).get('value'):
 
                                 for idx, (Id, label) in enumerate(zip(r['LBMODEL']['value'].split(' <|> '),r['LBMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'lb'+str(idx):option['LinearizedByModel']})
+                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'lb'+str(idx):option['LinearizedBy']})
                                     answers['AdditionalModel'][key].setdefault('Other1',{}).update({'lb'+str(idx):Id + ' <|> ' + label})
 
                             elif r.get('LMODEL', {}).get('value') and r.get('LMLabel', {}).get('value'):
 
                                 for idx, (Id, label) in enumerate(zip(r['LMODEL']['value'].split(' <|> '),r['LMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'d'+str(idx):option['LinearizesModel']})
+                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'d'+str(idx):option['Linearizes']})
                                     answers['AdditionalModel'][key].setdefault('Other1',{}).update({'d'+str(idx):Id + ' <|> ' + label})
 
                             elif r.get('SMODEL', {}).get('value') and r.get('SMLabel', {}).get('value'):
 
                                 for idx, (Id, label) in enumerate(zip(r['SMODEL']['value'].split(' <|> '),r['SMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'s'+str(idx):option['SimilarToModel']})
+                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'s'+str(idx):option['SimilarTo']})
                                     answers['AdditionalModel'][key].setdefault('Other1',{}).update({'s'+str(idx):Id + ' <|> ' + label})
  
                 # Get additional Task Information
@@ -1050,7 +1050,7 @@ class MaRDIExport(Export):
                                         
                                             for k, math_form in answers['MathematicalFormulation'].items():
                                                 if math_form.get('MathModID') == Id:
-                                                    math_form.setdefault('Relation4', {}).update({f'in{idx}': option['ContainedAsInput']})
+                                                    math_form.setdefault('Relation4', {}).update({f'in{idx}': option['ContainedAsInputIn']})
                                                     math_form.setdefault('Other4', {}).update({f'in{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
                                                     break
                                             else:  # This else corresponds to the for loop, it runs if the loop is not broken
@@ -1160,55 +1160,55 @@ class MaRDIExport(Export):
                                 if r.get('GBTASK', {}).get('value') and r.get('GBTLabel', {}).get('value'):
                                 
                                     for idx, (Id, label) in enumerate(zip(r['GBTASK']['value'].split(' <|> '),r['GBTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'gb'+str(idx):option['GeneralizedByTask']})
+                                        answers['Task'][key].setdefault('Relation3',{}).update({'gb'+str(idx):option['GeneralizedBy']})
                                         answers['Task'][key].setdefault('Other3',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('GTASK', {}).get('value') and r.get('GTLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['GTASK']['value'].split(' <|> '),r['GTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'g'+str(idx):option['GeneralizesTask']})
+                                        answers['Task'][key].setdefault('Relation3',{}).update({'g'+str(idx):option['Generalizes']})
                                         answers['Task'][key].setdefault('Other3',{}).update({'g'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('ABTASK', {}).get('value') and r.get('ABTLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['ABTASK']['value'].split(' <|> '),r['ABTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'gb'+str(idx):option['ApproximatedByTask']})
+                                        answers['Task'][key].setdefault('Relation3',{}).update({'gb'+str(idx):option['ApproximatedBy']})
                                         answers['Task'][key].setdefault('Other3',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('ATASK', {}).get('value') and r.get('ATLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['ATASK']['value'].split(' <|> '),r['ATLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'a'+str(idx):option['ApproximatesTask']})
+                                        answers['Task'][key].setdefault('Relation3',{}).update({'a'+str(idx):option['Approximates']})
                                         answers['Task'][key].setdefault('Other3',{}).update({'a'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('DBTASK', {}).get('value') and r.get('DBTLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['DBTASK']['value'].split(' <|> '),r['DBTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'db'+str(idx):option['DiscretizedByTask']})
+                                        answers['Task'][key].setdefault('Relation3',{}).update({'db'+str(idx):option['DiscretizedBy']})
                                         answers['Task'][key].setdefault('Other3',{}).update({'db'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('DTASK', {}).get('value') and r.get('DTLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['DTASK']['value'].split(' <|> '),r['DTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'d'+str(idx):option['DiscretizesTask']})
+                                        answers['Task'][key].setdefault('Relation3',{}).update({'d'+str(idx):option['Discretizes']})
                                         answers['Task'][key].setdefault('Other3',{}).update({'d'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('LBTASK', {}).get('value') and r.get('LBTLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['LBTASK']['value'].split(' <|> '),r['LBTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'lb'+str(idx):option['LinearizedByTask']})
+                                        answers['Task'][key].setdefault('Relation3',{}).update({'lb'+str(idx):option['LinearizedBy']})
                                         answers['Task'][key].setdefault('Other3',{}).update({'lb'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('LTASK', {}).get('value') and r.get('LTLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['LTASK']['value'].split(' <|> '),r['LTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'l'+str(idx):option['LinearizesTask']})
+                                        answers['Task'][key].setdefault('Relation3',{}).update({'l'+str(idx):option['Linearizes']})
                                         answers['Task'][key].setdefault('Other3',{}).update({'l'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('STASK', {}).get('value') and r.get('STLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['STASK']['value'].split(' <|> '),r['STLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'s'+str(idx):option['SimilarToTask']})
+                                        answers['Task'][key].setdefault('Relation3',{}).update({'s'+str(idx):option['SimilarTo']})
                                         answers['Task'][key].setdefault('Other3',{}).update({'s'+str(idx):Id + ' <|> ' + label})
                 
                 # Get additional Mathematical Formulation Information
@@ -1393,67 +1393,67 @@ class MaRDIExport(Export):
                                 if r.get('GBFORMULA', {}).get('value') and r.get('GBFLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['GBFORMULA']['value'].split(' <|> '),r['GBFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'gb'+str(idx):option['GeneralizedByFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'gb'+str(idx):option['GeneralizedBy']})
                                         answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('GFORMULA', {}).get('value') and r.get('GFLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['GFORMULA']['value'].split(' <|> '),r['GFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'g'+str(idx):option['GeneralizesFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'g'+str(idx):option['Generalizes']})
                                         answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'g'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('ABFORMULA', {}).get('value') and r.get('ABFLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['ABFORMULA']['value'].split(' <|> '),r['ABFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'ab'+str(idx):option['ApproximatedByFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'ab'+str(idx):option['ApproximatedBy']})
                                         answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'ab'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('AFORMULA', {}).get('value') and r.get('AFLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['AFORMULA']['value'].split(' <|> '),r['AFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'a'+str(idx):option['ApproximatesFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'a'+str(idx):option['Approximates']})
                                         answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'a'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('DBFORMULA', {}).get('value') and r.get('DBFLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['DBFORMULA']['value'].split(' <|> '),r['DBFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'db'+str(idx):option['DiscretizedByFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'db'+str(idx):option['DiscretizedBy']})
                                         answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'db'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('DFORMULA', {}).get('value') and r.get('DFLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['DFORMULA']['value'].split(' <|> '),r['DFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'d'+str(idx):option['DiscretizesFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'d'+str(idx):option['Discretizes']})
                                         answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'d'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('LBFORMULA', {}).get('value') and r.get('LBFLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['LBFORMULA']['value'].split(' <|> '),r['LBFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'lb'+str(idx):option['LinearizedByFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'lb'+str(idx):option['LinearizedBy']})
                                         answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'lb'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('LFORMULA', {}).get('value') and r.get('LFLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['LFORMULA']['value'].split(' <|> '),r['LFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'l'+str(idx):option['LinearizesFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'l'+str(idx):option['Linearizes']})
                                         answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'l'+str(idx):Id + ' <|> ' + label})
                                 
                                 elif r.get('NBFORMULA', {}).get('value') and r.get('NBFLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['NBFORMULA']['value'].split(' <|> '),r['NBFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'nb'+str(idx):option['NondimensionalizedByFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'nb'+str(idx):option['NondimensionalizedBy']})
                                         answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'nb'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('NFORMULA', {}).get('value') and r.get('NFLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['NFORMULA']['value'].split(' <|> '),r['NFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'n'+str(idx):option['NondimensionalizesFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'n'+str(idx):option['Nondimensionalizes']})
                                         answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'n'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('SFORMULA', {}).get('value') and r.get('SFLabel', {}).get('value'):
 
                                     for idx, (Id, label) in enumerate(zip(r['SFORMULA']['value'].split(' <|> '),r['SFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'s'+str(idx):option['SimilarToFormulation']})
+                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'s'+str(idx):option['SimilarTo']})
                                         answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'s'+str(idx):Id + ' <|> ' + label})
 
                 # Get additional Quantity Information
@@ -1557,27 +1557,52 @@ class MaRDIExport(Export):
 
                         if r.get('quote', {}).get('value'):
                             answers['MathematicalFormulation'][key].update({'Description':r['quote']['value']})
+                        
+                        if r.get('convex',{}):
+                            if r['convex']['value'] == 'true':
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({0:option['IsConvex']})
+                            else:
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({1:option['IsNotConvex']})
 
-                        if r.get('convex',{}).get('value'):
-                            answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({0:'http://example.com/terms/options/MaRDI/MathematicalFormulation_property0'})
-                        
-                        if r.get('deterministic',{}).get('value'):
-                            answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({1:'http://example.com/terms/options/MaRDI/MathematicalFormulation_property1'})
-                        
-                        if r.get('dimensionless',{}).get('value'):
-                            answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({2:'http://example.com/terms/options/MaRDI/MathematicalFormulation_property2'})
-                        
-                        if r.get('dynamic',{}).get('value'):
-                            answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({3:'http://example.com/terms/options/MaRDI/MathematicalFormulation_property3'})
-                        
-                        if r.get('linear',{}).get('value'):
-                            answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({4:'http://example.com/terms/options/MaRDI/MathematicalFormulation_property4'})
-                        
-                        if r.get('spacecont',{}).get('value'):
-                            answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({5:'http://example.com/terms/options/MaRDI/MathematicalFormulation_property5'})
-                        
-                        if r.get('timecont',{}).get('value'):
-                            answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({6:'http://example.com/terms/options/MaRDI/MathematicalFormulation_property6'})
+                        if r.get('deterministic',{}):
+                            if r['deterministic']['value'] == 'true':
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({2:option['IsDeterministic']})
+                            else:
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({3:option['IsStochastic']})
+
+                        if r.get('dimensionless',{}):
+                            if r['dimensionless']['value'] == 'true':
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({4:option['IsDimensionless']})
+                            else:
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({5:option['IsDimensional']})
+
+                        if r.get('dynamic',{}):
+                            if r['dynamic']['value'] == 'true':
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({6:option['IsDynamic']})
+                            else:
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({7:option['IsStatic']})
+
+                        if r.get('linear',{}):
+                            if r['linear']['value'] == 'true':
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({8:option['IsLinear']})
+                            else:
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({9:option['IsNotLinear']})
+
+                        if r.get('spacecont',{}):
+                            if r['spacecont']['value'] == 'true':
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({10:option['IsSpaceContinuous']})
+                            else:
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({11:option['IsSpaceDiscrete']})
+                        else:
+                            answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({12:option['IsSpaceIndependent']})
+
+                        if r.get('timecont',{}):
+                            if r['timecont']['value'] == 'true':
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({13:option['IsTimeContinuous']})
+                            else:
+                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({14:option['IsTimeDiscrete']})
+                        else:
+                            answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({15:option['IsTimeIndependent']})
 
                         if r.get('formula_elements',{}).get('value'):
                             for idx,element in enumerate(r['formula_elements']['value'].split(' <|> ')):
@@ -1608,90 +1633,90 @@ class MaRDIExport(Export):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['GBQUANTITY']['value'].split(' <|> '),r['GBQLabel']['value'].split(' <|> '),r['GBCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['GeneralizedByQuantity']})
+                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['GeneralizedBy']})
                                             answers['Quantity_refined'][key].setdefault('Other1',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'gb'+str(idx):option['GeneralizedByQuantityKind']})
+                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'gb'+str(idx):option['GeneralizedBy']})
                                             answers['Quantity_refined'][key].setdefault('Other2',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('GQUANTITY', {}).get('value') and r.get('GQLabel', {}).get('value') and r.get('GCLASS', {}).get('value'):
                                     
                                     for idx, (Id, label, Class) in enumerate(zip(r['GQUANTITY']['value'].split(' <|> '),r['GQLabel']['value'].split(' <|> '),r['GCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'g'+str(idx):option['GeneralizesQuantity']})
+                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'g'+str(idx):option['Generalizes']})
                                             answers['Quantity_refined'][key].setdefault('Other1',{}).update({'g'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'g'+str(idx):option['GeneralizesQuantityKind']})
+                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'g'+str(idx):option['Generalizes']})
                                             answers['Quantity_refined'][key].setdefault('Other2',{}).update({'g'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('ABQUANTITY', {}).get('value') and r.get('ABQLabel', {}).get('value') and r.get('ABCLASS', {}).get('value'):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['ABQUANTITY']['value'].split(' <|> '),r['ABQLabel']['value'].split(' <|> '),r['ABCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'ab'+str(idx):option['ApproximatedByQuantity']})
+                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'ab'+str(idx):option['ApproximatedBy']})
                                             answers['Quantity_refined'][key].setdefault('Other1',{}).update({'ab'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'ab'+str(idx):option['ApproximatedByQuantityKind']})
+                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'ab'+str(idx):option['ApproximatedBy']})
                                             answers['Quantity_refined'][key].setdefault('Other2',{}).update({'ab'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('AQUANTITY', {}).get('value') and r.get('AQLabel', {}).get('value') and r.get('ACLASS', {}).get('value'):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['AQUANTITY']['value'].split(' <|> '),r['AQLabel']['value'].split(' <|> '),r['ACLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'a'+str(idx):option['ApproximatesQuantity']})
+                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'a'+str(idx):option['Approximates']})
                                             answers['Quantity_refined'][key].setdefault('Other1',{}).update({'a'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'a'+str(idx):option['ApproximatesQuantityKind']})
+                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'a'+str(idx):option['Approximates']})
                                             answers['Quantity_refined'][key].setdefault('Other2',{}).update({'a'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('LBQUANTITY', {}).get('value') and r.get('LBQLabel', {}).get('value') and r.get('LBCLASS', {}).get('value'):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['LBQUANTITY']['value'].split(' <|> '),r['LBQLabel']['value'].split(' <|> '),r['LBCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'lb'+str(idx):option['LinearizedByQuantity']})
+                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'lb'+str(idx):option['LinearizedBy']})
                                             answers['Quantity_refined'][key].setdefault('Other1',{}).update({'lb'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'lb'+str(idx):option['LinearizedByQuantityKind']})
+                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'lb'+str(idx):option['LinearizedBy']})
                                             answers['Quantity_refined'][key].setdefault('Other2',{}).update({'lb'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('LQUANTITY', {}).get('value') and r.get('LQLabel', {}).get('value') and r.get('LCLASS', {}).get('value'):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['LQUANTITY']['value'].split(' <|> '),r['LQLabel']['value'].split(' <|> '),r['LCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'l'+str(idx):option['LinearizesQuantity']})
+                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'l'+str(idx):option['Linearizes']})
                                             answers['Quantity_refined'][key].setdefault('Other1',{}).update({'l'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'l'+str(idx):option['LinearizesQuantityKind']})
+                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'l'+str(idx):option['Linearizes']})
                                             answers['Quantity_refined'][key].setdefault('Other2',{}).update({'l'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('NBQUANTITY', {}).get('value') and r.get('NBQLabel', {}).get('value') and r.get('NBCLASS', {}).get('value'):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['NBQUANTITY']['value'].split(' <|> '),r['NBQLabel']['value'].split(' <|> '),r['NBCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'nb'+str(idx):option['NondimensionalizedByQuantity']})
+                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'nb'+str(idx):option['NondimensionalizedBy']})
                                             answers['Quantity_refined'][key].setdefault('Other1',{}).update({'nb'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'nb'+str(idx):option['NondimensionalizedByQuantityKind']})
+                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'nb'+str(idx):option['NondimensionalizedBy']})
                                             answers['Quantity_refined'][key].setdefault('Other2',{}).update({'nb'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('NQUANTITY', {}).get('value') and r.get('NQLabel', {}).get('value') and r.get('NCLASS', {}).get('value'):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['NQUANTITY']['value'].split(' <|> '),r['NQLabel']['value'].split(' <|> '),r['NCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'n'+str(idx):option['NondimensionalizesQuantity']})
+                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'n'+str(idx):option['Nondimensionalizes']})
                                             answers['Quantity_refined'][key].setdefault('Other1',{}).update({'n'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'n'+str(idx):option['NondimensionalizesQuantityKind']})
+                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'n'+str(idx):option['Nondimensionalizes']})
                                             answers['Quantity_refined'][key].setdefault('Other2',{}).update({'n'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('SQUANTITY', {}).get('value') and r.get('SQLabel', {}).get('value') and r.get('SCLASS', {}).get('value'):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['SQUANTITY']['value'].split(' <|> '),r['SQLabel']['value'].split(' <|> '),r['SCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'s'+str(idx):option['SimilarToQuantity']})
+                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'s'+str(idx):option['SimilarTo']})
                                             answers['Quantity_refined'][key].setdefault('Other1',{}).update({'s'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'s'+str(idx):option['SimilarToQuantityKind']})
+                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'s'+str(idx):option['SimilarTo']})
                                             answers['Quantity_refined'][key].setdefault('Other2',{}).update({'s'+str(idx):Id + ' <|> ' + label})
 
                 if req_qk2:
@@ -1704,50 +1729,50 @@ class MaRDIExport(Export):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['GBQUANTITY']['value'].split(' <|> '),r['GBQLabel']['value'].split(' <|> '),r['GBCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'gb'+str(idx):option['GeneralizedByQuantity']})
+                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'gb'+str(idx):option['GeneralizedBy']})
                                             answers['QuantityKind_refined'][key].setdefault('Other2',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['GeneralizedByQuantityKind']})
+                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['GeneralizedBy']})
                                             answers['QuantityKind_refined'][key].setdefault('Other1',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('GQUANTITY', {}).get('value') and r.get('GQLabel', {}).get('value') and r.get('GCLASS', {}).get('value'):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['GQUANTITY']['value'].split(' <|> '),r['GQLabel']['value'].split(' <|> '),r['GCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'g'+str(idx):option['GeneralizesQuantity']})
+                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'g'+str(idx):option['Generalizes']})
                                             answers['QuantityKind_refined'][key].setdefault('Other2',{}).update({'g'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'g'+str(idx):option['GeneralizesQuantityKind']})
+                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'g'+str(idx):option['Generalizes']})
                                             answers['QuantityKind_refined'][key].setdefault('Other1',{}).update({'g'+str(idx):Id + ' <|> ' + label})
                                 
                                 elif r.get('NBQUANTITY', {}).get('value') and r.get('NBQLabel', {}).get('value') and r.get('NBCLASS', {}).get('value'):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['NBQUANTITY']['value'].split(' <|> '),r['NBQLabel']['value'].split(' <|> '),r['NBCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'nb'+str(idx):option['NondimensionalizedByQuantity']})
+                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'nb'+str(idx):option['NondimensionalizedBy']})
                                             answers['QuantityKind_refined'][key].setdefault('Other2',{}).update({'nb'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'nb'+str(idx):option['NondimensionalizedByQuantityKind']})
+                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'nb'+str(idx):option['NondimensionalizedBy']})
                                             answers['QuantityKind_refined'][key].setdefault('Other1',{}).update({'nb'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('NQUANTITY', {}).get('value') and r.get('NQLabel', {}).get('value') and r.get('NCLASS', {}).get('value'):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['NQUANTITY']['value'].split(' <|> '),r['NQLabel']['value'].split(' <|> '),r['NCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'n'+str(idx):option['NondimensionalizesQuantity']})
+                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'n'+str(idx):option['Nondimensionalizes']})
                                             answers['QuantityKind_refined'][key].setdefault('Other2',{}).update({'n'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'n'+str(idx):option['NondimensionalizesQuantityKind']})
+                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'n'+str(idx):option['Nondimensionalizes']})
                                             answers['QuantityKind_refined'][key].setdefault('Other1',{}).update({'n'+str(idx):Id + ' <|> ' + label})
 
                                 elif r.get('SQUANTITY', {}).get('value') and r.get('SQLabel', {}).get('value') and r.get('SCLASS', {}).get('value'):
 
                                     for idx, (Id, label, Class) in enumerate(zip(r['SQUANTITY']['value'].split(' <|> '),r['SQLabel']['value'].split(' <|> '),r['SCLASS']['value'].split(' <|> '))):
                                         if Class.split('#')[1] == 'Quantity':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'s'+str(idx):option['SimilarToQuantity']})
+                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'s'+str(idx):option['SimilarTo']})
                                             answers['QuantityKind_refined'][key].setdefault('Other2',{}).update({'s'+str(idx):Id + ' <|> ' + label})
                                         elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'s'+str(idx):option['SimilarToQuantityKind']})
+                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'s'+str(idx):option['SimilarTo']})
                                             answers['QuantityKind_refined'][key].setdefault('Other1',{}).update({'s'+str(idx):Id + ' <|> ' + label})
 
                 # Research Field to Research Field Relations
@@ -2143,7 +2168,7 @@ class MaRDIExport(Export):
                                         answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],'T'+str(idx+1)]})
                                 if not answers['PublicationModel'][key].get('RelationP',{}).get(key2):
                                     answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],Id]})             
-                 
+                
                 # Load MaRDI Markdown Workflow Template
                 path = os.path.join(os.path.dirname(__file__), 'templates', 'MaRDMO', 'modelTemplate.md')
                 with open(path, 'r') as file:

@@ -1,6 +1,5 @@
 from django.http import HttpResponse
-import requests
-import re
+import requests, re, os, json
 from pylatexenc.latex2text import LatexNodes2Text
 import bibtexparser
 from langdetect import detect
@@ -8,6 +7,12 @@ from .para import *
 
 def GetCitation(doi):
     '''Function gets citation by DOI'''  
+    
+    #Get Language codes
+    path = os.path.join(os.path.dirname(__file__), 'data', 'lang.json')
+    with open(path, "r") as json_file:
+        lang_dict = json.load(json_file)
+
     #Assign Varibles
     citation_dict = {}
     author_with_orcid = []
