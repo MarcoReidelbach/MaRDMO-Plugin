@@ -52,16 +52,16 @@ Workflow ID: workflow not published
 
 ### Variables
 
-| Name | Unit | Symbol| dependent/independent |
-|------|------|-------|-----------------------|
-{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == TaskInput or value.0 == TaskOutput %} | {{ value.1 }} | | {{ value.2 }} | {% if TaskInput == value.0 %} independent {% elif TaskOutput == value.0 %} dependent {% endif %} | {% endif %} 
+| Name | Unit | Symbol| dependent/independent | Task |
+|------|------|-------|-----------------------|------|
+{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == ContainsInput or value.0 == ContainsOutput %} | {{ value.1 }} | | {{ value.2 }} | {% if ContainsInput == value.0 %} independent {% elif ContainsOutput == value.0 %} dependent {% endif %} | {{ values.Name }} | {% endif %} 
 {% endfor %} {% endfor %}
 
 ### Parameters
 
-| Name | Unit | Symbol|
-|------|------|-------|
-{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == TaskParameter %} | {{value.1 }} | | {{ value.2 }} | {% endif %}
+| Name | Unit | Symbol | Task |
+|------|------|--------|------|
+{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == ContainsParameter %} | {{value.1 }} | | {{ value.2 }} | {{ values.Name }} {% endif %}
 {% endfor %} {% endfor %}
 
 ## Process Information

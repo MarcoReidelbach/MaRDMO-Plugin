@@ -45,7 +45,7 @@
 {% endif %}
 {% endif %}
 {% if not answers.Publication.Exists.1 %}
-<p>Workflow ID: workflow not published</p>
+<p>Workflow ID: not published</p>
 {% endif %}
 <h2 id="problem-statement">Problem Statement</h2>
 <p> {{ answers.GeneralInformation.ProblemStatement }}</p>    
@@ -75,7 +75,7 @@
 {{ forloop.counter }} - {{ value }} <br>
 {% endfor %}    
 <h2 id="model">Model</h2>        
-{% for value in answers.Model.values %}
+{% for value in answers.Models.values %}
 {% if value.mardiId != 'tbd' %}
 <p><a href=" {{value.uri}} ">{{ value.Name }}</a> ({{ value.Description }})</p>
 {% endif %}
@@ -105,10 +105,11 @@
 <h3 id="variables">Variables</h3>
 <table border="1">
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
+<col style="width: 20%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 30%" />
+<col style="width: 30%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -116,22 +117,24 @@
 <th style="text-align: center; vertical-align: middle;">Unit</th>
 <th style="text-align: center; vertical-align: middle;">Symbol</th>
 <th style="text-align: center; vertical-align: middle;">dependent/independent</th>
+<th style="text-align: center; vertical-align: middle;">Task</th>
 </tr>
 </thead>
 <tbody>
 {% for values in answers.Task.values %}
 {% for value in values.RelationQ.values %}
-{% if value.0 == option.TaskInput or value.0 == option.TaskOutput %}
+{% if value.0 == option.ContainsInput or value.0 == option.ContainsOutput %}
 <tr>
 <td style="text-align: center; vertical-align: middle;">{{ value.1 }}</td>
 <td style="text-align: center; vertical-align: middle;"></td>
 <td style="text-align: center; vertical-align: middle;">{{ value.2 }}</td>
-{% if option.TaskInput == value.0 %}
+{% if option.ContainsInput == value.0 %}
 <td style="text-align: center; vertical-align: middle;">independent</td>
 {% endif %}
-{% if option.TaskOutput == value.0 %}
+{% if option.ContainsOutput == value.0 %}
 <td style="text-align: center; vertical-align: middle;">dependent</td>
 {% endif %}
+<td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
 </tr>
 {% endif %}
 {% endfor %}
@@ -146,22 +149,25 @@
                                 <col style="width: 25%" />
                                 <col style="width: 25%" />
                                 <col style="width: 25%" />
+				<col style="width: 25%" />
                         </colgroup>
                         <thead>
                                 <tr class="header">
                                         <th style="text-align: center; vertical-align: middle;">Name</th>
                                         <th style="text-align: center; vertical-align: middle;">Unit</th>
                                         <th style="text-align: center; vertical-align: middle;">Symbol</th>
+					<th style="text-align: center; vertical-align: middle;">Task</th>
                                 </tr>
                         </thead>
                         <tbody>
                     {% for values in answers.Task.values %}
                     {% for value in values.RelationQ.values %}
-                        {% if value.0 == option.TaskParameter %}
+                        {% if value.0 == option.ContainsParameter %}
                                             <tr>
                                                     <td style="text-align: center; vertical-align: middle;">{{ value.1 }}</td>
                                                     <td style="text-align: center; vertical-align: middle;"></td>
                                                     <td style="text-align: center; vertical-align: middle;">{{ value.2 }}</td>
+						    <td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
                                             </tr>
                         {% endif %}
                     {% endfor %}

@@ -1,5 +1,5 @@
-
-BASE_URI='http://example.com/terms/domain/MaRDI/'
+BASE = 'http://example.com/terms/'
+BASE_URI = f'{BASE}domain/MaRDI/'
 
 # Option Dictionary
 
@@ -23,66 +23,30 @@ option = {'YesText': 'https://rdmorganiser.github.io/terms/options/yes_with_text
           'Binary': 'http://example.com/terms/options/MaRDI/data_type/type_0',
           'Text': 'http://example.com/terms/options/MaRDI/data_type/type_1',
           'Workflow': 'http://example.com/terms/options/MaRDI/operation_modus_2/workflow',
-          'Model': 'http://example.com/terms/options/MaRDI/operation_modus_2/model',
-          'Quantity': 'http://example.com/terms/options/MaRDI/QuantityOrQuantityKind0',
-          'QuantityKind': 'http://example.com/terms/options/MaRDI/QuantityOrQuantityKind1',
-          'IsConvex': 'http://example.com/terms/options/MaRDI/MathModDB/IsConvex',
-          'IsNotConvex': 'http://example.com/terms/options/MaRDI/MathModDB/IsNotConvex',
-          'IsDeterministic': 'http://example.com/terms/options/MaRDI/MathModDB/IsDeterministic',
-          'IsStochastic': 'http://example.com/terms/options/MaRDI/MathModDB/IsStochastic',
-          'IsDimensionless': 'http://example.com/terms/options/MaRDI/MathModDB/IsDimensionless',
-          'IsDimensional': 'http://example.com/terms/options/MaRDI/MathModDB/IsDimensional',
-          'IsDynamic': 'http://example.com/terms/options/MaRDI/MathModDB/IsDynamic',
-          'IsStatic': 'http://example.com/terms/options/MaRDI/MathModDB/IsStatic',
-          'IsLinear': 'http://example.com/terms/options/MaRDI/MathModDB/IsLinear',
-          'IsNotLinear': 'http://example.com/terms/options/MaRDI/MathModDB/IsNotLinear',
-          'IsSpaceContinuous': 'http://example.com/terms/options/MaRDI/MathModDB/IsSpaceContinuous',
-          'IsSpaceDiscrete': 'http://example.com/terms/options/MaRDI/MathModDB/IsSpaceDiscrete',
-          'IsSpaceIndependent': 'http://example.com/terms/options/MaRDI/MathModDB/IsSpaceIndependent',
-          'IsTimeContinuous': 'http://example.com/terms/options/MaRDI/MathModDB/IsTimeContinuous',
-          'IsTimeDiscrete': 'http://example.com/terms/options/MaRDI/MathModDB/IsTimeDiscrete',
-          'IsTimeIndependent': 'http://example.com/terms/options/MaRDI/MathModDB/IsTimeIndependent',
-          'GeneralizedBy': 'http://example.com/terms/options/MaRDI/MathModDB/GeneralizedBy',
-          'Generalizes': 'http://example.com/terms/options/MaRDI/MathModDB/Generalizes',
-          'DiscretizedBy': 'http://example.com/terms/options/MaRDI/MathModDB/DiscretizedBy',
-          'Discretizes': 'http://example.com/terms/options/MaRDI/MathModDB/Discretizes',
-          'ContainedIn': 'http://example.com/terms/options/MaRDI/MathModDB/ContainedIn',
-          'Contains': 'http://example.com/terms/options/MaRDI/MathModDB/Contains',
-          'ApproximatedBy': 'http://example.com/terms/options/MaRDI/MathModDB/ApproximatedBy',
-          'Approximates': 'http://example.com/terms/options/MaRDI/MathModDB/Approximates',
-          'LinearizedBy': 'http://example.com/terms/options/MaRDI/MathModDB/LinearizedBy',
-          'Linearizes': 'http://example.com/terms/options/MaRDI/MathModDB/Linearizes',
-          'SimilarTo': 'http://example.com/terms/options/MaRDI/MathModDB/SimilarTo',
-          'ContainedAsAssumptionIn': 'http://example.com/terms/options/MaRDI/MathModDB/ContainedAsAssumptionIn',
-          'ContainedAsBoundaryConditionIn': 'http://example.com/terms/options/MaRDI/MathModDB/ContainedAsBoundaryConditionIn',
-          'ContainedAsConstraintConditionIn': 'http://example.com/terms/options/MaRDI/MathModDB/ContainedAsConstraintConditionIn',
-          'ContainedAsCouplingConditionIn': 'http://example.com/terms/options/MaRDI/MathModDB/ContainedAsCouplingConditionIn',
-          'ContainedAsFormulationIn': 'http://example.com/terms/options/MaRDI/MathModDB/ContainedAsFormulationIn',
-          'ContainedAsInitialConditionIn': 'http://example.com/terms/options/MaRDI/MathModDB/ContainedAsInitialConditionIn',
-          'ContainedAsFinalConditionIn': 'http://example.com/terms/options/MaRDI/MathModDB/ContainedAsFinalConditionIn',
-          'NondimensionalizedBy': 'http://example.com/terms/options/MaRDI/MathModDB/NondimensionalizedBy',
-          'Nondimensionalizes': 'http://example.com/terms/options/MaRDI/MathModDB/Nondimensionalizes',
-          'ContainsAssumption': 'http://example.com/terms/options/MaRDI/MathModDB/ContainsAssumption',
-          'ContainsBoundaryCondition': 'http://example.com/terms/options/MaRDI/MathModDB/ContainsBoundaryCondition',
-          'ContainsConstraintCondition': 'http://example.com/terms/options/MaRDI/MathModDB/ContainsConstraintCondition',
-          'ContainsCouplingCondition': 'http://example.com/terms/options/MaRDI/MathModDB/ContainsCouplingCondition',
-          'ContainsFormulation': 'http://example.com/terms/options/MaRDI/MathModDB/ContainsFormulation',
-          'ContainsInitialCondition': 'http://example.com/terms/options/MaRDI/MathModDB/ContainsInitialCondition',
-          'ContainsFinalCondition': 'http://example.com/terms/options/MaRDI/MathModDB/ContainsFinalCondition',
-          'ContainsInput': 'http://example.com/terms/options/MaRDI/MathModDB/ContainsInput',
-          'ContainsOutput': 'http://example.com/terms/options/MaRDI/MathModDB/ContainsOutput',
-          'ContainsObjective': 'http://example.com/terms/options/MaRDI/MathModDB/ContainsObjective',
-          'ContainsParameter': 'http://example.com/terms/options/MaRDI/MathModDB/ContainsParameter',
-          'ComputationalTask': 'http://example.com/terms/options/MaRDI/TaskCategory0',
-          'ContainedAsInputIn': 'https://mardi4nfdi.de/mathmoddb#containedAsInputIn',
-          'ContainedAsOutputIn': 'https://mardi4nfdi.de/mathmoddb#containedAsOutputIn',
-          'ContainedAsObjectiveIn': 'https://mardi4nfdi.de/mathmoddb#containedAsObjectiveIn',
-          'ContainedAsParameterIn': 'https://mardi4nfdi.de/mathmoddb#containedAsParameterIn',
-          'Documents': 'http://example.com/terms/options/MaRDI/Publication_relation0',
-          'Invents': 'http://example.com/terms/options/MaRDI/Publication_relation1',
-          'Studies': 'http://example.com/terms/options/MaRDI/Publication_relation2',
-          'Surveys': 'http://example.com/terms/options/MaRDI/Publication_relation3',
-          'Uses': 'http://example.com/terms/options/MaRDI/Publication_relation4'}
+          'Model': 'http://example.com/terms/options/MaRDI/operation_modus_2/model'}
+
+# Mappings
+
+dataProp_mapping = {
+                     'convex': (0, 'IsConvex', 1, 'IsNotConvex'),
+                     'deterministic': (2, 'IsDeterministic', 3, 'IsStochastic'),
+                     'dimensionless': (4, 'IsDimensionless', 5, 'IsDimensional'),
+                     'dynamic': (6, 'IsDynamic', 7, 'IsStatic'),
+                     'linear': (8, 'IsLinear', 9, 'IsNotLinear'),
+                     'spacecont': (10, 'IsSpaceContinuous', 11, 'IsSpaceDiscrete', 12, 'IsSpaceIndependent'),
+                     'timecont': (13, 'IsTimeContinuous', 14, 'IsTimeDiscrete', 15, 'IsTimeIndependent')
+                    }
+
+class_mapping = {
+                 'ResearchProblem': 'Research Problem',
+                 'ResearchField': 'Research Field',
+                 'MathematicalModel': 'Mathematical Model',
+                 'Mathematical Formulation': 'Mathematical Formulation',
+                 'Quantity': 'Quantity',
+                 'QuantityKind': 'Quantity Kind',
+                 'ComputationalTask': 'Task'
+                }
+
 
 # Keys for publication handler
 
@@ -96,7 +60,7 @@ keys = ['publicationQid', 'publicationLabel', 'publicationDescription1', 'author
 
 uNames =['Settings', 'GeneralInformation', 'Creator', 'ProcessStep', 'Publication', 'Models', 'Software', 'Hardware', 'ExperimentalDevice', 'MathematicalArea', 'NonMathematicalDiscipline',
          'DataSet', 'Method', 'Quantity', 'Task', 'ReproducibilityComputational', 'ReproducibilityAnalysis', 'Search', 'ResearchField', 'ResearchProblem', 'AdditionalModel',
-         'MathematicalFormulation', 'PublicationModel']
+         'MathematicalFormulation', 'PublicationModel', 'SpecificTask']
 
 questions = {# Export and Workflow Settings
               uNames[0]+' Documentation': {'uName':uNames[0],'dName':'Documentation','Id': BASE_URI+'Section_0/Set_1/Question_01', 'set_prefix':False, 'set_index': False, 'collection_index': False},
@@ -138,6 +102,8 @@ questions = {# Export and Workflow Settings
               uNames[5]+' Properties': {'uName':uNames[5],'dName':'Properties','Id': BASE_URI+'Section_3/Set_0/Set_0/Question_02', 'set_prefix':False, 'set_index':True, 'collection_index':True},
               uNames[5]+' Reference': {'uName':uNames[5],'dName':'Reference','Id': BASE_URI+'Section_3/Set_0/Set_0/Question_03', 'set_prefix':False, 'set_index':True, 'collection_index':False},
               uNames[5]+' Additional': {'uName':uNames[5],'dName':'Additional','Id': BASE_URI+'Section_3/Set_0/Set_0/Question_06', 'set_prefix':False, 'set_index':True, 'collection_index':False},
+              ## Specific Task
+              uNames[23]+' MathModID': {'uName':uNames[23],'dName':'MathModID','Id': BASE_URI+'Section_3/Set_0/Set_1/Question_0', 'set_prefix':False, 'set_index':False, 'collection_index':True, 'option_text':False, 'external_id':True},
               ## Research Field
               uNames[18]+' MathModID': {'uName':uNames[18],'dName':'MathModID','Id': BASE_URI+'Section_3/Set_0/Set_0/Question_04', 'set_prefix':False, 'set_index':True, 'collection_index':False, 'option_text':False, 'external_id':True},
               uNames[18]+' ID': {'uName':uNames[18],'dName':'ID','Id': BASE_URI+'Section_3a/Set_0/Question_3', 'set_prefix':False, 'set_index':True, 'collection_index':False, 'option_text':False, 'external_id':True},

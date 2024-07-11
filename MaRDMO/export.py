@@ -1,7 +1,8 @@
 import re
 import requests
-import os
+import os, json
 import time
+
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, reverse
 from django.utils.translation import gettext_lazy as _
@@ -24,6 +25,7 @@ from .citation import *
 from .id import *
 from .sparql import *
 from .handlers import *
+from .mathmoddb import *
 
 try:
     # Get login credentials if available 
@@ -40,11 +42,17 @@ class MaRDIExport(Export):
         
 ### Check if MaRDI Questionaire is used ###########################################################################################################################################################
 
-        if str(self.project.catalog)[-5:] != 'MaRDI':
+        if str(self.project.catalog)[-6:] != 'MaRDMO':
             return render(self.request,'MaRDMO/workflowError.html', {
                 'error': 'Questionnaire \'{}\' not suitable for MaRDI Export!'.format(str(self.project.catalog).split('/')[-1])
                 }, status=200)
-        
+
+### Load MaRDMO Options ##########################################################################################################################################################################
+
+        path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+        with open(path, "r") as json_file:
+            mathmoddb = json.load(json_file)
+
 ### Gather all User Answers in Dictionary ########################################################################################################################################################
         
         answers ={}
@@ -110,10 +118,10 @@ class MaRDIExport(Export):
                             user_id = user_id.split(':')
                             if user_id[0] == 'orcid':
                                 creator_orcid_id.append(user_id[1])
-                                orcid_creator.extend([[answers['Creator']['Name'],user_id[1]]])
+                                orcid_creator.extend([[answers['Creator']['Name'].split(',')[1]+' '+answers['Creator']['Name'].split(',')[0],user_id[1]]])
                             elif user_id[0] == 'zbmath':
                                 creator_zbmath_id.append(user_id[1])
-                                zbmath_creator.extend([[answers['Creator']['Name'], user_id[1]]])
+                                zbmath_creator.extend([[answers['Creator']['Name'].split(',')[1]+' '+answers['Creator']['Name'].split(',')[0], user_id[1]]])
                             else:
                                 # Stop if wrong ID type provided for Workflow author
                                 return render(self.request,'MaRDMO/workflowError.html', {
@@ -195,7 +203,9 @@ class MaRDIExport(Export):
 
                             elif re.match(r"wikidata:Q[0-9]+", answers['Publication']['Info'][0]): 
                                 # If Paper with DOI on Wikidata, generate dummy entry  store QID
-                                paper_qid= self.entry(answers['Publication']['Info'][1], answers['Publication']['Info'][2], [(ExternalID, answers['Publication']['Info'][0].split(':')[1], P2)])
+                                paper_qid = self.find_item(answers['Publication']['Info'][1], answers['Publication']['Info'][2])
+                                if not paper_qid:
+                                    paper_qid= self.entry(answers['Publication']['Info'][1], answers['Publication']['Info'][2], [(ExternalID, answers['Publication']['Info'][0].split(':')[1], P2)])
 
                             else:
                         
@@ -312,16 +322,16 @@ class MaRDIExport(Export):
                                                                      True)
 
 ### Refine User Answers via External Data Sources #################################################################################################################################################
-            
+                
                 answers = self.refine(answers)
-                 
+                answers = ModelRetriever(answers,mathmoddb) 
+                
 ### Integrate related Model in MaRDI KG ###########################################################################################################################################################
                  
                 models, answers, error = self.Entry_Generator('Models',              # Entry of Model
                                                               [True,False,False],   # Generation wanted, QID Generation wanted, String Generation not wanted
                                                               [Q3,P17],             # instance of mathematical model (Q3), main subject (P17)
-                                                              answers)              # refined user answers
-             
+                                                              answers)              # refined user answers 
                 if error[0] == 0:
                     # Stop if no Name and Description provided for new model entry
                     return render(self.request,'MaRDMO/workflowError.html', {
@@ -333,17 +343,28 @@ class MaRDIExport(Export):
                     return render(self.request,'MaRDMO/workflowError.html', {
                         'error': 'Missing Main Subject of new Mathematical Model!'
                         }, status=200)
-                
+
+                # Flag Tasks for Workflows
+                for key in answers['SpecificTask'].get('MathModID',{}):
+                    Id, label = answers['SpecificTask']['MathModID'][key].split(' <|> ')
+                    for key2 in answers['Task']:
+                        if Id == answers['Task'][key2].get('MathModID'):
+                            answers['Task'][key2].update({'Include':True})
+
                 # Add Symbols to Task Quantities
                 for tkey in answers['Task']:
-                    for tkey2 in answers['Task'][tkey]['Other2']:
-                        tvar = answers['Task'][tkey]['Other2'][tkey2].split(' <|> ')[1]
-                        for mkey in answers['MathematicalFormulation']:
-                            for mkey2 in answers['MathematicalFormulation'][mkey]['Element']:
-                                mvar = answers['MathematicalFormulation'][mkey]['Element'][mkey2]['Quantity'].split(' <|> ')[1]
-                                if tvar == mvar:
-                                    answers['Task'][tkey].setdefault('RelationQ',{}).update({tkey2:[answers['Task'][tkey]['Relation2'][tkey2],tvar.rsplit(' ',1)[0],answers['MathematicalFormulation'][mkey]['Element'][mkey2]['Symbol']]})
-                            
+                    if answers['Task'][tkey].get('Include'):
+                        for tkey2 in answers['Task'][tkey]['Other2']:
+                            tvar = answers['Task'][tkey]['Other2'][tkey2].split(' <|> ')[1].rsplit(' ',1)[0]
+                            for mkey in answers['MathematicalFormulation']:
+                                for mkey2 in answers['MathematicalFormulation'][mkey]['Element']:
+                                    if answers['MathematicalFormulation'][mkey]['Element'][mkey2].get('Info',{}).get('Name'):
+                                        mvar = answers['MathematicalFormulation'][mkey]['Element'][mkey2].get('Info',{}).get('Name')
+                                    else:
+                                        mvar = answers['MathematicalFormulation'][mkey]['Element'][mkey2].get('Info',{}).get('QKName')
+                                    if tvar == mvar:
+                                        answers['Task'][tkey].setdefault('RelationQ',{}).update({tkey2:[answers['Task'][tkey]['Relation2'][tkey2],tvar,answers['MathematicalFormulation'][mkey]['Element'][mkey2]['Symbol']]})
+                 
 ### Integrate related Methods in MaRDI KG #########################################################################################################################################################
 
                 methods, answers, error = self.Entry_Generator('Method',            # Entry of Method with Main Subject
@@ -484,7 +505,7 @@ class MaRDIExport(Export):
                             [(Item,discipline,P5) for discipline in disciplines] +\
                             [(ExternalID,field,P25) for field in answers['MathematicalArea'].values()] +\
                             [(Item, creator, P8) for creator in creator_qids] +\
-                            [(Item,i,P6) for i in methods+models]        
+                            [(Item,i,P6) for i in methods+models+softwares+datas]        
 
                     if answers['Settings']['WorkflowType'] == option['Computation']:
 
@@ -537,7 +558,7 @@ class MaRDIExport(Export):
                     template = Template(markdown_template)
                     
                     # Render the template with the data
-                    context = Context({'title':self.project.title}|answers|option)
+                    context = Context({'title':self.project.title}|answers|option|mathmoddb)
                     markdown_workflow = template.render(context)
                 
                     # Provide Documentation as Markdown Download
@@ -548,11 +569,11 @@ class MaRDIExport(Export):
             
                 # Preview Workflow Documentation as HTML File
                 elif answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['Yes']:
-
+                    
                     return render(self.request,'MaRDMO/workflowTemplate.html', {
                         'title': self.project.title,
                         'answers': answers,
-                        'option': option
+                        'option': option|mathmoddb
                         }, status=200)
             
                 # Export Workflow Documentation to MaRDI Portal as Mediawiki File
@@ -567,7 +588,7 @@ class MaRDIExport(Export):
                     template = Template(mediawiki_template)
 
                     # Render the template with the data
-                    context = Context(answers|option)
+                    context = Context(answers|option|mathmoddb)
                     mediawiki_workflow = template.render(context)
 
                     # Export to MaRDI Portal
@@ -621,1576 +642,45 @@ class MaRDIExport(Export):
                         'error': 'Missing Identifier of Model Documentation Creator'
                         }, status=200)
 
-                ### GET ADDITIONAL INFORMATION FROM MATHMODDB
-                
-                # Get additional Model Information (additional Models)
-
-                keys = list(answers['AdditionalModel'])
-
-                for key in keys:
-                    if answers['AdditionalModel'][key]['MathModID'] and answers['AdditionalModel'][key]['MathModID'] != 'not in MathModDB':
-                
-                        req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                         params = {'format': 'json', 'query': query_mm.format(answers['AdditionalModel'][key]['MathModID'].split('#')[1])},
-                                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-                        
-                        req2=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                          params = {'format': 'json', 'query': query_mm2.format(answers['AdditionalModel'][key]['MathModID'].split('#')[1])},
-                                          headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-                    
-                        for r in req:
-                            if r.get('quote', {}).get('value'):
-                                answers['AdditionalModel'][key].update({'Description':r['quote']['value']})
-                           
-                            if r.get('convex',{}):
-                                if r['convex']['value'] == 'true':
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({0:option['IsConvex']})
-                                else:
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({1:option['IsNotConvex']})
-                            
-                            if r.get('deterministic',{}):
-                                if r['deterministic']['value'] == 'true':
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({2:option['IsDeterministic']})
-                                else:
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({3:option['IsStochastic']})
-                            
-                            if r.get('dimensionless',{}):
-                                if r['dimensionless']['value'] == 'true':
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({4:option['IsDimensionless']})
-                                else:
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({5:option['IsDimensional']})
-                            
-                            if r.get('dynamic',{}):
-                                if r['dynamic']['value'] == 'true':
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({6:option['IsDynamic']})
-                                else:
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({7:option['IsStatic']})
-                            
-                            if r.get('linear',{}):
-                                if r['linear']['value'] == 'true':
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({8:option['IsLinear']})
-                                else:
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({9:option['IsNotLinear']})
-                            
-                            if r.get('spacecont',{}):
-                                if r['spacecont']['value'] == 'true':
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({10:option['IsSpaceContinuous']})
-                                else:
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({11:option['IsSpaceDiscrete']})
-                            else:
-                                answers['AdditionalModel'][key].setdefault('Properties',{}).update({12:option['IsSpaceIndependent']})
-                            
-                            if r.get('timecont',{}):
-                                if r['timecont']['value'] == 'true':
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({13:option['IsTimeContinuous']})
-                                else:
-                                    answers['AdditionalModel'][key].setdefault('Properties',{}).update({14:option['IsTimeDiscrete']})
-                            else:
-                                answers['AdditionalModel'][key].setdefault('Properties',{}).update({15:option['IsTimeIndependent']})
-                            
-                            if r.get('P', {}).get('value') and r.get('PL', {}).get('value'):
-                                for idx, (Id, label) in enumerate(zip(r['P']['value'].split(' <|> '),r['PL']['value'].split(' <|> '))):
-                                    if f"{Id} <|> {label}" not in answers['AdditionalModel'][key].setdefault('ResearchProblem',{}).values():
-                                        answers['AdditionalModel'][key].setdefault('ResearchProblem',{}).update({f"pp{idx}":f"{Id} <|> {label}"})
-
-                            if r.get('CMM', {}).get('value') and r.get('CMML', {}).get('value'):
-                                for idx, (Id, label) in enumerate(zip(r['CMM']['value'].split(' <|> '),r['CMML']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1', {}).update({f'mm{idx}': option['ContainsModel']})
-                                    answers['AdditionalModel'][key].setdefault('Other1', {}).update({f'mm{idx}': f'{Id} <|> {label}'})
-                                    answers['AdditionalModel'].setdefault(max(answers['AdditionalModel'].keys())+1, {}).update({'MathModID': Id, 'Name': label})
-                                    keys.append(max(answers['AdditionalModel'].keys()))
-
-                            if r.get('F', {}).get('value') and r.get('FL', {}).get('value'):
-                                for idx, (Id, label) in enumerate(zip(r['F']['value'].split(' <|> '),r['FL']['value'].split(' <|> '))):
-                                    for k, math_form in answers['MathematicalFormulation'].items():
-                                        if math_form.get('MathModID') == Id:
-                                            math_form.setdefault('Relation1', {}).update({f'ff{idx}': option['ContainedAsFormulationIn']})
-                                            math_form.setdefault('Other1', {}).update({f'ff{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-                                            break
-                                    else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                        if answers['MathematicalFormulation'].keys():
-                                            new_key = max(answers['MathematicalFormulation'].keys())+1
-                                        else:
-                                            new_key = 0
-                                        answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                        new_form = answers['MathematicalFormulation'][new_key]
-                                        new_form.setdefault('Relation1', {}).update({f'ff{idx}': option['ContainedAsFormulationIn']})
-                                        new_form.setdefault('Other1', {}).update({f'ff{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-
-                            if r.get('A', {}).get('value') and r.get('AL', {}).get('value'):
-                                for idx, (Id, label) in enumerate(zip(r['A']['value'].split(' <|> '),r['AL']['value'].split(' <|> '))):
-                                    for k, math_form in answers['MathematicalFormulation'].items():
-                                        if math_form.get('MathModID') == Id:
-                                            math_form.setdefault('Relation1', {}).update({f'aa{idx}': option['ContainedAsAssumptionIn']})
-                                            math_form.setdefault('Other1', {}).update({f'aa{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-                                            break
-                                    else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                        if answers['MathematicalFormulation'].keys():
-                                            new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                        else:
-                                            new_key = 0
-                                        answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                        new_form = answers['MathematicalFormulation'][new_key]
-                                        new_form.setdefault('Relation1', {}).update({f'aa{idx}': option['ContainedAsAssumptionIn']})
-                                        new_form.setdefault('Other1', {}).update({f'aa{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-                            
-                            if r.get('BC', {}).get('value') and r.get('BCL', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['BC']['value'].split(' <|> '),r['BCL']['value'].split(' <|> '))):
-                                    for k, math_form in answers['MathematicalFormulation'].items():
-                                        if math_form.get('MathModID') == Id:
-                                            math_form.setdefault('Relation1', {}).update({f'bc{idx}': option['ContainedBoundaryConditionIn']})
-                                            math_form.setdefault('Other1', {}).update({f'bc{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-                                            break
-                                    else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                        if answers['MathematicalFormulation'].keys():
-                                            new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                        else:
-                                            new_key = 0
-                                        answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                        new_form = answers['MathematicalFormulation'][new_key]
-                                        new_form.setdefault('Relation1', {}).update({f'bc{idx}': option['ContainedAsBoundaryConditionIn']})
-                                        new_form.setdefault('Other1', {}).update({f'bc{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-
-                            if r.get('CC', {}).get('value') and r.get('CCL', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['CC']['value'].split(' <|> '),r['CCL']['value'].split(' <|> '))):
-                                    for k, math_form in answers['MathematicalFormulation'].items():
-                                        if math_form.get('MathModID') == Id:
-                                            math_form.setdefault('Relation1', {}).update({f'cc{idx}': option['ContainedAsConstraintConditionIn']})
-                                            math_form.setdefault('Other1', {}).update({f'cc{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-                                            break
-                                    else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                        if answers['MathematicalFormulation'].keys():
-                                            new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                        else:
-                                            new_key = 0
-                                        answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                        new_form = answers['MathematicalFormulation'][new_key]
-                                        new_form.setdefault('Relation1', {}).update({f'cc{idx}': option['ContainedAsConstraintConditionIn']})
-                                        new_form.setdefault('Other1', {}).update({f'cc{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-                            
-                            if r.get('CPC', {}).get('value') and r.get('CPCL', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['CPC']['value'].split(' <|> '),r['CPCL']['value'].split(' <|> '))):
-                                    for k, math_form in answers['MathematicalFormulation'].items():
-                                        if math_form.get('MathModID') == Id:
-                                            math_form.setdefault('Relation1', {}).update({f'cpc{idx}': option['ContainedAsCouplingConditionIn']})
-                                            math_form.setdefault('Other1', {}).update({f'cpc{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-                                            break
-                                    else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                        if answers['MathematicalFormulation'].keys():
-                                            new_key = max(answers['MathematicalFormulation'].keys())+1
-                                        else:
-                                            new_key = 0
-                                        answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                        new_form = answers['MathematicalFormulation'][new_key]
-                                        new_form.setdefault('Relation1', {}).update({f'cpc{idx}': option['ContainedAsCouplingConditionIn']})
-                                        new_form.setdefault('Other1', {}).update({f'cpc{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-
-                            if r.get('IC', {}).get('value') and r.get('ICL', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['IC']['value'].split(' <|> '),r['ICL']['value'].split(' <|> '))):
-                                    for k, math_form in answers['MathematicalFormulation'].items():
-                                        if math_form.get('MathModID') == Id:
-                                            math_form.setdefault('Relation1', {}).update({f'ic{idx}': option['ContainedAsInitialConditionIn']})
-                                            math_form.setdefault('Other1', {}).update({f'ic{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-                                            break
-                                    else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                        if answers['MathematicalFormulation'].keys():
-                                            new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                        else:
-                                            new_key = 0
-                                        answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                        new_form = answers['MathematicalFormulation'][new_key]
-                                        new_form.setdefault('Relation1', {}).update({f'ic{idx}': option['ContainedAsInitialConditionIn']})
-                                        new_form.setdefault('Other1', {}).update({f'ic{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-
-                            if r.get('FC', {}).get('value') and r.get('FCL', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['FC']['value'].split(' <|> '),r['FCL']['value'].split(' <|> '))):
-                                    for k, math_form in answers['MathematicalFormulation'].items():
-                                        if math_form.get('MathModID') == Id:
-                                            math_form.setdefault('Relation1', {}).update({f'fc{idx}': option['ContainedAsFinalConditionIn']})
-                                            math_form.setdefault('Other1', {}).update({f'fc{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-                                            break
-                                    else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                        if answers['MathematicalFormulation'].keys():
-                                            new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                        else:
-                                            new_key = 0
-                                        answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                        new_form = answers['MathematicalFormulation'][new_key]
-                                        new_form.setdefault('Relation1', {}).update({f'fc{idx}': option['ContainedAsFinalConditionIn']})
-                                        new_form.setdefault('Other1', {}).update({f'fc{idx}': f"{answers['AdditionalModel'][key]['MathModID']} <|> {answers['AdditionalModel'][key]['Name']}"})
-
-                        for r in req2:
-
-                            if r.get('GBMODEL', {}).get('value') and r.get('GBMLabel', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['GBMODEL']['value'].split(' <|> '),r['GBMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['GeneralizedBy']})
-                                    answers['AdditionalModel'][key].setdefault('Other1',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
-
-                            elif r.get('GMODEL', {}).get('value') and r.get('GMLabel', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['GMODEL']['value'].split(' <|> '),r['GMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'g'+str(idx):option['Generalizes']})
-                                    answers['AdditionalModel'][key].setdefault('Other1',{}).update({'g'+str(idx):Id + ' <|> ' + label})
-
-                            elif r.get('ABMODEL', {}).get('value') and r.get('ABMLabel', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['ABMODEL']['value'].split(' <|> '),r['ABMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['ApproximatedBy']})
-                                    answers['AdditionalModel'][key].setdefault('Other1',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
-
-                            elif r.get('AMODEL', {}).get('value') and r.get('AMLabel', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['AMODEL']['value'].split(' <|> '),r['AMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'a'+str(idx):option['Approximates']})
-                                    answers['AdditionalModel'][key].setdefault('Other1',{}).update({'a'+str(idx):Id + ' <|> ' + label})
-
-                            elif r.get('DBMODEL', {}).get('value') and r.get('DBMLabel', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['DBMODEL']['value'].split(' <|> '),r['DBMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'db'+str(idx):option['DiscretizedBy']})
-                                    answers['AdditionalModel'][key].setdefault('Other1',{}).update({'db'+str(idx):Id + ' <|> ' + label})
-
-                            elif r.get('DMODEL', {}).get('value') and r.get('DMLabel', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['DMODEL']['value'].split(' <|> '),r['DMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'d'+str(idx):option['Discretizes']})
-                                    answers['AdditionalModel'][key].setdefault('Other1',{}).update({'d'+str(idx):Id + ' <|> ' + label})
-
-                            elif r.get('LBMODEL', {}).get('value') and r.get('LBMLabel', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['LBMODEL']['value'].split(' <|> '),r['LBMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'lb'+str(idx):option['LinearizedBy']})
-                                    answers['AdditionalModel'][key].setdefault('Other1',{}).update({'lb'+str(idx):Id + ' <|> ' + label})
-
-                            elif r.get('LMODEL', {}).get('value') and r.get('LMLabel', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['LMODEL']['value'].split(' <|> '),r['LMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'d'+str(idx):option['Linearizes']})
-                                    answers['AdditionalModel'][key].setdefault('Other1',{}).update({'d'+str(idx):Id + ' <|> ' + label})
-
-                            elif r.get('SMODEL', {}).get('value') and r.get('SMLabel', {}).get('value'):
-
-                                for idx, (Id, label) in enumerate(zip(r['SMODEL']['value'].split(' <|> '),r['SMLabel']['value'].split(' <|> '))):
-                                    answers['AdditionalModel'][key].setdefault('Relation1',{}).update({'s'+str(idx):option['SimilarTo']})
-                                    answers['AdditionalModel'][key].setdefault('Other1',{}).update({'s'+str(idx):Id + ' <|> ' + label})
- 
-                # Get additional Task Information
-
-                search_string = ''
-                
-                for key in answers['Task']:
-                    if answers['Task'][key]['MathModID'] and answers['Task'][key]['MathModID'] != 'not in MathModDB':
-
-                        search_string = search_string + f' :{answers["Task"][key]["MathModID"].split("#")[1]}'
-
-                req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                 params = {'format': 'json', 'query': query_ta.format(search_string)},
-                                 headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-
-                req2=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                  params = {'format': 'json', 'query': query_ta2.format(search_string)},
-                                  headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-                
-                if req:
-                    for r in req:
-                        for key in answers['Task']:
-                            if r.get('t', {}).get('value') == answers['Task'][key]['MathModID']:
-
-                                if r.get('quote', {}).get('value'):
-                                    answers['Task'][key].update({'Description':r['quote']['value']})
-                                
-                                if r.get('linear', {}):
-                                    if r['linear']['value'] == 'true':
-                                        answers['Task'][key].setdefault('Properties', {}).update({0:option['IsLinear']})
-                                    else:
-                                        answers['Task'][key].setdefault('Properties', {}).update({1:option['IsNotLinear']})
-                                
-                                if r.get('P', {}).get('value') and r.get('PL', {}).get('value'):
-                                    for idx, (Id, label) in enumerate(zip(r['P']['value'].split(' <|> '),r['PL']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('ResearchProblem',{}).update({'p'+str(idx):Id + ' <|> ' + label})
-                                if r.get('subclass', {}).get('value'):
-                                    answers['Task'][key].setdefault('TaskClass',{}).update({0:option[r['subclass']['value'].split('#')[-1]]})
-                                
-                                if r.get('F', {}).get('value') and r.get('FL', {}).get('value'):
-                            
-                                    for idx, (Id, label) in enumerate(zip(r['F']['value'].split(' <|> '),r['FL']['value'].split(' <|> '))):
-                                        for k, math_form in answers['MathematicalFormulation'].items():
-                                            if math_form.get('MathModID') == Id:
-                                                math_form.setdefault('Relation4', {}).update({f'f{idx}': option['ContainedAsFormulationIn']})
-                                                math_form.setdefault('Other4', {}).update({f'f{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                                break
-                                        else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                            if answers['MathematicalFormulation'].keys():
-                                                new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                            else:
-                                                new_key = 0
-                                            answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                            new_form = answers['MathematicalFormulation'][new_key]
-                                            new_form.setdefault('Relation4', {}).update({f'f{idx}': option['ContainedAsFormulationIn']})
-                                            new_form.setdefault('Other4', {}).update({f'f{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                            
-                                if r.get('A', {}).get('value') and r.get('AL', {}).get('value'):
-                                
-                                    for idx, (Id, label) in enumerate(zip(r['A']['value'].split(' <|> '),r['AL']['value'].split(' <|> '))):
-                                        for k, math_form in answers['MathematicalFormulation'].items():
-                                            if math_form.get('MathModID') == Id:
-                                                math_form.setdefault('Relation4', {}).update({f'a{idx}': option['ContainedAsAssumptionIn']})
-                                                math_form.setdefault('Other4', {}).update({f'a{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                                break
-                                        else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                            if answers['MathematicalFormulation'].keys():
-                                                new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                            else:
-                                                new_key = 0
-                                            answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                            new_form = answers['MathematicalFormulation'][new_key]
-                                            new_form.setdefault('Relation4', {}).update({f'a{idx}': option['ContainedAsAssumptionIn']})
-                                            new_form.setdefault('Other4', {}).update({f'a{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-
-                                if r.get('BC', {}).get('value') and r.get('BCL', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['BC']['value'].split(' <|> '),r['BCL']['value'].split(' <|> '))):
-                                        for k, math_form in answers['MathematicalFormulation'].items():
-                                            if math_form.get('MathModID') == Id:
-                                                math_form.setdefault('Relation4', {}).update({f'bc{idx}': option['ContainedBoundaryConditionIn']})
-                                                math_form.setdefault('Other4', {}).update({f'bc{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                                break
-                                        else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                            if answers['MathematicalFormulation'].keys():
-                                                new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                            else:
-                                                new_key = 0
-                                            answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                            new_form = answers['MathematicalFormulation'][new_key]
-                                            new_form.setdefault('Relation4', {}).update({f'bc{idx}': option['ContainedAsBoundaryConditionIn']})
-                                            new_form.setdefault('Other4', {}).update({f'bc{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-
-                                if r.get('CC', {}).get('value') and r.get('CCL', {}).get('value'):
-                            
-                                    for idx, (Id, label) in enumerate(zip(r['CC']['value'].split(' <|> '),r['CCL']['value'].split(' <|> '))):
-                                        for k, math_form in answers['MathematicalFormulation'].items():
-                                            if math_form.get('MathModID') == Id:
-                                                math_form.setdefault('Relation4', {}).update({f'cc{idx}': option['ContainedAsConstraintConditionIn']})
-                                                math_form.setdefault('Other4', {}).update({f'cc{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                                break
-                                        else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                            if answers['MathematicalFormulation'].keys():
-                                                new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                            else:
-                                                new_key = 0
-                                            answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                            new_form = answers['MathematicalFormulation'][new_key]
-                                            new_form.setdefault('Relation4', {}).update({f'cc{idx}': option['ContainedAsConstraintConditionIn']})
-                                            new_form.setdefault('Other4', {}).update({f'cc{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                
-                                if r.get('CPC', {}).get('value') and r.get('CPCL', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['CPC']['value'].split(' <|> '),r['CPCL']['value'].split(' <|> '))):
-                                        for k, math_form in answers['MathematicalFormulation'].items():
-                                            if math_form.get('MathModID') == Id:
-                                                math_form.setdefault('Relation4', {}).update({f'cpc{idx}': option['ContainedAsCouplingConditionIn']})
-                                                math_form.setdefault('Other4', {}).update({f'cpc{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                                break
-                                        else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                            if answers['MathematicalFormulation'].keys():
-                                                new_key = max(answers['MathematicalFormulation'].keys())+1
-                                            else:
-                                                new_key = 0
-                                            answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                            new_form = answers['MathematicalFormulation'][new_key]
-                                            new_form.setdefault('Relation4', {}).update({f'cpc{idx}': option['ContainedAsCouplingConditionIn']})
-                                            new_form.setdefault('Other4', {}).update({f'cpc{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-
-                                if r.get('IC', {}).get('value') and r.get('ICL', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['IC']['value'].split(' <|> '),r['ICL']['value'].split(' <|> '))):
-                                        for k, math_form in answers['MathematicalFormulation'].items():
-                                            if math_form.get('MathModID') == Id:
-                                                math_form.setdefault('Relation4', {}).update({f'ic{idx}': option['ContainedAsInitialConditionIn']})
-                                                math_form.setdefault('Other4', {}).update({f'ic{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                                break
-                                        else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                            if answers['MathematicalFormulation'].keys():
-                                                new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                            else:
-                                                new_key = 0
-                                            answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                            new_form = answers['MathematicalFormulation'][new_key]
-                                            new_form.setdefault('Relation4', {}).update({f'ic{idx}': option['ContainedAsInitialConditionIn']})
-                                            new_form.setdefault('Other4', {}).update({f'ic{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-
-                                if r.get('FC', {}).get('value') and r.get('FCL', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['FC']['value'].split(' <|> '),r['FCL']['value'].split(' <|> '))):
-                                        for k, math_form in answers['MathematicalFormulation'].items():
-                                            if math_form.get('MathModID') == Id:
-                                                math_form.setdefault('Relation4', {}).update({f'fc{idx}': option['ContainedAsFinalConditionIn']})
-                                                math_form.setdefault('Other4', {}).update({f'fc{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                                break
-                                        else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                            if answers['MathematicalFormulation'].keys():
-                                                new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                            else:
-                                                new_key = 0
-                                            answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                            new_form = answers['MathematicalFormulation'][new_key]
-                                            new_form.setdefault('Relation4', {}).update({f'fc{idx}': option['ContainedAsFinalConditionIn']})
-                                            new_form.setdefault('Other4', {}).update({f'fc{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-
-                                if r.get('IN', {}).get('value') and r.get('INL', {}).get('value') and r.get('INC', {}).get('value'):
-                                
-                                    for idx, (Id, label, Class) in enumerate(zip(r['IN']['value'].split(' <|> '),r['INL']['value'].split(' <|> '),r['INC']['value'].split(' <|> '))):
-                                        if Class.split('#')[-1] == 'MathematicalFormulation': 
-                                        
-                                            for k, math_form in answers['MathematicalFormulation'].items():
-                                                if math_form.get('MathModID') == Id:
-                                                    math_form.setdefault('Relation4', {}).update({f'in{idx}': option['ContainedAsInputIn']})
-                                                    math_form.setdefault('Other4', {}).update({f'in{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                                    break
-                                            else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                                if answers['MathematicalFormulation'].keys():
-                                                    new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                                else:
-                                                    new_key = 0
-                                                answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                                new_form = answers['MathematicalFormulation'][new_key]
-                                                new_form.setdefault('Relation4', {}).update({f'in{idx}': option['ContainedAsInputIn']})
-                                                new_form.setdefault('Other4', {}).update({f'in{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                    
-                                        elif Class.split('#')[-1] == 'Quantity' or Class.split('#')[-1] == 'QuantityKind':
-                                            answers['Task'][key].setdefault('Relation2',{}).update({'in'+str(idx):option['ContainsInput']})
-                                            if Class.split('#')[-1] == 'Quantity':
-                                                answers['Task'][key].setdefault('Other2',{}).update({'in'+str(idx):Id + ' <|> ' + label + ' (Quantity)'})
-                                            else:
-                                                answers['Task'][key].setdefault('Other2',{}).update({'in'+str(idx):Id + ' <|> ' + label + ' (QuantityKind)'})
-                            
-                                if r.get('O', {}).get('value') and r.get('OL', {}).get('value') and r.get('OC', {}).get('value'):
-                                
-                                    for idx, (Id, label, Class) in enumerate(zip(r['O']['value'].split(' <|> '),r['OL']['value'].split(' <|> '),r['OC']['value'].split(' <|> '))):
-                                        if Class.split('#')[-1] == 'MathematicalFormulation':
-                                        
-                                            for k, math_form in answers['MathematicalFormulation'].items():
-                                                if math_form.get('MathModID') == Id:
-                                                    math_form.setdefault('Relation4', {}).update({f'out{idx}': option['ContainedAsOutputIn']})
-                                                    math_form.setdefault('Other4', {}).update({f'out{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                                    break
-                                            else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                                if answers['MathematicalFormulation'].keys():
-                                                    new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                                else:
-                                                    new_key = 0
-                                                answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                                new_form = answers['MathematicalFormulation'][new_key]
-                                                new_form.setdefault('Relation4', {}).update({f'out{idx}': option['ContainedAsOutputIn']})
-                                                new_form.setdefault('Other4', {}).update({f'out{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                    
-                                        elif Class.split('#')[-1] == 'Quantity' or Class.split('#')[-1] == 'QuantityKind':
-                                            answers['Task'][key].setdefault('Relation2',{}).update({'out'+str(idx):option['ContainsOutput']})
-                                            if Class.split('#')[-1] == 'Quantity':
-                                                answers['Task'][key].setdefault('Other2',{}).update({'out'+str(idx):Id + ' <|> ' + label + ' (Quantity)'})
-                                            else:
-                                                answers['Task'][key].setdefault('Other2',{}).update({'out'+str(idx):Id + ' <|> ' + label + ' (QuantityKind)'})
-                            
-                                if r.get('OB', {}).get('value') and r.get('OBL', {}).get('value') and r.get('OBCl', {}).get('value'):
-                                
-                                    for idx, (Id, label, Class) in enumerate(zip(r['OB']['value'].split(' <|> '),r['OBL']['value'].split(' <|> '),r['OBC']['value'].split(' <|> '))):
-                                        if Class.split('#')[-1] == 'MathematicalFormulation':
-                                        
-                                            for k, math_form in answers['MathematicalFormulation'].items():
-                                                if math_form.get('MathModID') == Id:
-                                                    math_form.setdefault('Relation4', {}).update({f'obj{idx}': option['ContainedAsObjectiveIn']})
-                                                    math_form.setdefault('Other4', {}).update({f'obj{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                                    break
-                                            else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                                if answers['MathematicalFormulation'].keys():
-                                                    new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                                else:
-                                                    new_key = 0
-                                                answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                                new_form = answers['MathematicalFormulation'][new_key]
-                                                new_form.setdefault('Relation4', {}).update({f'obj{idx}': option['ContainedAsObjectiveIn']})
-                                                new_form.setdefault('Other4', {}).update({f'obj{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-
-                                        elif Class.split('#')[-1] == 'Quantity' or Class.split('#')[-1] == 'QuantityKind':
-                                            answers['Task'][key].setdefault('Relation2',{}).update({'obj'+str(idx):option['ContainsObjective']})
-                                            if Class.split('#')[-1] == 'Quantity':
-                                                answers['Task'][key].setdefault('Other2',{}).update({'obj'+str(idx):Id + ' <|> ' + label + ' (Quantity)'})
-                                            else:
-                                                answers['Task'][key].setdefault('Other2',{}).update({'obj'+str(idx):Id + ' <|> ' + label + ' (QuantityKind)'})
-
-                                if r.get('PA', {}).get('value') and r.get('PAL', {}).get('value') and r.get('PAC', {}).get('value'):
-                                
-                                    for idx, (Id, label, Class) in enumerate(zip(r['PA']['value'].split(' <|> '),r['PAL']['value'].split(' <|> '),r['PAC']['value'].split(' <|> '))):
-                                        if Class.split('#')[-1] == 'MathematicalFormulation':
-
-                                            for k, math_form in answers['MathematicalFormulation'].items():
-                                                if math_form.get('MathModID') == Id:
-                                                    math_form.setdefault('Relation4', {}).update({f'pa{idx}': option['ContainedAsParameterIn']})
-                                                    math_form.setdefault('Other4', {}).update({f'pa{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                                    break
-                                            else:  # This else corresponds to the for loop, it runs if the loop is not broken
-                                                if answers['MathematicalFormulation'].keys():
-                                                    new_key = max(answers['MathematicalFormulation'].keys())+1 
-                                                else:
-                                                    new_key = 0
-                                                answers['MathematicalFormulation'].setdefault(new_key, {}).update({'MathModID': Id, 'Name': label})
-                                                new_form = answers['MathematicalFormulation'][new_key]
-                                                new_form.setdefault('Relation4', {}).update({f'pa{idx}': option['ContainedAsParameterIn']})
-                                                new_form.setdefault('Other4', {}).update({f'pa{idx}': f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-
-                                        elif Class.split('#')[-1] == 'Quantity' or Class.split('#')[-1] == 'QuantityKind':
-                                            answers['Task'][key].setdefault('Relation2',{}).update({'pa'+str(idx):option['ContainsParameter']})
-                                            if Class.split('#')[-1] == 'Quantity':
-                                                answers['Task'][key].setdefault('Other2',{}).update({'pa'+str(idx):Id + ' <|> ' + label + ' (Quantity)'})
-                                            else:
-                                                answers['Task'][key].setdefault('Other2',{}).update({'pa'+str(idx):Id + ' <|> ' + label + ' (QuantityKind)'})
-                
-                if req2:
-
-                    for r in req2:
-                        for key in answers['Task']:
-                            if r.get('t', {}).get('value') == answers['Task'][key]['MathModID']:
-                            
-                                if r.get('GBTASK', {}).get('value') and r.get('GBTLabel', {}).get('value'):
-                                
-                                    for idx, (Id, label) in enumerate(zip(r['GBTASK']['value'].split(' <|> '),r['GBTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'gb'+str(idx):option['GeneralizedBy']})
-                                        answers['Task'][key].setdefault('Other3',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('GTASK', {}).get('value') and r.get('GTLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['GTASK']['value'].split(' <|> '),r['GTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'g'+str(idx):option['Generalizes']})
-                                        answers['Task'][key].setdefault('Other3',{}).update({'g'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('ABTASK', {}).get('value') and r.get('ABTLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['ABTASK']['value'].split(' <|> '),r['ABTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'gb'+str(idx):option['ApproximatedBy']})
-                                        answers['Task'][key].setdefault('Other3',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('ATASK', {}).get('value') and r.get('ATLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['ATASK']['value'].split(' <|> '),r['ATLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'a'+str(idx):option['Approximates']})
-                                        answers['Task'][key].setdefault('Other3',{}).update({'a'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('DBTASK', {}).get('value') and r.get('DBTLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['DBTASK']['value'].split(' <|> '),r['DBTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'db'+str(idx):option['DiscretizedBy']})
-                                        answers['Task'][key].setdefault('Other3',{}).update({'db'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('DTASK', {}).get('value') and r.get('DTLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['DTASK']['value'].split(' <|> '),r['DTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'d'+str(idx):option['Discretizes']})
-                                        answers['Task'][key].setdefault('Other3',{}).update({'d'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('LBTASK', {}).get('value') and r.get('LBTLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['LBTASK']['value'].split(' <|> '),r['LBTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'lb'+str(idx):option['LinearizedBy']})
-                                        answers['Task'][key].setdefault('Other3',{}).update({'lb'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('LTASK', {}).get('value') and r.get('LTLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['LTASK']['value'].split(' <|> '),r['LTLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'l'+str(idx):option['Linearizes']})
-                                        answers['Task'][key].setdefault('Other3',{}).update({'l'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('STASK', {}).get('value') and r.get('STLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['STASK']['value'].split(' <|> '),r['STLabel']['value'].split(' <|> '))):
-                                        answers['Task'][key].setdefault('Relation3',{}).update({'s'+str(idx):option['SimilarTo']})
-                                        answers['Task'][key].setdefault('Other3',{}).update({'s'+str(idx):Id + ' <|> ' + label})
-                
-                # Get additional Mathematical Formulation Information
-                if 'ID' in answers['Quantity'].get('MathModID',{}).keys():
-                    del answers['Quantity']['MathModID']['ID']
-                
-                # Add Mathematical Formulation from Task to Formulation List
-                for idx, key in enumerate(answers['Task']):
-                    for key2 in answers['Task'][key].get('Relation1',{}):
-                        
-                        if answers['Task'][key]['Relation1'][key2] == option['ContainsAssumption']:
-                            relation = option['ContainedAsAssumptionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsBoundaryCondition']:
-                            relation = option['ContainedAsBoundaryConditionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsConstraintCondition']:
-                            relation = option['ContainedAsConstraintConditionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsCouplingCondition']:
-                            relation = option['ContainedAsCouplingConditionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsFormulation']:
-                            relation = option['ContainedAsFormulationIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsInitialCondition']:
-                            relation = option['ContainedAsInitialConditionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsFinalCondition']:
-                            relation = option['ContainedAsFinalConditionIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsInput']:
-                            relation = option['ContainedAsInputIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsOutput']:
-                            relation = option['ContainedAsOutputIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsObjective']:
-                            relation = option['ContainedAsObjectiveIn']
-                        elif answers['Task'][key]['Relation1'][key2] == option['ContainsParameter']:
-                            relation = option['ContainedAsParameterIn']
-
-                        Id,label = answers['Task'][key]['Other1'][key2].split(' <|> ')[:2]
-                        for k in answers['MathematicalFormulation']:
-                            if label == answers['MathematicalFormulation'][k]['Name']:
-                                answers['MathematicalFormulation'][k].setdefault('Relation4',{}).update({'abc'+str(key)+str(idx):relation})
-                                answers['MathematicalFormulation'][k].setdefault('Other4',{}).update({'abc'+str(key)+str(idx):f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"})
-                                break
-                        else:
-                            if answers['MathematicalFormulation'].keys():
-                                key3 = max(answers['MathematicalFormulation'].keys()) + 1
-                            else:
-                                key3 = 0
-                            answers['MathematicalFormulation'].update({key3:{'MathModID':Id,'Name':label,
-                                                                            'Relation4':{'abc'+str(key)+str(idx):relation},
-                                                                            'Other4':{'abc'+str(key)+str(idx):f"{answers['Task'][key]['MathModID']} <|> {answers['Task'][key]['Name']}"}}})
-
-                search_string = ''
-
-                for key in answers['MathematicalFormulation']:
-                
-                    if answers['MathematicalFormulation'][key].get('MathModID') and answers['MathematicalFormulation'][key]['MathModID'] != 'not in MathModDB':
-
-                        search_string = search_string + f' :{answers["MathematicalFormulation"][key]["MathModID"].split("#")[1]}'
-                
-                req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                 params = {'format': 'json', 'query': query_mf.format(search_string)},
-                                 headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-
-                req2=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                  params = {'format': 'json', 'query': query_mf2.format(search_string)},
-                                  headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-
-                if req:
-
-                    for r in req:
-                        for key in answers['MathematicalFormulation']:
-                            
-                            if r.get('mf', {}).get('value') == answers['MathematicalFormulation'][key].get('MathModID'):
-
-                                if r.get('quote', {}).get('value'):
-                                    answers['MathematicalFormulation'][key].update({'Description':r['quote']['value']})
-
-                                if r.get('convex',{}):
-                                    if r['convex']['value'] == 'true':
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({0:option['IsConvex']})
-                                    else:
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({1:option['IsNotConvex']})
-
-                                if r.get('deterministic',{}):
-                                    if r['deterministic']['value'] == 'true':
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({2:option['IsDeterministic']})
-                                    else:
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({3:option['IsStochastic']})
-                            
-                                if r.get('dimensionless',{}):
-                                    if r['dimensionless']['value'] == 'true':
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({4:option['IsDimensionless']})
-                                    else:
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({5:option['IsDimensional']})
-                            
-                                if r.get('dynamic',{}):
-                                    if r['dynamic']['value'] == 'true':
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({6:option['IsDynamic']})
-                                    else:
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({7:option['IsStatic']})
-                            
-                                if r.get('linear',{}):
-                                    if r['linear']['value'] == 'true':
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({8:option['IsLinear']})
-                                    else:
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({9:option['IsNotLinear']})
-                            
-                                if r.get('spacecont',{}):
-                                    if r['spacecont']['value'] == 'true':
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({10:option['IsSpaceContinuous']})
-                                    else:
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({11:option['IsSpaceDiscrete']})
-                                else:
-                                    answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({12:option['IsSpaceIndependent']})
-                            
-                                if r.get('timecont',{}):
-                                    if r['timecont']['value'] == 'true':
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({13:option['IsTimeContinuous']})
-                                    else:
-                                        answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({14:option['IsTimeDiscrete']})
-                                else:
-                                    answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({15:option['IsTimeIndependent']})
-
-                                if r.get('F', {}).get('value') and r.get('FL', {}).get('value'):
-                                    for idx, (Id, label) in enumerate(zip(r['F']['value'].split(' <|> '),r['FL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'fff{idx}': option['ContainsFormulation']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'fff{idx}': f'{Id} <|> {label}'})
-                            
-                                if r.get('A', {}).get('value') and r.get('AL', {}).get('value'):
-                                    for idx, (Id, label) in enumerate(zip(r['A']['value'].split(' <|> '),r['AL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'aaa{idx}': option['ContainsAssumption']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'aaa{idx}': f'{Id} <|> {label}'})
-
-                                if r.get('BC', {}).get('value') and r.get('BCL', {}).get('value'):
-                                    for idx, (Id, label) in enumerate(zip(r['BC']['value'].split(' <|> '),r['BCL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'bcbcbc{idx}': option['ContainsBoundaryCondition']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'bcbcbc{idx}': f'{Id} <|> {label}'})
-
-                                if r.get('CC', {}).get('value') and r.get('CCL', {}).get('value'):
-                                    for idx, (Id, label) in enumerate(zip(r['CC']['value'].split(' <|> '),r['CCL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'cccccc{idx}': option['ContainsConstraintCondition']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'cccccc{idx}': f'{Id} <|> {label}'})
-
-                                if r.get('CPC', {}).get('value') and r.get('CPCL', {}).get('value'):
-                                    for idx, (Id, label) in enumerate(zip(r['CPC']['value'].split(' <|> '),r['CPCL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'cpccpccpc{idx}': option['ContainsCouplingCondition']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'cpccpccpc{idx}': f'{Id} <|> {label}'})
-
-                                if r.get('IC', {}).get('value') and r.get('ICL', {}).get('value'):
-                                    for idx, (Id, label) in enumerate(zip(r['IC']['value'].split(' <|> '),r['ICL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'icicic{idx}': option['ContainsInitialCondition']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'icicic{idx}': f'{Id} <|> {label}'})
-
-                                if r.get('FC', {}).get('value') and r.get('FCL', {}).get('value'):
-                                    for idx, (Id, label) in enumerate(zip(r['FC']['value'].split(' <|> '),r['FCL']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation2', {}).update({f'fcfcfc{idx}': option['ContainsFinalCondition']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other2', {}).update({f'fcfcfc{idx}': f'{Id} <|> {label}'})
-
-                                if r.get('formula',{}).get('value'):
-                                    for idx,formula in enumerate(r['formula']['value'].split(' <|> ')):
-                                        answers['MathematicalFormulation'][key].setdefault('Formula',{}).update({idx:'$'+formula+'$'})
-                            
-                                if r.get('formula_elements',{}).get('value'):
-                                    for idx,element in enumerate(r['formula_elements']['value'].split(' <|> ')):
-                                        answers['MathematicalFormulation'][key].setdefault('Element',{}).update({idx:{'Symbol':'$'+element.split(',')[0]+'$','Quantity':element.split(',')[-1].lstrip()}})
-                            
-                                if r.get('quantity', {}).get('value') and r.get('quantityLabel', {}).get('value') and r.get('QC', {}).get('value'):
-                                    for idx, (Id, label, Class) in enumerate(zip(r['quantity']['value'].split(' <|> '), r['quantityLabel']['value'].split(' <|> '),r['QC']['value'].split(' <|> '))):
-                                        for k in answers['Quantity']['MathModID']:
-                                            if answers['Quantity']['MathModID'][k] == f'{Id} <|> {label} ({Class.split("#")[1]})':
-                                                break
-                                        else:
-                                            if answers['Quantity']['MathModID'].keys():
-                                                val = max(answers['Quantity']['MathModID'].keys())+1
-                                            else:
-                                                val = 0
-                                            answers['Quantity']['MathModID'].update({val:f'{Id} <|> {label} ({Class.split("#")[1]})'})
-
-                if req2:
-
-                    for r in req2:
-                        for key in answers['MathematicalFormulation']:
-                            if r.get('mf', {}).get('value') == answers['MathematicalFormulation'][key].get('MathModID'):
-
-                                if r.get('GBFORMULA', {}).get('value') and r.get('GBFLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['GBFORMULA']['value'].split(' <|> '),r['GBFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'gb'+str(idx):option['GeneralizedBy']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('GFORMULA', {}).get('value') and r.get('GFLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['GFORMULA']['value'].split(' <|> '),r['GFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'g'+str(idx):option['Generalizes']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'g'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('ABFORMULA', {}).get('value') and r.get('ABFLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['ABFORMULA']['value'].split(' <|> '),r['ABFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'ab'+str(idx):option['ApproximatedBy']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'ab'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('AFORMULA', {}).get('value') and r.get('AFLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['AFORMULA']['value'].split(' <|> '),r['AFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'a'+str(idx):option['Approximates']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'a'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('DBFORMULA', {}).get('value') and r.get('DBFLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['DBFORMULA']['value'].split(' <|> '),r['DBFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'db'+str(idx):option['DiscretizedBy']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'db'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('DFORMULA', {}).get('value') and r.get('DFLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['DFORMULA']['value'].split(' <|> '),r['DFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'d'+str(idx):option['Discretizes']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'d'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('LBFORMULA', {}).get('value') and r.get('LBFLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['LBFORMULA']['value'].split(' <|> '),r['LBFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'lb'+str(idx):option['LinearizedBy']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'lb'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('LFORMULA', {}).get('value') and r.get('LFLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['LFORMULA']['value'].split(' <|> '),r['LFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'l'+str(idx):option['Linearizes']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'l'+str(idx):Id + ' <|> ' + label})
-                                
-                                elif r.get('NBFORMULA', {}).get('value') and r.get('NBFLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['NBFORMULA']['value'].split(' <|> '),r['NBFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'nb'+str(idx):option['NondimensionalizedBy']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'nb'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('NFORMULA', {}).get('value') and r.get('NFLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['NFORMULA']['value'].split(' <|> '),r['NFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'n'+str(idx):option['Nondimensionalizes']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'n'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('SFORMULA', {}).get('value') and r.get('SFLabel', {}).get('value'):
-
-                                    for idx, (Id, label) in enumerate(zip(r['SFORMULA']['value'].split(' <|> '),r['SFLabel']['value'].split(' <|> '))):
-                                        answers['MathematicalFormulation'][key].setdefault('Relation3',{}).update({'s'+str(idx):option['SimilarTo']})
-                                        answers['MathematicalFormulation'][key].setdefault('Other3',{}).update({'s'+str(idx):Id + ' <|> ' + label})
-
-                # Get additional Quantity Information
-
-                search_string_q = ''
-                search_string_qk = ''
-
-                for key in answers['Quantity'].get('MathModID',{}):
-                    
-                    Id,label_qqk = answers['Quantity']['MathModID'][key].split(' <|> ')
-                    label,qqk = label_qqk.rsplit(' ',1)
-                    
-                    if qqk == '(Quantity)':
-                        search_string_q = search_string_q + f' :{Id.split("#")[1]}'
-                    elif qqk == '(QuantityKind)':
-                        search_string_qk = search_string_qk + f' :{Id.split("#")[1]}'
-                 
-                req_q  = requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                      params = {'format': 'json', 'query': query_q.format(search_string_q)},
-                                      headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-
-                req_q2  = requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                       params = {'format': 'json', 'query': query_q2.format(search_string_q)},
-                                       headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-                
-                req_q3  = requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                       params = {'format': 'json', 'query': query_q3.format(search_string_q)},
-                                       headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-
-                req_qk = requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                      params = {'format': 'json', 'query': query_qk.format(search_string_qk)},
-                                      headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-                
-                req_qk2 = requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                      params = {'format': 'json', 'query': query_qk2.format(search_string_qk)},
-                                      headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-
-                if req_q:
-                    for r in req_q:
-                        for key in answers['Quantity']['MathModID']:
-                            if r.get('q', {}).get('value') == answers['Quantity']['MathModID'][key].split(' <|> ')[0]:
-                            
-                                answers.setdefault('Quantity_refined',{}).update({key:{'MathModID':r.get('q',{}).get('value'),'QName':r.get('qlabel',{}).get('value')}})
-                            
-                                if r.get('qquote', {}).get('value'):
-                                    answers['Quantity_refined'][key].update({'QDescription':r['qquote']['value']})
-                            
-                                if r.get('qdimensionless', {}):
-                                    if r['qdimensionless']['value'] == 'true':
-                                        answers['Quantity_refined'][key].setdefault('QProperties', {}).update({0:option['IsDimensionless']})
-                                    else:
-                                        answers['Quantity_refined'][key].setdefault('QProperties', {}).update({1:option['IsDimensional']})
-                                if r.get('qlinear', {}):
-                                    if r['qlinear']['value'] == 'ture':
-                                        answers['Quantity_refined'][key].setdefault('QProperties', {}).update({2:option['IsLinear']})
-                                    else:
-                                        answers['Quantity_refined'][key].setdefault('QProperties', {}).update({3:option['IsNotLinear']})
-                            
-                                if r.get('answer', {}).get('value'):
-                                    answers['Quantity_refined'][key].update({'QKID':r['answer']['value']})
-                            
-                                if r.get('qklabel', {}).get('value'):
-                                    answers['Quantity_refined'][key].update({'QKName':r['qklabel']['value']})
-                            
-                                if r.get('qkquote', {}).get('value'):
-                                    answers['Quantity_refined'][key].update({'QKDescription':r['qkquote']['value']})
-                            
-                                if r.get('qkdimensionless', {}):
-                                    if r['qkdimensionless']['value'] == 'true':
-                                        answers['Quantity_refined'][key].setdefault('QKProperties', {}).update({0:option['IsDimensionless']})
-                                    else:
-                                        answers['Quantity_refined'][key].setdefault('QKProperties', {}).update({0:option['IsDimensional']})
-                
-                if req_qk:
-                    for r in req_qk:
-                        for key in answers['Quantity']['MathModID']:
-                            if r.get('qk', {}).get('value') == answers['Quantity']['MathModID'][key].split(' <|> ')[0]:
-
-                                answers.setdefault('QuantityKind_refined',{}).update({key:{'MathModID':r.get('qk',{}).get('value'),'QKName':r.get('qklabel',{}).get('value')}})
-                    
-                                if r.get('qkquote', {}).get('value'):
-                                    answers['QuantityKind_refined'][key].update({'QKDescription':r['qkquote']['value']})
-                    
-                                if r.get('qkdimensionless', {}):
-                                    if r['qkdimensionless']['value'] == 'true':
-                                        answers['QuantityKind_refined'][key].setdefault('QKProperties', {}).update({0:option['IsDimensional']})
-                                    else:
-                                        answers['QuantityKind_refined'][key].setdefault('QKProperties', {}).update({0:option['IsNotDimensional']})
-                
-                if req_q2:
-                    for r in req_q2:
-                        
-                        if answers['MathematicalFormulation'].keys():
-                            key = max(answers['MathematicalFormulation'].keys()) + 1
-                        else:
-                            key = 0
-                        
-                        answers['MathematicalFormulation'].setdefault(key,{}).update({'MathModID':r.get('mf', {}).get('value')})
-                        answers['MathematicalFormulation'][key].update({'Name':r.get('label', {}).get('value')})
-                        answers['MathematicalFormulation'][key].update({'DefinedQuantity':f'{r.get("q", {}).get("value")} <|> {r.get("qlabel", {}).get("value")}'}) 
-
-                        if r.get('quote', {}).get('value'):
-                            answers['MathematicalFormulation'][key].update({'Description':r['quote']['value']})
-                        
-                        if r.get('convex',{}):
-                            if r['convex']['value'] == 'true':
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({0:option['IsConvex']})
-                            else:
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({1:option['IsNotConvex']})
-
-                        if r.get('deterministic',{}):
-                            if r['deterministic']['value'] == 'true':
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({2:option['IsDeterministic']})
-                            else:
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({3:option['IsStochastic']})
-
-                        if r.get('dimensionless',{}):
-                            if r['dimensionless']['value'] == 'true':
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({4:option['IsDimensionless']})
-                            else:
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({5:option['IsDimensional']})
-
-                        if r.get('dynamic',{}):
-                            if r['dynamic']['value'] == 'true':
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({6:option['IsDynamic']})
-                            else:
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({7:option['IsStatic']})
-
-                        if r.get('linear',{}):
-                            if r['linear']['value'] == 'true':
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({8:option['IsLinear']})
-                            else:
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({9:option['IsNotLinear']})
-
-                        if r.get('spacecont',{}):
-                            if r['spacecont']['value'] == 'true':
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({10:option['IsSpaceContinuous']})
-                            else:
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({11:option['IsSpaceDiscrete']})
-                        else:
-                            answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({12:option['IsSpaceIndependent']})
-
-                        if r.get('timecont',{}):
-                            if r['timecont']['value'] == 'true':
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({13:option['IsTimeContinuous']})
-                            else:
-                                answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({14:option['IsTimeDiscrete']})
-                        else:
-                            answers['MathematicalFormulation'][key].setdefault('Properties',{}).update({15:option['IsTimeIndependent']})
-
-                        if r.get('formula_elements',{}).get('value'):
-                            for idx,element in enumerate(r['formula_elements']['value'].split(' <|> ')):
-                                answers['MathematicalFormulation'][key].setdefault('Element',{}).update({idx:{'Symbol':'$'+element.split(',')[0]+'$','Quantity':element.split(',')[-1].lstrip()}})
-
-                        if r.get('quantity', {}).get('value') and r.get('quantityLabel', {}).get('value') and r.get('QC', {}).get('value'):
-                            for idx, (Id, label, Class) in enumerate(zip(r['quantity']['value'].split(' <|> '), r['quantityLabel']['value'].split(' <|> '),r['QC']['value'].split(' <|> '))):
-                                if Class.split('#')[1] == 'Quantity':
-                                    for k in answers['Quantity_refined']:
-                                        if answers['Quantity_refined'][k]['MathModID'] == Id:
-                                            break
-                                    else:
-                                        answers['Quantity_refined'].update({max(answers['Quantity_refined'].keys())+1:{'MathModID':Id,'QName':label}})
-                                elif Class.split('#')[1] == 'QuantityKind':
-                                    for k in answers['QuantityKind_refined']:
-                                        if answers['QuantityKind_refined'][k]['MathModID'] == Id:
-                                            break
-                                    else:
-                                        answers['QuantityKind_refined'].update({max(answers['QuantityKind_refined'].keys())+1:{'MathModID':Id,'QName':label}})
-                
-                if req_q3:
-
-                    for r in req_q3:
-                        for key in answers['Quantity_refined']:
-                            if r.get('q', {}).get('value') == answers['Quantity_refined'][key]['MathModID']:
-                                
-                                if r.get('GBQUANTITY', {}).get('value') and r.get('GBQLabel', {}).get('value') and r.get('GBCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['GBQUANTITY']['value'].split(' <|> '),r['GBQLabel']['value'].split(' <|> '),r['GBCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['GeneralizedBy']})
-                                            answers['Quantity_refined'][key].setdefault('Other1',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'gb'+str(idx):option['GeneralizedBy']})
-                                            answers['Quantity_refined'][key].setdefault('Other2',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('GQUANTITY', {}).get('value') and r.get('GQLabel', {}).get('value') and r.get('GCLASS', {}).get('value'):
-                                    
-                                    for idx, (Id, label, Class) in enumerate(zip(r['GQUANTITY']['value'].split(' <|> '),r['GQLabel']['value'].split(' <|> '),r['GCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'g'+str(idx):option['Generalizes']})
-                                            answers['Quantity_refined'][key].setdefault('Other1',{}).update({'g'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'g'+str(idx):option['Generalizes']})
-                                            answers['Quantity_refined'][key].setdefault('Other2',{}).update({'g'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('ABQUANTITY', {}).get('value') and r.get('ABQLabel', {}).get('value') and r.get('ABCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['ABQUANTITY']['value'].split(' <|> '),r['ABQLabel']['value'].split(' <|> '),r['ABCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'ab'+str(idx):option['ApproximatedBy']})
-                                            answers['Quantity_refined'][key].setdefault('Other1',{}).update({'ab'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'ab'+str(idx):option['ApproximatedBy']})
-                                            answers['Quantity_refined'][key].setdefault('Other2',{}).update({'ab'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('AQUANTITY', {}).get('value') and r.get('AQLabel', {}).get('value') and r.get('ACLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['AQUANTITY']['value'].split(' <|> '),r['AQLabel']['value'].split(' <|> '),r['ACLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'a'+str(idx):option['Approximates']})
-                                            answers['Quantity_refined'][key].setdefault('Other1',{}).update({'a'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'a'+str(idx):option['Approximates']})
-                                            answers['Quantity_refined'][key].setdefault('Other2',{}).update({'a'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('LBQUANTITY', {}).get('value') and r.get('LBQLabel', {}).get('value') and r.get('LBCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['LBQUANTITY']['value'].split(' <|> '),r['LBQLabel']['value'].split(' <|> '),r['LBCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'lb'+str(idx):option['LinearizedBy']})
-                                            answers['Quantity_refined'][key].setdefault('Other1',{}).update({'lb'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'lb'+str(idx):option['LinearizedBy']})
-                                            answers['Quantity_refined'][key].setdefault('Other2',{}).update({'lb'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('LQUANTITY', {}).get('value') and r.get('LQLabel', {}).get('value') and r.get('LCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['LQUANTITY']['value'].split(' <|> '),r['LQLabel']['value'].split(' <|> '),r['LCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'l'+str(idx):option['Linearizes']})
-                                            answers['Quantity_refined'][key].setdefault('Other1',{}).update({'l'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'l'+str(idx):option['Linearizes']})
-                                            answers['Quantity_refined'][key].setdefault('Other2',{}).update({'l'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('NBQUANTITY', {}).get('value') and r.get('NBQLabel', {}).get('value') and r.get('NBCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['NBQUANTITY']['value'].split(' <|> '),r['NBQLabel']['value'].split(' <|> '),r['NBCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'nb'+str(idx):option['NondimensionalizedBy']})
-                                            answers['Quantity_refined'][key].setdefault('Other1',{}).update({'nb'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'nb'+str(idx):option['NondimensionalizedBy']})
-                                            answers['Quantity_refined'][key].setdefault('Other2',{}).update({'nb'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('NQUANTITY', {}).get('value') and r.get('NQLabel', {}).get('value') and r.get('NCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['NQUANTITY']['value'].split(' <|> '),r['NQLabel']['value'].split(' <|> '),r['NCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'n'+str(idx):option['Nondimensionalizes']})
-                                            answers['Quantity_refined'][key].setdefault('Other1',{}).update({'n'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'n'+str(idx):option['Nondimensionalizes']})
-                                            answers['Quantity_refined'][key].setdefault('Other2',{}).update({'n'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('SQUANTITY', {}).get('value') and r.get('SQLabel', {}).get('value') and r.get('SCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['SQUANTITY']['value'].split(' <|> '),r['SQLabel']['value'].split(' <|> '),r['SCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['Quantity_refined'][key].setdefault('Relation1',{}).update({'s'+str(idx):option['SimilarTo']})
-                                            answers['Quantity_refined'][key].setdefault('Other1',{}).update({'s'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['Quantity_refined'][key].setdefault('Relation2',{}).update({'s'+str(idx):option['SimilarTo']})
-                                            answers['Quantity_refined'][key].setdefault('Other2',{}).update({'s'+str(idx):Id + ' <|> ' + label})
-
-                if req_qk2:
-
-                    for r in req_qk2:
-                        for key in answers.get('QuantityKind_refined',[]):
-                            if r.get('q', {}).get('value') == answers['QuantityKind_refined'][key]['MathModID']:
-
-                                if r.get('GBQUANTITY', {}).get('value') and r.get('GBQLabel', {}).get('value') and r.get('GBCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['GBQUANTITY']['value'].split(' <|> '),r['GBQLabel']['value'].split(' <|> '),r['GBCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'gb'+str(idx):option['GeneralizedBy']})
-                                            answers['QuantityKind_refined'][key].setdefault('Other2',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'gb'+str(idx):option['GeneralizedBy']})
-                                            answers['QuantityKind_refined'][key].setdefault('Other1',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('GQUANTITY', {}).get('value') and r.get('GQLabel', {}).get('value') and r.get('GCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['GQUANTITY']['value'].split(' <|> '),r['GQLabel']['value'].split(' <|> '),r['GCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'g'+str(idx):option['Generalizes']})
-                                            answers['QuantityKind_refined'][key].setdefault('Other2',{}).update({'g'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'g'+str(idx):option['Generalizes']})
-                                            answers['QuantityKind_refined'][key].setdefault('Other1',{}).update({'g'+str(idx):Id + ' <|> ' + label})
-                                
-                                elif r.get('NBQUANTITY', {}).get('value') and r.get('NBQLabel', {}).get('value') and r.get('NBCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['NBQUANTITY']['value'].split(' <|> '),r['NBQLabel']['value'].split(' <|> '),r['NBCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'nb'+str(idx):option['NondimensionalizedBy']})
-                                            answers['QuantityKind_refined'][key].setdefault('Other2',{}).update({'nb'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'nb'+str(idx):option['NondimensionalizedBy']})
-                                            answers['QuantityKind_refined'][key].setdefault('Other1',{}).update({'nb'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('NQUANTITY', {}).get('value') and r.get('NQLabel', {}).get('value') and r.get('NCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['NQUANTITY']['value'].split(' <|> '),r['NQLabel']['value'].split(' <|> '),r['NCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'n'+str(idx):option['Nondimensionalizes']})
-                                            answers['QuantityKind_refined'][key].setdefault('Other2',{}).update({'n'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'n'+str(idx):option['Nondimensionalizes']})
-                                            answers['QuantityKind_refined'][key].setdefault('Other1',{}).update({'n'+str(idx):Id + ' <|> ' + label})
-
-                                elif r.get('SQUANTITY', {}).get('value') and r.get('SQLabel', {}).get('value') and r.get('SCLASS', {}).get('value'):
-
-                                    for idx, (Id, label, Class) in enumerate(zip(r['SQUANTITY']['value'].split(' <|> '),r['SQLabel']['value'].split(' <|> '),r['SCLASS']['value'].split(' <|> '))):
-                                        if Class.split('#')[1] == 'Quantity':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation2',{}).update({'s'+str(idx):option['SimilarTo']})
-                                            answers['QuantityKind_refined'][key].setdefault('Other2',{}).update({'s'+str(idx):Id + ' <|> ' + label})
-                                        elif Class.split('#')[1] == 'QuantityKind':
-                                            answers['QuantityKind_refined'][key].setdefault('Relation1',{}).update({'s'+str(idx):option['SimilarTo']})
-                                            answers['QuantityKind_refined'][key].setdefault('Other1',{}).update({'s'+str(idx):Id + ' <|> ' + label})
-
-                # Research Field to Research Field Relations
-                for key in answers['ResearchField']:
-                    if answers['ResearchField'][key].get('MathModID') and answers['ResearchField'][key]['MathModID'] != 'not in MathModDB':
-                        # If RF from MathModDB get Description
-                        req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                         params = {'format': 'json', 'query': query_rfs.format(answers['ResearchField'][key].get('MathModID'))},
-                                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-                        for idx,r in enumerate(req):
-                            answers['ResearchField'][key].update({'Description':r['quote']['value']})
-                    for key2 in answers['ResearchField'][key].get('Relation1',{}):
-                        Id,label = answers['ResearchField'][key]['Other1'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['ResearchField']):
-                            if label == answers['ResearchField'][k]['Name']:
-                                answers['ResearchField'][key].setdefault('RelationRF1',{}).update({key2:[answers['ResearchField'][key]['Relation1'][key2],'RF'+str(idx+1)]})    
-                        if not answers['ResearchField'][key].get('RelationRF1',{}).get(key2):
-                            answers['ResearchField'][key].setdefault('RelationRF1',{}).update({key2:[answers['ResearchField'][key]['Relation1'][key2],Id]})
-                 
-                # Research Problem to Research Field Relations
-                for key in answers['ResearchProblem']:
-                    if answers['ResearchProblem'][key].get('MathModID') and answers['ResearchProblem'][key]['MathModID'] != 'not in MathModDB':
-                        # If RP from MathModDB get Description
-                        req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                         params = {'format': 'json', 'query': query_rps.format(answers['ResearchProblem'][key].get('MathModID'))},
-                                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-                        for idx,r in enumerate(req):
-                            answers['ResearchProblem'][key].update({'Description':r['quote']['value']})
-                    if answers['ResearchProblem'][key].get('ResearchField',{}).get(0):
-                        Id,label = answers['ResearchProblem'][key]['ResearchField'][0].split(' <|> ')[:2]
-                    elif len(answers['ResearchField'].keys()) == 1:
-                        Id = answers['ResearchField'][0]['MathModID'] if answers['ResearchField'][0]['MathModID'] and answers['ResearchField'][0]['MathModID'] != 'not in MathModDB' else answers['ResearchField'][0]['ID'] if answers['ResearchField'][0]['ID'] else '' 
-                        label = answers['ResearchField'][0]['Name']
-                    else: 
-                        # Stop if more than one Research Field present and no Field selected for Problem
-                        return render(self.request,'MaRDMO/workflowError.html', {
-                            'error': 'If more than one Research Field is defined the Research Problem(s) has/ve be assigned to them'
-                            }, status=200)
-                    for idx, key2 in enumerate(answers['ResearchField']):
-                        if label == answers['ResearchField'][key2]['Name']:
-                            answers['ResearchProblem'][key].setdefault('RelationRF1',{}).update({0:'RF'+str(idx+1)})
-                
-                # Research Problem to Research Problem Relations
-                for key in answers['ResearchProblem']:
-                    for key2 in answers['ResearchProblem'][key].get('Relation1',{}):
-                        Id,label = answers['ResearchProblem'][key]['Other1'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['ResearchProblem']):
-                            if label == answers['ResearchProblem'][k]['Name']:
-                                answers['ResearchProblem'][key].setdefault('RelationRP1',{}).update({key2:[answers['ResearchProblem'][key]['Relation1'][key2],'RP'+str(idx+1)]})
-                        if not answers['ResearchProblem'][key].get('RelationRP1',{}).get(key2):
-                            answers['ResearchProblem'][key].setdefault('RelationRP1',{}).update({key2:[answers['ResearchProblem'][key]['Relation1'][key2],Id]})
-                 
-                # Add Research Problem to Model
-                for idx,key in enumerate(answers['ResearchProblem']):
-                    if answers['ResearchProblem'][key].get('MathModID') and answers['ResearchProblem'][key].get('MathModID') != 'not in MathModDB':
-                        answers['Models'][0].setdefault('RelationRP1',{}).update({idx:'RP'+str(idx+1)})
-                    elif answers['ResearchProblem'][key].get('Models') == option['Yes']:
-                        answers['Models'][0].setdefault('RelationRP1',{}).update({idx:'RP'+str(idx+1)})
-                
-                # Convert Research Problems in additional Models
-                for key in answers['AdditionalModel']:
-                    if answers['AdditionalModel'][key].get('ResearchProblem'):
-                        for key2 in answers['AdditionalModel'][key]['ResearchProblem']:
-                            Id,label = answers['AdditionalModel'][key]['ResearchProblem'][key2].split(' <|> ')[:2]
-                            for idx, k in enumerate(answers['ResearchProblem']):
-                                if label == answers['ResearchProblem'][k]['Name']:
-                                    answers['AdditionalModel'][key].setdefault('RelationRP1',{}).update({key2:'RP'+str(idx+1)})
-                            if not answers['AdditionalModel'][key].get('RelationRP1',{}).get(key2):
-                                answers['AdditionalModel'][key].setdefault('RelationRP1',{}).update({key2:Id})
-                    else:
-                        req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
-                                         params = {'format': 'json', 'query': query_models.format(answers['AdditionalModel'][key].get('MathModID'))},
-                                         headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
-                        for idx,r in enumerate(req):
-                            answers['AdditionalModel'][key].setdefault('RelationRP1',{}).update({idx:r['answer']['value']})
-                
-                # Combine Model and additional Models
-                if answers.get('AdditionalModel'):
-                    answers['Models'][max(answers['AdditionalModel'].keys())+1] = answers['Models'].pop(list(answers['Models'].keys())[0])
-                    answers.update({'AllModels':answers['Models']|answers['AdditionalModel']})
-                else:
-                    answers.update({'AllModels':answers['Models']})
-            
-                # Add Mathematical Model to Mathematical Model Relations
-                for key in answers['AllModels']:
-                    for key2 in answers['AllModels'][key].get('Relation1',{}):
-                        Id,label = answers['AllModels'][key]['Other1'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['AllModels']):
-                            if label == answers['AllModels'][k]['Name']:
-                                answers['AllModels'][key].setdefault('RelationMM1',{}).update({key2:[answers['AllModels'][key]['Relation1'][key2],'MM'+str(idx+1)]})
-                        if not answers['AllModels'][key].get('RelationMM1',{}).get(key2):
-                            answers['AllModels'][key].setdefault('RelationMM1',{}).update({key2:[answers['AllModels'][key]['Relation1'][key2],Id]})
-
-                # Add Mathematical Formulation to Mathematical Formulation Relations 1
-                for key in answers['MathematicalFormulation']:
-                    for key2 in answers['MathematicalFormulation'][key].get('Relation2',{}):
-                        Id,label = answers['MathematicalFormulation'][key]['Other2'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['MathematicalFormulation']):
-                            if label == answers['MathematicalFormulation'][k]['Name']:
-                                answers['MathematicalFormulation'][key].setdefault('RelationMF1',{}).update({key2:[answers['MathematicalFormulation'][key]['Relation2'][key2],'MF'+str(idx+1)]})
-                        if not answers['MathematicalFormulation'][key].get('RelationMF1',{}).get(key2):
-                            answers['MathematicalFormulation'][key].setdefault('RelationMF1',{}).update({key2:[answers['MathematicalFormulation'][key]['Relation2'][key2],Id]})
-
-                # Add Mathematical Formulation to Mathematical Formulation Relations 2
-                for key in answers['MathematicalFormulation']:
-                    for key2 in answers['MathematicalFormulation'][key].get('Relation3',{}):
-                        Id,label = answers['MathematicalFormulation'][key]['Other3'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['MathematicalFormulation']):
-                            if label == answers['MathematicalFormulation'][k]['Name']:
-                                answers['MathematicalFormulation'][key].setdefault('RelationMF2',{}).update({key2:[answers['MathematicalFormulation'][key]['Relation3'][key2],'MF'+str(idx+1)]})
-                        if not answers['MathematicalFormulation'][key].get('RelationMF2',{}).get(key2):
-                            answers['MathematicalFormulation'][key].setdefault('RelationMF2',{}).update({key2:[answers['MathematicalFormulation'][key]['Relation3'][key2],Id]})
-                 
-                # Add Mathematical Model to Mathematical Formulation Relations 1
-                for key in answers['MathematicalFormulation']:
-                    for key2 in answers['MathematicalFormulation'][key].get('Relation1',{}):
-                        Id,label = answers['MathematicalFormulation'][key]['Other1'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['AllModels']):
-                            if label == answers['AllModels'][k]['Name']:
-                                answers['MathematicalFormulation'][key].setdefault('RelationMM1',{}).update({key2:[answers['MathematicalFormulation'][key]['Relation1'][key2],idx+1,'MM'+str(idx+1)]})
-                        if not answers['MathematicalFormulation'][key].get('RelationMM1',{}).get(key2):
-                            answers['MathematicalFormulation'][key].setdefault('RelationMM1',{}).update({key2:[answers['MathematicalFormulation'][key]['Relation1'][key2],Id,Id]})
-
-                # Add Task to Mathematical Formulation Relations 1
-                for key in answers['MathematicalFormulation']:
-                    for key2 in answers['MathematicalFormulation'][key].get('Relation4',{}):
-                        Id,label = answers['MathematicalFormulation'][key]['Other4'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['Task']):
-                            if label == answers['Task'][k]['Name']:
-                                answers['MathematicalFormulation'][key].setdefault('RelationT1',{}).update({key2:[answers['MathematicalFormulation'][key]['Relation4'][key2],idx+1,'T'+str(idx+1)]})
-                        if not answers['MathematicalFormulation'][key].get('RelationT1',{}).get(key2):
-                            answers['MathematicalFormulation'][key].setdefault('RelationT1',{}).update({key2:[answers['MathematicalFormulation'][key]['Relation4'][key2],Id,Id]})
-                
-                # Sort user defined Quantities / Quantitiy Kinds in respective Dictionaries
-                for key in answers['Quantity']:
-                    if key != 'MathModID':
-                        if answers['Quantity'][key]['QorQK'] == option['Quantity']:
-                            
-                            if answers.get('Quantity_refined', {}).keys():
-                                idx = max(answers['Quantity_refined'].keys())+1
-                            else:
-                                idx = 0
-                            
-                            answers.setdefault('Quantity_refined',{}).update({idx:{'QName':answers['Quantity'][key].get('Name',''),
-                                                                                   'QDescription':answers['Quantity'][key].get('Description',''),
-                                                                                   'ID':answers['Quantity'][key].get('ID') if answers['Quantity'][key].get('ID') else answers['Quantity'][key].get('Reference') if answers['Quantity'][key].get('Reference') else '',
-                                                                                   'QProperties':answers['Quantity'][key].get('PropertiesQ'),
-                                                                                   'Relation1':answers['Quantity'][key].get('RelationQ1',{}),
-                                                                                   'Other1':answers['Quantity'][key].get('OtherQ1',{}),
-                                                                                   'Relation2':answers['Quantity'][key].get('RelationQ2',{}),
-                                                                                   'Other2':answers['Quantity'][key].get('OtherQ2',{}),
-                                                                                   'QKName':answers['Quantity'][key].get('OtherQ2',{}).get(0,'').split(' <|> ')[-1],
-                                                                                   'QKID':answers['Quantity'][key].get('OtherQ2',{}).get(0,'').split(' <|> ')[0]}})
-
-                        elif answers['Quantity'][key]['QorQK'] == option['QuantityKind']:
-                            
-                            if answers.get('QuantityKind_refined', {}).keys():
-                                idx = max(answers['QuantityKind_refined'].keys())+1
-                            else:
-                                idx = 0
-
-                            answers.setdefault('QuantityKind_refined',{}).update({idx:{'QKName':answers['Quantity'][key].get('Name',''),
-                                                                                       'QKDescription':answers['Quantity'][key].get('Description',''),
-                                                                                       'ID':answers['Quantity'][key].get('ID',''),
-                                                                                       'QKProperties':answers['Quantity'][key].get('PropertiesQK'),
-                                                                                       'Relation1':answers['Quantity'][key].get('RelationQK1',{}),
-                                                                                       'Other1':answers['Quantity'][key].get('OtherQK1',{}),
-                                                                                       'Relation2':answers['Quantity'][key].get('RelationQK2',{}),
-                                                                                       'Other2':answers['Quantity'][key].get('OtherQK2',{})}})
-
-                # Add Quantity to Quantity Relations
-#                for key in answers.get('Quantity_refined', []):
-#                    for key2 in answers['Quantity_refined'][key].get('Relation1',{}):
-#                        Id,label = answers['Quantity_refined'][key]['Other1'][key2].split(' <|> ')[:2]
-#                        for idx, k in enumerate(answers['Quantity_refined']):
-#                            if label == answers['Quantity_refined'][k]['QName']:
-#                                answers['Quantity_refined'][key].setdefault('RelationQQ1',{}).update({key2:[answers['Quantity_refined'][key]['Relation1'][key2],'Q'+str(idx+1)]})
-#                        if not answers['Quantity_refined'][key].get('RelationQQ1',{}).get(key2):
-#                            answers['Quantity_refined'][key].setdefault('RelationQQ1',{}).update({key2:[answers['Quantity_refined'][key]['Relation1'][key2],Id]})
-
-                label_to_index = {answers['Quantity_refined'][k]['QName']: idx for idx, k in enumerate(answers.get('Quantity_refined',{}))}
-                for key in answers.get('Quantity_refined', []):
-                    for key2 in answers['Quantity_refined'][key].get('Relation1', {}):
-                        Id, label = answers['Quantity_refined'][key]['Other1'][key2].split(' <|> ')[:2]
-                        if label in label_to_index:
-                            idx = label_to_index[label]
-                            answers['Quantity_refined'][key].setdefault('RelationQQ', {}).update({key2: [answers['Quantity_refined'][key]['Relation1'][key2], 'Q' + str(idx + 1)]})
-                        else:
-                            answers['Quantity_refined'][key].setdefault('RelationQQ', {}).update({key2: [answers['Quantity_refined'][key]['Relation1'][key2], Id]})
-
-                # Add QuantityKind to QuantityKind Relations
-                for key in answers.get('QuantityKind_refined', []):
-                    for key2 in answers['QuantityKind_refined'][key].get('Relation1',{}):
-                        Id,label = answers['QuantityKind_refined'][key]['Other1'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['QuantityKind_refined']):
-                            if label == answers['QuantityKind_refined'][k]['QKName']:
-                                answers['QuantityKind_refined'][key].setdefault('RelationQKQK',{}).update({key2:[answers['QuantityKind_refined'][key]['Relation1'][key2],'QK'+str(idx+1)]})
-                        if not answers['QuantityKind_refined'][key].get('RelationQKQK',{}).get(key2):
-                            answers['QuantityKind_refined'][key].setdefault('RelationQKQK',{}).update({key2:[answers['QuantityKind_refined'][key]['Relation1'][key2],Id]})
-
-                # Add Quantity to QuantityKind Relations
-                for key in answers.get('Quantity_refined', []):
-                    for key2 in answers['Quantity_refined'][key].get('Relation2',{}):
-                        Id,label = answers['Quantity_refined'][key]['Other2'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers.get('QuantityKind_refined',[])):
-                            if label == answers['QuantityKind_refined'][k].get('QKName'):
-                                answers['Quantity_refined'][key].setdefault('RelationQQK',{}).update({key2:[answers['Quantity_refined'][key]['Relation2'][key2],'QK'+str(idx+1)]})
-                        if not answers['Quantity_refined'][key].get('RelationQQK',{}).get(key2):
-                            answers['Quantity_refined'][key].setdefault('RelationQQK',{}).update({key2:[answers['Quantity_refined'][key]['Relation2'][key2],Id]})
-                
-                # Add QuantityKind to Quantity Relations
-                for key in answers.get('QuantityKind_refined', []):
-                    for key2 in answers['QuantityKind_refined'][key].get('Relation2',{}):
-                        Id,label = answers['QuantityKind_refined'][key]['Other2'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['Quantity_refined']):
-                            if label == answers['Quantity_refined'][k]['QName']:
-                                answers['QuantityKind_refined'][key].setdefault('RelationQKQ',{}).update({key2:[answers['QuantityKind_refined'][key]['Relation2'][key2],'Q'+str(idx+1)]})
-                        if not answers['QuantityKind_refined'][key].get('RelationQKQ',{}).get(key2):
-                            answers['QuantityKind_refined'][key].setdefault('RelationQKQ',{}).update({key2:[answers['QuantityKind_refined'][key]['Relation2'][key2],Id]})
-                                           
-                # Add Quantity to Elements
-                for key in answers['MathematicalFormulation']:
-                    for key2 in answers['MathematicalFormulation'][key].get('Element',{}):
-                        
-                        if len(answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].split(' <|> ')) == 1:
-                            
-                            for k in answers['Quantity_refined']:
-                                if answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].lower() == answers['Quantity_refined'][k]['QName'].lower():
-                                    answers['MathematicalFormulation'][key]['Element'][key2].update(
-                                        {'Info': 
-                                            {'Name':answers['Quantity_refined'][k].get('QName',''),
-                                             'Description':answers['Quantity_refined'][k].get('QDescription',''),
-                                             'QID':answers['Quantity_refined'][k].get('MathModID') if answers['Quantity_refined'][k].get('MathModID') else answers['Quantity_refined'][k].get('ID',''),
-                                             'QKName':answers['Quantity_refined'][k].get('QKName',''),
-                                             'QKID':answers['Quantity_refined'][k].get('QKID','')}
-                                        })
-                            
-                            for k in answers['QuantityKind_refined']:
-                                if answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].lower() == answers['QuantityKind_refined'][k].get('QKName','').lower():
-                                    answers['MathematicalFormulation'][key]['Element'][key2].update(
-                                        {'Info':
-                                            {'Description':answers['QuantityKind_refined'][k].get('QKDescription',''),
-                                             'QKID':answers['QuantityKind_refined'][k].get('MathModID') if answers['QuantityKind_refined'][k].get('MathModID') else answers['QuantityKind_refined'][k].get('QKID',''),
-                                             'QKName':answers['QuantityKind_refined'][k].get('QKName','')}
-                                        })
-
-                        elif len(answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].split(' <|> ')) >= 2:
-                            
-                            Id,label_qqk = answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].split(' <|> ')[:2]
-                            label,qqk = label_qqk.rsplit(' ',1)
-                            
-                            if qqk == '(Quantity)':
-                                for k in answers['Quantity_refined']:
-                                    if label.lower() == answers['Quantity_refined'][k]['QName'].lower():
-                                        answers['MathematicalFormulation'][key]['Element'][key2].update(
-                                            {'Info':
-                                                {'Name':answers['Quantity_refined'][k].get('QName',''),
-                                                 'Description':answers['Quantity_refined'][k].get('QDescription',''),
-                                                 'QID':answers['Quantity_refined'][k].get('MathModID') if answers['Quantity_refined'][k].get('MathModID') else answers['Quantity_refined'][k].get('ID',''),
-                                                 'QKName':answers['Quantity_refined'][k].get('QKName',''),
-                                                 'QKID':answers['Quantity_refined'][k].get('QKID','')}
-                                            })
-                            
-                            if qqk == '(QuantityKind)':
-                                for k in answers['QuantityKind_refined']:
-                                    if label.lower() == answers['QuantityKind_refined'][k]['QKName'].lower():
-                                        answers['MathematicalFormulation'][key]['Element'][key2].update(
-                                            {'Info':
-                                                {'Description':answers['QuantityKind_refined'][k].get('QKDescription',''),
-                                                 'QKID':answers['QuantityKind_refined'][k].get('MathModID') if answers['QuantityKind_refined'][k].get('MathModID') else answers['QuantityKind_refined'][k].get('QKID',''),
-                                                 'QKName':answers['QuantityKind_refined'][k].get('QKName','')}
-                                            })               
-
-                # Add Definition to Quantities
-                for key in answers.get('Quantity_refined',[]):
-                    for key2 in answers['MathematicalFormulation']:
-                        if answers['MathematicalFormulation'][key2].get('DefinedQuantity'):
-                            Id,label = answers['MathematicalFormulation'][key2]['DefinedQuantity'].split(' <|> ')[:2]
-                            if label == answers['Quantity_refined'][key]['QName']:
-                                answers['Quantity_refined'][key].update({'MDef':answers['MathematicalFormulation'][key2]})
-
-                # Add Mathematical Model to Task Relations
-                for key in answers['Task']:
-                    for key2 in answers['Task'][key]['Model']:
-                        Id,label = answers['Task'][key]['Model'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['AllModels']):
-                            if label == answers['AllModels'][k]['Name']:
-                                answers['Task'][key].setdefault('RelationMM',{}).update({key2:'MM'+str(idx+1)})
-                        if not answers['Task'][key].get('RelationMM',{}).get(key2):
-                            answers['Task'][key].setdefault('RelationMM',{}).update({key2:Id})
-
-                # Add Research Problem to Task Relations
-                for key in answers['Task']:
-                    for key2 in answers['Task'][key]['ResearchProblem']:
-                        Id,label = answers['Task'][key]['ResearchProblem'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['ResearchProblem']):
-                            if label == answers['ResearchProblem'][k]['Name']:
-                                answers['Task'][key].setdefault('RelationRP',{}).update({key2:'RP'+str(idx+1)})
-                        if not answers['Task'][key].get('RelationRP',{}).get(key2):
-                            answers['Task'][key].setdefault('RelationRP',{}).update({key2:Id})
-
-                # Add Quantity / Quantity Kind to Task Relations
-                for key in answers['Task']:
-                    for key2 in answers['Task'][key].get('Relation2',{}):
-                        Id,label_qqk = answers['Task'][key]['Other2'][key2].split(' <|> ')[:2]
-                        label,qqk = label_qqk.rsplit(' ',1)
-                        if qqk == '(Quantity)':
-                            for idx, k in enumerate(answers['Quantity_refined']):
-                                if label == answers['Quantity_refined'][k]['QName']:
-                                    answers['Task'][key].setdefault('RelationQQK',{}).update({key2:[answers['Task'][key]['Relation2'][key2],'Q'+str(idx+1)]})
-                            if not answers['Task'][key].get('RelationQQK',{}).get(key2):
-                                answers['Task'][key].setdefault('RelationQQK',{}).update({key2:[answers['Task'][key]['Relation2'][key2],Id]})
-                        elif qqk == '(QuantityKind)':
-                            for idx, k in enumerate(answers['QuantityKind_refined']):
-                                if label == answers['QuantityKind_refined'][k]['QKName']:
-                                    answers['Task'][key].setdefault('RelationQQK',{}).update({key2:[answers['Task'][key]['Relation2'][key2],'QK'+str(idx+1)]})
-                            if not answers['Task'][key].get('RelationQQK',{}).get(key2):
-                                answers['Task'][key].setdefault('RelationQQK',{}).update({key2:[answers['Task'][key]['Relation2'][key2],Id]})
-
-                # Add Task to Task Relations
-                for key in answers['Task']:
-                    for key2 in answers['Task'][key].get('Relation3',{}):
-                        Id,label = answers['Task'][key]['Other3'][key2].split(' <|> ')[:2]
-                        for idx, k in enumerate(answers['Task']):
-                            if label == answers['Task'][k]['Name']:
-                                answers['Task'][key].setdefault('RelationT',{}).update({key2:[answers['Task'][key]['Relation3'][key2],'T'+str(idx+1)]})
-                        if not answers['Task'][key].get('RelationT',{}).get(key2):
-                            answers['Task'][key].setdefault('RelationT',{}).update({key2:[answers['Task'][key]['Relation3'][key2],Id]})
-                 
-                # Add Entities to Publication Relations
-                for key in answers['PublicationModel']:
-                    for key2 in answers['PublicationModel'][key].get('Relation1',{}):
-
-                        if len(answers['PublicationModel'][key]['Other1'][key2].split(' <|> ')) == 1:
-                            answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],answers['PublicationModel'][key]['Other1'][key2]]})
-                        elif len(answers['PublicationModel'][key]['Other1'][key2].split(' <|> ')) > 1:
-                            
-                            if len(answers['PublicationModel'][key]['Other1'][key2].split(' <|> ')) == 2:
-                                Id,label_kind = answers['PublicationModel'][key]['Other1'][key2].split(' <|> ')
-                                label,kind = label_kind.rsplit(' (',1)
-                            elif len(answers['PublicationModel'][key]['Other1'][key2].split(' <|> ')) == 3:
-                                Id,label,quote_kind = answers['PublicationModel'][key]['Other1'][key2].split(' <|> ')
-                                quote,kind = quote_kind.rsplit(' (',1)
-                            
-                            if kind[:-1] == 'Research Field':
-                                for idx, k in enumerate(answers['ResearchField']):
-                                    if label == answers['ResearchField'][k]['Name']:
-                                        answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],'RF'+str(idx+1)]})
-                                if not answers['PublicationModel'][key].get('RelationP',{}).get(key2):
-                                    answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],Id]})
-                            elif kind[:-1] == 'Research Problem':
-                                for idx, k in enumerate(answers['ResearchProblem']):
-                                    if label == answers['ResearchProblem'][k]['Name']:
-                                        answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],'RP'+str(idx+1)]})
-                                if not answers['PublicationModel'][key].get('RelationP',{}).get(key2):
-                                    answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],Id]})
-
-                            elif kind[:-1] == 'Mathematical Model':
-                                for idx, k in enumerate(answers['AllModels']):
-                                    if label == answers['AllModels'][k]['Name']:
-                                        answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],'MM'+str(idx+1)]})
-                                if not answers['PublicationModel'][key].get('RelationP',{}).get(key2):
-                                    answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],Id]})
-
-                            elif kind[:-1] == 'Quantity':
-                                
-                                if answers['PublicationModel'][key].get('RelationP'):
-                                    key2 = max(answers['PublicationModel'][key]['RelationP'].keys()) + 1
-                                else: 
-                                    key2 = 0
-                                
-                                answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],label]})
-
-                            elif kind[:-1] == 'Quantity Kind':
-                                
-                                if answers['PublicationModel'][key].get('RelationP'):
-                                    key2 = max(answers['PublicationModel'][key]['RelationP'].keys()) + 1
-                                else:
-                                    key2 = 0
-                                
-                                answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],label]})
-                            
-                            elif kind[:-1] == 'Mathematical Formulation':
-                                for idx, k in enumerate(answers['MathematicalFormulation']):
-                                    if label == answers['MathematicalFormulation'][k]['Name']:
-                                        answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],'MF'+str(idx+1)]})
-                                if not answers['PublicationModel'][key].get('RelationP',{}).get(key2):
-                                    answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],Id]})
-
-                            elif kind[:-1] == 'Task':
-                                for idx, k in enumerate(answers['Task']):
-                                    if label == answers['Task'][k]['Name']:
-                                        answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],'T'+str(idx+1)]})
-                                if not answers['PublicationModel'][key].get('RelationP',{}).get(key2):
-                                    answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation1'][key2],Id]})             
-                
-                # Load MaRDI Markdown Workflow Template
-                path = os.path.join(os.path.dirname(__file__), 'templates', 'MaRDMO', 'modelTemplate.md')
-                with open(path, 'r') as file:
-                    markdown_template = file.read()
-
-                # Create a Django Template object
-                template = Template(markdown_template)
-
-                # Render the template with the data
-                context = Context({'title':self.project.title}|answers|option)
-                markdown_workflow = template.render(context)
-
-                # Provide Documentation as Markdown Download
-                response = HttpResponse(os.linesep.join([s.strip() for s in markdown_workflow.splitlines() if s.strip()]), content_type="application/md")
-                response['Content-Disposition'] = 'filename="model.md"'
-
-                return response
-
-
-                return render(self.request,'MaRDMO/workflowError.html', {
-                    'error': 'The documentation of Mathematical Models will soon be integrated!'
-                    }, status=200)
+        		# Query MathModDB and order Information
+                answers = ModelRetriever(answers,mathmoddb)
+        
+                # Download Model Doucmentation as Markdown File
+                if answers['Settings']['Public'] == option['Local']:
+
+                    # Load MaRDI Markdown Workflow Template
+                    path = os.path.join(os.path.dirname(__file__), 'templates', 'MaRDMO', 'modelTemplate.md')
+                    with open(path, 'r') as file:
+                        markdown_template = file.read()
+
+                    # Create a Django Template object
+                    template = Template(markdown_template)
+
+                    # Render the template with the data
+                    context = Context({'title':self.project.title}|answers|option|mathmoddb)
+                    markdown_workflow = template.render(context)
+
+                    # Provide Documentation as Markdown Download
+                    response = HttpResponse(os.linesep.join([s.strip() for s in markdown_workflow.splitlines() if s.strip()]), content_type="application/md")
+                    response['Content-Disposition'] = 'filename="model.md"'
+
+                    return response
+
+                # Preview Model Documentation as HTML File
+                elif answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['Yes']:
+
+                    return render(self.request,'MaRDMO/modelTemplate.html', {
+                        'title': self.project.title,
+                        'answers': answers,
+                        'option': option|mathmoddb
+                        }, status=200)
+
+                # Export Model Documentation to MathModDB as Mediawiki File
+                elif answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+
+                    return render(self.request,'MaRDMO/workflowError.html', {
+                        'error': 'The integration of Mathematical Models into MathModDB will be integrated soon!'
+                        }, status=200)
             else:
                 # Stop if no Documentation Type chosen
                 return render(self.request,'MaRDMO/workflowError.html', {
@@ -2221,7 +711,7 @@ class MaRDIExport(Export):
             res_obj_strs = ''
 
             # If SPARQL query via research objective desired
-            if answers['Search']['Search Objective'] == option['Yes']:
+            if answers['Search'].get('Search Objective') == option['Yes']:
                 quote_str = quote_sparql
                 # Separate key words for SPARQL query vie research objective
                 if answers['Search'].get('Objective Keywords'):
@@ -2235,7 +725,7 @@ class MaRDIExport(Export):
             res_disc_str = ''
 
             # If SPARQL query via research discipline desired
-            if answers['Search']['Search Discipline'] == option['Yes']:
+            if answers['Search'].get('Search Discipline') == option['Yes']:
                 # Separate disciplines for SPARQL query via research discipline 
                 if answers['Search'].get('Discipline Keywords'):
                     for res_disc in answers['Search']['Discipline Keywords'].values():
@@ -2248,7 +738,7 @@ class MaRDIExport(Export):
             mmsios_str = ''
 
             # If SPARQL query via Mathematical Models, Methods, Softwares, Input or Output Data Sets
-            if answers['Search']['Search Entities'] == option['Yes']:
+            if answers['Search'].get('Search Entities') == option['Yes']:
                 # Separate Mathematical Model, Methods, Software, Input or Output Data Sets
                 if answers['Search'].get('Entities Keywords'):
                     for mmsio in answers['Search']['Entities Keywords'].values():
@@ -2624,14 +1114,14 @@ class MaRDIExport(Export):
                                 answers[Type][key]['SubProperty'][subkey].update({'mardiId': subqid, 'uri': f"{mardi_wiki}Item:{subqid}"})
                                 subqids.append(subqid)
                                 if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
-                                    answers[Type][key]['Qualifiers'].add(Item(prop_nr=Relations[1], value=subqid))
+                                     answers[Type][key]['Qualifiers'].add(Item(prop_nr=Relations[1], value=subqid))
 
                         for subkey in answers[Type][key].get('SubProperty2', {}).keys():
                             # Check if subproperty2 on Portal or in Wikidata (store QID and string)
                             if answers[Type][key]['SubProperty2'][subkey]:
-                                    subqid2, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'])
-                                    answers[Type][key]['SubProperty2'][subkey].update({'mardiId': subqid2, 'uri': f"{mardi_wiki}Item:{subqid2}"})
-                                    subqids2.append(subqid2)
+                                subqid2, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'])
+                                answers[Type][key]['SubProperty2'][subkey].update({'mardiId': subqid2, 'uri': f"{mardi_wiki}Item:{subqid2}"})
+                                subqids2.append(subqid2)
 
                         # Stop if entry has no QID and its subproperty has no QID    
                         if not (qid or subqids):
@@ -2658,7 +1148,7 @@ class MaRDIExport(Export):
                                                    [(Item,subqid2,Relations[2]) for subqid2 in subqids2]+ 
                                                    [(String,re.sub("\$","",form.lstrip()),P18) for form in answers[Type][key].get('Formular',{}).values()]+
                                                    [(ExternalID,answers[Type][key].get('Reference','').split(':')[-1],
-                                                     P16 if answers[Type][key].get('Reference','').split(':')[0] == 'doi' else P20 if answers[Type][key].get('Reference','').split(':')[-1] == 'swmath' else P24 if answers[Type][key].get('Reference','').split(':')[-1] == 'url' else '')]))
+                                                     P16 if answers[Type][key].get('Reference','').split(':')[0] == 'doi' else P20 if answers[Type][key].get('Reference','').split(':')[0] == 'sw' else P24 if answers[Type][key].get('Reference','').split(':')[0] == 'url' else '')]))
                         answers[Type][key].update({'mardiId': qids[-1], 'uri': f"{mardi_wiki}Item:{qids[-1]}"})
                     else:
                         answers[Type][key].update({'mardiId': 'tbd', 'uri': f"{mardi_wiki}Item:{qid}"})

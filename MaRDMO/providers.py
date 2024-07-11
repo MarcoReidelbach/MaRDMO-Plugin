@@ -3,6 +3,8 @@ import itertools
 import re, os
 import json
 
+from django.template import Template, Context
+
 from rdmo.options.providers import Provider
 from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
@@ -10,6 +12,7 @@ from rdmo.options.models import Option
 from multiprocessing.pool import ThreadPool
 
 from .config import *
+from .para import *
 
 class WikidataSearch(Provider):
     
@@ -238,9 +241,7 @@ class DataProvider(Provider):
                 process_text_fn = lambda text: text.split(' <|> ')[1] if ' <|> ' in text else text
             else:
                 process_text_fn = lambda text: text
-
-            options = add_options(options, values, len(options), process_text_fn=process_text_fn)
-
+            options = add_options(options, values, len(options)+10*index, process_text_fn=process_text_fn)
         return options
 
 class SoftwareProvider(Provider):
@@ -299,7 +300,7 @@ class ResearchField(Provider):
         for r in req:
             dic.update({r['label']['value']:{'id':r['answer']['value']}})
 
-        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+        options = []
 
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
@@ -332,7 +333,7 @@ class Publication(Provider):
         for r in req:
             dic.update({r['label']['value']:{'id':r['answer']['value']}})
 
-        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+        options = []
 
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
@@ -408,7 +409,7 @@ class ResearchProblem(Provider):
         for r in req:
             dic.update({r['label']['value']:{'id':r['answer']['value']}})
 
-        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+        options = []
 
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
@@ -456,32 +457,6 @@ class ResearchProblemRelations(Provider):
 
         return options
 
-class ResearchProblemRelations2(Provider):
-
-    def get_options(self, project, search=None):
-
-        dic = {}
-
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1/Question_5'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_1/Question_0'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Set_0/Question_05'))
-
-        for idx, value1 in enumerate(values1):
-            if value1.text:
-                dic.update({value1.text:{'id':value1.external_id}})
-        for idx, value2 in enumerate(values2):
-            if value2.text:
-                dic.update({value2.text:{'id':str(idx)}})
-        for idx, value3 in enumerate(values3):
-            if value3.text:
-                dic.update({value3.text:{'id':value3.external_id}})
-
-        options = []
-        options.extend([{'id': dic[key]['id'] + ' <|> ' + key if len(dic[key]['id'].split(' <|> ')) == 1 else dic[key]['id'], 'text': key } for key in dic])
-
-        return options
-
-
 class ResearchFieldUser(Provider):
 
         def get_options(self, project, search=None):
@@ -510,6 +485,7 @@ class ResearchFieldUser(Provider):
 class MathematicalModel(Provider):
 
     search = True
+    refresh = True
 
     def get_options(self, project, search):
         
@@ -534,7 +510,7 @@ class MathematicalModel(Provider):
         for r in req:
             dic.update({r['label']['value']:{'id':r['answer']['value']}})
 
-        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+        options = []
 
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
         
@@ -601,7 +577,8 @@ class MathematicalModelRelation2(Provider):
         values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Question_0'))
         values4 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Set_1/Question_0'))
         values5 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_2/Set_1/Question_1'))
-        
+        values6 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01'))
+
         for idx, value1 in enumerate(values1):
             if value1.text:
                 dic.update({value1.text:{'id':value1.external_id}})
@@ -617,6 +594,9 @@ class MathematicalModelRelation2(Provider):
         for idx, value5 in enumerate(values5):
             if value5.text:
                 dic.update({value5.text:{'id':str(idx)}})
+        for idx, value6 in enumerate(values6):
+            if value6.text and value6.text != 'not in MathModDB':
+                dic.update({value6.text:{'id':value6.external_id}})
 
         options = []
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key if len(dic[key]['id'].split(' <|> ')) == 1 else dic[key]['id'], 'text': key } for key in dic])
@@ -656,7 +636,7 @@ class Quantity(Provider):
             dic1.update({r['label1']['value'] + ' (Quantity)':{'id':r['answer1']['value']}})
             dic2.update({r['label2']['value'] + ' (QuantityKind)':{'id':r['answer2']['value']}})
 
-        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+        options = []
 
         options.extend([{'id': dic1[key]['id'] + ' <|> ' + key, 'text': key} for key in dic1 if search.lower() in key.lower()])
         options.extend([{'id': dic2[key]['id'] + ' <|> ' + key, 'text': key} for key in dic2 if search.lower() in key.lower()])
@@ -664,6 +644,11 @@ class Quantity(Provider):
         return options
 
 class QuantityRelations(Provider):
+
+    path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+
+    with open(path, "r") as json_file:
+        mathmoddb = json.load(json_file)
 
     search = True
 
@@ -696,7 +681,7 @@ class QuantityRelations(Provider):
         values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
 
         for idx, value1 in enumerate(values1):
-            if value1.option == Option.objects.get(uri='http://example.com/terms/options/MaRDI/QuantityOrQuantityKind0'):
+            if value1.option == Option.objects.get(uri=self.mathmoddb['Quantity']):
                 for idx, value2 in enumerate(values2):
                     if value2.text and value1.set_index == value2.set_index:
                         dic.update({value2.text:{'id':value2.external_id}})
@@ -710,6 +695,11 @@ class QuantityRelations(Provider):
         return options
 
 class QuantityKindRelations(Provider):
+
+    path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+
+    with open(path, "r") as json_file:
+        mathmoddb = json.load(json_file)
 
     search = True
 
@@ -742,7 +732,7 @@ class QuantityKindRelations(Provider):
         values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3a/Set_3/Question_0'))
 
         for idx, value1 in enumerate(values1):
-            if value1.option == Option.objects.get(uri='http://example.com/terms/options/MaRDI/QuantityOrQuantityKind1'):
+            if value1.option == Option.objects.get(uri=self.mathmoddb['QuantityKind']):
                 for idx, value2 in enumerate(values2):
                     if value2.text and value1.set_index == value2.set_index:
                         dic.update({value2.text:{'id':value2.external_id}})
@@ -783,7 +773,7 @@ class MathematicalFormulation(Provider):
         for r in req:
             dic.update({r['label']['value']:{'id':r['answer']['value']}})
 
-        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+        options = []
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
 
         return options
@@ -833,6 +823,11 @@ class MathematicalFormulation2(Provider):
 
 class QuantityAll(Provider):
 
+    path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+
+    with open(path, "r") as json_file:
+        mathmoddb = json.load(json_file)
+
     def get_options(self, project, search=None):
 
         dic = {}
@@ -846,7 +841,7 @@ class QuantityAll(Provider):
             if value1.text and value1.text != 'not in MathModDB':
                 dic.update({value1.text:{'id':value1.external_id}})
         for idx, value4 in enumerate(values4):
-            if value4.option == Option.objects.get(uri='http://example.com/terms/options/MaRDI/QuantityOrQuantityKind0'):
+            if value4.option == Option.objects.get(uri=self.mathmoddb['Quantity']):
                 for idx, value2 in enumerate(values2):
                     if value2.text and value4.set_index == value2.set_index:
                         Id,label,quote = value2.external_id.split(' <|> ')
@@ -854,7 +849,7 @@ class QuantityAll(Provider):
                 for idx, value3 in enumerate(values3):
                     if value3.text and value4.set_index == value3.set_index:
                         dic.update({value3.text + ' (Quantity)':{'id':str(idx)}})
-            elif value4.option == Option.objects.get(uri='http://example.com/terms/options/MaRDI/QuantityOrQuantityKind1'):
+            elif value4.option == Option.objects.get(uri=self.mathmoddb['QuantityKind']):
                 for idx, value2 in enumerate(values2):
                     if value2.text and value4.set_index == value2.set_index:
                         Id,label,quote = value2.external_id.split(' <|> ')
@@ -866,6 +861,37 @@ class QuantityAll(Provider):
         options = []
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key if len(dic[key]['id'].split(' <|> ')) == 1 else dic[key]['id'], 'text': key } for key in dic])
 
+        return options
+
+class WorkflowTask(Provider):
+
+    def get_options(self, project, search):
+
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri='http://example.com/terms/domain/MaRDI/Section_3/Set_0/Wiki_01'))
+
+        model = ''
+        for value1 in values1:
+            if value1.text:
+                model = value1.external_id.split(' <|> ')[0]
+        
+        options = []
+        if model:
+        
+            query = '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                       SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)
+                       WHERE {{
+                              <{0}> :appliedByTask ?answer .
+                              ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
+                            FILTER (lang(?l) = 'en')
+                            }}
+                       GROUP BY ?answer ?label'''
+            
+            req=requests.get('https://sparql.ta4.m1.mardi.ovh/mathalgodb/query',
+                             params = {'format': 'json', 'query': query.format(model)},
+                             headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()['results']['bindings']
+
+            options.extend([{'id': r['answer']['value'] + ' <|> ' + r['label']['value'], 'text': r['label']['value']} for r in req])      
+        
         return options
 
 class Task(Provider):
@@ -896,7 +922,7 @@ class Task(Provider):
         for r in req:
             dic.update({r['label']['value']:{'id':r['answer']['value']}})
 
-        options = [{'id':'not in MathModDB','text':'not in MathModDB'}]
+        options = []
         options.extend([{'id': dic[key]['id'] + ' <|> ' + key, 'text': key } for key in dic if search.lower() in key.lower()])
         
         return options
@@ -946,6 +972,11 @@ class Task2(Provider):
 
 class AllEntities(Provider):
 
+    path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+
+    with open(path, "r") as json_file:
+        mathmoddb = json.load(json_file)
+
     def get_options(self, project, search=None):
         options =[]
 
@@ -989,7 +1020,7 @@ class AllEntities(Provider):
         for idx, value6 in enumerate(values6):
             if value6.text:
                 options.append({'id':'RP'+str(idx+1) + ' <|> ' + value6.text + ' (Research Problem)','text':value6.text + ' (Research Problem)'})
-        for idx, value2 in enumerate(values7):
+        for idx, value7 in enumerate(values7):
             if value7.text:
                 options.append({'id':value7.external_id + ' (Mathematical Model)','text':value7.text + ' (Mathematical Model)'})
         for idx, value8 in enumerate(values8):
@@ -1005,7 +1036,7 @@ class AllEntities(Provider):
             if value11.text:
                 options.append({'id':'MMb'+str(idx+1) + ' <|> ' + value11.text + ' (Mathematical Model)','text':value11.text + ' (Mathematical Model)'})
         for idx, value21 in enumerate(values21):
-            if value21.option == Option.objects.get(uri='http://example.com/terms/options/MaRDI/QuantityOrQuantityKind0'):
+            if value21.option == Option.objects.get(uri=self.mathmoddb['Quantity']):
                 for idx, value12 in enumerate(values12):
                     if value12.text and value12.text != 'not in MathModDB' and value21.set_index == value12.set_index:
                         options.append({'id':value12.external_id,'text':value12.text})
@@ -1015,7 +1046,7 @@ class AllEntities(Provider):
                 for idx, value14 in enumerate(values14):
                     if value14.text and value21.set_index == value14.set_index:
                         options.append({'id':'Q'+str(idx+1) + ' <|> ' + value14.text + ' (Quantity)','text':value14.text + ' (Quantity)'})
-            elif value21.option == Option.objects.get(uri='http://example.com/terms/options/MaRDI/QuantityOrQuantityKind1'):
+            elif value21.option == Option.objects.get(uri=self.mathmoddb['QuantityKind']):
                 for idx, value12 in enumerate(values12):
                     if value12.text and value12.text != 'not in MathModDB' and value21.set_index == value12.set_index:
                         options.append({'id':value12.external_id,'text':value12.text})
@@ -1101,20 +1132,3 @@ def add_options(options, values, start_index, process_text_fn=None):
                 text = process_text_fn(text)
             options.append({'id': f'Environment{index}', 'text': text})
     return options
-
-def MathModDB_request(item_pref, prop_pref, item):
-    """
-    Retrieve Entity from MathModDB Classes.
-    """
-    query=f'''PREFIX wdt:{prop_pref} 
-              PREFIX wd:{item_pref} 
-              SELECT ?qid ?label 
-              WHERE {{?id wdt:P4 wd:{item};
-                          rdfs:label ?label.
-              BIND(STRAFTER(STR(?id),STR(wd:)) AS ?qid).}}'''
-
-    responses = requests.get(mardi_endpoint,
-                             params = {'format': 'json', 'query': query},
-                             headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json().get('results', {}).get('bindings', '')
-
-    return responses

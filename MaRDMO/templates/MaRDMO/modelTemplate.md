@@ -139,7 +139,7 @@ models: {{ models }}
 **Relations to other Mathematical Formulations II**:
 
 {% endif %}
-{{ value.0 }} {{ value.1 }}
+
 {% if values.0 == ApproximatedBy %} approximated by Formulation: {{ values.1 }}
 {% elif values.0 == Approximates %} approximates Formulation: {{ values.1 }}
 {% elif values.0 == DiscretizedBy %} discretized by Formulation: {{ values.1 }}
@@ -480,15 +480,15 @@ contained in Field: {{ researchfield }}
 
 {% endif %}
 
-{% if values.0 == GeneralizedByQuantity %} generalized by Quantity: {{ values.1 }}
-{% elif values.0 == GeneralizesQuantity %} generalizes Quantity: {{ values.1 }}
-{% elif values.0 == ApproximatedByQuantity %} approximated by Quantity: {{ values.1 }}
-{% elif values.0 == ApproximatesQuantity %} approximates Quantity: {{ values.1 }}
-{% elif values.0 == LinearizedByQuantity %} linearized by Quantity: {{ values.1 }}
-{% elif values.0 == LinearizesQuantity %} linearizes Quantity: {{ values.1 }}
-{% elif values.0 == NondimensionalizedByQuantity %} nondimensionalized by Quantity: {{ values.1 }}
-{% elif values.0 == NondimensionalizesQuantity %} nondimensionalizes Quantity: {{ values.1 }}
-{% elif values.0 == SimilarToQuantity %} similar to Quantity: {{ values.1 }}
+{% if values.0 == GeneralizedBy %} generalized by Quantity: {{ values.1 }}
+{% elif values.0 == Generalizes %} generalizes Quantity: {{ values.1 }}
+{% elif values.0 == ApproximatedBy %} approximated by Quantity: {{ values.1 }}
+{% elif values.0 == Approximates %} approximates Quantity: {{ values.1 }}
+{% elif values.0 == LinearizedBy %} linearized by Quantity: {{ values.1 }}
+{% elif values.0 == Linearizes %} linearizes Quantity: {{ values.1 }}
+{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Quantity: {{ values.1 }}
+{% elif values.0 == Nondimensionalizes %} nondimensionalizes Quantity: {{ values.1 }}
+{% elif values.0 == SimilarTo %} similar to Quantity: {{ values.1 }}
 {% endif %}
 {% endfor %}
 
@@ -500,11 +500,11 @@ contained in Field: {{ researchfield }}
 
 {% endif %}
 
-{% if values.0 == GeneralizedByQuantityKind %} generalized by Quantity Kind: {{ values.1 }}
-{% elif values.0 == GeneralizesQuantityKind %} generalizes Quantity Kind: {{ values.1 }}
-{% elif values.0 == NondimensionalizedByQuantityKind %} nondimensionalized by Quantity Kind: {{ values.1 }}
-{% elif values.0 == NondimensionalizesQuantityKind %} nondimensionalizes Quantity Kind: {{ values.1 }}
-{% elif values.0 == SimilarToQuantityKind %} similar to Quantity Kind: {{ values.1 }}
+{% if values.0 == GeneralizedBy %} generalized by Quantity Kind: {{ values.1 }}
+{% elif values.0 == Generalizes %} generalizes Quantity Kind: {{ values.1 }}
+{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Quantity Kind: {{ values.1 }}
+{% elif values.0 == Nondimensionalizes %} nondimensionalizes Quantity Kind: {{ values.1 }}
+{% elif values.0 == SimilarTo %} similar to Quantity Kind: {{ values.1 }}
 {% endif %}
 {% endfor %}
 
@@ -557,11 +557,11 @@ contained in Field: {{ researchfield }}
 
 {% endif %}
 
-{% if values.0 == GeneralizedByQuantityKind %} generalized by Quantity Kind: {{ values.1 }}
-{% elif values.0 == GeneralizesQuantityKind %} generalizes Quantity Kind: {{ values.1 }}
-{% elif values.0 == NondimensionalizedByQuantityKind %} nondimensionalized by Quantity Kind: {{ values.1 }}
-{% elif values.0 == NondimensionalizesQuantityKind %} nondimensionalizes Quantity Kind: {{ values.1 }}
-{% elif values.0 == SimilarToQuantityKind %} similar to Quantity Kind: {{ values.1 }}
+{% if values.0 == GeneralizedBy %} generalized by Quantity Kind: {{ values.1 }}
+{% elif values.0 == Generalizes %} generalizes Quantity Kind: {{ values.1 }}
+{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Quantity Kind: {{ values.1 }}
+{% elif values.0 == Nondimensionalizes %} nondimensionalizes Quantity Kind: {{ values.1 }}
+{% elif values.0 == SimilarTo %} similar to Quantity Kind: {{ values.1 }}
 {% endif %}
 {% endfor %}
 
@@ -573,11 +573,11 @@ contained in Field: {{ researchfield }}
 
 {% endif %}
 
-{% if values.0 == GeneralizedByQuantityKind %} generalized by Quantity: {{ values.1 }}
-{% elif values.0 == GeneralizesQuantityKind %} generalizes Quantity: {{ values.1 }}
-{% elif values.0 == NondimensionalizedByQuantityKind %} nondimensionalized by Quantity: {{ values.1 }}
-{% elif values.0 == NondimensionalizesQuantityKind %} nondimensionalizes Quantity: {{ values.1 }}
-{% elif values.0 == SimilarToQuantityKind %} similar to Quantity: {{ values.1 }}
+{% if values.0 == GeneralizedBy %} generalized by Quantity: {{ values.1 }}
+{% elif values.0 == Generalizes %} generalizes Quantity: {{ values.1 }}
+{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Quantity: {{ values.1 }}
+{% elif values.0 == Nondimensionalizes %} nondimensionalizes Quantity: {{ values.1 }}
+{% elif values.0 == SimilarTo %} similar to Quantity: {{ values.1 }}
 {% endif %}
 {% endfor %}
 

@@ -173,64 +173,53 @@ query_4 = '''SELECT ?wikidataQid ?mardiQid ?authorLabel ?authorDescription      
                    }}'''
 
 
-query_models = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>
-                        SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)
-                        WHERE {{
+### SPARQL queries to get additional information from MathModDB during export
 
-                               <{0}> <https://mardi4nfdi.de/mathmoddb#models> ?answer.
-                               ?answer <http://www.w3.org/2000/01/rdf-schema#label> ?l .
-                               FILTER (lang(?l) = 'en')
-                               }}
-                        GROUP BY ?answer ?label'''
+query_models = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>
+                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                        
+                  SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)
+                  WHERE {{
+                          <{0}> :models ?answer.
+                          ?answer rdfs:label ?l.
+                          FILTER (lang(?l) = 'en')
+                        }}
+                  GROUP BY ?answer ?label'''
 
 query_rfs = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>
-                        SELECT DISTINCT (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?quote)
-                        WHERE {{
-                               <{0}> <http://www.w3.org/2000/01/rdf-schema#comment> ?l .
-                               FILTER (lang(?l) = 'en')
-                               }}
-                        GROUP BY ?quote'''
+               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-query_rps = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>
-                        SELECT DISTINCT (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?quote)
-                        WHERE {{
-                               <{0}> <http://www.w3.org/2000/01/rdf-schema#comment> ?l .
-                               FILTER (lang(?l) = 'en')
-                               }}
-                        GROUP BY ?quote'''
+               SELECT DISTINCT (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?quote)
+               WHERE {{
+                       <{0}> rdfs:comment ?l.
+                       FILTER (lang(?l) = 'en')
+                     }}
+               GROUP BY ?quote'''
 
-query_mms = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>
-                        SELECT DISTINCT ?timecont ?spacecont (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?quote) ?linear ?convex ?dynamic ?deterministic ?dimensionless
-                        WHERE {{
-                               OPTIONAL {{ <{0}> <http://www.w3.org/2000/01/rdf-schema#comment> ?l.
-                                           FILTER (lang(?l) = 'en')}}
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isLinear> ?linear.}}
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isConvex> ?convex.}}  
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isDynamic> ?dynamic.}}                             
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isDeterministic> ?deterministic.}}
-			                   OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isDimensionless> ?dimensionless.}}
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isTimeContinuous> ?timecont.}}
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isSpaceContinuous> ?spacecont.}}
-                               FILTER (lang(?l) = 'en')
-                               }}
-                        GROUP BY  ?timecont ?quote ?linear ?convex ?dynamic ?deterministic ?dimensionless ?spacecont'''
+query_rps = '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+               
+               SELECT (GROUP_CONCAT(DISTINCT(?l2); SEPARATOR=" / ") AS ?quote) (GROUP_CONCAT(DISTINCT(?l1); SEPARATOR=" / ") AS ?label)
+                      (GROUP_CONCAT(DISTINCT(?field); separator=" <|> ") AS ?FIELD) (GROUP_CONCAT(DISTINCT(?fieldLabel); SEPARATOR=" <|> ") AS ?FIELDLabel)
+                      (GROUP_CONCAT(DISTINCT(?fieldQuote); SEPARATOR=" <|> ") AS ?FIELDQuote)
 
-query_mfs = '''PREFIX : <https://mardi4nfdi.de/mathmoddb>
-                        SELECT DISTINCT ?timecont ?spacecont (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?quote) ?linear ?convex ?dynamic ?deterministic ?dimensionless (GROUP_CONCAT(DISTINCT(?elements); separator=" <|> ") AS ?formula_elements) (GROUP_CONCAT(DISTINCT(?formulas); separator=" <|> ") AS ?formula)
-                        WHERE {{
-                               OPTIONAL {{ <{0}> <http://www.w3.org/2000/01/rdf-schema#comment> ?l.
-                                           FILTER (lang(?l) = 'en')}}
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isLinear> ?linear.}}
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isConvex> ?convex.}}  
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isDynamic> ?dynamic.}}                             
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isDeterministic> ?deterministic.}}
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isDimensionless> ?dimensionless.}}
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isTimeContinuous> ?timecont.}}
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#isSpaceContinuous> ?spacecont.}}
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#definingFormulation> ?formulas.}}
-                               OPTIONAL {{ <{0}> <https://mardi4nfdi.de/mathmoddb#inDefiningFormulation> ?elements.}}
-                               }}
-                        GROUP BY  ?timecont ?quote ?linear ?convex ?dynamic ?deterministic ?dimensionless ?spacecont ?formula ?formula_elements'''
+               WHERE {{
+                       <{0}> rdfs:label ?l1.
+                       FILTER (lang(?l1) = 'en')
+                       OPTIONAL {{ <{0}> rdfs:comment ?l2 .
+                                   FILTER (lang(?l2) = 'en').
+                                }}
+                       
+                       OPTIONAL {{ <{0}> :containedInField ?field.
+                                   ?field rdfs:label ?fieldLabel.
+                                   FILTER (lang(?fieldLabel) = 'en').
+
+                                   OPTIONAL {{ ?field rdfs:comment ?fieldQuote.
+                                               FILTER (lang(?fieldQuote) = 'en').}}
+                                }}
+                     }}
+
+               GROUP BY ?label ?quote ?FIELD ?FIELDLabel ?FIELDQuote'''
 
 query_q =   '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
 	           PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -436,10 +425,10 @@ query_qk =  '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
 
                       ?qk a :QuantityKind .
                       ?qk rdfs:label ?l1 .
-                      OPTIONAL {{ ?qk rdfs:comment ?l2 . }}
+                      OPTIONAL {{ ?qk rdfs:comment ?l2 . 
+                                  FILTER (lang(?l2) = 'en') }}
                       OPTIONAL {{ ?qk :isDimensionless ?qkdimensionless. }}
                       FILTER (lang(?l1) = 'en')
-                      FILTER (lang(?l2) = 'en')
                      }}
                GROUP BY ?qk ?qklabel ?qkquote ?qkdimensionless'''
 
@@ -455,10 +444,10 @@ query_ta =  '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                       (GROUP_CONCAT(DISTINCT(?cpc); separator=" <|> ") AS ?CPC) (GROUP_CONCAT(DISTINCT(?cpcL); SEPARATOR=" <|> ") AS ?CPCL)
                       (GROUP_CONCAT(DISTINCT(?ic); separator=" <|> ") AS ?IC) (GROUP_CONCAT(DISTINCT(?icL); SEPARATOR=" <|> ") AS ?ICL)
                       (GROUP_CONCAT(DISTINCT(?fc); separator=" <|> ") AS ?FC) (GROUP_CONCAT(DISTINCT(?fcL); SEPARATOR=" <|> ") AS ?FCL)
-                      (GROUP_CONCAT(DISTINCT(?in); separator=" <|> ") AS ?IN) (GROUP_CONCAT(DISTINCT(?inL); SEPARATOR=" <|> ") AS ?INL)
-                      (GROUP_CONCAT(DISTINCT(?inC); SEPARATOR=" <|> ") AS ?INC)
-                      (GROUP_CONCAT(DISTINCT(?o); separator=" <|> ") AS ?O) (GROUP_CONCAT(DISTINCT(?oL); SEPARATOR=" <|> ") AS ?OL)
-                      (GROUP_CONCAT(DISTINCT(?oC); SEPARATOR=" <|> ") AS ?OC)
+                      (GROUP_CONCAT(?in; separator=" <|> ") AS ?IN) (GROUP_CONCAT(?inL; SEPARATOR=" <|> ") AS ?INL)
+                      (GROUP_CONCAT(?inC; SEPARATOR=" <|> ") AS ?INC)
+                      (GROUP_CONCAT(?o; separator=" <|> ") AS ?O) (GROUP_CONCAT(?oL; SEPARATOR=" <|> ") AS ?OL)
+                      (GROUP_CONCAT(?oC; SEPARATOR=" <|> ") AS ?OC)
                       (GROUP_CONCAT(DISTINCT(?ob); separator=" <|> ") AS ?OB) (GROUP_CONCAT(DISTINCT(?obL); SEPARATOR=" <|> ") AS ?OBL)
                       (GROUP_CONCAT(DISTINCT(?obC); SEPARATOR=" <|> ") AS ?OBC)
                       (GROUP_CONCAT(DISTINCT(?pa); separator=" <|> ") AS ?PA) (GROUP_CONCAT(DISTINCT(?paL); SEPARATOR=" <|> ") AS ?PAL)
@@ -583,6 +572,8 @@ query_mm =  '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                       (GROUP_CONCAT(DISTINCT(?ic); separator=" <|> ") AS ?IC) (GROUP_CONCAT(DISTINCT(?icL); SEPARATOR=" <|> ") AS ?ICL)
                       (GROUP_CONCAT(DISTINCT(?fc); separator=" <|> ") AS ?FC) (GROUP_CONCAT(DISTINCT(?fcL); SEPARATOR=" <|> ") AS ?FCL)
                       (GROUP_CONCAT(DISTINCT(?cmm); separator=" <|> ") AS ?CMM) (GROUP_CONCAT(DISTINCT(?cmmL); SEPARATOR=" <|> ") AS ?CMML)
+                      (GROUP_CONCAT(DISTINCT(?ta); separator=" <|> ") AS ?TA) (GROUP_CONCAT(DISTINCT(?taL); SEPARATOR=" <|> ") AS ?TAL)
+                      (GROUP_CONCAT(COALESCE(?taQ, ""); SEPARATOR=" <|> ") AS ?TAQ)
 
                WHERE {{
                       BIND(:{0} AS ?mm)
@@ -627,9 +618,14 @@ query_mm =  '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                       OPTIONAL {{ ?mm :containsModel ?cmm. 
                                   ?cmm rdfs:label ?cmmL.
                                   FILTER (lang(?cmmL) = 'en')}}
+                      OPTIONAL {{ ?mm :appliedByTask ?ta.
+                                  ?ta rdfs:label ?taL.
+                                  OPTIONAL {{ ?ta rdfs:comment ?taQ. }}
+                                  FILTER (!bound(?taQ) || (lang(?taQ) = 'en'))
+                                  FILTER (lang(?taL) = 'en')}}
                      }}
 
-               GROUP BY ?quote ?linear ?convex ?dynamic ?deterministic ?dimensionless ?timecont ?spacecont ?P ?PL ?F ?FL ?A ?AL ?BC ?BCL ?CC ?CCL ?CPC ?CPCL ?IC ?ICL ?FC ?FCL ?CMM ?CMML'''
+               GROUP BY ?quote ?linear ?convex ?dynamic ?deterministic ?dimensionless ?timecont ?spacecont ?P ?PL ?F ?FL ?A ?AL ?BC ?BCL ?CC ?CCL ?CPC ?CPCL ?IC ?ICL ?FC ?FCL ?CMM ?CMML ?TA ?TAL ?TAQ'''
 
 query_mm2 =  '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -801,3 +797,55 @@ query_mf2 =  '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                 GROUP BY ?mf ?GBFORMULA ?GBFLabel ?GFORMULA ?GFLabel ?ABFORMULA ?ABFLabel ?AFORMULA ?AFLabel ?DBFORMULA ?DBFLabel ?DFORMULA ?DFLabel ?LBFORMULA ?LBFLabel ?LFORMULA ?LFLabel 
                              ?NBFORMULA ?NBFLabel ?NFORMULA ?NFLabel ?SFORMULA ?SFLabel'''
 
+query_pu =  '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+               SELECT ?item ?label ?class
+                      (GROUP_CONCAT(DISTINCT(?pu1); separator=" <|> ") AS ?PU1) (GROUP_CONCAT(DISTINCT(?label1); separator=" <|> ") AS ?LABEL1)
+                      (GROUP_CONCAT(DISTINCT(?pu2); separator=" <|> ") AS ?PU2) (GROUP_CONCAT(DISTINCT(?label2); separator=" <|> ") AS ?LABEL2)
+                      (GROUP_CONCAT(DISTINCT(?pu3); separator=" <|> ") AS ?PU3) (GROUP_CONCAT(DISTINCT(?label3); separator=" <|> ") AS ?LABEL3)
+                      (GROUP_CONCAT(DISTINCT(?pu4); separator=" <|> ") AS ?PU4) (GROUP_CONCAT(DISTINCT(?label4); separator=" <|> ") AS ?LABEL4)
+                      (GROUP_CONCAT(DISTINCT(?pu5); separator=" <|> ") AS ?PU5) (GROUP_CONCAT(DISTINCT(?label5); separator=" <|> ") AS ?LABEL5)
+
+               WHERE {{
+
+                      VALUES ?item {{{0}}}
+                      
+                      ?item rdfs:label ?label;
+                            a ?class.
+                      
+                      FILTER (lang(?label) = 'en')
+                      FILTER (?class IN (:ResearchField, :ResearchProblem, :MathematicalModel, :MathematicalFormulation, :Quantity, :QuantityKind, :ComputationalTask))
+
+                      OPTIONAL {{ ?item :documentedIn ?pu1.
+                                  ?pu1 rdfs:label ?label1.
+                                  FILTER (lang(?label1) = 'en')
+                               }}
+
+                      OPTIONAL {{ ?item :inventedIn ?pu2.
+                                  ?pu2 rdfs:label ?label2.
+                                  FILTER (lang(?label2) = 'en')
+                               }}
+
+                      OPTIONAL {{ ?item :studiedIn ?pu3.
+                                  ?pu3 rdfs:label ?label3.
+                                  FILTER (lang(?label3) = 'en')
+                               }}
+
+                      OPTIONAL {{ ?item :surveyedIn ?pu4.
+                                  ?pu4 rdfs:label ?label4.
+                                  FILTER (lang(?label4) = 'en')
+                               }}
+
+                      OPTIONAL {{ ?item :usedIn ?pu5.
+                                  ?pu5 rdfs:label ?label5.
+                                  FILTER (lang(?label5) = 'en')
+                               }}
+
+                     }}
+
+               GROUP BY ?item ?label ?class ?PU1 ?LABEL1 ?PU2 ?LABEL2 ?PU3 ?LABEL3 ?PU4 ?LABEL4 ?PU5 ?LABEL5'''
+
+                      
+
+                      
