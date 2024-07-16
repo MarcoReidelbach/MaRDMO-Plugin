@@ -8,7 +8,7 @@ from .para import *
 def ModelRetriever(answers,mathmoddb):
     '''Function queries MathModDB to gather further Model Information
        and connects them with Information provided by the User'''
-
+    print(answers['Models'])
     # Add Research Problem to Model
     for idx,key in enumerate(answers['ResearchProblem']):
         if answers['ResearchProblem'][key].get('MathModID') and answers['ResearchProblem'][key].get('MathModID') != 'not in MathModDB':
@@ -22,7 +22,7 @@ def ModelRetriever(answers,mathmoddb):
         answers.update({'AllModels':answers['Models']|answers['AdditionalModel']})
     else:
         answers.update({'AllModels':answers['Models']})
-
+    print(answers['Models'])
     # Flag Tasks wanted by User in Workflow Documentation
     for key in answers['Task']:
         answers['Task'][key].update({'Include':True})
@@ -100,17 +100,7 @@ def ModelRetriever(answers,mathmoddb):
                         answers['AllModels'][key].setdefault('Other1', {}).update({f'mm{idx}': f'{Id} <|> {label}'})
                         answers['AllModels'].setdefault(max(answers['AllModels'].keys())+1, {}).update({'MathModID': Id, 'Name': label})
                         keys.append(max(answers['AllModels'].keys()))
-   
-                objectProp_mapping = {
-                                      'ContainedAsFormulationIn': ('F','FL'),
-                                      'ContainedAsAssumptionIn': ('A','AL'),
-                                      'ContainedAsBoundaryConditionIn': ('BC','BCL'),
-                                      'ContainedAsConstrainedConditionIn': ('CC','CCL'),
-                                      'ContainedAsCouplingConditionIn': ('CPC','CPCL'),
-                                      'ContainedAsInitialConditionIn': ('IC','ICL'),
-                                      'ContainedAsFinalConditionIn': ('FC','FCL')
-                                     }
-                
+                   
                 # Evaluate Object Properties of Mathematical Model
                 for prop, mapping in objectProp_mapping.items():
                     if r.get(mapping[0], {}).get('value') and r.get(mapping[1], {}).get('value'):
@@ -130,62 +120,27 @@ def ModelRetriever(answers,mathmoddb):
                                 new_form.setdefault('Relation1', {}).update({f'{mapping[0]}{idx}': mathmoddb[prop]})
                                 new_form.setdefault('Other1', {}).update({f'{mapping[0]}{idx}': f"{answers['AllModels'][key]['MathModID']} <|> {answers['AllModels'][key]['Name']}"})
 
+            objectProp_mapping2 = {
+                                   'GeneralizedBy': ('gb', 'GBMODEL', 'GBMLabel'),
+                                   'Generalizes': ('g', 'GMODEL', 'GMLabel'),
+                                   'ApproximatedBy': ('ab', 'ABMODEL', 'ABMLabel'),
+                                   'Approximates': ('a', 'AMODEL', 'AMLabel'),
+                                   'DiscretizedBy': ('db', 'DBMODEL', 'DBMLabel'),
+                                   'Discretizes': ('d', 'DMODEL', 'DMLabel'),
+                                   'LinearizedBy': ('lb', 'LBMODEL', 'LBMLabel'),
+                                   'Linearizes': ('l', 'LMODEL', 'LMLabel'),
+                                   'SimilarTo': ('s', 'SMODEL', 'SMLabel')
+                                  }
+
             for r in req2:
     
-                if r.get('GBMODEL', {}).get('value') and r.get('GBMLabel', {}).get('value'):
-    
-                    for idx, (Id, label) in enumerate(zip(r['GBMODEL']['value'].split(' <|> '),r['GBMLabel']['value'].split(' <|> '))):
-                        answers['AllModels'][key].setdefault('Relation1',{}).update({'gb'+str(idx):mathmoddb['GeneralizedBy']})
-                        answers['AllModels'][key].setdefault('Other1',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
-    
-                if r.get('GMODEL', {}).get('value') and r.get('GMLabel', {}).get('value'):
-    
-                    for idx, (Id, label) in enumerate(zip(r['GMODEL']['value'].split(' <|> '),r['GMLabel']['value'].split(' <|> '))):
-                        answers['AllModels'][key].setdefault('Relation1',{}).update({'g'+str(idx):mathmoddb['Generalizes']})
-                        answers['AllModels'][key].setdefault('Other1',{}).update({'g'+str(idx):Id + ' <|> ' + label})
-    
-                if r.get('ABMODEL', {}).get('value') and r.get('ABMLabel', {}).get('value'):
-    
-                    for idx, (Id, label) in enumerate(zip(r['ABMODEL']['value'].split(' <|> '),r['ABMLabel']['value'].split(' <|> '))):
-                        answers['AllModels'][key].setdefault('Relation1',{}).update({'gb'+str(idx):mathmoddb['ApproximatedBy']})
-                        answers['AllModels'][key].setdefault('Other1',{}).update({'gb'+str(idx):Id + ' <|> ' + label})
-    
-                if r.get('AMODEL', {}).get('value') and r.get('AMLabel', {}).get('value'):
-    
-                    for idx, (Id, label) in enumerate(zip(r['AMODEL']['value'].split(' <|> '),r['AMLabel']['value'].split(' <|> '))):
-                        answers['AllModels'][key].setdefault('Relation1',{}).update({'a'+str(idx):mathmoddb['Approximates']})
-                        answers['AllModels'][key].setdefault('Other1',{}).update({'a'+str(idx):Id + ' <|> ' + label})
-    
-                if r.get('DBMODEL', {}).get('value') and r.get('DBMLabel', {}).get('value'):
-    
-                    for idx, (Id, label) in enumerate(zip(r['DBMODEL']['value'].split(' <|> '),r['DBMLabel']['value'].split(' <|> '))):
-                        answers['AllModels'][key].setdefault('Relation1',{}).update({'db'+str(idx):mathmoddb['DiscretizedBy']})
-                        answers['AllModels'][key].setdefault('Other1',{}).update({'db'+str(idx):Id + ' <|> ' + label})
-    
-                if r.get('DMODEL', {}).get('value') and r.get('DMLabel', {}).get('value'):
-    
-                    for idx, (Id, label) in enumerate(zip(r['DMODEL']['value'].split(' <|> '),r['DMLabel']['value'].split(' <|> '))):
-                        answers['AllModels'][key].setdefault('Relation1',{}).update({'d'+str(idx):mathmoddb['Discretizes']})
-                        answers['AllModels'][key].setdefault('Other1',{}).update({'d'+str(idx):Id + ' <|> ' + label})
-    
-                if r.get('LBMODEL', {}).get('value') and r.get('LBMLabel', {}).get('value'):
-    
-                    for idx, (Id, label) in enumerate(zip(r['LBMODEL']['value'].split(' <|> '),r['LBMLabel']['value'].split(' <|> '))):
-                        answers['AllModels'][key].setdefault('Relation1',{}).update({'lb'+str(idx):mathmoddb['LinearizedBy']})
-                        answers['AllModels'][key].setdefault('Other1',{}).update({'lb'+str(idx):Id + ' <|> ' + label})
-    
-                if r.get('LMODEL', {}).get('value') and r.get('LMLabel', {}).get('value'):
-    
-                    for idx, (Id, label) in enumerate(zip(r['LMODEL']['value'].split(' <|> '),r['LMLabel']['value'].split(' <|> '))):
-                        answers['AllModels'][key].setdefault('Relation1',{}).update({'d'+str(idx):mathmoddb['Linearizes']})
-                        answers['AllModels'][key].setdefault('Other1',{}).update({'d'+str(idx):Id + ' <|> ' + label})
-    
-                if r.get('SMODEL', {}).get('value') and r.get('SMLabel', {}).get('value'):
-    
-                    for idx, (Id, label) in enumerate(zip(r['SMODEL']['value'].split(' <|> '),r['SMLabel']['value'].split(' <|> '))):
-                        answers['AllModels'][key].setdefault('Relation1',{}).update({'s'+str(idx):mathmoddb['SimilarTo']})
-                        answers['AllModels'][key].setdefault('Other1',{}).update({'s'+str(idx):Id + ' <|> ' + label})
-     
+                # Evaluate Object Properties of Mathematical Model
+                for prop, mapping in objectProp_mapping2.items():
+                    if r.get(mapping[1], {}).get('value') and r.get(mapping[2], {}).get('value'):
+                        for idx, (Id, label) in enumerate(zip(r[mapping[1]]['value'].split(' <|> '),r[mapping[2]]['value'].split(' <|> '))):
+                            answers['AllModels'][key].setdefault('Relation1',{}).update({f'{mapping[0]}{idx}':mathmoddb[prop]})
+                            answers['AllModels'][key].setdefault('Other1',{}).update({f'{mapping[0]}{idx}':f'{Id} <|> {label}'})
+                         
     # Get additional Task Information
     
     search_string = ''
@@ -1315,13 +1270,6 @@ def ModelRetriever(answers,mathmoddb):
             if not answers['ResearchProblem'][key].get('RelationRP1',{}).get(key2):
                 answers['ResearchProblem'][key].setdefault('RelationRP1',{}).update({key2:[answers['ResearchProblem'][key]['Relation1'][key2],Id]})
     
-#    # Add Research Problem to Model
-#    for idx,key in enumerate(answers['ResearchProblem']):
-#        if answers['ResearchProblem'][key].get('MathModID') and answers['ResearchProblem'][key].get('MathModID') != 'not in MathModDB':
-#            answers['Models'][0].setdefault('RelationRP1',{}).update({idx:'RP'+str(idx+1)})
-#        elif answers['ResearchProblem'][key].get('Models') == option['Yes']:
-#            answers['Models'][0].setdefault('RelationRP1',{}).update({idx:'RP'+str(idx+1)})
-    
     # Convert Research Problems in additional Models
     for key in answers['AllModels']:
         if answers['AllModels'][key].get('ResearchProblem'):
@@ -1339,24 +1287,18 @@ def ModelRetriever(answers,mathmoddb):
             for idx,r in enumerate(req):
                 answers['AllModels'][key].setdefault('RelationRP1',{}).update({idx:r['answer']['value']})
     
-#    # Combine Model and additional Models
-#    if answers.get('AdditionalModel'):
-#        answers['Models'][max(answers['AdditionalModel'].keys())+1] = answers['Models'].pop(list(answers['Models'].keys())[0])
-#        answers.update({'AllModels':answers['Models']|answers['AdditionalModel']})
-#    else:
-#        answers.update({'AllModels':answers['Models']})
-
     # Add Information to main Mathematical Model
-    if answers['Models'][0].get('MathModID'):
-        for key in answers['AllModels']:
-            if answers['Models'][0]['MathModID'] == answers['AllModels'][key].get('MathModID'):
-                Name = answers['AllModels'][key]['Name']
-                Description = answers['AllModels'][key]['Description']
-                mardiID = find_item(Name,Description)
-                if mardiID:
-                    answers['Models'][0].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description})
-                else:
-                    answers['Models'][0].update({'ID':None, 'Name':Name, 'Description':Description})
+    for key2 in answers['Models']:
+        if answers['Models'][key2].get('MathModID'):
+            for key in answers['AllModels']:
+                if answers['Models'][key2]['MathModID'] == answers['AllModels'][key].get('MathModID'):
+                    Name = answers['AllModels'][key]['Name']
+                    Description = answers['AllModels'][key]['Description']
+                    mardiID = find_item(Name,Description)
+                    if mardiID:
+                        answers['Models'][key2].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description})
+                    else:
+                        answers['Models'][key2].update({'ID':None, 'Name':Name, 'Description':Description})
 
     # Add Mathematical Model to Mathematical Model Relations
     for key in answers['AllModels']:
