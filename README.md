@@ -76,6 +76,7 @@ OPTIONSET_PROVIDERS = [
     ('ResearchFieldUser', _('Options for User Research Fields'), 'MaRDMO.providers.ResearchFieldUser'),
     ('ResearchProblemRelations', _('Options for Research Problem Relations'), 'MaRDMO.providers.ResearchProblemRelations'),
     ('MathematicalModel', _('Options for Mathematical Models'), 'MaRDMO.providers.MathematicalModel'),
+    ('MathematicalModel2', _('Options for Mathematical Models 2'), 'MaRDMO.providers.MathematicalModel2'),
     ('MathematicalModelRelation', _('Options for Mathematical Model Relations'), 'MaRDMO.providers.MathematicalModelRelation'),
     ('MathematicalModelRelation2', _('Options for Mathematical Model Relations 2'), 'MaRDMO.providers.MathematicalModelRelation2'),
     ('Quantity', _('Options for Quantities'), 'MaRDMO.providers.Quantity'),
@@ -90,7 +91,6 @@ OPTIONSET_PROVIDERS = [
     ('Publication', _('Options for Publications'), 'MaRDMO.providers.Publication'),
     ('AllEntities', _('Options for All Entities'), 'MaRDMO.providers.AllEntities')
     ]
-
 
 ```
 
