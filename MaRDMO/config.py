@@ -7,6 +7,9 @@ mardi_endpoint="https://query.portal.mardi4nfdi.de/proxy/wdqs/bigdata/namespace/
 wikidata_endpoint="https://query.wikidata.org/sparql"
 wikidata_api="https://www.wikidata.org/w/api.php"
 
+#MathModDB SPARQL Endpoint
+mathmoddb_endpoint = 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/query'
+
 #SPARQL Prefixes
 wd = '<https://portal.mardi4nfdi.de/entity/>'
 wdt = '<https://portal.mardi4nfdi.de/prop/direct/>'
