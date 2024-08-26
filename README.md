@@ -1,4 +1,8 @@
-![MaRDMOLogo](https://github.com/user-attachments/assets/98c92c58-9d31-41ca-a3ca-189bbfb92101)
+<div align='center' style="margin-top: 50px; font-size: 14px; color: grey;">
+  <img src="https://github.com/user-attachments/assets/98c92c58-9d31-41ca-a3ca-189bbfb92101" />
+  <p>MaRDMO Logo by <a href="https://www.mardi4nfdi.de/about/mission" target="_blank" style="color: grey;">MaRDI</a>, licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" style="color: grey;">CC BY-NC-ND 4.0</a>.</p>
+</div>
+
 
 # MaRDMO Plugin
 
