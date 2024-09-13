@@ -344,13 +344,13 @@ def WorkflowOrModel(sender, **kwargs):
 
         if instance.option == Option.objects.get(uri=option['Workflow']):
             # Activate Questions for Workflow Documentation
-            val = [1,1,1,0,1]
+            val = [0,0,0,0,0]
         elif instance.option == Option.objects.get(uri=option['Model']):
             # Activate Questions for Model Documentation
-            val = [1,0,1,0,1]
+            val = [1,0,0,0,1]
         else:
             # Deactivate all Documentation Questions
-            val = [0,0,1,0,0]
+            val = [0,0,0,0,0]
 
         for idx, key in enumerate(OperationModus['WorkflowOrModel'].keys()):
             for uri in OperationModus['WorkflowOrModel'][key]:
@@ -374,17 +374,16 @@ def SearchOrDocument(sender, **kwargs):
 
         if instance.option == Option.objects.get(uri=option['Document']):
             # Activate Questions for Documentation
-            val = [0,1,1,0]
+            val = [0,0,0,0]
         elif instance.option == Option.objects.get(uri=option['Search']):
             # Activate Questions for Search
-            val = [1,0,0,0]
+            val = [1,0,1,0]
         else:
             # Deactivate all Questionss
-            val = [0,0,1,0]
+            val = [0,0,0,0]
 
         for idx, key in enumerate(OperationModus['SearchOrDocument'].keys()):
             for uri in OperationModus['SearchOrDocument'][key]:
-                print(uri)
                 valueEditor(instance,uri,val[idx])
     return
 
