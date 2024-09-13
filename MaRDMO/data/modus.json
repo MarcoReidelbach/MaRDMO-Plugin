@@ -12,7 +12,7 @@
     ],
     "doc": [
       "https://rdmo.mardi4nfdi.de/terms/domain/GeneralWorkflowInformation",
-      "https://rdmo.mardi4nfdi.de/terms/domain/TaskWorkflowRelevant_hidden",
+      "https://rdmo.mardi4nfdi.de/terms/domain/TaskWorkflowRelevant",
       "https://rdmo.mardi4nfdi.de/terms/domain/Software_hidden",
       "https://rdmo.mardi4nfdi.de/terms/domain/Hardware_hidden",
       "https://rdmo.mardi4nfdi.de/terms/domain/Instruments_hidden",
