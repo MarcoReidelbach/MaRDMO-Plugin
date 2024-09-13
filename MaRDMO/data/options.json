@@ -1,0 +1,22 @@
+{
+  "Document": "https://rdmo.mardi4nfdi.de/terms/options/OperationType/Document",
+  "Search": "https://rdmo.mardi4nfdi.de/terms/options/OperationType/Search",
+  "Workflow": "https://rdmo.mardi4nfdi.de/terms/options/DocumentationType/Workflow",
+  "Model": "https://rdmo.mardi4nfdi.de/terms/options/DocumentationType/Model",
+  "Analysis": "https://rdmo.mardi4nfdi.de/terms/options/WorkflowType/DataAnalysis",
+  "Computation": "https://rdmo.mardi4nfdi.de/terms/options/WorkflowType/Computational",
+  "English": "https://rdmo.mardi4nfdi.de/terms/options/PublicationLanguage/English",
+  "German": "https://rdmo.mardi4nfdi.de/terms/options/PublicationLanguage/German",
+  "Small": "https://rdmo.mardi4nfdi.de/terms/options/DataSetSize/Small",
+  "Medium": "https://rdmo.mardi4nfdi.de/terms/options/DataSetSize/Medium",
+  "Large": "https://rdmo.mardi4nfdi.de/terms/options/DataSetSize/Large",
+  "VeryLarge": "https://rdmo.mardi4nfdi.de/terms/options/DataSetSize/VeryLarge",
+  "Local": "https://rdmo.mardi4nfdi.de/terms/options/ExportType/Local",
+  "Public": "https://rdmo.mardi4nfdi.de/terms/options/ExportType/Public",
+  "Binary": "https://rdmo.mardi4nfdi.de/terms/options/BinaryOrText/Binary",
+  "Text": "https://rdmo.mardi4nfdi.de/terms/options/BinaryOrText/Text",
+  "Yes": "https://rdmo.mardi4nfdi.de/terms/options/yes_no/yes",
+  "No": "https://rdmo.mardi4nfdi.de/terms/options/yes_no/no",
+  "YesText": "https://rdmorganiser.github.io/terms/options/yes_with_text_no/yes",
+  "NoText": "https://rdmorganiser.github.io/terms/options/yes_with_text_no/no"
+}

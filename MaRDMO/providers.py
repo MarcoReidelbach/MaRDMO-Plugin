@@ -8,12 +8,11 @@ from rdmo.options.models import Option
 
 from multiprocessing.pool import ThreadPool
 
-from .config import wikidata_api, mardi_api, mathmoddb_endpoint
-from .para import BASE_URI
+from .config import wikidata_api, mardi_api, BASE_URI
 from .sparql import queryProvider
 from .mathmoddb import queryMathModDB
 
-class WikidataSearch(Provider):
+class MaRDIAndWikidataSearch(Provider):
     
     search = True
 
@@ -44,8 +43,8 @@ class AvailableSoftware(Provider):
     search = True
 
     SUBJECT_ATTRIBUTES = [
-        f'{BASE_URI}Section_4/Set_3/Question_02',
-        f'{BASE_URI}Section_4/Set_3/Question_03'
+        f'{BASE_URI}domain/SoftwareName',
+        f'{BASE_URI}domain/SoftwareDescription'
     ]
 
     def get_options(self, project, search):
@@ -79,7 +78,7 @@ class AvailableSoftware(Provider):
 
         return options
 
-class ComponentSearch(Provider):
+class MaRDISearch(Provider):
 
     search = True
 
@@ -112,7 +111,7 @@ class MSCProvider(Provider):
 
         options = []
 
-        options = [{'id': self.msc[key]['id'] + ' - ' + key , 'text': key} for key in self.msc if search.lower() in key.lower()]
+        options = [{'id': self.msc[key]['id'] + ' - ' + key , 'text': f"{key} ({self.msc[key]['id']})"} for key in self.msc if search.lower() in key.lower()]
 
         return options[:20]
 
@@ -141,7 +140,7 @@ class ProcessorProvider(Provider):
 
 class MathAreaProvider(Provider):
     
-    SUBJECT_ATTRIBUTE = f'{BASE_URI}Section_2/Set_3/Question_00'
+    SUBJECT_ATTRIBUTE = f'{BASE_URI}domain/MathematicalSubject'
 
     def get_options(self, project, search=None):
         """
@@ -161,9 +160,9 @@ class MathAreaProvider(Provider):
 class EnvironmentProvider(Provider):
     
     SUBJECT_ATTRIBUTES = [
-        f'{BASE_URI}Section_4/Set_3/Question_01',
-        f'{BASE_URI}Section_4/Set_3/Question_02',
-        f'{BASE_URI}Section_4/Set_5/Question_02'
+        f'{BASE_URI}domain/SoftwareQID',
+        f'{BASE_URI}domain/SoftwareName',
+        f'{BASE_URI}domain/InstrumentName'
     ]
 
     def get_options(self, project, search=None):
@@ -189,8 +188,8 @@ class EnvironmentProvider(Provider):
 class MethodProvider(Provider):
     
     SUBJECT_ATTRIBUTES = [
-        f'{BASE_URI}Section_4/Set_2/Question_01',
-        f'{BASE_URI}Section_4/Set_2/Question_02'
+        f'{BASE_URI}domain/MethodQID',
+        f'{BASE_URI}domain/MethodName'
     ]
 
     def get_options(self, project, search=None):
@@ -219,8 +218,8 @@ class MethodProvider(Provider):
 class DataProvider(Provider):
     
     SUBJECT_ATTRIBUTES = [
-        f'{BASE_URI}Section_4/Set_6/Question_00',
-        f'{BASE_URI}Section_4/Set_6/Question_01',
+        f'{BASE_URI}domain/DataSetQID',
+        f'{BASE_URI}domain/DataSetName',
     ]
 
     def get_options(self, project, search=None):
@@ -246,8 +245,8 @@ class DataProvider(Provider):
 class SoftwareProvider(Provider):
     
     SUBJECT_ATTRIBUTES = [
-        f'{BASE_URI}Section_4/Set_3/Question_01',
-        f'{BASE_URI}Section_4/Set_3/Question_02'
+        f'{BASE_URI}domain/SoftwareQID',
+        f'{BASE_URI}domain/SoftwareName'
     ]
 
     def get_options(self, project, search=None):
@@ -282,7 +281,7 @@ class ResearchField(Provider):
         
         return options
     
-class ResearchFieldRelations(Provider):
+class RelatedResearchField(Provider):
 
     search = True
 
@@ -302,8 +301,8 @@ class ResearchFieldRelations(Provider):
             dic.update({result['label']['value']:{'id':result['answer']['value']}})
 
         # Fetch user-defined research fields from the project
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_0/Question_3'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_0/Question_0'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldQID'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldName'))
 
         for value1 in values1: 
             if value1.text:
@@ -349,7 +348,7 @@ class Publication(Provider):
         
         return options
 
-class ResearchProblemRelations(Provider):
+class RelatedResearchProblem(Provider):
 
     search = True
 
@@ -369,8 +368,8 @@ class ResearchProblemRelations(Provider):
             dic.update({result['label']['value']:{'id':result['answer']['value']}})
 
         # Fetch user-defined research fields from the project
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_1/Question_5'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_1/Question_0'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemQID'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemName'))
 
         for value1 in values1: 
             if value1.text:
@@ -386,13 +385,13 @@ class ResearchProblemRelations(Provider):
 
         return options
 
-class ResearchFieldUser(Provider):
+class ResearchFieldWithUserAddition(Provider):
 
         def get_options(self, project, search=None):
-        
-            values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_0/Question_3'))
-            values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_0/Question_0'))
-            values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3/Set_0/Set_0/Question_04'))
+            print(f'{BASE_URI}domain/ResearchFieldQID')
+            values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldQID'))
+            values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldName'))
+            values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldMathModDBID'))
 
             options = []
 
@@ -410,7 +409,7 @@ class ResearchFieldUser(Provider):
 
             return options
 
-class MathematicalModelRelation(Provider):
+class RelatedMathematicalModel(Provider):
 
     search = True
 
@@ -430,8 +429,8 @@ class MathematicalModelRelation(Provider):
             dic.update({result['label']['value']:{'id':result['answer']['value']}})
 
         # Fetch user-defined research fields from the project
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_2/Set_1/Question_0'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_2/Set_1/Question_1'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelQID'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelName'))
 
         for value1 in values1: 
             if value1.text:
@@ -447,15 +446,15 @@ class MathematicalModelRelation(Provider):
 
         return options
 
-class MathematicalModelRelation2(Provider):
+class MathematicalModelWithUserAddition(Provider):
 
     def get_options(self, project, search=None):
 
         options = []
         
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_2/Question_0'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_2/Set_1/Question_0'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_2/Set_1/Question_1'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelMathModDBID'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelQID'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelName'))
 
         for idx, value1 in enumerate(values1):
             if value1.text and value1.text != 'not in MathModDB':
@@ -471,7 +470,7 @@ class MathematicalModelRelation2(Provider):
 
         return options
 
-class Quantity(Provider):
+class QuantityOrQuantityKind(Provider):
 
     search = True
 
@@ -481,7 +480,7 @@ class Quantity(Provider):
 
         return options
 
-class QuantityRelations(Provider):
+class RelatedQuantity(Provider):
 
     search = True
 
@@ -505,9 +504,9 @@ class QuantityRelations(Provider):
         for result in results:
             dic.update({result['label']['value']:{'id':result['answer']['value']}})
 
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_6'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_5'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_0'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindQID'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindName'))
 
         for value1 in values1:
             if value1.option == Option.objects.get(uri=self.mathmoddb['QuantityClass']):
@@ -524,7 +523,7 @@ class QuantityRelations(Provider):
 
         return options
 
-class QuantityKindRelations(Provider):
+class RelatedQuantityKind(Provider):
 
     search =True
 
@@ -548,9 +547,9 @@ class QuantityKindRelations(Provider):
         for result in results:
             dic.update({result['label']['value']:{'id':result['answer']['value']}})
 
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_6'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_5'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_0'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindQID'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindName'))
 
         for value1 in values1:
             if value1.option == Option.objects.get(uri=self.mathmoddb['QuantityKindClass']):
@@ -577,7 +576,7 @@ class MathematicalFormulation(Provider):
         
         return options
 
-class MathematicalFormulation2(Provider):
+class MathematicalFormulationWithUserAddition(Provider):
 
     search = True
 
@@ -596,9 +595,9 @@ class MathematicalFormulation2(Provider):
         for result in results:
             dic.update({result['label']['value']:{'id':result['answer']['value']}})
 
-        # Fetch user-defined research fields from the project
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_5/Set_4/Question_0'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_5/Set_4/Question_1'))
+        # Fetch user-defined mathematical formulations from the project
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationQID'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationName'))
 
         for value1 in values1: 
             if value1.text:
@@ -614,7 +613,7 @@ class MathematicalFormulation2(Provider):
 
         return options
 
-class QuantityAll(Provider):
+class QuantityOrQuantityKindWithUserAddition(Provider):
 
     path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
 
@@ -623,10 +622,10 @@ class QuantityAll(Provider):
 
     def get_options(self, project, search=None):
 
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3/Set_0/Set_0/Question_07'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_5'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_0'))
-        values4 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_6'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindMathModDBID'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindQID'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindName'))
+        values4 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
 
         options = []
 
@@ -661,21 +660,25 @@ class WorkflowTask(Provider):
 
     def get_options(self, project, search=None):
 
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3/Set_0/Wiki_01'))
-
-        model = ''
         options = []
 
-        for value1 in values1:
-            if value1.text:
-                model = f":{value1.external_id.split(' <|> ')[0].split('#')[1]}"
-        
-        if model:
-            # Fetch tasks from the MathModDB knowledge graph
-            results = queryMathModDB(queryProvider['RT'].format(model))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskMathModDBID'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskQID'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskName'))
 
-            options.extend([{'id': f"{result['answer']['value']} <|> {result['label']['value']}", 'text': result['label']['value']} for result in results])      
-        
+        for value1 in values1:
+            if value1.text and value1.text != 'not in MathModDB':
+                options.extend([{'id': value1.external_id, 'text': value1.text}])
+
+        for value2 in values2:
+            if value2.text:
+                Id,label,quote = value2.external_id.split(' <|> ')
+                options.extend([{'id': f"{Id} <|> {label}", 'text': f"{label}"}])
+
+        for idx, value3 in enumerate(values3):
+            if value3.text:
+                options.extend([{'id': f"{idx} <|> {value3.text}", 'text': f"{value3.text}"}])
+
         return options
 
 class Task(Provider):
@@ -688,7 +691,7 @@ class Task(Provider):
         
         return options
 
-class Task2(Provider):
+class RelatedTask(Provider):
 
     search = True
 
@@ -708,8 +711,8 @@ class Task2(Provider):
             dic.update({result['label']['value']:{'id':result['answer']['value']}})
 
         # Fetch user-defined research fields from the project
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_6/Set_0/Question_0'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_6/Set_0/Question_1'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskQID'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskName'))
 
         for value1 in values1: 
             if value1.text:
@@ -735,25 +738,25 @@ class AllEntities(Provider):
     def get_options(self, project, search=None):
         options =[]
 
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3/Set_0/Set_0/Question_04'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_0/Question_3'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_0/Question_0'))
-        values4 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3/Set_0/Set_0/Question_05'))
-        values5 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_1/Question_5'))
-        values6 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_1/Question_0'))
-        values9 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_2/Question_0'))
-        values10 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_2/Set_1/Question_0'))
-        values11 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_2/Set_1/Question_1'))
-        values12 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3/Set_0/Set_0/Question_07'))
-        values13 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_5'))
-        values14 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_0'))
-        values15 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_5/Question_0'))
-        values16 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_5/Set_4/Question_0'))
-        values17 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_5/Set_4/Question_1'))
-        values18 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_6/Question_0'))
-        values19 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_6/Set_0/Question_0'))
-        values20 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_6/Set_0/Question_1'))
-        values21 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}Section_3a/Set_3/Question_6'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldMathModDBID'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldQID'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldName'))
+        values4 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemMathModDBID'))
+        values5 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemQID'))
+        values6 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemName'))
+        values9 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelMathModDBID'))
+        values10 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelQID'))
+        values11 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelName'))
+        values12 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindMathModDBID'))
+        values13 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindQID'))
+        values14 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindName'))
+        values15 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationMathModDBID'))
+        values16 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationQID'))
+        values17 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationName'))
+        values18 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskMathModDBID'))
+        values19 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskQID'))
+        values20 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskName'))
+        values21 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
 
         for idx, value1 in enumerate(values1):
             if value1.text and value1.text != 'not in MathModDB':

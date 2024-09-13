@@ -1,3 +1,6 @@
+#RDMO BASE URI
+BASE_URI = 'https://rdmo.mardi4nfdi.de/terms/'
+
 #Portal Wiki, Api and SPARQL Endpoint
 mardi_wiki="https://portal.mardi4nfdi.de/wiki/"
 mardi_api="https://portal.mardi4nfdi.de/w/api.php"

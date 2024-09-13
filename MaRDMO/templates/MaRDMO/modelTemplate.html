@@ -111,7 +111,7 @@
         {% if forloop.counter == 1 %}
             <h3 id="RelationsToResearchProblems"> Relations to Research Problems </h3>
         {% endif %}
-	models: {{ models }} <br>
+	models: {{ models.1 }} <br>
     {% endfor %}
 
     {% for relation in values.RelationMM1.values %}
@@ -367,18 +367,16 @@
 			       , 
 			   {% endif %} 
 		      {% endfor %} <br>
-    <b>Task Type</b>: {% for value in values.TaskClass.values %} 
-                          {% if value == option.ComputationalTask %} 
-			      Computational Task 
-			  {% endif %} 
-		      {% endfor %}
+    <b>Task Type</b>: {% if values.TaskClass == option.ComputationalTask %} 
+			                  Computational Task 
+			          {% endif %} 
     </p>
 
     {% for value in values.RelationMM.values %}
         {% if forloop.counter == 1 %}
 	    <h3 id="RelationsToMathematicalModels2"> Relations to Mathematical Models </h3>
         {% endif %}
-         applies Mathematical Model: {{ value }}
+         applies Mathematical Model: {{ value.1 }}
     {% endfor %}
 
     {% for value in values.RelationQQK.values %}
@@ -745,7 +743,7 @@
         {% if forloop.counter == 1 %}
             <h3 id="RelationsToResearchFields"> Relations to Research Fields </h3>
         {% endif %}
-        contained in Field: {{ researchfield }}
+        contained in Field: {{ researchfield.1 }}
     {% endfor %}
 
     {% for relation in values.RelationRP1.values %}
