@@ -751,7 +751,7 @@ class MaRDIExport(Export):
 
             # Set up entire SPARQL query
             query = query_base.format(P4,Q2,res_disc_str,mmsios_str,quote_str,res_obj_strs)
-            print(query)
+            
             # Query MaRDI Portal
             results = self.get_results(mardi_endpoint, query)
 

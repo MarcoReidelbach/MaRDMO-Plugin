@@ -508,7 +508,7 @@ def splitVariableText(inputString):
         return '', ''
     
 def assignComplexEntityRelations(qClass, tClass, qrel, trel_values, r, key, answers, mathmoddb=None, inversePropertyMapping=None):
-    print(len(trel_values))
+
     # Retrieve values for the current kind of class
     values1 = r.get(qrel, {}).get('value')
 

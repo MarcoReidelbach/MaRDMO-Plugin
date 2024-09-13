@@ -388,7 +388,7 @@ class RelatedResearchProblem(Provider):
 class ResearchFieldWithUserAddition(Provider):
 
         def get_options(self, project, search=None):
-            print(f'{BASE_URI}domain/ResearchFieldQID')
+
             values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldQID'))
             values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldName'))
             values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldMathModDBID'))
