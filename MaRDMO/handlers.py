@@ -10,10 +10,9 @@ from rdmo.options.models import Option
 
 from .citation import GetCitation
 from .mathmoddb import queryMathModDB
-from .para import BASE_URI, option, OperationModus
 from .sparql import queryPublication, queryModelHandler, wini, mini, pl_query, pl_vars, pro_query, pro_vars
 from .id import *
-from .config import wd, wdt, mardi_api, wikidata_api, mardi_endpoint, wikidata_endpoint
+from .config import wd, wdt, mardi_api, wikidata_api, mardi_endpoint, wikidata_endpoint, BASE_URI
 
 from difflib import SequenceMatcher
 
@@ -22,19 +21,19 @@ def PublicationCitationRetriever(sender, **kwargs):
 
     instance = kwargs.get("instance", None)
 
-    if instance and instance.attribute.uri == f"{BASE_URI}Section_2/Set_1/Question_02":
+    if instance and instance.attribute.uri == f"{BASE_URI}domain/Published":
     
         # Activate (Yes)  / Deactivate (No or nothin) Publication Information Section
         if instance.option_text == 'Yes':            
-            valueEditor(instance,f"{BASE_URI}Section_2/Set_2",1)
+            valueEditor(instance,f"{BASE_URI}domain/PublicationInformation",1)
         else: 
-            valueEditor(instance,f"{BASE_URI}Section_2/Set_2",0)
+            valueEditor(instance,f"{BASE_URI}domain/PublicationInformation",0)
 
         # Evaluate Information provided for Yes case
         if instance.text.split(':')[0] == 'url': 
             
             # If url provided, deactivate Publication Information section 
-            valueEditor(instance,f"{BASE_URI}Section_2/Set_2",0)
+            valueEditor(instance,f"{BASE_URI}domain/PublicationInformation",0)
         
         elif re.match(r'doi:10.\d{4,9}/[-._;()/:a-z0-9A-Z]+', instance.text):
             
@@ -114,6 +113,10 @@ def PublicationCitationRetriever(sender, **kwargs):
                         dict_merged['mardi_publicationDescription1'] = mardi_dict[0].get('publicationDescription1', []).get('value')
                 else: 
             
+                    path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
+                    with open(path, "r") as json_file:
+                        option = json.load(json_file)
+
                     # If no results found in MaRDI KG or Wikidata use DOI to get complete citation
                     orcid_authors, zbmath_authors, other_authors, citation_dictionary = GetCitation(doi)
             
@@ -302,19 +305,19 @@ def PublicationCitationRetriever(sender, **kwargs):
                            paper_information['page'], paper_information['page_back'],
                            paper_information['publicationDate'], paper_information['publicationDate_back']]
             
-            object_uris = [f'{BASE_URI}Section_2/Set_2/Question_00', f'{BASE_URI}Section_2/Set_2/Question_00_hidden',
-                           f'{BASE_URI}Section_2/Set_2/Question_01', f'{BASE_URI}Section_2/Set_2/Question_01_hidden',
-                           f'{BASE_URI}Section_2/Set_2/Question_02', f'{BASE_URI}Section_2/Set_2/Question_02_hidden',
-                           f'{BASE_URI}Section_2/Set_2/Question_03', f'{BASE_URI}Section_2/Set_2/Question_03_hidden',
-                           f'{BASE_URI}Section_2/Set_2/Question_04', f'{BASE_URI}Section_2/Set_2/Question_04_hidden',
-                           f'{BASE_URI}Section_2/Set_2/Question_05', f'{BASE_URI}Section_2/Set_2/Question_05_hidden',
-                           f'{BASE_URI}Section_2/Set_2/Question_06', f'{BASE_URI}Section_2/Set_2/Question_06_hidden',
-                           f'{BASE_URI}Section_2/Set_2/Question_07', f'{BASE_URI}Section_2/Set_2/Question_07_hidden',
-                           f'{BASE_URI}Section_2/Set_2/Question_08', f'{BASE_URI}Section_2/Set_2/Question_08_hidden',
-                           f'{BASE_URI}Section_2/Set_2/Question_09', f'{BASE_URI}Section_2/Set_2/Question_09_hidden']
+            object_uris = [f'{BASE_URI}domain/PublicationQID', f'{BASE_URI}domain/PublicationQID_hidden',
+                           f'{BASE_URI}domain/PublicationType', f'{BASE_URI}domain/PublicationType_hidden',
+                           f'{BASE_URI}domain/PublicationTitle', f'{BASE_URI}domain/PublicationTitle_hidden',
+                           f'{BASE_URI}domain/PublicationAuthor', f'{BASE_URI}domain/PublicationAuthor_hidden',
+                           f'{BASE_URI}domain/PublicationLanguage', f'{BASE_URI}domain/PublicationLanguage_hidden',
+                           f'{BASE_URI}domain/PublicationJournal', f'{BASE_URI}domain/PublicationJournal_hidden',
+                           f'{BASE_URI}domain/PublicationVolume', f'{BASE_URI}domain/PublicationVolume_hidden',
+                           f'{BASE_URI}domain/PublicationIssue', f'{BASE_URI}domain/PublicationIssue_hidden',
+                           f'{BASE_URI}domain/PublicationPage', f'{BASE_URI}domain/PublicationPage_hidden',
+                           f'{BASE_URI}domain/PublicationDate', f'{BASE_URI}domain/PublicationDate_hidden']
             
             for paper_info, object_uri in zip(paper_infos, object_uris):
-                if object_uri == f'{BASE_URI}Section_2/Set_2/Question_04':
+                if object_uri == f'{BASE_URI}domain/PublicationLanguage':
                     for idx,val in enumerate(paper_info):
                         if option.get(val) is not None:
                             valueEditor(instance, object_uri, None, None, Option.objects.get(uri=option.get(val)))
@@ -329,17 +332,25 @@ def WorkflowOrModel(sender, **kwargs):
 
     instance = kwargs.get("instance", None)
 
-    if instance and instance.attribute.uri == f'{BASE_URI}Section_0/Set_1/Question_02':
-        
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/DocumentationType':
+    
+        path = os.path.join(os.path.dirname(__file__), 'data', 'modus.json')
+        with open(path, "r") as json_file:
+            OperationModus = json.load(json_file)
+
+        path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
+        with open(path, "r") as json_file:
+            option = json.load(json_file)
+
         if instance.option == Option.objects.get(uri=option['Workflow']):
             # Activate Questions for Workflow Documentation
-            val = [1,1,1,0,1]
+            val = [0,0,0,0,0]
         elif instance.option == Option.objects.get(uri=option['Model']):
             # Activate Questions for Model Documentation
-            val = [1,0,1,0,1]
+            val = [1,0,0,0,1]
         else:
             # Deactivate all Documentation Questions
-            val = [0,0,1,0,0]
+            val = [0,0,0,0,0]
 
         for idx, key in enumerate(OperationModus['WorkflowOrModel'].keys()):
             for uri in OperationModus['WorkflowOrModel'][key]:
@@ -351,17 +362,25 @@ def SearchOrDocument(sender, **kwargs):
     
     instance = kwargs.get("instance", None)
     
-    if instance and instance.attribute.uri == f'{BASE_URI}Section_0/Set_1/Question_01':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/OperationType':
         
-        if instance.option == Option.objects.get(uri=option['Documentation']):
+        path = os.path.join(os.path.dirname(__file__), 'data', 'modus.json')
+        with open(path, "r") as json_file:
+            OperationModus = json.load(json_file)
+
+        path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
+        with open(path, "r") as json_file:
+            option = json.load(json_file)
+
+        if instance.option == Option.objects.get(uri=option['Document']):
             # Activate Questions for Documentation
-            val = [0,1,1,0]
+            val = [0,0,0,0]
         elif instance.option == Option.objects.get(uri=option['Search']):
             # Activate Questions for Search
-            val = [1,0,0,0]
+            val = [1,0,1,0]
         else:
             # Deactivate all Questionss
-            val = [0,0,1,0]
+            val = [0,0,0,0]
 
         for idx, key in enumerate(OperationModus['SearchOrDocument'].keys()):
             for uri in OperationModus['SearchOrDocument'][key]:
@@ -373,7 +392,15 @@ def ComputationalOrExperimental(sender, **kwargs):
 
     instance = kwargs.get("instance", None)
     
-    if instance and instance.attribute.uri == f'{BASE_URI}Section_2/Set_1/Question_03':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/WorkflowType':
+
+        path = os.path.join(os.path.dirname(__file__), 'data', 'modus.json')
+        with open(path, "r") as json_file:
+            OperationModus = json.load(json_file)
+
+        path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
+        with open(path, "r") as json_file:
+            option = json.load(json_file)
 
         if instance.option == Option.objects.get(uri=option['Analysis']):
             # Activate Questions for Experimental Workflow
@@ -395,7 +422,7 @@ def ModelHandler(sender, **kwargs):
     
     instance = kwargs.get("instance", None)
     
-    if instance and instance.attribute.uri == f'{BASE_URI}Section_3/Set_0/Wiki_01':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/MainMathematicalModelMathModDBID':
 
         if instance.external_id and instance.external_id != 'not in MathModDB':        
             IdMM, _ = instance.external_id.split(' <|> ')
@@ -421,9 +448,9 @@ def ModelHandler(sender, **kwargs):
                     if rfId not in rfIds:
                         rfIds.append(rfId) 
                         # Set up Research Field Page 
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_0', idx, None, None, None, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/ResearchField', idx, None, None, None, idx)
                         # Add Research Field Values
-                        valueEditor(instance, f'{BASE_URI}Section_3/Set_0/Set_0/Question_04', f"{rfLabel}", f"{rfId} <|> {rfLabel}", None, None, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/ResearchFieldMathModDBID', f"{rfLabel}", f"{rfId} <|> {rfLabel}", None, None, idx)
                         idx = idx + 1
             
             # Add Research Problem Information to Questionnaire
@@ -438,9 +465,9 @@ def ModelHandler(sender, **kwargs):
                         rpIds.append(rpId)
                         rpLabels.append(rpLabel)
                         # Setup Research Problem Page
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_1', idx, None, None, None, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/ResearchProblem', idx, None, None, None, idx)
                         # Add Research Problem Values
-                        valueEditor(instance, f'{BASE_URI}Section_3/Set_0/Set_0/Question_05', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, None, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/ResearchProblemMathModDBID', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, None, idx)
                         idx = idx +1
 
             # Add Quantity Information to Questionnaire
@@ -461,9 +488,9 @@ def ModelHandler(sender, **kwargs):
             
             for idx, (qId, qLabel, qClass) in enumerate(zip(qIds,qLabels,qClasss)):
                     # Set upt Qauntity / Quantity Kind Page
-                    valueEditor(instance, f'{BASE_URI}Section_3a/Set_3', idx, None, None, None, idx)
+                    valueEditor(instance, f'{BASE_URI}domain/QuantityOrQuantityKind', idx, None, None, None, idx)
                     # Add Quantity / Quantity Kind Values
-                    valueEditor(instance, f'{BASE_URI}Section_3/Set_0/Set_0/Question_07', 
+                    valueEditor(instance, f'{BASE_URI}domain/QuantityOrQuantityKindMathModDBID', 
                                 f"{qLabel} (Quantity)" if qClass.split('#')[1] == 'Quantity' else f"{qLabel} (Quantity Kind)", 
                                 f"{qId} <|> {qLabel} <|> {qClass.split('#')[1]}", None, None, idx)
 
@@ -504,14 +531,14 @@ def ModelHandler(sender, **kwargs):
             for idx, (mmId, mmLabel) in enumerate(zip(ModelProperty['mmIds'],ModelProperty['mmLabels'])):
 
                 # Set up Mathematical Model Page
-                valueEditor(instance, f'{BASE_URI}Section_3a/Set_2', idx, None, None, None, idx)
+                valueEditor(instance, f'{BASE_URI}domain/MathematicalModel', idx, None, None, None, idx)
                
                 # Add Mathematical Model ID and Label
-                valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Question_0', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx)
+                valueEditor(instance, f'{BASE_URI}domain/MathematicalModelMathModDBID', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx)
                
                 # Add Research Problem related to Mathematical Model
                 for idx2, (rpId, rpLabel) in enumerate(zip(rpIds,rpLabels)):
-                    valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Question_4', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, idx2, idx)
+                    valueEditor(instance, f'{BASE_URI}domain/ResearchProblemRelatedToMathematicalModel', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, idx2, idx)
                 
                 # Add Model Relations
 
@@ -521,8 +548,8 @@ def ModelHandler(sender, **kwargs):
                     if gbId and gbLabel:
                         
                         # Add Generalized By Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_0', f"{gbLabel}", f"{gbId} <|> {gbLabel}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{gbLabel}", f"{gbId} <|> {gbLabel}", None, None, idx2, idx)
 
                         idx2 = idx2 + 1
                 
@@ -530,8 +557,8 @@ def ModelHandler(sender, **kwargs):
                     if gId and gLabel:
                         
                         # Add Generalizes Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_0', f"{gLabel}", f"{gId} <|> {gLabel}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{gLabel}", f"{gId} <|> {gLabel}", None, None, idx2, idx)
                         
                         idx2 = idx2 + 1
 
@@ -539,8 +566,8 @@ def ModelHandler(sender, **kwargs):
                     if abId and abLabel:
                         
                         # Add Approximated By Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_0', f"{abLabel}", f"{abId} <|> {abLabel}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{abLabel}", f"{abId} <|> {abLabel}", None, None, idx2, idx)
 
                         idx2 = idx2 + 1
 
@@ -548,8 +575,8 @@ def ModelHandler(sender, **kwargs):
                     if aId and aLabel:
 
                         # Add Approximates Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_0', f"{aLabel}", f"{aId} <|> {aLabel}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{aLabel}", f"{aId} <|> {aLabel}", None, None, idx2, idx)
                     
                         idx2 = idx2 + 1
 
@@ -557,8 +584,8 @@ def ModelHandler(sender, **kwargs):
                     if dbId and dbLabel:
 
                         # Add Discretized By Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_0', f"{dbLabel}", f"{dbId} <|> {dbLabel}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{dbLabel}", f"{dbId} <|> {dbLabel}", None, None, idx2, idx)
                                             
                         idx2 = idx2 + 1
 
@@ -566,8 +593,8 @@ def ModelHandler(sender, **kwargs):
                     if dId and dLabel:
 
                         # Add Discretizes Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_0', f"{dLabel}", f"{dId} <|> {dLabel}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{dLabel}", f"{dId} <|> {dLabel}", None, None, idx2, idx)
 
                         idx2 = idx2 + 1
                 
@@ -575,8 +602,8 @@ def ModelHandler(sender, **kwargs):
                     if lbId and lbLabel:
 
                         # Add Linearized By Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_0', f"{lbLabel}", f"{lbId} <|> {lbLabel}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{lbLabel}", f"{lbId} <|> {lbLabel}", None, None, idx2, idx)
                     
                         idx2 = idx2 + 1
 
@@ -584,8 +611,8 @@ def ModelHandler(sender, **kwargs):
                     if lId and lLabel:
                     
                         # Add Linearizes Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_0', f"{lLabel}", f"{lId} <|> {lLabel}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{lLabel}", f"{lId} <|> {lLabel}", None, None, idx2, idx)
                     
                         idx2 = idx2 + 1
 
@@ -593,8 +620,8 @@ def ModelHandler(sender, **kwargs):
                     if ciId and ciLabel:
 
                         # Add Contained In Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedIn']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_0', f"{ciLabel}", f"{ciId} <|> {ciLabel}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['ContainedIn']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{ciLabel}", f"{ciId} <|> {ciLabel}", None, None, idx2, idx)
                         
                         idx2 = idx2 + 1
 
@@ -602,8 +629,8 @@ def ModelHandler(sender, **kwargs):
                     if cId and cLabel:
 
                         # Add Contains Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['Contains']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_0', f"{cLabel}", f"{cId} <|> {cLabel}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['Contains']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{cLabel}", f"{cId} <|> {cLabel}", None, None, idx2, idx)
                     
                         idx2 = idx2 + 1
 
@@ -611,8 +638,8 @@ def ModelHandler(sender, **kwargs):
                     if sId and sLabel:
 
                         # Add Similar To Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_2/Set_0/Question_0', f"{sLabel}", f"{sId} <|> {sLabel}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{sLabel}", f"{sId} <|> {sLabel}", None, None, idx2, idx)
 
                         idx2 = idx2 + 1
             
@@ -622,14 +649,14 @@ def ModelHandler(sender, **kwargs):
                     if ffId and ffLabel:
                         
                         # Set up Page for Mathematical Formulation
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5', idx2, None, None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulation', idx2, None, None, None, idx2)
                         
                         # Add Id / Label of Mathematical Formualtion
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Question_0', f"{ffLabel}", f"{ffId} <|> {ffLabel}", None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{ffLabel}", f"{ffId} <|> {ffLabel}", None, None, idx2)
                         
                         # Add Contained As Formulation In Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx, idx2)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_0', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalFormulation', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
                         
                         idx3 = 0
                         idx4 = 0
@@ -643,8 +670,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
                                         
                                         # Add Contains Formulation Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
                                         
                                         idx3 = idx3 + 1 
 
@@ -654,8 +681,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Formulation In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -665,8 +692,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Assumption Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -676,8 +703,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Assumption In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -687,8 +714,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Boundary Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -698,8 +725,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Boundary Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -709,8 +736,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Constraint Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -720,8 +747,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Constraint Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -731,8 +758,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Coupling Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -742,8 +769,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Coupling Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -753,8 +780,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Initial Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -764,8 +791,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Initial Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -775,8 +802,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Final Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -786,8 +813,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Final Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -797,8 +824,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -808,8 +835,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -819,8 +846,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximated By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -830,8 +857,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximates Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -841,8 +868,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -852,8 +879,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -863,8 +890,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -874,8 +901,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -885,8 +912,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -896,8 +923,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -907,8 +934,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Similar To Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -918,14 +945,14 @@ def ModelHandler(sender, **kwargs):
                     if afId and afLabel:
 
                         # Set up Page for Mathematical Formulation
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5', idx2, None, None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulation', idx2, None, None, None, idx2)
                         
                         # Add Id / Label of Mathematical Formualtion
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Question_0', f"{afLabel}", f"{afId} <|> {afLabel}", None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{afLabel}", f"{afId} <|> {afLabel}", None, None, idx2)
                         
                         # Add Contained As Assumption In Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx, idx2)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_0', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalFormulation', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
 
                         idx3 = 0
                         idx4 = 0
@@ -939,8 +966,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
                                         
                                         # Add Contains Formulation Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
                                         
                                         idx3 = idx3 + 1 
 
@@ -950,8 +977,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Formulation In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -961,8 +988,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Assumption Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -972,8 +999,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Assumption In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -983,8 +1010,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Boundary Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -994,8 +1021,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Boundary Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1005,8 +1032,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Constraint Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1016,8 +1043,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Constraint Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1027,8 +1054,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Coupling Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1038,8 +1065,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Coupling Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1049,8 +1076,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Initial Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1060,8 +1087,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Initial Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1071,8 +1098,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Final Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1082,8 +1109,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Final Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1093,8 +1120,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1104,8 +1131,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1115,8 +1142,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximated By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1126,8 +1153,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximates Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1137,8 +1164,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1148,8 +1175,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1159,8 +1186,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1170,8 +1197,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1181,8 +1208,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1192,8 +1219,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1203,8 +1230,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Similar To Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1214,14 +1241,14 @@ def ModelHandler(sender, **kwargs):
                     if bcfId and bcfLabel:
 
                         # Set up Page for Mathematical Formulation
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5', idx2, None, None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulation', idx2, None, None, None, idx2)
                         
                         # Add Id / Label of Mathematical Formualtion
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Question_0', f"{bcfLabel}", f"{bcfId} <|> {bcfLabel}", None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{bcfLabel}", f"{bcfId} <|> {bcfLabel}", None, None, idx2)
                         
                         # Add Contained As Boundary Condition In Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx, idx2)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_0', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalFormulation', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
 
                         idx3 = 0
                         idx4 = 0
@@ -1235,8 +1262,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
                                         
                                         # Add Contains Formulation Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
                                         
                                         idx3 = idx3 + 1 
 
@@ -1246,8 +1273,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Formulation In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1257,8 +1284,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Assumption Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1268,8 +1295,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Assumption In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1279,8 +1306,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Boundary Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1290,8 +1317,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Boundary Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1301,8 +1328,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Constraint Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1312,8 +1339,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Constraint Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1323,8 +1350,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Coupling Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1334,8 +1361,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Coupling Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1345,8 +1372,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Initial Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1356,8 +1383,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Initial Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1367,8 +1394,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Final Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1378,8 +1405,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Final Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1389,8 +1416,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1400,8 +1427,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1411,8 +1438,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximated By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1422,8 +1449,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximates Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1433,8 +1460,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1444,8 +1471,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1455,8 +1482,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1466,8 +1493,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1477,8 +1504,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1488,8 +1515,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1499,8 +1526,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Similar To Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1510,14 +1537,14 @@ def ModelHandler(sender, **kwargs):
                     if ccfId and ccfLabel:
 
                         # Set up Page for Mathematical Formulation
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5', idx2, None, None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulation', idx2, None, None, None, idx2)
                         
                         # Add Id / Label of Mathematical Formualtion
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Question_0', f"{ccfLabel}", f"{ccfId} <|> {ccfLabel}", None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{ccfLabel}", f"{ccfId} <|> {ccfLabel}", None, None, idx2)
                         
                         # Add Contained As Constraint Condition In Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx, idx2)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_0', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalFormulation', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
                     
                         idx3 = 0
                         idx4 = 0
@@ -1531,8 +1558,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
                                         
                                         # Add Contains Formulation Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
                                         
                                         idx3 = idx3 + 1 
 
@@ -1542,8 +1569,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Formulation In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1553,8 +1580,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Assumption Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1564,8 +1591,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Assumption In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1575,8 +1602,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Boundary Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1586,8 +1613,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Boundary Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1597,8 +1624,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Constraint Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1608,8 +1635,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Constraint Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1619,8 +1646,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Coupling Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1630,8 +1657,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Coupling Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1641,8 +1668,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Initial Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1652,8 +1679,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Initial Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1663,8 +1690,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Final Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1674,8 +1701,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Final Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1685,8 +1712,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1696,8 +1723,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1707,8 +1734,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximated By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1718,8 +1745,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximates Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1729,8 +1756,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1740,8 +1767,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1751,8 +1778,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1762,8 +1789,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1773,8 +1800,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1784,8 +1811,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1795,8 +1822,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Similar To Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -1806,14 +1833,14 @@ def ModelHandler(sender, **kwargs):
                     if cpcfId and cpcfLabel:
 
                         # Set up Page for Mathematical Formulation
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5', idx2, None, None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulation', idx2, None, None, None, idx2)
                         
                         # Add Id / Label of Mathematical Formualtion
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Question_0', f"{cpcfLabel}", f"{cpcfId} <|> {cpcfLabel}", None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{cpcfLabel}", f"{cpcfId} <|> {cpcfLabel}", None, None, idx2)
                         
                         # Add Contained As Coupling Condition In Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx, idx2)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_0', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalFormulation', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
 
                         idx3 = 0
                         idx4 = 0
@@ -1827,8 +1854,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
                                         
                                         # Add Contains Formulation Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
                                         
                                         idx3 = idx3 + 1 
 
@@ -1838,8 +1865,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Formulation In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1849,8 +1876,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Assumption Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1860,8 +1887,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Assumption In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1871,8 +1898,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Boundary Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1882,8 +1909,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Boundary Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1893,8 +1920,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Constraint Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1904,8 +1931,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Constraint Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1915,8 +1942,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Coupling Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1926,8 +1953,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Coupling Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1937,8 +1964,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Initial Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1948,8 +1975,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Initial Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1959,8 +1986,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Final Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -1970,8 +1997,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Final Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -1981,8 +2008,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -1992,8 +2019,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2003,8 +2030,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximated By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2014,8 +2041,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximates Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2025,8 +2052,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2036,8 +2063,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2047,8 +2074,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2058,8 +2085,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2069,8 +2096,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2080,8 +2107,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2091,8 +2118,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Similar To Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2102,14 +2129,14 @@ def ModelHandler(sender, **kwargs):
                     if icfId and icfLabel:
 
                         # Set up Page for Mathematical Formulation
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5', idx2, None, None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulation', idx2, None, None, None, idx2)
                         
                         # Add Id / Label of Mathematical Formualtion
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Question_0', f"{icfLabel}", f"{icfId} <|> {icfLabel}", None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{icfLabel}", f"{icfId} <|> {icfLabel}", None, None, idx2)
                         
                         # Add Contained As Initial Condition In Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx, idx2)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_0', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalFormulation', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
 
                         idx3 = 0
                         idx4 = 0
@@ -2123,8 +2150,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
                                         
                                         # Add Contains Formulation Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
                                         
                                         idx3 = idx3 + 1 
 
@@ -2134,8 +2161,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Formulation In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2145,8 +2172,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Assumption Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2156,8 +2183,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Assumption In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2167,8 +2194,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Boundary Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2178,8 +2205,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Boundary Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2189,8 +2216,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Constraint Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2200,8 +2227,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Constraint Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2211,8 +2238,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Coupling Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2222,8 +2249,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Coupling Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2233,8 +2260,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Initial Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2244,8 +2271,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Initial Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2255,8 +2282,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Final Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2266,8 +2293,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Final Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2277,8 +2304,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2288,8 +2315,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2299,8 +2326,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximated By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2310,8 +2337,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximates Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2321,8 +2348,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2332,8 +2359,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2343,8 +2370,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2354,8 +2381,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2365,8 +2392,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2376,8 +2403,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2387,8 +2414,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Similar To Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2398,14 +2425,14 @@ def ModelHandler(sender, **kwargs):
                     if fcfId and fcfLabel:
 
                         # Set up Page for Mathematical Formulation
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5', idx2, None, None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulation', idx2, None, None, None, idx2)
                         
                         # Add Id / Label of Mathematical Formualtion
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Question_0', f"{fcfLabel}", f"{fcfId} <|> {fcfLabel}", None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{fcfLabel}", f"{fcfId} <|> {fcfLabel}", None, None, idx2)
                         
                         # Add Contained As Final Condition In Property and Model
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx, idx2)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_2/Question_0', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalFormulation', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
 
                         idx3 = 0
                         idx4 = 0
@@ -2419,8 +2446,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
                                         
                                         # Add Contains Formulation Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFormulation']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
                                         
                                         idx3 = idx3 + 1 
 
@@ -2430,8 +2457,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Formulation In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFormulationIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2441,8 +2468,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Assumption Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsAssumption']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2452,8 +2479,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Assumption In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsAssumptionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2463,8 +2490,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Boundary Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsBoundaryCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2474,8 +2501,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Boundary Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsBoundaryConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2485,8 +2512,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Constraint Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsConstraintCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2496,8 +2523,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Constraint Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsConstraintConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2507,8 +2534,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Coupling Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsCouplingCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2518,8 +2545,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Coupling Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsCouplingConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2529,8 +2556,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Initial Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsInitialCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2540,8 +2567,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Initial Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsInitialConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2551,8 +2578,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Final Condition Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainsFinalCondition']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1 
 
@@ -2562,8 +2589,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained As Final Condition In Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_1/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb['ContainedAsFinalConditionIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2573,8 +2600,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2584,8 +2611,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2595,8 +2622,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximated By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2606,8 +2633,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximates Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2617,8 +2644,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2628,8 +2655,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2639,8 +2666,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2650,8 +2677,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2661,8 +2688,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalized By Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['NondimensionalizedBy']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
                                 
@@ -2672,8 +2699,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Nondimensionalizes Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['Nondimensionalizes']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2683,8 +2710,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Similar To Property and Formulation
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_1', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_5/Set_3/Question_0', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx4, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
 
                                         idx4 = idx4 + 1
 
@@ -2696,13 +2723,13 @@ def ModelHandler(sender, **kwargs):
                     if taId and taLabel:
                         
                         # Set up Page for Task
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6', idx2, None, None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/Task', idx2, None, None, None, idx2)
                         
                         # Add Task ID / Label
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Question_0', f"{taLabel}", f"{taId} <|> {taLabel}", None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/TaskMathModDBID', f"{taLabel}", f"{taId} <|> {taLabel}", None, None, idx2)
                         
                         # Add Model applied by Task
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Question_1', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx2)
+                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToTask', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx2)
 
                         idx3 = 0
 
@@ -2715,8 +2742,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalized By Property and Task
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_0', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb['GeneralizedBy']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2726,8 +2753,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Generalizes Property and Task
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_0', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb['Generalizes']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2737,8 +2764,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximated By Property and Task
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_0', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb['ApproximatedBy']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2748,8 +2775,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Approximates Property and Task
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_0', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb['Approximates']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                     idx3 = idx3 + 1
 
@@ -2759,8 +2786,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretized By Property and Task
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_0', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb['DiscretizedBy']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2770,8 +2797,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Discretizes Property and Task
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_0', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb['Discretizes']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2781,8 +2808,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contained In Property and Task
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_0', None, None, Option.objects.get(uri=mathmoddb['ContainedIn']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb['ContainedIn']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2792,8 +2819,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Contains Property and Task
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_0', None, None, Option.objects.get(uri=mathmoddb['Contains']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb['Contains']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
                                     
                                         idx3 = idx3 + 1
 
@@ -2803,8 +2830,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearized By Property and Task
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_0', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb['LinearizedBy']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2814,8 +2841,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Linearizes Property and Task
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_0', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb['Linearizes']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2825,8 +2852,8 @@ def ModelHandler(sender, **kwargs):
                                     for it,lb in zip(its,lbs):
 
                                         # Add Similar To Property and Task
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_0', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx3, idx2)
-                                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_6/Set_1/Question_1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb['SimilarTo']), None, idx3, idx2)
+                                        valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
 
                                         idx3 = idx3 + 1
 
@@ -2867,10 +2894,10 @@ def ModelHandler(sender, **kwargs):
                 idx2 = 0
 
                 # Set up Publication Page 
-                valueEditor(instance, f'{BASE_URI}Section_3a/Set_7', idx, None, None, None, idx)
+                valueEditor(instance, f'{BASE_URI}domain/Publication', idx, None, None, None, idx)
                 
                 # Add Id / Label of Publication
-                valueEditor(instance, f'{BASE_URI}Section_3a/Set_7/Question_0', f"{puLabel}", f"{puId} <|> {puLabel}", None, None, idx)
+                valueEditor(instance, f'{BASE_URI}domain/PublicationMathModDBID', f"{puLabel}", f"{puId} <|> {puLabel}", None, None, idx)
                 
                 for res4 in results4:
 
@@ -2895,39 +2922,39 @@ def ModelHandler(sender, **kwargs):
                     if puId in res4.get('PU1',{}).get('value',''):
                         
                         # Add Documents Property and Entitiy
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_7/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['Documents']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_7/Set_0/Question_0', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/PublicationToModelEntityRelation', None, None, Option.objects.get(uri=mathmoddb['Documents']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/ModelEntityRelatedToPublication', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
                         
                         idx2 = idx2 + 1
 
                     if puId in res4.get('PU2',{}).get('value',''):
 
                         # Add Invents Property and Entitiy
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_7/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['Invents']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_7/Set_0/Question_0', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/PublicationToModelEntityRelation', None, None, Option.objects.get(uri=mathmoddb['Invents']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/ModelEntityRelatedToPublication', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
 
                         idx2 = idx2 + 1
 
                     if puId in res4.get('PU3',{}).get('value',''):
 
                         # Add Studies Property and Entitiy
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_7/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['Studies']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_7/Set_0/Question_0', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/PublicationToModelEntityRelation', None, None, Option.objects.get(uri=mathmoddb['Studies']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/ModelEntityRelatedToPublication', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
     
                         idx2 = idx2 + 1
 
                     if puId in res4.get('PU4',{}).get('value',''):
 
                         # Add Surveys Property and Entitiy
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_7/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['Surveys']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_7/Set_0/Question_0', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/PublicationToModelEntityRelation', None, None, Option.objects.get(uri=mathmoddb['Surveys']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/ModelEntityRelatedToPublication', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
     
 
                     if puId in res4.get('PU5',{}).get('value',''):
 
                         # Add Uses Property and Entitiy
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_7/Set_0/Question_1', None, None, Option.objects.get(uri=mathmoddb['Uses']), None, idx2, idx)
-                        valueEditor(instance, f'{BASE_URI}Section_3a/Set_7/Set_0/Question_0', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/PublicationToModelEntityRelation', None, None, Option.objects.get(uri=mathmoddb['Uses']), None, idx2, idx)
+                        valueEditor(instance, f'{BASE_URI}domain/ModelEntityRelatedToPublication', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
     
                         idx2 = idx2 + 1
 
@@ -2936,16 +2963,16 @@ def ModelHandler(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def programmingLanguages(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}Section_4/Set_3/Question_01':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/SoftwareQID':
        
-        software_id = instance.text.split(' <|> ')[0]
+        software_id = instance.external_id.split(' <|> ')[0]
         
         if software_id.split(':')[0] == 'wikidata':
             
             res = kg_req(wikidata_endpoint,wini.format(pl_vars,pl_query.format(software_id.split(':')[-1],'P277'),'100'))
             for idx, r in enumerate(res):
                 if r.get('qid',{}).get('value'): 
-                    attribute_object = Attribute.objects.get(uri=f'{BASE_URI}Section_4/Set_3/Question_05')
+                    attribute_object = Attribute.objects.get(uri=f'{BASE_URI}domain/SoftwareProgrammingLanguages')
                     obj, created = Value.objects.update_or_create(
                     project=instance.project,
                     attribute=attribute_object,
@@ -2954,7 +2981,8 @@ def programmingLanguages(sender, **kwargs):
                     defaults={
                               'project': instance.project,
                               'attribute': attribute_object,
-                              'text': 'wikidata:' + res[idx]['qid']['value'] + ' <|> ' + res[idx]['label']['value'] + ' <|> ' + res[idx]['quote']['value']
+                              'external_id': f"wikidata:{res[idx]['qid']['value']} <|> {res[idx]['label']['value']} <|> {res[idx]['quote']['value']}",
+                              'text': f"{res[idx]['label']['value']} ({res[idx]['quote']['value']})"
                              }
                     )
 
@@ -2963,7 +2991,7 @@ def programmingLanguages(sender, **kwargs):
             res = kg_req(mardi_endpoint,mini.format(pl_vars,pl_query.format(software_id.split(':')[-1],P19),'100')) 
             for idx, r in enumerate(res):
                 if r.get('qid',{}).get('value'):
-                    attribute_object = Attribute.objects.get(uri=f'{BASE_URI}Section_4/Set_3/Question_05')
+                    attribute_object = Attribute.objects.get(uri=f'{BASE_URI}domain/SoftwareProgrammingLanguages')
                     obj, created = Value.objects.update_or_create(
                     project=instance.project,
                     attribute=attribute_object,
@@ -2972,7 +3000,8 @@ def programmingLanguages(sender, **kwargs):
                     defaults={
                               'project': instance.project,
                               'attribute': attribute_object,
-                              'text': 'mardi:' + res[idx]['qid']['value'] + ' <|> ' + res[idx]['label']['value'] + ' <|> ' + res[idx]['quote']['value']
+                              'external_id': f"mardi:{res[idx]['qid']['value']} <|> {res[idx]['label']['value']} <|> {res[idx]['quote']['value']}",
+                              'text': f"{res[idx]['label']['value']} ({res[idx]['quote']['value']})"
                              }
                     )
 
@@ -2981,7 +3010,7 @@ def programmingLanguages(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def processor(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}Section_4/Set_4/Question_03':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/HardwareProcessor':
         try:
             url, label, quote = instance.external_id.split(' <|> ')
             
@@ -3002,7 +3031,7 @@ def processor(sender, **kwargs):
             else:
                 info = real_link + ' <|> ' + label + ' <|> ' + quote
             
-            attribute_object = Attribute.objects.get(uri=f'{BASE_URI}Section_4/Set_4/Question_03')
+            attribute_object = Attribute.objects.get(uri=f'{BASE_URI}domain/HardwareProcessor')
             obj, created = Value.objects.update_or_create(
                 project=instance.project,
                 attribute=attribute_object,

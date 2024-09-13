@@ -1,20 +1,19 @@
 {% extends 'core/page.html' %}
 {% load i18n %}
+{% load static %}
 
 {% block page %}
-
-    <html>
-    	<body>
-            <br><br><br><br><br><br><br><br><br><br><br>
-            <div align='center'>
-            	<p>
-            	    <span style="font-family:'Arial';color:DarkSlateBlue;font-size:100px;"><b>Ma</b></span>
-            	    <span style="font-family:'Arial';color:white;background-color:DarkSlateBlue;font-size:100px;"><b>RDMO</b></p></span>
-                </p>
-                <br><br><br>
-		<p style="color:DarkSlateBlue;font-size:30px;">{{ error }}</p>
-            </div>
-        </body>
-    </html>
-
+    <div align='center'>
+        <br><br><br><br><br><br><br>
+        <figure>
+            <img src="{% static 'MaRDMO/images/MaRDMOLogo.png' %}" alt="Logo of MaRDMO Plugin">
+        </figure>
+        <br><br><br>
+        <p style="color:Black;font-size:40px;font-weight:bold">{{ error }}</p>
+    </div>
+    <!-- Attribution Section -->
+    <div align='center' style="margin-top: 50px; font-size: 14px; color: grey;">
+        <p>MaRDMO Logo by <a href="https://www.mardi4nfdi.de/about/mission" target="_blank" style="color: grey;">MaRDI</a>, licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" style="color: grey;">CC BY-NC-ND 4.0</a>.</p>
+    </div>
 {% endblock %}
+

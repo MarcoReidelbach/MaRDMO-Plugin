@@ -1,21 +1,21 @@
+
 {% extends 'core/page.html' %}
 {% load i18n %}
+{% load static %}
 
 {% block page %}
-
-    <html>
-    	<body>
-            <br><br><br><br><br><br><br><br><br><br><br>
-            <div align='center'>
-            	<p>
-            	    <span style="font-family:'Arial';color:DarkSlateBlue;font-size:100px;"><b>Ma</b></span>
-            	    <span style="font-family:'Arial';color:white;background-color:DarkSlateBlue;font-size:100px;"><b>RDMO</b></p></span>
-                </p>
-                <br><br><br>
-                <p style="color:DarkSlateBlue;font-size:30px;">You're Workflow has been added to the MaRDI Portal.</p>
-                <p style="color:DarkSlateBlue;font-size:30px;"><a href="{{ WikiLink }}" style="color:orange;">Wiki Page</a> - <a href="{{ KGLink }}" style="color:orange;">Knowledge Graph Entry</a></p>
-            </div>
-        </body>
-    </html>
-
-{% endblock %}
+    <div align='center'>
+        <br><br><br><br><br><br><br>
+        <figure>
+            <img src="{% static 'MaRDMO/images/MaRDMOLogo.png' %}" alt="Logo of MaRDMO Plugin">
+        </figure>
+        <br><br><br>
+        <p style="color:Black;font-size:40px;;font-weight:bold">You're Workflow has been added</p>
+        <p style="color:Black;font-size:40px;;font-weight:bold">to the MaRDI Portal!</p>
+	<p style="color:Black;font-size:40px;;font-weight:bold"><a href="{{ WikiLink }}" style="color:black;">Wiki Page</a> - <a href="{{ KGLink }}" style="color:black;">Knowledge Graph Entry</a></p>
+    </div>
+    <!-- Attribution Section -->
+    <div align='center' style="margin-top: 50px; font-size: 14px; color: grey;">
+        <p>MaRDMO Logo by <a href="https://www.mardi4nfdi.de/about/mission" target="_blank" style="color: grey;">MaRDI</a>, licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" style="color: grey;">CC BY-NC-ND 4.0</a>.</p>
+    </div>
+    {% endblock %}

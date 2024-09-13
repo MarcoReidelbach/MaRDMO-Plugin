@@ -31,7 +31,7 @@
 
 {% endif %}
 
-models: {{ models }} 
+models: {{ models.1 }} 
 
 {% endfor %}
 
@@ -182,7 +182,7 @@ models: {{ models }}
 
 {% endif %}
 
-applies Mathematical Model: {{ value }}
+applies Mathematical Model: {{ value.1 }}
 
 {% endfor %}
 
@@ -429,7 +429,7 @@ URL:{% if 'url' in values.Reference %} {{ values.Reference|cut:"url:" }} {% endi
 
 {% endif %}
 
-contained in Field: {{ researchfield }}
+contained in Field: {{ researchfield.1 }}
 {% endfor %}
 
 {% for relation in values.RelationRP1.values %}
