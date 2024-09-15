@@ -79,8 +79,22 @@ class MaRDIExport(Export):
 
 ### Checks for Workflow Documentation #############################################################################################################################################################
 
+            # Export Type 
+            if not answers['Settings'].get('Public'):
+                # Stop if no Documentation Type chosen
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Export Type!'
+                    }, status=200)
+
+            # Preview Type
+            if answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') not in (option['Yes'], option['No']): 
+                # Stop if no Documentation Type chosen
+                return render(self.request,'MaRDMO/workflowError.html', {
+                    'error': 'Missing Preview Type for Public Export!'
+                    }, status=200)
+
             # Login Credentials for MaRDI Portal Export
-            if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+            if answers['Settings'].get('Public') == option['Public'] and answers['Settings'].get('Preview') == option['No']:
                 if not (lgname and lgpassword):
                     #Stop if no Login Credentials are provided
                     return render(self.request,'MaRDMO/workflowError.html', {
@@ -356,7 +370,7 @@ class MaRDIExport(Export):
                 # Add Symbols to Task Quantities
                 for tkey in answers['Task']:
                     if answers['Task'][tkey].get('Include'):
-                        for tkey2 in answers['Task'][tkey]['Other2']:
+                        for tkey2 in answers['Task'][tkey].get('Other2', []):
                             tvar = answers['Task'][tkey]['Other2'][tkey2].split(' <|> ')[1]
                             for mkey in answers['MathematicalFormulation']:
                                 for mkey2 in answers['MathematicalFormulation'][mkey]['Element']:
@@ -600,12 +614,6 @@ class MaRDIExport(Export):
                     return render(self.request,'MaRDMO/workflowExport.html', {
                         'WikiLink': mardi_wiki+self.project.title.replace(' ','_'),
                         'KGLink': mardi_wiki+'Item:'+workflow_qid
-                        }, status=200)
-            
-                else:
-                    # Stop if no Export Type is chosen
-                    return render(self.request,'MaRDMO/workflowError.html', {
-                        'error': 'Missing Export Type!'
                         }, status=200)
 
             elif answers['Settings'].get('DocumentationType')  == option['Document'] or answers['Settings'].get('DocumentationType')  == option['Model']:
