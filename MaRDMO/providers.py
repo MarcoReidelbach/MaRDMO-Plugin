@@ -16,7 +16,7 @@ class MaRDIAndWikidataSearch(Provider):
     
     search = True
 
-    def get_options(self, project, search):
+    def get_options(self, project, search, user=None, site=None):
         '''Function which queries Wikidata and MaRDI KG for user input.'''
         if not search or len(search) < 3:
             return []
@@ -47,7 +47,7 @@ class AvailableSoftware(Provider):
         f'{BASE_URI}domain/SoftwareDescription'
     ]
 
-    def get_options(self, project, search):
+    def get_options(self, project, search, user=None, site=None):
         '''Function which queries Wikidata and MaRDI KG for user input.'''
         if not search or len(search) < 3:
             return []
@@ -82,7 +82,7 @@ class MaRDISearch(Provider):
 
     search = True
 
-    def get_options(self, project, search):
+    def get_options(self, project, search, user=None, site=None):
         '''Function which queries MaRDI KG for user input.'''
         if not search or len(search) < 3:
             return []
@@ -104,7 +104,7 @@ class MSCProvider(Provider):
 
     search = True
 
-    def get_options(self, project, search):
+    def get_options(self, project, search, user=None, site=None):
         '''Function which get MSC Classification.'''
         if not search or len(search) < 3:
             return []
@@ -120,7 +120,7 @@ class ProcessorProvider(Provider):
     search = True
     api_url = 'https://en.wikichip.org/w/api.php?' 
 
-    def get_options(self, project, search):
+    def get_options(self, project, search, user=None, site=None):
         '''Function which get MSC Classification.'''
         if not search or len(search) < 3:
             return []
@@ -142,7 +142,7 @@ class MathAreaProvider(Provider):
     
     SUBJECT_ATTRIBUTE = f'{BASE_URI}domain/MathematicalSubject'
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
         """
         Function providing the user-defined mathematical areas.
         """
@@ -165,7 +165,7 @@ class EnvironmentProvider(Provider):
         f'{BASE_URI}domain/InstrumentName'
     ]
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
         """
         Function providing the user-defined environments.
         """
@@ -192,7 +192,7 @@ class MethodProvider(Provider):
         f'{BASE_URI}domain/MethodName'
     ]
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
         """
         Function providing the user-defined methods.
         """
@@ -222,7 +222,7 @@ class DataProvider(Provider):
         f'{BASE_URI}domain/DataSetName',
     ]
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
         """
         Function providing the user-defined input and output data sets.
         """
@@ -249,7 +249,7 @@ class SoftwareProvider(Provider):
         f'{BASE_URI}domain/SoftwareName'
     ]
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
         """
         Function providing the user-defined software.
         """
@@ -275,7 +275,7 @@ class ResearchField(Provider):
 
     search = True
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         options = MathModDBProvider(search,queryProvider['RF'])
         
@@ -285,7 +285,7 @@ class RelatedResearchField(Provider):
 
     search = True
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
         
         if not search:
             return []
@@ -322,7 +322,7 @@ class ResearchProblem(Provider):
 
     search = True
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         options = MathModDBProvider(search,queryProvider['RP'])
 
@@ -332,7 +332,7 @@ class MathematicalModel(Provider):
 
     search = True
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         options = MathModDBProvider(search,queryProvider['MM'])
         
@@ -342,7 +342,7 @@ class Publication(Provider):
 
     search = True
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         options = MathModDBProvider(search,queryProvider['P'])
         
@@ -352,7 +352,7 @@ class RelatedResearchProblem(Provider):
 
     search = True
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
         
         if not search:
             return []
@@ -387,7 +387,7 @@ class RelatedResearchProblem(Provider):
 
 class ResearchFieldWithUserAddition(Provider):
 
-        def get_options(self, project, search=None):
+        def get_options(self, project, search=None, user=None, site=None):
 
             values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldQID'))
             values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldName'))
@@ -413,7 +413,7 @@ class RelatedMathematicalModel(Provider):
 
     search = True
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         if not search:
             return []
@@ -448,7 +448,7 @@ class RelatedMathematicalModel(Provider):
 
 class MathematicalModelWithUserAddition(Provider):
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         options = []
         
@@ -474,7 +474,7 @@ class QuantityOrQuantityKind(Provider):
 
     search = True
 
-    def get_options(self, project, search):
+    def get_options(self, project, search, user=None, site=None):
 
         options = MathModDBProvider(search,queryProvider['QQK'])
 
@@ -489,7 +489,7 @@ class RelatedQuantity(Provider):
     with open(path, "r") as json_file:
         mathmoddb = json.load(json_file)
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         if not search:
             return []
@@ -532,7 +532,7 @@ class RelatedQuantityKind(Provider):
     with open(path, "r") as json_file:
         mathmoddb = json.load(json_file)
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         if not search:
             return []
@@ -570,7 +570,7 @@ class MathematicalFormulation(Provider):
 
     search = True
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         options = MathModDBProvider(search,queryProvider['MF'])
         
@@ -580,7 +580,7 @@ class MathematicalFormulationWithUserAddition(Provider):
 
     search = True
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
         
         if not search:
             return []
@@ -620,7 +620,7 @@ class QuantityOrQuantityKindWithUserAddition(Provider):
     with open(path, "r") as json_file:
         mathmoddb = json.load(json_file)
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindMathModDBID'))
         values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindQID'))
@@ -658,7 +658,7 @@ class QuantityOrQuantityKindWithUserAddition(Provider):
 
 class WorkflowTask(Provider):
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         options = []
 
@@ -685,7 +685,7 @@ class Task(Provider):
 
     search = True
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         options = MathModDBProvider(search,queryProvider['T'])
         
@@ -695,7 +695,7 @@ class RelatedTask(Provider):
 
     search = True
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
 
         if not search:
             return []
@@ -735,7 +735,7 @@ class AllEntities(Provider):
     with open(path, "r") as json_file:
         mathmoddb = json.load(json_file)
 
-    def get_options(self, project, search=None):
+    def get_options(self, project, search=None, user=None, site=None):
         options =[]
 
         values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldMathModDBID'))
