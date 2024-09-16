@@ -36,6 +36,10 @@ def PublicationCitationRetriever(sender, **kwargs):
             valueEditor(instance,f"{BASE_URI}domain/PublicationInformation",0)
         
         elif re.match(r'doi:10.\d{4,9}/[-._;()/:a-z0-9A-Z]+', instance.text):
+
+            path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
+            with open(path, "r") as json_file:
+                option = json.load(json_file)
             
             # Extract DOI and Initialize different dictionaries
             doi = instance.text.split(':')[1]   
@@ -113,10 +117,6 @@ def PublicationCitationRetriever(sender, **kwargs):
                         dict_merged['mardi_publicationDescription1'] = mardi_dict[0].get('publicationDescription1', []).get('value')
                 else: 
             
-                    path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
-                    with open(path, "r") as json_file:
-                        option = json.load(json_file)
-
                     # If no results found in MaRDI KG or Wikidata use DOI to get complete citation
                     orcid_authors, zbmath_authors, other_authors, citation_dictionary = GetCitation(doi)
             
