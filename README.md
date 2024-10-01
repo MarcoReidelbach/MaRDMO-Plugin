@@ -83,7 +83,7 @@ To write to the MathModDB KG a login is required. Credentials might be obtained 
 
 ```python
 mathmoddb_username = 'username'
-#mathmoddb_password = 'password'
+mathmoddb_password = 'password'
 ``` 
 
 Local workflow and model documentations and workflow searches are possible without login credentials. Non-MaRDI users may contact the owner of the repository to facilitate the login for MaRDI portal and MathModDB publication.

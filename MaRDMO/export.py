@@ -131,7 +131,7 @@ class MaRDIExport(Export):
                         }, status=200)
 
                 # Identical Workflow on MaRDI Portal
-                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']: 
+                if answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']: 
                     # Evaluate user-defined Workflow Author Name and ID(s)
                     if not answers['Creator'].get('Name'):
                         # Stop if no Workflow Author Name provided
@@ -203,7 +203,7 @@ class MaRDIExport(Export):
 ### If Portal Integration desired, check if Paper already exists on MaRDI Portal or Wikidata  #####################################################################################################
 
                 # If Portal integration wanted, get further publication information
-                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                if answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
                     if answers['Publication']['Exists'][0] == option['YesText']:
                         # Extract Paper DOI
                         doi=re.split(':', answers['Publication']['Exists'][1],1)
@@ -384,17 +384,15 @@ class MaRDIExport(Export):
                     if answers['Task'][tkey].get('Include'):
                         for tkey2 in answers['Task'][tkey].get('T2Q', []):
                             tvar = answers['Task'][tkey]['QRelatant'][tkey2].split(' <|> ')[1]
-                            print(tvar)
                             for mkey in answers['MathematicalFormulation']:
                                 for mkey2 in answers['MathematicalFormulation'][mkey]['Element']:
                                     if answers['MathematicalFormulation'][mkey]['Element'][mkey2].get('Info',{}).get('Name'):
                                         mvar = answers['MathematicalFormulation'][mkey]['Element'][mkey2].get('Info',{}).get('Name')
                                     else:
                                         mvar = answers['MathematicalFormulation'][mkey]['Element'][mkey2].get('Info',{}).get('QKName')
-                                    print(mvar)
                                     if tvar == mvar:
                                         answers['Task'][tkey].setdefault('RelationQ',{}).update({tkey2:[answers['Task'][tkey]['T2Q'][tkey2],tvar,answers['MathematicalFormulation'][mkey]['Element'][mkey2]['Symbol']]})
-                print(answers['Models']) 
+                 
 ### Integrate related Methods in MaRDI KG #########################################################################################################################################################
 
                 methods, answers, error = self.Entry_Generator('Method',            # Entry of Method with Main Subject
@@ -702,7 +700,7 @@ class MaRDIExport(Export):
                         }, status=200)
 
                 # Export Model Documentation to MathModDB as Mediawiki File
-                elif answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                elif answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
 
                     # Merge answers related to mathematical model
                     merged_dict = merge_dicts_with_unique_keys(answers)
@@ -1086,7 +1084,7 @@ class MaRDIExport(Export):
         qids=[]
         for key in answers[Type].keys():
             # Check if on Portal or in Wikidata, integrate Wikidata entry if desired
-            qid, entry = self.portal_wikidata_check(answers[Type][key], answers['Settings']['Public'], answers['Settings']['Preview'], option)        
+            qid, entry = self.portal_wikidata_check(answers[Type][key], answers['Settings']['Public'], answers['Settings'].get('Preview'), option)        
             # Update User answers
             if qid: 
                 qids.append(qid)
@@ -1108,7 +1106,7 @@ class MaRDIExport(Export):
 
                     if Type == 'ExperimentalDevice' and answers['Settings']['WorkflowType'] == option['Analysis']:
 
-                        if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                        if answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
                             # Add Version as qualifier of 'uses' statement
                             if answers[Type][key].get('Version'):
                                 answers[Type][key]['Qualifiers'].add(String(prop_nr=Relations[3], value=answers[Type][key].get('Version')))
@@ -1119,17 +1117,17 @@ class MaRDIExport(Export):
                         # Search and add Location as qualifier of 'uses' statement 
                         for subkey in answers[Type][key].get('SubProperty', {}).keys():
                             if answers[Type][key]['SubProperty'][subkey]: 
-                                location, _ = self.portal_wikidata_check(answers[Type][key]['SubProperty'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'], option)
+                                location, _ = self.portal_wikidata_check(answers[Type][key]['SubProperty'][subkey], answers['Settings']['Public'], answers['Settings'].get('Preview'), option)
                                 answers[Type][key]['SubProperty'][subkey].update({'mardiId': location, 'uri': f"{mardi_wiki}Item:{location}"})
-                                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                                if answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
                                     answers[Type][key]['Qualifiers'].add(Item(prop_nr=Relations[1], value=location))
                         
                         # Search and add available Software as qualifier of 'uses' statement
                         for subkey in answers[Type][key].get('SubProperty2', {}).keys():
                             if answers[Type][key]['SubProperty2'][subkey]:
-                                availSoftware, _ = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'], option)
+                                availSoftware, _ = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings'].get('Preview'), option)
                                 answers[Type][key]['SubProperty2'][subkey].update({'mardiId': availSoftware, 'uri': f"{mardi_wiki}Item:{availSoftware}"})
-                                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                                if answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
                                     answers[Type][key]['Qualifiers'].add(Item(prop_nr=Relations[2], value=availSoftware))
                     
                     elif Type == 'Hardware' and answers['Settings']['WorkflowType'] == option['Computation']:
@@ -1139,7 +1137,7 @@ class MaRDIExport(Export):
                         for subkey in answers[Type][key].get('SubProperty', {}).keys():
                             cpuID = self.find_item(answers[Type][key]['SubProperty'][subkey]['Name'],answers[Type][key]['SubProperty'][subkey]['Description'])
                             if not cpuID:
-                                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                                if answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
                                     cpuID = self.entry(
                                                 answers[Type][key]['SubProperty'][subkey]['Name'],answers[Type][key]['SubProperty'][subkey]['Description'],
                                                 [(Item,Relations[0],Relations[3]),(Quantity,answers['Hardware'][key].get('Core') if answers['Hardware'][key].get('Core') else '1',Relations[4])]+
@@ -1153,25 +1151,25 @@ class MaRDIExport(Export):
                         # Search and add Compilers as qualifiers of 'uses' statement
                         for subkey in answers[Type][key].get('SubProperty2', {}).keys():
                             if answers[Type][key]['SubProperty2'][subkey]:
-                                compiler, _ = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'], option)
+                                compiler, _ = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings'].get('Preview'), option)
                                 answers[Type][key]['SubProperty2'][subkey].update({'mardiId': compiler, 'uri': f"{mardi_wiki}Item:{compiler}"})
-                                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                                if answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
                                     answers[Type][key]['Qualifiers'].add(Item(prop_nr=Relations[2], value=compiler))
 
                     else:
                         for subkey in answers[Type][key].get('SubProperty', {}).keys():
                             # Check if subproperty on Portal or in Wikidata (store QID and string)
                             if answers[Type][key]['SubProperty'][subkey]: 
-                                subqid, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'], option)
+                                subqid, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty'][subkey], answers['Settings']['Public'], answers['Settings'].get('Preview'), option)
                                 answers[Type][key]['SubProperty'][subkey].update({'mardiId': subqid, 'uri': f"{mardi_wiki}Item:{subqid}"})
                                 subqids.append(subqid)
-                                if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                                if answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
                                      answers[Type][key]['Qualifiers'].add(Item(prop_nr=Relations[1], value=subqid))
 
                         for subkey in answers[Type][key].get('SubProperty2', {}).keys():
                             # Check if subproperty2 on Portal or in Wikidata (store QID and string)
                             if answers[Type][key]['SubProperty2'][subkey]:
-                                subqid2, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings']['Preview'], option)
+                                subqid2, subentry = self.portal_wikidata_check(answers[Type][key]['SubProperty2'][subkey], answers['Settings']['Public'], answers['Settings'].get('Preview'), option)
                                 answers[Type][key]['SubProperty2'][subkey].update({'mardiId': subqid2, 'uri': f"{mardi_wiki}Item:{subqid2}"})
                                 subqids2.append(subqid2)
 
@@ -1182,7 +1180,7 @@ class MaRDIExport(Export):
                 # Generate Entry QID
                 if not qid:
                     # If desired generate Entry in MaRDI KG and update User answers
-                    if answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
+                    if answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
                         if Type == 'Hardware':
                             qids.append(self.entry(
                                 entry[0],entry[1],
