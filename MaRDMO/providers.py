@@ -525,7 +525,7 @@ class RelatedQuantity(Provider):
         options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
 
         options = sorted(options, key=lambda option: option['text'])
-        print(options)
+        
         return options
 
 class RelatedQuantityKind(Provider):
@@ -569,7 +569,7 @@ class RelatedQuantityKind(Provider):
         options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
 
         options = sorted(options, key=lambda option: option['text'])
-        print(options)
+        
         return options
 
 class MathematicalFormulation(Provider):

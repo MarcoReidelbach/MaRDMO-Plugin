@@ -1508,7 +1508,6 @@ def dict_to_triples(data, relations, relatants):
         
         # Assign Individual Formula
         if item.get('Formula'):
-            print(item['Formula'])
             formulas = item['Formula'].values()
             for formula in formulas:
                 formula = formula.replace('\\', '\\\\')
