@@ -20,11 +20,11 @@ def ModelRetriever(answers,mathmoddb):
     # Kinds of Objects, Relations and Properties
     formulationKinds = ['Formulation', 'Assumption', 'BoundaryCondition', 'ConstraintCondition', 'CouplingCondition', 'InitialCondition', 'FinalCondition']
     quantityKinds = ['Input', 'Output', 'Objective', 'Parameter', 'Constant']
-    intraClassRelations = ['GeneralizedBy','Generalizes','ApproximatedBy','Approximates','DiscretizedBy','Discretizes','LinearizedBy','Linearizes','NondimensionalizedBy','Nondimensionalized','SimilarTo']
-    publicationRelations = ['DocumentedIn', 'InventedIn', 'StudiedIn', 'SurveyedIn', 'UsedIn']
-    dataProperties = ['IsLinear','IsNotLinear','IsConvex','IsNotConvex','IsDynamic','IsStatic','IsDeterministic','IsStochastic','IsDimensionless',
-                     'IsDimensional','IsTimeContinuous','IsTimeDiscrete','IsTimeIndependent','IsSpaceContinuous','IsSpaceDiscrete','IsSpaceIndependent']
-
+    intraClassRelations = ['generalizedBy','generalizes','approximatedBy','approximates','discretizedBy','discretizes','linearizedBy','linearizes','nondimensionalizedBy','nondimensionalizes','similarTo']
+    publicationRelations = ['documentedIn', 'inventedIn', 'studiedIn', 'surveyedIn', 'usedIn']
+    dataProperties = ['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless',
+                     'isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']
+    
     # Flag all Tasks as unwanted by User in Workflow Documentation
     for key in answers['Task']:
         answers['Task'][key].update({'Include':False})
@@ -49,16 +49,16 @@ def ModelRetriever(answers,mathmoddb):
             assignValue(qClass, ['quote'], 'Description',result ,key, answers)
             # Evaluate Data Properties of Mathematical Model
             assignProperties(answers[qClass][key], result, mathmoddb, dataProperties)
-            # Evaluate Research Problem(s) of Mathematical Model 
-            assignComplexEntityRelations(qClass, 'ResearchProblem', 'Models', ['ModeledBy'], result, key, answers)
+            # Evaluate Research Problem(s) of Mathematical Model
+            assignSimpleEntityRelation(qClass, 'models', ['MM2RP','RPRelatant','models'], result, key, answers, mathmoddb) 
             # Evaluate Task(s) applying Mathematical Model
             assignComplexEntityRelations(qClass, 'Task', 'AppliedByTask', ['AppliesModel'], result, key, answers)
             # Evaluate Mathematical Model(s) containend in Mathematical Model
-            assignSimpleEntityRelation(qClass, 'ContainsModel', ['IntraClassRelation','IntraClassElement','Contains'], result, key, answers, mathmoddb)
+            assignSimpleEntityRelation(qClass, 'containsModel', ['IntraClassRelation','IntraClassElement','containsModel'], result, key, answers, mathmoddb)
             # Evaluate different kinds of Mathematical Formulations of Mathematical Model
             for kind in formulationKinds:
-                assignComplexEntityRelations(qClass, 'MathematicalFormulation', f'Contains{kind}', ['Relation1','Other1'], result, key, answers, mathmoddb, inversePropertyMapping)
-
+                assignComplexEntityRelations(qClass, 'MathematicalFormulation', f'contains{kind}', ['MF2MM','MMRelatant'], result, key, answers, mathmoddb, inversePropertyMapping)
+    
     # Get additional Task Information from MathModDB
     
     qClass = 'Task'
@@ -81,16 +81,18 @@ def ModelRetriever(answers,mathmoddb):
             assignProperties(answers[qClass][key], result, mathmoddb, dataProperties)
             # Evaluate Subclass of Task
             assignValue(qClass, ['subclass'], 'TaskClass',result ,key, answers, mathmoddb)
+            # Evaluate related Mathematical Models
+            assignSimpleEntityRelation(qClass, 'appliesModel', ['T2MM','MMRelatant','appliesModel'], result, key, answers, mathmoddb)
             # Evaluate Tasks containend in Task
-            assignSimpleEntityRelation(qClass, 'ContainsTask', ['IntraClassRelation','IntraClassElement','Contains'], result, key, answers, mathmoddb)
+            assignSimpleEntityRelation(qClass, 'containsTask', ['IntraClassRelation','IntraClassElement','containsTask'], result, key, answers, mathmoddb)
             # Evaluate Task containing Task
-            assignSimpleEntityRelation(qClass, 'ContainedInTask', ['IntraClassRelation','IntraClassElement','ContainedIn'], result, key, answers, mathmoddb)
+            assignSimpleEntityRelation(qClass, 'containedInTask', ['IntraClassRelation','IntraClassElement','containedInTask'], result, key, answers, mathmoddb)
             # Evaluate different kinds of Mathematical Formulations of Task
             for kind in formulationKinds:
-                assignComplexEntityRelations(qClass, 'MathematicalFormulation', f'Contains{kind}', ['Relation4','Other4'], result, key, answers, mathmoddb, inversePropertyMapping)
+                assignComplexEntityRelations(qClass, 'MathematicalFormulation', f'contains{kind}', ['MF2T','TRelatant'], result, key, answers, mathmoddb, inversePropertyMapping)
             # Evaluate different kinds of Quantities of Task
             for kind in quantityKinds:
-                assignSimpleEntityRelation(qClass, f'Contains{kind}', ['Relation2','Other2',f'Contains{kind}'], result, key, answers, mathmoddb)
+                assignSimpleEntityRelation(qClass, f'contains{kind}', ['T2Q','QRelatant',f'contains{kind}'], result, key, answers, mathmoddb)
 
     # Add Mathematical Formulations from Task to Formulation List
     name_to_key = {v['Name']: k for k, v in answers['MathematicalFormulation'].items()}
@@ -98,14 +100,14 @@ def ModelRetriever(answers,mathmoddb):
     for idx, key in enumerate(answers['Task']):
         task = answers['Task'][key]
         # Process each relation
-        for key2, relation in task.get('Relation1', {}).items():
-            Id, label = task['Other1'][key2].split(' <|> ')[:2]
+        for key2, relation in task.get('T2MF', {}).items():
+            Id, label = task['MFRelatant'][key2].split(' <|> ')[:2]
             # Check if the label already exists in Mathematical Formulation
             if label in name_to_key:
                 k = name_to_key[label]
                 math_form = answers['MathematicalFormulation'][k]
-                relation4 = math_form.setdefault('Relation4', {})
-                other4 = math_form.setdefault('Other4', {})
+                relation4 = math_form.setdefault('MF2T', {})
+                other4 = math_form.setdefault('TRelatant', {})
                 relation4[f'TF{key}{idx}'] = inversePropertyMapping[relation]
                 other4[f'TF{key}{idx}'] = f"{task.get('MathModID', idx)} <|> {task['Name']}"
             else:
@@ -114,8 +116,8 @@ def ModelRetriever(answers,mathmoddb):
                 new_form = {
                     'MathModID': Id,
                     'Name': label,
-                    'Relation4': {f'TF{key}{idx}': inversePropertyMapping[relation]},
-                    'Other4': {f'TF{key}{idx}': f"{task.get('MathModID', idx)} <|> {task['Name']}"}
+                    'MF2T': {f'TF{key}{idx}': inversePropertyMapping[relation]},
+                    'TRelatant': {f'TF{key}{idx}': f"{task.get('MathModID', idx)} <|> {task['Name']}"}
                 }
                 answers['MathematicalFormulation'][new_key] = new_form
                 # Update the lookup dictionary
@@ -143,7 +145,7 @@ def ModelRetriever(answers,mathmoddb):
             assignProperties(answers['MathematicalFormulation'][key], result, mathmoddb, dataProperties)   
             #Evaluate different kinds of Mathematical Formulations of Mathematical Formulations
             for kind in formulationKinds:
-                assignSimpleEntityRelation(qClass, f'Contains{kind}', ['Relation2','Other2',f'Contains{kind}'], result, key, answers, mathmoddb)
+                assignSimpleEntityRelation(qClass, f'contains{kind}', ['MF2MF','MFRelatant',f'contains{kind}'], result, key, answers, mathmoddb)
             #Evaluate Formula of Mathematical Formulation    
             assignValues(qClass, 'formula', ['Formula'], result, key, answers)
             #Evaluate Elements of Mathematical Formulation
@@ -252,11 +254,12 @@ def ModelRetriever(answers,mathmoddb):
             assignValue(qClass, ['label'], 'Name',result ,key, answers)
             # Evaluate Comment of Research Problem
             assignValue(qClass, ['quote'], 'Description',result ,key, answers)
-            assignComplexEntityRelations(qClass, 'ResearchField', 'ContainedInField', [], result, key, answers, mathmoddb)
- 
+            # Evaluate related Research Fields
+            assignSimpleEntityRelation(qClass, 'containedInField', ['RP2RF','RFRelatant','containedInField'], result, key, answers, mathmoddb)
+    
     # Get additional Intra-Class Information for Model, Task, Formulation and Quantity Relations from MathModDB
     
-    search_string = searchGenerator(answers,['Task', 'MathematicalFormulation', 'MathematicalModel', 'Quantity'])
+    search_string = searchGenerator(answers,['Task', 'MathematicalFormulation', 'MathematicalModel', 'Quantity', 'ResearchField', 'ResearchProblem'])
     results = queryMathModDB(queryModelDocumentation['IntraClass'].format(search_string))
     
     mathmodidToKey = {}
@@ -264,6 +267,13 @@ def ModelRetriever(answers,mathmoddb):
     # Get MathModID of all selected Entities
     for className in ['ResearchField', 'ResearchProblem', 'Task', 'MathematicalFormulation', 'MathematicalModel', 'Quantity']:
         mathmodidToKey[className] = {answers[className][key].get('MathModID'): key for key in answers[className]}
+
+    propAppendix = {'ResearchField': 'Field',
+                    'ResearchProblem': 'Problem',
+                    'Task': 'Task',
+                    'MathematicalFormulation': 'Formulation',
+                    'MathematicalModel': 'Model',
+                    'Quantity': 'Quantity'}
 
     for result in results:
         # Get MathModID and Class of queried Entity
@@ -273,7 +283,7 @@ def ModelRetriever(answers,mathmoddb):
             key = mathmodidToKey[qClass][math_mod_id]
             # Evaluate Relations of Mathematical Models, Mathematical Formulations, Tasks and Quantities
             for relation in intraClassRelations:
-                assignSimpleEntityRelation(qClass, relation, [relation], result, key, answers, mathmoddb)
+                assignSimpleEntityRelation(qClass, relation, [f"{relation}{propAppendix[qClass]}"], result, key, answers, mathmoddb)
 
     # Get additional Publication Information from MathModDB
 
@@ -289,19 +299,19 @@ def ModelRetriever(answers,mathmoddb):
         if mathmodid in mathmodidToKey[qClass]:
             key = mathmodidToKey[qClass][mathmodid]
             for relation in publicationRelations:
-                assignComplexEntityRelations(qClass, tClass, relation, ['Relation','Other'], result, key, answers, mathmoddb, inversePropertyMapping)
+                assignComplexEntityRelations(qClass, tClass, relation, ['P2E','EntityRelatant'], result, key, answers, mathmoddb, inversePropertyMapping)
     
     # Research Field to Research Field Relations
-    entityRelations(answers,'ResearchField','ResearchField','Relation1','Other1','RelationRF1','RF')
-
+    entityRelations(answers,'ResearchField','ResearchField','IntraClassRelation','IntraClassElement','RelationRF1','RF')
+    
     # Research Field to Research Problem Relations
-    entityRelations(answers,'ResearchProblem','ResearchField','ContainedInField','ContainedInField','RelationRF1','RF')
+    entityRelations(answers,'ResearchProblem','ResearchField','RP2RF','RFRelatant','RelationRF1','RF')
 
     # Research Problem to Research Problem Relations
-    entityRelations(answers,'ResearchProblem','ResearchProblem','Relation1','Other1','RelationRP1','RP')
+    entityRelations(answers,'ResearchProblem','ResearchProblem','IntraClassRelation','IntraClassElement','RelationRP1','RP')
     
     # Convert Research Problems in additional Models
-    entityRelations(answers,'MathematicalModel','ResearchProblem','Models','Models','RelationRP1','RP')
+    entityRelations(answers,'MathematicalModel','ResearchProblem','MM2RP','RPRelatant','RelationRP1','RP')
     
     # Add Information to main Mathematical Model
     for key2 in answers['Models']:
@@ -310,48 +320,50 @@ def ModelRetriever(answers,mathmoddb):
                 if answers['Models'][key2]['MathModID'] == answers['MathematicalModel'][key].get('MathModID'):
                     Name = answers['MathematicalModel'][key]['Name']
                     Description = answers['MathematicalModel'][key]['Description']
+                    Properties = answers['MathematicalModel'][key]['Properties']
                     mardiID = find_item(Name,Description)
                     if mardiID:
-                        answers['Models'][key2].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description})
+                        answers['Models'][key2].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description, 'Properties':Properties})
                     else:
-                        answers['Models'][key2].update({'ID':None, 'Name':Name, 'Description':Description})
+                        answers['Models'][key2].update({'ID':None, 'Name':Name, 'Description':Description, 'Properties':Properties})
         else:
             for key in answers['MathematicalModel']:
                 if answers['MathematicalModel'][key].get('Main') == option['Yes']:
                     Name = answers['MathematicalModel'][key]['Name']
                     Description = answers['MathematicalModel'][key]['Description']
+                    Properties = answers['MathematicalModel'][key]['Properties']
                     mardiID = find_item(Name,Description)
                     if mardiID:
-                        answers['Models'][key2].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description})
+                        answers['Models'][key2].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description, 'Properties':Properties})
                     else:
-                        answers['Models'][key2].update({'ID':None, 'Name':Name, 'Description':Description})
+                        answers['Models'][key2].update({'ID':None, 'Name':Name, 'Description':Description, 'Properties':Properties})
     
     # Add Mathematical Model to Mathematical Model Relations
     entityRelations(answers,'MathematicalModel','MathematicalModel','IntraClassRelation','IntraClassElement','RelationMM1','MM')
 
     # Add Mathematical Formulation to Mathematical Formulation Relations 1
-    entityRelations(answers,'MathematicalFormulation','MathematicalFormulation','Relation2','Other2','RelationMF1','MF')
+    entityRelations(answers,'MathematicalFormulation','MathematicalFormulation','MF2MF','MFRelatant','RelationMF1','MF')
 
     # Add Mathematical Formulation to Mathematical Formulation Relations 2
     entityRelations(answers,'MathematicalFormulation','MathematicalFormulation','IntraClassRelation','IntraClassElement','RelationMF2','MF')
     
     # Add Mathematical Model to Mathematical Formulation Relations 1
-    entityRelations(answers,'MathematicalFormulation','MathematicalModel','Relation1','Other1','RelationMM1','MM', 3)
+    entityRelations(answers,'MathematicalFormulation','MathematicalModel','MF2MM','MMRelatant','RelationMM1','MM', 3)
     
     # Add Task to Mathematical Formulation Relations 1
-    entityRelations(answers,'MathematicalFormulation','Task','Relation4','Other4','RelationT1','T', 3)
+    entityRelations(answers,'MathematicalFormulation','Task','MF2T','TRelatant','RelationT1','T', 3)
 
     # Add Quantity to Quantity Relations
-    entityRelations(answers,'Quantity','Quantity','Relation1','Other1','RelationQQ','QQK')
+    entityRelations(answers,'Quantity','Quantity','Q2Q','QRelatant','RelationQQ','QQK')
     
     # Add QuantityKind to QuantityKind Relations
-    entityRelations(answers,'Quantity','Quantity','Relation2','Other2','RelationQKQK','QQK')
+    entityRelations(answers,'Quantity','Quantity','QK2QK','QKRelatant','RelationQKQK','QQK')
 
     # Add Quantity to QuantityKind Relations
-    entityRelations(answers,'Quantity','Quantity','Relation3','Other3','RelationQQK','QQK')
+    entityRelations(answers,'Quantity','Quantity','Q2QK','QKRelatant','RelationQQK','QQK')
 
     # Add QuantityKind to Quantity Relations
-    entityRelations(answers,'Quantity','Quantity','Relation4','Other4','RelationQKQ','QQK')
+    entityRelations(answers,'Quantity','Quantity','QK2Q','QRelatant','RelationQKQ','QQK')
     
     # Add Quantity to Elements
     for key in answers['MathematicalFormulation']:
@@ -361,7 +373,7 @@ def ModelRetriever(answers,mathmoddb):
                 label = answers['MathematicalFormulation'][key]['Element'][key2]['Quantity']
             elif len(answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].split(' <|> ')) >= 2:
                 Id,label = answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].split(' <|> ')[:2]
-                
+            
             for k in answers['Quantity']:
                 if label.lower() == answers['Quantity'][k]['Name'].lower():
                     if answers['Quantity'][k]['QorQK'] == mathmoddb['QuantityClass']:
@@ -369,7 +381,7 @@ def ModelRetriever(answers,mathmoddb):
                             {'Info': 
                                 {'Name':answers['Quantity'][k].get('Name',''),
                                  'Description':answers['Quantity'][k].get('Description',''),
-                                 'QID':answers['Quantity'][k].get('MathModID','') if answers['Quantity'][k].get('MathModID','') else answers['Quantity'][k].get('ID','') if answers['Quantity'][k].get('ID','') else '', 
+                                 'QID':answers['Quantity'][k].get('MathModID','') if answers['Quantity'][k].get('MathModID','') and answers['Quantity'][k].get('MathModID','') != 'not in MathModDB' else answers['Quantity'][k].get('ID','') if answers['Quantity'][k].get('ID','') else '', 
                                  'QKName':answers['Quantity'][k].get('QKName',''),
                                  'QKID':answers['Quantity'][k].get('QKID','')}
                             })
@@ -378,7 +390,7 @@ def ModelRetriever(answers,mathmoddb):
                             {'Info':
                                 {'QKName':answers['Quantity'][k].get('Name',''),
                                  'Description':answers['Quantity'][k].get('Description',''),
-                                 'QKID':answers['Quantity'][k].get('MathModID','') if answers['Quantity'][k].get('MathModID','') else answers['Quantity'][k].get('QKID','') if answers['Quantity'][k].get('QKID','') else ''}
+                                 'QKID':answers['Quantity'][k].get('MathModID','') if answers['Quantity'][k].get('MathModID','') and answers['Quantity'][k].get('MathModID','') != 'not in MathModDB' else answers['Quantity'][k].get('ID','') if answers['Quantity'][k].get('ID','') else ''}
                             })
 
     # Add Definition to Quantities
@@ -390,24 +402,24 @@ def ModelRetriever(answers,mathmoddb):
                     answers['Quantity'][key].update({'MDef':answers['MathematicalFormulation'][key2]})
     
     # Add Mathematical Model to Task Relations
-    entityRelations(answers,'Task','MathematicalModel','AppliesModel','AppliesModel','RelationMM','MM')
+    entityRelations(answers,'Task','MathematicalModel','T2MM','MMRelatant','RelationMM','MM')
         
     # Add Quantity / Quantity Kind to Task Relations
-    entityRelations(answers,'Task','Quantity','Relation2','Other2','RelationQQK','QQK')
+    entityRelations(answers,'Task','Quantity','T2Q','QRelatant','RelationQQK','QQK')
     
     # Add Task to Task Relations
     entityRelations(answers,'Task','Task','IntraClassRelation','IntraClassElement','RelationT','T')
 
     # Add Entities to Publication Relations
     for key in answers['PublicationModel']:
-        for key2 in answers['PublicationModel'][key].get('Relation',{}):
-            Id,label,kind,abbr = answers['PublicationModel'][key]['Other'][key2].split(' <|> ')
+        for key2 in answers['PublicationModel'][key].get('P2E',{}):
+            Id,label,kind,abbr = answers['PublicationModel'][key]['EntityRelatant'][key2].split(' <|> ')
             for idx, k in enumerate(answers[kind]):
                 if label == answers[kind][k]['Name']:
-                    answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation'][key2],f"{abbr}{str(idx+1)}"]})
+                    answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['P2E'][key2],f"{abbr}{str(idx+1)}"]})
             if not answers['PublicationModel'][key].get('RelationP',{}).get(key2):
-                answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['Relation'][key2],Id]})
-      
+                answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['P2E'][key2],Id]})
+    
     return answers
 
 def find_item(label, description, api=mardi_api, language="en"):
@@ -442,22 +454,23 @@ def entityRelations(data, fromIDX, toIDX, relationOld, entityOld, relationNew, e
     label_to_index = {data[toIDX][k]['Name']: idx for idx, k in enumerate(data.get(toIDX,{}))}
     for key in data.get(fromIDX, []):
         for key2 in data[fromIDX][key].get(relationOld, {}):
-            Id, label = data[fromIDX][key][entityOld][key2].split(' <|> ')[:2]
-            if label in label_to_index:
-                idx = label_to_index[label]
-                if no == 2:
-                    if [data[fromIDX][key][relationOld][key2], f'{enc}{idx+1}'] not in data[fromIDX][key].get(relationNew,{}).values():
-                        data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], f'{enc}{idx+1}']})
+            if data[fromIDX][key][entityOld].get(key2):
+                Id, label = data[fromIDX][key][entityOld][key2].split(' <|> ')[:2]
+                if label in label_to_index:
+                    idx = label_to_index[label]
+                    if no == 2:
+                        if [data[fromIDX][key][relationOld][key2], f'{enc}{idx+1}'] not in data[fromIDX][key].get(relationNew,{}).values():
+                            data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], f'{enc}{idx+1}']})
+                    else:
+                        if [data[fromIDX][key][relationOld][key2], idx+1, f'{enc}{idx+1}'] not in data[fromIDX][key].get(relationNew,{}).values():
+                            data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], idx+1, f'{enc}{idx+1}']})
                 else:
-                    if [data[fromIDX][key][relationOld][key2], idx+1, f'{enc}{idx+1}'] not in data[fromIDX][key].get(relationNew,{}).values():
-                        data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], idx+1, f'{enc}{idx+1}']})
-            else:
-                if no == 2:
-                    if [data[fromIDX][key][relationOld][key2], Id] not in data[fromIDX][key].get(relationNew,{}).values():
-                        data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], Id]})
-                else:
-                    if [data[fromIDX][key][relationOld][key2], Id, Id] not in data[fromIDX][key].get(relationNew,{}).values():
-                        data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], Id, Id]})
+                    if no == 2:
+                        if [data[fromIDX][key][relationOld][key2], Id] not in data[fromIDX][key].get(relationNew,{}).values():
+                            data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], Id]})
+                    else:
+                        if [data[fromIDX][key][relationOld][key2], Id, Id] not in data[fromIDX][key].get(relationNew,{}).values():
+                            data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], Id, Id]})
     return
 
 def queryMathModDB(query,endpoint=mathmoddb_endpoint):
@@ -517,7 +530,7 @@ def assignComplexEntityRelations(qClass, tClass, qrel, trel_values, r, key, answ
 
     # Split values into a list of entities
     entities = values1.split(' <|> ')
-    
+
     # Existing entries in the target class
     existing_entries = {v.get('MathModID'): k for k, v in answers[tClass].items()}
 
@@ -530,10 +543,10 @@ def assignComplexEntityRelations(qClass, tClass, qrel, trel_values, r, key, answ
     next_available_key = max(answers[tClass].keys(), default=-1) + 1
 
     for idx, entity in enumerate(entities):
-        
+
         # Get Id and label of the entity
         entitySplit = entity.split(' >|< ')
-        
+
         # Update qrel in source entity if not present
         if f"{entitySplit[0]} <|> {entitySplit[1]}" not in answers[qClass][key].setdefault(qrel, {}).values():
             answers[qClass][key][qrel].update({f"{qrel}{idx}": f"{entitySplit[0]} <|> {entitySplit[1]}"})
@@ -586,13 +599,15 @@ def assignComplexEntityRelations(qClass, tClass, qrel, trel_values, r, key, answ
 def assignSimpleEntityRelation(qClass, qrel, trel, r, key, answers, mathmoddb=None):
 
     condition_map = {
+                     ('ResearchField', 'ResearchField'): ('IntraClassRelation','IntraClassElement'),
+                     ('ResearchProblem', 'ResearchProblem'): ('IntraClassRelation','IntraClassElement'),
                      ('MathematicalModel', 'MathematicalModel'): ('IntraClassRelation','IntraClassElement'),
                      ('MathematicalFormulation', 'MathematicalFormulation'): ('IntraClassRelation','IntraClassElement'),
                      ('ComputationalTask', 'ComputationalTask'): ('IntraClassRelation','IntraClassElement'),
-                     ('Quantity', 'Quantity'): ('Relation1', 'Other1'),
-                     ('QuantityKind', 'QuantityKind'): ('Relation2', 'Other2'),
-                     ('Quantity', 'QuantityKind'): ('Relation3', 'Other3'),
-                     ('QuantityKind', 'Quantity'): ('Relation4', 'Other4')
+                     ('Quantity', 'Quantity'): ('Q2Q', 'QRelatant'),
+                     ('QuantityKind', 'QuantityKind'): ('QK2QK', 'QKRelatant'),
+                     ('Quantity', 'QuantityKind'): ('Q2QK', 'QKRelatant'),
+                     ('QuantityKind', 'Quantity'): ('QK2Q', 'QRelatant')
                     }
 
     values = r.get(qrel,{}).get('value')

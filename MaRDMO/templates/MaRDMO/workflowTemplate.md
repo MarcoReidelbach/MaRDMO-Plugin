@@ -46,22 +46,22 @@ Workflow ID: workflow not published
 
 ### Discretization
 
-{% for value in Models.values %} {% if IsTimeDiscrete in value.Properties.values %} * Time: Yes {% elif IsTimeContinuous in value.Properties.values %} * Time: No {% elif IsTimeIndependent in value.Properties.values %} * Time: Independent{% endif %} 
-{% if IsSpaceDiscrete in value.Properties.values %} * Space: Yes {% elif IsSpaceContinuous in value.Properties.values %} * Space: No {% elif IsSpaceIndependent in value.Properties.values %} * Space: Independent {% endif %}
+{% for value in Models.values %} {% if isTimeDiscrete in value.Properties.values %} * Time: Yes {% elif isTimeContinuous in value.Properties.values %} * Time: No {% elif isTimeIndependent in value.Properties.values %} * Time: Independent{% endif %} 
+{% if isSpaceDiscrete in value.Properties.values %} * Space: Yes {% elif isSpaceContinuous in value.Properties.values %} * Space: No {% elif isSpaceIndependent in value.Properties.values %} * Space: Independent {% endif %}
 {% endfor %}
 
 ### Variables
 
 | Name | Unit | Symbol| dependent/independent | Task |
 |------|------|-------|-----------------------|------|
-{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == ContainsInput or value.0 == ContainsOutput %} | {{ value.1 }} | | {{ value.2 }} | {% if ContainsInput == value.0 %} independent {% elif ContainsOutput == value.0 %} dependent {% endif %} | {{ values.Name }} | {% endif %} 
+{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == containsInput or value.0 == containsOutput %} | {{ value.1 }} | | {{ value.2 }} | {% if containsInput == value.0 %} independent {% elif containsOutput == value.0 %} dependent {% endif %} | {{ values.Name }} | {% endif %} 
 {% endfor %} {% endfor %}
 
 ### Parameters
 
 | Name | Unit | Symbol | Task |
 |------|------|--------|------|
-{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == ContainsParameter %} | {{value.1 }} | | {{ value.2 }} | {{ values.Name }} {% endif %}
+{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == containsParameter %} | {{value.1 }} | | {{ value.2 }} | {{ values.Name }} {% endif %}
 {% endfor %} {% endfor %}
 
 ## Process Information

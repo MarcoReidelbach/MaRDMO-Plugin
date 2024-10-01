@@ -19,8 +19,7 @@
 **MathModDB**:{% if values.MathModID and values.MathModID != 'not in MathModDB' %} {{ values.MathModID }} {% endif %}  
 **WikiData**:{% if 'wikidata' in values.ID %} {{ values.ID|cut:"wikidata:" }} {% endif %} 
 **MaRDI**:{% if 'mardi' in values.ID %} {{ values.ID|cut:"mardi:" }} {% endif %}
-**Wikipedia**: {{ values.Reference }}
-**Properties**: {% for value in values.Properties.values %} {% if value == IsConvex %} Is Convex {% elif value == IsNotConvex %} Is Not Convex {% elif value == IsDeterministic %} Is Deterministic {% elif value == IsStochastic %} Is Stochastic {% elif value == IsDimensionless %} Is Dimensionless {% elif value == IsDimensional %} Is Dimensional {% elif value == IsDynamic %} Is Dynamic {% elif value == IsStatic %} Is Static {% elif value == IsLinear %} Is Linear {% elif value == IsNotLinear %} Is Not Linear {% elif value == IsSpaceContinuous %} Is Space-Continuous {% elif value == IsSpaceDiscrete %} Is Space-Discrete {% elif value == IsSpaceIndependent %} Is Space-Independent {% elif value == IsTimeContinuous %} Is Time-Continuous {% elif value == IsTimeDiscrete %} Is Time-Discrete {% elif value == IsTimeIndependent %} Is Time-Independent {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}   
+**Properties**: {% for value in values.Properties.values %} {% if value == isConvex %} Is Convex {% elif value == isNotConvex %} Is Not Convex {% elif value == isDeterministic %} Is Deterministic {% elif value == isStochastic %} Is Stochastic {% elif value == isDimensionless %} Is Dimensionless {% elif value == isDimensional %} Is Dimensional {% elif value == isDynamic %} Is Dynamic {% elif value == isStatic %} Is Static {% elif value == isLinear %} Is Linear {% elif value == isNotLinear %} Is Not Linear {% elif value == isSpaceContinuous %} Is Space-Continuous {% elif value == isSpaceDiscrete %} Is Space-Discrete {% elif value == isSpaceIndependent %} Is Space-Independent {% elif value == isTimeContinuous %} Is Time-Continuous {% elif value == isTimeDiscrete %} Is Time-Discrete {% elif value == isTimeIndependent %} Is Time-Independent {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}   
 
 {% for models in values.RelationRP1.values %}
 {% if forloop.counter == 1 %}
@@ -44,17 +43,17 @@ models: {{ models.1 }}
 
 {% endif %}
 
-{% if relation.0 == GeneralizedBy %} generalized by Model: {{relation.1 }}
-{% elif relation.0 == Generalizes %} generalizes Model: {{relation.1 }}
-{% elif relation.0 == DiscretizedBy %} discretized by Model: {{relation.1 }}
-{% elif relation.0 == Discretizes %} discretizes Model: {{relation.1 }}
-{% elif relation.0 == ContainedIn %} contained in Model: {{relation.1 }}
-{% elif relation.0 == Contains %} contains Model: {{relation.1 }}
-{% elif relation.0 == ApproximatedBy %} approximated by Model: {{relation.1 }}
-{% elif relation.0 == Approximates %} approximates Model: {{relation.1 }}
-{% elif relation.0 == LinearizedBy %} linearized by Model: {{relation.1 }}
-{% elif relation.0 == Linearizes %} linearizes Model: {{relation.1 }}
-{% elif relation.0 == SimilarTo %} similar to Model: {{relation.1 }}
+{% if relation.0 == generalizedByModel %} generalized by Model: {{relation.1 }}
+{% elif relation.0 == generalizesModel %} generalizes Model: {{relation.1 }}
+{% elif relation.0 == discretizedByModel %} discretized by Model: {{relation.1 }}
+{% elif relation.0 == discretizesModel %} discretizes Model: {{relation.1 }}
+{% elif relation.0 == containedInModel %} contained in Model: {{relation.1 }}
+{% elif relation.0 == containsModel %} contains Model: {{relation.1 }}
+{% elif relation.0 == approximatedByModel %} approximated by Model: {{relation.1 }}
+{% elif relation.0 == approximatesModel %} approximates Model: {{relation.1 }}
+{% elif relation.0 == linearizedByModel %} linearized by Model: {{relation.1 }}
+{% elif relation.0 == linearizesModel %} linearizes Model: {{relation.1 }}
+{% elif relation.0 == similarToModel %} similar to Model: {{relation.1 }}
 {% endif %}
 {% endfor %}
 
@@ -84,7 +83,7 @@ models: {{ models.1 }}
 
 &nbsp;
 
-**Properties**:{% for value in values.Properties.values %} {% if value == IsConvex %} Is Convex {% elif value == IsNotConvex %} Is Not Convex {% elif value == IsDeterministic %} Is Deterministic {% elif value == IsStochastic %} Is Stochastic {% elif value == IsDimensionless %} Is Dimensionless {% elif value == IsDimensional %} Is Dimensional {% elif value == IsDynamic %} Is Dynamic {% elif value == IsStatic %} Is Static {% elif value == IsLinear %} Is Linear {% elif value == IsNotLinear %} Is Not Linear {% elif value == IsSpaceContinuous %} Is Space-Continuous {% elif value == IsSpaceDiscrete %} Is Space-Discrete {% elif value == IsSpaceIndependent %} Is Space-Independent {% elif value == IsTimeContinuous %} Is Time-Continuous {% elif value == IsTimeDiscrete %} Is Time-Discrete {% elif value == IsTimeIndependent %} Is Time-Independent {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}
+**Properties**:{% for value in values.Properties.values %} {% if value == isConvex %} Is Convex {% elif value == isNotConvex %} Is Not Convex {% elif value == isDeterministic %} Is Deterministic {% elif value == isStochastic %} Is Stochastic {% elif value == isDimensionless %} Is Dimensionless {% elif value == isDimensional %} Is Dimensional {% elif value == isDynamic %} Is Dynamic {% elif value == isStatic %} Is Static {% elif value == isLinear %} Is Linear {% elif value == isNotLinear %} Is Not Linear {% elif value == isSpaceContinuous %} Is Space-Continuous {% elif value == isSpaceDiscrete %} Is Space-Discrete {% elif value == isSpaceIndependent %} Is Space-Independent {% elif value == isTimeContinuous %} Is Time-Continuous {% elif value == isTimeDiscrete %} Is Time-Discrete {% elif value == isTimeIndependent %} Is Time-Independent {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}
 
 {% for values in values.RelationMM1.values %}
 {% if forloop.counter == 1 %}
@@ -95,13 +94,13 @@ models: {{ models.1 }}
 
 {% endif %}
 
-{%if values.0 == ContainedAsAssumptionIn %} contained as Assumption in: {{ values.2 }}
-{% elif values.0 == ContainedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.2 }} 
-{% elif values.0 == ContainedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.2 }} 
-{% elif values.0 == ContainedAsDefintionIn %} contained as Defintion in: {{ values.2 }} 
-{% elif values.0 == ContainedAsFormulationIn %} contained as Formulation in: {{ values.2 }} 
-{% elif values.0 == ContainedAsInitialConditionIn %} contained as Initial Condition in: {{ values.2 }} 
-{% elif values.0 == ContainedAsFinalConditionIn %} contained as Final Condition in: {{ values.2 }}
+{%if values.0 == containedAsAssumptionIn %} contained as Assumption in: {{ values.2 }}
+{% elif values.0 == containedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.2 }} 
+{% elif values.0 == containedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.2 }} 
+{% elif values.0 == containedAsCouplingConditionIn %} contained as Coupling Condition in: {{ values.2 }} 
+{% elif values.0 == containedAsFormulationIn %} contained as Formulation in: {{ values.2 }} 
+{% elif values.0 == containedAsInitialConditionIn %} contained as Initial Condition in: {{ values.2 }} 
+{% elif values.0 == containedAsFinalConditionIn %} contained as Final Condition in: {{ values.2 }}
 {% endif %} 
 {% endfor %}
 
@@ -114,20 +113,20 @@ models: {{ models.1 }}
 
 {% endif %}
 
-{% if values.0 == ContainsAssumption %} contains as Assumption: {{ values.1 }}
-{% elif values.0 == ContainedAsAssumptionIn %} contained as Assumption in: {{ values.1 }}
-{% elif values.0 == ContainsBoundaryCondition %} contains as Boundary Condition: {{ values.1 }}
-{% elif values.0 == ContainedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.1 }} 
-{% elif values.0 == ContainsConstraintCondition %} contains as Constraint Condition: {{ values.1 }}
-{% elif values.0 == ContainedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.1 }} 
-{% elif values.0 == ContainsCouplingCondition %} contains as Coupling Condition: {{ values.1 }}
-{% elif values.0 == ContainedAsCouplingConditionIn %} contained as Coupling Condition in: {{ values.1 }} 
-{% elif values.0 == ContainsFormulation %} contains as Formulation: {{ values.1 }}
-{% elif values.0 == ContainedAsFormulationIn %} contained as Formulation in: {{ values.1 }} 
-{% elif values.0 == ContainsInitialCondition %} contains as Initial Condition: {{ values.1 }}
-{% elif values.0 == ContainedAsInitialConditionIn %} contained as Initial Condition in: {{ values.1 }} 
-{% elif values.0 == ContainsFinalCondition %} contains as Final Condition: {{ values.1 }}
-{% elif values.0 == ContainedAsFinalConditionIn %} contained as Final Condition in: {{ values.1 }}
+{% if values.0 == containsAssumption %} contains as Assumption: {{ values.1 }}
+{% elif values.0 == containedAsAssumptionIn %} contained as Assumption in: {{ values.1 }}
+{% elif values.0 == containsBoundaryCondition %} contains as Boundary Condition: {{ values.1 }}
+{% elif values.0 == containedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.1 }} 
+{% elif values.0 == containsConstraintCondition %} contains as Constraint Condition: {{ values.1 }}
+{% elif values.0 == containedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.1 }} 
+{% elif values.0 == containsCouplingCondition %} contains as Coupling Condition: {{ values.1 }}
+{% elif values.0 == containedAsCouplingConditionIn %} contained as Coupling Condition in: {{ values.1 }} 
+{% elif values.0 == containsFormulation %} contains as Formulation: {{ values.1 }}
+{% elif values.0 == containedAsFormulationIn %} contained as Formulation in: {{ values.1 }} 
+{% elif values.0 == containsInitialCondition %} contains as Initial Condition: {{ values.1 }}
+{% elif values.0 == containedAsInitialConditionIn %} contained as Initial Condition in: {{ values.1 }} 
+{% elif values.0 == containsFinalCondition %} contains as Final Condition: {{ values.1 }}
+{% elif values.0 == containedAsFinalConditionIn %} contained as Final Condition in: {{ values.1 }}
 {% endif %} 
 {% endfor %}
 
@@ -140,17 +139,17 @@ models: {{ models.1 }}
 
 {% endif %}
 
-{% if values.0 == ApproximatedBy %} approximated by Formulation: {{ values.1 }}
-{% elif values.0 == Approximates %} approximates Formulation: {{ values.1 }}
-{% elif values.0 == DiscretizedBy %} discretized by Formulation: {{ values.1 }}
-{% elif values.0 == Discretizes %} discretizes Formulation: {{ values.1 }}
-{% elif values.0 == GeneralizedBy %} generalized by Formulation: {{ values.1 }}
-{% elif values.0 == Generalizes %} generalizes Formulation: {{ values.1 }}
-{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Formulation: {{ values.1 }}
-{% elif values.0 == Nondimensionalzes %} nondimensionalizes Formulation: {{ values.1 }}
-{% elif values.0 == LinearizedBy %} linearized by Formulation: {{ values.1 }}
-{% elif values.0 == Linearizes %} linearizes Formulation: {{ values.1 }}
-{% elif values.0 == SimilarTo %} similar to Formulation: {{ values.1 }}
+{% if values.0 == approximatedByFormulation %} approximated by Formulation: {{ values.1 }}
+{% elif values.0 == approximatesFormulation %} approximates Formulation: {{ values.1 }}
+{% elif values.0 == discretizedByFormulation %} discretized by Formulation: {{ values.1 }}
+{% elif values.0 == discretizesFormulation %} discretizes Formulation: {{ values.1 }}
+{% elif values.0 == generalizedByFormulation %} generalized by Formulation: {{ values.1 }}
+{% elif values.0 == generalizesFormulation %} generalizes Formulation: {{ values.1 }}
+{% elif values.0 == nondimensionalizedByFormulation %} nondimensionalized by Formulation: {{ values.1 }}
+{% elif values.0 == nondimensionalzesFormulation %} nondimensionalizes Formulation: {{ values.1 }}
+{% elif values.0 == linearizedByFormulation %} linearized by Formulation: {{ values.1 }}
+{% elif values.0 == linearizesFormulation %} linearizes Formulation: {{ values.1 }}
+{% elif values.0 == similarToFormulation %} similar to Formulation: {{ values.1 }}
 {% endif %}
 {% endfor %}
 
@@ -169,8 +168,7 @@ models: {{ models.1 }}
 **MathModDB**:{% if values.MathModID and values.MathModID != 'not in MathModDB' %} {{ values.MathModID }} {% endif %}  
 **WikiData**:{% if 'wikidata' in values.ID %} {{ values.ID|cut:"wikidata:" }} {% endif %}
 **MaRDI**:{% if 'mardi' in values.ID %} {{ values.ID|cut:"mardi:" }} {% endif %} 
-**Wikipedia**: {{ values.Reference }}
-**Properties**: {% for value in values.Properties.values %} {% if value == IsLinear %} Is Linear {% elif value == IsNotLinear %} Is Not Linear {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}  
+**Properties**: {% for value in values.Properties.values %} {% if value == isLinear %} Is Linear {% elif value == isNotLinear %} Is Not Linear {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}  
 **Task Type**: {% for value in values.TaskClass.values %} {% if value == ComputationalTask %} Computational Task {% endif %} {% endfor %}
 
 {% for value in values.RelationMM.values %}
@@ -195,11 +193,11 @@ applies Mathematical Model: {{ value.1 }}
 
 {% endif %}
 
-{% if value.0 == ContainsInput %} contains Input: {{ value.1 }}
-{% elif value.0 == ContainsOutput %} contains Output: {{ value.1 }}
-{% elif value.0 == ContainsObjective %} contains Objective: {{ value.1 }}
-{% elif value.0 == ContainsParameter %} contains Parameter: {{ value.1 }}
-{% elif value.0 == ContainsConstant %} contains Constant: {{ value.1 }}
+{% if value.0 == containsInput %} contains Input: {{ value.1 }}
+{% elif value.0 == containsOutput %} contains Output: {{ value.1 }}
+{% elif value.0 == containsObjective %} contains Objective: {{ value.1 }}
+{% elif value.0 == containsParameter %} contains Parameter: {{ value.1 }}
+{% elif value.0 == containsConstant %} contains Constant: {{ value.1 }}
 {% endif %}
 {% endfor %}
 
@@ -212,17 +210,17 @@ applies Mathematical Model: {{ value.1 }}
 
 {% endif %}
 
-{% if value.0 == GeneralizedBy %} generalized by Task: {{ value.1 }}
-{% elif value.0 == Generalizes %} generalizes Task: {{ value.1 }}
-{% elif value.0 == DiscretizedBy %} discretized by Task: {{ value.1 }}
-{% elif value.0 == Discretizes %} discretizes Task: {{ value.1 }}
-{% elif value.0 == ContainedIn %} contained in Task: {{ value.1 }}
-{% elif value.0 == Contains %} contains Task: {{ value.1 }}
-{% elif value.0 == ApproximatedBy %} approximated by Task: {{ value.1 }}
-{% elif value.0 == Approximates %} approximates Task: {{ value.1 }}
-{% elif value.0 == LinearizedBy %} linearized by Task: {{ value.1 }}
-{% elif value.0 == Linearizes %} linearizes Task: {{ value.1 }}
-{% elif value.0 == SimilarTo %} similar to Task: {{ value.1 }}
+{% if value.0 == generalizedByTask %} generalized by Task: {{ value.1 }}
+{% elif value.0 == generalizesTask %} generalizes Task: {{ value.1 }}
+{% elif value.0 == discretizedByTask %} discretized by Task: {{ value.1 }}
+{% elif value.0 == discretizesTask %} discretizes Task: {{ value.1 }}
+{% elif value.0 == containedInTask %} contained in Task: {{ value.1 }}
+{% elif value.0 == containsTask %} contains Task: {{ value.1 }}
+{% elif value.0 == approximatedByTask %} approximated by Task: {{ value.1 }}
+{% elif value.0 == approximatesTask %} approximates Task: {{ value.1 }}
+{% elif value.0 == linearizedByTask %} linearized by Task: {{ value.1 }}
+{% elif value.0 == linearizesTask %} linearizes Task: {{ value.1 }}
+{% elif value.0 == similarToTask %} similar to Task: {{ value.1 }}
 {% endif %}
 {% endfor %}
 
@@ -252,7 +250,7 @@ applies Mathematical Model: {{ value.1 }}
 
 &nbsp;
 
-**Properties**:{% for value in values.Properties.values %} {% if value == IsConvex %} Is Convex {% elif value == IsNotConvex %} Is Not Convex {% elif value == IsDeterministic %} Is Deterministic {% elif value == IsStochastic %} Is Stochastic {% elif value == IsDimensionless %} Is Dimensionless {% elif value == IsDimensional %} Is Dimensional {% elif value == IsDynamic %} Is Dynamic {% elif value == IsStatic %} Is Static {% elif value == IsLinear %} Is Linear {% elif value == IsNotLinear %} Is Not Linear {% elif value == IsSpaceContinuous %} Is Space-Continuous {% elif value == IsSpaceDiscrete %} Is Space-Discrete {% elif value == IsSpaceIndependent %} Is Space-Independent {% elif value == IsTimeContinuous %} Is Time-Continuous {% elif value == IsTimeDiscrete %} Is Time-Discrete {% elif value == IsTimeIndependent %} Is Time-Independent {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}
+**Properties**:{% for value in values.Properties.values %} {% if value == isConvex %} Is Convex {% elif value == isNotConvex %} Is Not Convex {% elif value == isDeterministic %} Is Deterministic {% elif value == isStochastic %} Is Stochastic {% elif value == isDimensionless %} Is Dimensionless {% elif value == isDimensional %} Is Dimensional {% elif value == isDynamic %} Is Dynamic {% elif value == isStatic %} Is Static {% elif value == isLinear %} Is Linear {% elif value == isNotLinear %} Is Not Linear {% elif value == isSpaceContinuous %} Is Space-Continuous {% elif value == isSpaceDiscrete %} Is Space-Discrete {% elif value == isSpaceIndependent %} Is Space-Independent {% elif value == isTimeContinuous %} Is Time-Continuous {% elif value == isTimeDiscrete %} Is Time-Discrete {% elif value == isTimeIndependent %} Is Time-Independent {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}
 
 {% for values in values.RelationT1.values %}
 {% if forloop.counter == 1 %}
@@ -263,17 +261,13 @@ applies Mathematical Model: {{ value.1 }}
 
 {% endif %}
 
-{% if values.0 == ContainedAsAssumptionIn %} contained as Assumption in: {{ values.2 }}
-{% elif values.0 == ContainedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.2 }}
-{% elif values.0 == ContainedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.2 }}
-{% elif values.0 == ContainedAsDefinitionIn %} contained as Definition in: {{ values.2 }}
-{% elif values.0 == ContainedAsFormulationIn %} contained as Formulation in: {{ values.2 }}
-{% elif values.0 == ContainedAsInitialConditionIn %} contained as Initial Condition in: {{ values.2 }}
-{% elif values.0 == ContainedAsFinalConditionIn %} contained as Final Condition in: {{ values.2 }}
-{% elif values.0 == ContainedAsInputIn %} contained as Input in: {{ values.2 }}
-{% elif values.0 == ContainedAsOutputIn %} contained as Output in: {{ values.2 }}
-{% elif values.0 == ContainedAsObjectiveIn %} contained as Objective in: {{ values.2 }}
-{% elif values.0 == ContainedAsParameterIn %} contained as Parameter in: {{ values.2 }}
+{% if values.0 == containedAsAssumptionIn %} contained as Assumption in: {{ values.2 }}
+{% elif values.0 == containedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.2 }}
+{% elif values.0 == containedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.2 }}
+{% elif values.0 == containedAsDefinitionIn %} contained as Definition in: {{ values.2 }}
+{% elif values.0 == containedAsFormulationIn %} contained as Formulation in: {{ values.2 }}
+{% elif values.0 == containedAsInitialConditionIn %} contained as Initial Condition in: {{ values.2 }}
+{% elif values.0 == containedAsFinalConditionIn %} contained as Final Condition in: {{ values.2 }}
 {% endif %}
 {% endfor %}
 
@@ -287,13 +281,13 @@ applies Mathematical Model: {{ value.1 }}
 
 {% endif %}
 
-{%if values.0 == ContainedAsAssumptionIn %} contained as Assumption in: {{ values.2 }}
-{% elif values.0 == ContainedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.2 }}
-{% elif values.0 == ContainedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.2 }}
-{% elif values.0 == ContainedAsDefintionIn %} contained as Defintion in: {{ values.2 }}
-{% elif values.0 == ContainedAsFormulationIn %} contained as Formulation in: {{ values.2 }}
-{% elif values.0 == ContainedAsInitialConditionIn %} contained as Initial Condition in: {{ values.2 }}
-{% elif values.0 == ContainedAsFinalConditionIn %} contained as Final Condition in: {{ values.2 }}
+{%if values.0 == containedAsAssumptionIn %} contained as Assumption in: {{ values.2 }}
+{% elif values.0 == containedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.2 }}
+{% elif values.0 == containedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.2 }}
+{% elif values.0 == containedAsDefintionIn %} contained as Defintion in: {{ values.2 }}
+{% elif values.0 == containedAsFormulationIn %} contained as Formulation in: {{ values.2 }}
+{% elif values.0 == containedAsInitialConditionIn %} contained as Initial Condition in: {{ values.2 }}
+{% elif values.0 == containedAsFinalConditionIn %} contained as Final Condition in: {{ values.2 }}
 {% endif %}
 {% endfor %}
 
@@ -306,20 +300,20 @@ applies Mathematical Model: {{ value.1 }}
 
 {% endif %}
 
-{% if values.0 == ContainsAssumption %} contains as Assumption: {{ values.1 }}
-{% elif values.0 == ContainedAsAssumptionIn %} contained as Assumption in: {{ values.1 }}
-{% elif values.0 == ContainsBoundaryCondition %} contains as Boundary Condition: {{ values.1 }}
-{% elif values.0 == ContainedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.1 }}
-{% elif values.0 == ContainsConstraintCondition %} contains as Constraint Condition: {{ values.1 }}
-{% elif values.0 == ContainedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.1 }}
-{% elif values.0 == ContainsCouplingCondition %} contains as Coupling Condition: {{ values.1 }}
-{% elif values.0 == ContainedAsCouplingConditionIn %} contained as Coupling Condition in: {{ values.1 }}
-{% elif values.0 == ContainsFormulation %} contains as Formulation: {{ values.1 }}
-{% elif values.0 == ContainedAsFormulationIn %} contained as Formulation in: {{ values.1 }}
-{% elif values.0 == ContainsInitialCondition %} contains as Initial Condition: {{ values.1 }}
-{% elif values.0 == ContainedAsInitialConditionIn %} contained as Initial Condition in: {{ values.1 }}
-{% elif values.0 == ContainsFinalCondition %} contains as Final Condition: {{ values.1 }}
-{% elif values.0 == ContainedAsFinalConditionIn %} contained as Final Condition in: {{ values.1 }}
+{% if values.0 == containsAssumption %} contains as Assumption: {{ values.1 }}
+{% elif values.0 == containedAsAssumptionIn %} contained as Assumption in: {{ values.1 }}
+{% elif values.0 == containsBoundaryCondition %} contains as Boundary Condition: {{ values.1 }}
+{% elif values.0 == containedAsBoundaryConditionIn %} contained as Boundary Condition in: {{ values.1 }}
+{% elif values.0 == containsConstraintCondition %} contains as Constraint Condition: {{ values.1 }}
+{% elif values.0 == containedAsConstraintConditionIn %} contained as Constraint Condition in: {{ values.1 }}
+{% elif values.0 == containsCouplingCondition %} contains as Coupling Condition: {{ values.1 }}
+{% elif values.0 == containedAsCouplingConditionIn %} contained as Coupling Condition in: {{ values.1 }}
+{% elif values.0 == containsFormulation %} contains as Formulation: {{ values.1 }}
+{% elif values.0 == containedAsFormulationIn %} contained as Formulation in: {{ values.1 }}
+{% elif values.0 == containsInitialCondition %} contains as Initial Condition: {{ values.1 }}
+{% elif values.0 == containedAsInitialConditionIn %} contained as Initial Condition in: {{ values.1 }}
+{% elif values.0 == containsFinalCondition %} contains as Final Condition: {{ values.1 }}
+{% elif values.0 == containedAsFinalConditionIn %} contained as Final Condition in: {{ values.1 }}
 {% endif %}
 {% endfor %}
 
@@ -332,17 +326,17 @@ applies Mathematical Model: {{ value.1 }}
 
 {% endif %}
 
-{% if values.0 == ApproximatedBy %} approximated by Formulation: {{ values.1 }}
-{% elif values.0 == Approximates %} approximates Formulation: {{ values.1 }}
-{% elif values.0 == DiscretizedBy %} discretized by Formulation: {{ values.1 }}
-{% elif values.0 == Discretizes %} discretizes Formulation: {{ values.1 }}
-{% elif values.0 == GeneralizedBy %} generalized by Formulation: {{ values.1 }}
-{% elif values.0 == Generalizes %} generalizes Formulation: {{ values.1 }}
-{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Formulation: {{ values.1 }}
-{% elif values.0 == Nondimensionalzes %} nondimensionalizes Formulation: {{ values.1 }}
-{% elif values.0 == LinearizedBy %} linearized by Formulation: {{ values.1 }}
-{% elif values.0 == Linearizes %} linearizes Formulation: {{ values.1 }}
-{% elif values.0 == SimilarTo %} similar to Formulation: {{ values.1 }}
+{% if values.0 == approximatedByFormulation %} approximated by Formulation: {{ values.1 }}
+{% elif values.0 == approximatesFormulation %} approximates Formulation: {{ values.1 }}
+{% elif values.0 == discretizedByFormulation %} discretized by Formulation: {{ values.1 }}
+{% elif values.0 == discretizesFormulation %} discretizes Formulation: {{ values.1 }}
+{% elif values.0 == generalizedByFormulation %} generalized by Formulation: {{ values.1 }}
+{% elif values.0 == generalizesFormulation %} generalizes Formulation: {{ values.1 }}
+{% elif values.0 == nondimensionalizedByFormulation %} nondimensionalized by Formulation: {{ values.1 }}
+{% elif values.0 == nondimensionalzesFormulation %} nondimensionalizes Formulation: {{ values.1 }}
+{% elif values.0 == linearizedByFormulation %} linearized by Formulation: {{ values.1 }}
+{% elif values.0 == linearizesFormulation %} linearizes Formulation: {{ values.1 }}
+{% elif values.0 == similarToFormulation %} similar to Formulation: {{ values.1 }}
 {% endif %}
 {% endfor %}
 
@@ -371,11 +365,11 @@ URL:{% if 'url' in values.Reference %} {{ values.Reference|cut:"url:" }} {% endi
 
 {% endif %}
 
-{% if values.0 == Documents %} documents: {{ values.1 }}
-{% elif values.0 == Invents %} invents: {{ values.1 }}
-{% elif values.0 == Studies %} studies: {{ values.1 }}
-{% elif values.0 == Surveys %} surveys: {{ values.1 }}
-{% elif values.0 == Uses %} uses: {{ values.1 }}
+{% if values.0 == documents %} documents: {{ values.1 }}
+{% elif values.0 == invents %} invents: {{ values.1 }}
+{% elif values.0 == studies %} studies: {{ values.1 }}
+{% elif values.0 == surveys %} surveys: {{ values.1 }}
+{% elif values.0 == uses %} uses: {{ values.1 }}
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -400,9 +394,9 @@ URL:{% if 'url' in values.Reference %} {{ values.Reference|cut:"url:" }} {% endi
 
 {% endif %}
 
-{% if relation.0 == GeneralizedBy %} generalized by Field: {{relation.1 }} 
-{% elif relation.0 == Generalizes %} generalizes Field: {{relation.1 }}
-{% elif relation.0 == SimilarTo %} similar to Field: {{relation.1 }}
+{% if relation.0 == generalizedByField %} generalized by Field: {{relation.1 }} 
+{% elif relation.0 == generalizesField %} generalizes Field: {{relation.1 }}
+{% elif relation.0 == similarToField %} similar to Field: {{relation.1 }}
 {% endif %}
 {% endfor %} 
 
@@ -415,7 +409,6 @@ URL:{% if 'url' in values.Reference %} {{ values.Reference|cut:"url:" }} {% endi
 ## RP{{ forloop.counter }}: {{ values.Name }}
 
 **Description**: {{ values.Description }}
-**DOI**:{{ values.Reference|cut:"doi:" }}  
 **MathModDB**:{% if values.MathModID and values.MathModID != 'not in MathModDB' %} {{ values.MathModID }} {% endif %}
 **WikiData**:{% if 'wikidata' in values.ID %} {{ values.ID|cut:"wikidata:" }} {% endif %} 
 **MaRDI**:{% if 'mardi' in values.ID %} {{ values.ID|cut:"mardi:" }} {% endif %} 
@@ -440,9 +433,9 @@ contained in Field: {{ researchfield.1 }}
 
 {% endif %}
 
-{% if relation.0 == GeneralizedBy %} generalized by Problem: {{relation.1 }}
-{% elif relation.0 == Generalizes %} generalizes Problem: {{relation.1 }}
-{% elif relation.0 == SimilarTo %} similar to Problem: {{relation.1 }}
+{% if relation.0 == generalizedByProblem %} generalized by Problem: {{relation.1 }}
+{% elif relation.0 == generalizesProblem %} generalizes Problem: {{relation.1 }}
+{% elif relation.0 == similarToProblem %} similar to Problem: {{relation.1 }}
 {% endif %}
 {% endfor %}
 
@@ -456,11 +449,11 @@ contained in Field: {{ researchfield.1 }}
 
 **Description**: {{ values.Description }}
 **Class**: {% if values.QorQK == QuantityClass %} Quantity {% elif values.QorQK == QuantityKindClass %} Quantity Kind {% endif %} 
-**DOI**:{% if 'doi' in values.ID %} {{ values.ID|cut:"doi:" }} {% endif %}
+**QUDT**:{% if 'qudt' in values.Reference %} {{ values.Reference|cut:"qudt:" }} {% endif %}
 **MathModDB**:{% if values.MathModID and values.MathModID != 'not in MathModDB' %} {{ values.MathModID }} {% endif %}
 **WikiData**:{% if 'wikidata' in values.ID %} {{ values.ID|cut:"wikidata:" }} {% endif %}
 **MaRDI**:{% if 'mardi' in values.ID %} {{ values.ID|cut:"mardi:" }} {% endif %}
-**Properties**: {% if values.Properties %} {% for value in values.Properties.values %} {% if value == IsDimensionless %} Is Dimensionless {% elif value == IsDimensional %} Is Dimensional {% elif value == IsLinear %} Is Linear {% elif value == IsNotLinear %} Is Not Linear {% endif %} {% if not forloop.last %}, {% endif %}{% endfor %} {% endif %}
+**Properties**: {% if values.Properties %} {% for value in values.Properties.values %} {% if value == isDimensionless %} Is Dimensionless {% elif value == isDimensional %} Is Dimensional {% elif value == isLinear %} Is Linear {% elif value == isNotLinear %} Is Not Linear {% endif %} {% if not forloop.last %}, {% endif %}{% endfor %} {% endif %}
 
 {% if values.QorQK == QuantityClass %}
 
@@ -472,15 +465,15 @@ contained in Field: {{ researchfield.1 }}
 
 {% endif %}
 
-{% if values.0 == GeneralizedBy %} generalized by Quantity: {{ values.1 }}
-{% elif values.0 == Generalizes %} generalizes Quantity: {{ values.1 }}
-{% elif values.0 == ApproximatedBy %} approximated by Quantity: {{ values.1 }}
-{% elif values.0 == Approximates %} approximates Quantity: {{ values.1 }}
-{% elif values.0 == LinearizedBy %} linearized by Quantity: {{ values.1 }}
-{% elif values.0 == Linearizes %} linearizes Quantity: {{ values.1 }}
-{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Quantity: {{ values.1 }}
-{% elif values.0 == Nondimensionalizes %} nondimensionalizes Quantity: {{ values.1 }}
-{% elif values.0 == SimilarTo %} similar to Quantity: {{ values.1 }}
+{% if values.0 == generalizedByQuantity %} generalized by Quantity: {{ values.1 }}
+{% elif values.0 == generalizesQuantity %} generalizes Quantity: {{ values.1 }}
+{% elif values.0 == approximatedByQuantity %} approximated by Quantity: {{ values.1 }}
+{% elif values.0 == approximatesQuantity %} approximates Quantity: {{ values.1 }}
+{% elif values.0 == linearizedByQuantity %} linearized by Quantity: {{ values.1 }}
+{% elif values.0 == linearizesQuantity %} linearizes Quantity: {{ values.1 }}
+{% elif values.0 == nondimensionalizedByQuantity %} nondimensionalized by Quantity: {{ values.1 }}
+{% elif values.0 == nondimensionalizesQuantity %} nondimensionalizes Quantity: {{ values.1 }}
+{% elif values.0 == similarToQuantity %} similar to Quantity: {{ values.1 }}
 {% endif %}
 {% endfor %}
 
@@ -492,11 +485,10 @@ contained in Field: {{ researchfield.1 }}
 
 {% endif %}
 
-{% if values.0 == GeneralizedBy %} generalized by Quantity Kind: {{ values.1 }}
-{% elif values.0 == Generalizes %} generalizes Quantity Kind: {{ values.1 }}
-{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Quantity Kind: {{ values.1 }}
-{% elif values.0 == Nondimensionalizes %} nondimensionalizes Quantity Kind: {{ values.1 }}
-{% elif values.0 == SimilarTo %} similar to Quantity Kind: {{ values.1 }}
+{% if values.0 == generalizedByQuantity %} generalized by Quantity Kind: {{ values.1 }}
+{% elif values.0 == nondimensionalizedByQuantity %} nondimensionalized by Quantity Kind: {{ values.1 }}
+{% elif values.0 == nondimensionalizesQuantity %} nondimensionalizes Quantity Kind: {{ values.1 }}
+{% elif values.0 == similarToQuantity %} similar to Quantity Kind: {{ values.1 }}
 {% endif %}
 {% endfor %}
 
@@ -523,7 +515,7 @@ contained in Field: {{ researchfield.1 }}
 
 &nbsp;
 
-**Properties**:{% for value in values.Properties.values %} {% if value == IsConvex %} Is Convex {% elif value == IsNotConvex %} Is Not Convex {% elif value == IsDeterministic %} Is Deterministic {% elif value == IsStochastic %} Is Stochastic {% elif value == IsDimensionless %} Is Dimensionless {% elif value == IsDimensional %} Is Dimensional {% elif value == IsDynamic %} Is Dynamic {% elif value == IsStatic %} Is Static {% elif value == IsLinear %} Is Linear {% elif value == IsNotLinear %} Is Not Linear {% elif value == IsSpaceContinuous %} Is Space-Continuous {% elif value == IsSpaceDiscrete %} Is Space-Discrete {% elif value == IsSpaceIndependent %} Is Space-Independent {% elif value == IsTimeContinuous %} Is Time-Continuous {% elif value == IsTimeDiscrete %} Is Time-Discrete {% elif value == IsTimeIndependent %} Is Time-Independent {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}
+**Properties**:{% for value in values.Properties.values %} {% if value == isConvex %} Is Convex {% elif value == isNotConvex %} Is Not Convex {% elif value == isDeterministic %} Is Deterministic {% elif value == isStochastic %} Is Stochastic {% elif value == isDimensionless %} Is Dimensionless {% elif value == isDimensional %} Is Dimensional {% elif value == isDynamic %} Is Dynamic {% elif value == isStatic %} Is Static {% elif value == isLinear %} Is Linear {% elif value == isNotLinear %} Is Not Linear {% elif value == isSpaceContinuous %} Is Space-Continuous {% elif value == isSpaceDiscrete %} Is Space-Discrete {% elif value == isSpaceIndependent %} Is Space-Independent {% elif value == isTimeContinuous %} Is Time-Continuous {% elif value == isTimeDiscrete %} Is Time-Discrete {% elif value == isTimeIndependent %} Is Time-Independent {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}
 
 {% endif %}
 
@@ -537,11 +529,9 @@ contained in Field: {{ researchfield.1 }}
 
 {% endif %}
 
-{% if values.0 == GeneralizedBy %} generalized by Quantity Kind: {{ values.1 }}
-{% elif values.0 == Generalizes %} generalizes Quantity Kind: {{ values.1 }}
-{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Quantity Kind: {{ values.1 }}
-{% elif values.0 == Nondimensionalizes %} nondimensionalizes Quantity Kind: {{ values.1 }}
-{% elif values.0 == SimilarTo %} similar to Quantity Kind: {{ values.1 }}
+{% if values.0 == nondimensionalizedByQuantity %} nondimensionalized by Quantity Kind: {{ values.1 }}
+{% elif values.0 == nondimensionalizesQuantity %} nondimensionalizes Quantity Kind: {{ values.1 }}
+{% elif values.0 == similarToQuantity %} similar to Quantity Kind: {{ values.1 }}
 {% endif %}
 {% endfor %}
 
@@ -553,11 +543,10 @@ contained in Field: {{ researchfield.1 }}
 
 {% endif %}
 
-{% if values.0 == GeneralizedBy %} generalized by Quantity: {{ values.1 }}
-{% elif values.0 == Generalizes %} generalizes Quantity: {{ values.1 }}
-{% elif values.0 == NondimensionalizedBy %} nondimensionalized by Quantity: {{ values.1 }}
-{% elif values.0 == Nondimensionalizes %} nondimensionalizes Quantity: {{ values.1 }}
-{% elif values.0 == SimilarTo %} similar to Quantity: {{ values.1 }}
+{% if values.0 == generalizesQuantity %} generalizes Quantity: {{ values.1 }}
+{% elif values.0 == nondimensionalizedByQuantity %} nondimensionalized by Quantity: {{ values.1 }}
+{% elif values.0 == nondimensionalizesQuantity %} nondimensionalizes Quantity: {{ values.1 }}
+{% elif values.0 == similarToQuantity %} similar to Quantity: {{ values.1 }}
 {% endif %}
 {% endfor %}
 

@@ -306,16 +306,17 @@ class RelatedResearchField(Provider):
 
         for value1 in values1: 
             if value1.text:
-                dic.update({value1.text: {'id': value1.external_id}})
+                Id, name, quote = value1.external_id.split(' <|> ')
+                dic.update({name: {'id': Id}})
 
         for idx, value2 in enumerate(values2): 
             if value2.text:
-                dic.update({value2.text: {'id': f"{idx} <|> {value2.text}"}})
+                dic.update({value2.text: {'id': idx}})
 
         options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
 
         options = sorted(options, key=lambda option: option['text'])
-    
+         
         return options
     
 class ResearchProblem(Provider):
@@ -373,11 +374,12 @@ class RelatedResearchProblem(Provider):
 
         for value1 in values1: 
             if value1.text:
-                dic.update({value1.text: {'id': value1.external_id}})
+                Id, label, quote = value1.external_id.split(' <|> ')
+                dic.update({label: {'id': Id}})
 
         for idx, value2 in enumerate(values2): 
             if value2.text:
-                dic.update({value2.text: {'id': f"{idx} <|> {value2.text}"}})
+                dic.update({value2.text: {'id': idx}})
 
         options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
 
@@ -397,7 +399,8 @@ class ResearchFieldWithUserAddition(Provider):
 
             for idx, value1 in enumerate(values1):
                 if value1.text:
-                    options.extend([{'id': value1.external_id, 'text': value1.text}])
+                    Id, label, quote = value1.external_id.split(' <|> ')
+                    options.extend([{'id': f"{Id} <|> {label}", 'text': label}])
             for idx, value2 in enumerate(values2):
                 if value2.text:
                     options.extend([{'id': f"{idx} <|> {value2.text}", 'text': value2.text}])
@@ -406,7 +409,7 @@ class ResearchFieldWithUserAddition(Provider):
                     options.extend([{'id': value3.external_id, 'text': value3.text}])
 
             options = sorted(options, key=lambda option: option['text'])
-
+            
             return options
 
 class RelatedMathematicalModel(Provider):
@@ -434,16 +437,17 @@ class RelatedMathematicalModel(Provider):
 
         for value1 in values1: 
             if value1.text:
-                dic.update({value1.text: {'id': value1.external_id}})
+                Id, name, quote = value1.external_id.split(' <|> ')
+                dic.update({name: {'id': Id}})
 
         for idx, value2 in enumerate(values2): 
             if value2.text:
-                dic.update({value2.text: {'id': f"{idx} <|> {value2.text}"}})
+                dic.update({value2.text: {'id': idx}})
 
         options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
 
         options = sorted(options, key=lambda option: option['text'])
-
+        
         return options
 
 class MathematicalModelWithUserAddition(Provider):
@@ -512,15 +516,16 @@ class RelatedQuantity(Provider):
             if value1.option == Option.objects.get(uri=self.mathmoddb['QuantityClass']):
                 for value2 in values2: 
                     if value2.text and value1.set_index == value2.set_index:
-                        dic.update({value2.text: {'id': value2.external_id}})
+                        Id, name, quote = value2.external_id.split(' <|> ')
+                        dic.update({name: {'id': Id}})
                 for idx, value3 in enumerate(values3): 
                     if value3.text and value1.set_index == value3.set_index:
-                        dic.update({value3.text: {'id': f"{idx} <|> {value3.text}"}})
+                        dic.update({value3.text: {'id': idx}})
 
         options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
 
         options = sorted(options, key=lambda option: option['text'])
-
+        print(options)
         return options
 
 class RelatedQuantityKind(Provider):
@@ -555,15 +560,16 @@ class RelatedQuantityKind(Provider):
             if value1.option == Option.objects.get(uri=self.mathmoddb['QuantityKindClass']):
                 for value2 in values2: 
                     if value2.text and value1.set_index == value2.set_index:
-                        dic.update({value2.text: {'id': value2.external_id}})
+                        Id, name, quote = value2.external_id.split(' <|> ')
+                        dic.update({name: {'id': Id}})
                 for idx, value3 in enumerate(values3): 
                     if value3.text and value1.set_index == value3.set_index:
-                        dic.update({value3.text: {'id': f"{idx} <|> {value3.text}"}})
+                        dic.update({value3.text: {'id': idx}})
 
         options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
 
         options = sorted(options, key=lambda option: option['text'])
-
+        print(options)
         return options
 
 class MathematicalFormulation(Provider):
@@ -601,11 +607,12 @@ class MathematicalFormulationWithUserAddition(Provider):
 
         for value1 in values1: 
             if value1.text:
-                dic.update({value1.text: {'id': value1.external_id}})
+                Id, name, quote = value1.external_id.split(' <|> ')
+                dic.update({name: {'id': Id}})
 
         for idx, value2 in enumerate(values2): 
             if value2.text:
-                dic.update({value2.text: {'id': f"{idx} <|> {value2.text}"}})
+                dic.update({value2.text: {'id': idx}})
 
         options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
 
@@ -716,11 +723,12 @@ class RelatedTask(Provider):
 
         for value1 in values1: 
             if value1.text:
-                dic.update({value1.text: {'id': value1.external_id}})
+                Id, name, quote = value1.external_id.split(' <|> ')
+                dic.update({name: {'id': Id}})
 
         for idx, value2 in enumerate(values2): 
             if value2.text:
-                dic.update({value2.text: {'id': f"{idx} <|> {value2.text}"}})
+                dic.update({value2.text: {'id': idx}})
 
         options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
 

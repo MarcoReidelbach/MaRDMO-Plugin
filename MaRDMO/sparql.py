@@ -196,7 +196,7 @@ queryModelDocumentation = {
                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                                  
                                  SELECT ?ResearchProblem ?label ?quote
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?rf), " >|< ", STR(?rfL), " >|< ", COALESCE(STR(?rfQ), ""))); separator=" <|> ") AS ?ContainedInField)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?rf), " >|< ", STR(?rfL), " >|< ", COALESCE(STR(?rfQ), ""))); separator=" <|> ") AS ?containedInField)
                                         
                                  WHERE {{
                                          VALUES ?ResearchProblem {{{0}}}
@@ -221,7 +221,7 @@ queryModelDocumentation = {
                   'Quantity': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                             
-                            SELECT ?Quantity ?qlabel ?qquote ?qk ?qklabel ?qkquote ?label ?quote ?IsLinear ?IsNotLinear ?IsDimensionless ?IsDimensional
+                            SELECT ?Quantity ?qlabel ?qquote ?qk ?qklabel ?qkquote ?label ?quote ?isLinear ?isNotLinear ?isDimensionless ?isDimensional
                             WHERE {{
                               VALUES ?Quantity {{{0}}}
                               # Handle Quantities
@@ -231,8 +231,8 @@ queryModelDocumentation = {
                                 FILTER (lang(?qlabel) = 'en')
                                 
                                 OPTIONAL {{ ?Quantity rdfs:comment ?qquote . FILTER (lang(?qquote) = 'en') }}
-                                OPTIONAL {{ ?Quantity :isLinear ?IsLinear . BIND(IF(?IsLinear = false, true, false) AS ?IsNotLinear) }}
-                                OPTIONAL {{ ?Quantity :isDimensionless ?IsDimensionless . BIND(IF(?IsDimensionless = false, true, false) AS ?IsDimensional) }}
+                                OPTIONAL {{ ?Quantity :isLinear ?isLinear . BIND(IF(?isLinear = false, true, false) AS ?isNotLinear) }}
+                                OPTIONAL {{ ?Quantity :isDimensionless ?isDimensionless . BIND(IF(?isDimensionless = false, true, false) AS ?isDimensional) }}
                             
                                 # Handle associated QuantityKinds for Quantities
                                 OPTIONAL {{
@@ -259,19 +259,19 @@ queryModelDocumentation = {
                                 FILTER (lang(?qklabel) = 'en')
                                 
                                 OPTIONAL {{ ?Quantity rdfs:comment ?qkquote . FILTER (lang(?qkquote) = 'en') }}
-                                OPTIONAL {{ ?Quantity :isDimensionless ?IsDimensionless . BIND(IF(?IsDimensionless = false, true, false) AS ?IsDimensional) }}
+                                OPTIONAL {{ ?Quantity :isDimensionless ?isDimensionless . BIND(IF(?isDimensionless = false, true, false) AS ?isDimensional) }}
                                 BIND(IF(BOUND(?qlabel), ?qlabel, ?qklabel) AS ?label)
                                 BIND(IF(BOUND(?qquote), ?qquote, ?qkquote) AS ?quote)
                               }}
 
                            }}
-                            GROUP BY ?Quantity ?qlabel ?qquote ?qk ?qklabel ?qkquote ?label ?quote ?IsLinear ?IsNotLinear ?IsDimensionless ?IsDimensional''',
+                            GROUP BY ?Quantity ?qlabel ?qquote ?qk ?qklabel ?qkquote ?label ?quote ?isLinear ?isNotLinear ?isDimensionless ?isDimensional''',
 
                   'QuantityDefinition': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                   
-                                 SELECT ?q ?qlabel ?MathematicalFormulation ?label ?quote ?IsLinear ?IsNotLinear ?IsConvex ?IsNotConvex ?IsDynamic ?IsStatic ?IsDeterministic ?IsStochastic 
-                                        ?IsDimensionless ?IsDimensional ?IsTimeContinuous ?IsTimeDiscrete ?IsTimeIndependent ?IsSpaceContinuous ?IsSpaceDiscrete ?IsSpaceIndependent
+                                 SELECT ?q ?qlabel ?MathematicalFormulation ?label ?quote ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic 
+                                        ?isDimensionless ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent
                                         (GROUP_CONCAT(DISTINCT(?elements); separator=" <|> ") AS ?formula_elements) (GROUP_CONCAT(DISTINCT(?formulas); separator=" <|> ") AS ?formula)
                                         (GROUP_CONCAT(DISTINCT(CONCAT(STR(?qID), " >|< ", STR(?qL), " >|< ", STR(?qC))); separator=" <|> ") AS ?ContainsQuantity)
                   
@@ -290,22 +290,22 @@ queryModelDocumentation = {
                                         OPTIONAL {{ ?MathematicalFormulation rdfs:comment ?quote.
                                                     FILTER (lang(?quote) = 'en')}}
                   
-                                        OPTIONAL {{ ?MathematicalFormulation :isLinear ?IsLinear.
-                                                    BIND(IF(?IsLinear = false, true, false) AS ?IsNotLinear)}}
-                                        OPTIONAL {{ ?MathematicalFormulation :isConvex ?IsConvex.
-                                                    BIND(IF(?IsConvex = false, true, false) AS ?IsNotConvex)}}  
-                                        OPTIONAL {{ ?MathematicalFormulation :isDynamic ?IsDynamic.
-                                                    BIND(IF(?IsDynamic = false, true, false) AS ?IsStatic)}}                             
-                                        OPTIONAL {{ ?MathematicalFormulation :isDeterministic ?IsDeterministic.
-                                                    BIND(IF(?IsDeterministic = false, true, false) AS ?IsStochastic)}}
-                          		          OPTIONAL {{ ?MathematicalFormulation :isDimensionless ?IsDimensionless.
-                                                    BIND(IF(?IsDimensionless = false, true, false) AS ?IsDimensional)}}
-                                        OPTIONAL {{ ?MathematicalFormulation :isTimeContinuous ?IsTimeContinuous.
-                                                    BIND(IF(BOUND(?IsTimeContinuous) && ?IsTimeContinuous = false, true, false) AS ?IsTimeDiscrete)}}
-                                                    BIND(IF(!BOUND(?IsTimeContinuous), true, false) AS ?IsTimeIndependent)
-                                        OPTIONAL {{ ?MathematicalFormulation :isSpaceContinuous ?IsSpaceContinuous.
-                                                    BIND(IF(BOUND(?IsSpaceContinuous) && ?IsSpaceContinuous = false, true, false) AS ?IsSpaceDiscrete)}}
-                                                    BIND(IF(!BOUND(?IsSpaceContinuous), true, false) AS ?IsSpaceIndependent)
+                                        OPTIONAL {{ ?MathematicalFormulation :isLinear ?isLinear.
+                                                    BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}}
+                                        OPTIONAL {{ ?MathematicalFormulation :isConvex ?isConvex.
+                                                    BIND(IF(?isConvex = false, true, false) AS ?isNotConvex)}}  
+                                        OPTIONAL {{ ?MathematicalFormulation :isDynamic ?isDynamic.
+                                                    BIND(IF(?isDynamic = false, true, false) AS ?isStatic)}}                             
+                                        OPTIONAL {{ ?MathematicalFormulation :isDeterministic ?isDeterministic.
+                                                    BIND(IF(?isDeterministic = false, true, false) AS ?isStochastic)}}
+                          		          OPTIONAL {{ ?MathematicalFormulation :isDimensionless ?isDimensionless.
+                                                    BIND(IF(?isDimensionless = false, true, false) AS ?isDimensional)}}
+                                        OPTIONAL {{ ?MathematicalFormulation :isTimeContinuous ?isTimeContinuous.
+                                                    BIND(IF(BOUND(?isTimeContinuous) && ?isTimeContinuous = false, true, false) AS ?isTimeDiscrete)}}
+                                                    BIND(IF(!BOUND(?isTimeContinuous), true, false) AS ?isTimeIndependent)
+                                        OPTIONAL {{ ?MathematicalFormulation :isSpaceContinuous ?isSpaceContinuous.
+                                                    BIND(IF(BOUND(?isSpaceContinuous) && ?isSpaceContinuous = false, true, false) AS ?isSpaceDiscrete)}}
+                                                    BIND(IF(!BOUND(?isSpaceContinuous), true, false) AS ?isSpaceIndependent)
                   
                                         OPTIONAL {{ ?MathematicalFormulation :definingFormulation ?formulas.}}
                                         OPTIONAL {{ ?MathematicalFormulation :inDefiningFormulation ?elements.}}
@@ -319,27 +319,28 @@ queryModelDocumentation = {
                   
                                         }}
                   
-                                        GROUP BY ?q ?qlabel ?MathematicalFormulation ?label ?quote ?IsLinear ?IsNotLinear ?IsConvex ?IsNotConvex ?IsDynamic ?IsStatic ?IsDeterministic ?IsStochastic 
-                                                 ?IsDimensionless ?IsDimensional ?IsTimeContinuous ?IsTimeDiscrete ?IsTimeIndependent ?IsSpaceContinuous ?IsSpaceDiscrete ?IsSpaceIndependent''',
+                                        GROUP BY ?q ?qlabel ?MathematicalFormulation ?label ?quote ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic 
+                                                 ?isDimensionless ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent''',
                                     
                   'Task': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                   
-                                 SELECT ?Task ?subclass ?quote ?IsLinear ?IsNotLinear
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?f), " >|< ", STR(?fL))); separator=" <|> ") AS ?ContainsFormulation)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?a), " >|< ", STR(?aL))); separator=" <|> ") AS ?ContainsAssumption)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?bc), " >|< ", STR(?bcL))); separator=" <|> ") AS ?ContainsBoundaryCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cc), " >|< ", STR(?ccL))); separator=" <|> ") AS ?ContainsConstraintCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cpc), " >|< ", STR(?cpcL))); separator=" <|> ") AS ?ContainsCouplingCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ic), " >|< ", STR(?icL))); separator=" <|> ") AS ?ContainsInitialCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?fc), " >|< ", STR(?fcL))); separator=" <|> ") AS ?ContainsFinalCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ct), " >|< ", STR(?ctL))); separator=" <|> ") AS ?ContainsTask)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ict), " >|< ", STR(?ictL))); separator=" <|> ") AS ?ContainedInTask)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?in), " >|< ", STR(?inL))); separator=" <|> ") AS ?ContainsInput)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?o), " >|< ", STR(?oL))); separator=" <|> ") AS ?ContainsOutput)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ob), " >|< ", STR(?obL))); separator=" <|> ") AS ?ContainsObjective)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pa), " >|< ", STR(?paL))); separator=" <|> ") AS ?ContainsParameter)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?co), " >|< ", STR(?coL))); separator=" <|> ") AS ?ContainsConstant)
+                                 SELECT ?Task ?subclass ?quote ?isLinear ?isNotLinear
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?mm), " >|< ", STR(?mmL))); separator=" <|> ") AS ?appliesModel)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?f), " >|< ", STR(?fL))); separator=" <|> ") AS ?containsFormulation)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?a), " >|< ", STR(?aL))); separator=" <|> ") AS ?containsAssumption)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?bc), " >|< ", STR(?bcL))); separator=" <|> ") AS ?containsBoundaryCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cc), " >|< ", STR(?ccL))); separator=" <|> ") AS ?containsConstraintCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cpc), " >|< ", STR(?cpcL))); separator=" <|> ") AS ?containsCouplingCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ic), " >|< ", STR(?icL))); separator=" <|> ") AS ?containsInitialCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?fc), " >|< ", STR(?fcL))); separator=" <|> ") AS ?containsFinalCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ct), " >|< ", STR(?ctL))); separator=" <|> ") AS ?containsTask)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ict), " >|< ", STR(?ictL))); separator=" <|> ") AS ?containedInTask)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?in), " >|< ", STR(?inL))); separator=" <|> ") AS ?containsInput)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?o), " >|< ", STR(?oL))); separator=" <|> ") AS ?containsOutput)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ob), " >|< ", STR(?obL))); separator=" <|> ") AS ?containsObjective)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pa), " >|< ", STR(?paL))); separator=" <|> ") AS ?containsParameter)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?co), " >|< ", STR(?coL))); separator=" <|> ") AS ?containsConstant)
                                         
                                  WHERE {{
                                         VALUES ?Task {{{0}}}
@@ -349,8 +350,11 @@ queryModelDocumentation = {
                                                     BIND(STRAFTER(STR(?sclass), "#") AS ?subclass)}}
                                         OPTIONAL {{ ?Task rdfs:comment ?quote.
                                                     FILTER (lang(?quote) = 'en')}}
-                                        OPTIONAL {{ ?Task :isLinear ?IsLinear.
-                                                    BIND(IF(?IsLinear = false, true, false) AS ?IsNotLinear)}}
+                                        OPTIONAL {{ ?Task :isLinear ?isLinear.
+                                                    BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}}
+                                        OPTIONAL {{ ?Task :appliesModel ?mm. 
+                                                    ?mm rdfs:label ?mmL.
+                                                    FILTER (lang(?mmL) = 'en')}}
                                         OPTIONAL {{ ?Task :containsFormulation ?f. 
                                                     ?f rdfs:label ?fL.
                                                     FILTER (lang(?fL) = 'en')}}
@@ -395,45 +399,45 @@ queryModelDocumentation = {
                                                     FILTER (lang(?coL) = 'en')}}
                                        }}
                   
-                                 GROUP BY ?Task ?subclass ?quote ?IsLinear ?IsNotLinear''',
+                                 GROUP BY ?Task ?subclass ?quote ?isLinear ?isNotLinear''',
                   
                   'IntraClass': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                   
                                         SELECT ?t ?tc ?tC ?TC
                                                (GROUP_CONCAT(DISTINCT(CONCAT(STR(?t), " >|< ", STR(?TC))); separator=" <|> ") AS ?Item)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?gb), " >|< ", STR(?gbL), " >|< ", STR(?tC), " >|< ", STR(?gbC))); separator=" <|> ") AS ?GeneralizedBy)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?g), " >|< ", STR(?gL), " >|< ", STR(?tC), " >|< ", STR(?gC))); separator=" <|> ") AS ?Generalizes)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ab), " >|< ", STR(?abL), " >|< ", STR(?tC), " >|< ", STR(?abC))); separator=" <|> ") AS ?ApproximatedBy)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?a), " >|< ", STR(?aL), " >|< ", STR(?tC), " >|< ", STR(?aC))); separator=" <|> ") AS ?Approximates)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?db), " >|< ", STR(?dbL), " >|< ", STR(?tC), " >|< ", STR(?dbC))); separator=" <|> ") AS ?DiscretizedBy)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?d), " >|< ", STR(?dL), " >|< ", STR(?tC), " >|< ", STR(?dC))); separator=" <|> ") AS ?Discretizes)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?lb), " >|< ", STR(?lbL), " >|< ", STR(?tC), " >|< ", STR(?lbC))); separator=" <|> ") AS ?LinearizedBy)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?l), " >|< ", STR(?lL), " >|< ", STR(?tC), " >|< ", STR(?lC))); separator=" <|> ") AS ?Linearizes)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?nb), " >|< ", STR(?nbL), " >|< ", STR(?tC), " >|< ", STR(?nbC))); separator=" <|> ") AS ?NondimensionalizedBy)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?n), " >|< ", STR(?nL), " >|< ", STR(?tC), " >|< ", STR(?nC))); separator=" <|> ") AS ?Nondimensionalizes)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?s), " >|< ", STR(?sL), " >|< ", STR(?tC), " >|< ", STR(?sC))); separator=" <|> ") AS ?SimilarTo)
+                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?gb), " >|< ", STR(?gbL), " >|< ", STR(?tC), " >|< ", STR(?gbC))); separator=" <|> ") AS ?generalizedBy)
+                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?g), " >|< ", STR(?gL), " >|< ", STR(?tC), " >|< ", STR(?gC))); separator=" <|> ") AS ?generalizes)
+                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ab), " >|< ", STR(?abL), " >|< ", STR(?tC), " >|< ", STR(?abC))); separator=" <|> ") AS ?approximatedBy)
+                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?a), " >|< ", STR(?aL), " >|< ", STR(?tC), " >|< ", STR(?aC))); separator=" <|> ") AS ?approximates)
+                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?db), " >|< ", STR(?dbL), " >|< ", STR(?tC), " >|< ", STR(?dbC))); separator=" <|> ") AS ?discretizedBy)
+                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?d), " >|< ", STR(?dL), " >|< ", STR(?tC), " >|< ", STR(?dC))); separator=" <|> ") AS ?discretizes)
+                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?lb), " >|< ", STR(?lbL), " >|< ", STR(?tC), " >|< ", STR(?lbC))); separator=" <|> ") AS ?linearizedBy)
+                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?l), " >|< ", STR(?lL), " >|< ", STR(?tC), " >|< ", STR(?lC))); separator=" <|> ") AS ?linearizes)
+                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?nb), " >|< ", STR(?nbL), " >|< ", STR(?tC), " >|< ", STR(?nbC))); separator=" <|> ") AS ?nondimensionalizedBy)
+                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?n), " >|< ", STR(?nL), " >|< ", STR(?tC), " >|< ", STR(?nC))); separator=" <|> ") AS ?nondimensionalizes)
+                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?s), " >|< ", STR(?sL), " >|< ", STR(?tC), " >|< ", STR(?sC))); separator=" <|> ") AS ?similarTo)
                                                
                                         WHERE {{
                                                  VALUES ?t {{{0}}}
                                                  ?t a ?tc.
-                                                 FILTER (?tc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
+                                                 FILTER (?tc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind, :ResearchField, :ResearchProblem))
                                                  BIND(STRAFTER(STR(?tc), "#") AS ?tC)
                                                  BIND(IF(STRAFTER(STR(?tc), "#") = "ComputationalTask", "Task", IF(STRAFTER(STR(?tc), "#") = "QuantityKind", "Quantity", STRAFTER(STR(?tc), "#"))) AS ?TC)
                                                  OPTIONAL {{ 
-                                                             ?t (:generalizedByTask | :generalizedByModel | :generalizedByFormulation |:generalizedByQuantity)  ?gb. 
+                                                             ?t (:generalizedByTask | :generalizedByModel | :generalizedByFormulation | :generalizedByQuantity | :generalizedByField | :generalizedByProblem)  ?gb. 
                                                              ?gb rdfs:label ?gbL.
                                                              ?gb a ?gbc.
                                                              FILTER (lang(?gbL) = 'en')
-                                                             FILTER (?gbc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
+                                                             FILTER (?gbc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind, :ResearchField, :ResearchProblem))
                                                              BIND(STRAFTER(STR(?gbc), "#") AS ?gbC)
                                                           }}
                                                  OPTIONAL {{ 
-                                                             ?t (:generalizesTask | :generalizesModel | :generalizesFormulation | :generalizesQuantity) ?g. 
+                                                             ?t (:generalizesTask | :generalizesModel | :generalizesFormulation | :generalizesQuantity | :generalizesField | :generalizesProblem) ?g. 
                                                              ?g rdfs:label ?gL.
                                                              ?g a ?gc.
                                                              FILTER (lang(?gL) = 'en')
-                                                             FILTER (?gc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
+                                                             FILTER (?gc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind, :ResearchField, :ResearchProblem))
                                                              BIND(STRAFTER(STR(?gc), "#") AS ?gC)
                                                           }}
                                                  OPTIONAL {{ 
@@ -514,17 +518,17 @@ queryModelDocumentation = {
                   'MathematicalModel': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                   
-                                 SELECT ?MathematicalModel ?quote ?IsLinear ?IsNotLinear ?IsConvex ?IsNotConvex ?IsDynamic ?IsStatic ?IsDeterministic ?IsStochastic 
-                                        ?IsDimensionless ?IsDimensional ?IsTimeContinuous ?IsTimeDiscrete ?IsTimeIndependent ?IsSpaceContinuous ?IsSpaceDiscrete ?IsSpaceIndependent 
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?p), " >|< ", STR(?pL))); separator=" <|> ") AS ?Models)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?f), " >|< ", STR(?fL))); separator=" <|> ") AS ?ContainsFormulation)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?a), " >|< ", STR(?aL))); separator=" <|> ") AS ?ContainsAssumption)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?bc), " >|< ", STR(?bcL))); separator=" <|> ") AS ?ContainsBoundaryCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cc), " >|< ", STR(?ccL))); separator=" <|> ") AS ?ContainsConstraintCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cpc), " >|< ", STR(?cpcL))); separator=" <|> ") AS ?ContainsCouplingCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ic), " >|< ", STR(?icL))); separator=" <|> ") AS ?ContainsInitialCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?fc), " >|< ", STR(?fcL))); separator=" <|> ") AS ?ContainsFinalCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cmm), " >|< ", STR(?cmmL))); separator=" <|> ") AS ?ContainsModel)
+                                 SELECT ?MathematicalModel ?quote ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic 
+                                        ?isDimensionless ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent 
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?p), " >|< ", STR(?pL))); separator=" <|> ") AS ?models)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?f), " >|< ", STR(?fL))); separator=" <|> ") AS ?containsFormulation)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?a), " >|< ", STR(?aL))); separator=" <|> ") AS ?containsAssumption)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?bc), " >|< ", STR(?bcL))); separator=" <|> ") AS ?containsBoundaryCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cc), " >|< ", STR(?ccL))); separator=" <|> ") AS ?containsConstraintCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cpc), " >|< ", STR(?cpcL))); separator=" <|> ") AS ?containsCouplingCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ic), " >|< ", STR(?icL))); separator=" <|> ") AS ?containsInitialCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?fc), " >|< ", STR(?fcL))); separator=" <|> ") AS ?containsFinalCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cmm), " >|< ", STR(?cmmL))); separator=" <|> ") AS ?containsModel)
                                         (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ta), " >|< ", STR(?taL))); separator=" <|> ") AS ?AppliedByTask)
                   
                                  WHERE {{
@@ -534,22 +538,22 @@ queryModelDocumentation = {
                                         OPTIONAL {{ ?MathematicalModel rdfs:comment ?quote.
                                                     FILTER (lang(?quote) = 'en')}}
                                         
-                                        OPTIONAL {{ ?MathematicalModel :isLinear ?IsLinear.
-                                                    BIND(IF(?IsLinear = false, true, false) AS ?IsNotLinear)}}
-                                        OPTIONAL {{ ?MathematicalModel :isConvex ?IsConvex.
-                                                    BIND(IF(?IsConvex = false, true, false) AS ?IsNotConvex)}}  
-                                        OPTIONAL {{ ?MathematicalModel :isDynamic ?IsDynamic.
-                                                    BIND(IF(?IsDynamic = false, true, false) AS ?IsStatic)}}                             
-                                        OPTIONAL {{ ?MathematicalModel :isDeterministic ?IsDeterministic.
-                                                    BIND(IF(?IsDeterministic = false, true, false) AS ?IsStochastic)}}
-                          		     OPTIONAL {{ ?MathematicalModel :isDimensionless ?IsDimensionless.
-                                                    BIND(IF(?IsDimensionless = false, true, false) AS ?IsDimensional)}}
-                                        OPTIONAL {{ ?MathematicalModel :isTimeContinuous ?IsTimeContinuous.
-                                                    BIND(IF(BOUND(?IsTimeContinuous) && ?IsTimeContinuous = false, true, false) AS ?IsTimeDiscrete)}}
-                                                    BIND(IF(!BOUND(?IsTimeContinuous), true, false) AS ?IsTimeIndependent)
-                                        OPTIONAL {{ ?MathematicalModel :isSpaceContinuous ?IsSpaceContinuous.
-                                                    BIND(IF(BOUND(?IsSpaceContinuous) && ?IsSpaceContinuous = false, true, false) AS ?IsSpaceDiscrete)}}
-                                                    BIND(IF(!BOUND(?IsSpaceContinuous), true, false) AS ?IsSpaceIndependent)
+                                        OPTIONAL {{ ?MathematicalModel :isLinear ?isLinear.
+                                                    BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}}
+                                        OPTIONAL {{ ?MathematicalModel :isConvex ?isConvex.
+                                                    BIND(IF(?isConvex = false, true, false) AS ?isNotConvex)}}  
+                                        OPTIONAL {{ ?MathematicalModel :isDynamic ?isDynamic.
+                                                    BIND(IF(?isDynamic = false, true, false) AS ?isStatic)}}                             
+                                        OPTIONAL {{ ?MathematicalModel :isDeterministic ?isDeterministic.
+                                                    BIND(IF(?isDeterministic = false, true, false) AS ?isStochastic)}}
+                          		     OPTIONAL {{ ?MathematicalModel :isDimensionless ?isDimensionless.
+                                                    BIND(IF(?isDimensionless = false, true, false) AS ?isDimensional)}}
+                                        OPTIONAL {{ ?MathematicalModel :isTimeContinuous ?isTimeContinuous.
+                                                    BIND(IF(BOUND(?isTimeContinuous) && ?isTimeContinuous = false, true, false) AS ?isTimeDiscrete)}}
+                                                    BIND(IF(!BOUND(?isTimeContinuous), true, false) AS ?isTimeIndependent)
+                                        OPTIONAL {{ ?MathematicalModel :isSpaceContinuous ?isSpaceContinuous.
+                                                    BIND(IF(BOUND(?isSpaceContinuous) && ?isSpaceContinuous = false, true, false) AS ?isSpaceDiscrete)}}
+                                                    BIND(IF(!BOUND(?isSpaceContinuous), true, false) AS ?isSpaceIndependent)
                                         
                                         OPTIONAL {{ ?MathematicalModel :models ?p.
                                                     ?p rdfs:label ?pL.
@@ -585,22 +589,22 @@ queryModelDocumentation = {
                                                     FILTER (lang(?taL) = 'en')}}
                                        }}
                   
-                                 GROUP BY ?MathematicalModel ?quote ?IsLinear ?IsNotLinear ?IsConvex ?IsNotConvex ?IsDynamic ?IsStatic ?IsDeterministic ?IsStochastic ?IsDimensionless 
-                                          ?IsDimensional ?IsTimeContinuous ?IsTimeDiscrete ?IsTimeIndependent ?IsSpaceContinuous ?IsSpaceDiscrete ?IsSpaceIndependent 
+                                 GROUP BY ?MathematicalModel ?quote ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
+                                          ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent 
                                           ''',               
                   
                   'MathematicalFormulation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                   
-                                 SELECT ?MathematicalFormulation ?quote ?IsLinear ?IsNotLinear ?IsConvex ?IsNotConvex ?IsDynamic ?IsStatic ?IsDeterministic ?IsStochastic 
-                                        ?IsDimensionless ?IsDimensional ?IsTimeContinuous ?IsTimeDiscrete ?IsTimeIndependent ?IsSpaceContinuous ?IsSpaceDiscrete ?IsSpaceIndependent
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?f), " >|< ", STR(?fL))); separator=" <|> ") AS ?ContainsFormulation)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?a), " >|< ", STR(?aL))); separator=" <|> ") AS ?ContainsAssumption)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?bc), " >|< ", STR(?bcL))); separator=" <|> ") AS ?ContainsBoundaryCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cc), " >|< ", STR(?ccL))); separator=" <|> ") AS ?ContainsConstraintCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cpc), " >|< ", STR(?cpcL))); separator=" <|> ") AS ?ContainsCouplingCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ic), " >|< ", STR(?icL))); separator=" <|> ") AS ?ContainsInitialCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?fc), " >|< ", STR(?fcL))); separator=" <|> ") AS ?ContainsFinalCondition)
+                                 SELECT ?MathematicalFormulation ?quote ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic 
+                                        ?isDimensionless ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?f), " >|< ", STR(?fL))); separator=" <|> ") AS ?containsFormulation)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?a), " >|< ", STR(?aL))); separator=" <|> ") AS ?containsAssumption)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?bc), " >|< ", STR(?bcL))); separator=" <|> ") AS ?containsBoundaryCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cc), " >|< ", STR(?ccL))); separator=" <|> ") AS ?containsConstraintCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cpc), " >|< ", STR(?cpcL))); separator=" <|> ") AS ?containsCouplingCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ic), " >|< ", STR(?icL))); separator=" <|> ") AS ?containsInitialCondition)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?fc), " >|< ", STR(?fcL))); separator=" <|> ") AS ?containsFinalCondition)
                                         (GROUP_CONCAT(DISTINCT(?elements); separator=" <|> ") AS ?formula_elements) (GROUP_CONCAT(DISTINCT(?formulas); separator=" <|> ") AS ?formula)
                                         (GROUP_CONCAT(DISTINCT(CONCAT(STR(?qID), " >|< ", STR(?qL), " >|< ", STR(?qC))); separator=" <|> ") AS ?ContainsQuantity)
                   
@@ -611,22 +615,22 @@ queryModelDocumentation = {
                                         OPTIONAL {{ ?MathematicalFormulation rdfs:comment ?quote.
                                                     FILTER (lang(?quote) = 'en')}}
                   
-                                        OPTIONAL {{ ?MathematicalFormulation :isLinear ?IsLinear.
-                                                    BIND(IF(?IsLinear = false, true, false) AS ?IsNotLinear)}}
-                                        OPTIONAL {{ ?MathematicalFormulation :isConvex ?IsConvex.
-                                                    BIND(IF(?IsConvex = false, true, false) AS ?IsNotConvex)}}  
-                                        OPTIONAL {{ ?MathematicalFormulation :isDynamic ?IsDynamic.
-                                                    BIND(IF(?IsDynamic = false, true, false) AS ?IsStatic)}}                             
-                                        OPTIONAL {{ ?MathematicalFormulation :isDeterministic ?IsDeterministic.
-                                                    BIND(IF(?IsDeterministic = false, true, false) AS ?IsStochastic)}}
-                          		          OPTIONAL {{ ?MathematicalFormulation :isDimensionless ?IsDimensionless.
-                                                    BIND(IF(?IsDimensionless = false, true, false) AS ?IsDimensional)}}
-                                        OPTIONAL {{ ?MathematicalFormulation :isTimeContinuous ?IsTimeContinuous.
-                                                    BIND(IF(BOUND(?IsTimeContinuous) && ?IsTimeContinuous = false, true, false) AS ?IsTimeDiscrete)}}
-                                                    BIND(IF(!BOUND(?IsTimeContinuous), true, false) AS ?IsTimeIndependent)
-                                        OPTIONAL {{ ?MathematicalFormulation :isSpaceContinuous ?IsSpaceContinuous.
-                                                    BIND(IF(BOUND(?IsSpaceContinuous) && ?IsSpaceContinuous = false, true, false) AS ?IsSpaceDiscrete)}}
-                                                    BIND(IF(!BOUND(?IsSpaceContinuous), true, false) AS ?IsSpaceIndependent)
+                                        OPTIONAL {{ ?MathematicalFormulation :isLinear ?isLinear.
+                                                    BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}}
+                                        OPTIONAL {{ ?MathematicalFormulation :isConvex ?isConvex.
+                                                    BIND(IF(?isConvex = false, true, false) AS ?isNotConvex)}}  
+                                        OPTIONAL {{ ?MathematicalFormulation :isDynamic ?isDynamic.
+                                                    BIND(IF(?isDynamic = false, true, false) AS ?isStatic)}}                             
+                                        OPTIONAL {{ ?MathematicalFormulation :isDeterministic ?isDeterministic.
+                                                    BIND(IF(?isDeterministic = false, true, false) AS ?isStochastic)}}
+                          		          OPTIONAL {{ ?MathematicalFormulation :isDimensionless ?isDimensionless.
+                                                    BIND(IF(?isDimensionless = false, true, false) AS ?isDimensional)}}
+                                        OPTIONAL {{ ?MathematicalFormulation :isTimeContinuous ?isTimeContinuous.
+                                                    BIND(IF(BOUND(?isTimeContinuous) && ?isTimeContinuous = false, true, false) AS ?isTimeDiscrete)}}
+                                                    BIND(IF(!BOUND(?isTimeContinuous), true, false) AS ?isTimeIndependent)
+                                        OPTIONAL {{ ?MathematicalFormulation :isSpaceContinuous ?isSpaceContinuous.
+                                                    BIND(IF(BOUND(?isSpaceContinuous) && ?isSpaceContinuous = false, true, false) AS ?isSpaceDiscrete)}}
+                                                    BIND(IF(!BOUND(?isSpaceContinuous), true, false) AS ?isSpaceIndependent)
 
                                         OPTIONAL {{ ?MathematicalFormulation :containsFormulation ?f.
                                                     ?f rdfs:label ?fL.
@@ -662,19 +666,19 @@ queryModelDocumentation = {
                   
                                         }}
                   
-                                        GROUP BY ?MathematicalFormulation ?quote ?IsLinear ?IsNotLinear ?IsConvex ?IsNotConvex ?IsDynamic ?IsStatic ?IsDeterministic ?IsStochastic ?IsDimensionless 
-                                                 ?IsDimensional ?IsTimeContinuous ?IsTimeDiscrete ?IsTimeIndependent ?IsSpaceContinuous ?IsSpaceDiscrete ?IsSpaceIndependent''',
+                                        GROUP BY ?MathematicalFormulation ?quote ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
+                                                 ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent''',
                   
                   'PublicationModel': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                   
                                  SELECT ?item ?label ?class
                                         (GROUP_CONCAT(DISTINCT(CONCAT(STR(?item), " >|< ", STR(?class))); separator=" <|> ") AS ?Item)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu1), " >|< ", STR(?label1))); separator=" <|> ") AS ?DocumentedIn)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu2), " >|< ", STR(?label2))); separator=" <|> ") AS ?InventedIn)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu3), " >|< ", STR(?label3))); separator=" <|> ") AS ?StudiedIn)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu4), " >|< ", STR(?label4))); separator=" <|> ") AS ?SurveyedIn)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu5), " >|< ", STR(?label5))); separator=" <|> ") AS ?UsedIn)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu1), " >|< ", STR(?label1))); separator=" <|> ") AS ?documentedIn)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu2), " >|< ", STR(?label2))); separator=" <|> ") AS ?inventedIn)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu3), " >|< ", STR(?label3))); separator=" <|> ") AS ?studiedIn)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu4), " >|< ", STR(?label4))); separator=" <|> ") AS ?surveyedIn)
+                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu5), " >|< ", STR(?label5))); separator=" <|> ") AS ?usedIn)
                   
                                  WHERE {{
                   

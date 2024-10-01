@@ -15,7 +15,7 @@ from wikibaseintegrator.datatypes import ExternalID, Item, String, Time, Monolin
 from wikibaseintegrator.wbi_config import config as wbi_config
 from wikibaseintegrator.models import Qualifiers
 
-from .config import mardi_wiki, mardi_endpoint, mardi_api
+from .config import mardi_wiki, mardi_endpoint, mardi_api, mathmoddb_update
 from .id import *
 from .sparql import query_base, mini, mbody2, quote_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql
 from .handlers import Author_Search
@@ -25,8 +25,13 @@ try:
     # Get login credentials if available 
     from config.settings import lgname, lgpassword
 except:
-    lgname=''
-    lgpassword=''
+    lgname=''; lgpassword=''
+
+try:
+    # Get login credentials if available 
+    from config.settings import mathmoddb_username, mathmoddb_password
+except:
+    mathmoddb_username=''; mathmoddb_password=''
 
 class MaRDIExport(Export):
 
@@ -93,12 +98,19 @@ class MaRDIExport(Export):
                     'error': 'Missing Preview Type for Public Export!'
                     }, status=200)
 
-            # Login Credentials for MaRDI Portal Export
+            # Login Credentials for MaRDI Export
             if answers['Settings'].get('Public') == option['Public'] and answers['Settings'].get('Preview') == option['No']:
+                #MaRDI Portal Credentials
                 if not (lgname and lgpassword):
                     #Stop if no Login Credentials are provided
                     return render(self.request,'MaRDMO/workflowError.html', {
-                        'error': 'No permission to write to MaRDI Portal. Check Bot Credentials.'
+                        'error': 'No permission to write to MaRDI Portal. Check Credentials!'
+                        }, status=200)
+                #MathModDB Credentials
+                if not (mathmoddb_username and mathmoddb_password):
+                    #Stop if no Login Credentials are provided
+                    return render(self.request,'MaRDMO/workflowError.html', {
+                        'error': 'No permission to write to MathModDB KG. Check Credentials!'
                         }, status=200)
 
             # Documentation Type
@@ -370,17 +382,19 @@ class MaRDIExport(Export):
                 # Add Symbols to Task Quantities
                 for tkey in answers['Task']:
                     if answers['Task'][tkey].get('Include'):
-                        for tkey2 in answers['Task'][tkey].get('Other2', []):
-                            tvar = answers['Task'][tkey]['Other2'][tkey2].split(' <|> ')[1]
+                        for tkey2 in answers['Task'][tkey].get('T2Q', []):
+                            tvar = answers['Task'][tkey]['QRelatant'][tkey2].split(' <|> ')[1]
+                            print(tvar)
                             for mkey in answers['MathematicalFormulation']:
                                 for mkey2 in answers['MathematicalFormulation'][mkey]['Element']:
                                     if answers['MathematicalFormulation'][mkey]['Element'][mkey2].get('Info',{}).get('Name'):
                                         mvar = answers['MathematicalFormulation'][mkey]['Element'][mkey2].get('Info',{}).get('Name')
                                     else:
                                         mvar = answers['MathematicalFormulation'][mkey]['Element'][mkey2].get('Info',{}).get('QKName')
+                                    print(mvar)
                                     if tvar == mvar:
-                                        answers['Task'][tkey].setdefault('RelationQ',{}).update({tkey2:[answers['Task'][tkey]['Relation2'][tkey2],tvar,answers['MathematicalFormulation'][mkey]['Element'][mkey2]['Symbol']]})
-                 
+                                        answers['Task'][tkey].setdefault('RelationQ',{}).update({tkey2:[answers['Task'][tkey]['T2Q'][tkey2],tvar,answers['MathematicalFormulation'][mkey]['Element'][mkey2]['Symbol']]})
+                print(answers['Models']) 
 ### Integrate related Methods in MaRDI KG #########################################################################################################################################################
 
                 methods, answers, error = self.Entry_Generator('Method',            # Entry of Method with Main Subject
@@ -634,7 +648,6 @@ class MaRDIExport(Export):
                 # Evaluate user-defined Model Author ID(s)
                 if answers['Creator'].get('IDs'):
                     # Check if IDs provided
-                    orcidID = []; zbmathID = []
                     for user_id in answers['Creator']['IDs'].values():
                         user_id = user_id.split(':')
                         if user_id[0] == 'orcid':
@@ -651,12 +664,12 @@ class MaRDIExport(Export):
                     return render(self.request,'MaRDMO/workflowError.html', {
                         'error': 'Missing Identifier of Model Documentation Creator'
                         }, status=200)
-
-        		# Query MathModDB and order Information
-                answers = ModelRetriever(answers,mathmoddb)
                 
                 # Download Model Doucmentation as Markdown File
                 if answers['Settings']['Public'] == option['Local']:
+
+                    # Query MathModDB and order Information
+                    answers = ModelRetriever(answers,mathmoddb)
 
                     # Load MaRDI Markdown Workflow Template
                     path = os.path.join(os.path.dirname(__file__), 'templates', 'MaRDMO', 'modelTemplate.md')
@@ -679,6 +692,9 @@ class MaRDIExport(Export):
                 # Preview Model Documentation as HTML File
                 elif answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['Yes']:
 
+                    # Query MathModDB and order Information
+                    answers = ModelRetriever(answers,mathmoddb)
+
                     return render(self.request,'MaRDMO/modelTemplate.html', {
                         'title': self.project.title,
                         'answers': answers,
@@ -688,9 +704,33 @@ class MaRDIExport(Export):
                 # Export Model Documentation to MathModDB as Mediawiki File
                 elif answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['No']:
 
-                    return render(self.request,'MaRDMO/workflowError.html', {
-                        'error': 'The integration of Mathematical Models into MathModDB will be integrated soon!'
-                        }, status=200)
+                    # Merge answers related to mathematical model
+                    merged_dict = merge_dicts_with_unique_keys(answers)
+
+                    # Generate list of triples
+                    triple_list = dict_to_triples(merged_dict,
+                                                  ['IntraClassRelation','RP2RF','MM2RP','MF2MM','MF2MF','Q2Q','Q2QK','QK2Q','QK2QK','T2MF','T2Q','T2MM','P2E'],
+                                                  ['IntraClassElement','RFRelatant','RPRelatant','MMRelatant','MFRelatant','QRelatant','QKRelatant','QRelatant','QKRelatant','MFRelatant','QRelatant','MMRelatant','EntityRelatant']) 
+
+                    # Generate query for MathModDB KG
+                    query = generate_sparql_insert_with_new_ids(triple_list)
+                    
+                    response = requests.post(mathmoddb_update, data=query, headers={
+                                            "Content-Type": "application/sparql-update",
+                                            "Accept": "text/turtle"},
+                                            auth=(mathmoddb_username, mathmoddb_password),
+                                            verify = False
+                                        )
+                    
+                    if response.status_code == 204:
+                        return render(self.request,'MaRDMO/workflowError.html', {
+                            'error': 'Mathematical model integrated into MathModDB!'
+                            }, status=200)
+                    else:
+                        return render(self.request,'MaRDMO/workflowError.html', {
+                            'error': 'The mathematical model could not be integrated into the MathodDB!'
+                            }, status=200)
+
             else:
                 # Stop if no Documentation Type chosen
                 return render(self.request,'MaRDMO/workflowError.html', {
@@ -1375,4 +1415,240 @@ class MaRDIExport(Export):
                         else:
                             val[uName].update({dName:None})
         return val
+    
+def merge_dicts_with_unique_keys(answers):
+    
+    keys = ['ResearchField','ResearchProblem','MathematicalModel','MathematicalFormulation','Quantity','Task','PublicationModel']
+    suffixes = ['RF','RP','MM','MF','QQ','TA','PU']
+    
+    merged_dict = {}
+    
+    for key,suffix in zip(keys,suffixes):
+        for inner_key, value in answers[key].items():
+            new_inner_key = f"{inner_key}{suffix}"
+            merged_dict[new_inner_key] = value    
+    
+    return merged_dict
+
+def dict_to_triples(data, relations, relatants):
+    
+    triples = []
+    ids = {} 
+    
+    # Get ID Dict
+    for idx, item in data.items():
+        if item['MathModID'] == 'not in MathModDB':
+            ids[item['Name']] = idx
+        else:
+            ids[item['Name']] = item['MathModID']
+    
+    # Go through all individuals
+    for idx, item in data.items():
+        
+        path = os.path.join(os.path.dirname(__file__), 'data', 'inversePropertyMapping.json')
+        with open(path, "r") as json_file:
+            inversePropertyMapping = json.load(json_file)
+
+        # Get ID of Individual
+        subject = ids[item['Name']]
+
+        # Assign Individual Label 
+        triples.append((subject, "rdfs:label", f'"{item["Name"]}"@en'))
+        
+        # Assign Individual Description
+        if item.get('Description'):
+            triples.append((subject, "rdfs:comment", f'"{item["Description"]}"@en'))
+        
+        # Assign Individual Class
+        if idx[-2:] == 'RF':
+            triples.append((subject, "a", ':ResearchField'))
+        elif idx[-2:] == 'RP':
+            triples.append((subject, "a", ':ResearchProblem'))
+        elif idx[-2:] == 'MM':
+            triples.append((subject, "a", ':MathematicalModel'))
+        elif idx[-2:] == 'QQ':
+            if item['QorQK'] == 'https://rdmo.mardi4nfdi.de/terms/options/MathModDB/Quantity':
+                triples.append((subject, "a", ':Quantity'))
+            else:
+                triples.append((subject, "a", ':QuantityKind'))
+        elif idx[-2:] == 'MF':
+            triples.append((subject, "a", ':MathematicalFormulation'))
+        elif idx[-2:] == 'TA':
+            if item.get('TaskClass') == 'https://rdmo.mardi4nfdi.de/terms/options/MathModDB/ComputationalTask':
+                triples.append((subject, "a", ':ComputationalTask'))
+        elif idx[-2:] == 'PU':
+            triples.append((subject, "a", ':Publication'))
+        
+        # Assign Individual MaRDI/Wikidata ID
+        if item.get('ID'):
+            if item['ID'].startswith('wikidata:'):
+                q_number = item['ID'].split(':')[-1]
+                triples.append((subject, ":wikidataID", f'"{q_number}"'))
+            elif item['ID'].startswith('mardi:'):
+                q_number = item['ID'].split(':')[-1]
+                triples.append((subject, ":mardiID", f'"{q_number}"'))
+        
+        # Assign Individual DOI/QUDT ID
+        if item.get('Reference'):
+            if item['Reference'].startswith('doi:'):
+                doi_value = item['Reference'].split(':', 1)[-1]
+                triples.append((subject, ":doiID", f'"{doi_value}"'))
+            elif item['Reference'].startswith('qudt:'):
+                qudt_value = item['Reference'].split(':', 1)[-1]
+                triples.append((subject, ":qudtID", f'"{qudt_value}"'))
+        
+        # Assign Quantity definey by Individual
+        if item.get('DefinedQuantity'):
+            defined_quantity = item['DefinedQuantity'].split(' <|> ')
+            if defined_quantity[0].startswith('https://mardi4nfdi.de/mathmoddb#'):
+                object_value = defined_quantity[0]
+            else:
+                #referred_name = defined_quantity[1]
+                object_value = ids.get(referred_name)
+            triples.append((subject, ':defines', object_value))
+            triples.append((object_value, ':definedBy', subject))
+        
+        # Assign Individual Formula
+        if item.get('Formula'):
+            print(item['Formula'])
+            formulas = item['Formula'].values()
+            for formula in formulas:
+                formula = formula.replace('\\', '\\\\')
+                triples.append((subject, ':definingFormulation', f'"{formula[1:-1]}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
+            if item.get('Element'):
+                elements = item['Element'].values()
+                for element in elements:
+                    symbol = element['Symbol'].replace('\\', '\\\\')
+                    quantity = element['Quantity'].split(' <|> ')
+                    if len(quantity) == 1:
+                        referred_name = quantity[0]
+                        object_value = ids.get(referred_name)
+                    else:
+                        if quantity[0].startswith('https://mardi4nfdi.de/mathmoddb#'):
+                            referred_name = quantity[1]
+                            object_value = quantity[0]
+                        else:
+                            referred_name = quantity[1]
+                            object_value = ids.get(referred_name)
+                    triples.append((subject, ':inDefiningFormulation', f'"{symbol[1:-1]}, {referred_name}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
+                    triples.append((subject, ':containsQuantity', object_value))
+                    triples.append((object_value, ':containedInFormulation', subject))
+        
+        # Assign Individual Properties
+        if item.get('Properties'):
+            prefix = 'https://rdmo.mardi4nfdi.de/terms/options/MathModDB/'
+            values = item['Properties'].values()
+            if prefix + 'isLinear' in values:
+                triples.append((subject, ":isLinear", '"true"^^xsd:boolean'))
+            elif prefix + 'isNotLinear' in values:
+                triples.append((subject, ":isLinear", '"false"^^xsd:boolean'))
+            if prefix + 'isConvex' in values:
+                triples.append((subject, ":isConvex", '"true"^^xsd:boolean'))
+            elif prefix + 'isNotConvex' in values:
+                triples.append((subject, ":isConvex", '"false"^^xsd:boolean'))
+            if prefix + 'isDeterministic' in values:
+                triples.append((subject, ":isDeterministic", '"true"^^xsd:boolean'))
+            elif prefix + 'isStochastic' in values:
+                triples.append((subject, ":isDeterministic", '"false"^^xsd:boolean'))
+            if prefix + 'isDimensionless' in values:
+                triples.append((subject, ":isDimensionless", '"true"^^xsd:boolean'))
+            elif prefix + 'isDimensional' in values:
+                triples.append((subject, ":isDimensionless", '"false"^^xsd:boolean'))
+            if prefix + 'isDynamic' in values:
+                triples.append((subject, ":isDynamic", '"true"^^xsd:boolean'))
+            elif prefix + 'isStatic' in values:
+                triples.append((subject, ":isDynamic", '"false"^^xsd:boolean'))
+            if prefix + 'isSpaceContinuous' in values:
+                triples.append((subject, ":isSpaceContinuous", '"true"^^xsd:boolean'))
+            elif prefix + 'isSpaceDiscrete' in values:
+                triples.append((subject, ":isSpaceDiscrete", '"false"^^xsd:boolean'))
+            if prefix + 'isTimeContinuous' in values:
+                triples.append((subject, ":isTimeContinuous", '"true"^^xsd:boolean'))
+            elif prefix + 'isTimeDiscrete' in values:
+                triples.append((subject, ":isTimeDiscrete", '"false"^^xsd:boolean'))	
+
+        # Assign Individual Properties
+        for relation, relatant in zip(relations,relatants):
+            relation_dict = item.get(relation, {})
+            relatant_dict = item.get(relatant, {})
+            for key in relation_dict:
+                if relatant_dict.get(key):
+                    relation_uri = relation_dict[key]
+                    relatant_value = relatant_dict[key].split(' <|> ')
+                    if relatant_value[0].startswith('https://mardi4nfdi.de/mathmoddb#'):
+                        object_value = relatant_value[0]
+                    else:
+                        referred_name = relatant_value[1]
+                        object_value = ids.get(referred_name)
+                    triples.append((subject, f":{relation_uri.split('/')[-1]}", object_value))
+                    triples.append((object_value, f":{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
+    
+    return triples
+
+def generate_sparql_insert_with_new_ids(triples):
+    # Step 1: Identify new items that need mardmo IDs
+    new_items = {}
+    counter = 0
+    for triple in triples:
+        subject = triple[0]
+        if not subject.startswith("https://mardi4nfdi.de/mathmoddb#"):
+            # Assign temporary placeholders for new IDs
+            new_items[subject] = f"newItem{counter}"
+            counter += 1
+
+    # Step 2: Generate SPARQL query with BIND for new mardmo IDs
+    insert_query = """
+    PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+    INSERT{
+    """
+    # Construct the insert part
+    for triple in triples:
+        subject = triple[0]
+        predicate = triple[1]
+        obj = triple[2]
+
+        # Replace new subjects with placeholders
+        if subject in new_items:
+            subject = f"?{new_items[subject]}"
+        else:
+            subject = f"<{subject}>"
+
+        # Format object based on whether it's a literal or a URI
+        if re.match(r'^https?://', obj):
+            obj_formatted = f"<{obj}>"
+        else:
+            if obj.startswith(':') or obj.startswith('"'):
+                obj_formatted = f'{obj}'
+            else:
+                obj_formatted = f"?{new_items[obj]}"
+
+        # Construct the triple in the query
+        insert_query += f"  {subject} {predicate} {obj_formatted} .\n"
+
+    insert_query += "}\nWHERE {\n"
+
+    # Step 3: Add logic to get the next free mardmo ID
+    insert_query += """
+    {
+      SELECT (MAX(?num) AS ?maxID) WHERE {
+        ?id a ?type .
+        FILTER (STRSTARTS(STR(?id), "https://mardi4nfdi.de/mathmoddb#mardmo"))
+        BIND (xsd:integer(SUBSTR(STR(?id), STRLEN("https://mardi4nfdi.de/mathmoddb#mardmo") + 1)) AS ?num)
+      }
+    }
+    BIND (IF(BOUND(?maxID), ?maxID + 1, 0) AS ?nextID)
+    """
+    id_counter = 0
+    for new_item in new_items:
+        insert_query += f"BIND(IRI(CONCAT('https://mardi4nfdi.de/mathmoddb#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
+        id_counter += 1
+
+    insert_query += "}"
+
+    return insert_query
+
+
 

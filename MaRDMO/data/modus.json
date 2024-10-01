@@ -22,7 +22,7 @@
       "https://rdmo.mardi4nfdi.de/terms/domain/Reproducibility"
     ],
     "ide": [
-      "https://rdmo.mardi4nfdi.de/terms/domain/IdentificationInformation"
+      "https://rdmo.mardi4nfdi.de/terms/domain/Identification"
     ],
     "pub": [
       "https://rdmo.mardi4nfdi.de/terms/domain/PublicationInformation"
@@ -33,7 +33,7 @@
   },
   "SearchOrDocument": {
     "sea": [
-      "https://rdmo.mardi4nfdi.de/terms/domain/WorkflowSearchOptions"
+      "https://rdmo.mardi4nfdi.de/terms/domain/WorkflowSearch"
     ],
     "doc": [
       "https://rdmo.mardi4nfdi.de/terms/domain/GeneralWorkflowInformation",
@@ -56,7 +56,7 @@
       "https://rdmo.mardi4nfdi.de/terms/domain/LocalOrPublic"
     ],
     "ide": [
-      "https://rdmo.mardi4nfdi.de/terms/domain/IdentificationInformation"
+      "https://rdmo.mardi4nfdi.de/terms/domain/Identification"
     ],
     "pub": [
       "https://rdmo.mardi4nfdi.de/terms/domain/PublicationInformation"

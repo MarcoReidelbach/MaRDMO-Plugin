@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "MaRDMO"
+version = "0.1.2"
+description = "RDMO Plugin to document and query mathematical research data using the MaRDI infrastructure."
+readme = "README.md"
+authors = [{name = "Marco Reidelbach", email = "reidelbach@zib.de"}]
+maintainers = [{name = "Marco Reidelbach", email = "reidelbach@zib.de"}]
+license = {text = "Apache Software License"}
+requires-python = ">=3.10"
+
+dependencies = [
+    "rdmo>=2.1.3",
+    "bibtexparser",
+    "langdetect",
+    "pylatexenc",
+    "wikibaseintegrator",
+]
+
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10"
+]
+
+
+[project.urls]
+homepage = "https://github.com/MarcoReidelbach/MaRDMO"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["MaRDMO"]
+
+[tool.setuptools.package-data]
+"MaRDMO" = ["templates/MaRDMO/*.html", "templates/MaRDMO/*.md", "templates/MaRDMO/*.mediawiki", "data/*.json", "static/MaRDMO/images/*.png"]
+
+[project.optional-dependencies]
+# Add optional dependencies here if needed
+

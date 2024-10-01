@@ -8,15 +8,15 @@
          src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-mml-chtml.js">
  </script>
  <style>
-         table {{
+         table {
            margin-left: 0;
            margin-right: auto;
            margin-bottom: 24px;
            border-spacing: 0;
            border-bottom: 2px solid black;
            border-top: 2px solid black;
-         }}
-         table th {{
+         }
+         table th {
            padding: 3px 10px;
            background-color: white;
            border-top: none;
@@ -24,15 +24,15 @@
            border-right: 1px solid black;
            border-bottom: 1px solid black;
            text-align: center;
-         }}
-         table td {{
+         }
+         table td {
            padding: 3px 10px;
            border-top: 1px solid black;
            border-left: 1px solid black;
            border-bottom: 1px solid black;
            border-right: 1px solid black;
            text-align: center;
-         }}
+         }
 </style>
 </head>
 <body>
@@ -86,18 +86,18 @@
 <h3 id="discretization">Discretization</h3>
 <ul>
 {% for value in answers.Models.values %}
-{% if option.IsTimeDiscrete in value.Properties.values %}
+{% if option.isTimeDiscrete in value.Properties.values %}
 <li> Time: Yes</li>
-{% elif option.IsTimeContinuous in value.Properties.values %}
+{% elif option.isTimeContinuous in value.Properties.values %}
 <li> Time: No</li>
-{% elif option.IsTimeIndependent in value.Properties.values %}
+{% elif option.isTimeIndependent in value.Properties.values %}
 <li> Time: Independent</li>
 {% endif %}
-{% if option.IsSpaceDiscrete in value.Properties.values %}
+{% if option.isSpaceDiscrete in value.Properties.values %}
 <li> Space: Yes</li>
-{% elif option.IsSpaceContinuous in value.Properties.values %}
+{% elif option.isSpaceContinuous in value.Properties.values %}
 <li> Space: No</li>
-{% elif option.IsSpaceIndependent in value.Properties.values %}
+{% elif option.isSpaceIndependent in value.Properties.values %}
 <li> Space: Independent</li>
 {% endif %}
 {% endfor %}
@@ -123,15 +123,15 @@
 <tbody>
 {% for values in answers.Task.values %}
 {% for value in values.RelationQ.values %}
-{% if value.0 == option.ContainsInput or value.0 == option.ContainsOutput %}
+{% if value.0 == option.containsInput or value.0 == option.containsOutput %}
 <tr>
 <td style="text-align: center; vertical-align: middle;">{{ value.1 }}</td>
 <td style="text-align: center; vertical-align: middle;"></td>
 <td style="text-align: center; vertical-align: middle;">{{ value.2 }}</td>
-{% if option.ContainsInput == value.0 %}
+{% if option.containsInput == value.0 %}
 <td style="text-align: center; vertical-align: middle;">independent</td>
 {% endif %}
-{% if option.ContainsOutput == value.0 %}
+{% if option.containsOutput == value.0 %}
 <td style="text-align: center; vertical-align: middle;">dependent</td>
 {% endif %}
 <td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
@@ -162,7 +162,7 @@
                         <tbody>
                     {% for values in answers.Task.values %}
                     {% for value in values.RelationQ.values %}
-                        {% if value.0 == option.ContainsParameter %}
+                        {% if value.0 == option.containsParameter %}
                                             <tr>
                                                     <td style="text-align: center; vertical-align: middle;">{{ value.1 }}</td>
                                                     <td style="text-align: center; vertical-align: middle;"></td>

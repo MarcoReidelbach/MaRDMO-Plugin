@@ -40,18 +40,18 @@
 === Discretization ===
 
 {% for value in Models.values %} 
-{% if IsTimeDiscrete in value.Properties.values %} 
+{% if isTimeDiscrete in value.Properties.values %} 
 * Time: Yes<br> 
-{% elif IsTimeContinuous in value.Properties.values %} 
+{% elif isTimeContinuous in value.Properties.values %} 
 * Time: No<br> 
-{% elif IsTimeIndependent in value.Properties.values %} 
-* Time: Independent<br>
+{% elif isTimeIndependent in value.Properties.values %} 
+* Time: independent<br>
 {% endif %} 
-{% if IsSpaceDiscrete in value.Properties.values %} 
+{% if isSpaceDiscrete in value.Properties.values %} 
 * Space: Yes<br> 
-{% elif IsSpaceContinuous in value.Properties.values %} 
+{% elif isSpaceContinuous in value.Properties.values %} 
 * Space: No<br>
-{% elif IsSpaceIndependent in value.Properties.values %}
+{% elif isSpaceIndependent in value.Properties.values %}
 * Space: Independent<br> 
 {% endif %} 
 {% endfor %}
@@ -67,11 +67,11 @@
 ! dependent/independent
 ! Task
 |-
-{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == ContainsInput or value.0 == ContainsOutput %}
+{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == containsInput or value.0 == containsOutput %}
 | {{ value.1 }}
 |
 | {{ value.2 }}
-| {% if ContainsInput == value.0 %} independent {% elif ContainsOutput == value.0 %} dependent {% endif %}
+| {% if containsInput == value.0 %} independent {% elif containsOutput == value.0 %} dependent {% endif %}
 | {{ values.Name }}
 |-
 {% endif %} {% endfor %} {% endfor %}
@@ -87,7 +87,7 @@
 ! Symbol
 ! Task
 |-
-{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == ContainsParameter %}
+{% for values in Task.values %} {% for value in values.RelationQ.values %} {% if value.0 == containsParameter %}
 | {{ value.1 }}
 |
 | {{ value.2 }}
