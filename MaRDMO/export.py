@@ -21,13 +21,13 @@ from .sparql import query_base, mini, mbody2, quote_sparql, res_obj_sparql, res_
 from .handlers import Author_Search
 from .mathmoddb import ModelRetriever
 
-try:
+try:  # TODO move to confing
     # Get login credentials if available 
     from config.settings import lgname, lgpassword
 except:
     lgname=''; lgpassword=''
 
-try:
+try: # TODO move to confing
     # Get login credentials if available 
     from config.settings import mathmoddb_username, mathmoddb_password
 except:
@@ -40,14 +40,15 @@ class MaRDIExport(Export):
            (adjusted from csv export)'''
         
 ### Check if MaRDI Questionaire is used ###########################################################################################################################################################
-
+        # TODO refactor into separate validation
         if str(self.project.catalog)[-6:] != 'MaRDMO':
             return render(self.request,'MaRDMO/workflowError.html', {
                 'error': 'Questionnaire \'{}\' not suitable for MaRDI Export!'.format(str(self.project.catalog).split('/')[-1])
                 }, status=200)
 
 ### Load MaRDMO Options ##########################################################################################################################################################################
-
+        # TODO make a utils func for json and load in a separate func
+        # TODO add schema models for these dicts
         path = os.path.join(os.path.dirname(__file__), 'data', 'questions.json')
         with open(path, "r") as json_file:
             questions = json.load(json_file)
@@ -83,7 +84,7 @@ class MaRDIExport(Export):
         if answers['Settings'].get('Documentation') == option['Document']:
 
 ### Checks for Workflow Documentation #############################################################################################################################################################
-
+        # TODO refactor into separate validation, checks are validations
             # Export Type 
             if not answers['Settings'].get('Public'):
                 # Stop if no Documentation Type chosen

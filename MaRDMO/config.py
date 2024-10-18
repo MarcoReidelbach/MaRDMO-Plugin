@@ -1,3 +1,8 @@
+# this should be refactored into one Config object,
+# it could be simple dict, or configDict, or BaseModel
+# and then all the configuration settings should be collected here
+# maybe reuse the django.conf settings
+
 #RDMO BASE URI
 BASE_URI = 'https://rdmo.mardi4nfdi.de/terms/'
 
