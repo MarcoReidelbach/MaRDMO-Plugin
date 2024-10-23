@@ -4,6 +4,10 @@ import bibtexparser
 from pylatexenc.latex2text import LatexNodes2Text
 from langdetect import detect
 
+# TODO this class can be refactored in a couple of pydantic schema models
+# TODO requests can be raised_for_status
+# TODO lang_dict load can go to a utils func with load_from_json(data/lang.json)
+
 def GetCitation(doi):
     '''Function gets citation by DOI'''  
     
