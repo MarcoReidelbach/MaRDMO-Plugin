@@ -177,6 +177,16 @@ queryPublication = {
 ### SPARQL queries to get additional information from MathModDB during export
 
 queryModelDocumentation = {
+    
+                  'IDCheck': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                                SELECT ?ID ?qC                   
+                                WHERE {{
+                                        ?ID rdfs:label {0}@en.
+                                        ?ID a ?qC.
+                                        FILTER (?qC IN (:ResearchField, :ResearchProblem, :MathematicalModel, :MathematicalFormulation, :Quantity, :QuantityKind, :ComputationalTask, :Publication))
+                                      }}
+                                      GROUP BY ?ID ?qC''',
 
                   'ResearchField': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -226,31 +236,30 @@ queryModelDocumentation = {
                               VALUES ?Quantity {{{0}}}
                               # Handle Quantities
                               OPTIONAL {{
-                                ?Quantity a :Quantity .
-                                ?Quantity rdfs:label ?qlabel .
-                                FILTER (lang(?qlabel) = 'en')
-                                
-                                OPTIONAL {{ ?Quantity rdfs:comment ?qquote . FILTER (lang(?qquote) = 'en') }}
-                                OPTIONAL {{ ?Quantity :isLinear ?isLinear . BIND(IF(?isLinear = false, true, false) AS ?isNotLinear) }}
-                                OPTIONAL {{ ?Quantity :isDimensionless ?isDimensionless . BIND(IF(?isDimensionless = false, true, false) AS ?isDimensional) }}
-                            
-                                # Handle associated QuantityKinds for Quantities
-                                OPTIONAL {{
-                                  ?qk a :QuantityKind .
-                                  ?qk rdfs:label ?qklabel .
-                                  FILTER (lang(?qklabel) = 'en')
-                                  
-                                  OPTIONAL {{ ?qk rdfs:comment ?qkquote . FILTER (lang(?qkquote) = 'en') }}
-                                  
-                                  {{
-                                    ?Quantity (:generalizesQuantity|:generalizedByQuantity|:similarToQuantity)+ ?intermediate .
-                                    ?intermediate a :Quantity .
-                                    ?intermediate (:generalizesQuantity|:generalizedByQuantity|:similarToQuantity)+ ?qk .
-                                  }}
-                                }}
-                                BIND(?qlabel AS ?label)
-                                BIND(?qquote AS ?quote)
-                              }}
+                                         ?Quantity a :Quantity .
+                                         ?Quantity rdfs:label ?qlabel .
+                                         FILTER (lang(?qlabel) = 'en')
+    
+                                         OPTIONAL {{ ?Quantity rdfs:comment ?qquote . FILTER (lang(?qquote) = 'en') }}
+                                         OPTIONAL {{ ?Quantity :isLinear ?isLinear . BIND(IF(?isLinear = false, true, false) AS ?isNotLinear) }}
+                                         OPTIONAL {{ ?Quantity :isDimensionless ?isDimensionless . BIND(IF(?isDimensionless = false, true, false) AS ?isDimensional) }}
+
+                                         # Match QuantityKind with zero to n intermediates
+                                         OPTIONAL {{ 
+                                                    ?Quantity (:generalizesQuantity|:generalizedByQuantity|:similarToQuantity)* ?intermediate .
+                                                    ?intermediate a :Quantity .
+                                                    ?intermediate (:generalizedByQuantity|:similarToQuantity) ?qk .
+                                                    ?qk a :QuantityKind .
+                                                    ?qk rdfs:label ?qklabel .
+                                                    FILTER (lang(?qklabel) = 'en')
+      
+                                                    # Optional comment for QuantityKind
+                                                    OPTIONAL {{ ?qk rdfs:comment ?qkquote . FILTER (lang(?qkquote) = 'en') }}
+                                                  }}
+    
+                                         BIND(?qlabel AS ?label)
+                                         BIND(?qquote AS ?quote)
+                                       }}
                             
                               # Handle QuantityKinds
                               OPTIONAL {{

@@ -1,7 +1,7 @@
 import re
 import requests
 import os, json
-
+import time
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
@@ -9,17 +9,19 @@ from django.template import Template, Context
 
 from rdmo.projects.exports import Export
 from rdmo.domain.models import Attribute
+from rdmo.options.models import Option
+from rdmo.projects.models import Value
 
 from wikibaseintegrator import wbi_login, WikibaseIntegrator
 from wikibaseintegrator.datatypes import ExternalID, Item, String, Time, MonolingualText, Quantity
 from wikibaseintegrator.wbi_config import config as wbi_config
 from wikibaseintegrator.models import Qualifiers
 
-from .config import mardi_wiki, mardi_endpoint, mardi_api, mathmoddb_update
+from .config import mardi_wiki, mardi_endpoint, mardi_api, mathmoddb_update, mathmoddb_uri, BASE_URI
 from .id import *
-from .sparql import query_base, mini, mbody2, quote_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql
+from .sparql import query_base, mini, mbody2, quote_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql, queryModelDocumentation
 from .handlers import Author_Search
-from .mathmoddb import ModelRetriever
+from .mathmoddb import ModelRetriever, queryMathModDB 
 
 try:
     # Get login credentials if available 
@@ -355,11 +357,68 @@ class MaRDIExport(Export):
                 answers = ModelRetriever(answers,mathmoddb) 
                 
 ### Integrate related Model in MaRDI KG ###########################################################################################################################################################
-                 
+
+                if answers['Settings'].get('Public') == option['Public'] and answers['Settings'].get('Preview') == option['No']:
+                    
+                    # Merge answers related to mathematical model
+                    merged_dict = merge_dicts_with_unique_keys(answers)
+                    
+                    # Generate list of triples
+                    triple_list, ids = dict_to_triples(merged_dict,
+                                                       ['IntraClassRelation','RP2RF','MM2RP','MF2MM','MF2MF','Q2Q','Q2QK','QK2Q','QK2QK','T2MF','T2Q','T2MM','P2E'],
+                                                       ['IntraClassElement','RFRelatant','RPRelatant','MMRelatant','MFRelatant','QRelatant','QKRelatant','QRelatant','QKRelatant','MFRelatant','QRelatant','MMRelatant','EntityRelatant']) 
+            
+                    # Generate query for MathModDB KG
+                    query = generate_sparql_insert_with_new_ids(triple_list)
+                    
+                    # Add Model to MathModDB
+                    response = requests.post(mathmoddb_update, data=query, headers={
+                                            "Content-Type": "application/sparql-update",
+                                            "Accept": "text/turtle"},
+                                            auth=(mathmoddb_username, mathmoddb_password),
+                                            verify = False
+                                        )        
+                    # Get MathModDB ID of newly created Entities
+                    if response.status_code == 204:
+
+                        for key in ids.keys():
+                            if not ids[key].startswith('https://mardi4nfdi.de/mathmoddb#'):
+                                results = queryMathModDB(queryModelDocumentation['IDCheck'].format(f"'{key}'"))
+                                
+                                if results and results[0].get('ID').get('value'):
+                                    setName = ids[key][-2:]
+                                    setID = ids[key][:-2]
+                                    if setName == 'RF':
+                                        self.valueEditor(f'{BASE_URI}domain/ResearchFieldMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)                                        
+                                    elif setName == 'RP':
+                                        self.valueEditor(f'{BASE_URI}domain/ResearchProblemMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)
+                                    elif setName == 'MM':
+                                        self.valueEditor(f'{BASE_URI}domain/MathematicalModelMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)
+                                    elif setName == 'MF':
+                                        self.valueEditor(f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)
+                                    elif setName == 'TA':
+                                        self.valueEditor(f'{BASE_URI}domain/TaskMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)
+                                    elif setName == 'PU':
+                                        self.valueEditor(f'{BASE_URI}domain/PublicationMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)
+                                    elif setName == 'QQ':
+                                        if results[0]['qC']['value'].split('#')[1] == 'Quantity':
+                                            self.valueEditor(f'{BASE_URI}domain/QuantityOrQuantityKindMathModDBID', f"{key} (Quantity)", f"{results[0]['ID']['value']} <|> {key} <|> Quantity", None, None, setID)
+                                        elif results[0]['qC']['value'].split('#')[1] == 'QuantityKind':
+                                            self.valueEditor(f'{BASE_URI}domain/QuantityOrQuantityKindMathModDBID', f"{key} (Quantity Kind)", f"{results[0]['ID']['value']} <|> {key} <|> QuantityKind", None, None, setID)
+
+                        results = queryMathModDB(queryModelDocumentation['IDCheck'].format(f"'{answers['Models'][0]['Name']}'"))
+                        if results and results[0].get('ID').get('value'):
+                            answers['Models'][0]['MathModID'] = results[0]['ID']['value'] 
+                    else:
+                        return render(self.request,'MaRDMO/workflowError.html', {
+                            'error': 'The mathematical model could not be integrated into the MathodDB!'
+                            }, status=200)
+                
                 models, answers, error = self.Entry_Generator('Models',             # Entry of Model
                                                               [True,False,False],   # Generation wanted, QID Generation wanted, String Generation not wanted
                                                               [Q3,P17],             # instance of mathematical model (Q3), main subject (P17)
                                                               answers,option)       # refined user answers 
+                
                 if error[0] == 0:
                     # Stop if no Name and Description provided for new model entry
                     return render(self.request,'MaRDMO/workflowError.html', {
@@ -689,26 +748,26 @@ class MaRDIExport(Export):
 
                 # Preview Model Documentation as HTML File
                 elif answers['Settings']['Public'] == option['Public'] and answers['Settings']['Preview'] == option['Yes']:
-
+                
                     # Query MathModDB and order Information
                     answers = ModelRetriever(answers,mathmoddb)
-
+                
                     return render(self.request,'MaRDMO/modelTemplate.html', {
                         'title': self.project.title,
                         'answers': answers,
                         'option': option|mathmoddb
                         }, status=200)
-
-                # Export Model Documentation to MathModDB as Mediawiki File
+                    
+                # Export Model Documentation to MathModDB
                 elif answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
 
                     # Merge answers related to mathematical model
                     merged_dict = merge_dicts_with_unique_keys(answers)
 
                     # Generate list of triples
-                    triple_list = dict_to_triples(merged_dict,
-                                                  ['IntraClassRelation','RP2RF','MM2RP','MF2MM','MF2MF','Q2Q','Q2QK','QK2Q','QK2QK','T2MF','T2Q','T2MM','P2E'],
-                                                  ['IntraClassElement','RFRelatant','RPRelatant','MMRelatant','MFRelatant','QRelatant','QKRelatant','QRelatant','QKRelatant','MFRelatant','QRelatant','MMRelatant','EntityRelatant']) 
+                    triple_list, _ = dict_to_triples(merged_dict,
+                                                     ['IntraClassRelation','RP2RF','MM2RP','MF2MM','MF2MF','Q2Q','Q2QK','QK2Q','QK2QK','T2MF','T2Q','T2MM','P2E'],
+                                                     ['IntraClassElement','RFRelatant','RPRelatant','MMRelatant','MFRelatant','QRelatant','QKRelatant','QRelatant','QKRelatant','MFRelatant','QRelatant','MMRelatant','EntityRelatant']) 
 
                     # Generate query for MathModDB KG
                     query = generate_sparql_insert_with_new_ids(triple_list)
@@ -721,8 +780,8 @@ class MaRDIExport(Export):
                                         )
                     
                     if response.status_code == 204:
-                        return render(self.request,'MaRDMO/workflowError.html', {
-                            'error': 'Mathematical model integrated into MathModDB!'
+                        return render(self.request,'MaRDMO/modelExport.html', {
+                            'KGLink': mathmoddb_uri + answers['Models'][0]['MathModID'].split('#')[-1]
                             }, status=200)
                     else:
                         return render(self.request,'MaRDMO/workflowError.html', {
@@ -1413,7 +1472,66 @@ class MaRDIExport(Export):
                         else:
                             val[uName].update({dName:None})
         return val
-    
+
+    def valueEditor(self, uri, text=None, external_id=None, option=None, collection_index=None, set_index=None, set_prefix=None):
+        
+        attribute_object = Attribute.objects.get(uri=uri)
+
+        # Prepare the defaults dictionary
+        defaults = {
+            'project': self.project,
+            'attribute': attribute_object,
+        }
+
+        if text is not None:
+            defaults['text'] = text
+
+        if external_id is not None:
+            defaults['external_id'] = external_id
+
+        if option is not None:
+            defaults['option'] = Option.objects.get(uri=option)
+
+        # Handle collection_index if provided
+        if collection_index is not None and set_index is not None and set_prefix is None:
+            obj, created = Value.objects.update_or_create(
+                project=self.project,
+                attribute=attribute_object,
+                collection_index=collection_index,
+                set_index=set_index,
+                defaults=defaults
+            )
+        elif collection_index is not None and set_index is None and set_prefix is None:
+            obj, created = Value.objects.update_or_create(
+                project=self.project,
+                attribute=attribute_object,
+                collection_index=collection_index,
+                defaults=defaults
+            )
+        elif set_index is not None and collection_index is None and set_prefix is None:
+            obj, created = Value.objects.update_or_create(
+                project=self.project,
+                attribute=attribute_object,
+                set_index=set_index,
+                defaults=defaults
+            )
+        elif set_index is not None and collection_index is None and set_prefix is not None:
+            obj, created = Value.objects.update_or_create(
+                project=self.project,
+                attribute=attribute_object,
+                set_prefix=set_prefix,
+                set_index=set_index,
+                defaults=defaults
+            )
+        else:
+            obj, created = Value.objects.update_or_create(
+                project=self.project,
+                attribute=attribute_object,
+                defaults=defaults
+            )
+
+        return
+
 def merge_dicts_with_unique_keys(answers):
     
     keys = ['ResearchField','ResearchProblem','MathematicalModel','MathematicalFormulation','Quantity','Task','PublicationModel']
@@ -1580,7 +1698,7 @@ def dict_to_triples(data, relations, relatants):
                     triples.append((subject, f":{relation_uri.split('/')[-1]}", object_value))
                     triples.append((object_value, f":{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
     
-    return triples
+    return triples, ids
 
 def generate_sparql_insert_with_new_ids(triples):
     # Step 1: Identify new items that need mardmo IDs
@@ -1646,6 +1764,8 @@ def generate_sparql_insert_with_new_ids(triples):
     insert_query += "}"
 
     return insert_query
+
+
 
 
 

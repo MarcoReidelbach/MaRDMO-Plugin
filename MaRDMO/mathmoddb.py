@@ -8,7 +8,7 @@ from .config import mardi_api, mathmoddb_endpoint
 def ModelRetriever(answers,mathmoddb):
     '''Function queries MathModDB to gather further Model Information
        and connects them with Information provided by the User'''
-    
+     
     path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
     with open(path, "r") as json_file:
         option = json.load(json_file)
@@ -16,7 +16,7 @@ def ModelRetriever(answers,mathmoddb):
     path = os.path.join(os.path.dirname(__file__), 'data', 'inversePropertyMapping.json')
     with open(path, "r") as json_file:
         inversePropertyMapping = json.load(json_file)
-
+    
     # Kinds of Objects, Relations and Properties
     formulationKinds = ['Formulation', 'Assumption', 'BoundaryCondition', 'ConstraintCondition', 'CouplingCondition', 'InitialCondition', 'FinalCondition']
     quantityKinds = ['Input', 'Output', 'Objective', 'Parameter', 'Constant']
@@ -30,7 +30,7 @@ def ModelRetriever(answers,mathmoddb):
         answers['Task'][key].update({'Include':False})
 
     # Get additional Model Information from  MathModDB
-
+    
     qClass = 'MathematicalModel'
     
     search_string = searchGenerator(answers,[qClass])
@@ -62,7 +62,7 @@ def ModelRetriever(answers,mathmoddb):
     # Get additional Task Information from MathModDB
     
     qClass = 'Task'
-
+    
     search_string = searchGenerator(answers,[qClass])
     results = queryMathModDB(queryModelDocumentation[qClass].format(search_string))
     
@@ -160,7 +160,7 @@ def ModelRetriever(answers,mathmoddb):
 
     search_string = searchGenerator(answers,[qClass])
     results = queryMathModDB(queryModelDocumentation[f'{qClass}Definition'].format(search_string))
-
+    
     # Get MathModID of all selected Mathematical Formulations
     mathmodidToKey = {answers[tClass][key].get('MathModID'): key for key in answers[tClass]}
 
@@ -193,7 +193,7 @@ def ModelRetriever(answers,mathmoddb):
     # Get additional Quantity Information from MathModDB
     
     qClass = 'Quantity'
-
+    
     search_string = searchGenerator(answers,[qClass])
     results = queryMathModDB(queryModelDocumentation[qClass].format(search_string))
 
@@ -300,7 +300,7 @@ def ModelRetriever(answers,mathmoddb):
             key = mathmodidToKey[qClass][mathmodid]
             for relation in publicationRelations:
                 assignComplexEntityRelations(qClass, tClass, relation, ['P2E','EntityRelatant'], result, key, answers, mathmoddb, inversePropertyMapping)
-    
+
     # Research Field to Research Field Relations
     entityRelations(answers,'ResearchField','ResearchField','IntraClassRelation','IntraClassElement','RelationRF1','RF')
     
@@ -331,7 +331,7 @@ def ModelRetriever(answers,mathmoddb):
                 if answers['MathematicalModel'][key].get('Main') == option['Yes']:
                     Name = answers['MathematicalModel'][key]['Name']
                     Description = answers['MathematicalModel'][key]['Description']
-                    Properties = answers['MathematicalModel'][key]['Properties']
+                    Properties = answers['MathematicalModel'][key].get('Properties')
                     mardiID = find_item(Name,Description)
                     if mardiID:
                         answers['Models'][key2].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description, 'Properties':Properties})
@@ -371,17 +371,31 @@ def ModelRetriever(answers,mathmoddb):
             
             if len(answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].split(' <|> ')) == 1:
                 label = answers['MathematicalFormulation'][key]['Element'][key2]['Quantity']
+                Id = ''
             elif len(answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].split(' <|> ')) >= 2:
                 Id,label = answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].split(' <|> ')[:2]
-            
+                
             for k in answers['Quantity']:
                 if label.lower() == answers['Quantity'][k]['Name'].lower():
                     if answers['Quantity'][k]['QorQK'] == mathmoddb['QuantityClass']:
+                        if not Id.startswith('https://mardi4nfdi.de/mathmoddb#'):
+                            relatants = answers['Quantity'][k].get('QKRelatant', {}).values()
+                            relatantIDs = []
+                            relatantLabels = []
+                            for relatant in relatants:
+                                relatantID, relatantLabel = relatant.split(' <|> ')
+                                if relatantID.startswith('https://mardi4nfdi.de/mathmoddb#') or relatantID.startswith('https://mardi4nfdi.de/mathmoddb#') or relatantID.startswith('https://mardi4nfdi.de/mathmoddb#'):
+                                    relatantIDs.append(relatantID)
+                                else:
+                                    relatantIDs.append('-')
+                                relatantLabels.append(relatantLabel)
+                            answers['Quantity'][k].update({'QKName':', '.join(relatantLabels),
+                                                           'QKID':', '.join(relatantIDs)})    
                         answers['MathematicalFormulation'][key]['Element'][key2].update(
                             {'Info': 
                                 {'Name':answers['Quantity'][k].get('Name',''),
                                  'Description':answers['Quantity'][k].get('Description',''),
-                                 'QID':answers['Quantity'][k].get('MathModID','') if answers['Quantity'][k].get('MathModID','') and answers['Quantity'][k].get('MathModID','') != 'not in MathModDB' else answers['Quantity'][k].get('ID','') if answers['Quantity'][k].get('ID','') else '', 
+                                 'QID':answers['Quantity'][k].get('MathModID','') if answers['Quantity'][k].get('MathModID','') and answers['Quantity'][k].get('MathModID','') != 'not in MathModDB' else answers['Quantity'][k].get('ID','') if answers['Quantity'][k].get('ID','') else answers['Quantity'][k].get('Reference','') if answers['Quantity'][k].get('Reference','') else '', 
                                  'QKName':answers['Quantity'][k].get('QKName',''),
                                  'QKID':answers['Quantity'][k].get('QKID','')}
                             })
