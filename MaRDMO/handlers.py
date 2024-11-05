@@ -9,7 +9,7 @@ from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
 
 from .citation import GetCitation
-from .mathmoddb import queryMathModDB
+from .utils import query_sparql, value_editor
 from .sparql import queryPublication, queryModelHandler, wini, mini, pl_query, pl_vars, pro_query, pro_vars
 from .id import *
 from .config import wd, wdt, mardi_api, wikidata_api, mardi_endpoint, wikidata_endpoint, BASE_URI
@@ -25,15 +25,15 @@ def PublicationCitationRetriever(sender, **kwargs):
     
         # Activate (Yes)  / Deactivate (No or nothin) Publication Information Section
         if instance.option_text == 'Yes':            
-            valueEditor(instance,f"{BASE_URI}domain/PublicationInformation",1)
+            value_editor(instance.project,f"{BASE_URI}domain/PublicationInformation",1)
         else: 
-            valueEditor(instance,f"{BASE_URI}domain/PublicationInformation",0)
+            value_editor(instance.project,f"{BASE_URI}domain/PublicationInformation",0)
 
         # Evaluate Information provided for Yes case
         if instance.text.split(':')[0] == 'url': 
             
             # If url provided, deactivate Publication Information section 
-            valueEditor(instance,f"{BASE_URI}domain/PublicationInformation",0)
+            value_editor(instance.project,f"{BASE_URI}domain/PublicationInformation",0)
         
         elif re.match(r'doi:10.\d{4,9}/[-._;()/:a-z0-9A-Z]+', instance.text):
 
@@ -50,7 +50,7 @@ def PublicationCitationRetriever(sender, **kwargs):
             # Define Prefix & Parameter for MaRDI KG search, Search Paper in MaRDI KG via DOI and merge results
             mardi_prefix = f"PREFIX wdt:{wdt} PREFIX wd:{wd}"
             mardi_query_parameter = [P16, doi.upper(), P8, P22, P4, P12, P10, P7, P9, P11, P13, P14, P15, P2, P23]
-            mardi_dicts = kg_req(mardi_endpoint, mardi_prefix + queryPublication['All'].format(*mardi_query_parameter))
+            mardi_dicts = query_sparql(mardi_prefix + queryPublication['All'].format(*mardi_query_parameter), mardi_endpoint)
             
             # Combine dictionaries from MaRDI Query
             for mardi_dict in mardi_dicts:
@@ -79,7 +79,7 @@ def PublicationCitationRetriever(sender, **kwargs):
             
                 # If results not found for Paper in MaRDI KG via DOI, define Parameters for Wikidata search, search paper via DOI and merge results
                 wikidata_parameter = ['356', doi.upper(), '50', '496', '31', '1433', '407', '1476', '2093', '577', '478', '433', '304', '', '1556']
-                wikidata_dicts = kg_req(wikidata_endpoint, queryPublication['All'].format(*wikidata_parameter))
+                wikidata_dicts = query_sparql(queryPublication['All'].format(*wikidata_parameter), wikidata_endpoint)
             
                 # Combine dictionaries from Wikidata Query
                 for wikidata_dict in wikidata_dicts:
@@ -108,7 +108,7 @@ def PublicationCitationRetriever(sender, **kwargs):
             
                     # If results found for Paper in Wikidata use Wikidata QID to search MaRDI KG again
                     mardi_parameter = [P2, dict_merged.get('wikidata_publicationQid', '')]
-                    mardi_dict = kg_req(mardi_endpoint, mardi_prefix+queryPublication['WikiCheck'].format(*mardi_parameter))
+                    mardi_dict = query_sparql(mardi_prefix+queryPublication['WikiCheck'].format(*mardi_parameter), mardi_endpoint)
             
                     if mardi_dict:
                         # If results found for Paper in MaRDI KG via Wikidata QID update results 
@@ -320,10 +320,10 @@ def PublicationCitationRetriever(sender, **kwargs):
                 if object_uri == f'{BASE_URI}domain/PublicationLanguage':
                     for idx,val in enumerate(paper_info):
                         if option.get(val) is not None:
-                            valueEditor(instance, object_uri, None, None, Option.objects.get(uri=option.get(val)))
+                            value_editor(instance.project, object_uri, None, None, Option.objects.get(uri=option.get(val)))
                 else:
                     for idx,val in enumerate(paper_info):
-                        valueEditor(instance, object_uri, val, None, None, idx)
+                        value_editor(instance.project, object_uri, val, None, None, idx)
 
             return
 
@@ -354,7 +354,7 @@ def WorkflowOrModel(sender, **kwargs):
 
         for idx, key in enumerate(OperationModus['WorkflowOrModel'].keys()):
             for uri in OperationModus['WorkflowOrModel'][key]:
-                valueEditor(instance,uri,val[idx])
+                value_editor(instance.project,uri,val[idx])
     return
 
 @receiver(post_save, sender=Value)
@@ -381,7 +381,8 @@ def SearchOrDocument(sender, **kwargs):
 
         for idx, key in enumerate(OperationModus['SearchOrDocument'].keys()):
             for uri in OperationModus['SearchOrDocument'][key]:
-                valueEditor(instance,uri,val[idx])
+                value_editor(instance.project,uri,val[idx])
+                        
     return
 
 @receiver(post_save, sender=Value)
@@ -411,7 +412,7 @@ def ComputationalOrExperimental(sender, **kwargs):
 
         for idx, key in enumerate(OperationModus['ComputationalOrExperimental'].keys()):
             for uri in OperationModus['ComputationalOrExperimental'][key]:
-                valueEditor(instance,uri,val[idx])
+                value_editor(instance.project,uri,val[idx])
     return
 
 @receiver(post_save, sender=Value)
@@ -425,13 +426,13 @@ def ModelHandler(sender, **kwargs):
             IdMM, _ = instance.external_id.split(' <|> ')
         else:
             return
-
+    
         path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
         with open(path, "r") as json_file:
             mathmoddb = json.load(json_file)
 
         # Get Model, Research Field, Research Problem, Quantity, Mathematical Formulation and Task Information        
-        results = queryMathModDB(queryModelHandler['All'].format(f":{IdMM.split('#')[1]}"))
+        results = query_sparql(queryModelHandler['All'].format(f":{IdMM.split('#')[1]}"))
         
         if results:
 
@@ -445,9 +446,9 @@ def ModelHandler(sender, **kwargs):
                     if rfId not in rfIds:
                         rfIds.append(rfId) 
                         # Set up Research Field Page 
-                        valueEditor(instance, f'{BASE_URI}domain/ResearchField', idx, None, None, None, idx)
+                        value_editor(instance.project, f'{BASE_URI}domain/ResearchField', idx, None, None, None, idx)
                         # Add Research Field Values
-                        valueEditor(instance, f'{BASE_URI}domain/ResearchFieldMathModDBID', f"{rfLabel}", f"{rfId} <|> {rfLabel}", None, None, idx)
+                        value_editor(instance.project, f'{BASE_URI}domain/ResearchFieldMathModDBID', f"{rfLabel}", f"{rfId} <|> {rfLabel}", None, None, idx)
                         idx = idx + 1
             
             # Add Research Problem Information to Questionnaire
@@ -462,9 +463,9 @@ def ModelHandler(sender, **kwargs):
                         rpIds.append(rpId)
                         rpLabels.append(rpLabel)
                         # Setup Research Problem Page
-                        valueEditor(instance, f'{BASE_URI}domain/ResearchProblem', idx, None, None, None, idx)
+                        value_editor(instance.project, f'{BASE_URI}domain/ResearchProblem', idx, None, None, None, idx)
                         # Add Research Problem Values
-                        valueEditor(instance, f'{BASE_URI}domain/ResearchProblemMathModDBID', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, None, idx)
+                        value_editor(instance.project, f'{BASE_URI}domain/ResearchProblemMathModDBID', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, None, idx)
                         idx = idx +1
 
             # Add Quantity Information to Questionnaire
@@ -485,9 +486,9 @@ def ModelHandler(sender, **kwargs):
             
             for idx, (qId, qLabel, qClass) in enumerate(zip(qIds,qLabels,qClasss)):
                     # Set up Qauntity / Quantity Kind Page
-                    valueEditor(instance, f'{BASE_URI}domain/QuantityOrQuantityKind', idx, None, None, None, idx)
+                    value_editor(instance.project, f'{BASE_URI}domain/Quantity', idx, None, None, None, idx)
                     # Add Quantity / Quantity Kind Values
-                    valueEditor(instance, f'{BASE_URI}domain/QuantityOrQuantityKindMathModDBID', 
+                    value_editor(instance.project, f'{BASE_URI}domain/QuantityMathModDBID', 
                                 f"{qLabel} (Quantity)" if qClass.split('#')[1] == 'Quantity' else f"{qLabel} (Quantity Kind)", 
                                 f"{qId} <|> {qLabel} <|> {qClass.split('#')[1]}", None, None, idx)
 
@@ -520,19 +521,19 @@ def ModelHandler(sender, **kwargs):
             for Id in Ids:
                 search_string4 = search_string4 + f" :{Id.split('#')[1]}"
 
-            results2 = queryMathModDB(queryModelHandler['MFRelations'].format(search_string2))
-            results3 = queryMathModDB(queryModelHandler['TRelation'].format(search_string3))
-            results4 = queryMathModDB(queryModelHandler['PRelation'].format(search_string4))
+            results2 = query_sparql(queryModelHandler['MFRelations'].format(search_string2))
+            results3 = query_sparql(queryModelHandler['TRelation'].format(search_string3))
+            results4 = query_sparql(queryModelHandler['PRelation'].format(search_string4))
 
 
             for idx, (mmId, mmLabel) in enumerate(zip(ModelProperty['mmIds'],ModelProperty['mmLabels'])):
                 # Set up Mathematical Model Page
-                valueEditor(instance, f'{BASE_URI}domain/MathematicalModel', idx, None, None, None, idx)
+                value_editor(instance.project, f'{BASE_URI}domain/MathematicalModel', idx, None, None, None, idx)
                 # Add Mathematical Model ID and Label
-                valueEditor(instance, f'{BASE_URI}domain/MathematicalModelMathModDBID', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx)
+                value_editor(instance.project, f'{BASE_URI}domain/MathematicalModelMathModDBID', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx)
                 # Add Research Problem related to Mathematical Model
                 for idx2, (rpId, rpLabel) in enumerate(zip(rpIds,rpLabels)):
-                    valueEditor(instance, f'{BASE_URI}domain/ResearchProblemRelatedToMathematicalModel', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, idx2, idx)
+                    value_editor(instance.project, f'{BASE_URI}domain/ResearchProblemRelatedToMathematicalModel', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, idx2, idx)
                 
                 # Add Model Relations
 
@@ -606,8 +607,8 @@ def ModelHandler(sender, **kwargs):
                     for Id, Label in zip(ModelProperty[f'{prefix}Ids'],ModelProperty[f'{prefix}Labels']):
                         if Id and Label:
                             # Add Property and Model
-                            valueEditor(instance, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb[modelRelations2[prefix]]), None, idx2, idx)
-                            valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{Label}", f"{Id} <|> {Label}", None, None, idx2, idx)
+                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb[modelRelations2[prefix]]), None, idx2, idx)
+                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{Label}", f"{Id} <|> {Label}", None, None, idx2, idx)
                             # Increase index
                             idx2 = idx2 + 1
                 
@@ -616,12 +617,12 @@ def ModelHandler(sender, **kwargs):
                     for Id, Label in zip(ModelProperty[f'{type}Ids'],ModelProperty[f'{type}Labels']):
                         if Id and Label:
                             # Set up Page for Mathematical Formulation
-                            valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulation', idx2, None, None, None, idx2)
+                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulation', idx2, None, None, None, idx2)
                             # Add Id / Label of Mathematical Formualtion
-                            valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{Label}", f"{Id} <|> {Label}", None, None, idx2)
+                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{Label}", f"{Id} <|> {Label}", None, None, idx2)
                             # Add Contained As Formulation In Property and Model
-                            valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb[modelRelations1[type]]), None, idx, idx2)
-                            valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalFormulation', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
+                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb[modelRelations1[type]]), None, idx, idx2)
+                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalFormulation', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
                             idx3 = 0
                             idx4 = 0
                             for res2 in results2:
@@ -632,8 +633,8 @@ def ModelHandler(sender, **kwargs):
                                             lbs = res2[f'{prefix}L']['value'].split(' <|> ')
                                             for it,lb in zip(its,lbs):
                                                 # Add Contains Formulation Property and Formulation
-                                                valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb[formulationRelations1[prefix]]), None, idx3, idx2)
-                                                valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                                value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb[formulationRelations1[prefix]]), None, idx3, idx2)
+                                                value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
                                                 # Increase Index
                                                 idx3 = idx3 + 1
                                     for prefix in formulationRelations2.keys(): 
@@ -642,8 +643,8 @@ def ModelHandler(sender, **kwargs):
                                             lbs = res2[f'{prefix}L']['value'].split(' <|> ')
                                             for it,lb in zip(its,lbs):
                                                 # Add Generalized By Property and Formulation
-                                                valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb[formulationRelations2[prefix]]), None, idx4, idx2)
-                                                valueEditor(instance, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
+                                                value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb[formulationRelations2[prefix]]), None, idx4, idx2)
+                                                value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
                                                 # Increase Index
                                                 idx4 = idx4 + 1
                             idx2 = idx2 + 1
@@ -652,11 +653,11 @@ def ModelHandler(sender, **kwargs):
                 for taId, taLabel in zip(ModelProperty['taIds'], ModelProperty['taLabels']):
                     if taId and taLabel:
                         # Set up Page for Task
-                        valueEditor(instance, f'{BASE_URI}domain/Task', idx2, None, None, None, idx2)
+                        value_editor(instance.project, f'{BASE_URI}domain/Task', idx2, None, None, None, idx2)
                         # Add Task ID / Label
-                        valueEditor(instance, f'{BASE_URI}domain/TaskMathModDBID', f"{taLabel}", f"{taId} <|> {taLabel}", None, None, idx2)
+                        value_editor(instance.project, f'{BASE_URI}domain/TaskMathModDBID', f"{taLabel}", f"{taId} <|> {taLabel}", None, None, idx2)
                         # Add Model applied by Task
-                        valueEditor(instance, f'{BASE_URI}domain/MathematicalModelRelatedToTask', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx2)
+                        value_editor(instance.project, f'{BASE_URI}domain/MathematicalModelRelatedToTask', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx2)
                         idx3 = 0
                         for res3 in results3:
                             if taId == res3.get('t',{}).get('value'):
@@ -666,8 +667,8 @@ def ModelHandler(sender, **kwargs):
                                         lbs = res3[f'{prefix}L']['value'].split(' <|> ')
                                         for it,lb in zip(its,lbs):
                                             # Add Generalized By Property and Task
-                                            valueEditor(instance, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb[taskRelations[prefix]]), None, idx3, idx2)
-                                            valueEditor(instance, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
+                                            value_editor(instance.project, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb[taskRelations[prefix]]), None, idx3, idx2)
+                                            value_editor(instance.project, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
                                             # Increase Index
                                             idx3 = idx3 + 1
                         idx2 = idx2 + 1
@@ -684,9 +685,9 @@ def ModelHandler(sender, **kwargs):
             for idx, (puId, puLabel) in enumerate(zip(puIds,puLabels)):
                 idx2 = 0
                 # Set up Publication Page 
-                valueEditor(instance, f'{BASE_URI}domain/Publication', idx, None, None, None, idx)
+                value_editor(instance.project, f'{BASE_URI}domain/Publication', idx, None, None, None, idx)
                 # Add Id / Label of Publication
-                valueEditor(instance, f'{BASE_URI}domain/PublicationMathModDBID', f"{puLabel}", f"{puId} <|> {puLabel}", None, None, idx)
+                value_editor(instance.project, f'{BASE_URI}domain/PublicationModelMathModDBID', f"{puLabel}", f"{puId} <|> {puLabel}", None, None, idx)
                 # Get Class abbreviation
                 for res4 in results4:
                     Class = res4.get('class',{}).get('value','').split('#')[-1]
@@ -708,8 +709,8 @@ def ModelHandler(sender, **kwargs):
                     for no in publicationRelations.keys():
                         if puId in res4.get(f'PU{no}',{}).get('value',''):                        
                             # Add Documents Property and Entitiy
-                            valueEditor(instance, f'{BASE_URI}domain/PublicationToModelEntityRelation', None, None, Option.objects.get(uri=mathmoddb[publicationRelations[no]]), None, idx2, idx)
-                            valueEditor(instance, f'{BASE_URI}domain/ModelEntityRelatedToPublication', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
+                            value_editor(instance.project, f'{BASE_URI}domain/PublicationToModelEntityRelation', None, None, Option.objects.get(uri=mathmoddb[publicationRelations[no]]), None, idx2, idx)
+                            value_editor(instance.project, f'{BASE_URI}domain/ModelEntityRelatedToPublication', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
                             # Increase Index
                             idx2 = idx2 + 1    
 
@@ -724,7 +725,7 @@ def programmingLanguages(sender, **kwargs):
         
         if software_id.split(':')[0] == 'wikidata':
             
-            res = kg_req(wikidata_endpoint,wini.format(pl_vars,pl_query.format(software_id.split(':')[-1],'P277'),'100'))
+            res = query_sparql(wini.format(pl_vars,pl_query.format(software_id.split(':')[-1],'P277'),'100'), wikidata_endpoint)
             for idx, r in enumerate(res):
                 if r.get('qid',{}).get('value'): 
                     attribute_object = Attribute.objects.get(uri=f'{BASE_URI}domain/SoftwareProgrammingLanguages')
@@ -743,7 +744,7 @@ def programmingLanguages(sender, **kwargs):
 
         elif software_id.split(':')[0] == 'mardi':
             
-            res = kg_req(mardi_endpoint,mini.format(pl_vars,pl_query.format(software_id.split(':')[-1],P19),'100')) 
+            res = query_sparql(mini.format(pl_vars,pl_query.format(software_id.split(':')[-1],P19),'100'), mardi_endpoint) 
             for idx, r in enumerate(res):
                 if r.get('qid',{}).get('value'):
                     attribute_object = Attribute.objects.get(uri=f'{BASE_URI}domain/SoftwareProgrammingLanguages')
@@ -779,7 +780,7 @@ def processor(sender, **kwargs):
             else:
                 real_link = url.replace('https://en.wikichip.org/wiki/','')
             
-            res = kg_req(wikidata_endpoint,wini.format(pro_vars,pro_query.format('P12029',real_link),'1'))
+            res = query_sparql(wini.format(pro_vars,pro_query.format('P12029',real_link),'1'), wikidata_endpoint)
             
             if res[0]:
                 info = 'wikidata:'+res[0]['qid']['value'] + ' <|> ' + res[0]['label']['value'] + ' <|> ' + res[0]['quote']['value']
@@ -865,14 +866,6 @@ def T2MM(sender, **kwargs):
                 'text': mathmoddb['appliesModel']
                 }
         )
-
-def kg_req(sparql_endpoint, query):
-    '''Function performing SPARQL query at specific endpoint'''
-    req = requests.get(sparql_endpoint,
-                       params = {'format': 'json', 'query': query},
-                       headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}
-                       ).json()["results"]["bindings"]
-    return req
     
 def Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors):
     '''Function that takes orcid and zbmath ids and queries wikidata and MaRDI Portal to get
@@ -891,7 +884,7 @@ def Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors):
             
             # Define parameters for author queries to Wikidata and query data
             wikidata_parameter = ["'{}'".format(id_) for id_ in ids]
-            wikidata_author_dicts = kg_req(wikidata_endpoint, queryPublication['AuthorViaOrcid'].format(' '.join(wikidata_parameter), property_id))
+            wikidata_author_dicts = query_sparql(queryPublication['AuthorViaOrcid'].format(' '.join(wikidata_parameter), property_id), wikidata_endpoint)
 
             # Sort author data according to the IDs
             for dic in wikidata_author_dicts:
@@ -906,8 +899,8 @@ def Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors):
                                ["'{}'".format(author_merged_dict[k]['wikidata_authorQid']) for k in author_merged_dict if author_merged_dict[k]['wikidata_authorQid']]]
             
             # Query MaRDI KG for Authors by IDs and Wikidata QID
-            mardi_author_dicts_1 = kg_req(mardi_endpoint, queryPublication['AuthorViaOrcid'].format(' '.join(mardi_parameter[0]), mardi_property_id))
-            mardi_author_dicts_2 = kg_req(mardi_endpoint, queryPublication['AuthorViaWikidataQID'].format(' '.join(mardi_parameter[1]), P2))
+            mardi_author_dicts_1 = query_sparql(queryPublication['AuthorViaOrcid'].format(' '.join(mardi_parameter[0]), mardi_property_id), mardi_endpoint)
+            mardi_author_dicts_2 = query_sparql(queryPublication['AuthorViaWikidataQID'].format(' '.join(mardi_parameter[1]), P2), mardi_endpoint)
         
             # Add QIDs from MaRDI KG to sorted authors 
             for dic in mardi_author_dicts_1:
@@ -996,63 +989,3 @@ def make_api_requests(api, search_objects, dict_merged, prefix):
                 '{0}_{1}Label'.format(prefix, prop): display_label,
                 '{0}_{1}Description1'.format(prefix, prop): display_desc
             })
-
-def valueEditor(instance, uri, text=None, external_id=None, option=None, collection_index=None, set_index=None, set_prefix=None):
-    
-    attribute_object = Attribute.objects.get(uri=uri)
-
-    # Prepare the defaults dictionary
-    defaults = {
-        'project': instance.project,
-        'attribute': attribute_object,
-    }
-
-    if text is not None:
-        defaults['text'] = text
-
-    if external_id is not None:
-        defaults['external_id'] = external_id
-
-    if option is not None:
-        defaults['option'] = Option.objects.get(uri=option)
-
-    # Handle collection_index if provided
-    if collection_index is not None and set_index is not None and set_prefix is None:
-        obj, created = Value.objects.update_or_create(
-            project=instance.project,
-            attribute=attribute_object,
-            collection_index=collection_index,
-            set_index=set_index,
-            defaults=defaults
-        )
-    elif collection_index is not None and set_index is None and set_prefix is None:
-        obj, created = Value.objects.update_or_create(
-            project=instance.project,
-            attribute=attribute_object,
-            collection_index=collection_index,
-            defaults=defaults
-        )
-    elif set_index is not None and collection_index is None and set_prefix is None:
-        obj, created = Value.objects.update_or_create(
-            project=instance.project,
-            attribute=attribute_object,
-            set_index=set_index,
-            defaults=defaults
-        )
-    elif set_index is not None and collection_index is None and set_prefix is not None:
-        obj, created = Value.objects.update_or_create(
-            project=instance.project,
-            attribute=attribute_object,
-            set_prefix=set_prefix,
-            set_index=set_index,
-            defaults=defaults
-        )
-    else:
-        obj, created = Value.objects.update_or_create(
-            project=instance.project,
-            attribute=attribute_object,
-            defaults=defaults
-        )
-
-    return
-    

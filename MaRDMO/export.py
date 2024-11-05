@@ -1,7 +1,7 @@
 import re
 import requests
 import os, json
-import time
+
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
@@ -21,7 +21,8 @@ from .config import mardi_wiki, mardi_endpoint, mardi_api, mathmoddb_update, mat
 from .id import *
 from .sparql import query_base, mini, mbody2, quote_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql, queryModelDocumentation
 from .handlers import Author_Search
-from .mathmoddb import ModelRetriever, queryMathModDB 
+from .mathmoddb import ModelRetriever
+from .utils import find_item, query_sparql, add_new_mathmoddb_entries_to_questionnaire
 
 try:
     # Get login credentials if available 
@@ -164,10 +165,9 @@ class MaRDIExport(Export):
                             }, status=200)
                 
                     # Check if Workflow with same Label and Description on MaRDI Portal, get workflow author credentials
-                    req = self.get_results(mardi_endpoint,
-                                           mini.format('?qid ?orcid ?zbmath',mbody2.format(self.project.title.replace("'",r"\'"),
-                                                                                           answers['GeneralInformation']['ResearchObjective'].replace("'",r"\'"),
-                                                                                           P8,P22,P23),'1'))[0]
+                    req = query_sparql(mini.format('?qid ?orcid ?zbmath',mbody2.format(self.project.title.replace("'",r"\'"),
+                                                                                       answers['GeneralInformation']['ResearchObjective'].replace("'",r"\'"),
+                                                                                       P8,P22,P23),'1'), mardi_endpoint)[0]
                     existing_workflow_qid = None
                     if req.get('qid', {}).get('value'):
                         # Store Workflow QID and Workflow Author  credentials
@@ -233,7 +233,7 @@ class MaRDIExport(Export):
 
                             elif re.match(r"wikidata:Q[0-9]+", answers['Publication']['Info'][0]): 
                                 # If Paper with DOI on Wikidata, generate dummy entry  store QID
-                                paper_qid = self.find_item(answers['Publication']['Info'][1], answers['Publication']['Info'][2])
+                                paper_qid = find_item(answers['Publication']['Info'][1], answers['Publication']['Info'][2])
                                 if not paper_qid:
                                     paper_qid= self.entry(answers['Publication']['Info'][1], answers['Publication']['Info'][2], [(ExternalID, answers['Publication']['Info'][0].split(':')[1], P2)])
 
@@ -380,33 +380,9 @@ class MaRDIExport(Export):
                                         )        
                     # Get MathModDB ID of newly created Entities
                     if response.status_code == 204:
-
-                        for key in ids.keys():
-                            if not ids[key].startswith('https://mardi4nfdi.de/mathmoddb#'):
-                                results = queryMathModDB(queryModelDocumentation['IDCheck'].format(f"'{key}'"))
-                                
-                                if results and results[0].get('ID').get('value'):
-                                    setName = ids[key][-2:]
-                                    setID = ids[key][:-2]
-                                    if setName == 'RF':
-                                        self.valueEditor(f'{BASE_URI}domain/ResearchFieldMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)                                        
-                                    elif setName == 'RP':
-                                        self.valueEditor(f'{BASE_URI}domain/ResearchProblemMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)
-                                    elif setName == 'MM':
-                                        self.valueEditor(f'{BASE_URI}domain/MathematicalModelMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)
-                                    elif setName == 'MF':
-                                        self.valueEditor(f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)
-                                    elif setName == 'TA':
-                                        self.valueEditor(f'{BASE_URI}domain/TaskMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)
-                                    elif setName == 'PU':
-                                        self.valueEditor(f'{BASE_URI}domain/PublicationMathModDBID', f"{key}", f"{results[0]['ID']['value']} <|> {key}", None, None, setID)
-                                    elif setName == 'QQ':
-                                        if results[0]['qC']['value'].split('#')[1] == 'Quantity':
-                                            self.valueEditor(f'{BASE_URI}domain/QuantityOrQuantityKindMathModDBID', f"{key} (Quantity)", f"{results[0]['ID']['value']} <|> {key} <|> Quantity", None, None, setID)
-                                        elif results[0]['qC']['value'].split('#')[1] == 'QuantityKind':
-                                            self.valueEditor(f'{BASE_URI}domain/QuantityOrQuantityKindMathModDBID', f"{key} (Quantity Kind)", f"{results[0]['ID']['value']} <|> {key} <|> QuantityKind", None, None, setID)
-
-                        results = queryMathModDB(queryModelDocumentation['IDCheck'].format(f"'{answers['Models'][0]['Name']}'"))
+                        add_new_mathmoddb_entries_to_questionnaire(self.project, ids, queryModelDocumentation['IDCheck'])
+                        # Get MathModDB ID of main Mathematical Model
+                        results = query_sparql(queryModelDocumentation['IDCheck'].format(f"'{answers['Models'][0]['Name']}'"))
                         if results and results[0].get('ID').get('value'):
                             answers['Models'][0]['MathModID'] = results[0]['ID']['value'] 
                     else:
@@ -761,17 +737,43 @@ class MaRDIExport(Export):
                 # Export Model Documentation to MathModDB
                 elif answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
 
+                    # Add Information to main Mathematical Model
+                    for key2 in answers['Models']:
+                        if answers['Models'][key2].get('MathModID') and answers['Models'][key2]['MathModID'] != 'not in MathModDB':
+                            for key in answers['MathematicalModel']:
+                                if answers['Models'][key2]['MathModID'] == answers['MathematicalModel'][key].get('MathModID'):
+                                    Name = answers['MathematicalModel'][key]['Name']
+                                    Description = answers['MathematicalModel'][key].get('Description')
+                                    Properties = answers['MathematicalModel'][key].get('Properties')
+                                    mardiID = find_item(Name,Description)
+                                    if mardiID:
+                                        answers['Models'][key2].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description, 'Properties':Properties})
+                                    else:
+                                        answers['Models'][key2].update({'ID':None, 'Name':Name, 'Description':Description, 'Properties':Properties})
+                        else:
+                            for key in answers['MathematicalModel']:
+                                if answers['MathematicalModel'][key].get('Main') == option['Yes']:
+                                    Name = answers['MathematicalModel'][key]['Name']
+                                    Description = answers['MathematicalModel'][key].get('Description')
+                                    Properties = answers['MathematicalModel'][key].get('Properties')
+                                    mardiID = find_item(Name,Description)
+                                    if mardiID:
+                                        answers['Models'][key2].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description, 'Properties':Properties})
+                                    else:
+                                        answers['Models'][key2].update({'ID':None, 'Name':Name, 'Description':Description, 'Properties':Properties})
+
                     # Merge answers related to mathematical model
                     merged_dict = merge_dicts_with_unique_keys(answers)
-
+                     
                     # Generate list of triples
-                    triple_list, _ = dict_to_triples(merged_dict,
+                    triple_list, ids = dict_to_triples(merged_dict,
                                                      ['IntraClassRelation','RP2RF','MM2RP','MF2MM','MF2MF','Q2Q','Q2QK','QK2Q','QK2QK','T2MF','T2Q','T2MM','P2E'],
                                                      ['IntraClassElement','RFRelatant','RPRelatant','MMRelatant','MFRelatant','QRelatant','QKRelatant','QRelatant','QKRelatant','MFRelatant','QRelatant','MMRelatant','EntityRelatant']) 
-
+                    
                     # Generate query for MathModDB KG
                     query = generate_sparql_insert_with_new_ids(triple_list)
                     
+                    # Add Model Documentation to MathModDB
                     response = requests.post(mathmoddb_update, data=query, headers={
                                             "Content-Type": "application/sparql-update",
                                             "Accept": "text/turtle"},
@@ -780,9 +782,14 @@ class MaRDIExport(Export):
                                         )
                     
                     if response.status_code == 204:
-                        return render(self.request,'MaRDMO/modelExport.html', {
-                            'KGLink': mathmoddb_uri + answers['Models'][0]['MathModID'].split('#')[-1]
-                            }, status=200)
+                        add_new_mathmoddb_entries_to_questionnaire(self.project, ids, queryModelDocumentation['IDCheck'])
+                        # Get MathModDB ID of main Mathematical Model
+                        results = query_sparql(queryModelDocumentation['IDCheck'].format(f"'{answers['Models'][0]['Name']}'"))
+                        if results and results[0].get('ID').get('value'):
+                            answers['Models'][0]['MathModID'] = results[0]['ID']['value']
+                            return render(self.request,'MaRDMO/modelExport.html', {
+                                'KGLink': mathmoddb_uri + answers['Models'][0]['MathModID'].split('#')[-1]
+                                }, status=200)
                     else:
                         return render(self.request,'MaRDMO/workflowError.html', {
                             'error': 'The mathematical model could not be integrated into the MathodDB!'
@@ -858,7 +865,7 @@ class MaRDIExport(Export):
             query = query_base.format(P4,Q2,res_disc_str,mmsios_str,quote_str,res_obj_strs)
             
             # Query MaRDI Portal
-            results = self.get_results(mardi_endpoint, query)
+            results = query_sparql(query, mardi_endpoint)
 
             # Number of Results
             no_results = str(len(results))
@@ -978,10 +985,10 @@ class MaRDIExport(Export):
 
         return item.id
 
-    def get_results(self,endpoint_url, query):
-        '''Perform SPARQL Queries via Get requests'''
-        req=requests.get(endpoint_url, params = {'format': 'json', 'query': query}, headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()
-        return req["results"]["bindings"]
+    #def get_results(self,endpoint_url, query):
+    #    '''Perform SPARQL Queries via Get requests'''
+    #    req=requests.get(endpoint_url, params = {'format': 'json', 'query': query}, headers = {'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'}).json()
+    #    return req["results"]["bindings"]
     
     def portal_wikidata_check(self,answers,public,preview,option):
         '''Function checks if an entry is on MaRDI portal and returns its QID
@@ -1076,7 +1083,7 @@ class MaRDIExport(Export):
                         if re.match(r"mardi:Q[0-9]+", ID): 
                             answers[entity][key].update({'ID':ID, 'Name':Name, 'Description':Description})
                         else:
-                            mardiID = self.find_item(Name,Description)
+                            mardiID = find_item(Name,Description)
                             if mardiID:
                                 answers[entity][key].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description})
                             else:
@@ -1087,14 +1094,14 @@ class MaRDIExport(Export):
                             if re.match(r"mardi:Q[0-9]+", ID):
                                 answers[entity][key]['ID'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
                             else:
-                                mardiID = self.find_item(Name,Description)
+                                mardiID = find_item(Name,Description)
                                 if mardiID:
                                     answers[entity][key]['ID'].update({ikey:{'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description}})
                                 else:
                                     answers[entity][key]['ID'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
                 else:
                     if answers[entity][key].get('Name') and answers[entity][key].get('Description'):
-                        mardiID = self.find_item(answers[entity][key]['Name'],answers[entity][key]['Description'])
+                        mardiID = find_item(answers[entity][key]['Name'],answers[entity][key]['Description'])
                         if mardiID:
                             answers[entity][key].update({'ID':f"mardi:{mardiID}"})
                         else:
@@ -1108,7 +1115,7 @@ class MaRDIExport(Export):
                         if re.match(r"mardi:Q[0-9]+", ID):
                             answers[entity][key]['SubProperty'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
                         else:
-                            mardiID = self.find_item(Name,Description)
+                            mardiID = find_item(Name,Description)
                             if mardiID:
                                 answers[entity][key]['SubProperty'].update({ikey:{'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description}})
                             else:
@@ -1119,7 +1126,7 @@ class MaRDIExport(Export):
                         if re.match(r"mardi:Q[0-9]+", ID):
                             answers[entity][key]['SubProperty2'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
                         else:
-                            mardiID = self.find_item(Name,Description)
+                            mardiID = find_item(Name,Description)
                             if mardiID:
                                 answers[entity][key]['SubProperty2'].update({ikey:{'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description}})
                             else:
@@ -1194,7 +1201,7 @@ class MaRDIExport(Export):
                         # Search and add CPU, with number of cores and ID (wikidata / wikichip)
                         cpuIDs=[]
                         for subkey in answers[Type][key].get('SubProperty', {}).keys():
-                            cpuID = self.find_item(answers[Type][key]['SubProperty'][subkey]['Name'],answers[Type][key]['SubProperty'][subkey]['Description'])
+                            cpuID = find_item(answers[Type][key]['SubProperty'][subkey]['Name'],answers[Type][key]['SubProperty'][subkey]['Description'])
                             if not cpuID:
                                 if answers['Settings']['Public'] == option['Public'] and answers['Settings'].get('Preview') == option['No']:
                                     cpuID = self.entry(
@@ -1266,26 +1273,6 @@ class MaRDIExport(Export):
                     return qids, answers, [2,key]
 
         return qids, answers, [-1,-1]
-            
-    def find_item(self, label, description, api=mardi_api, language="en"):
-        # Perform label-based search
-        response = requests.get(api, params={
-            'action': 'wbsearchentities',
-            'format': 'json',
-            'language': 'en',
-            'type': 'item',
-            'limit': 10,
-            'search': label
-        }, headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'})
-        data = response.json()
-        # Filter results based on description
-        matched_items = [item for item in data['search'] if item.get('description') == description] 
-        if matched_items:
-            # Return the ID of the first matching item
-            return matched_items[0]['id']
-        else:
-            # No matching item found
-            return None
 
     def get_answer(self, val, uName, dName, Id, set_prefix=False, set_index=False, collection_index=False, option_text=False, external_id=False):
         '''Function that retrieves individual User answers'''
@@ -1473,75 +1460,15 @@ class MaRDIExport(Export):
                             val[uName].update({dName:None})
         return val
 
-    def valueEditor(self, uri, text=None, external_id=None, option=None, collection_index=None, set_index=None, set_prefix=None):
-        
-        attribute_object = Attribute.objects.get(uri=uri)
-
-        # Prepare the defaults dictionary
-        defaults = {
-            'project': self.project,
-            'attribute': attribute_object,
-        }
-
-        if text is not None:
-            defaults['text'] = text
-
-        if external_id is not None:
-            defaults['external_id'] = external_id
-
-        if option is not None:
-            defaults['option'] = Option.objects.get(uri=option)
-
-        # Handle collection_index if provided
-        if collection_index is not None and set_index is not None and set_prefix is None:
-            obj, created = Value.objects.update_or_create(
-                project=self.project,
-                attribute=attribute_object,
-                collection_index=collection_index,
-                set_index=set_index,
-                defaults=defaults
-            )
-        elif collection_index is not None and set_index is None and set_prefix is None:
-            obj, created = Value.objects.update_or_create(
-                project=self.project,
-                attribute=attribute_object,
-                collection_index=collection_index,
-                defaults=defaults
-            )
-        elif set_index is not None and collection_index is None and set_prefix is None:
-            obj, created = Value.objects.update_or_create(
-                project=self.project,
-                attribute=attribute_object,
-                set_index=set_index,
-                defaults=defaults
-            )
-        elif set_index is not None and collection_index is None and set_prefix is not None:
-            obj, created = Value.objects.update_or_create(
-                project=self.project,
-                attribute=attribute_object,
-                set_prefix=set_prefix,
-                set_index=set_index,
-                defaults=defaults
-            )
-        else:
-            obj, created = Value.objects.update_or_create(
-                project=self.project,
-                attribute=attribute_object,
-                defaults=defaults
-            )
-
-        return
-
 def merge_dicts_with_unique_keys(answers):
     
     keys = ['ResearchField','ResearchProblem','MathematicalModel','MathematicalFormulation','Quantity','Task','PublicationModel']
-    suffixes = ['RF','RP','MM','MF','QQ','TA','PU']
     
     merged_dict = {}
     
-    for key,suffix in zip(keys,suffixes):
+    for key in keys:
         for inner_key, value in answers[key].items():
-            new_inner_key = f"{inner_key}{suffix}"
+            new_inner_key = f"{inner_key}{key}"
             merged_dict[new_inner_key] = value    
     
     return merged_dict
@@ -1576,23 +1503,23 @@ def dict_to_triples(data, relations, relatants):
             triples.append((subject, "rdfs:comment", f'"{item["Description"]}"@en'))
         
         # Assign Individual Class
-        if idx[-2:] == 'RF':
+        if 'ResearchField' in idx:
             triples.append((subject, "a", ':ResearchField'))
-        elif idx[-2:] == 'RP':
+        elif 'ResearchProblem' in idx:
             triples.append((subject, "a", ':ResearchProblem'))
-        elif idx[-2:] == 'MM':
+        elif 'MathematicalModel' in idx:
             triples.append((subject, "a", ':MathematicalModel'))
-        elif idx[-2:] == 'QQ':
+        elif 'Quantity' in idx:
             if item['QorQK'] == 'https://rdmo.mardi4nfdi.de/terms/options/MathModDB/Quantity':
                 triples.append((subject, "a", ':Quantity'))
             else:
                 triples.append((subject, "a", ':QuantityKind'))
-        elif idx[-2:] == 'MF':
+        elif 'MathematicalFormulation' in idx:
             triples.append((subject, "a", ':MathematicalFormulation'))
-        elif idx[-2:] == 'TA':
+        elif 'Task' in idx:
             if item.get('TaskClass') == 'https://rdmo.mardi4nfdi.de/terms/options/MathModDB/ComputationalTask':
                 triples.append((subject, "a", ':ComputationalTask'))
-        elif idx[-2:] == 'PU':
+        elif 'PublicationModel' in idx:
             triples.append((subject, "a", ':Publication'))
         
         # Assign Individual MaRDI/Wikidata ID
@@ -1645,9 +1572,10 @@ def dict_to_triples(data, relations, relatants):
                         else:
                             referred_name = quantity[1]
                             object_value = ids.get(referred_name)
-                    triples.append((subject, ':inDefiningFormulation', f'"{symbol[1:-1]}, {referred_name}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
-                    triples.append((subject, ':containsQuantity', object_value))
-                    triples.append((object_value, ':containedInFormulation', subject))
+                    if object_value:
+                        triples.append((subject, ':inDefiningFormulation', f'"{symbol[1:-1]}, {referred_name}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
+                        triples.append((subject, ':containsQuantity', object_value))
+                        triples.append((object_value, ':containedInFormulation', subject))
         
         # Assign Individual Properties
         if item.get('Properties'):

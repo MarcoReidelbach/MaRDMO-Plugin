@@ -10,7 +10,7 @@ from multiprocessing.pool import ThreadPool
 
 from .config import wikidata_api, mardi_api, BASE_URI
 from .sparql import queryProvider
-from .mathmoddb import queryMathModDB
+from .utils import query_api, query_sparql
 
 class MaRDIAndWikidataSearch(Provider):
     
@@ -291,7 +291,7 @@ class RelatedResearchField(Provider):
             return []
 
         # Fetch research fields from the MathModDB knowledge graph
-        results = queryMathModDB(queryProvider['RF'])
+        results = query_sparql(queryProvider['RF'])
 
         # Extract options from the knowledge graph
         dic = {}
@@ -359,7 +359,7 @@ class RelatedResearchProblem(Provider):
             return []
 
         # Fetch research problems from the MathModDB knowledge graph
-        results = queryMathModDB(queryProvider['RP'])
+        results = query_sparql(queryProvider['RP'])
         
         # Extract options from the knowledge graph
         dic = {}
@@ -422,7 +422,7 @@ class RelatedMathematicalModel(Provider):
             return []
         
         # Fetch mathematical models from the MathModDB knowledge graph
-        results = queryMathModDB(queryProvider['MM'])
+        results = query_sparql(queryProvider['MM'])
         
         # Extract options from the knowledge graph
         dic = {}
@@ -499,7 +499,7 @@ class RelatedQuantity(Provider):
             return []
 
         # Fetch quantities from th MathModDB knowledge graph
-        results = queryMathModDB(queryProvider['Q'])
+        results = query_sparql(queryProvider['Q'])
         
         # Extract options from the knowledge graph
         dic = {}
@@ -509,8 +509,8 @@ class RelatedQuantity(Provider):
             dic.update({result['label']['value']:{'id':result['answer']['value']}})
 
         values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindQID'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindName'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityQID'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityName'))
 
         for value1 in values1:
             if value1.option == Option.objects.get(uri=self.mathmoddb['QuantityClass']):
@@ -543,7 +543,7 @@ class RelatedQuantityKind(Provider):
             return []
 
         # Fetch quantities from th MathModDB knowledge graph
-        results = queryMathModDB(queryProvider['QK'])
+        results = query_sparql(queryProvider['QK'])
 
         # Extract options from the knowledge graph
         dic = {}
@@ -553,8 +553,8 @@ class RelatedQuantityKind(Provider):
             dic.update({result['label']['value']:{'id':result['answer']['value']}})
 
         values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindQID'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindName'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityQID'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityName'))
 
         for value1 in values1:
             if value1.option == Option.objects.get(uri=self.mathmoddb['QuantityKindClass']):
@@ -592,7 +592,7 @@ class MathematicalFormulationWithUserAddition(Provider):
             return []
 
         # Fetch mathematical models from the MathModDB knowledge graph
-        results = queryMathModDB(queryProvider['MF'])
+        results = query_sparql(queryProvider['MF'])
         
         # Extract options from the knowledge graph
         dic = {}
@@ -629,9 +629,9 @@ class QuantityOrQuantityKindWithUserAddition(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindMathModDBID'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindQID'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindName'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityMathModDBID'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityQID'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityName'))
         values4 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
 
         options = []
@@ -708,7 +708,7 @@ class RelatedTask(Provider):
             return []
         
         # Fetch mathematical models from the MathModDB knowledge graph
-        results = queryMathModDB(queryProvider['T'])
+        results = query_sparql(queryProvider['T'])
         
         # Extract options from the knowledge graph
         dic = {}
@@ -755,9 +755,9 @@ class AllEntities(Provider):
         values9 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelMathModDBID'))
         values10 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelQID'))
         values11 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelName'))
-        values12 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindMathModDBID'))
-        values13 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindQID'))
-        values14 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityOrQuantityKindName'))
+        values12 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityMathModDBID'))
+        values13 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityQID'))
+        values14 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityName'))
         values15 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationMathModDBID'))
         values16 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationQID'))
         values17 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationName'))
@@ -765,13 +765,13 @@ class AllEntities(Provider):
         values19 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskQID'))
         values20 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskName'))
         values21 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
-
+        
         for idx, value1 in enumerate(values1):
             if value1.text and value1.text != 'not in MathModDB':
                 options.append({'id': f"{value1.external_id} <|> ResearchField <|> RF",'text': f"{value1.text} (Research Field)"})
         for idx, value2 in enumerate(values2):
             if value2.text:
-                options.append({'id': f"{value2.external_id.split(' <|>')[:2]} <|> ResearchField <|> RF",'text': f"{value2.text} (Research Field)"})
+                options.append({'id': f"{value2.external_id.split(' <|> ')[:2]} <|> ResearchField <|> RF",'text': f"{value2.text} (Research Field)"})
         for idx, value3 in enumerate(values3):
             if value3.text:
                 options.append({'id': f"RF{str(idx+1)} <|> {value3.text} <|> ResearchField <|> RF",'text': f"{value3.text} (Research Field)"})
@@ -780,7 +780,7 @@ class AllEntities(Provider):
                 options.append({'id': f"{value4.external_id} <|> ResearchProblem <|> RP",'text': f"{value4.text} (Research Problem)"})
         for idx, value5 in enumerate(values5):
             if value5.text:
-                options.append({'id': f"{' <|> '.join(value5.external_id.split(' <|>')[:2])} <|> ResearchProblem <|> RP",'text': f"{value5.text} (Research Problem)"})
+                options.append({'id': f"{' <|> '.join(value5.external_id.split(' <|> ')[:2])} <|> ResearchProblem <|> RP",'text': f"{value5.text} (Research Problem)"})
         for idx, value6 in enumerate(values6):
             if value6.text:
                 options.append({'id': f"RP{str(idx+1)} <|> {value6.text} <|> ResearchProblem <|> RP",'text': f"{value6.text} (Research Problem)"})
@@ -789,7 +789,7 @@ class AllEntities(Provider):
                 options.append({'id': f"{value9.external_id} <|> MathematicalModel <|> MM",'text': f"{value9.text} (Mathematical Model)"})
         for idx, value10 in enumerate(values10):
             if value10.text:
-                options.append({'id': f"{' <|> '.join(value10.external_id.split(' <|>')[:2])} <|> MathematicalModel <|> MM",'text': f"{value10.text} (Mathematical Model)"})
+                options.append({'id': f"{' <|> '.join(value10.external_id.split(' <|> ')[:2])} <|> MathematicalModel <|> MM",'text': f"{value10.text} (Mathematical Model)"})
         for idx, value11 in enumerate(values11):
             if value11.text:
                 options.append({'id': f"MM{str(idx+1)} <|> {value11.text} <|> MathematicalModel <|> MM",'text': f"{value11.text} (Mathematical Model)"})
@@ -805,7 +805,7 @@ class AllEntities(Provider):
                 for idx, value13 in enumerate(values13):
                     if value13.text and value21.set_prefix == value13.set_prefix:
                         Id,label,quote = value13.external_id.split(' <|> ')
-                        options.append({'id': f"{' <|> '.join(value13.external_id.split(' <|>')[:2])} <|> Quantity <|> QQK",'text': f"{label} (Quantity)"})
+                        options.append({'id': f"{' <|> '.join(value13.external_id.split(' <|> ')[:2])} <|> Quantity <|> QQK",'text': f"{label} (Quantity)"})
                 for idx, value14 in enumerate(values14):
                     if value14.text and value21.set_prefix == value14.set_prefix:
                         options.append({'id': f"QQK{str(idx+1)} <|> {value14.text} <|> Quantity <|> QQK",'text': f"{value14.text} (Quantity)"})
@@ -813,7 +813,7 @@ class AllEntities(Provider):
                 for idx, value13 in enumerate(values13):
                     if value13.text and value21.set_prefix == value13.set_prefix:
                         Id,label,quote = value13.external_id.split(' <|> ')
-                        options.append({'id': f"{' <|> '.join(value13.external_id.split(' <|>')[:2])} <|> QuantityKind <|> QQK",'text': f"{label} (Quantity Kind)"})
+                        options.append({'id': f"{' <|> '.join(value13.external_id.split(' <|> ')[:2])} <|> QuantityKind <|> QQK",'text': f"{label} (Quantity Kind)"})
                 for idx, value14 in enumerate(values14):
                     if value14.text and value21.set_prefix == value14.set_prefix:
                         options.append({'id': f"QQK{str(idx+1)} <|> {value14.text} <|> QuantityKind <|> QQK",'text': f"{value14.text} (Quantity Kind)"})
@@ -822,7 +822,7 @@ class AllEntities(Provider):
                 options.append({'id': f"{value15.external_id} <|> MathematicalFormulation <|> MF",'text': f"{value15.text} (Mathematical Formulation)"})
         for idx, value16 in enumerate(values16):
             if value16.text:
-                options.append({'id': f"{' <|> '.join(value16.external_id.split(' <|>')[:2])} <|> MathematicalFormulation <|> MF",'text': f"{value16.text} (Mathematical Formulation)"})
+                options.append({'id': f"{' <|> '.join(value16.external_id.split(' <|> ')[:2])} <|> MathematicalFormulation <|> MF",'text': f"{value16.text} (Mathematical Formulation)"})
         for idx, value17 in enumerate(values17):
             if value17.text:
                 options.append({'id': f"MF{str(idx+1)} <|> {value17.text} <|> MathematicalFormulation <|> MF",'text': f"{value17.text} (Mathematical Formulation)"})
@@ -831,25 +831,12 @@ class AllEntities(Provider):
                 options.append({'id': f"{value18.external_id} <|> Task <|> T",'text': f"{value18.text} (Task)"})
         for idx, value19 in enumerate(values19):
             if value19.text:
-                options.append({'id': f"{' <|> '.join(value19.external_id.split(' <|>')[:2])} <|> Task <|> T",'text': f"{value19.text} (Task)"})
+                options.append({'id': f"{' <|> '.join(value19.external_id.split(' <|> ')[:2])} <|> Task <|> T",'text': f"{value19.text} (Task)"})
         for idx, value20 in enumerate(values20):
             if value20.text:
                 options.append({'id': f"T{str(idx+1)} <|> {value20.text} <|> Task <|> T",'text': f"{value20.text} (Task)"})
         
         return options
-
-
-def query_api(api_url, search_term):
-    '''Function to query an API and return the JSON response.'''
-    response = requests.get(api_url, params={
-        'action': 'wbsearchentities',
-        'format': 'json',
-        'language': 'en',
-        'type': 'item',
-        'limit': 10,
-        'search': search_term
-    }, headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'})
-    return response.json().get('search', [])
 
 def process_result(result, location):
     '''Function to process the result and return a dictionary with id, text, and description.'''
@@ -902,7 +889,7 @@ def MathModDBProvider(search,query):
         return []
 
     # Fetch results from the MathModDB knowledge graph
-    results = queryMathModDB(query)
+    results = query_sparql(query)
     
     dic = {}
     options = []

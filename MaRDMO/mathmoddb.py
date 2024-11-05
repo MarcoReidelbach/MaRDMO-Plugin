@@ -4,6 +4,7 @@ import os, json
 
 from .sparql import queryModelDocumentation
 from .config import mardi_api, mathmoddb_endpoint
+from .utils import find_item, query_sparql
 
 def ModelRetriever(answers,mathmoddb):
     '''Function queries MathModDB to gather further Model Information
@@ -34,7 +35,7 @@ def ModelRetriever(answers,mathmoddb):
     qClass = 'MathematicalModel'
     
     search_string = searchGenerator(answers,[qClass])
-    results = queryMathModDB(queryModelDocumentation[qClass].format(search_string))
+    results = query_sparql(queryModelDocumentation[qClass].format(search_string))
     
     # Get MathModDB ID of all selected Mathematical Models
     mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
@@ -64,7 +65,7 @@ def ModelRetriever(answers,mathmoddb):
     qClass = 'Task'
     
     search_string = searchGenerator(answers,[qClass])
-    results = queryMathModDB(queryModelDocumentation[qClass].format(search_string))
+    results = query_sparql(queryModelDocumentation[qClass].format(search_string))
     
     # Get MathModDB ID of all selected Tasks
     mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
@@ -128,7 +129,7 @@ def ModelRetriever(answers,mathmoddb):
     qClass = 'MathematicalFormulation'
 
     search_string = searchGenerator(answers,[qClass])
-    results = queryMathModDB(queryModelDocumentation[qClass].format(search_string))
+    results = query_sparql(queryModelDocumentation[qClass].format(search_string))
      
     # Get MathModID of all selected Mathematical Formulations
     mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
@@ -159,7 +160,7 @@ def ModelRetriever(answers,mathmoddb):
     tClass = 'MathematicalFormulation'
 
     search_string = searchGenerator(answers,[qClass])
-    results = queryMathModDB(queryModelDocumentation[f'{qClass}Definition'].format(search_string))
+    results = query_sparql(queryModelDocumentation[f'{qClass}Definition'].format(search_string))
     
     # Get MathModID of all selected Mathematical Formulations
     mathmodidToKey = {answers[tClass][key].get('MathModID'): key for key in answers[tClass]}
@@ -195,7 +196,7 @@ def ModelRetriever(answers,mathmoddb):
     qClass = 'Quantity'
     
     search_string = searchGenerator(answers,[qClass])
-    results = queryMathModDB(queryModelDocumentation[qClass].format(search_string))
+    results = query_sparql(queryModelDocumentation[qClass].format(search_string))
 
     # Get MathModID of all selected Quantities
     mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
@@ -220,7 +221,7 @@ def ModelRetriever(answers,mathmoddb):
     qClass = 'ResearchField'
 
     search_string = searchGenerator(answers,[qClass])
-    results = queryMathModDB(queryModelDocumentation[qClass].format(search_string))
+    results = query_sparql(queryModelDocumentation[qClass].format(search_string))
     
     # Get MathModDB ID of all selected Research Fields
     mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
@@ -239,7 +240,7 @@ def ModelRetriever(answers,mathmoddb):
     qClass = 'ResearchProblem'
 
     search_string = searchGenerator(answers,[qClass])
-    results = queryMathModDB(queryModelDocumentation[qClass].format(search_string))
+    results = query_sparql(queryModelDocumentation[qClass].format(search_string))
 
     # Get MathModDB ID of all selected Research Problems
     mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
@@ -260,7 +261,7 @@ def ModelRetriever(answers,mathmoddb):
     # Get additional Intra-Class Information for Model, Task, Formulation and Quantity Relations from MathModDB
     
     search_string = searchGenerator(answers,['Task', 'MathematicalFormulation', 'MathematicalModel', 'Quantity', 'ResearchField', 'ResearchProblem'])
-    results = queryMathModDB(queryModelDocumentation['IntraClass'].format(search_string))
+    results = query_sparql(queryModelDocumentation['IntraClass'].format(search_string))
     
     mathmodidToKey = {}
 
@@ -290,7 +291,7 @@ def ModelRetriever(answers,mathmoddb):
     tClass = 'PublicationModel'
 
     search_string = searchGenerator(answers,['ResearchField','ResearchProblem','MathematicalModel','Quantity','MathematicalFormulation','Task'])
-    results = queryMathModDB(queryModelDocumentation[tClass].format(search_string))
+    results = query_sparql(queryModelDocumentation[tClass].format(search_string))
     
     for result in results:
         # Get MathModID and Class of queries entity
@@ -436,26 +437,6 @@ def ModelRetriever(answers,mathmoddb):
     
     return answers
 
-def find_item(label, description, api=mardi_api, language="en"):
-    # Perform label-based search
-    response = requests.get(api, params={
-        'action': 'wbsearchentities',
-        'format': 'json',
-        'language': 'en',
-        'type': 'item',
-        'limit': 10,
-        'search': label
-    }, headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'})
-    data = response.json()
-    # Filter results based on description
-    matched_items = [item for item in data['search'] if item.get('description') == description]
-    if matched_items:
-        # Return the ID of the first matching item
-        return matched_items[0]['id']
-    else:
-        # No matching item found
-        return None
-
 def assignProperties(data, queryData, mathmoddb, properties):
     # Add Data Property Information from Query to Data
     for idx,property in enumerate(properties):
@@ -486,20 +467,6 @@ def entityRelations(data, fromIDX, toIDX, relationOld, entityOld, relationNew, e
                         if [data[fromIDX][key][relationOld][key2], Id, Id] not in data[fromIDX][key].get(relationNew,{}).values():
                             data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], Id, Id]})
     return
-
-def queryMathModDB(query,endpoint=mathmoddb_endpoint):
-    # Query MathModDB
-    response = requests.post(endpoint, 
-                             data=query, 
-                             headers={"Content-Type": "application/sparql-query","Accept": "application/sparql-results+json"}
-                            )
-    
-    if response.status_code == 200:
-        req = response.json().get('results',{}).get('bindings',[])
-    else:
-        req = []
-
-    return req
 
 def searchGenerator(data, class_list):
     """

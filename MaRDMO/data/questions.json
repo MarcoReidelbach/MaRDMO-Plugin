@@ -625,7 +625,7 @@
     "Quantity MathModID": {
         "uName": "Quantity",
         "dName": "MathModID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityOrQuantityKindMathModDBID",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityMathModDBID",
         "set_prefix": false,
         "set_index": true,
         "collection_index": false,
@@ -635,7 +635,7 @@
     "Quantity ID": {
         "uName": "Quantity",
         "dName": "ID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityOrQuantityKindQID",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityQID",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -645,7 +645,7 @@
     "Quantity Name": {
         "uName": "Quantity",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityOrQuantityKindName",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityName",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -655,7 +655,7 @@
     "Quantity Description": {
         "uName": "Quantity",
         "dName": "Description",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityOrQuantityKindDescription",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityDescription",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -665,7 +665,7 @@
     "Quantity Reference": {
         "uName": "Quantity",
         "dName": "Reference",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityOrQuantityKindOtherID",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityOtherID",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -925,7 +925,7 @@
     "PublicationModel MathModID": {
         "uName": "PublicationModel",
         "dName": "MathModID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationMathModDBID",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationModelMathModDBID",
         "set_prefix": false,
         "set_index": true,
         "collection_index": false,
@@ -935,7 +935,7 @@
     "PublicationModel Name": {
         "uName": "PublicationModel",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationCitation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationModelCitation",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -945,7 +945,7 @@
     "PublicationModel Reference": {
         "uName": "PublicationModel",
         "dName": "Reference",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationID",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationModelID",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
