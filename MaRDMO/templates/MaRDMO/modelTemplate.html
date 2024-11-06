@@ -684,9 +684,9 @@
 
     <p>
         <b>Description</b>: {{ values.Description }} <br>
-        <b>MathModDB</b>: {% if values.MathModID and values.MathModID != 'not in MathModDB' %} 
-	                      {{ values.MathModID }} 
-			  {% endif %} <br>
+        <b>MathModDB</b>: {% if 'mathmoddb' in values.ID %} 
+                          {{ values.ID|cut:"mathmoddb:" }} 
+             {% endif %} <br>
         <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
 	                     {{ values.ID|cut:"wikidata:" }} 
 			 {% endif %} <br>

@@ -188,20 +188,6 @@ queryModelDocumentation = {
                                       }}
                                       GROUP BY ?ID ?qC''',
 
-                  'ResearchField': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                  
-                                 SELECT ?ResearchField
-                                        (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?quote)
-                                 
-                                 WHERE {{
-                                         VALUES ?ResearchField {{{0}}}
-                                         ?ResearchField rdfs:comment ?l.
-                                         OPTIONAL {{FILTER (lang(?l) = 'en')}}
-                                       }}
-                                 
-                                 GROUP BY ?ResearchField ?quote''',
-                  
                   'ResearchProblem': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                                  
@@ -744,15 +730,20 @@ queryProvider = {
                          GROUP BY ?answer ?label''',
 
                  'RF': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
+                              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
-                                SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
-                                WHERE { 
-                                       ?answer a :ResearchField .
-                                       ?answer rdfs:label ?l .
-                                       FILTER (lang(?l) = 'en')
-                                      }
-                                GROUP BY ?answer ?label''',
+                              SELECT DISTINCT ?id ?label ?quote
+                              WHERE { 
+                                     ?idraw a :ResearchField .
+                                     BIND(STRAFTER(STR(?idraw), "#") AS ?id)
+                                     OPTIONAL {?idraw rdfs:label ?labelraw .
+                                               FILTER (lang(?labelraw) = 'en')}
+                                     BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
+                                     OPTIONAL {?idraw rdfs:comment ?quoteraw.
+                                               FILTER (lang(?quoteraw) = 'en')}
+                                     BIND(COALESCE(?quoteraw, "No Description Provided!") AS ?quote)
+                                    }
+                               GROUP BY ?id ?label ?quote''',
                  
                  'RP': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
@@ -765,16 +756,22 @@ queryProvider = {
                                       }
                                 GROUP BY ?answer ?label''',
                  
-                 'MM': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                  'MM': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
-                              SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
+                              SELECT DISTINCT ?id ?label ?quote
                               WHERE { 
-                                     ?answer a :MathematicalModel .
-                                     ?answer rdfs:label ?l .
-                                     FILTER (lang(?l) = 'en')
+                                     ?idraw a :MathematicalModel .
+                                     BIND(STRAFTER(STR(?idraw), "#") AS ?id)
+                                     OPTIONAL {?idraw rdfs:label ?labelraw .
+                                               FILTER (lang(?labelraw) = 'en')}
+                                     BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
+                                     OPTIONAL {?idraw rdfs:comment ?quoteraw.
+                                               FILTER (lang(?quoteraw) = 'en')}
+                                     BIND(COALESCE(?quoteraw, "No Description Provided!") AS ?quote)
                                     }
-                               GROUP BY ?answer ?label''',
+                               GROUP BY ?id ?label ?quote''',
+
                  
                  'MF': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
@@ -855,7 +852,7 @@ queryModelHandler = {
        'All':   '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
              
-                   SELECT DISTINCT ?mm ?mml ?rp ?rpl ?rf ?rfl ?ta ?tal ?gbmm ?gbmml ?gmm ?gmml ?abmm ?abmml ?amm ?amml ?dbmm ?dbmml ?dmm ?dmml 
+                   SELECT DISTINCT ?mm ?mml ?rp ?rpl ?rf ?rfl ?rfd ?ta ?tal ?gbmm ?gbmml ?gmm ?gmml ?abmm ?abmml ?amm ?amml ?dbmm ?dbmml ?dmm ?dmml 
                                    ?lbmm ?lbmml ?lmm ?lmml ?cmm ?cmml ?cimm ?cimml ?smm ?smml ?fmf ?fmfl ?fmfq ?fmfql ?fmfqc ?amf ?amfl ?amfq 
                                    ?amfql ?amfqc ?bcmf ?bcmfl ?bcmfq ?bcmfql ?bcmfqc ?ccmf ?ccmfl ?ccmfq ?ccmfql ?ccmfqc ?cpcmf ?cpcmfl ?cpcmfq 
                                    ?cpcmfql ?cpcmfqc ?icmf ?icmfl ?icmfq ?icmfql ?icmfqc ?fcmf ?fcmfl ?fcmfq ?fcmfql ?fcmfqc
@@ -1044,9 +1041,14 @@ queryModelHandler = {
                                       FILTER (lang(?rpl) = 'en')  
 
                                       OPTIONAL {{
-                                                 ?rp :containedInField ?rf.
-                                                 ?rf rdfs:label ?rfl.
-                                                 FILTER (lang(?rfl) = 'en')
+                                                 ?rp :containedInField ?rfraw.
+                                                 BIND(STRAFTER(STR(?rfraw), "#") AS ?rf)
+                                                 OPTIONAL {{ ?rfraw rdfs:label ?rflraw .
+                                                             FILTER (lang(?rflraw) = 'en') }}
+                                                 BIND(COALESCE(?rflraw, "No Label Provided!") AS ?rfl)
+                                                 OPTIONAL {{ ?rfraw rdfs:comment ?rfdraw.
+                                                             FILTER (lang(?rfdraw) = 'en') }}
+                                                 BIND(COALESCE(?rfdraw, "No Description Provided!") AS ?rfd)
                                                }}
 
                                     }}
@@ -1058,7 +1060,7 @@ queryModelHandler = {
                                     }} 
                     }}
 
-               GROUP BY ?mm ?mml ?fmf ?rp ?rpl ?rf ?rfl ?ta ?tal ?gbmm ?gbmml ?gmm ?gmml ?abmm ?abmml ?amm ?amml ?dbmm ?dbmml ?dmm ?dmml ?lbmm ?lbmml 
+               GROUP BY ?mm ?mml ?fmf ?rp ?rpl ?rf ?rfl ?rfd ?ta ?tal ?gbmm ?gbmml ?gmm ?gmml ?abmm ?abmml ?amm ?amml ?dbmm ?dbmml ?dmm ?dmml ?lbmm ?lbmml 
                         ?lmm ?lmml ?cmm ?cmml ?cimm ?cimml ?smm ?smml ?fmf ?fmfl ?fmfq ?fmfql ?fmfqc ?amf ?amfl ?amfq ?amfql ?amfqc ?bcmf ?bcmfl ?bcmfq 
                         ?bcmfql ?bcmfqc ?ccmf ?ccmfl ?ccmfq ?ccmfql ?ccmfqc ?cpcmf ?cpcmfl ?cpcmfq ?cpcmfql ?cpcmfqc ?icmf ?icmfl ?icmfq ?icmfql ?icmfqc 
                         ?fcmf ?fcmfl ?fcmfq ?fcmfql ?fcmfqc''',

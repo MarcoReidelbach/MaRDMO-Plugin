@@ -9,7 +9,7 @@ from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
 
 from .citation import GetCitation
-from .utils import query_sparql, value_editor
+from .utils import query_sparql, value_editor, extract_parts
 from .sparql import queryPublication, queryModelHandler, wini, mini, pl_query, pl_vars, pro_query, pro_vars
 from .id import *
 from .config import wd, wdt, mardi_api, wikidata_api, mardi_endpoint, wikidata_endpoint, BASE_URI
@@ -420,37 +420,39 @@ def ModelHandler(sender, **kwargs):
     
     instance = kwargs.get("instance", None)
     
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/MainMathematicalModelMathModDBID':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/main-mathematical-model/id':
 
-        if instance.external_id and instance.external_id != 'not in MathModDB':        
-            IdMM, _ = instance.external_id.split(' <|> ')
+        if instance.external_id and instance.external_id != 'not found':        
+            IdMM = instance.external_id
         else:
             return
-    
+        
         path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
         with open(path, "r") as json_file:
             mathmoddb = json.load(json_file)
 
         # Get Model, Research Field, Research Problem, Quantity, Mathematical Formulation and Task Information        
-        results = query_sparql(queryModelHandler['All'].format(f":{IdMM.split('#')[1]}"))
+        results = query_sparql(queryModelHandler['All'].format(f":{IdMM.split(':')[1]}"))
         
         if results:
 
             # Add Research Field Information to Questionnaire
             rfIds = []
             idx = 0
+            
             for res in results:                
                 rfId = res.get('rf',{}).get('value')
                 rfLabel = res.get('rfl',{}).get('value')
+                rfDescription = res.get('rfd',{}).get('value')
                 if rfId and rfLabel:
                     if rfId not in rfIds:
                         rfIds.append(rfId) 
                         # Set up Research Field Page 
-                        value_editor(instance.project, f'{BASE_URI}domain/ResearchField', idx, None, None, None, idx)
+                        value_editor(instance.project, f'{BASE_URI}domain/research-field', idx, None, None, None, idx)
                         # Add Research Field Values
-                        value_editor(instance.project, f'{BASE_URI}domain/ResearchFieldMathModDBID', f"{rfLabel}", f"{rfId} <|> {rfLabel}", None, None, idx)
+                        value_editor(instance.project, f'{BASE_URI}domain/research-field/id', f'{rfLabel} ({rfDescription}) [mathmoddb]', f"mathmoddb:{rfId}", None, None, idx)
                         idx = idx + 1
-            
+            return
             # Add Research Problem Information to Questionnaire
             rpIds = []
             rpLabels =[]
@@ -491,7 +493,7 @@ def ModelHandler(sender, **kwargs):
                     value_editor(instance.project, f'{BASE_URI}domain/QuantityMathModDBID', 
                                 f"{qLabel} (Quantity)" if qClass.split('#')[1] == 'Quantity' else f"{qLabel} (Quantity Kind)", 
                                 f"{qId} <|> {qLabel} <|> {qClass.split('#')[1]}", None, None, idx)
-
+            
             # Restructure Results from initial Query
             ModelPropertyKeys = ['mm','ta','gb','g','ab','a','db','d','lb','l','ci','c','s','ff','af','bcf','ccf','cpcf','icf','fcf']
             ModelProperty = {f'{ModelPropertyKey}{kind}': [] for ModelPropertyKey in ModelPropertyKeys for kind in ['Ids', 'Labels']}
@@ -518,8 +520,8 @@ def ModelHandler(sender, **kwargs):
             for Id in IdsT:
                 search_string3 = search_string3 + f" :{Id.split('#')[1]}"
             
-            for Id in Ids:
-                search_string4 = search_string4 + f" :{Id.split('#')[1]}"
+            #for Id in Ids:
+            #    search_string4 = search_string4 + f" :{Id.split('#')[1]}"
 
             results2 = query_sparql(queryModelHandler['MFRelations'].format(search_string2))
             results3 = query_sparql(queryModelHandler['TRelation'].format(search_string3))
@@ -866,6 +868,16 @@ def T2MM(sender, **kwargs):
                 'text': mathmoddb['appliesModel']
                 }
         )
+
+@receiver(post_save, sender=Value)
+def RFInformation(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/research-field/id':
+        if instance.text and instance.text != 'not found':
+            label, description, _ = extract_parts(instance.text)
+            value_editor(instance.project, f'{BASE_URI}domain/research-field/name', label, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/research-field/description', description, None, None, None, 0, instance.set_index)
+
     
 def Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors):
     '''Function that takes orcid and zbmath ids and queries wikidata and MaRDI Portal to get

@@ -381,7 +381,7 @@ URL:{% if 'url' in values.Reference %} {{ values.Reference|cut:"url:" }} {% endi
 ## RF{{ forloop.counter }}: {{ values.Name }}
 
 **Description**: {{ values.Description }}
-**MathModDB**:{% if values.MathModID and values.MathModID != 'not in MathModDB' %} {{ values.MathModID }} {% endif %} 
+**MathModDB**:{% if 'mathmoddb' in values.ID %} {{ values.ID|cut:"mathmoddb:" }} {% endif %} 
 **WikiData**:{% if 'wikidata' in values.ID %} {{ values.ID|cut:"wikidata:" }} {% endif %}   
 **MaRDI**:{% if 'mardi' in values.ID %} {{ values.ID|cut:"mardi:" }} {% endif %}
 

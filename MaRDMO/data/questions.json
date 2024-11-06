@@ -205,7 +205,7 @@
     "Models MathModID": {
         "uName": "Models",
         "dName": "MathModID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MainMathematicalModelMathModDBID",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/main-mathematical-model/id",
         "set_prefix": false,
         "set_index": true,
         "collection_index": false,
@@ -222,22 +222,12 @@
         "option_text": false,
         "external_id": true
     },
-    "ResearchField MathModID": {
-        "uName": "ResearchField",
-        "dName": "MathModID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchFieldMathModDBID",
-        "set_prefix": false,
-        "set_index": true,
-        "collection_index": false,
-        "option_text": false,
-        "external_id": true
-    },
     "ResearchField ID": {
         "uName": "ResearchField",
         "dName": "ID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchFieldQID",
-        "set_prefix": true,
-        "set_index": false,
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-field/id",
+        "set_prefix": false,
+        "set_index": true,
         "collection_index": false,
         "option_text": false,
         "external_id": true
@@ -245,7 +235,7 @@
     "ResearchField Name": {
         "uName": "ResearchField",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchFieldName",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-field/name",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -255,7 +245,7 @@
     "ResearchField Description": {
         "uName": "ResearchField",
         "dName": "Description",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchFieldDescription",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-field/description",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -265,17 +255,17 @@
     "ResearchField IntraClassRelation": {
         "uName": "ResearchField",
         "dName": "IntraClassRelation",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchFieldToResearchFieldRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-field/relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
         "option_text": false,
-        "external_id": true
+        "external_id": false
     },
     "ResearchField IntraClassElement": {
         "uName": "ResearchField",
         "dName": "IntraClassElement",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchFieldRelatedToResearchField",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-field/relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,

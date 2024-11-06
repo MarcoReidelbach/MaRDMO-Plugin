@@ -22,7 +22,7 @@ from .id import *
 from .sparql import query_base, mini, mbody2, quote_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql, queryModelDocumentation
 from .handlers import Author_Search
 from .mathmoddb import ModelRetriever
-from .utils import find_item, query_sparql, add_new_mathmoddb_entries_to_questionnaire
+from .utils import find_item, query_sparql, add_new_mathmoddb_entries_to_questionnaire, extract_parts
 
 try:
     # Get login credentials if available 
@@ -1077,29 +1077,29 @@ class MaRDIExport(Export):
         for entity in entities:
             for key in answers[entity]:
                 # Refining IDs, Names and Descriptions of entities
-                if answers[entity][key].get('ID') and answers[entity][key].get('ID') != 'not in MathModDB':
-                    if type(answers[entity][key]['ID']) == str:
-                        ID, Name, Description = answers[entity][key]['ID'].split(' <|> ')
-                        if re.match(r"mardi:Q[0-9]+", ID): 
-                            answers[entity][key].update({'ID':ID, 'Name':Name, 'Description':Description})
-                        else:
-                            mardiID = find_item(Name,Description)
-                            if mardiID:
-                                answers[entity][key].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description})
-                            else:
-                                answers[entity][key].update({'ID':ID, 'Name':Name, 'Description':Description})
-                    else:
-                        for ikey in answers[entity][key]['ID']:
-                            ID, Name, Description = answers[entity][key]['ID'][ikey].split(' <|> ')
-                            if re.match(r"mardi:Q[0-9]+", ID):
-                                answers[entity][key]['ID'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
-                            else:
-                                mardiID = find_item(Name,Description)
-                                if mardiID:
-                                    answers[entity][key]['ID'].update({ikey:{'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description}})
-                                else:
-                                    answers[entity][key]['ID'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
-                else:
+                if answers[entity][key].get('ID') == 'not found': #and answers[entity][key].get('ID') != 'not in MathModDB':
+                #    if type(answers[entity][key]['ID']) == str:
+                #        ID, Name, Description = answers[entity][key]['ID'].split(' <|> ')
+                #        if re.match(r"mardi:Q[0-9]+", ID): 
+                #            answers[entity][key].update({'ID':ID, 'Name':Name, 'Description':Description})
+                #        else:
+                #            mardiID = find_item(Name,Description)
+                #            if mardiID:
+                #                answers[entity][key].update({'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description})
+                #            else:
+                #                answers[entity][key].update({'ID':ID, 'Name':Name, 'Description':Description})
+                #    else:
+                #        for ikey in answers[entity][key]['ID']:
+                #            ID, Name, Description = answers[entity][key]['ID'][ikey].split(' <|> ')
+                #            if re.match(r"mardi:Q[0-9]+", ID):
+                #                answers[entity][key]['ID'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
+                #            else:
+                #                mardiID = find_item(Name,Description)
+                #                if mardiID:
+                #                    answers[entity][key]['ID'].update({ikey:{'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description}})
+                #                else:
+                #                    answers[entity][key]['ID'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
+                #else:
                     if answers[entity][key].get('Name') and answers[entity][key].get('Description'):
                         mardiID = find_item(answers[entity][key]['Name'],answers[entity][key]['Description'])
                         if mardiID:
@@ -1131,17 +1131,17 @@ class MaRDIExport(Export):
                                 answers[entity][key]['SubProperty2'].update({ikey:{'ID':f"mardi:{mardiID}", 'Name':Name, 'Description':Description}})
                             else:
                                 answers[entity][key]['SubProperty2'].update({ikey:{'ID':ID, 'Name':Name, 'Description':Description}})
-                if answers[entity][key].get('MathModID') and answers[entity][key]['MathModID'] != 'not in MathModDB':
-                    if type(answers[entity][key]['MathModID']) == str:
-                        INC = answers[entity][key]['MathModID'].split(' <|> ')
-                        if len(INC) == 3:
-                            answers[entity][key].update({'MathModID':INC[0],'Name':INC[1],'QorQK':mathmoddb[INC[2]+'Class']})
-                        else:
-                            answers[entity][key].update({'MathModID':INC[0],'Name':INC[1]})
-                    else:
-                        for ikey in answers[entity][key]['MathModID']:
-                            ID, Name = answers[entity][key]['MathModID'][ikey].split(' <|> ')
-                            answers[entity].setdefault('MathModID',{}).update({ikey:{'MathModID':ID, 'Name':Name}})
+                #if answers[entity][key].get('MathModID') and answers[entity][key]['MathModID'] != 'not in MathModDB':
+                #    if type(answers[entity][key]['MathModID']) == str:
+                #        INC = answers[entity][key]['MathModID'].split(' <|> ')
+                #        if len(INC) == 3:
+                #            answers[entity][key].update({'MathModID':INC[0],'Name':INC[1],'QorQK':mathmoddb[INC[2]+'Class']})
+                #        else:
+                #            answers[entity][key].update({'MathModID':INC[0],'Name':INC[1]})
+                #    else:
+                #        for ikey in answers[entity][key]['MathModID']:
+                #            ID, Name = answers[entity][key]['MathModID'][ikey].split(' <|> ')
+                #            answers[entity].setdefault('MathModID',{}).update({ikey:{'MathModID':ID, 'Name':Name}})
         return answers
 
     def Entry_Generator(self,Type,Generate,Relations,answers,option):
@@ -1372,7 +1372,8 @@ class MaRDIExport(Export):
                         else:
                             if external_id:
                                 if len(value.set_prefix.split('|')) == 1:
-                                    val[uName].setdefault(int(value.set_prefix), {}).setdefault(dName, {}).update({value.set_index:value.external_id})
+                                    label,_,_ = extract_parts(value.text)
+                                    val[uName].setdefault(int(value.set_prefix), {}).setdefault(dName, {}).update({value.set_index:f"{value.external_id} <|> {label}"})
                                 elif len(value.set_prefix.split('|')) > 1:
                                     prefix = value.set_prefix.split('|')
                                     if 'Element ' in dName:
@@ -1480,10 +1481,18 @@ def dict_to_triples(data, relations, relatants):
     
     # Get ID Dict
     for idx, item in data.items():
-        if item['MathModID'] == 'not in MathModDB':
-            ids[item['Name']] = idx
+        if item['ID'].startswith('mathmoddb:'):
+            ids[item['Name']] = item['ID']
         else:
-            ids[item['Name']] = item['MathModID']
+            ids[item['Name']] = idx
+        #if item['ID'] == 'not found':
+        #    ids[item['Name']] = idx
+        #elif item['ID'].startswith('wikidata'):
+        #    ids[item['Name']] = idx    
+        #elif item['ID'].startswith('wikidata'):
+        #    ids[item['Name']] = idx     
+        #else:
+        #    ids[item['Name']] = item['MathModID']
     
     # Go through all individuals
     for idx, item in data.items():

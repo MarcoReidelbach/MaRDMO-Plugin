@@ -10,7 +10,7 @@ from multiprocessing.pool import ThreadPool
 
 from .config import wikidata_api, mardi_api, BASE_URI
 from .sparql import queryProvider
-from .utils import query_api, query_sparql
+from .utils import query_api, query_sparql, extract_parts
 
 class MaRDIAndWikidataSearch(Provider):
     
@@ -274,19 +274,72 @@ class SoftwareProvider(Provider):
 class ResearchField(Provider):
 
     search = True
+    refresh = True
 
-    def get_options(self, project, search=None, user=None, site=None):
+    def get_options(self, project, search, user=None, site=None):
+        '''Queries MathModDB for user input'''
+        if not search or len(search) < 3:
+            return []
 
-        options = MathModDBProvider(search,queryProvider['RF'])
+        # Define the sources to query
+        sources = ['mathmoddb', 'mardi', 'wikidata']
+
+        return query_sources(search, 'RF', sources)
+
+#class ResearchField(Provider):
+#
+#    search = True
+
+#    def get_options(self, project, search=None, user=None, site=None):
+
+#        options = MathModDBProvider(search,queryProvider['RF'])
         
-        return options
+#        return options
     
+#class RelatedResearchField(Provider):
+#
+#    search = True
+#
+#    def get_options(self, project, search=None, user=None, site=None):
+#        
+#        if not search:
+#            return []
+#
+#        # Fetch research fields from the MathModDB knowledge graph
+#        results = query_sparql(queryProvider['RF'])
+#
+#        # Extract options from the knowledge graph
+#        dic = {}
+#        options = []
+#        
+#        for result in results:
+#            dic.update({result['label']['value']:{'id':result['answer']['value']}})
+#
+#        # Fetch user-defined research fields from the project
+#        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldQID'))
+#        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldName'))
+#
+#        for value1 in values1: 
+#            if value1.text:
+#                Id, name, quote = value1.external_id.split(' <|> ')
+#                dic.update({name: {'id': Id}})
+#
+#        for idx, value2 in enumerate(values2): 
+#            if value2.text:
+#                dic.update({value2.text: {'id': idx}})
+#
+#        options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
+#
+#        options = sorted(options, key=lambda option: option['text'])
+#         
+#        return options
+
 class RelatedResearchField(Provider):
 
     search = True
 
     def get_options(self, project, search=None, user=None, site=None):
-        
+
         if not search:
             return []
 
@@ -296,27 +349,44 @@ class RelatedResearchField(Provider):
         # Extract options from the knowledge graph
         dic = {}
         options = []
-        
+
         for result in results:
-            dic.update({result['label']['value']:{'id':result['answer']['value']}})
+            dic.update({f"{result.get('label', {}).get('value')} ({result.get('quote', {}).get('value')}) [mathmoddb]":{'id':f"mathmoddb:{result['id']['value']}"}})
 
         # Fetch user-defined research fields from the project
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldQID'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchFieldName'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/research-field/id'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/research-field/name'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/research-field/description'))
 
-        for value1 in values1: 
-            if value1.text:
-                Id, name, quote = value1.external_id.split(' <|> ')
-                dic.update({name: {'id': Id}})
+        idx = 0
 
-        for idx, value2 in enumerate(values2): 
-            if value2.text:
-                dic.update({value2.text: {'id': idx}})
+        for value1 in values1:
+            if not value1.text:
+                continue
 
-        options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
+            stopLoop = False
+            if value1.text != 'not found':
+                _, _, source = extract_parts(value1.text)
+                source_tag = source if source in ['mardi', 'wikidata'] else None
+            else:
+                source_tag = 'user-defined'
+            
+            for value2 in values2:
+                if stopLoop:
+                    break
+                if value1.set_index == value2.set_prefix:
+                    for value3 in values3:
+                        if value1.set_index == value3.set_prefix:
+                            description = value3.text if value3.text else "No Description Provided!"
+                            dic.update({f"{value2.text} ({description}) [{source_tag}]": {'id': idx}})
+                            idx += 1
+                            stopLoop = True
+                            break
+
+        options.extend([{'id': f"{dic[key]['id']}", 'text': key } for key in dic if search.lower() in key.lower()])
 
         options = sorted(options, key=lambda option: option['text'])
-         
+
         return options
     
 class ResearchProblem(Provider):
@@ -329,15 +399,19 @@ class ResearchProblem(Provider):
 
         return options
     
-class MathematicalModel(Provider):
+class MainMathematicalModel(Provider):
 
     search = True
 
-    def get_options(self, project, search=None, user=None, site=None):
+    def get_options(self, project, search, user=None, site=None):
+        '''Queries MathModDB for user input'''
+        if not search or len(search) < 3:
+            return []
 
-        options = MathModDBProvider(search,queryProvider['MM'])
-        
-        return options
+        # Define the sources to query
+        sources = ['mathmoddb']
+
+        return query_sources(search, 'MM', sources)
 
 class Publication(Provider):
 
@@ -840,13 +914,9 @@ class AllEntities(Provider):
 
 def process_result(result, location):
     '''Function to process the result and return a dictionary with id, text, and description.'''
-    try:
-        description = result['display']['description']['value']
-    except (KeyError, TypeError):
-        description = 'No Description Provided!'
     return {
-         'id': f"{location}:{result['id']} <|> {result['display']['label']['value']} <|> {description}",
-         'text': f"{result['display']['label']['value']} ({description})"
+         'id': f"{location}:{result['id']}",
+         'text': f"{result['display']['label']['value']} ({result['display'].get('description', {}).get('value', 'No Description Provided!')}) [{location}]"
     }
 
 def get_attribute(uri):
@@ -881,6 +951,37 @@ def add_options(options, values, start_index, process_text_fn=None):
             options.append({'id': f'Environment{index}', 'text': text})
     return options
 
+#def MathModDBProvider(search,query):
+#    """
+#    Dynamic query of MathModDB, results as options for Provider.
+#    """
+#    if not search:
+#        return []
+#
+#    # Fetch results from the MathModDB knowledge graph
+#    results = query_sparql(query)
+#    
+#    dic = {}
+#    options = []
+#    
+#    # Store results in dict
+#    for result in results:
+#        if result.get('class',{}).get('value'):
+#            if result['class']['value'].split('#')[1] == 'Quantity':
+#                dic.update({f"{result['label']['value']} (Quantity)":{'id':f"{result['answer']['value']} <|> {result['label']['value']} <|> Quantity"}})
+#            elif result['class']['value'].split('#')[1] == 'QuantityKind':
+#                dic.update({f"{result['label']['value']} (Quantity Kind)":{'id':f"{result['answer']['value']} <|> {result['label']['value']} <|> QuantityKind"}})
+#        else:
+#            dic.update({result['label']['value']:{'id':result['answer']['value']}})
+#
+#    # Filter results by user-defined search
+#    options.extend([{'id': f"{dic[key]['id']} <|> {key}" if len(dic[key]['id'].split(' <|> ')) == 1 else dic[key]['id'], 'text': key } for key in dic if search.lower() in key.lower()])
+#
+#    # Add 'not in MathModDB' option
+#    options = [{'id': 'not in MathModDB', 'text': 'not in MathModDB'}] + sorted(options, key=lambda option: option['text'])
+#
+#    return options
+
 def MathModDBProvider(search,query):
     """
     Dynamic query of MathModDB, results as options for Provider.
@@ -890,10 +991,10 @@ def MathModDBProvider(search,query):
 
     # Fetch results from the MathModDB knowledge graph
     results = query_sparql(query)
-    
+
     dic = {}
     options = []
-    
+
     # Store results in dict
     for result in results:
         if result.get('class',{}).get('value'):
@@ -902,12 +1003,46 @@ def MathModDBProvider(search,query):
             elif result['class']['value'].split('#')[1] == 'QuantityKind':
                 dic.update({f"{result['label']['value']} (Quantity Kind)":{'id':f"{result['answer']['value']} <|> {result['label']['value']} <|> QuantityKind"}})
         else:
-            dic.update({result['label']['value']:{'id':result['answer']['value']}})
+            dic.update({result['label']['value']:{'id':result['id']['value'], 'quote':result['quote']['value']}})
 
     # Filter results by user-defined search
-    options.extend([{'id': f"{dic[key]['id']} <|> {key}" if len(dic[key]['id'].split(' <|> ')) == 1 else dic[key]['id'], 'text': key } for key in dic if search.lower() in key.lower()])
+    options.extend([{'id': f"mathmoddb:{dic[key]['id']}", 'text': f'{key} ({dic[key]["quote"]}) [mathmoddb]'} for key in dic if search.lower() in key.lower()])
 
     # Add 'not in MathModDB' option
-    options = [{'id': 'not in MathModDB', 'text': 'not in MathModDB'}] + sorted(options, key=lambda option: option['text'])
+    options = [{'id': 'not found', 'text': 'not found'}] + sorted(options, key=lambda option: option['text'])
 
     return options
+
+
+def query_sources(search, ClassID, sources):
+        '''Helper function to query specified sources and process results.'''
+        
+        source_functions = {
+            'wikidata': lambda s: query_api(wikidata_api, s),
+            'mardi': lambda s: query_api(mardi_api, s),
+            'mathmoddb': lambda s: MathModDBProvider(s, queryProvider[ClassID])
+        }
+
+        # Filter only specified sources
+        queries = [source_functions[source] for source in sources if source in source_functions]
+
+        # Use ThreadPool to make concurrent API requests
+        pool = ThreadPool(processes=len(queries))
+        results = pool.map(lambda func: func(search), queries)
+
+        # Unpack results based on available sources
+        results_dict = dict(zip(sources, results))
+
+        # Process results to fit RDMO Provider Output Requirements
+        options = []
+        
+        if 'mathmoddb' in results_dict:
+            options += results_dict['mathmoddb'][:10]
+
+        if 'mardi' in results_dict:
+            options += [process_result(result, 'mardi') for result in results_dict['mardi'][:10]]
+
+        if 'wikidata' in results_dict:
+            options += [process_result(result, 'wikidata') for result in results_dict['wikidata'][:10]]
+
+        return options

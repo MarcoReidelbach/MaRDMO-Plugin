@@ -2,7 +2,7 @@
   "WorkflowOrModel": {
     "mod": [
       "https://rdmo.mardi4nfdi.de/terms/domain/ResearchField_hidden",
-      "https://rdmo.mardi4nfdi.de/terms/domain/MainMathematicalModel",
+      "https://rdmo.mardi4nfdi.de/terms/domain/main-mathematical-model",
       "https://rdmo.mardi4nfdi.de/terms/domain/ResearchProblem_hidden",
       "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModel_hidden",
       "https://rdmo.mardi4nfdi.de/terms/domain/Quantity_hidden",
@@ -38,7 +38,7 @@
     "doc": [
       "https://rdmo.mardi4nfdi.de/terms/domain/GeneralWorkflowInformation",
       "https://rdmo.mardi4nfdi.de/terms/domain/Software_hidden",
-      "https://rdmo.mardi4nfdi.de/terms/domain/MainMathematicalModel",
+      "https://rdmo.mardi4nfdi.de/terms/domain/main-mathematical-model",
       "https://rdmo.mardi4nfdi.de/terms/domain/Hardware_hidden",
       "https://rdmo.mardi4nfdi.de/terms/domain/Instruments_hidden",
       "https://rdmo.mardi4nfdi.de/terms/domain/DataSets_hidden",
@@ -65,7 +65,7 @@
   "ComputationalOrExperimental": {
     "doc": [
       "https://rdmo.mardi4nfdi.de/terms/domain/GeneralWorkflowInformation",
-      "https://rdmo.mardi4nfdi.de/terms/domain/MainMathematicalModel",
+      "https://rdmo.mardi4nfdi.de/terms/domain/main-mathematical-model",
       "https://rdmo.mardi4nfdi.de/terms/domain/ResearchField_hidden",
       "https://rdmo.mardi4nfdi.de/terms/domain/ResearchProblem_hidden",
       "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModel_hidden",

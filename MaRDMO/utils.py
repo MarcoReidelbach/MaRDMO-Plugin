@@ -34,6 +34,15 @@ def add_new_mathmoddb_entries_to_questionnaire(project, ids, query):
                 # Call valueEditor with constructed values
                 value_editor(project, f"{BASE_URI}domain/{setName}MathModDBID", label, value, None, None, setID)
 
+def extract_parts(string):
+    # Split string into Name, Description and Source
+    pattern = r'^(.*?)\s*\((.*)\)\s*\[(.*)\]$'
+    match = re.match(pattern, string)
+    if match:
+        name, description, source = match.groups()
+        return name.strip(), description.strip(), source.strip()    
+    return None, None, None
+
 def find_item(label, description, api=mardi_api, language="en"):
     '''API request returning an Item with matching label and description.'''
     data = query_api(api,label)
