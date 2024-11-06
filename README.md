@@ -51,6 +51,7 @@ OPTIONSET_PROVIDERS = [
     ('ResearchProblem', _('Options for Research Problems'), 'MaRDMO.providers.ResearchProblem'),
     ('ResearchFieldWithUserAddition', _('Options for Research Fields with User Additions'), 'MaRDMO.providers.ResearchFieldWithUserAddition'),
     ('RelatedResearchProblem', _('Options for Related Research Problems'), 'MaRDMO.providers.RelatedResearchProblem'),
+    ('MainMathematicalModel', _('Options for main Mathematical Model'), 'MaRDMO.providers.MainMathematicalModel'),
     ('MathematicalModel', _('Options for Mathematical Models'), 'MaRDMO.providers.MathematicalModel'),
     ('RelatedMathematicalModel', _('Options for related Mathematical Model'), 'MaRDMO.providers.RelatedMathematicalModel'),
     ('MathematicalModelWithUserAddition', _('Options for Mathematical Models with User Additions'), 'MaRDMO.providers.MathematicalModelWithUserAddition'),

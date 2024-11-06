@@ -1390,7 +1390,8 @@ class MaRDIExport(Export):
                         if collection_index:
                             if external_id:
                                 if len(value.set_prefix.split('|')) == 1:
-                                    val[uName].setdefault(int(value.set_prefix), {}).setdefault(dName, {}).update({value.collection_index:value.external_id})
+                                    label,_,_ = extract_parts(value.text)
+                                    val[uName].setdefault(int(value.set_prefix), {}).setdefault(dName, {}).update({value.collection_index:f"{value.external_id} <|> {label}"})
                                 elif len(value.set_prefix.split('|')) > 1:
                                     prefix = value.set_prefix.split('|')
                                     val[uName].setdefault(int(prefix[0]), {}).setdefault(dName, {}).update({value.collection_index:value.external_id})

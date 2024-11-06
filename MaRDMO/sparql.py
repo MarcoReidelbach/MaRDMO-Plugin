@@ -746,15 +746,20 @@ queryProvider = {
                                GROUP BY ?id ?label ?quote''',
                  
                  'RP': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
+                              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
-                                SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
-                                WHERE { 
-                                       ?answer a :ResearchProblem .
-                                       ?answer rdfs:label ?l .
-                                       FILTER (lang(?l) = 'en')
-                                      }
-                                GROUP BY ?answer ?label''',
+                              SELECT DISTINCT ?id ?label ?quote
+                              WHERE { 
+                                     ?idraw a :ResearchProblem .
+                                     BIND(STRAFTER(STR(?idraw), "#") AS ?id)
+                                     OPTIONAL {?idraw rdfs:label ?labelraw .
+                                               FILTER (lang(?labelraw) = 'en')}
+                                     BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
+                                     OPTIONAL {?idraw rdfs:comment ?quoteraw.
+                                               FILTER (lang(?quoteraw) = 'en')}
+                                     BIND(COALESCE(?quoteraw, "No Description Provided!") AS ?quote)
+                                    }
+                               GROUP BY ?id ?label ?quote''',
                  
                   'MM': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
@@ -852,7 +857,7 @@ queryModelHandler = {
        'All':   '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
              
-                   SELECT DISTINCT ?mm ?mml ?rp ?rpl ?rf ?rfl ?rfd ?ta ?tal ?gbmm ?gbmml ?gmm ?gmml ?abmm ?abmml ?amm ?amml ?dbmm ?dbmml ?dmm ?dmml 
+                   SELECT DISTINCT ?mm ?mml ?rp ?rpl ?rpd ?rf ?rfl ?rfd ?ta ?tal ?gbmm ?gbmml ?gmm ?gmml ?abmm ?abmml ?amm ?amml ?dbmm ?dbmml ?dmm ?dmml 
                                    ?lbmm ?lbmml ?lmm ?lmml ?cmm ?cmml ?cimm ?cimml ?smm ?smml ?fmf ?fmfl ?fmfq ?fmfql ?fmfqc ?amf ?amfl ?amfq 
                                    ?amfql ?amfqc ?bcmf ?bcmfl ?bcmfq ?bcmfql ?bcmfqc ?ccmf ?ccmfl ?ccmfq ?ccmfql ?ccmfqc ?cpcmf ?cpcmfl ?cpcmfq 
                                    ?cpcmfql ?cpcmfqc ?icmf ?icmfl ?icmfq ?icmfql ?icmfqc ?fcmf ?fcmfl ?fcmfq ?fcmfql ?fcmfqc
@@ -1036,12 +1041,17 @@ queryModelHandler = {
                                     }}
                     
                            OPTIONAL {{
-                                      ?mm :models ?rp.
-                                      ?rp rdfs:label ?rpl. 
-                                      FILTER (lang(?rpl) = 'en')  
+                                      ?mm :models ?rpraw.
+                                      BIND(STRAFTER(STR(?rpraw), "#") AS ?rp)
+                                      OPTIONAL {{ ?rpraw rdfs:label ?rplraw .
+                                                  FILTER (lang(?rplraw) = 'en') }}
+                                      BIND(COALESCE(?rplraw, "No Label Provided!") AS ?rpl)
+                                      OPTIONAL {{ ?rpraw rdfs:comment ?rpdraw.
+                                                  FILTER (lang(?rpdraw) = 'en') }}
+                                      BIND(COALESCE(?rpdraw, "No Description Provided!") AS ?rpd)  
 
                                       OPTIONAL {{
-                                                 ?rp :containedInField ?rfraw.
+                                                 ?rpraw :containedInField ?rfraw.
                                                  BIND(STRAFTER(STR(?rfraw), "#") AS ?rf)
                                                  OPTIONAL {{ ?rfraw rdfs:label ?rflraw .
                                                              FILTER (lang(?rflraw) = 'en') }}
@@ -1060,7 +1070,7 @@ queryModelHandler = {
                                     }} 
                     }}
 
-               GROUP BY ?mm ?mml ?fmf ?rp ?rpl ?rf ?rfl ?rfd ?ta ?tal ?gbmm ?gbmml ?gmm ?gmml ?abmm ?abmml ?amm ?amml ?dbmm ?dbmml ?dmm ?dmml ?lbmm ?lbmml 
+               GROUP BY ?mm ?mml ?fmf ?rp ?rpl ?rpd ?rf ?rfl ?rfd ?ta ?tal ?gbmm ?gbmml ?gmm ?gmml ?abmm ?abmml ?amm ?amml ?dbmm ?dbmml ?dmm ?dmml ?lbmm ?lbmml 
                         ?lmm ?lmml ?cmm ?cmml ?cimm ?cimml ?smm ?smml ?fmf ?fmfl ?fmfq ?fmfql ?fmfqc ?amf ?amfl ?amfq ?amfql ?amfqc ?bcmf ?bcmfl ?bcmfq 
                         ?bcmfql ?bcmfqc ?ccmf ?ccmfl ?ccmfq ?ccmfql ?ccmfqc ?cpcmf ?cpcmfl ?cpcmfq ?cpcmfql ?cpcmfqc ?icmf ?icmfl ?icmfq ?icmfql ?icmfqc 
                         ?fcmf ?fcmfl ?fcmfq ?fcmfql ?fcmfqc''',
@@ -1358,5 +1368,180 @@ queryModelHandler = {
          
                        GROUP BY ?item ?label ?class ?PU1 ?LABEL1 ?PU2 ?LABEL2 ?PU3 ?LABEL3 ?PU4 ?LABEL4 ?PU5 ?LABEL5''' 
        }
+
+queryHandler = {
+    'researchFieldInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                                               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
+                              
+                                               SELECT DISTINCT ?id 
+                                                               (GROUP_CONCAT(DISTINCT(?gbf); SEPARATOR=" / ") AS ?generalizedByField)
+                                                               (GROUP_CONCAT(DISTINCT(?gbfl); SEPARATOR=" / ") AS ?generalizedByFieldLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?gbfd); SEPARATOR=" / ") AS ?generalizedByFieldDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?gf); SEPARATOR=" / ") AS ?generalizesField)
+                                                               (GROUP_CONCAT(DISTINCT(?gfl); SEPARATOR=" / ") AS ?generalizesFieldLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?gfd); SEPARATOR=" / ") AS ?generalizesFieldDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?sf); SEPARATOR=" / ") AS ?similarToField)
+                                                               (GROUP_CONCAT(DISTINCT(?sfl); SEPARATOR=" / ") AS ?similarToFieldLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?sfd); SEPARATOR=" / ") AS ?similarToFieldDescription)
+                                               WHERE {{ 
+                                                       VALUES ?id {{{0}}} 
+                                                      
+                                                        OPTIONAL {{
+                                                                  ?id :generalizedByField ?gbfraw.
+                                                                  BIND(STRAFTER(STR(?gbfraw), "#") AS ?gbf)
+
+                                                                  OPTIONAL {{
+                                                                             ?gbfraw rdfs:label ?gbflraw
+                                                                             FILTER (lang(?gbflraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?gbflraw, "No Label Provided!") AS ?gbfl)
+
+                                                                  OPTIONAL {{
+                                                                             ?gbfraw rdfs:comment ?gbfdraw
+                                                                             FILTER (lang(?gbfdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?gbfdraw, "No Description Provided!") AS ?gbfd)
+                                                                }}
+                                                        
+                                                        OPTIONAL {{
+                                                                  ?id :generalizesField ?gfraw.
+                                                                  BIND(STRAFTER(STR(?gfraw), "#") AS ?gf)
+
+                                                                  OPTIONAL {{
+                                                                             ?gfraw rdfs:label ?gflraw
+                                                                             FILTER (lang(?gflraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?gflraw, "No Label Provided!") AS ?gfl)
+
+                                                                  OPTIONAL {{
+                                                                             ?gfraw rdfs:comment ?gfdraw
+                                                                             FILTER (lang(?gfdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?gfdraw, "No Description Provided!") AS ?gfd)
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?id :similarToField ?sfraw.
+                                                                  BIND(STRAFTER(STR(?sfraw), "#") AS ?sf)
+
+                                                                  OPTIONAL {{
+                                                                             ?sfraw rdfs:label ?sflraw
+                                                                             FILTER (lang(?sflraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?sflraw, "No Label Provided!") AS ?sfl)
+
+                                                                  OPTIONAL {{
+                                                                             ?sfraw rdfs:comment ?sfdraw
+                                                                             FILTER (lang(?sfdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?sfdraw, "No Description Provided!") AS ?sfd)
+                                                                }}
+ 
+                                                       }}
+                                                       GROUP BY ?id''',
+
+    'researchProblemInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                                               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
+                              
+                                               SELECT DISTINCT ?id 
+                                                               (GROUP_CONCAT(DISTINCT(?rf); SEPARATOR=" / ") AS ?containedInField)
+                                                               (GROUP_CONCAT(DISTINCT(?rfl); SEPARATOR=" / ") AS ?containedInFieldLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?rfd); SEPARATOR=" / ") AS ?containedInFieldDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?gbp); SEPARATOR=" / ") AS ?generalizedByProblem)
+                                                               (GROUP_CONCAT(DISTINCT(?gbpl); SEPARATOR=" / ") AS ?generalizedByProblemLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?gbpd); SEPARATOR=" / ") AS ?generalizedByProblemDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?gp); SEPARATOR=" / ") AS ?generalizesProblem)
+                                                               (GROUP_CONCAT(DISTINCT(?gpl); SEPARATOR=" / ") AS ?generalizesProblemLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?gpd); SEPARATOR=" / ") AS ?generalizesProblemDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?sp); SEPARATOR=" / ") AS ?similarToProblem)
+                                                               (GROUP_CONCAT(DISTINCT(?spl); SEPARATOR=" / ") AS ?similarToProblemLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?spd); SEPARATOR=" / ") AS ?similarToProblemDescription)
+                                               WHERE {{ 
+                                                       VALUES ?id {{{0}}} 
+                                                       
+                                                        OPTIONAL {{
+                                                                   ?id :containedInField ?rfraw.
+                                                                   BIND(STRAFTER(STR(?rfraw), "#") AS ?rf)
+
+                                                                   OPTIONAL {{
+                                                                              ?rfraw rdfs:label ?rflraw.
+                                                                              FILTER (lang(?rflraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?rflraw, "No Label Provided!") AS ?rfl)
+
+                                                                  OPTIONAL {{
+                                                                             ?rfraw rdfs:comment ?rfdraw
+                                                                             FILTER (lang(?rfdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?rfdraw, "No Description Provided!") AS ?rfd)
+                                                               }}
+
+                                                        OPTIONAL {{
+                                                                  ?id :generalizedByProblem ?gbpraw.
+                                                                  BIND(STRAFTER(STR(?gbpraw), "#") AS ?gbp)
+
+                                                                  OPTIONAL {{
+                                                                             ?gbpraw rdfs:label ?gbplraw
+                                                                             FILTER (lang(?gbplraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?gbplraw, "No Label Provided!") AS ?gbpl)
+
+                                                                  OPTIONAL {{
+                                                                             ?gbpraw rdfs:comment ?gbpdraw
+                                                                             FILTER (lang(?gbpdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?gbpdraw, "No Description Provided!") AS ?gbpd)
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?id :generalizesProblem ?gpraw.
+                                                                  BIND(STRAFTER(STR(?gpraw), "#") AS ?gp)
+
+                                                                  OPTIONAL {{
+                                                                             ?gpraw rdfs:label ?gplraw
+                                                                             FILTER (lang(?gplraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?gplraw, "No Label Provided!") AS ?gpl)
+
+                                                                  OPTIONAL {{
+                                                                             ?gpraw rdfs:comment ?gpdraw
+                                                                             FILTER (lang(?gpdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?gpdraw, "No Description Provided!") AS ?gpd)
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?id :similarToProblem ?spraw.
+                                                                  BIND(STRAFTER(STR(?spraw), "#") AS ?sp)
+
+                                                                  OPTIONAL {{
+                                                                             ?spraw rdfs:label ?splraw
+                                                                             FILTER (lang(?splraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?splraw, "No Label Provided!") AS ?spl)
+
+                                                                  OPTIONAL {{
+                                                                             ?spraw rdfs:comment ?spdraw
+                                                                             FILTER (lang(?spdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?spdraw, "No Description Provided!") AS ?spd)
+                                                                }}
+ 
+                                                       }}
+                                                       GROUP BY ?id'''
+                                                      }
 
                       

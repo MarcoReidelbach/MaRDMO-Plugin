@@ -272,22 +272,12 @@
         "option_text": false,
         "external_id": true
     },
-    "ResearchProblem MathModID": {
-        "uName": "ResearchProblem",
-        "dName": "MathModID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchProblemMathModDBID",
-        "set_prefix": false,
-        "set_index": true,
-        "collection_index": false,
-        "option_text": false,
-        "external_id": true
-    },
     "ResearchProblem ID": {
         "uName": "ResearchProblem",
         "dName": "ID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchProblemQID",
-        "set_prefix": true,
-        "set_index": false,
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/id",
+        "set_prefix": false,
+        "set_index": true,
         "collection_index": false,
         "option_text": false,
         "external_id": true
@@ -295,7 +285,7 @@
     "ResearchProblem Name": {
         "uName": "ResearchProblem",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchProblemName",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/name",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -305,7 +295,7 @@
     "ResearchProblem Description": {
         "uName": "ResearchProblem",
         "dName": "Description",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchProblemDescription",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/description",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -315,7 +305,7 @@
     "ResearchProblem RP2RF": {
         "uName": "ResearchProblem",
         "dName": "RP2RF",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchProblemToResearchFieldRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/research-field-relation",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -325,7 +315,7 @@
     "ResearchProblem RFRelatant": {
         "uName": "ResearchProblem",
         "dName": "RFRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchFieldRelatedToResearchProblem",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/research-field-relatant",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -335,7 +325,7 @@
     "ResearchProblem IntraClassRelation": {
         "uName": "ResearchProblem",
         "dName": "IntraClassRelation",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchProblemToResearchProblemRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -345,7 +335,7 @@
     "ResearchProblem IntraClassElement": {
         "uName": "ResearchProblem",
         "dName": "IntraClassElement",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchProblemRelatedToResearchProblem",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,

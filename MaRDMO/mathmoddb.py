@@ -26,7 +26,6 @@ def ModelRetriever(answers,mathmoddb):
     dataProperties = ['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless',
                      'isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']
     
-        
     # Flag all Tasks as unwanted by User in Workflow Documentation
     for key in answers['Task']:
         answers['Task'][key].update({'Include':False})
@@ -216,48 +215,6 @@ def ModelRetriever(answers,mathmoddb):
             assignValue(qClass, ['qk'], 'QKID',result ,key, answers)
             assignValue(qClass, ['qklabel'], 'QKName',result ,key, answers)
             assignValue(qClass, ['qkquote'], 'QKDescription',result ,key, answers)
-    
-    # Get additional Research Field Information from MathModDB
-
-    #qClass = 'ResearchField'
-
-    #search_string = searchGenerator(answers,[qClass])
-    #results = query_sparql(queryModelDocumentation[qClass].format(search_string))
-    
-    # Get MathModDB ID of all selected Research Fields
-    #mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
-
-    #for result in results:
-    #    # Get MathModDB ID of queried Research Fields
-    #    mathmod_id = result.get(qClass, {}).get('value')
-    #    # Queried Research Field in Selection?
-    #    if mathmod_id in mathmodidToKey:
-    #        key = mathmodidToKey[mathmod_id]
-    #        # Evaluate Comment of Research Field
-    #        assignValue(qClass, ['quote'], 'Description',result ,key, answers)    
-    
-    # Get additional Research Problem Information from MathModDB
-
-    qClass = 'ResearchProblem'
-
-    search_string = searchGenerator(answers,[qClass])
-    results = query_sparql(queryModelDocumentation[qClass].format(search_string))
-
-    # Get MathModDB ID of all selected Research Problems
-    mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
-
-    for result in results:
-        # Get MathModDB ID of queried Research Problem
-        mathmod_id = result.get(qClass, {}).get('value')
-        # Queried Research Problem in Selection?
-        if mathmod_id in mathmodidToKey:
-            key = mathmodidToKey[mathmod_id]
-            # Evaluate Label of Research Problem
-            assignValue(qClass, ['label'], 'Name',result ,key, answers)
-            # Evaluate Comment of Research Problem
-            assignValue(qClass, ['quote'], 'Description',result ,key, answers)
-            # Evaluate related Research Fields
-            assignSimpleEntityRelation(qClass, 'containedInField', ['RP2RF','RFRelatant','containedInField'], result, key, answers, mathmoddb)
     
     # Get additional Intra-Class Information for Model, Task, Formulation and Quantity Relations from MathModDB
     

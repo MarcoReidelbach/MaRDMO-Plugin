@@ -10,7 +10,7 @@ from rdmo.options.models import Option
 
 from .citation import GetCitation
 from .utils import query_sparql, value_editor, extract_parts
-from .sparql import queryPublication, queryModelHandler, wini, mini, pl_query, pl_vars, pro_query, pro_vars
+from .sparql import queryPublication, queryModelHandler, queryHandler, wini, mini, pl_query, pl_vars, pro_query, pro_vars
 from .id import *
 from .config import wd, wdt, mardi_api, wikidata_api, mardi_endpoint, wikidata_endpoint, BASE_URI
 
@@ -435,15 +435,14 @@ def ModelHandler(sender, **kwargs):
         results = query_sparql(queryModelHandler['All'].format(f":{IdMM.split(':')[1]}"))
         
         if results:
-
             # Add Research Field Information to Questionnaire
             rfIds = []
             idx = 0
             
-            for res in results:                
-                rfId = res.get('rf',{}).get('value')
-                rfLabel = res.get('rfl',{}).get('value')
-                rfDescription = res.get('rfd',{}).get('value')
+            for result in results:                
+                rfId = result.get('rf',{}).get('value')
+                rfLabel = result.get('rfl',{}).get('value')
+                rfDescription = result.get('rfd',{}).get('value')
                 if rfId and rfLabel:
                     if rfId not in rfIds:
                         rfIds.append(rfId) 
@@ -452,24 +451,26 @@ def ModelHandler(sender, **kwargs):
                         # Add Research Field Values
                         value_editor(instance.project, f'{BASE_URI}domain/research-field/id', f'{rfLabel} ({rfDescription}) [mathmoddb]', f"mathmoddb:{rfId}", None, None, idx)
                         idx = idx + 1
-            return
+            
             # Add Research Problem Information to Questionnaire
             rpIds = []
             rpLabels =[]
             idx = 0
-            for res in results:
-                rpId = res.get('rp',{}).get('value')
-                rpLabel = res.get('rpl',{}).get('value')
+
+            for result in results:
+                rpId = result.get('rp',{}).get('value')
+                rpLabel = result.get('rpl',{}).get('value')
+                rpDescription = result.get('rpd',{}).get('value')
                 if rpId and rpLabel:
                     if rpId not in rpIds:
                         rpIds.append(rpId)
                         rpLabels.append(rpLabel)
                         # Setup Research Problem Page
-                        value_editor(instance.project, f'{BASE_URI}domain/ResearchProblem', idx, None, None, None, idx)
+                        value_editor(instance.project, f'{BASE_URI}domain/research-problem', idx, None, None, None, idx)
                         # Add Research Problem Values
-                        value_editor(instance.project, f'{BASE_URI}domain/ResearchProblemMathModDBID', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, None, idx)
+                        value_editor(instance.project, f'{BASE_URI}domain/research-problem/id', f'{rpLabel} ({rpDescription}) [mathmoddb]', f"mathmoddb:{rpId}", None, None, idx)
                         idx = idx +1
-
+            return
             # Add Quantity Information to Questionnaire
             qIds =[]
             qLabels = []
@@ -806,24 +807,14 @@ def processor(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def RP2RF(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/ResearchFieldRelatedToResearchProblem':
-
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/research-problem/research-field-relatant':
+        print(instance.text, instance.set_index,instance.collection_index, instance.set_prefix)
         path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
         with open(path, "r") as json_file:
             mathmoddb = json.load(json_file)
 
-        attribute_object = Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemToResearchFieldRelation')
-        obj, created = Value.objects.update_or_create(
-            project=instance.project,
-            attribute=attribute_object,
-            set_prefix=instance.set_prefix,
-            collection_index=instance.collection_index,
-            defaults={
-                'project': instance.project,
-                'attribute': attribute_object,
-                'text': mathmoddb['containedInField']
-                }
-        )
+        value_editor(instance.project, f'{BASE_URI}domain/research-problem/research-field-relation', mathmoddb['containedInField'], None, None, instance.collection_index, 0, instance.set_prefix)
+
 
 @receiver(post_save, sender=Value)
 def RP2MM(sender, **kwargs):
@@ -877,8 +868,67 @@ def RFInformation(sender, **kwargs):
             label, description, _ = extract_parts(instance.text)
             value_editor(instance.project, f'{BASE_URI}domain/research-field/name', label, None, None, None, 0, instance.set_index)
             value_editor(instance.project, f'{BASE_URI}domain/research-field/description', description, None, None, None, 0, instance.set_index)
+            # Get source and ID of Item
+            source, Id = instance.external_id.split(':')
+            if source== 'mathmoddb':
+                # If Item from MathModDB, query relations and load MathModDB Vocabulary
+                results = query_sparql(queryHandler['researchFieldInformation'].format(f":{Id}"))
+                path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+                with open(path, "r") as json_file:
+                    mathmoddb = json.load(json_file)
+                if results:
+                    # Add relations of the Research Field to the Questionnaire
+                    idx = 0
+                    for prop in ['generalizedByField','generalizesField','similarToField']:
+                        if results[0].get(prop, {}).get('value'):
+                            fieldIDs = results[0][prop]['value'].split(' / ')
+                            fieldLabels = results[0][f'{prop}Label']['value'].split(' / ')
+                            fieldDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
+                            for fieldID, fieldLabel, fieldDescription in zip(fieldIDs, fieldLabels, fieldDescriptions):
+                                value_editor(instance.project, f'{BASE_URI}domain/research-field/relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, instance.set_index)
+                                value_editor(instance.project, f'{BASE_URI}domain/research-field/relatant', f"{fieldLabel} ({fieldDescription}) [mathmoddb]", f'mathmoddb:{fieldID}', None, None, idx, instance.set_index)
+                                idx += 1
 
-    
+@receiver(post_save, sender=Value)
+def RPInformation(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/research-problem/id':
+        if instance.text and instance.text != 'not found':
+            # Get Label and Description of Item and add to questionnaire
+            label, description, _ = extract_parts(instance.text)
+            value_editor(instance.project, f'{BASE_URI}domain/research-problem/name', label, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/research-problem/description', description, None, None, None, 0, instance.set_index)
+            # Get source and ID of Item
+            source, Id = instance.external_id.split(':')
+            if source== 'mathmoddb':
+                # If Item from MathModDB, query relations and load MathModDB Vocabulary
+                results = query_sparql(queryHandler['researchProblemInformation'].format(f":{Id}"))
+                path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+                with open(path, "r") as json_file:
+                    mathmoddb = json.load(json_file)
+                if results:
+                    # Add related Research Fields to questionnaire
+                    idx = 0
+                    for prop in ['containedInField']:
+                        if results[0].get(prop, {}).get('value'):
+                            fieldIDs = results[0][prop]['value'].split(' / ')
+                            fieldLabels = results[0][f'{prop}Label']['value'].split(' / ')
+                            fieldDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
+                            for fieldID, fieldLabel, fieldDescription in zip(fieldIDs, fieldLabels, fieldDescriptions):
+                                value_editor(instance.project,f'{BASE_URI}domain/research-problem/research-field-relatant', f"{fieldLabel} ({fieldDescription}) [mathmoddb]", f'mathmoddb:{fieldID}', None, idx, 0, instance.set_index)
+                                idx += 1
+                    # Add related Research Problems to questionnaire
+                    idx = 0
+                    for prop in ['generalizedByProblem','generalizesProblem','similarToProblem']:
+                        if results[0].get(prop, {}).get('value'):
+                            problemIDs = results[0][prop]['value'].split(' / ')
+                            problemLabels = results[0][f'{prop}Label']['value'].split(' / ')
+                            problemDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
+                            for problemID, problemLabel, problemDescription in zip(problemIDs, problemLabels, problemDescriptions):
+                                value_editor(instance.project, f'{BASE_URI}domain/research-problem/relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, instance.set_index)
+                                value_editor(instance.project, f'{BASE_URI}domain/research-problem/relatant', f"{problemLabel} ({problemDescription}) [mathmoddb]", f'mathmoddb:{problemID}', None, None, idx, instance.set_index)
+                                idx += 1
+ 
 def Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors):
     '''Function that takes orcid and zbmath ids and queries wikidata and MaRDI Portal to get
        further Information and map orcid and zbmath authors.'''
