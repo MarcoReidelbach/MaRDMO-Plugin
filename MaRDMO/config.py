@@ -11,6 +11,7 @@ wikidata_endpoint="https://query.wikidata.org/sparql"
 wikidata_api="https://www.wikidata.org/w/api.php"
 
 #MathModDB SPARQL Endpoint
+mathmoddb_uri = 'https://mtsr2024.m1.mardi.ovh/object/mathmoddb:'
 mathmoddb_endpoint = 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/query'
 mathmoddb_update = 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/update'
 

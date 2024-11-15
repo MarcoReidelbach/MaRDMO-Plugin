@@ -342,22 +342,12 @@
         "option_text": false,
         "external_id": true
     },
-    "MathematicalModel MathModID": {
-        "uName": "MathematicalModel",
-        "dName": "MathModID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModelMathModDBID",
-        "set_prefix": false,
-        "set_index": true,
-        "collection_index": false,
-        "option_text": false,
-        "external_id": true
-    },
     "MathematicalModel ID": {
         "uName": "MathematicalModel",
         "dName": "ID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModelQID",
-        "set_prefix": true,
-        "set_index": false,
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/id",
+        "set_prefix": false,
+        "set_index": true,
         "collection_index": false,
         "option_text": false,
         "external_id": true
@@ -365,7 +355,7 @@
     "MathematicalModel Name": {
         "uName": "MathematicalModel",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModelName",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/name",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -375,7 +365,7 @@
     "MathematicalModel Description": {
         "uName": "MathematicalModel",
         "dName": "Description",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModelDescription",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/description",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -385,7 +375,7 @@
     "MathematicalModel Properties": {
         "uName": "MathematicalModel",
         "dName": "Properties",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModelProperties",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/properties",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -395,7 +385,7 @@
     "MathematicalModel Main": {
         "uName": "MathematicalModel",
         "dName": "Main",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/IsMathematicalModelMainMathematicalModel",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/is-main",
         "set_prefix": false,
         "set_index": true,
         "collection_index": false,
@@ -405,9 +395,9 @@
     "MathematicalModel MM2RP": {
         "uName": "MathematicalModel",
         "dName": "MM2RP",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModelToResearchProblemRelation",
-        "set_prefix": false,
-        "set_index": true,
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/research-problem-relation",
+        "set_prefix": true,
+        "set_index": false,
         "collection_index": true,
         "option_text": false,
         "external_id": false
@@ -415,9 +405,9 @@
     "MathematicalModel RPRelatant": {
         "uName": "MathematicalModel",
         "dName": "RPRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ResearchProblemRelatedToMathematicalModel",
-        "set_prefix": false,
-        "set_index": true,
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/research-problem-relatant",
+        "set_prefix": true,
+        "set_index": false,
         "collection_index": true,
         "option_text": false,
         "external_id": true
@@ -425,7 +415,7 @@
     "MathematicalModel IntraClassRelation": {
         "uName": "MathematicalModel",
         "dName": "IntraClassRelation",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModelToMathematicalModelRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -435,7 +425,7 @@
     "MathematicalModel IntraClassElement": {
         "uName": "MathematicalModel",
         "dName": "IntraClassElement",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModelRelatedToMathematicalModel",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -602,22 +592,12 @@
         "option_text": false,
         "external_id": true
     },
-    "Quantity MathModID": {
-        "uName": "Quantity",
-        "dName": "MathModID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityMathModDBID",
-        "set_prefix": false,
-        "set_index": true,
-        "collection_index": false,
-        "option_text": false,
-        "external_id": true
-    },
     "Quantity ID": {
         "uName": "Quantity",
         "dName": "ID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityQID",
-        "set_prefix": true,
-        "set_index": false,
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/id",
+        "set_prefix": false,
+        "set_index": true,
         "collection_index": false,
         "option_text": false,
         "external_id": true
@@ -625,7 +605,7 @@
     "Quantity Name": {
         "uName": "Quantity",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityName",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/name",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -635,7 +615,7 @@
     "Quantity Description": {
         "uName": "Quantity",
         "dName": "Description",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityDescription",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/description",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -645,7 +625,7 @@
     "Quantity Reference": {
         "uName": "Quantity",
         "dName": "Reference",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityOtherID",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/other-id",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -655,7 +635,7 @@
     "Quantity QorQK": {
         "uName": "Quantity",
         "dName": "QorQK",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/IsQuantityOrQuantityKind",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/is-quantity-or-quantity-kind",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -665,7 +645,7 @@
     "Quantity QProperties": {
         "uName": "Quantity",
         "dName": "Properties",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityProperties",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/quantity-properties",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -675,7 +655,7 @@
     "Quantity QKProperties": {
         "uName": "Quantity",
         "dName": "Properties",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityKindProperties",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/quantity-kind-properties",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -685,7 +665,7 @@
     "Quantity Q2Q": {
         "uName": "Quantity",
         "dName": "Q2Q",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityToQuantityRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/quantity-to-quantity/relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -695,7 +675,7 @@
     "Quantity QRelatant": {
         "uName": "Quantity",
         "dName": "QRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityRelatedToQuantity",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/quantity-to-quantity/relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -705,7 +685,7 @@
     "QuantityKind QK2QK": {
         "uName": "Quantity",
         "dName": "QK2QK",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityKindToQuantityKindRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/quantity-kind-to-quantity-kind/relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -715,7 +695,7 @@
     "QuantityKind QKRelatant": {
         "uName": "Quantity",
         "dName": "QKRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityKindRelatedToQuantityKind",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/quantity-kind-to-quantity-kind/relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -725,7 +705,7 @@
     "Quantity Q2QK": {
         "uName": "Quantity",
         "dName": "Q2QK",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityToQuantityKindRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/quantity-to-quantity-kind/relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -735,7 +715,7 @@
     "Quantity QKRelatant": {
         "uName": "Quantity",
         "dName": "QKRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityKindRelatedToQuantity",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/quantity-to-quantity-kind/relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -745,7 +725,7 @@
     "QuantityKind QK2Q": {
         "uName": "Quantity",
         "dName": "QK2Q",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityKindToQuantityRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/quantity-kind-to-quantity/relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -755,7 +735,7 @@
     "QuantityKind QRelatant": {
         "uName": "Quantity",
         "dName": "QRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityRelatedToQuantityKind",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/quantity/quantity-kind-to-quantity/relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,

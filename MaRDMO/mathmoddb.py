@@ -30,36 +30,6 @@ def ModelRetriever(answers,mathmoddb):
     for key in answers['Task']:
         answers['Task'][key].update({'Include':False})
 
-    # Get additional Model Information from  MathModDB
-    
-    qClass = 'MathematicalModel'
-    
-    search_string = searchGenerator(answers,[qClass])
-    results = query_sparql(queryModelDocumentation[qClass].format(search_string))
-    
-    # Get MathModDB ID of all selected Mathematical Models
-    mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
-
-    for result in results:
-        # Get MathModDB ID of queried Mathematical Model
-        mathmod_id = result.get(qClass, {}).get('value')
-        # Queried Mathematical Model in Selection?
-        if mathmod_id in mathmodidToKey:
-            key = mathmodidToKey[mathmod_id]
-            # Evaluate Comment of Mathematical Model
-            assignValue(qClass, ['quote'], 'Description',result ,key, answers)
-            # Evaluate Data Properties of Mathematical Model
-            assignProperties(answers[qClass][key], result, mathmoddb, dataProperties)
-            # Evaluate Research Problem(s) of Mathematical Model
-            assignSimpleEntityRelation(qClass, 'models', ['MM2RP','RPRelatant','models'], result, key, answers, mathmoddb) 
-            # Evaluate Task(s) applying Mathematical Model
-            assignComplexEntityRelations(qClass, 'Task', 'AppliedByTask', ['AppliesModel'], result, key, answers)
-            # Evaluate Mathematical Model(s) containend in Mathematical Model
-            assignSimpleEntityRelation(qClass, 'containsModel', ['IntraClassRelation','IntraClassElement','containsModel'], result, key, answers, mathmoddb)
-            # Evaluate different kinds of Mathematical Formulations of Mathematical Model
-            for kind in formulationKinds:
-                assignComplexEntityRelations(qClass, 'MathematicalFormulation', f'contains{kind}', ['MF2MM','MMRelatant'], result, key, answers, mathmoddb, inversePropertyMapping)
-    
     # Get additional Task Information from MathModDB
     
     qClass = 'Task'
@@ -392,7 +362,7 @@ def ModelRetriever(answers,mathmoddb):
                     answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['P2E'][key2],f"{abbr}{str(idx+1)}"]})
             if not answers['PublicationModel'][key].get('RelationP',{}).get(key2):
                 answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['P2E'][key2],Id]})
-    print(answers['ResearchField'])
+    
     return answers
 
 def assignProperties(data, queryData, mathmoddb, properties):

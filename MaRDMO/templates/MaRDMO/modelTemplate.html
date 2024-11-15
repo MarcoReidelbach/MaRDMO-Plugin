@@ -58,9 +58,9 @@
 
     <p>
     <b>Description</b>: {{ values.Description }} <br>
-    <b>MathModDB</b>: {% if values.MathModID and values.MathModID != 'not in MathModDB' %} 
-                          {{ values.MathModID }} 
-		      {% endif %} <br>
+    <b>MathModDB</b>: {% if 'mathmoddb' in values.ID %} 
+                          {{ values.ID|cut:"mathmoddb:" }} 
+             {% endif %} <br>
     <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
                          {{ values.ID|cut:"wikidata:" }} 
 		     {% endif %} <br>
@@ -757,9 +757,9 @@
 
     <p>
         <b>Description</b>: {{ values.Description }} <br>
-        <b>Class</b>: {% if values.QorQK == option.QuantityClass %}
+        <b>Class</b>: {% if values.QorQK == option.Quantity %}
                           Quantity
-                      {% elif values.QorQK == option.QuantityKindClass %}
+                      {% elif values.QorQK == option.QuantityKind %}
                           Quantity Kind
                       {% endif %} <br>
         <b>QUDT</b>: {% if 'qudt' in values.Reference %} 
@@ -792,7 +792,7 @@
                            {% endif %}
     </p>
 
-    {% if values.QorQK == option.QuantityClass %}
+    {% if values.QorQK == option.Quantity %}
 
         {% for values in values.RelationQQ.values %}
             {% if forloop.counter == 1 %}
@@ -937,7 +937,7 @@
                                {% endfor %}
         {% endif %}
 
-    {% elif values.QorQK == option.QuantityKindClass %}
+    {% elif values.QorQK == option.QuantityKind %}
 
         {% for values in values.RelationQKQK.values %}
             {% if forloop.counter == 1 %}

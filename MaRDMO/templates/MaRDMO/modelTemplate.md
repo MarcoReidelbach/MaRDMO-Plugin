@@ -165,7 +165,7 @@ models: {{ models.1 }}
 ## Task T{{ forloop.counter }}: {{ values.Name }}
 
 **Description**: {{ values.Description }}
-**MathModDB**:{% if values.MathModID and values.MathModID != 'not in MathModDB' %} {{ values.MathModID }} {% endif %}  
+**MathModDB**:{% if 'mathmoddb' in values.ID %} {{ values.ID|cut:"mathmoddb:" }} {% endif %}  
 **WikiData**:{% if 'wikidata' in values.ID %} {{ values.ID|cut:"wikidata:" }} {% endif %}
 **MaRDI**:{% if 'mardi' in values.ID %} {{ values.ID|cut:"mardi:" }} {% endif %} 
 **Properties**: {% for value in values.Properties.values %} {% if value == isLinear %} Is Linear {% elif value == isNotLinear %} Is Not Linear {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}  
@@ -448,14 +448,14 @@ contained in Field: {{ researchfield.1 }}
 ## QQK{{ forloop.counter }}: {{ values.Name }}
 
 **Description**: {{ values.Description }}
-**Class**: {% if values.QorQK == QuantityClass %} Quantity {% elif values.QorQK == QuantityKindClass %} Quantity Kind {% endif %} 
+**Class**: {% if values.QorQK == Quantity %} Quantity {% elif values.QorQK == QuantityKind %} Quantity Kind {% endif %} 
 **QUDT**:{% if 'qudt' in values.Reference %} {{ values.Reference|cut:"qudt:" }} {% endif %}
 **MathModDB**:{% if values.MathModID and values.MathModID != 'not in MathModDB' %} {{ values.MathModID }} {% endif %}
 **WikiData**:{% if 'wikidata' in values.ID %} {{ values.ID|cut:"wikidata:" }} {% endif %}
 **MaRDI**:{% if 'mardi' in values.ID %} {{ values.ID|cut:"mardi:" }} {% endif %}
 **Properties**: {% if values.Properties %} {% for value in values.Properties.values %} {% if value == isDimensionless %} Is Dimensionless {% elif value == isDimensional %} Is Dimensional {% elif value == isLinear %} Is Linear {% elif value == isNotLinear %} Is Not Linear {% endif %} {% if not forloop.last %}, {% endif %}{% endfor %} {% endif %}
 
-{% if values.QorQK == QuantityClass %}
+{% if values.QorQK == Quantity %}
 
 {% for values in values.RelationQQ.values %}
 {% if forloop.counter == 1 %}
@@ -519,7 +519,7 @@ contained in Field: {{ researchfield.1 }}
 
 {% endif %}
 
-{% elif values.QorQK == QuantityKindClass %}
+{% elif values.QorQK == QuantityKind %}
 
 {% for values in values.RelationQKQK.values %}
 {% if forloop.counter == 1 %}

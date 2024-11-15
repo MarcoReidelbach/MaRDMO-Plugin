@@ -165,7 +165,7 @@ def PublicationCitationRetriever(sender, **kwargs):
                             'otherAuthor': other_authors,
                             'journal': citation_dictionary.get('journal',''),
                             'entrytypeQid': citation_dictionary.get('ENTRYTYPE','')})
-            
+        
             # Gather Data for fill out and storage for later export
             paper_information = {}
             
@@ -430,7 +430,7 @@ def ModelHandler(sender, **kwargs):
         path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
         with open(path, "r") as json_file:
             mathmoddb = json.load(json_file)
-
+        
         # Get Model, Research Field, Research Problem, Quantity, Mathematical Formulation and Task Information        
         results = query_sparql(queryModelHandler['All'].format(f":{IdMM.split(':')[1]}"))
         
@@ -470,74 +470,73 @@ def ModelHandler(sender, **kwargs):
                         # Add Research Problem Values
                         value_editor(instance.project, f'{BASE_URI}domain/research-problem/id', f'{rpLabel} ({rpDescription}) [mathmoddb]', f"mathmoddb:{rpId}", None, None, idx)
                         idx = idx +1
-            return
+            
             # Add Quantity Information to Questionnaire
             qIds =[]
             qLabels = []
-            qClasss = []
-            for res in results:
-                for key in ['fmfq','amfq','bcmfq','ccmfq','cpcmfq','icmfq','fcmfq']:
-                    qId = res.get(key,{}).get('value')
-                    qLabel = res.get(f'{key}l',{}).get('value')
-                    qClass = res.get(f'{key}c',{}).get('value')
-                    if qId and qLabel and qClass:
-                        if qId not in qIds:
-                            qIds.append(qId)
-                            qLabels.append(qLabel)
-                            qClasss.append(qClass)
+            qDescriptions = []
 
-            
-            for idx, (qId, qLabel, qClass) in enumerate(zip(qIds,qLabels,qClasss)):
+            for res in results:
+                qids = res.get('Q',{}).get('value').split(' / ')
+                qlabels = res.get('QL',{}).get('value').split(' / ')
+                qdescriptions = res.get('QD',{}).get('value').split(' / ')
+                for qid, qlabel, qdescription in zip(qids, qlabels, qdescriptions):
+                    if qid and qlabel:
+                        if qid not in qIds:
+                            qIds.append(qid)
+                            qLabels.append(qlabel)
+                            qDescriptions.append(qdescription)
+
+            for idx, (qId, qLabel, qDescription) in enumerate(zip(qIds,qLabels,qDescriptions)):
                     # Set up Qauntity / Quantity Kind Page
-                    value_editor(instance.project, f'{BASE_URI}domain/Quantity', idx, None, None, None, idx)
+                    value_editor(instance.project, f'{BASE_URI}domain/quantity', idx, None, None, None, idx)
                     # Add Quantity / Quantity Kind Values
-                    value_editor(instance.project, f'{BASE_URI}domain/QuantityMathModDBID', 
-                                f"{qLabel} (Quantity)" if qClass.split('#')[1] == 'Quantity' else f"{qLabel} (Quantity Kind)", 
-                                f"{qId} <|> {qLabel} <|> {qClass.split('#')[1]}", None, None, idx)
+                    value_editor(instance.project, f'{BASE_URI}domain/quantity/id', f'{qLabel} ({qDescription}) [mathmoddb]', f"mathmoddb:{qId}", None, None, idx)
             
             # Restructure Results from initial Query
             ModelPropertyKeys = ['mm','ta','gb','g','ab','a','db','d','lb','l','ci','c','s','ff','af','bcf','ccf','cpcf','icf','fcf']
-            ModelProperty = {f'{ModelPropertyKey}{kind}': [] for ModelPropertyKey in ModelPropertyKeys for kind in ['Ids', 'Labels']}
+            ModelProperty = {f'{ModelPropertyKey}{kind}': [] for ModelPropertyKey in ModelPropertyKeys for kind in ['Ids', 'Labels', 'Descriptions']}
             for res in results:
-                for idx, key in enumerate(['mm','ta','gbmm','gmm','abmm','amm','dbmm','dmm','lbmm','lmm','cimm','cmm','smm','fmf','amf','bcmf','ccmf','cpcmf','icmf','fcmf']):
+                for idx, key in enumerate(['mm']): #,'ta','gbmm','gmm','abmm','amm','dbmm','dmm','lbmm','lmm','cimm','cmm','smm','fmf','amf','bcmf','ccmf','cpcmf','icmf','fcmf'
                     if res.get(key,{}).get('value') and res.get(f'{key}l',{}).get('value'): 
-                        if res[key]['value'] not in ModelProperty[list(ModelProperty.keys())[2*idx]] and res[f'{key}l']['value'] not in ModelProperty[list(ModelProperty.keys())[2*idx+1]]:
-                            ModelProperty[list(ModelProperty.keys())[2*idx]].append(res[key]['value'])
-                            ModelProperty[list(ModelProperty.keys())[2*idx+1]].append(res[f'{key}l']['value'])
+                        if res[key]['value'] not in ModelProperty[list(ModelProperty.keys())[3*idx]] and res[f'{key}l']['value'] not in ModelProperty[list(ModelProperty.keys())[3*idx+1]] and res[f'{key}d']['value'] not in ModelProperty[list(ModelProperty.keys())[3*idx+2]]:
+                            ModelProperty[list(ModelProperty.keys())[3*idx]].append(res[key]['value'])
+                            ModelProperty[list(ModelProperty.keys())[3*idx+1]].append(res[f'{key}l']['value'])
+                            ModelProperty[list(ModelProperty.keys())[3*idx+2]].append(res[f'{key}d']['value'])
             
             # Group results from initial query for further queries (IdsMF - Ids of all related Formulation, IdsT - Ids of all related Tasks, Ids - Ids for all related Entities)
-            IdsMF = ModelProperty['ffIds'] + ModelProperty['afIds'] + ModelProperty['bcfIds'] + ModelProperty['ccfIds'] + ModelProperty['cpcfIds'] + ModelProperty['icfIds'] + ModelProperty['fcfIds']
-            IdsT = ModelProperty['taIds']
-            Ids = [IdMM] + rfIds + rpIds + qIds + IdsMF + IdsT
+            #IdsMF = ModelProperty['ffIds'] + ModelProperty['afIds'] + ModelProperty['bcfIds'] + ModelProperty['ccfIds'] + ModelProperty['cpcfIds'] + ModelProperty['icfIds'] + ModelProperty['fcfIds']
+            #IdsT = ModelProperty['taIds']
+            #Ids = [IdMM] + rfIds + rpIds + qIds + IdsMF + IdsT
 
             # Further Queries of Knowledge Graph to get further Formualtion, Task and Publication Information
-            search_string2 = ''
-            search_string3 = ''
-            search_string4 = ''
+            #search_string2 = ''
+            #search_string3 = ''
+            #search_string4 = ''
 
-            for Id in IdsMF:
-                search_string2 = search_string2 + f" :{Id.split('#')[1]}"
+            #for Id in IdsMF:
+            #    search_string2 = search_string2 + f" :{Id.split('#')[1]}"
 
-            for Id in IdsT:
-                search_string3 = search_string3 + f" :{Id.split('#')[1]}"
+            #for Id in IdsT:
+            #    search_string3 = search_string3 + f" :{Id.split('#')[1]}"
             
             #for Id in Ids:
             #    search_string4 = search_string4 + f" :{Id.split('#')[1]}"
 
-            results2 = query_sparql(queryModelHandler['MFRelations'].format(search_string2))
-            results3 = query_sparql(queryModelHandler['TRelation'].format(search_string3))
-            results4 = query_sparql(queryModelHandler['PRelation'].format(search_string4))
+            #results2 = query_sparql(queryModelHandler['MFRelations'].format(search_string2))
+            #results3 = query_sparql(queryModelHandler['TRelation'].format(search_string3))
+            #results4 = query_sparql(queryModelHandler['PRelation'].format(search_string4))
 
 
-            for idx, (mmId, mmLabel) in enumerate(zip(ModelProperty['mmIds'],ModelProperty['mmLabels'])):
+            for idx, (mmId, mmLabel, mmDescription) in enumerate(zip(ModelProperty['mmIds'],ModelProperty['mmLabels'],ModelProperty['mmDescriptions'])):
                 # Set up Mathematical Model Page
-                value_editor(instance.project, f'{BASE_URI}domain/MathematicalModel', idx, None, None, None, idx)
+                value_editor(instance.project, f'{BASE_URI}domain/mathematical-model', idx, None, None, None, idx)
                 # Add Mathematical Model ID and Label
-                value_editor(instance.project, f'{BASE_URI}domain/MathematicalModelMathModDBID', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx)
+                value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/id', f'{mmLabel} ({mmDescription}) [mathmoddb]', f"mathmoddb:{mmId}", None, None, idx)
                 # Add Research Problem related to Mathematical Model
-                for idx2, (rpId, rpLabel) in enumerate(zip(rpIds,rpLabels)):
-                    value_editor(instance.project, f'{BASE_URI}domain/ResearchProblemRelatedToMathematicalModel', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, idx2, idx)
-                
+               # for idx2, (rpId, rpLabel) in enumerate(zip(rpIds,rpLabels)):
+               #     value_editor(instance.project, f'{BASE_URI}domain/ResearchProblemRelatedToMathematicalModel', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, idx2, idx)
+                return
                 # Add Model Relations
 
                 modelRelations1 = {'ff': 'containedAsFormulationIn',
@@ -808,7 +807,7 @@ def processor(sender, **kwargs):
 def RP2RF(sender, **kwargs):
     instance = kwargs.get("instance", None)
     if instance and instance.attribute.uri == f'{BASE_URI}domain/research-problem/research-field-relatant':
-        print(instance.text, instance.set_index,instance.collection_index, instance.set_prefix)
+
         path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
         with open(path, "r") as json_file:
             mathmoddb = json.load(json_file)
@@ -819,24 +818,14 @@ def RP2RF(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def RP2MM(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/ResearchProblemRelatedToMathematicalModel':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/mathematical-model/research-problem-relatant':
 
         path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
         with open(path, "r") as json_file:
             mathmoddb = json.load(json_file)
 
-        attribute_object = Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelToResearchProblemRelation')
-        obj, created = Value.objects.update_or_create(
-            project=instance.project,
-            attribute=attribute_object,
-            set_prefix=instance.set_prefix,
-            collection_index=instance.collection_index,
-            defaults={
-                'project': instance.project,
-                'attribute': attribute_object,
-                'text': mathmoddb['models']
-                }
-        )
+        value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/research-problem-relation', mathmoddb['models'], None, None, instance.collection_index, 0, instance.set_prefix)
+
 
 @receiver(post_save, sender=Value)
 def T2MM(sender, **kwargs):
@@ -929,6 +918,124 @@ def RPInformation(sender, **kwargs):
                                 value_editor(instance.project, f'{BASE_URI}domain/research-problem/relatant', f"{problemLabel} ({problemDescription}) [mathmoddb]", f'mathmoddb:{problemID}', None, None, idx, instance.set_index)
                                 idx += 1
  
+@receiver(post_save, sender=Value)
+def MMInformation(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/mathematical-model/id':
+        if instance.text and instance.text != 'not found':
+            # Get Label and Description of Item and add to questionnaire
+            label, description, _ = extract_parts(instance.text)
+            value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/name', label, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/description', description, None, None, None, 0, instance.set_index)
+            # Get source and ID of Item
+            source, Id = instance.external_id.split(':')
+            if source== 'mathmoddb':
+                # If Item from MathModDB, query relations and load MathModDB Vocabulary
+                results = query_sparql(queryHandler['mathematicalModelInformation'].format(f":{Id}"))
+                path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+                with open(path, "r") as json_file:
+                    mathmoddb = json.load(json_file)
+                path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
+                with open(path, "r") as json_file:
+                    option = json.load(json_file)
+                if results:
+                    # Add the Mathematical Model Properties to the Questionnaire
+                    for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless',
+                                                'isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']):
+                        if results[0].get(prop, {}).get('value') == 'true':
+                            value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/properties', None, None, Option.objects.get(uri=mathmoddb[prop]), idx, 0, instance.set_index)
+                    # Add modelled Research Problems to questionnaire
+                    idx = 0
+                    for prop in ['models']:
+                        if results[0].get(prop, {}).get('value'):
+                            modelIDs = results[0][prop]['value'].split(' / ')
+                            modelLabels = results[0][f'{prop}Label']['value'].split(' / ')
+                            modelDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
+                            for modelID, modelLabel, modelDescription in zip(modelIDs, modelLabels, modelDescriptions):
+                                value_editor(instance.project,f'{BASE_URI}domain/mathematical-model/research-problem-relatant', f"{modelLabel} ({modelDescription}) [mathmoddb]", f'mathmoddb:{modelID}', None, idx, 0, instance.set_index)
+                                idx += 1
+                    # Add Main Model Information
+                    if instance.set_index == 0:
+                        value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/is-main', None, None, Option.objects.get(uri=option['Yes']), None, instance.set_index, None)
+                    else:
+                        value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/is-main', None, None, Option.objects.get(uri=option['No']), None, instance.set_index, None)
+                    # Add related mathematical models to questionnaire
+                    idx = 0
+                    for prop in ['generalizedByModel','generalizesModel','discretizedByModel','discretizesModel','containedInModel','containsModel','approximatedByModel',
+                                 'approximatesModel','linearizedByModel','linearizesModel','similarToModel']:
+                        if results[0].get(prop, {}).get('value'):
+                            modelIDs = results[0][prop]['value'].split(' / ')
+                            modelLabels = results[0][f'{prop}Label']['value'].split(' / ')
+                            modelDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
+                            for modelID, modelLabel, modelDescription in zip(modelIDs, modelLabels, modelDescriptions):
+                                value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, instance.set_index)
+                                value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/relatant', f"{modelLabel} ({modelDescription}) [mathmoddb]", f'mathmoddb:{modelID}', None, None, idx, instance.set_index)
+                                idx +=1
+
+@receiver(post_save, sender=Value)
+def QQKInformation(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/quantity/id':
+        if instance.text and instance.text != 'not found':
+            # Get Label and Description of Item and add to questionnaire
+            label, description, _ = extract_parts(instance.text)
+            value_editor(instance.project, f'{BASE_URI}domain/quantity/name', label, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/quantity/description', description, None, None, None, 0, instance.set_index)
+            # Get source and ID of Item
+            source, Id = instance.external_id.split(':')
+            if source== 'mathmoddb':
+                # If Item from MathModDB, query relations and load MathModDB Vocabulary
+                results = query_sparql(queryHandler['quantityOrQuantityKindInformation'].format(f":{Id}"))
+                path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+                with open(path, "r") as json_file:
+                    mathmoddb = json.load(json_file)
+                path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
+                with open(path, "r") as json_file:
+                    option = json.load(json_file)
+                if results:
+                    # Add Type of Quantity
+                    if results[0].get('class',{}).get('value'):
+                        value_editor(instance.project, f'{BASE_URI}domain/quantity/is-quantity-or-quantity-kind', None, None, Option.objects.get(uri=mathmoddb[results[0]['class']['value']]), None, 0, instance.set_index)
+                    # Add the Quantity Properties to the Questionnaire
+                    for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless',
+                                                'isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']):
+                        if results[0].get(prop, {}).get('value') == 'true':
+                            value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-properties', None, None, Option.objects.get(uri=mathmoddb[prop]), idx, 0, instance.set_index)
+                    # Add the Quantity Kind Properties to the Questionnaire
+                    for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless',
+                                                'isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']):
+                        if results[0].get(prop, {}).get('value') == 'true':
+                            value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-kind-properties', None, None, Option.objects.get(uri=mathmoddb[prop]), idx, 0, instance.set_index)
+                    # Add related quantities or quantity kinds to questionnaire
+                    idx_qq = 0; idx_qkqk = 0; idx_qqk = 0; idx_qkq = 0
+                    for prop in ['generalizedByQuantity','generalizesQuantity','approximatedByQuantity','approximatesQuantity','linearizedByQuantity',
+                                 'linearizesQuantity','nondimensionalizedByQuantity','nondimensionalizesQuantity','similarToQuantity']:
+                        if results[0].get(prop, {}).get('value'):
+                            for result in results[0][prop]['value'].split(' / '):
+                                quantityID, quantityLabel, quantityDescription, quantityClass = result.split(' | ')
+                                if results[0]['class']['value'] == 'Quantity' and quantityClass == 'Quantity':
+                                    # If source class is Quantity and target class is quantity
+                                    value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-to-quantity/relation', None, None, Option.objects.get(uri=mathmoddb[prop]), 0, idx_qq, f"{instance.set_index}|0")
+                                    value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-to-quantity/relatant', f"{quantityLabel} ({quantityDescription}) [mathmoddb]", f'mathmoddb:{quantityID}', None, 0, idx_qq, f"{instance.set_index}|0")
+                                    idx_qq +=1
+                                elif results[0]['class']['value'] == 'QuantityKind' and quantityClass == 'QuantityKind':
+                                    # If source class is Quantity and target class is quantity
+                                    value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-kind-to-quantity-kind/relation', None, None, Option.objects.get(uri=mathmoddb[prop]), 0, idx_qkqk, f"{instance.set_index}|0")
+                                    value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-kind-to-quantity-kind/relatant', f"{quantityLabel} ({quantityDescription}) [mathmoddb]", f'mathmoddb:{quantityID}', None, 0, idx_qkqk, f"{instance.set_index}|0")
+                                    idx_qkqk +=1
+                                elif results[0]['class']['value'] == 'Quantity' and quantityClass == 'QuantityKind':
+                                    # If source class is Quantity and target class is quantity
+                                    value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-to-quantity-kind/relation', None, None, Option.objects.get(uri=mathmoddb[prop]), 0, idx_qqk, f"{instance.set_index}|0")
+                                    value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-to-quantity-kind/relatant', f"{quantityLabel} ({quantityDescription}) [mathmoddb]", f'mathmoddb:{quantityID}', None, 0, idx_qqk, f"{instance.set_index}|0")
+                                    idx_qqk +=1
+                                elif results[0]['class']['value'] == 'QuantityKind' and quantityClass == 'Quantity':
+                                    # If source class is Quantity and target class is quantity
+                                    value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-kind-to-quantity/relation', None, None, Option.objects.get(uri=mathmoddb[prop]), 0, idx_qkq, f"{instance.set_index}|0")
+                                    value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-kind-to-quantity/relatant', f"{quantityLabel} ({quantityDescription}) [mathmoddb]", f'mathmoddb:{quantityID}', None, 0, idx_qkq, f"{instance.set_index}|0")
+                                    idx_qkq +=1
+                                
+
+
 def Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors):
     '''Function that takes orcid and zbmath ids and queries wikidata and MaRDI Portal to get
        further Information and map orcid and zbmath authors.'''
@@ -993,12 +1100,12 @@ def Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors):
         author_data = {
             'orcid': orcid_id,
             'zbmath': None,
-            'wikiQID': author_merged_orcid[orcid_id]['wikidata_authorQid'],
-            'wikiLabel': author_merged_orcid[orcid_id]['wikidata_authorLabel'],
-            'wikiDescription': author_merged_orcid[orcid_id]['wikidata_authorDescription'],
-            'mardiQID': author_merged_orcid[orcid_id]['mardi_authorQid'],
-            'mardiLabel': author_merged_orcid[orcid_id]['mardi_authorLabel'],
-            'mardiDescription': author_merged_orcid[orcid_id]['mardi_authorDescription']}
+            'wikiQID': author_merged_orcid[orcid_id].get('wikidata_authorQid'),
+            'wikiLabel': author_merged_orcid[orcid_id].get('wikidata_authorLabel'),
+            'wikiDescription': author_merged_orcid[orcid_id].get('wikidata_authorDescription'),
+            'mardiQID': author_merged_orcid[orcid_id].get('mardi_authorQid'),
+            'mardiLabel': author_merged_orcid[orcid_id].get('mardi_authorLabel'),
+            'mardiDescription': author_merged_orcid[orcid_id].get('mardi_authorDescription')}
         
         author_dict_merged[author_id] = author_data
     

@@ -30,18 +30,41 @@ def add_new_mathmoddb_entries_to_questionnaire(project, ids, query):
                     # General case
                     value = f"{results[0]['ID']['value']} <|> {label}"
                 
-                print(BASE_URI,setName,f"{BASE_URI}domain/{setName}MathModDBID")
                 # Call valueEditor with constructed values
                 value_editor(project, f"{BASE_URI}domain/{setName}MathModDBID", label, value, None, None, setID)
 
+#def extract_parts(string):
+#    # Split string into Name, Description and Source
+#    pattern = r'^(.*?)\s*\((.*)\)\s*\[(.*)\]$'
+#    match = re.match(pattern, string)
+#    if match:
+#        name, description, source = match.groups()
+#        return name.strip(), description.strip(), source.strip()    
+#    return None, None, None
+
 def extract_parts(string):
-    # Split string into Name, Description and Source
-    pattern = r'^(.*?)\s*\((.*)\)\s*\[(.*)\]$'
-    match = re.match(pattern, string)
-    if match:
-        name, description, source = match.groups()
-        return name.strip(), description.strip(), source.strip()    
-    return None, None, None
+    # Step 1: Split the string at the last occurrence of ') [' to isolate `c` (source)
+    parts = string.rsplit(') [', 1)
+    if len(parts) == 2:
+        main_part, c = parts[0].strip(), parts[1].rstrip(']')
+    else:
+        main_part, c = parts[0].strip(), ""
+    # Step 2: Find the last whitespace outside brackets to split `a` and `b`
+    depth = 0
+    split_index = -1
+    for i, char in enumerate(main_part):
+        if char == '(' or char == '[':
+            depth += 1
+        elif char == ')' or char == ']':
+            depth -= 1
+        elif char == ' ' and depth == 0:
+            split_index = i  # Update split_index to last whitespace outside brackets
+    if split_index != -1:
+        a = main_part[:split_index].strip()
+        b = main_part[split_index+1:].strip().lstrip('(')  # Strip any leading '(' from b
+    else:
+        a, b = main_part, ""
+    return a, b, c
 
 def find_item(label, description, api=mardi_api, language="en"):
     '''API request returning an Item with matching label and description.'''
@@ -84,7 +107,7 @@ def query_sparql(query,endpoint=mathmoddb_endpoint):
 def value_editor(project, uri, text=None, external_id=None, option=None, collection_index=None, set_index=None, set_prefix=None):
     '''Add values to the Questionnaire'''
     attribute_object = Attribute.objects.get(uri=uri)
-
+    print('xXx')
     # Prepare the defaults dictionary
     defaults = {
         'project': project,

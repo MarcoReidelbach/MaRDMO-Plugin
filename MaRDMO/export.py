@@ -3,7 +3,7 @@ import requests
 import os, json
 
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, reverse
 from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
 
@@ -11,6 +11,7 @@ from rdmo.projects.exports import Export
 from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
 from rdmo.projects.models import Value
+from rdmo.services.providers import OauthProviderMixin
 
 from wikibaseintegrator import wbi_login, WikibaseIntegrator
 from wikibaseintegrator.datatypes import ExternalID, Item, String, Time, MonolingualText, Quantity
@@ -26,7 +27,7 @@ from .utils import find_item, query_sparql, add_new_mathmoddb_entries_to_questio
 
 try:
     # Get login credentials if available 
-    from config.settings import lgname, lgpassword
+    from config.settings import lgname, lgpassword, CONSUMER_TOKEN, CONSUMER_SECRET
 except:
     lgname=''; lgpassword=''
 
@@ -36,19 +37,19 @@ try:
 except:
     mathmoddb_username=''; mathmoddb_password=''
 
-class MaRDIExport(Export):
+class MaRDIExport(OauthProviderMixin, Export):
 
     def render(self):
         '''Function that renders User answers to MaRDI template
            (adjusted from csv export)'''
         
 ### Check if MaRDI Questionaire is used ###########################################################################################################################################################
-
+        
         if str(self.project.catalog)[-6:] != 'MaRDMO':
             return render(self.request,'MaRDMO/workflowError.html', {
                 'error': 'Questionnaire \'{}\' not suitable for MaRDI Export!'.format(str(self.project.catalog).split('/')[-1])
-                }, status=200)
-
+                }, status=200) 
+    
 ### Load MaRDMO Options ##########################################################################################################################################################################
 
         path = os.path.join(os.path.dirname(__file__), 'data', 'questions.json')
@@ -382,7 +383,7 @@ class MaRDIExport(Export):
                     if response.status_code == 204:
                         add_new_mathmoddb_entries_to_questionnaire(self.project, ids, queryModelDocumentation['IDCheck'])
                         # Get MathModDB ID of main Mathematical Model
-                        results = query_sparql(queryModelDocumentation['IDCheck'].format(f"'{answers['Models'][0]['Name']}'"))
+                        results = query_sparql(queryModelDocumentation['IDCheck'].format(f"'{answers['Models'].get(0,{}).get('Name')}'"))
                         if results and results[0].get('ID').get('value'):
                             answers['Models'][0]['MathModID'] = results[0]['ID']['value'] 
                     else:
@@ -739,9 +740,9 @@ class MaRDIExport(Export):
 
                     # Add Information to main Mathematical Model
                     for key2 in answers['Models']:
-                        if answers['Models'][key2].get('MathModID') and answers['Models'][key2]['MathModID'] != 'not in MathModDB':
+                        if answers['Models'][key2].get('ID') and answers['Models'][key2]['ID'] != 'not found':
                             for key in answers['MathematicalModel']:
-                                if answers['Models'][key2]['MathModID'] == answers['MathematicalModel'][key].get('MathModID'):
+                                if answers['Models'][key2]['ID'] == answers['MathematicalModel'][key].get('ID'):
                                     Name = answers['MathematicalModel'][key]['Name']
                                     Description = answers['MathematicalModel'][key].get('Description')
                                     Properties = answers['MathematicalModel'][key].get('Properties')
@@ -772,7 +773,7 @@ class MaRDIExport(Export):
                     
                     # Generate query for MathModDB KG
                     query = generate_sparql_insert_with_new_ids(triple_list)
-                    
+                    print(query)
                     # Add Model Documentation to MathModDB
                     response = requests.post(mathmoddb_update, data=query, headers={
                                             "Content-Type": "application/sparql-update",
@@ -863,10 +864,10 @@ class MaRDIExport(Export):
 
             # Set up entire SPARQL query
             query = query_base.format(P4,Q2,res_disc_str,mmsios_str,quote_str,res_obj_strs)
-            
+            print(query) 
             # Query MaRDI Portal
             results = query_sparql(query, mardi_endpoint)
-
+            print(results)
             # Number of Results
             no_results = str(len(results))
             
@@ -947,14 +948,17 @@ class MaRDIExport(Export):
     def wikibase_login(self):
         '''Login stuff for wikibase'''
         wbi_config['MEDIAWIKI_API_URL'] = mardi_api
-    
-        #login_instance = wbi_login.OAuth1(consumer_token, consumer_secret, access_token, access_secret)
+        #wbi_config['MEDIAWIKI_REST_URL'] = "https://mardmo.wikibase.cloud/w/rest.php"
+        #print('Here: ',reverse('oauth_callback', args=['zenodo']))
+        #print(wbi_login.OAuth1.__dict__)
+        #login_instance = wbi_login.OAuth1(consumer_token=CONSUMER_TOKEN, consumer_secret=CONSUMER_SECRET, mediawiki_api_url = mardi_api)
+        #login_instance.continue_oauth() #oauth_callback_data=reverse('oauth_callback', args=['wikibase']))
         login_instance = wbi_login.Login(user=lgname, password=lgpassword)
 
         wbi = WikibaseIntegrator(login=login_instance)
 
         return wbi
-
+    
     def entry(self,label,description,facts):
         '''Takes arbitrary information and generates MaRDI portal entry.'''
         wbi = self.wikibase_login()  
@@ -1379,7 +1383,8 @@ class MaRDIExport(Export):
                                     if 'Element ' in dName:
                                         val[uName].setdefault(int(prefix[0]), {}).setdefault(dName.split(' ')[0], {}).setdefault(value.set_index, {}).update({dName.split(' ')[1]:value.external_id})
                                     else: 
-                                        val[uName].setdefault(int(prefix[0]), {}).setdefault(dName, {}).update({value.set_index:value.external_id})
+                                        label,_,_ = extract_parts(value.text)
+                                        val[uName].setdefault(int(prefix[0]), {}).setdefault(dName, {}).update({value.set_index:f"{value.external_id} <|> {label}"})
                             else:
                                 if len(value.set_prefix.split('|')) == 1: 
                                     val[uName].setdefault(int(value.set_prefix), {}).setdefault(dName, {}).update({value.set_index:value.text})
@@ -1486,14 +1491,6 @@ def dict_to_triples(data, relations, relatants):
             ids[item['Name']] = item['ID']
         else:
             ids[item['Name']] = idx
-        #if item['ID'] == 'not found':
-        #    ids[item['Name']] = idx
-        #elif item['ID'].startswith('wikidata'):
-        #    ids[item['Name']] = idx    
-        #elif item['ID'].startswith('wikidata'):
-        #    ids[item['Name']] = idx     
-        #else:
-        #    ids[item['Name']] = item['MathModID']
     
     # Go through all individuals
     for idx, item in data.items():
@@ -1514,59 +1511,59 @@ def dict_to_triples(data, relations, relatants):
         
         # Assign Individual Class
         if 'ResearchField' in idx:
-            triples.append((subject, "a", ':ResearchField'))
+            triples.append((subject, "a", 'mathmoddb:ResearchField'))
         elif 'ResearchProblem' in idx:
-            triples.append((subject, "a", ':ResearchProblem'))
+            triples.append((subject, "a", 'mathmoddb:ResearchProblem'))
         elif 'MathematicalModel' in idx:
-            triples.append((subject, "a", ':MathematicalModel'))
+            triples.append((subject, "a", 'mathmoddb:MathematicalModel'))
         elif 'Quantity' in idx:
             if item['QorQK'] == 'https://rdmo.mardi4nfdi.de/terms/options/MathModDB/Quantity':
-                triples.append((subject, "a", ':Quantity'))
+                triples.append((subject, "a", 'mathmoddb:Quantity'))
             else:
-                triples.append((subject, "a", ':QuantityKind'))
+                triples.append((subject, "a", 'mathmoddb:QuantityKind'))
         elif 'MathematicalFormulation' in idx:
-            triples.append((subject, "a", ':MathematicalFormulation'))
+            triples.append((subject, "a", 'mathmoddb:MathematicalFormulation'))
         elif 'Task' in idx:
             if item.get('TaskClass') == 'https://rdmo.mardi4nfdi.de/terms/options/MathModDB/ComputationalTask':
-                triples.append((subject, "a", ':ComputationalTask'))
+                triples.append((subject, "a", 'mathmoddb:ComputationalTask'))
         elif 'PublicationModel' in idx:
-            triples.append((subject, "a", ':Publication'))
+            triples.append((subject, "a", 'mathmoddb:Publication'))
         
         # Assign Individual MaRDI/Wikidata ID
         if item.get('ID'):
             if item['ID'].startswith('wikidata:'):
                 q_number = item['ID'].split(':')[-1]
-                triples.append((subject, ":wikidataID", f'"{q_number}"'))
+                triples.append((subject, "mathmoddb:wikidataID", f'"{q_number}"'))
             elif item['ID'].startswith('mardi:'):
                 q_number = item['ID'].split(':')[-1]
-                triples.append((subject, ":mardiID", f'"{q_number}"'))
+                triples.append((subject, "mathmoddb:mardiID", f'"{q_number}"'))
         
         # Assign Individual DOI/QUDT ID
         if item.get('Reference'):
             if item['Reference'].startswith('doi:'):
                 doi_value = item['Reference'].split(':', 1)[-1]
-                triples.append((subject, ":doiID", f'"{doi_value}"'))
+                triples.append((subject, "mathmoddb:doiID", f'"{doi_value}"'))
             elif item['Reference'].startswith('qudt:'):
                 qudt_value = item['Reference'].split(':', 1)[-1]
-                triples.append((subject, ":qudtID", f'"{qudt_value}"'))
+                triples.append((subject, "mathmoddb:qudtID", f'"{qudt_value}"'))
         
         # Assign Quantity definey by Individual
         if item.get('DefinedQuantity'):
             defined_quantity = item['DefinedQuantity'].split(' <|> ')
-            if defined_quantity[0].startswith('https://mardi4nfdi.de/mathmoddb#'):
+            if defined_quantity[0].startswith('mathmoddb:'):
                 object_value = defined_quantity[0]
             else:
                 #referred_name = defined_quantity[1]
                 object_value = ids.get(referred_name)
-            triples.append((subject, ':defines', object_value))
-            triples.append((object_value, ':definedBy', subject))
+            triples.append((subject, 'mathmoddb:defines', object_value))
+            triples.append((object_value, 'mathmoddb:definedBy', subject))
         
         # Assign Individual Formula
         if item.get('Formula'):
             formulas = item['Formula'].values()
             for formula in formulas:
                 formula = formula.replace('\\', '\\\\')
-                triples.append((subject, ':definingFormulation', f'"{formula[1:-1]}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
+                triples.append((subject, 'mathmoddb:definingFormulation', f'"{formula[1:-1]}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
             if item.get('Element'):
                 elements = item['Element'].values()
                 for element in elements:
@@ -1576,49 +1573,49 @@ def dict_to_triples(data, relations, relatants):
                         referred_name = quantity[0]
                         object_value = ids.get(referred_name)
                     else:
-                        if quantity[0].startswith('https://mardi4nfdi.de/mathmoddb#'):
+                        if quantity[0].startswith('mathmoddb:'):
                             referred_name = quantity[1]
                             object_value = quantity[0]
                         else:
                             referred_name = quantity[1]
                             object_value = ids.get(referred_name)
                     if object_value:
-                        triples.append((subject, ':inDefiningFormulation', f'"{symbol[1:-1]}, {referred_name}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
-                        triples.append((subject, ':containsQuantity', object_value))
-                        triples.append((object_value, ':containedInFormulation', subject))
+                        triples.append((subject, 'mathmoddb:inDefiningFormulation', f'"{symbol[1:-1]}, {referred_name}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
+                        triples.append((subject, 'mathmoddb:containsQuantity', object_value))
+                        triples.append((object_value, 'mathmoddb:containedInFormulation', subject))
         
         # Assign Individual Properties
         if item.get('Properties'):
             prefix = 'https://rdmo.mardi4nfdi.de/terms/options/MathModDB/'
             values = item['Properties'].values()
             if prefix + 'isLinear' in values:
-                triples.append((subject, ":isLinear", '"true"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isLinear", '"true"^^xsd:boolean'))
             elif prefix + 'isNotLinear' in values:
-                triples.append((subject, ":isLinear", '"false"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isLinear", '"false"^^xsd:boolean'))
             if prefix + 'isConvex' in values:
-                triples.append((subject, ":isConvex", '"true"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isConvex", '"true"^^xsd:boolean'))
             elif prefix + 'isNotConvex' in values:
-                triples.append((subject, ":isConvex", '"false"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isConvex", '"false"^^xsd:boolean'))
             if prefix + 'isDeterministic' in values:
-                triples.append((subject, ":isDeterministic", '"true"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isDeterministic", '"true"^^xsd:boolean'))
             elif prefix + 'isStochastic' in values:
-                triples.append((subject, ":isDeterministic", '"false"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isDeterministic", '"false"^^xsd:boolean'))
             if prefix + 'isDimensionless' in values:
-                triples.append((subject, ":isDimensionless", '"true"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isDimensionless", '"true"^^xsd:boolean'))
             elif prefix + 'isDimensional' in values:
-                triples.append((subject, ":isDimensionless", '"false"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isDimensionless", '"false"^^xsd:boolean'))
             if prefix + 'isDynamic' in values:
-                triples.append((subject, ":isDynamic", '"true"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isDynamic", '"true"^^xsd:boolean'))
             elif prefix + 'isStatic' in values:
-                triples.append((subject, ":isDynamic", '"false"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isDynamic", '"false"^^xsd:boolean'))
             if prefix + 'isSpaceContinuous' in values:
-                triples.append((subject, ":isSpaceContinuous", '"true"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isSpaceContinuous", '"true"^^xsd:boolean'))
             elif prefix + 'isSpaceDiscrete' in values:
-                triples.append((subject, ":isSpaceDiscrete", '"false"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isSpaceDiscrete", '"false"^^xsd:boolean'))
             if prefix + 'isTimeContinuous' in values:
-                triples.append((subject, ":isTimeContinuous", '"true"^^xsd:boolean'))
+                triples.append((subject, "mathmoddb:isTimeContinuous", '"true"^^xsd:boolean'))
             elif prefix + 'isTimeDiscrete' in values:
-                triples.append((subject, ":isTimeDiscrete", '"false"^^xsd:boolean'))	
+                triples.append((subject, "mathmoddb:isTimeDiscrete", '"false"^^xsd:boolean'))	
 
         # Assign Individual Properties
         for relation, relatant in zip(relations,relatants):
@@ -1628,13 +1625,13 @@ def dict_to_triples(data, relations, relatants):
                 if relatant_dict.get(key):
                     relation_uri = relation_dict[key]
                     relatant_value = relatant_dict[key].split(' <|> ')
-                    if relatant_value[0].startswith('https://mardi4nfdi.de/mathmoddb#'):
+                    if relatant_value[0].startswith('mathmoddb:'):
                         object_value = relatant_value[0]
                     else:
                         referred_name = relatant_value[1]
                         object_value = ids.get(referred_name)
-                    triples.append((subject, f":{relation_uri.split('/')[-1]}", object_value))
-                    triples.append((object_value, f":{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
+                    triples.append((subject, f"mathmoddb:{relation_uri.split('/')[-1]}", object_value))
+                    triples.append((object_value, f"mathmoddb:{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
     
     return triples, ids
 
@@ -1644,14 +1641,14 @@ def generate_sparql_insert_with_new_ids(triples):
     counter = 0
     for triple in triples:
         subject = triple[0]
-        if not subject.startswith("https://mardi4nfdi.de/mathmoddb#"):
+        if not subject.startswith("mathmoddb:"):
             # Assign temporary placeholders for new IDs
             new_items[subject] = f"newItem{counter}"
             counter += 1
 
     # Step 2: Generate SPARQL query with BIND for new mardmo IDs
     insert_query = """
-    PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+    PREFIX mathmoddb: <https://mardi4nfdi.de/mathmoddb#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
@@ -1667,13 +1664,13 @@ def generate_sparql_insert_with_new_ids(triples):
         if subject in new_items:
             subject = f"?{new_items[subject]}"
         else:
-            subject = f"<{subject}>"
+            subject = f"{subject}"
 
         # Format object based on whether it's a literal or a URI
         if re.match(r'^https?://', obj):
             obj_formatted = f"<{obj}>"
         else:
-            if obj.startswith(':') or obj.startswith('"'):
+            if obj.startswith('mathmoddb:') or obj.startswith('"') or obj.startswith(':'):
                 obj_formatted = f'{obj}'
             else:
                 obj_formatted = f"?{new_items[obj]}"
