@@ -773,7 +773,7 @@ class MaRDIExport(OauthProviderMixin, Export):
                     
                     # Generate query for MathModDB KG
                     query = generate_sparql_insert_with_new_ids(triple_list)
-                    print(query)
+
                     # Add Model Documentation to MathModDB
                     response = requests.post(mathmoddb_update, data=query, headers={
                                             "Content-Type": "application/sparql-update",
@@ -864,10 +864,10 @@ class MaRDIExport(OauthProviderMixin, Export):
 
             # Set up entire SPARQL query
             query = query_base.format(P4,Q2,res_disc_str,mmsios_str,quote_str,res_obj_strs)
-            print(query) 
+
             # Query MaRDI Portal
             results = query_sparql(query, mardi_endpoint)
-            print(results)
+
             # Number of Results
             no_results = str(len(results))
             
@@ -948,13 +948,7 @@ class MaRDIExport(OauthProviderMixin, Export):
     def wikibase_login(self):
         '''Login stuff for wikibase'''
         wbi_config['MEDIAWIKI_API_URL'] = mardi_api
-        #wbi_config['MEDIAWIKI_REST_URL'] = "https://mardmo.wikibase.cloud/w/rest.php"
-        #print('Here: ',reverse('oauth_callback', args=['zenodo']))
-        #print(wbi_login.OAuth1.__dict__)
-        #login_instance = wbi_login.OAuth1(consumer_token=CONSUMER_TOKEN, consumer_secret=CONSUMER_SECRET, mediawiki_api_url = mardi_api)
-        #login_instance.continue_oauth() #oauth_callback_data=reverse('oauth_callback', args=['wikibase']))
         login_instance = wbi_login.Login(user=lgname, password=lgpassword)
-
         wbi = WikibaseIntegrator(login=login_instance)
 
         return wbi
@@ -1381,7 +1375,8 @@ class MaRDIExport(OauthProviderMixin, Export):
                                 elif len(value.set_prefix.split('|')) > 1:
                                     prefix = value.set_prefix.split('|')
                                     if 'Element ' in dName:
-                                        val[uName].setdefault(int(prefix[0]), {}).setdefault(dName.split(' ')[0], {}).setdefault(value.set_index, {}).update({dName.split(' ')[1]:value.external_id})
+                                        label,_,_ = extract_parts(value.text)
+                                        val[uName].setdefault(int(prefix[0]), {}).setdefault(dName.split(' ')[0], {}).setdefault(value.set_index, {}).update({dName.split(' ')[1]:f"{value.external_id} <|> {label}"})
                                     else: 
                                         label,_,_ = extract_parts(value.text)
                                         val[uName].setdefault(int(prefix[0]), {}).setdefault(dName, {}).update({value.set_index:f"{value.external_id} <|> {label}"})
@@ -1487,7 +1482,7 @@ def dict_to_triples(data, relations, relatants):
     
     # Get ID Dict
     for idx, item in data.items():
-        if item['ID'].startswith('mathmoddb:'):
+        if item['ID'] and item['ID'].startswith('mathmoddb:'):
             ids[item['Name']] = item['ID']
         else:
             ids[item['Name']] = idx

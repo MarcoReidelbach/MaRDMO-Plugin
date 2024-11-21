@@ -16,7 +16,7 @@
 # Mathematical Model MM{{ forloop.counter }}: {{ values.Name }}
 
 **Description**: {{ values.Description }} 
-**MathModDB**:{% if values.MathModID and values.MathModID != 'not in MathModDB' %} {{ values.MathModID }} {% endif %}  
+**MathModDB**:{% if 'mathmoddb' in values.ID %} {{ values.ID|cut:"mathmoddb:" }} {% endif %}  
 **WikiData**:{% if 'wikidata' in values.ID %} {{ values.ID|cut:"wikidata:" }} {% endif %} 
 **MaRDI**:{% if 'mardi' in values.ID %} {{ values.ID|cut:"mardi:" }} {% endif %}
 **Properties**: {% for value in values.Properties.values %} {% if value == isConvex %} Is Convex {% elif value == isNotConvex %} Is Not Convex {% elif value == isDeterministic %} Is Deterministic {% elif value == isStochastic %} Is Stochastic {% elif value == isDimensionless %} Is Dimensionless {% elif value == isDimensional %} Is Dimensional {% elif value == isDynamic %} Is Dynamic {% elif value == isStatic %} Is Static {% elif value == isLinear %} Is Linear {% elif value == isNotLinear %} Is Not Linear {% elif value == isSpaceContinuous %} Is Space-Continuous {% elif value == isSpaceDiscrete %} Is Space-Discrete {% elif value == isSpaceIndependent %} Is Space-Independent {% elif value == isTimeContinuous %} Is Time-Continuous {% elif value == isTimeDiscrete %} Is Time-Discrete {% elif value == isTimeIndependent %} Is Time-Independent {% endif %} {% if not forloop.last %}, {% endif %} {% endfor %}   
@@ -66,19 +66,19 @@ models: {{ models.1 }}
 ### F{{ forloop.parentloop.counter }}: {{ values.Name }}
 
 **Description**: {{ values.Description }}
-**MathModDB**:{% if values.MathModID and values.MathModID != 'not in MathModDB' %} {{ values.MathModID }} {% endif %}
+**MathModDB**:{% if 'mathmoddb' in values.ID %} {{ values.ID|cut:"mathmoddb:" }} {% endif %}
 **WikiData**:{% if 'wikidata' in values.ID %} {{ values.ID|cut:"wikidata:" }} {% endif %}
 **MaRDI**:{% if 'mardi' in values.ID %} {{ values.ID|cut:"mardi:" }} {% endif %}
 
 &nbsp;
 
-**Defining formulations**: {%for value in values.Formula.values %} {{ value }} {% if not forloop.last %}, {% endif %} {% endfor %}
+**Defining formulations**: {%for value in values.Formula.values %} ${{ value }}$ {% if not forloop.last %}, {% endif %} {% endfor %}
 
 &nbsp;
 
 | Symbol | Quantity | Quantity Id | Quantity Kind | Quant. Kind Id | Description | 
 |:------:|:--------:|:-----------:|:-------------:|:--------------:|:-----------:|
-{% for value in values.Element.values %} | {{ value.Symbol }} | {% if value.Info %} {{ value.Info.Name }} {% else %} {{ value.Quantity }} {% endif %} | {{ value.Info.QID }} | {{ value.Info.QKName }} | {{ value.Info.QKID }} | {{ value.Info.Description }} |   
+{% for value in values.Element.values %} | ${{ value.Symbol }}$ | {% if value.Info %} {{ value.Info.Name }} {% else %} {{ value.Quantity }} {% endif %} | {{ value.Info.QID }} | {{ value.Info.QKName }} | {{ value.Info.QKID }} | {{ value.Info.Description }} |   
 {% endfor %}
 
 &nbsp;
@@ -233,19 +233,19 @@ applies Mathematical Model: {{ value.1 }}
 ### F{{ forloop.parentloop.counter }}: {{ values.Name }}
 
 **Description**: {{ values.Description }}
-**MathModDB**:{% if values.MathModID and values.MathModID != 'not in MathModDB' %} {{ values.MathModID }} {% endif %}
+**MathModDB**:{% if 'mathmoddb' in values.ID %} {{ values.ID|cut:"mathmoddb:" }} {% endif %}
 **WikiData**:{% if 'wikidata' in values.ID %} {{ values.ID|cut:"wikidata:" }} {% endif %}
 **MaRDI**:{% if 'mardi' in values.ID %} {{ values.ID|cut:"mardi:" }} {% endif %}
 
 &nbsp;
 
-**Defining formulations**: {%for value in values.Formula.values %} {{ value }} {% if not forloop.last %}, {% endif %} {% endfor %}
+**Defining formulations**: {%for value in values.Formula.values %} ${{ value }}$ {% if not forloop.last %}, {% endif %} {% endfor %}
 
 &nbsp;
 
 | Symbol | Quantity | Quantity Id | Quantity Kind | Quant. Kind Id | Description |
 |:------:|:--------:|:-----------:|:-------------:|:--------------:|:-----------:|
-{% for value in values.Element.values %} | {{ value.Symbol }} | {% if value.Info %} {{ value.Info.Name }} {% else %} {{ value.Quantity }} {% endif %} | {{ value.Info.QID }} | {{ value.Info.QKName }} | {{ value.Info.QKID }} | {{ value.Info.Description }} |
+{% for value in values.Element.values %} | ${{ value.Symbol }}$ | {% if value.Info %} {{ value.Info.Name }} {% else %} {{ value.Quantity }} {% endif %} | {{ value.Info.QID }} | {{ value.Info.QKName }} | {{ value.Info.QKID }} | {{ value.Info.Description }} |
 {% endfor %}
 
 &nbsp;
@@ -450,7 +450,7 @@ contained in Field: {{ researchfield.1 }}
 **Description**: {{ values.Description }}
 **Class**: {% if values.QorQK == Quantity %} Quantity {% elif values.QorQK == QuantityKind %} Quantity Kind {% endif %} 
 **QUDT**:{% if 'qudt' in values.Reference %} {{ values.Reference|cut:"qudt:" }} {% endif %}
-**MathModDB**:{% if values.MathModID and values.MathModID != 'not in MathModDB' %} {{ values.MathModID }} {% endif %}
+**MathModDB**:{% if 'mathmoddb' in values.ID %} {{ values.ID|cut:"mathmoddb:" }} {% endif %}
 **WikiData**:{% if 'wikidata' in values.ID %} {{ values.ID|cut:"wikidata:" }} {% endif %}
 **MaRDI**:{% if 'mardi' in values.ID %} {{ values.ID|cut:"mardi:" }} {% endif %}
 **Properties**: {% if values.Properties %} {% for value in values.Properties.values %} {% if value == isDimensionless %} Is Dimensionless {% elif value == isDimensional %} Is Dimensional {% elif value == isLinear %} Is Linear {% elif value == isNotLinear %} Is Not Linear {% endif %} {% if not forloop.last %}, {% endif %}{% endfor %} {% endif %}
@@ -498,19 +498,19 @@ contained in Field: {{ researchfield.1 }}
 
 **Name**: {{ values.MDef.Name }}
 **Description**: {{ values.MDef.Description }}
-**MathModDB**:{% if values.MDef.MathModID and values.MDef.MathModID != 'not in MathModDB' %} {{ values.MDef.MathModID }} {% endif %}
+**MathModDB**:{% if 'mathmoddb' in values.MDef.ID %} {{ values.MDef.ID|cut:"mathmoddb:" }} {% endif %}
 **WikiData**:{% if 'wikidata' in values.MDef.ID %} {{ values.MDef.ID|cut:"wikidata:" }} {% endif %}
 **MaRDI**:{% if 'mardi' in values.MDef.ID %} {{ values.MDef.ID|cut:"mardi:" }} {% endif %}
 
 &nbsp;
 
-**Defining formulations**: {%for value in values.MDef.Formula.values %} {{ value }} {% if not forloop.last %}, {% endif %} {% endfor %}
+**Defining formulations**: {%for value in values.MDef.Formula.values %} ${{ value }}$ {% if not forloop.last %}, {% endif %} {% endfor %}
 
 &nbsp;
 
 | Symbol | Quantity | Quantity Id | Quantity Kind | Quant. Kind Id | Description |
 |:------:|:--------:|:-----------:|:-------------:|:--------------:|:-----------:|
-{% for value in values.MDef.Element.values %} | {{ value.Symbol }} | {% if value.Info %} {{ value.Info.Name }} {% else %} {{ value.Quantity }} {% endif %} | {{ value.Info.QID }} | {{ value.Info.QKName }} | {{ value.Info.QKID }} | {{ value.Info.Description }} |
+{% for value in values.MDef.Element.values %} | ${{ value.Symbol }}$ | {% if value.Info %} {{ value.Info.Name }} {% else %} {{ value.Quantity }} {% endif %} | {{ value.Info.QID }} | {{ value.Info.QKName }} | {{ value.Info.QKID }} | {{ value.Info.Description }} |
 {% endfor %}
 
 &nbsp;

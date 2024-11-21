@@ -33,15 +33,6 @@ def add_new_mathmoddb_entries_to_questionnaire(project, ids, query):
                 # Call valueEditor with constructed values
                 value_editor(project, f"{BASE_URI}domain/{setName}MathModDBID", label, value, None, None, setID)
 
-#def extract_parts(string):
-#    # Split string into Name, Description and Source
-#    pattern = r'^(.*?)\s*\((.*)\)\s*\[(.*)\]$'
-#    match = re.match(pattern, string)
-#    if match:
-#        name, description, source = match.groups()
-#        return name.strip(), description.strip(), source.strip()    
-#    return None, None, None
-
 def extract_parts(string):
     # Step 1: Split the string at the last occurrence of ') [' to isolate `c` (source)
     parts = string.rsplit(') [', 1)
@@ -107,7 +98,6 @@ def query_sparql(query,endpoint=mathmoddb_endpoint):
 def value_editor(project, uri, text=None, external_id=None, option=None, collection_index=None, set_index=None, set_prefix=None):
     '''Add values to the Questionnaire'''
     attribute_object = Attribute.objects.get(uri=uri)
-    print('xXx')
     # Prepare the defaults dictionary
     defaults = {
         'project': project,
@@ -143,3 +133,15 @@ def value_editor(project, uri, text=None, external_id=None, option=None, collect
     obj, created = Value.objects.update_or_create(**update_fields)
 
     return obj, created
+
+def splitVariableText(inputString):
+    '''Split inDefiningStatements in Variable and Text'''
+    match = re.match(r'(\$.*?\$)\s*,\s*(.*)', inputString)
+
+    if match:
+        # Extract the groups: math part and text part
+        math_part, text_part = match.groups()
+        return math_part, text_part
+    else:
+        # Handle case where the pattern is not found
+        return '', ''

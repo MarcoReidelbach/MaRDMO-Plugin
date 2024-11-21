@@ -151,9 +151,9 @@
                 <h3 id="F{{ forloop.parentloop.counter }}"> F{{ forloop.parentloop.counter }}: {{ values.Name }} </h3>
 		<p>
                     <b>Description</b>: {{ values.Description }} <br>
-		    <b>MathModDB</b>: {% if values.MathModID and values.MathModID != 'not in MathModDB' %} 
-		                          {{ values.MathModID }} 
-				      {% endif %} <br>
+		    <b>MathModDB</b>: {% if 'mathmoddb' in values.ID %} 
+                                  {{ values.ID|cut:"mathmoddb:" }} 
+                              {% endif %} <br>
                     <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
 		                         {{ values.ID|cut:"wikidata:" }} 
 				     {% endif %} <br>
@@ -163,7 +163,7 @@
 		</p>
 		<p>
 		    <b>Defining formulations</b>: {%for value in values.Formula.values %} 
-		                                      \( {{ value|cut:"$$" }} \) 
+		                                      \( {{ value|cut:"$" }} \) 
 			    		              {% if not forloop.last %}
 						          , 
 						      {% endif %} 
@@ -192,7 +192,7 @@
                     <tbody>
                         {% for value in values.Element.values %}
                             <tr>
-                                <td style="text-align: center; vertical-align: middle;">{{ value.Symbol }}</td>
+                                <td style="text-align: center; vertical-align: middle;">${{ value.Symbol }}$</td>
                                 <td style="text-align: center; vertical-align: middle;">{% if value.Info %} 
 					                                                    {{ value.Info.Name }} 
 											{% else %} 
@@ -431,9 +431,9 @@
                 <h3 id="F{{ forloop.parentloop.counter }}2"> F{{ forloop.parentloop.counter }}: {{ values.Name }} </h3>
                 <p>
 		    <b>Description</b>: {{ values.Description }} <br>
-		    <b>MathModDB</b>: {% if values.MathModID and values.MathModID != 'not in MathModDB' %} 
-		                          {{ values.MathModID }} 
-				      {% endif %} <br>
+		    <b>MathModDB</b>: {% if 'mathmoddb' in values.ID %} 
+                                  {{ values.ID|cut:"mathmoddb:" }} 
+                              {% endif %} <br>
 		    <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
 		                         {{ values.ID|cut:"wikidata:" }} 
 				     {% endif %} <br>
@@ -443,7 +443,7 @@
 	        </p>
 		<p>
                     <b>Defining formulations</b>: {% for value in values.Formula.values %} 
-		                                      \( {{ value|cut:"$$" }} \) 
+		                                      \( {{ value|cut:"$" }} \) 
 						      {% if not forloop.last %}
 						          , 
 						      {% endif %} 
@@ -472,7 +472,7 @@
                     <tbody>
                         {% for value in values.Element.values %}
                             <tr>
-                                <td style="text-align: center; vertical-align: middle;">{{ value.Symbol }}</td>
+                                <td style="text-align: center; vertical-align: middle;">${{ value.Symbol }}$</td>
                                 <td style="text-align: center; vertical-align: middle;">{% if value.Info %}
                                                                                             {{ value.Info.Name }}
                                                                                         {% else %}
@@ -765,9 +765,9 @@
         <b>QUDT</b>: {% if 'qudt' in values.Reference %} 
                         {{ values.Reference|cut:"qudt:" }} 
 	   	            {% endif %} <br>
-        <b>MathModDB</b>: {% if values.MathModID and values.MathModID != 'not in MathModDB' %} 
-                              {{ values.MathModID }} 
-		                  {% endif %} <br>
+        <b>MathModDB</b>: {% if 'mathmoddb' in values.ID %} 
+                              {{ values.ID|cut:"mathmoddb:" }} 
+                          {% endif %} <br>
         <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
                              {{ values.ID|cut:"wikidata:" }} 
 	                     {% endif %} <br>
@@ -841,9 +841,9 @@
 	        <p>
 	            <b>Name</b>: {{ values.MDef.Name }} <br>
 	            <b>Description</b>: {{ values.MDef.Description }} <br>
-	            <b>MathModDB</b>: {% if values.MDef.MathModID and values.MDef.MathModID != 'not in MathModDB' %} 
-	                                  {{ values.MDef.MathModID }} 
-			                      {% endif %} <br>
+	            <b>MathModDB</b>: {% if 'mathmoddb' in values.MDef.ID %} 
+                                      {{ values.MDef.ID|cut:"mathmoddb:" }} 
+                                  {% endif %} <br>
 	            <b>WikiData</b>: {% if 'wikidata' in values.MDef.ID %} 
 	                                 {{ values.MDef.ID|cut:"wikidata:" }} 
 			                     {% endif %} <br>
@@ -853,7 +853,7 @@
             </p>
 	        <p>
                 <b>Defining formulations</b>: {%for value in values.MDef.Formula.values %} 
-                                                  \( {{ value|cut:"$$" }} \) 
+                                                  \( {{ value|cut:"$" }} \) 
 					                              {% if not forloop.last %}
 					                                , 
 					                              {% endif %} 
@@ -882,7 +882,7 @@
                 <tbody>
                     {% for value in values.MDef.Element.values %}
                         <tr>
-                            <td style="text-align: center; vertical-align: middle;">{{ value.Symbol }}</td>
+                            <td style="text-align: center; vertical-align: middle;">${{ value.Symbol }}$</td>
                             <td style="text-align: center; vertical-align: middle;">{% if value.Info %}
                                                                                         {{ value.Info.Name }}
                                                                                     {% else %}

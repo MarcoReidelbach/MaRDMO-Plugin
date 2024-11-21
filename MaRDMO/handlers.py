@@ -9,7 +9,7 @@ from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
 
 from .citation import GetCitation
-from .utils import query_sparql, value_editor, extract_parts
+from .utils import query_sparql, value_editor, extract_parts, splitVariableText
 from .sparql import queryPublication, queryModelHandler, queryHandler, wini, mini, pl_query, pl_vars, pro_query, pro_vars
 from .id import *
 from .config import wd, wdt, mardi_api, wikidata_api, mardi_endpoint, wikidata_endpoint, BASE_URI
@@ -420,7 +420,7 @@ def ModelHandler(sender, **kwargs):
     
     instance = kwargs.get("instance", None)
     
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/main-mathematical-model/id':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/main-model/id':
 
         if instance.external_id and instance.external_id != 'not found':        
             IdMM = instance.external_id
@@ -436,285 +436,19 @@ def ModelHandler(sender, **kwargs):
         
         if results:
             # Add Research Field Information to Questionnaire
-            rfIds = []
-            idx = 0
-            
-            for result in results:                
-                rfId = result.get('rf',{}).get('value')
-                rfLabel = result.get('rfl',{}).get('value')
-                rfDescription = result.get('rfd',{}).get('value')
-                if rfId and rfLabel:
-                    if rfId not in rfIds:
-                        rfIds.append(rfId) 
-                        # Set up Research Field Page 
-                        value_editor(instance.project, f'{BASE_URI}domain/research-field', idx, None, None, None, idx)
-                        # Add Research Field Values
-                        value_editor(instance.project, f'{BASE_URI}domain/research-field/id', f'{rfLabel} ({rfDescription}) [mathmoddb]', f"mathmoddb:{rfId}", None, None, idx)
-                        idx = idx + 1
+            add_entity(instance.project, results, 'field')
             
             # Add Research Problem Information to Questionnaire
-            rpIds = []
-            rpLabels =[]
-            idx = 0
-
-            for result in results:
-                rpId = result.get('rp',{}).get('value')
-                rpLabel = result.get('rpl',{}).get('value')
-                rpDescription = result.get('rpd',{}).get('value')
-                if rpId and rpLabel:
-                    if rpId not in rpIds:
-                        rpIds.append(rpId)
-                        rpLabels.append(rpLabel)
-                        # Setup Research Problem Page
-                        value_editor(instance.project, f'{BASE_URI}domain/research-problem', idx, None, None, None, idx)
-                        # Add Research Problem Values
-                        value_editor(instance.project, f'{BASE_URI}domain/research-problem/id', f'{rpLabel} ({rpDescription}) [mathmoddb]', f"mathmoddb:{rpId}", None, None, idx)
-                        idx = idx +1
+            add_entity(instance.project, results, 'problem')
             
             # Add Quantity Information to Questionnaire
-            qIds =[]
-            qLabels = []
-            qDescriptions = []
-
-            for res in results:
-                qids = res.get('Q',{}).get('value').split(' / ')
-                qlabels = res.get('QL',{}).get('value').split(' / ')
-                qdescriptions = res.get('QD',{}).get('value').split(' / ')
-                for qid, qlabel, qdescription in zip(qids, qlabels, qdescriptions):
-                    if qid and qlabel:
-                        if qid not in qIds:
-                            qIds.append(qid)
-                            qLabels.append(qlabel)
-                            qDescriptions.append(qdescription)
-
-            for idx, (qId, qLabel, qDescription) in enumerate(zip(qIds,qLabels,qDescriptions)):
-                    # Set up Qauntity / Quantity Kind Page
-                    value_editor(instance.project, f'{BASE_URI}domain/quantity', idx, None, None, None, idx)
-                    # Add Quantity / Quantity Kind Values
-                    value_editor(instance.project, f'{BASE_URI}domain/quantity/id', f'{qLabel} ({qDescription}) [mathmoddb]', f"mathmoddb:{qId}", None, None, idx)
+            add_entity(instance.project, results, 'quantity')
             
-            # Restructure Results from initial Query
-            ModelPropertyKeys = ['mm','ta','gb','g','ab','a','db','d','lb','l','ci','c','s','ff','af','bcf','ccf','cpcf','icf','fcf']
-            ModelProperty = {f'{ModelPropertyKey}{kind}': [] for ModelPropertyKey in ModelPropertyKeys for kind in ['Ids', 'Labels', 'Descriptions']}
-            for res in results:
-                for idx, key in enumerate(['mm']): #,'ta','gbmm','gmm','abmm','amm','dbmm','dmm','lbmm','lmm','cimm','cmm','smm','fmf','amf','bcmf','ccmf','cpcmf','icmf','fcmf'
-                    if res.get(key,{}).get('value') and res.get(f'{key}l',{}).get('value'): 
-                        if res[key]['value'] not in ModelProperty[list(ModelProperty.keys())[3*idx]] and res[f'{key}l']['value'] not in ModelProperty[list(ModelProperty.keys())[3*idx+1]] and res[f'{key}d']['value'] not in ModelProperty[list(ModelProperty.keys())[3*idx+2]]:
-                            ModelProperty[list(ModelProperty.keys())[3*idx]].append(res[key]['value'])
-                            ModelProperty[list(ModelProperty.keys())[3*idx+1]].append(res[f'{key}l']['value'])
-                            ModelProperty[list(ModelProperty.keys())[3*idx+2]].append(res[f'{key}d']['value'])
+            # Add Mathematical Model Information to Questionnaire
+            add_entity(instance.project, results, 'model')
             
-            # Group results from initial query for further queries (IdsMF - Ids of all related Formulation, IdsT - Ids of all related Tasks, Ids - Ids for all related Entities)
-            #IdsMF = ModelProperty['ffIds'] + ModelProperty['afIds'] + ModelProperty['bcfIds'] + ModelProperty['ccfIds'] + ModelProperty['cpcfIds'] + ModelProperty['icfIds'] + ModelProperty['fcfIds']
-            #IdsT = ModelProperty['taIds']
-            #Ids = [IdMM] + rfIds + rpIds + qIds + IdsMF + IdsT
-
-            # Further Queries of Knowledge Graph to get further Formualtion, Task and Publication Information
-            #search_string2 = ''
-            #search_string3 = ''
-            #search_string4 = ''
-
-            #for Id in IdsMF:
-            #    search_string2 = search_string2 + f" :{Id.split('#')[1]}"
-
-            #for Id in IdsT:
-            #    search_string3 = search_string3 + f" :{Id.split('#')[1]}"
-            
-            #for Id in Ids:
-            #    search_string4 = search_string4 + f" :{Id.split('#')[1]}"
-
-            #results2 = query_sparql(queryModelHandler['MFRelations'].format(search_string2))
-            #results3 = query_sparql(queryModelHandler['TRelation'].format(search_string3))
-            #results4 = query_sparql(queryModelHandler['PRelation'].format(search_string4))
-
-
-            for idx, (mmId, mmLabel, mmDescription) in enumerate(zip(ModelProperty['mmIds'],ModelProperty['mmLabels'],ModelProperty['mmDescriptions'])):
-                # Set up Mathematical Model Page
-                value_editor(instance.project, f'{BASE_URI}domain/mathematical-model', idx, None, None, None, idx)
-                # Add Mathematical Model ID and Label
-                value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/id', f'{mmLabel} ({mmDescription}) [mathmoddb]', f"mathmoddb:{mmId}", None, None, idx)
-                # Add Research Problem related to Mathematical Model
-               # for idx2, (rpId, rpLabel) in enumerate(zip(rpIds,rpLabels)):
-               #     value_editor(instance.project, f'{BASE_URI}domain/ResearchProblemRelatedToMathematicalModel', f"{rpLabel}", f"{rpId} <|> {rpLabel}", None, idx2, idx)
-                return
-                # Add Model Relations
-
-                modelRelations1 = {'ff': 'containedAsFormulationIn',
-                                   'af': 'containedAsAssumptionIn',
-                                   'bcf': 'containedAsBoundaryConditionIn',
-                                   'ccf': 'containedAsConstraintConditionIn',
-                                   'cpcf': 'containedAsCouplingConditionIn',
-                                   'icf': 'containedAsInitialConditionIn',
-                                   'fcf': 'containedAsFinalConditionIn'}
-
-                modelRelations2 = {'gb': 'generalizedByModel',
-                                   'g': 'generalizesModel',
-                                   'ab': 'approximatedByModel',
-                                   'a': 'approximatesModel',
-                                   'db': 'discretizedByModel',
-                                   'd': 'discretizesModel',
-                                   'lb': 'linearizedByModel',
-                                   'l': 'linearizesModel',
-                                   'ci': 'containedInModel',
-                                   'c': 'containsModel',
-                                   's': 'similarToModel'}
-                
-                formulationRelations1 = {'F': 'containsFormulation',
-                                         'FD': 'containedAsFormulationIn',
-                                         'A': 'containsAssumption',
-                                         'AD': 'containedAsAssumptionIn',
-                                         'BC': 'containsBoundaryCondition',
-                                         'BCD': 'containedAsBoundaryConditionIn',
-                                         'CC': 'containsConstraintCondition',
-                                         'CCD': 'containedAsConstraintConditionIn',
-                                         'CPC': 'containsCouplingCondition',
-                                         'CPCD': 'containedAsCouplingConditionIn',
-                                         'IC': 'containsInitialCondition',
-                                         'ICD': 'containedAsInitialConditionIn',
-                                         'FC': 'containsFinalCondition',
-                                         'FCD': 'containedAsFinalConditionIn'}
-
-                formulationRelations2 = {'FGBF': 'generalizedByFormulation',
-                                         'FGF': 'generalizesFormulation',
-                                         'FABF': 'approximatedByFormulation',
-                                         'FAF': 'approximatesFormulation',
-                                         'FDBF': 'discretizedByFormulation',
-                                         'FDF': 'discretizesFormulation',
-                                         'FLBF': 'linearizedByFormulation',
-                                         'FLF': 'linearizesFormulation',
-                                         'FNBF': 'nondimensionalizedByFormulation',
-                                         'FNF': 'nondimensionalizesFormulation',
-                                         'FSF': 'similarToFormulation'}
-                
-                taskRelations = {'TGBT': 'generalizedByTask',
-                                 'TGT': 'generalizesTask',
-                                 'TABT': 'approximatedByTask',
-                                 'TAT': 'approximatesTask',
-                                 'TDBT': 'discretizedByTask',
-                                 'TDT': 'discretizesTask',
-                                 'TICT': 'containedInTask',
-                                 'TCT': 'containsTask',
-                                 'TLBT': 'linearizedByTask',
-                                 'TLT': 'linearizesTask',
-                                 'TST': 'similarToTask'}
-                
-                publicationRelations = {'1': 'documents',
-                                        '2': 'invents',
-                                        '3': 'studies',
-                                        '4': 'surveys',
-                                        '5': 'uses'}
-
-                idx2 = 0
-                for prefix in modelRelations2.keys():
-                    for Id, Label in zip(ModelProperty[f'{prefix}Ids'],ModelProperty[f'{prefix}Labels']):
-                        if Id and Label:
-                            # Add Property and Model
-                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalModelToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb[modelRelations2[prefix]]), None, idx2, idx)
-                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalModel', f"{Label}", f"{Id} <|> {Label}", None, None, idx2, idx)
-                            # Increase index
-                            idx2 = idx2 + 1
-                
-                idx2 = 0
-                for type in modelRelations1.keys(): #['ff','af','bcf','ccf','cpcf','icf','fcf']:
-                    for Id, Label in zip(ModelProperty[f'{type}Ids'],ModelProperty[f'{type}Labels']):
-                        if Id and Label:
-                            # Set up Page for Mathematical Formulation
-                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulation', idx2, None, None, None, idx2)
-                            # Add Id / Label of Mathematical Formualtion
-                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationMathModDBID', f"{Label}", f"{Id} <|> {Label}", None, None, idx2)
-                            # Add Contained As Formulation In Property and Model
-                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationToMathematicalModelRelation', None, None, Option.objects.get(uri=mathmoddb[modelRelations1[type]]), None, idx, idx2)
-                            value_editor(instance.project, f'{BASE_URI}domain/MathematicalModelRelatedToMathematicalFormulation', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx, idx2)
-                            idx3 = 0
-                            idx4 = 0
-                            for res2 in results2:
-                                if Id == res2.get('mf',{}).get('value'):
-                                    for prefix in formulationRelations1.keys():
-                                        if res2.get(prefix,{}).get('value'):
-                                            its = res2[prefix]['value'].split(' <|> ')
-                                            lbs = res2[f'{prefix}L']['value'].split(' <|> ')
-                                            for it,lb in zip(its,lbs):
-                                                # Add Contains Formulation Property and Formulation
-                                                value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation1', None, None, Option.objects.get(uri=mathmoddb[formulationRelations1[prefix]]), None, idx3, idx2)
-                                                value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation1', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
-                                                # Increase Index
-                                                idx3 = idx3 + 1
-                                    for prefix in formulationRelations2.keys(): 
-                                        if res2.get(prefix,{}).get('value'):
-                                            its = res2[prefix]['value'].split(' <|> ')
-                                            lbs = res2[f'{prefix}L']['value'].split(' <|> ')
-                                            for it,lb in zip(its,lbs):
-                                                # Add Generalized By Property and Formulation
-                                                value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationToMathematicalFormulationRelation2', None, None, Option.objects.get(uri=mathmoddb[formulationRelations2[prefix]]), None, idx4, idx2)
-                                                value_editor(instance.project, f'{BASE_URI}domain/MathematicalFormulationRelatedToMathematicalFormulation2', f"{lb}", f"{it} <|> {lb}", None, None, idx4, idx2)
-                                                # Increase Index
-                                                idx4 = idx4 + 1
-                            idx2 = idx2 + 1
-                
-                idx2 = 0
-                for taId, taLabel in zip(ModelProperty['taIds'], ModelProperty['taLabels']):
-                    if taId and taLabel:
-                        # Set up Page for Task
-                        value_editor(instance.project, f'{BASE_URI}domain/Task', idx2, None, None, None, idx2)
-                        # Add Task ID / Label
-                        value_editor(instance.project, f'{BASE_URI}domain/TaskMathModDBID', f"{taLabel}", f"{taId} <|> {taLabel}", None, None, idx2)
-                        # Add Model applied by Task
-                        value_editor(instance.project, f'{BASE_URI}domain/MathematicalModelRelatedToTask', f"{mmLabel}", f"{mmId} <|> {mmLabel}", None, None, idx2)
-                        idx3 = 0
-                        for res3 in results3:
-                            if taId == res3.get('t',{}).get('value'):
-                                for prefix in taskRelations.keys(): 
-                                    if res3.get(prefix,{}).get('value'):
-                                        its = res3[prefix]['value'].split(' <|> ')
-                                        lbs = res3[f'{prefix}L']['value'].split(' <|> ')
-                                        for it,lb in zip(its,lbs):
-                                            # Add Generalized By Property and Task
-                                            value_editor(instance.project, f'{BASE_URI}domain/TaskToTaskRelation', None, None, Option.objects.get(uri=mathmoddb[taskRelations[prefix]]), None, idx3, idx2)
-                                            value_editor(instance.project, f'{BASE_URI}domain/TaskRelatedToTask', f"{lb}", f"{it} <|> {lb}", None, None, idx3, idx2)
-                                            # Increase Index
-                                            idx3 = idx3 + 1
-                        idx2 = idx2 + 1
-
-            puIds = []
-            puLabels = []
-            for res4 in results4:
-                for no in range(1,6):
-                    if res4.get(f'PU{no}',{}).get('value'):
-                        if res4[f'PU{no}']['value'] not in puIds:
-                            puIds.append(res4[f'PU{no}']['value'])
-                            puLabels.append(res4[f'LABEL{no}']['value'])
-
-            for idx, (puId, puLabel) in enumerate(zip(puIds,puLabels)):
-                idx2 = 0
-                # Set up Publication Page 
-                value_editor(instance.project, f'{BASE_URI}domain/Publication', idx, None, None, None, idx)
-                # Add Id / Label of Publication
-                value_editor(instance.project, f'{BASE_URI}domain/PublicationModelMathModDBID', f"{puLabel}", f"{puId} <|> {puLabel}", None, None, idx)
-                # Get Class abbreviation
-                for res4 in results4:
-                    Class = res4.get('class',{}).get('value','').split('#')[-1]
-                    if Class == 'ResearchField':
-                        Abbr = 'RF'
-                    elif Class == 'ResearchProblem':
-                        Abbr = 'RP'
-                    elif Class == 'MathematicalModel':
-                        Abbr = 'MM'
-                    elif Class == 'MathematicalFormulation':
-                        Abbr = 'MF'
-                    elif Class == 'Quantity':
-                        Abbr = 'QQK'
-                    elif Class == 'QuantityKind':
-                        Abbr = 'QQK'
-                    elif 'Task' in Class:
-                        Class = 'Task'
-                        Abbr = 'T'
-                    for no in publicationRelations.keys():
-                        if puId in res4.get(f'PU{no}',{}).get('value',''):                        
-                            # Add Documents Property and Entitiy
-                            value_editor(instance.project, f'{BASE_URI}domain/PublicationToModelEntityRelation', None, None, Option.objects.get(uri=mathmoddb[publicationRelations[no]]), None, idx2, idx)
-                            value_editor(instance.project, f'{BASE_URI}domain/ModelEntityRelatedToPublication', f"{res4['label']['value']} ({Class})", f"{res4['item']['value']} <|> {res4['label']['value']} <|> {Class} <|> {Abbr}", None, None, idx2, idx)
-                            # Increase Index
-                            idx2 = idx2 + 1    
+            # Add Formulation Information to Questionnaire
+            add_entity(instance.project, results, 'formulation')
 
     return
 
@@ -806,25 +540,25 @@ def processor(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def RP2RF(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/research-problem/research-field-relatant':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/problem/field-relatant':
 
         path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
         with open(path, "r") as json_file:
             mathmoddb = json.load(json_file)
 
-        value_editor(instance.project, f'{BASE_URI}domain/research-problem/research-field-relation', mathmoddb['containedInField'], None, None, instance.collection_index, 0, instance.set_prefix)
+        value_editor(instance.project, f'{BASE_URI}domain/problem/field-relation', mathmoddb['containedInField'], None, None, instance.collection_index, 0, instance.set_prefix)
 
 
 @receiver(post_save, sender=Value)
 def RP2MM(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/mathematical-model/research-problem-relatant':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/model/problem-relatant':
 
         path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
         with open(path, "r") as json_file:
             mathmoddb = json.load(json_file)
 
-        value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/research-problem-relation', mathmoddb['models'], None, None, instance.collection_index, 0, instance.set_prefix)
+        value_editor(instance.project, f'{BASE_URI}domain/model/problem-relation', mathmoddb['models'], None, None, instance.collection_index, 0, instance.set_prefix)
 
 
 @receiver(post_save, sender=Value)
@@ -852,11 +586,11 @@ def T2MM(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def RFInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/research-field/id':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/field/id':
         if instance.text and instance.text != 'not found':
             label, description, _ = extract_parts(instance.text)
-            value_editor(instance.project, f'{BASE_URI}domain/research-field/name', label, None, None, None, 0, instance.set_index)
-            value_editor(instance.project, f'{BASE_URI}domain/research-field/description', description, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/field/name', label, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/field/description', description, None, None, None, 0, instance.set_index)
             # Get source and ID of Item
             source, Id = instance.external_id.split(':')
             if source== 'mathmoddb':
@@ -874,19 +608,19 @@ def RFInformation(sender, **kwargs):
                             fieldLabels = results[0][f'{prop}Label']['value'].split(' / ')
                             fieldDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
                             for fieldID, fieldLabel, fieldDescription in zip(fieldIDs, fieldLabels, fieldDescriptions):
-                                value_editor(instance.project, f'{BASE_URI}domain/research-field/relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, instance.set_index)
-                                value_editor(instance.project, f'{BASE_URI}domain/research-field/relatant', f"{fieldLabel} ({fieldDescription}) [mathmoddb]", f'mathmoddb:{fieldID}', None, None, idx, instance.set_index)
+                                value_editor(instance.project, f'{BASE_URI}domain/field/field-relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, instance.set_index)
+                                value_editor(instance.project, f'{BASE_URI}domain/field/field-relatant', f"{fieldLabel} ({fieldDescription}) [mathmoddb]", f'mathmoddb:{fieldID}', None, None, idx, instance.set_index)
                                 idx += 1
 
 @receiver(post_save, sender=Value)
 def RPInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/research-problem/id':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/problem/id':
         if instance.text and instance.text != 'not found':
             # Get Label and Description of Item and add to questionnaire
             label, description, _ = extract_parts(instance.text)
-            value_editor(instance.project, f'{BASE_URI}domain/research-problem/name', label, None, None, None, 0, instance.set_index)
-            value_editor(instance.project, f'{BASE_URI}domain/research-problem/description', description, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/problem/name', label, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/problem/description', description, None, None, None, 0, instance.set_index)
             # Get source and ID of Item
             source, Id = instance.external_id.split(':')
             if source== 'mathmoddb':
@@ -904,7 +638,7 @@ def RPInformation(sender, **kwargs):
                             fieldLabels = results[0][f'{prop}Label']['value'].split(' / ')
                             fieldDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
                             for fieldID, fieldLabel, fieldDescription in zip(fieldIDs, fieldLabels, fieldDescriptions):
-                                value_editor(instance.project,f'{BASE_URI}domain/research-problem/research-field-relatant', f"{fieldLabel} ({fieldDescription}) [mathmoddb]", f'mathmoddb:{fieldID}', None, idx, 0, instance.set_index)
+                                value_editor(instance.project,f'{BASE_URI}domain/problem/field-relatant', f"{fieldLabel} ({fieldDescription}) [mathmoddb]", f'mathmoddb:{fieldID}', None, idx, 0, instance.set_index)
                                 idx += 1
                     # Add related Research Problems to questionnaire
                     idx = 0
@@ -914,19 +648,19 @@ def RPInformation(sender, **kwargs):
                             problemLabels = results[0][f'{prop}Label']['value'].split(' / ')
                             problemDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
                             for problemID, problemLabel, problemDescription in zip(problemIDs, problemLabels, problemDescriptions):
-                                value_editor(instance.project, f'{BASE_URI}domain/research-problem/relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, instance.set_index)
-                                value_editor(instance.project, f'{BASE_URI}domain/research-problem/relatant', f"{problemLabel} ({problemDescription}) [mathmoddb]", f'mathmoddb:{problemID}', None, None, idx, instance.set_index)
+                                value_editor(instance.project, f'{BASE_URI}domain/problem/problem-relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, instance.set_index)
+                                value_editor(instance.project, f'{BASE_URI}domain/problem/problem-relatant', f"{problemLabel} ({problemDescription}) [mathmoddb]", f'mathmoddb:{problemID}', None, None, idx, instance.set_index)
                                 idx += 1
  
 @receiver(post_save, sender=Value)
 def MMInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/mathematical-model/id':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/model/id':
         if instance.text and instance.text != 'not found':
             # Get Label and Description of Item and add to questionnaire
             label, description, _ = extract_parts(instance.text)
-            value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/name', label, None, None, None, 0, instance.set_index)
-            value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/description', description, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/model/name', label, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/model/description', description, None, None, None, 0, instance.set_index)
             # Get source and ID of Item
             source, Id = instance.external_id.split(':')
             if source== 'mathmoddb':
@@ -943,7 +677,7 @@ def MMInformation(sender, **kwargs):
                     for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless',
                                                 'isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']):
                         if results[0].get(prop, {}).get('value') == 'true':
-                            value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/properties', None, None, Option.objects.get(uri=mathmoddb[prop]), idx, 0, instance.set_index)
+                            value_editor(instance.project, f'{BASE_URI}domain/model/properties', None, None, Option.objects.get(uri=mathmoddb[prop]), idx, 0, instance.set_index)
                     # Add modelled Research Problems to questionnaire
                     idx = 0
                     for prop in ['models']:
@@ -952,13 +686,13 @@ def MMInformation(sender, **kwargs):
                             modelLabels = results[0][f'{prop}Label']['value'].split(' / ')
                             modelDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
                             for modelID, modelLabel, modelDescription in zip(modelIDs, modelLabels, modelDescriptions):
-                                value_editor(instance.project,f'{BASE_URI}domain/mathematical-model/research-problem-relatant', f"{modelLabel} ({modelDescription}) [mathmoddb]", f'mathmoddb:{modelID}', None, idx, 0, instance.set_index)
+                                value_editor(instance.project,f'{BASE_URI}domain/model/problem-relatant', f"{modelLabel} ({modelDescription}) [mathmoddb]", f'mathmoddb:{modelID}', None, idx, 0, instance.set_index)
                                 idx += 1
                     # Add Main Model Information
                     if instance.set_index == 0:
-                        value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/is-main', None, None, Option.objects.get(uri=option['Yes']), None, instance.set_index, None)
+                        value_editor(instance.project, f'{BASE_URI}domain/model/is-main', None, None, Option.objects.get(uri=option['Yes']), None, instance.set_index, None)
                     else:
-                        value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/is-main', None, None, Option.objects.get(uri=option['No']), None, instance.set_index, None)
+                        value_editor(instance.project, f'{BASE_URI}domain/model/is-main', None, None, Option.objects.get(uri=option['No']), None, instance.set_index, None)
                     # Add related mathematical models to questionnaire
                     idx = 0
                     for prop in ['generalizedByModel','generalizesModel','discretizedByModel','discretizesModel','containedInModel','containsModel','approximatedByModel',
@@ -968,8 +702,8 @@ def MMInformation(sender, **kwargs):
                             modelLabels = results[0][f'{prop}Label']['value'].split(' / ')
                             modelDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
                             for modelID, modelLabel, modelDescription in zip(modelIDs, modelLabels, modelDescriptions):
-                                value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, instance.set_index)
-                                value_editor(instance.project, f'{BASE_URI}domain/mathematical-model/relatant', f"{modelLabel} ({modelDescription}) [mathmoddb]", f'mathmoddb:{modelID}', None, None, idx, instance.set_index)
+                                value_editor(instance.project, f'{BASE_URI}domain/model/model-relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, instance.set_index)
+                                value_editor(instance.project, f'{BASE_URI}domain/model/model-relatant', f"{modelLabel} ({modelDescription}) [mathmoddb]", f'mathmoddb:{modelID}', None, None, idx, instance.set_index)
                                 idx +=1
 
 @receiver(post_save, sender=Value)
@@ -1033,7 +767,96 @@ def QQKInformation(sender, **kwargs):
                                     value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-kind-to-quantity/relation', None, None, Option.objects.get(uri=mathmoddb[prop]), 0, idx_qkq, f"{instance.set_index}|0")
                                     value_editor(instance.project, f'{BASE_URI}domain/quantity/quantity-kind-to-quantity/relatant', f"{quantityLabel} ({quantityDescription}) [mathmoddb]", f'mathmoddb:{quantityID}', None, 0, idx_qkq, f"{instance.set_index}|0")
                                     idx_qkq +=1
-                                
+
+@receiver(post_save, sender=Value)
+def MFInformation(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/formulation/id':
+        if instance.text and instance.text != 'not found':
+            # Get Label and Description of Item and add to questionnaire
+            label, description, _ = extract_parts(instance.text)
+            value_editor(instance.project, f'{BASE_URI}domain/formulation/name', label, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/formulation/description', description, None, None, None, 0, instance.set_index)
+            # Get source and ID of Item
+            source, Id = instance.external_id.split(':')
+            if source== 'mathmoddb':
+                # If Item from MathModDB, query relations and load MathModDB Vocabulary
+                results = query_sparql(queryHandler['mathematicalFormulationInformation'].format(f":{Id}"))
+                path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+                with open(path, "r") as json_file:
+                    mathmoddb = json.load(json_file)
+                path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
+                with open(path, "r") as json_file:
+                    option = json.load(json_file)
+                if results:
+                    # Add the Mathematical Model Properties to the Questionnaire
+                    for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless',
+                                                'isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']):
+                        if results[0].get(prop, {}).get('value') == 'true':
+                            value_editor(instance.project, f'{BASE_URI}domain/formulation/properties', None, None, Option.objects.get(uri=mathmoddb[prop]), idx, 0, instance.set_index)
+                    # Add the defined Quantity
+                    if results[0].get('defines', {}).get('value',''):
+                        value_editor(instance.project, f'{BASE_URI}domain/formulation/is-definition', None, None, Option.objects.get(uri=option['Yes']), None, 0, instance.set_index)
+                        mfIDs = results[0]['defines']['value'].split(' / ')
+                        mfLabels = results[0]['definesLabel']['value'].split(' / ')
+                        mfDescriptions = results[0]['definesDescription']['value'].split(' / ')
+                        for mfID, mfLabel, mfDescription in zip(mfIDs, mfLabels, mfDescriptions):
+                            value_editor(instance.project, f'{BASE_URI}domain/formulation/defined-quantity', f"{mfLabel} ({mfDescription}) [mathmoddb]", f'mathmoddb:{mfID}', None, None, 0, instance.set_index)
+                    else:
+                        value_editor(instance.project, f'{BASE_URI}domain/formulation/is-definition', None, None, Option.objects.get(uri=option['No']), None, 0, instance.set_index)
+                    # Add the Formula to the Questionnaire
+                    if results[0].get('formulas', {}).get('value',''):
+                        formulas = results[0]['formulas']['value'].split(' / ')
+                        for idx, formula in enumerate(formulas):
+                            value_editor(instance.project, f'{BASE_URI}domain/formulation/formula', formula, None, None, idx, 0, instance.set_index)
+                    # Add the Elements to the Questionnaire
+                    if results[0].get('terms', {}).get('value',''):
+                        terms = results[0]['terms']['value'].split(' / ')
+                        qIDs = results[0].get('containsQuantity', {}).get('value','').split(' / ')
+                        qLabels = results[0].get('containsQuantityLabel', {}).get('value','').split(' / ')
+                        qDescriptions = results[0].get('containsQuantityDescription', {}).get('value','').split(' / ')
+                        for idx, term in enumerate(terms):
+                            symbol, quantity = splitVariableText(term)
+                            for qID, qLabel, qDescription in zip(qIDs, qLabels, qDescriptions):
+                                if quantity == qLabel:
+                                    #value_editor(instance, 'MathematicalFormulation/Element', None, None, None, None, idx, f"{instance.set_index}|0")
+                                    value_editor(instance.project, f'{BASE_URI}domain/formulation/element-symbol', symbol, None, None, None, idx, f"{instance.set_index}|0")
+                                    value_editor(instance.project, f'{BASE_URI}domain/formulation/element-quantity', f"{qLabel} ({qDescription}) [mathmoddb]", f'mathmoddb:{qID}', None, None, idx, f"{instance.set_index}|0")
+                    # Add the contained in Model statements
+                    for prop in ['containedAsAssumptionIn','containedAsFormulationIn','containedAsBoundaryConditionIn','containedAsConstraintConditionIn','containedAsCouplingConditionIn','containedAsInitialConditionIn','containedAsFinalConditionIn']:
+                        if results[0].get(f"{prop}MM", {}).get('value'):
+                            mmIDs = results[0][f"{prop}MM"]['value'].split(' / ')
+                            mmLabels = results[0][f'{prop}MMLabel']['value'].split(' / ')
+                            mmDescriptions = results[0][f'{prop}MMDescription']['value'].split(' / ')
+                            idx=0
+                            for mmID, mmLabel, mmDescription in zip(mmIDs, mmLabels, mmDescriptions):
+                                value_editor(instance.project, f'{BASE_URI}domain/formulation/model-relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, f"{instance.set_index}|0")
+                                value_editor(instance.project, f'{BASE_URI}domain/formulation/model-relatant', f"{mmLabel} ({mmDescription}) [mathmoddb]", f'mathmoddb:{mmID}', None, None, idx, f"{instance.set_index}|0")
+                                idx += 1
+                    # Add the contained in / contains Formulation statements
+                    for prop in ['containedAsAssumptionIn','containedAsFormulationIn','containedAsBoundaryConditionIn','containedAsConstraintConditionIn','containedAsCouplingConditionIn','containedAsInitialConditionIn','containedAsFinalConditionIn','containsAssumption','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalConditionIn']:
+                        if results[0].get(f"{prop}MF", {}).get('value'):
+                            mfIDs = results[0][f"{prop}MF"]['value'].split(' / ')
+                            mfLabels = results[0][f'{prop}MFLabel']['value'].split(' / ')
+                            mfDescriptions = results[0][f'{prop}MFDescription']['value'].split(' / ')
+                            idx=0
+                            for mfID, mfLabel, mfDescription in zip(mfIDs, mfLabels, mfDescriptions):
+                                value_editor(instance.project, f'{BASE_URI}domain/formulation/formulation-relation-1', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, f"{instance.set_index}|0")
+                                value_editor(instance.project, f'{BASE_URI}domain/formulation/formulation-relatant-1', f"{mfLabel} ({mfDescription}) [mathmoddb]", f'mathmoddb:{mfID}', None, None, idx, f"{instance.set_index}|0")
+                                idx += 1
+                    # Add relations of the Mathematical Model to the Questionnaire
+                    idx = 0
+                    for prop in ['generalizedByFormulation','generalizesFormulation','discretizedByFormulation','discretizesFormulation','approximatedByFormulation','approximatesFormulation',
+                                 'linearizedByFormulation','linearizesFormulation','nondimensionalizedByFormulation','nondimensionalizesFormulation','similarToFormulation']:
+                        if results[0].get(prop, {}).get('value'):
+                            mfIDs = results[0][prop]['value'].split(' / ')
+                            mfLabels = results[0][f'{prop}Label']['value'].split(' / ')
+                            mfDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
+                            for mfID, mfLabel, mfDescription in zip(mfIDs, mfLabels, mfDescriptions):
+                                value_editor(instance.project, f'{BASE_URI}domain/formulation/formulation-relation-2', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, instance.set_index)
+                                value_editor(instance.project, f'{BASE_URI}domain/formulation/formulation-relatant-2', f"{mfLabel} ({mfDescription}) [mathmoddb]", f'mathmoddb:{mfID}', None, None, idx, instance.set_index)
+                                idx +=1
+
 
 
 def Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors):
@@ -1158,3 +981,29 @@ def make_api_requests(api, search_objects, dict_merged, prefix):
                 '{0}_{1}Label'.format(prefix, prop): display_label,
                 '{0}_{1}Description1'.format(prefix, prop): display_desc
             })
+
+
+def add_entity(project, results, kind):
+    '''Function that adds the Entities of a query to the Questionnaire'''
+
+    Ids =[]
+    Labels = []
+    Descriptions = []
+
+    if results[0].get(kind,{}).get('value'):
+        entities = results[0][kind]['value'].split(' / ')
+        for entity in entities:
+            id, label, description = entity.split(' | ')
+            if id and label and description:
+                if id not in Ids:
+                    Ids.append(id)
+                    Labels.append(label)
+                    Descriptions.append(description)
+
+        for idx, (Id, Label, Description) in enumerate(zip(Ids,Labels,Descriptions)):
+            # Set up Qauntity / Quantity Kind Page
+            value_editor(project, f'{BASE_URI}domain/{kind}', idx, None, None, None, idx)
+            # Add Quantity / Quantity Kind Values
+            value_editor(project, f'{BASE_URI}domain/{kind}/id', f'{Label} ({Description}) [mathmoddb]', f"mathmoddb:{Id}", None, None, idx)
+
+    return

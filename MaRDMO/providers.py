@@ -298,7 +298,7 @@ class RelatedResearchField(Provider):
         
         # Define the query parameter
         queryID = 'RF'
-        queryAttribute = 'research-field'
+        queryAttribute = 'field'
 
         return query_sources_with_user_additions(search, project, queryID, queryAttribute)
     
@@ -329,7 +329,7 @@ class RelatedResearchProblem(Provider):
         
         # Define the query parameter
         queryID = 'RP'
-        queryAttribute = 'research-problem'
+        queryAttribute = 'problem'
 
         return query_sources_with_user_additions(search, project, queryID, queryAttribute)
 
@@ -385,47 +385,9 @@ class RelatedMathematicalModel(Provider):
         
         # Define the query parameter
         queryID = 'MM'
-        queryAttribute = 'mathematical-model'
+        queryAttribute = 'model'
 
         return query_sources_with_user_additions(search, project, queryID, queryAttribute)
-
-#class RelatedMathematicalModel(Provider):
-#
-#    search = True
-#
-#    def get_options(self, project, search=None, user=None, site=None):
-#
-#        if not search:
-#            return []
-#        
-#        # Fetch mathematical models from the MathModDB knowledge graph
-#        results = query_sparql(queryProvider['MM'])
-#        
-#        # Extract options from the knowledge graph
-#        dic = {}
-#        options = []
-#        
-#        for result in results:
-#            dic.update({result['label']['value']:{'id':result['answer']['value']}})
-#
-#        # Fetch user-defined research fields from the project
-#        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelQID'))
-#        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelName'))
-#
-#        for value1 in values1: 
-#            if value1.text:
-#                Id, name, quote = value1.external_id.split(' <|> ')
-#                dic.update({name: {'id': Id}})
-#
-#        for idx, value2 in enumerate(values2): 
-#            if value2.text:
-#                dic.update({value2.text: {'id': idx}})
-#
-#        options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
-#
-#        options = sorted(options, key=lambda option: option['text'])
-#        
-#        return options
 
 class MathematicalModelWithUserAddition(Provider):
 
@@ -450,16 +412,6 @@ class MathematicalModelWithUserAddition(Provider):
         options = sorted(options, key=lambda option: option['text'])
 
         return options
-
-#class QuantityOrQuantityKind(Provider):#
-
-#    search = True
-
-#    def get_options(self, project, search, user=None, site=None):
-
-#        options = MathModDBProvider(search,queryProvider['QQK'])
-
-#        return options
 
 class QuantityOrQuantityKind(Provider):
 
@@ -506,184 +458,52 @@ class RelatedQuantityKind(Provider):
         queryAttribute = 'quantity'
 
         return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+    
+class RelatedQuantityOrQuantityKind(Provider):
 
-#class RelatedQuantity(Provider):
+    search = True
 
-#    search = True
+    def get_options(self, project, search=None, user=None, site=None):
 
-#    path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
-#    with open(path, "r") as json_file:
-#        mathmoddb = json.load(json_file)
-
-#    def get_options(self, project, search=None, user=None, site=None):
-
-#        if not search:
-#            return []
-
-        # Fetch quantities from th MathModDB knowledge graph
-#        results = query_sparql(queryProvider['Q'])
+        if not search:
+            return []
         
-        # Extract options from the knowledge graph
-#        dic = {}
-#        options = []
+        # Define the query parameter
+        queryID = 'QQK'
+        queryAttribute = 'quantity'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+
+class RelatedMathematicalFormulation(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
         
-#        for result in results:
-#            dic.update({result['label']['value']:{'id':result['answer']['value']}})
+        # Define the query parameter
+        queryID = 'MF'
+        queryAttribute = 'formulation'
 
-#        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
-#        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityQID'))
-#        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityName'))
-
-#        for value1 in values1:
-#            if value1.option == Option.objects.get(uri=self.mathmoddb['QuantityClass']):
-#                for value2 in values2: 
-#                    if value2.text and value1.set_index == value2.set_index:
-#                        Id, name, quote = value2.external_id.split(' <|> ')
-#                        dic.update({name: {'id': Id}})
-#                for idx, value3 in enumerate(values3): 
- #                   if value3.text and value1.set_index == value3.set_index:
- #                       dic.update({value3.text: {'id': idx}})##
-#
-#        options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
-
- #       options = sorted(options, key=lambda option: option['text'])
-        
-  #      return options
-
-#class RelatedQuantityKind(Provider):
-#
-#    search =True
-#
-#    path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
-#
-#    with open(path, "r") as json_file:
-#        mathmoddb = json.load(json_file)
-#
-#    def get_options(self, project, search=None, user=None, site=None):
-#
-#        if not search:
-#            return []
-#
-#        # Fetch quantities from th MathModDB knowledge graph
-#        results = query_sparql(queryProvider['QK'])
-#
-#        # Extract options from the knowledge graph
-#        dic = {}
-#        options = []
-#        
-#        for result in results:
-#            dic.update({result['label']['value']:{'id':result['answer']['value']}})
-#
-#        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
-#        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityQID'))
-#        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityName'))
-#
-#        for value1 in values1:
-#            if value1.option == Option.objects.get(uri=self.mathmoddb['QuantityKindClass']):
-#                for value2 in values2: 
-#                    if value2.text and value1.set_index == value2.set_index:
-#                        Id, name, quote = value2.external_id.split(' <|> ')
-#                        dic.update({name: {'id': Id}})
-#                for idx, value3 in enumerate(values3): 
-#                    if value3.text and value1.set_index == value3.set_index:
-#                        dic.update({value3.text: {'id': idx}})
-#
-#        options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
-#
-#        options = sorted(options, key=lambda option: option['text'])
-#        
-#        return options
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
 
 class MathematicalFormulation(Provider):
 
     search = True
+    refresh = True
 
-    def get_options(self, project, search=None, user=None, site=None):
-
-        options = MathModDBProvider(search,queryProvider['MF'])
-        
-        return options
-
-class MathematicalFormulationWithUserAddition(Provider):
-
-    search = True
-
-    def get_options(self, project, search=None, user=None, site=None):
-        
-        if not search:
+    def get_options(self, project, search, user=None, site=None):
+        '''Queries MathModDB for user input'''
+        if not search or len(search) < 3:
             return []
 
-        # Fetch mathematical models from the MathModDB knowledge graph
-        results = query_sparql(queryProvider['MF'])
-        
-        # Extract options from the knowledge graph
-        dic = {}
-        options = []
-        
-        for result in results:
-            dic.update({result['label']['value']:{'id':result['answer']['value']}})
+        # Define the sources to query
+        queryID = 'MF'
+        sources = ['mathmoddb','mardi','wikidata']
 
-        # Fetch user-defined mathematical formulations from the project
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationQID'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationName'))
-
-        for value1 in values1: 
-            if value1.text:
-                Id, name, quote = value1.external_id.split(' <|> ')
-                dic.update({name: {'id': Id}})
-
-        for idx, value2 in enumerate(values2): 
-            if value2.text:
-                dic.update({value2.text: {'id': idx}})
-
-        options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
-
-        options = sorted(options, key=lambda option: option['text'])
-
-        return options
-
-#class QuantityOrQuantityKindWithUserAddition(Provider):
-#
-#    path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
-#
-#    with open(path, "r") as json_file:
-#        mathmoddb = json.load(json_file)
-#
-#    def get_options(self, project, search=None, user=None, site=None):
-#
-#        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityMathModDBID'))
-#        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityQID'))
-#        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityName'))
-#        values4 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
-#
-#        options = []
-#
-#        for idx, value1 in enumerate(values1):
-#            if value1.text and value1.text != 'not in MathModDB':
-#                options.extend([{'id': value1.external_id, 'text': value1.text}])
-#
-#        for idx, value4 in enumerate(values4):
-#            if value4.option == Option.objects.get(uri=self.mathmoddb['QuantityClass']):
-#                for idx, value2 in enumerate(values2):
-#                    if value2.text and value4.set_prefix == value2.set_prefix:
-#                        Id,label,quote = value2.external_id.split(' <|> ')
-#                        options.extend([{'id': f"{Id} <|> {label} <|> Quantity", 'text': f"{label} (Quantity)"}])
-#                for idx, value3 in enumerate(values3):
-#                    if value3.text and value4.set_prefix == value3.set_prefix:
-#                        options.extend([{'id': f"{idx} <|> {value3.text} <|> Quantity", 'text': f"{value3.text} (Quantity)"}])
-#            elif value4.option == Option.objects.get(uri=self.mathmoddb['QuantityKindClass']):
-#                for idx, value2 in enumerate(values2):
-#                    if value2.text and value4.set_prefix == value2.set_prefix:
-#                        Id,label,quote = value2.external_id.split(' <|> ')
-#                        options.extend([{'id': f"{Id} <|> {label} <|> QuantityKind", 'text': f"{label} (Quantity Kind)"}])
-#                for idx, value3 in enumerate(values3):
-#                    if value3.text and value4.set_prefix == value3.set_prefix:
-#                        options.extend([{'id': f"{idx} <|> {value3.text} <|> QuantityKind", 'text': f"{value3.text} (Quantity Kind)"}])
-#
-#        # Sort user options by text
-#        options = sorted(options, key=lambda option: option['text'])
-#
-#        return options
+        return query_sources(search, queryID, sources)
 
 class WorkflowTask(Provider):
 
@@ -768,8 +588,8 @@ class AllEntities(Provider):
     def get_options(self, project, search=None, user=None, site=None):
         options =[]
 
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/research-field/id'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/research-field/name'))
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/field/id'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/field/name'))
         values4 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemMathModDBID'))
         values5 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemQID'))
         values6 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemName'))

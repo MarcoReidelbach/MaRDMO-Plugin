@@ -94,136 +94,27 @@ def ModelRetriever(answers,mathmoddb):
                 # Update the lookup dictionary
                 name_to_key[label] = new_key
 
-    # Get additional Mathematical Formulation Information from MathModDB
-
-    qClass = 'MathematicalFormulation'
-
-    search_string = searchGenerator(answers,[qClass])
-    results = query_sparql(queryModelDocumentation[qClass].format(search_string))
-     
-    # Get MathModID of all selected Mathematical Formulations
-    mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
-
-    for result in results:
-        # Get MathModID of queried Mathematical Formulation
-        mathmod_id = result.get(qClass, {}).get('value')
-        # Queried Mathematical Formulation in Selection?
-        if mathmod_id in mathmodidToKey:
-            key = mathmodidToKey[mathmod_id]
-            #Evaluate Comment of Mathematical Formulation
-            assignValue(qClass, ['quote'], 'Description',result ,key, answers)
-            #Evaluate Data Properties of Mathematical Formulation
-            assignProperties(answers['MathematicalFormulation'][key], result, mathmoddb, dataProperties)   
-            #Evaluate different kinds of Mathematical Formulations of Mathematical Formulations
-            for kind in formulationKinds:
-                assignSimpleEntityRelation(qClass, f'contains{kind}', ['MF2MF','MFRelatant',f'contains{kind}'], result, key, answers, mathmoddb)
-            #Evaluate Formula of Mathematical Formulation    
-            assignValues(qClass, 'formula', ['Formula'], result, key, answers)
-            #Evaluate Elements of Mathematical Formulation
-            assignValues(qClass, 'formula_elements', ['Element','Symbol','Quantity'], result, key, answers, splitVariableText)
-            #Evaluate Quantities of Mathematical Formulation
-            assignComplexEntityRelations(qClass, 'Quantity', 'ContainsQuantity', [], result, key, answers, mathmoddb)
-                
-    # Get additional Mathematical Formulation Information from MathModDB (Quantity Defintions)
-    
-    qClass = 'Quantity'
-    tClass = 'MathematicalFormulation'
-
-    search_string = searchGenerator(answers,[qClass])
-    results = query_sparql(queryModelDocumentation[f'{qClass}Definition'].format(search_string))
-    
-    # Get MathModID of all selected Mathematical Formulations
-    mathmodidToKey = {answers[tClass][key].get('MathModID'): key for key in answers[tClass]}
-
-    for result in results:
-        # Get MathModID of queried Mathematical Formulation
-        mathmod_id = result.get(tClass, {}).get('value')
-        # Queried Mathematical Formulation in Selection?
-        if mathmod_id in mathmodidToKey:
-            # If Mathematial Formulation selected add defined quantity statement
-            key = mathmodidToKey[mathmod_id]
-            # Evaluate defined Quantity of Mathematical Formulation
-            assignValue(tClass, ['q','qlabel'], 'DefinedQuantity',result ,key, answers)
-        else:
-            # If Mathematical Formulation is not selected add it
-            key = max(answers[tClass].keys(), default=-1) + 1
-            #Evaluate ID, Name, Comment and defined Quantity of Mathematical Formulation
-            assignValue(tClass, [tClass], 'MathModID',result ,key, answers)
-            assignValue(tClass, ['label'], 'Name',result ,key, answers)
-            assignValue(tClass, ['quote'], 'Description',result ,key, answers)
-            assignValue(tClass, ['q','qlabel'], 'DefinedQuantity',result ,key, answers)
-            #Evaluate Properties of Mathematical Formulation
-            assignProperties(answers['MathematicalFormulation'][key], result, mathmoddb, dataProperties)
-            #Evaluate Formula of Mathematical Formulation    
-            assignValues(tClass, 'formula', ['Formula'], result, key, answers)
-            #Evaluate Elements of Mathematical Formulation
-            assignValues(tClass, 'formula_elements', ['Element','Symbol','Quantity'], result, key, answers, splitVariableText)
-            #Evaluate Quantities of Mathematical Formulation
-            assignComplexEntityRelations(tClass, 'Quantity', 'ContainsQuantity', [], result, key, answers, mathmoddb)
-
-    # Get additional Quantity Information from MathModDB
-    
-    qClass = 'Quantity'
-    
-    search_string = searchGenerator(answers,[qClass])
-    results = query_sparql(queryModelDocumentation[qClass].format(search_string))
-
-    # Get MathModID of all selected Quantities
-    mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
-
-    for result in results:
-        # Get MathModID of queried Quantity
-        mathmod_id = result.get(qClass, {}).get('value')
-        # Queried Quantity in Selection?
-        if mathmod_id in mathmodidToKey:
-            key = mathmodidToKey[mathmod_id]
-            #Evaluate Comment of Quantity
-            assignValue(qClass, ['quote'], 'Description',result ,key, answers)
-            #Evaluate Data Properties of Quantities
-            assignProperties(answers['Quantity'][key], result, mathmoddb, dataProperties)
-            # Evaluate Quantity Kind (ID, Name, Description) of Quantity
-            assignValue(qClass, ['qk'], 'QKID',result ,key, answers)
-            assignValue(qClass, ['qklabel'], 'QKName',result ,key, answers)
-            assignValue(qClass, ['qkquote'], 'QKDescription',result ,key, answers)
-    
-    # Get additional Intra-Class Information for Model, Task, Formulation and Quantity Relations from MathModDB
-    
-    search_string = searchGenerator(answers,['Task', 'MathematicalFormulation', 'MathematicalModel', 'Quantity', 'ResearchField', 'ResearchProblem'])
-    results = query_sparql(queryModelDocumentation['IntraClass'].format(search_string))
-    
     mathmodidToKey = {}
 
-    # Get MathModID of all selected Entities
+    ## Get MathModID of all selected Entities
     for className in ['ResearchField', 'ResearchProblem', 'Task', 'MathematicalFormulation', 'MathematicalModel', 'Quantity']:
-        mathmodidToKey[className] = {answers[className][key].get('MathModID'): key for key in answers[className]}
-
-    propAppendix = {'ResearchField': 'Field',
-                    'ResearchProblem': 'Problem',
-                    'Task': 'Task',
-                    'MathematicalFormulation': 'Formulation',
-                    'MathematicalModel': 'Model',
-                    'Quantity': 'Quantity'}
-
-    for result in results:
-        # Get MathModID and Class of queried Entity
-        math_mod_id, qClass = result['Item']['value'].split(' >|< ')
-        # Queried Entity in Selection?
-        if math_mod_id in mathmodidToKey[qClass]:
-            key = mathmodidToKey[qClass][math_mod_id]
-            # Evaluate Relations of Mathematical Models, Mathematical Formulations, Tasks and Quantities
-            for relation in intraClassRelations:
-                assignSimpleEntityRelation(qClass, relation, [f"{relation}{propAppendix[qClass]}"], result, key, answers, mathmoddb)
+        mathmodidToKey[className] = {answers[className][key].get('ID').split(':')[1]: key for key in answers[className]}
 
     # Get additional Publication Information from MathModDB
 
     tClass = 'PublicationModel'
-
-    search_string = searchGenerator(answers,['ResearchField','ResearchProblem','MathematicalModel','Quantity','MathematicalFormulation','Task'])
+    
+    search_string = searchGenerator(answers,['ResearchField','ResearchProblem','MathematicalModel','Quantity','Task'])
     results = query_sparql(queryModelDocumentation[tClass].format(search_string))
     
     for result in results:
         # Get MathModID and Class of queries entity
         mathmodid, qClass = result['Item']['value'].split(' >|< ')
+    
+        t = mathmodid.split('#')
+        if len(t) == 2:
+            mathmodid = t[1]
+
         # Queried entity in Selection?
         if mathmodid in mathmodidToKey[qClass]:
             key = mathmodidToKey[qClass][mathmodid]
@@ -303,37 +194,35 @@ def ModelRetriever(answers,mathmoddb):
                 Id = ''
             elif len(answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].split(' <|> ')) >= 2:
                 Id,label = answers['MathematicalFormulation'][key]['Element'][key2]['Quantity'].split(' <|> ')[:2]
-                
             for k in answers['Quantity']:
                 if label.lower() == answers['Quantity'][k]['Name'].lower():
-                    if answers['Quantity'][k]['QorQK'] == mathmoddb['QuantityClass']:
-                        if not Id.startswith('https://mardi4nfdi.de/mathmoddb#'):
-                            relatants = answers['Quantity'][k].get('QKRelatant', {}).values()
-                            relatantIDs = []
-                            relatantLabels = []
-                            for relatant in relatants:
-                                relatantID, relatantLabel = relatant.split(' <|> ')
-                                if relatantID.startswith('https://mardi4nfdi.de/mathmoddb#') or relatantID.startswith('https://mardi4nfdi.de/mathmoddb#') or relatantID.startswith('https://mardi4nfdi.de/mathmoddb#'):
-                                    relatantIDs.append(relatantID)
-                                else:
-                                    relatantIDs.append('-')
-                                relatantLabels.append(relatantLabel)
-                            answers['Quantity'][k].update({'QKName':', '.join(relatantLabels),
-                                                           'QKID':', '.join(relatantIDs)})    
+                    if answers['Quantity'][k]['QorQK'] == mathmoddb['Quantity']:
+                        relatants = answers['Quantity'][k].get('QKRelatant', {}).values()
+                        relatantIDs = []
+                        relatantLabels = []
+                        for relatant in relatants:
+                            relatantID, relatantLabel = relatant.split(' <|> ')
+                            if relatantID.startswith('mathmoddb:'):
+                                relatantIDs.append(relatantID)
+                            else:
+                                relatantIDs.append('-')
+                            relatantLabels.append(relatantLabel)
+                        answers['Quantity'][k].update({'QKName':', '.join(relatantLabels),
+                                                       'QKID':', '.join(relatantIDs)})    
                         answers['MathematicalFormulation'][key]['Element'][key2].update(
                             {'Info': 
                                 {'Name':answers['Quantity'][k].get('Name',''),
                                  'Description':answers['Quantity'][k].get('Description',''),
-                                 'QID':answers['Quantity'][k].get('MathModID','') if answers['Quantity'][k].get('MathModID','') and answers['Quantity'][k].get('MathModID','') != 'not in MathModDB' else answers['Quantity'][k].get('ID','') if answers['Quantity'][k].get('ID','') else answers['Quantity'][k].get('Reference','') if answers['Quantity'][k].get('Reference','') else '', 
+                                 'QID':answers['Quantity'][k].get('ID','') if answers['Quantity'][k].get('ID','') and answers['Quantity'][k].get('ID','') != 'not found' else answers['Quantity'][k].get('Reference','') if answers['Quantity'][k].get('Reference','') else '', 
                                  'QKName':answers['Quantity'][k].get('QKName',''),
                                  'QKID':answers['Quantity'][k].get('QKID','')}
                             })
-                    elif answers['Quantity'][k]['QorQK'] == mathmoddb['QuantityKindClass']:
+                    elif answers['Quantity'][k]['QorQK'] == mathmoddb['QuantityKind']:
                         answers['MathematicalFormulation'][key]['Element'][key2].update(
                             {'Info':
                                 {'QKName':answers['Quantity'][k].get('Name',''),
                                  'Description':answers['Quantity'][k].get('Description',''),
-                                 'QKID':answers['Quantity'][k].get('MathModID','') if answers['Quantity'][k].get('MathModID','') and answers['Quantity'][k].get('MathModID','') != 'not in MathModDB' else answers['Quantity'][k].get('ID','') if answers['Quantity'][k].get('ID','') else ''}
+                                 'QKID':answers['Quantity'][k].get('ID','') if answers['Quantity'][k].get('ID','') and answers['Quantity'][k].get('ID','') != 'not found' else ''}
                             })
 
     # Add Definition to Quantities
@@ -411,9 +300,9 @@ def searchGenerator(data, class_list):
 
     for key in class_list:
         for key2 in data[key]:
-            math_mod_id = data[key][key2].get('MathModID')
-            if math_mod_id and math_mod_id != 'not in MathModDB':
-                search_string += f" :{math_mod_id.split('#')[1]}"
+            math_mod_id = data[key][key2].get('ID')
+            if math_mod_id and math_mod_id != 'not found':
+                search_string += f" :{math_mod_id.split(':')[1]}"
     
     return search_string
 
@@ -444,9 +333,9 @@ def assignComplexEntityRelations(qClass, tClass, qrel, trel_values, r, key, answ
     existing_entries = {v.get('MathModID'): k for k, v in answers[tClass].items()}
 
     if tClass == 'PublicationModel':
-        current = f"{answers[qClass][key]['MathModID']} <|> {answers[qClass][key]['Name']} <|> {qClass} <|> {''.join(filter(str.isupper, qClass))}"
+        current = f"{answers[qClass][key]['ID']} <|> {answers[qClass][key]['Name']} <|> {qClass} <|> {''.join(filter(str.isupper, qClass))}"
     else:
-        current = f"{answers[qClass][key]['MathModID']} <|> {answers[qClass][key]['Name']}"
+        current = f"{answers[qClass][key]['ID']} <|> {answers[qClass][key]['Name']}"
 
     # Track the next available key in the target class
     next_available_key = max(answers[tClass].keys(), default=-1) + 1

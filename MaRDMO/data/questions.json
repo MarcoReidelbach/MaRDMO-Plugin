@@ -205,7 +205,7 @@
     "Models MathModID": {
         "uName": "Models",
         "dName": "MathModID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/main-mathematical-model/id",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/main-model/id",
         "set_prefix": false,
         "set_index": true,
         "collection_index": false,
@@ -225,7 +225,7 @@
     "ResearchField ID": {
         "uName": "ResearchField",
         "dName": "ID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-field/id",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/field/id",
         "set_prefix": false,
         "set_index": true,
         "collection_index": false,
@@ -235,7 +235,7 @@
     "ResearchField Name": {
         "uName": "ResearchField",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-field/name",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/field/name",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -245,7 +245,7 @@
     "ResearchField Description": {
         "uName": "ResearchField",
         "dName": "Description",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-field/description",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/field/description",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -255,7 +255,7 @@
     "ResearchField IntraClassRelation": {
         "uName": "ResearchField",
         "dName": "IntraClassRelation",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-field/relation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/field/field-relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -265,7 +265,7 @@
     "ResearchField IntraClassElement": {
         "uName": "ResearchField",
         "dName": "IntraClassElement",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-field/relatant",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/field/field-relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -275,7 +275,7 @@
     "ResearchProblem ID": {
         "uName": "ResearchProblem",
         "dName": "ID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/id",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/problem/id",
         "set_prefix": false,
         "set_index": true,
         "collection_index": false,
@@ -285,7 +285,7 @@
     "ResearchProblem Name": {
         "uName": "ResearchProblem",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/name",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/problem/name",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -295,7 +295,7 @@
     "ResearchProblem Description": {
         "uName": "ResearchProblem",
         "dName": "Description",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/description",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/problem/description",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -305,7 +305,7 @@
     "ResearchProblem RP2RF": {
         "uName": "ResearchProblem",
         "dName": "RP2RF",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/research-field-relation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/problem/field-relation",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -315,7 +315,7 @@
     "ResearchProblem RFRelatant": {
         "uName": "ResearchProblem",
         "dName": "RFRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/research-field-relatant",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/problem/field-relatant",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -325,7 +325,7 @@
     "ResearchProblem IntraClassRelation": {
         "uName": "ResearchProblem",
         "dName": "IntraClassRelation",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/relation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/problem/problem-relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -335,7 +335,7 @@
     "ResearchProblem IntraClassElement": {
         "uName": "ResearchProblem",
         "dName": "IntraClassElement",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/research-problem/relatant",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/problem/problem-relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -345,7 +345,7 @@
     "MathematicalModel ID": {
         "uName": "MathematicalModel",
         "dName": "ID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/id",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/model/id",
         "set_prefix": false,
         "set_index": true,
         "collection_index": false,
@@ -355,7 +355,7 @@
     "MathematicalModel Name": {
         "uName": "MathematicalModel",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/name",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/model/name",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -365,7 +365,7 @@
     "MathematicalModel Description": {
         "uName": "MathematicalModel",
         "dName": "Description",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/description",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/model/description",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -375,7 +375,7 @@
     "MathematicalModel Properties": {
         "uName": "MathematicalModel",
         "dName": "Properties",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/properties",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/model/properties",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -385,7 +385,7 @@
     "MathematicalModel Main": {
         "uName": "MathematicalModel",
         "dName": "Main",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/is-main",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/model/is-main",
         "set_prefix": false,
         "set_index": true,
         "collection_index": false,
@@ -395,7 +395,7 @@
     "MathematicalModel MM2RP": {
         "uName": "MathematicalModel",
         "dName": "MM2RP",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/research-problem-relation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/model/problem-relation",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -405,7 +405,7 @@
     "MathematicalModel RPRelatant": {
         "uName": "MathematicalModel",
         "dName": "RPRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/research-problem-relatant",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/model/problem-relatant",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -415,7 +415,7 @@
     "MathematicalModel IntraClassRelation": {
         "uName": "MathematicalModel",
         "dName": "IntraClassRelation",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/relation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/model/model-relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -425,7 +425,7 @@
     "MathematicalModel IntraClassElement": {
         "uName": "MathematicalModel",
         "dName": "IntraClassElement",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/mathematical-model/relatant",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/model/model-relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -434,40 +434,10 @@
     },
     "MathematicalFormulation MathModID": {
         "uName": "MathematicalFormulation",
-        "dName": "MathModID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationMathModDBID",
+        "dName": "ID",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/id",
         "set_prefix": false,
         "set_index": true,
-        "collection_index": false,
-        "option_text": false,
-        "external_id": true
-    },
-    "MathematicalFormulation Definition": {
-        "uName": "MathematicalFormulation",
-        "dName": "Definition",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationAsDefinition",
-        "set_prefix": true,
-        "set_index": false,
-        "collection_index": false,
-        "option_text": false,
-        "external_id": false
-    },
-    "MathematicalFormulation DefinedQuantity": {
-        "uName": "MathematicalFormulation",
-        "dName": "DefinedQuantity",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityDefinedByMathematicalFormulation",
-        "set_prefix": true,
-        "set_index": false,
-        "collection_index": false,
-        "option_text": false,
-        "external_id": true
-    },
-    "MathematicalFormulation ID": {
-        "uName": "MathematicalFormulation",
-        "dName": "ID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationQID",
-        "set_prefix": true,
-        "set_index": false,
         "collection_index": false,
         "option_text": false,
         "external_id": true
@@ -475,7 +445,7 @@
     "MathematicalFormulation Name": {
         "uName": "MathematicalFormulation",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationName",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/name",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -485,7 +455,7 @@
     "MathematicalFormulation Description": {
         "uName": "MathematicalFormulation",
         "dName": "Description",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationDescription",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/deescription",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -495,17 +465,37 @@
     "MathematicalFormulation Properties": {
         "uName": "MathematicalFormulation",
         "dName": "Properties",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationProperties",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/properties",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
         "option_text": false,
         "external_id": false
     },
+    "MathematicalFormulation Definition": {
+        "uName": "MathematicalFormulation",
+        "dName": "Definition",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/is-definition",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": false,
+        "option_text": false,
+        "external_id": false
+    },
+    "MathematicalFormulation DefinedQuantity": {
+        "uName": "MathematicalFormulation",
+        "dName": "DefinedQuantity",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/defined-quantity",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": false,
+        "option_text": false,
+        "external_id": true
+    },
     "MathematicalFormulation Formula": {
         "uName": "MathematicalFormulation",
         "dName": "Formula",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationFormula",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/formula",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -515,7 +505,7 @@
     "MathematicalFormulation Element Symbol": {
         "uName": "MathematicalFormulation",
         "dName": "Element Symbol",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationElementSymbol",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/element-symbol",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -525,7 +515,7 @@
     "MathematicalFormulation Element Quantity": {
         "uName": "MathematicalFormulation",
         "dName": "Element Quantity",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationElementEncoding",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/element-quantity",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -535,7 +525,7 @@
     "MathematicalFormulation MF2MM": {
         "uName": "MathematicalFormulation",
         "dName": "MF2MM",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationToMathematicalModelRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/model-relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -545,7 +535,7 @@
     "MathematicalFormulation MMRelatant": {
         "uName": "MathematicalFormulation",
         "dName": "MMRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModelRelatedToMathematicalFormulation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/model-relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -555,7 +545,7 @@
     "MathematicalFormulation MF2MF": {
         "uName": "MathematicalFormulation",
         "dName": "MF2MF",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationToMathematicalFormulationRelation1",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/formulation-relation-1",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -565,7 +555,7 @@
     "MathematicalFormulation MFRelatant": {
         "uName": "MathematicalFormulation",
         "dName": "MFRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationRelatedToMathematicalFormulation1",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/formulation-relatant-1",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -575,7 +565,7 @@
     "MathematicalFormulation IntraClassRelation": {
         "uName": "MathematicalFormulation",
         "dName": "IntraClassRelation",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationToMathematicalFormulationRelation2",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/formulation-relation-2",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -585,7 +575,7 @@
     "MathematicalFormulation IntraClassElement": {
         "uName": "MathematicalFormulation",
         "dName": "IntraClassElement",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationRelatedToMathematicalFormulation2",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/formulation-relatant-2",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
