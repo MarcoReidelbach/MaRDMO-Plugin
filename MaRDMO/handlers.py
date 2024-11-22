@@ -427,10 +427,6 @@ def ModelHandler(sender, **kwargs):
         else:
             return
         
-        path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
-        with open(path, "r") as json_file:
-            mathmoddb = json.load(json_file)
-        
         # Get Model, Research Field, Research Problem, Quantity, Mathematical Formulation and Task Information        
         results = query_sparql(queryModelHandler['All'].format(f":{IdMM.split(':')[1]}"))
         
@@ -449,6 +445,9 @@ def ModelHandler(sender, **kwargs):
             
             # Add Formulation Information to Questionnaire
             add_entity(instance.project, results, 'formulation')
+
+            # Add Task Information to Questionnaire
+            add_entity(instance.project, results, 'task')
 
     return
 
@@ -564,24 +563,14 @@ def RP2MM(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def T2MM(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/MathematicalModelRelatedToTask':
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/task/model-relatant':
 
         path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
         with open(path, "r") as json_file:
             mathmoddb = json.load(json_file)
 
-        attribute_object = Attribute.objects.get(uri=f'{BASE_URI}domain/TaskToMathematicalModelRelation')
-        obj, created = Value.objects.update_or_create(
-            project=instance.project,
-            attribute=attribute_object,
-            set_prefix=instance.set_prefix,
-            collection_index=instance.collection_index,
-            defaults={
-                'project': instance.project,
-                'attribute': attribute_object,
-                'text': mathmoddb['appliesModel']
-                }
-        )
+        value_editor(instance.project, f'{BASE_URI}domain/task/model-relation', mathmoddb['appliesModel'], None, None, instance.collection_index, 0, instance.set_prefix)
+
 
 @receiver(post_save, sender=Value)
 def RFInformation(sender, **kwargs):
@@ -823,23 +812,23 @@ def MFInformation(sender, **kwargs):
                                     value_editor(instance.project, f'{BASE_URI}domain/formulation/element-symbol', symbol, None, None, None, idx, f"{instance.set_index}|0")
                                     value_editor(instance.project, f'{BASE_URI}domain/formulation/element-quantity', f"{qLabel} ({qDescription}) [mathmoddb]", f'mathmoddb:{qID}', None, None, idx, f"{instance.set_index}|0")
                     # Add the contained in Model statements
+                    idx = 0
                     for prop in ['containedAsAssumptionIn','containedAsFormulationIn','containedAsBoundaryConditionIn','containedAsConstraintConditionIn','containedAsCouplingConditionIn','containedAsInitialConditionIn','containedAsFinalConditionIn']:
                         if results[0].get(f"{prop}MM", {}).get('value'):
                             mmIDs = results[0][f"{prop}MM"]['value'].split(' / ')
                             mmLabels = results[0][f'{prop}MMLabel']['value'].split(' / ')
                             mmDescriptions = results[0][f'{prop}MMDescription']['value'].split(' / ')
-                            idx=0
                             for mmID, mmLabel, mmDescription in zip(mmIDs, mmLabels, mmDescriptions):
                                 value_editor(instance.project, f'{BASE_URI}domain/formulation/model-relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, f"{instance.set_index}|0")
                                 value_editor(instance.project, f'{BASE_URI}domain/formulation/model-relatant', f"{mmLabel} ({mmDescription}) [mathmoddb]", f'mathmoddb:{mmID}', None, None, idx, f"{instance.set_index}|0")
                                 idx += 1
                     # Add the contained in / contains Formulation statements
-                    for prop in ['containedAsAssumptionIn','containedAsFormulationIn','containedAsBoundaryConditionIn','containedAsConstraintConditionIn','containedAsCouplingConditionIn','containedAsInitialConditionIn','containedAsFinalConditionIn','containsAssumption','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalConditionIn']:
+                    idx = 0
+                    for prop in ['containedAsAssumptionIn','containedAsFormulationIn','containedAsBoundaryConditionIn','containedAsConstraintConditionIn','containedAsCouplingConditionIn','containedAsInitialConditionIn','containedAsFinalConditionIn','containsAssumption','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalCondition']:
                         if results[0].get(f"{prop}MF", {}).get('value'):
                             mfIDs = results[0][f"{prop}MF"]['value'].split(' / ')
                             mfLabels = results[0][f'{prop}MFLabel']['value'].split(' / ')
                             mfDescriptions = results[0][f'{prop}MFDescription']['value'].split(' / ')
-                            idx=0
                             for mfID, mfLabel, mfDescription in zip(mfIDs, mfLabels, mfDescriptions):
                                 value_editor(instance.project, f'{BASE_URI}domain/formulation/formulation-relation-1', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, f"{instance.set_index}|0")
                                 value_editor(instance.project, f'{BASE_URI}domain/formulation/formulation-relatant-1', f"{mfLabel} ({mfDescription}) [mathmoddb]", f'mathmoddb:{mfID}', None, None, idx, f"{instance.set_index}|0")
@@ -857,7 +846,75 @@ def MFInformation(sender, **kwargs):
                                 value_editor(instance.project, f'{BASE_URI}domain/formulation/formulation-relatant-2', f"{mfLabel} ({mfDescription}) [mathmoddb]", f'mathmoddb:{mfID}', None, None, idx, instance.set_index)
                                 idx +=1
 
-
+@receiver(post_save, sender=Value)
+def TInformation(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    if instance and instance.attribute.uri == f'{BASE_URI}domain/task/id':
+        if instance.text and instance.text != 'not found':
+            # Get Label and Description of Item and add to questionnaire
+            label, description, _ = extract_parts(instance.text)
+            value_editor(instance.project, f'{BASE_URI}domain/task/name', label, None, None, None, 0, instance.set_index)
+            value_editor(instance.project, f'{BASE_URI}domain/task/description', description, None, None, None, 0, instance.set_index)
+            # Get source and ID of Item
+            source, Id = instance.external_id.split(':')
+            if source== 'mathmoddb':
+                # If Item from MathModDB, query relations and load MathModDB Vocabulary
+                results = query_sparql(queryHandler['taskInformation'].format(f":{Id}"))
+                path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+                with open(path, "r") as json_file:
+                    mathmoddb = json.load(json_file)
+                if results:
+                    # Add the Task Properties to the Questionnaire
+                    for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless',
+                                                'isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']):
+                        if results[0].get(prop, {}).get('value') == 'true':
+                            value_editor(instance.project, f'{BASE_URI}domain/task/properties', None, None, Option.objects.get(uri=mathmoddb[prop]), idx, 0, instance.set_index)
+                    # Add the Category to the Questionnaire
+                    value_editor(instance.project, f'{BASE_URI}domain/task/category', None, None, Option.objects.get(uri=mathmoddb['ComputationalTask']), None, 0, instance.set_index)
+                    # Add applied Model to the Questionnaire
+                    idx = 0
+                    for prop in ['appliesModel']:
+                        if results[0].get(prop, {}).get('value'):
+                            modelIDs = results[0][prop]['value'].split(' / ')
+                            modelLabels = results[0][f'{prop}Label']['value'].split(' / ')
+                            modelDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
+                            for modelID, modelLabel, modelDescription in zip(modelIDs, modelLabels, modelDescriptions):
+                                value_editor(instance.project,f'{BASE_URI}domain/task/model-relatant', f"{modelLabel} ({modelDescription}) [mathmoddb]", f'mathmoddb:{modelID}', None, idx, 0, instance.set_index)
+                                idx += 1
+                    # Add Formulations contained in Task
+                    idx = 0
+                    for prop in ['containsAssumption','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalCondition']:
+                        if results[0].get(f"{prop}", {}).get('value'):
+                            mfIDs = results[0][f"{prop}"]['value'].split(' / ')
+                            mfLabels = results[0][f'{prop}Label']['value'].split(' / ')
+                            mfDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
+                            for mfID, mfLabel, mfDescription in zip(mfIDs, mfLabels, mfDescriptions):
+                                value_editor(instance.project, f'{BASE_URI}domain/task/formulation-relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, f"{instance.set_index}|0")
+                                value_editor(instance.project, f'{BASE_URI}domain/task/formulation-relatant', f"{mfLabel} ({mfDescription}) [mathmoddb]", f'mathmoddb:{mfID}', None, None, idx, f"{instance.set_index}|0")
+                                idx += 1
+                    # Add Quantity contained in Task
+                    idx = 0
+                    for prop in ['containsInput','containsOutput','containsObjective','containsParameter','containsConstant']:
+                        if results[0].get(f"{prop}", {}).get('value'):
+                            mfIDs = results[0][f"{prop}"]['value'].split(' / ')
+                            mfLabels = results[0][f'{prop}Label']['value'].split(' / ')
+                            mfDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
+                            for mfID, mfLabel, mfDescription in zip(mfIDs, mfLabels, mfDescriptions):
+                                value_editor(instance.project, f'{BASE_URI}domain/task/quantity-relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, f"{instance.set_index}|0")
+                                value_editor(instance.project, f'{BASE_URI}domain/task/quantity-relatant', f"{mfLabel} ({mfDescription}) [mathmoddb]", f'mathmoddb:{mfID}', None, None, idx, f"{instance.set_index}|0")
+                                idx += 1
+                    # Add related Task to questionnaire
+                    idx = 0
+                    for prop in ['generalizedByTask','generalizesTask','discretizedByTask','discretizesTask','containedInTask','containsTask','approximatedByTask',
+                                 'approximatesTask','linearizedByTask','linearizesTask','similarToTask']:
+                        if results[0].get(prop, {}).get('value'):
+                            modelIDs = results[0][prop]['value'].split(' / ')
+                            modelLabels = results[0][f'{prop}Label']['value'].split(' / ')
+                            modelDescriptions = results[0][f'{prop}Description']['value'].split(' / ')
+                            for modelID, modelLabel, modelDescription in zip(modelIDs, modelLabels, modelDescriptions):
+                                value_editor(instance.project, f'{BASE_URI}domain/task/task-relation', None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, instance.set_index)
+                                value_editor(instance.project, f'{BASE_URI}domain/task/task-relatant', f"{modelLabel} ({modelDescription}) [mathmoddb]", f'mathmoddb:{modelID}', None, None, idx, instance.set_index)
+                                idx +=1
 
 def Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors):
     '''Function that takes orcid and zbmath ids and queries wikidata and MaRDI Portal to get

@@ -364,16 +364,6 @@ class MathematicalModel(Provider):
 
         return query_sources(search, queryID, sources)
 
-class Publication(Provider):
-
-    search = True
-
-    def get_options(self, project, search=None, user=None, site=None):
-
-        options = MathModDBProvider(search,queryProvider['P'])
-        
-        return options
-
 class RelatedMathematicalModel(Provider):
 
     search = True
@@ -388,30 +378,6 @@ class RelatedMathematicalModel(Provider):
         queryAttribute = 'model'
 
         return query_sources_with_user_additions(search, project, queryID, queryAttribute)
-
-class MathematicalModelWithUserAddition(Provider):
-
-    def get_options(self, project, search=None, user=None, site=None):
-
-        options = []
-        
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelMathModDBID'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelQID'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelName'))
-
-        for idx, value1 in enumerate(values1):
-            if value1.text and value1.text != 'not in MathModDB':
-                options.extend([{'id': value1.external_id, 'text': value1.text}])
-        for idx, value2 in enumerate(values2):
-            if value2.text:
-                options.extend([{'id': value2.external_id, 'text': value2.text}])
-        for idx, value3 in enumerate(values3):
-            if value3.text:
-                options.extend([{'id': f"{idx} <|> {value3.text}", 'text': value3.text}])
-        
-        options = sorted(options, key=lambda option: option['text'])
-
-        return options
 
 class QuantityOrQuantityKind(Provider):
 
@@ -474,21 +440,6 @@ class RelatedQuantityOrQuantityKind(Provider):
 
         return query_sources_with_user_additions(search, project, queryID, queryAttribute)
 
-class RelatedMathematicalFormulation(Provider):
-
-    search = True
-
-    def get_options(self, project, search=None, user=None, site=None):
-
-        if not search:
-            return []
-        
-        # Define the query parameter
-        queryID = 'MF'
-        queryAttribute = 'formulation'
-
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
-
 class MathematicalFormulation(Provider):
 
     search = True
@@ -504,6 +455,62 @@ class MathematicalFormulation(Provider):
         sources = ['mathmoddb','mardi','wikidata']
 
         return query_sources(search, queryID, sources)
+    
+class RelatedMathematicalFormulation(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'MF'
+        queryAttribute = 'formulation'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+
+class Task(Provider):
+
+    search = True
+    refresh = True
+
+    def get_options(self, project, search, user=None, site=None):
+        '''Queries MathModDB for user input'''
+        if not search or len(search) < 3:
+            return []
+
+        # Define the sources to query
+        queryID = 'T'
+        sources = ['mathmoddb','mardi','wikidata']
+
+        return query_sources(search, queryID, sources)
+
+class RelatedTask(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'T'
+        queryAttribute = 'task'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+
+class Publication(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        options = MathModDBProvider(search,queryProvider['P'])
+        
+        return options
 
 class WorkflowTask(Provider):
 
@@ -527,54 +534,6 @@ class WorkflowTask(Provider):
         for idx, value3 in enumerate(values3):
             if value3.text:
                 options.extend([{'id': f"{idx} <|> {value3.text}", 'text': f"{value3.text}"}])
-
-        return options
-
-class Task(Provider):
-
-    search = True
-
-    def get_options(self, project, search=None, user=None, site=None):
-
-        options = MathModDBProvider(search,queryProvider['T'])
-        
-        return options
-
-class RelatedTask(Provider):
-
-    search = True
-
-    def get_options(self, project, search=None, user=None, site=None):
-
-        if not search:
-            return []
-        
-        # Fetch mathematical models from the MathModDB knowledge graph
-        results = query_sparql(queryProvider['T'])
-        
-        # Extract options from the knowledge graph
-        dic = {}
-        options = []
-        
-        for result in results:
-            dic.update({result['label']['value']:{'id':result['answer']['value']}})
-
-        # Fetch user-defined research fields from the project
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskQID'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskName'))
-
-        for value1 in values1: 
-            if value1.text:
-                Id, name, quote = value1.external_id.split(' <|> ')
-                dic.update({name: {'id': Id}})
-
-        for idx, value2 in enumerate(values2): 
-            if value2.text:
-                dic.update({value2.text: {'id': idx}})
-
-        options.extend([{'id': f"{dic[key]['id']} <|> {key}", 'text': key } for key in dic if search.lower() in key.lower()])
-
-        options = sorted(options, key=lambda option: option['text'])
 
         return options
 
@@ -808,7 +767,7 @@ def query_sources_with_user_additions(search, project, queryID, queryAttribute):
                 # ID Cases
                 label, description, source = extract_parts(value1.text)
         if source and source != 'mathmoddb':
-            dic[f"{label} ({description}) [{source}]"] = {'id': idx}
+            dic[f"{label} ({description}) [{source}]"] = {'id': f"user:{idx}"}
             
 
     # Add the user-defined options to the list, filtered by search

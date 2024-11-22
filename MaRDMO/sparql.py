@@ -725,13 +725,18 @@ queryProvider = {
                  'T': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
-                              SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
-                              WHERE {
-                                     ?answer a :ComputationalTask . 
-                                     ?answer rdfs:label ?l .
-                                     FILTER (lang(?l) = 'en')
+                              SELECT DISTINCT ?id ?label ?quote
+                              WHERE { 
+                                     ?idraw a :ComputationalTask .
+                                     BIND(STRAFTER(STR(?idraw), "#") AS ?id)
+                                     OPTIONAL {?idraw rdfs:label ?labelraw .
+                                               FILTER (lang(?labelraw) = 'en')}
+                                     BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
+                                     OPTIONAL {?idraw rdfs:comment ?quoteraw.
+                                               FILTER (lang(?quoteraw) = 'en')}
+                                     BIND(COALESCE(?quoteraw, "No Description Provided!") AS ?quote)
                                     }
-                               GROUP BY ?answer ?label''',
+                               GROUP BY ?id ?label ?quote''',
                  
                  'P': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
@@ -828,7 +833,7 @@ queryModelHandler = {
 
                                     }}
                            OPTIONAL {{         
-                                      ?mmraw :models ?taraw.
+                                      ?mmraw :appliedByTask ?taraw.
                                       BIND(STRAFTER(STR(?taraw), "#") AS ?ta)
                                       OPTIONAL {{ ?taraw rdfs:label ?talraw .
                                                   FILTER (lang(?talraw) = 'en') }}
@@ -837,300 +842,7 @@ queryModelHandler = {
                                                   FILTER (lang(?tadraw) = 'en') }}
                                       BIND(COALESCE(?tadraw, "No Description Provided!") AS ?tad)
                                     }} 
-                    }}''',
-
-       'MFRelations':  '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-                          SELECT ?mf 
-                                 (GROUP_CONCAT(DISTINCT(?f); separator=" <|> ") AS ?F) (GROUP_CONCAT(DISTINCT(?fL); SEPARATOR=" <|> ") AS ?FL)
-                                 (GROUP_CONCAT(DISTINCT(?fd); separator=" <|> ") AS ?FD) (GROUP_CONCAT(DISTINCT(?fdL); SEPARATOR=" <|> ") AS ?FDL)
-                                 (GROUP_CONCAT(DISTINCT(?a); separator=" <|> ") AS ?A) (GROUP_CONCAT(DISTINCT(?aL); SEPARATOR=" <|> ") AS ?AL)
-                                 (GROUP_CONCAT(DISTINCT(?ad); separator=" <|> ") AS ?AD) (GROUP_CONCAT(DISTINCT(?adL); SEPARATOR=" <|> ") AS ?ADL)
-                                 (GROUP_CONCAT(DISTINCT(?bc); separator=" <|> ") AS ?BC) (GROUP_CONCAT(DISTINCT(?bcL); SEPARATOR=" <|> ") AS ?BCL)
-                                 (GROUP_CONCAT(DISTINCT(?bcd); separator=" <|> ") AS ?BCD) (GROUP_CONCAT(DISTINCT(?bcdL); SEPARATOR=" <|> ") AS ?BCDL)
-                                 (GROUP_CONCAT(DISTINCT(?cc); separator=" <|> ") AS ?CC) (GROUP_CONCAT(DISTINCT(?ccL); SEPARATOR=" <|> ") AS ?CCL)
-                                 (GROUP_CONCAT(DISTINCT(?ccd); separator=" <|> ") AS ?CCD) (GROUP_CONCAT(DISTINCT(?ccdL); SEPARATOR=" <|> ") AS ?CCDL)
-                                 (GROUP_CONCAT(DISTINCT(?cpc); separator=" <|> ") AS ?CPC) (GROUP_CONCAT(DISTINCT(?cpcL); SEPARATOR=" <|> ") AS ?CPCL)
-                                 (GROUP_CONCAT(DISTINCT(?cpcd); separator=" <|> ") AS ?CPCD) (GROUP_CONCAT(DISTINCT(?cpcdL); SEPARATOR=" <|> ") AS ?CPCDL)
-                                 (GROUP_CONCAT(DISTINCT(?ic); separator=" <|> ") AS ?IC) (GROUP_CONCAT(DISTINCT(?icL); SEPARATOR=" <|> ") AS ?ICL)
-                                 (GROUP_CONCAT(DISTINCT(?icd); separator=" <|> ") AS ?ICD) (GROUP_CONCAT(DISTINCT(?icdL); SEPARATOR=" <|> ") AS ?ICDL)
-                                 (GROUP_CONCAT(DISTINCT(?fc); separator=" <|> ") AS ?FC) (GROUP_CONCAT(DISTINCT(?fcL); SEPARATOR=" <|> ") AS ?FCL)
-                                 (GROUP_CONCAT(DISTINCT(?fcd); separator=" <|> ") AS ?FCD) (GROUP_CONCAT(DISTINCT(?fcdL); SEPARATOR=" <|> ") AS ?FCDL)
-                                 (GROUP_CONCAT(DISTINCT(?fgbf); separator=" <|> ") AS ?FGBF) (GROUP_CONCAT(DISTINCT(?fgbfL); SEPARATOR=" <|> ") AS ?FGBFL)
-                                 (GROUP_CONCAT(DISTINCT(?fgf); separator=" <|> ") AS ?FGF) (GROUP_CONCAT(DISTINCT(?fgfL); SEPARATOR=" <|> ") AS ?FGFL)
-                                 (GROUP_CONCAT(DISTINCT(?fabf); separator=" <|> ") AS ?FABF) (GROUP_CONCAT(DISTINCT(?fabfL); SEPARATOR=" <|> ") AS ?FABFL)
-                                 (GROUP_CONCAT(DISTINCT(?faf); separator=" <|> ") AS ?FAF) (GROUP_CONCAT(DISTINCT(?fafL); SEPARATOR=" <|> ") AS ?FAFL)
-                                 (GROUP_CONCAT(DISTINCT(?fdbf); separator=" <|> ") AS ?FDBF) (GROUP_CONCAT(DISTINCT(?fdbfL); SEPARATOR=" <|> ") AS ?FDBFL)
-                                 (GROUP_CONCAT(DISTINCT(?fdf); separator=" <|> ") AS ?FDF) (GROUP_CONCAT(DISTINCT(?fdfL); SEPARATOR=" <|> ") AS ?FDFL)
-                                 (GROUP_CONCAT(DISTINCT(?flbf); separator=" <|> ") AS ?FLBF) (GROUP_CONCAT(DISTINCT(?flbfL); SEPARATOR=" <|> ") AS ?FLBFL)
-                                 (GROUP_CONCAT(DISTINCT(?flf); separator=" <|> ") AS ?FLF) (GROUP_CONCAT(DISTINCT(?flfL); SEPARATOR=" <|> ") AS ?FLFL)
-                                 (GROUP_CONCAT(DISTINCT(?fnbf); separator=" <|> ") AS ?FNBF) (GROUP_CONCAT(DISTINCT(?fnbfL); SEPARATOR=" <|> ") AS ?FNBFL)
-                                 (GROUP_CONCAT(DISTINCT(?fnf); separator=" <|> ") AS ?FNF) (GROUP_CONCAT(DISTINCT(?fnfL); SEPARATOR=" <|> ") AS ?FNFL)
-                                 (GROUP_CONCAT(DISTINCT(?fsf); separator=" <|> ") AS ?FSF) (GROUP_CONCAT(DISTINCT(?fsfL); SEPARATOR=" <|> ") AS ?FSFL)
-                                 
-                          WHERE {{
-                                 
-                                 VALUES ?mf {{{0}}}
-          
-                                 OPTIONAL {{ ?mf :containsFormulation ?f.
-                                             ?f a :MathematicalFormulation.
-                                             ?f rdfs:label ?fL.
-                                             FILTER (lang(?fL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containedAsFormulationIn ?fd.
-                                             ?fd a :MathematicalFormulation.
-                                             ?fd rdfs:label ?fdL.
-                                             FILTER (lang(?fdL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containsAssumption ?a.
-                                             ?a a :MathematicalFormulation.
-                                             ?a rdfs:label ?aL.
-                                             FILTER (lang(?aL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containedAsAssumptionIn ?ad.
-                                             ?ad a :MathematicalFormulation.
-                                             ?ad rdfs:label ?adL.
-                                             FILTER (lang(?adL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containsBoundaryCondition ?bc.
-                                             ?bc a :MathematicalFormulation.
-                                             ?bc rdfs:label ?bcL.
-                                             FILTER (lang(?bcL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containedAsBoundaryConditionIn ?bcd.
-                                             ?bcd a :MathematicalFormulation.
-                                             ?bcd rdfs:label ?bcdL.
-                                             FILTER (lang(?bcdL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containsConstraintCondition ?cc.
-                                             ?cc a :MathematicalFormulation.
-                                             ?cc rdfs:label ?ccL.
-                                             FILTER (lang(?ccL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containedAsConstraintConditionIn ?ccd.
-                                             ?ccd a :MathematicalFormulation.
-                                             ?ccd rdfs:label ?ccdL.
-                                             FILTER (lang(?ccdL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containsCouplingCondition ?cpc.
-                                             ?cpc a :MathematicalFormulation.
-                                             ?cpc rdfs:label ?cpcL.
-                                             FILTER (lang(?cpcL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containedAsCouplingConditionIn ?cpcd.
-                                             ?cpcd a :MathematicalFormulation.
-                                             ?cpcd rdfs:label ?cpcdL.
-                                             FILTER (lang(?cpcdL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containsInitialCondition ?ic.
-                                             ?ic a :MathematicalFormulation.
-                                             ?ic rdfs:label ?icL.
-                                             FILTER (lang(?icL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containedAsInitialConditionIn ?icd.
-                                             ?icd a :MathematicalFormulation. 
-                                             ?icd rdfs:label ?icdL.
-                                             FILTER (lang(?icdL) = 'en')}}
-
-                                 OPTIONAL {{ ?mf :containsFinalCondition ?fc.
-                                             ?fc a :MathematicalFormulation.
-                                             ?fc rdfs:label ?fcL.
-                                             FILTER (lang(?fcL) = 'en')}}
-                                
-                                 OPTIONAL {{ ?mf :containedAsFinalConditionIn ?fcd.
-                                             ?fcd a :MathematicalFormulation.
-                                             ?fcd rdfs:label ?fcdL.
-                                             FILTER (lang(?fcdL) = 'en')}}
-
-                                 OPTIONAL {{ 
-                                           ?mf :generalizedByFormulation ?fgbf. 
-                                           ?fgbf rdfs:label ?fgbfL.
-                                           FILTER (lang(?fgbfL) = 'en')
-                                        }}
-
-                               OPTIONAL {{ 
-                                           ?mf :generalizesFormulation ?fgf. 
-                                           ?fgf rdfs:label ?fgfL.
-                                           FILTER (lang(?fgfL) = 'en')
-                                        }}
-                               OPTIONAL {{ 
-                                           ?mf :approximatedByFormulation ?fabf. 
-                                           ?fabf rdfs:label ?fabfL.
-                                           FILTER (lang(?abL) = 'en')
-                                        }}
-                               OPTIONAL {{ 
-                                           ?mf :approximatesFormulation ?faf. 
-                                           ?faf rdfs:label ?fafL.
-                                           FILTER (lang(?fafL) = 'en')
-                                        }}
-                               OPTIONAL {{ 
-                                           ?mf :discretizedByFormulation ?fdbf. 
-                                           ?fdbf rdfs:label ?fdbfL.
-                                           FILTER (lang(?fdbfL) = 'en')
-                                        }}
-                               OPTIONAL {{ ?mf :discretizesFormulation ?fdf. 
-                                           ?fdf rdfs:label ?fdfL.
-                                           FILTER (lang(?fdfL) = 'en')
-                                        }}
-                               OPTIONAL {{ 
-                                           ?mf :linearizedByFormulation ?flbf.
-                                           ?flbf rdfs:label ?flbfL.
-                                           FILTER (lang(?flbfL) = 'en')
-                                        }}
-                               OPTIONAL {{ 
-                                           ?mf :linearizesFormulation ?flf.
-                                           ?flf rdfs:label ?flfL.
-                                           FILTER (lang(?flfL) = 'en')
-                                        }}
-                               OPTIONAL {{ 
-                                           ?mf :nondimensionalizedByFormulation ?fnbf.
-                                           ?fnbf rdfs:label ?fnbfL.
-                                           FILTER (lang(?fnbfL) = 'en')
-                                        }}
-                               OPTIONAL {{ 
-                                           ?mf :nondimensionalizesFormulation ?fnf.
-                                           ?fnf rdfs:label ?fnfL.
-                                           FILTER (lang(?fnfL) = 'en')
-                                        }}
-                               OPTIONAL {{ 
-                                           ?mf :similarToFormulation ?fsf. 
-                                           ?fsf rdfs:label ?fsfL.
-                                           FILTER (lang(?fsfL) = 'en')
-                                        }}
-
-                                }}
-          
-                              GROUP BY ?mf ?F ?FL ?A ?AL ?BC ?BCL ?CC ?CCL ?CPC ?CPCL ?IC ?ICL ?FC ?FCL 
-                                           ?FD ?FDL ?AD ?ADL ?BCD ?BCDL ?CCD ?CCDL ?CPCD ?CPCDL ?ICD ?ICDL ?FCD ?FCDL
-                                           ?FGBF ?FGBFL ?FGF ?FGFL ?FABF ?FABFL ?FAF ?FAFL ?FDBF ?FDBFL ?FDF ?FDFL ?FLBF ?FLBFL ?FLF ?FLFL
-                                           ?FNBF ?FNBFL ?FNF ?FNFL ?FSF ?FSFL''',
-
-       'TRelation':    '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    
-                          SELECT ?t 
-                                 (GROUP_CONCAT(DISTINCT(?tgbt); separator=" <|> ") AS ?TGBT) (GROUP_CONCAT(DISTINCT(?tgbtL); SEPARATOR=" <|> ") AS ?TGBTL)
-                                 (GROUP_CONCAT(DISTINCT(?tgt); separator=" <|> ") AS ?TGT) (GROUP_CONCAT(DISTINCT(?tgtL); SEPARATOR=" <|> ") AS ?TGTL)
-                                 (GROUP_CONCAT(DISTINCT(?tabt); separator=" <|> ") AS ?TABT) (GROUP_CONCAT(DISTINCT(?tabtL); SEPARATOR=" <|> ") AS ?TABTL)
-                                 (GROUP_CONCAT(DISTINCT(?tat); separator=" <|> ") AS ?TAT) (GROUP_CONCAT(DISTINCT(?tatL); SEPARATOR=" <|> ") AS ?TATL)
-                                 (GROUP_CONCAT(DISTINCT(?tdbt); separator=" <|> ") AS ?TDBT) (GROUP_CONCAT(DISTINCT(?tdbtL); SEPARATOR=" <|> ") AS ?TDBTL)
-                                 (GROUP_CONCAT(DISTINCT(?tdt); separator=" <|> ") AS ?TDT) (GROUP_CONCAT(DISTINCT(?tdtL); SEPARATOR=" <|> ") AS ?TDTL)
-                                 (GROUP_CONCAT(DISTINCT(?tict); separator=" <|> ") AS ?TICT) (GROUP_CONCAT(DISTINCT(?tictL); SEPARATOR=" <|> ") AS ?TICTL)
-                                 (GROUP_CONCAT(DISTINCT(?tct); separator=" <|> ") AS ?TCT) (GROUP_CONCAT(DISTINCT(?tctL); SEPARATOR=" <|> ") AS ?TCTL)
-                                 (GROUP_CONCAT(DISTINCT(?tlbt); separator=" <|> ") AS ?TLBT) (GROUP_CONCAT(DISTINCT(?tlbtL); SEPARATOR=" <|> ") AS ?TLBTL)
-                                 (GROUP_CONCAT(DISTINCT(?tlt); separator=" <|> ") AS ?TLT) (GROUP_CONCAT(DISTINCT(?tltL); SEPARATOR=" <|> ") AS ?TLTL)
-                                 (GROUP_CONCAT(DISTINCT(?tst); separator=" <|> ") AS ?TST) (GROUP_CONCAT(DISTINCT(?tstL); SEPARATOR=" <|> ") AS ?TSTL) 
-                                                              
-                          WHERE {{
-                                   VALUES ?t {{{0}}}
-                                   
-                                   OPTIONAL {{ 
-                                               ?t :generalizedByTask ?tgbt. 
-                                               ?tgbt rdfs:label ?tgbtL.
-                                               FILTER (lang(?tgbtL) = 'en')
-                                            }}
-                                   OPTIONAL {{ 
-                                               ?t :generalizesTask ?tgt. 
-                                               ?tgt rdfs:label ?tgtL.
-                                               FILTER (lang(?tgtL) = 'en')
-                                            }}
-                                   OPTIONAL {{ 
-                                               ?t :approximatedByTask ?tabt. 
-                                               ?tabt rdfs:label ?tabtL.
-                                               FILTER (lang(?tabtL) = 'en')
-                                            }}
-                                   OPTIONAL {{ 
-                                               ?t :approximatesTask ?tat. 
-                                               ?tat rdfs:label ?tatL.
-                                               FILTER (lang(?tatL) = 'en')
-                                            }}
-                                   OPTIONAL {{ 
-                                               ?t :discretizedByTask ?tdbt. 
-                                               ?tdbt rdfs:label ?tdbtL.
-                                               FILTER (lang(?tdbtL) = 'en')
-                                            }}
-                                   OPTIONAL {{ ?t :discretizesTask ?tdt. 
-                                               ?tdt rdfs:label ?tdtL.
-                                               FILTER (lang(?tdtL) = 'en')
-                                            }}
-                                   OPTIONAL {{ 
-                                               ?t :containedInTask ?tict. 
-                                               ?tict rdfs:label ?tictL.
-                                               FILTER (lang(?tictL) = 'en')
-                                            }}
-                                   OPTIONAL {{ ?t :containsTask ?tct. 
-                                               ?tct rdfs:label ?tctL.
-                                               FILTER (lang(?tctL) = 'en')
-                                            }}
-                                   OPTIONAL {{ 
-                                               ?t :linearizedByTask ?tlbt.
-                                               ?tlbt rdfs:label ?tlbtL.
-                                               FILTER (lang(?tlbtL) = 'en')
-                                            }}
-                                   OPTIONAL {{ 
-                                               ?t :linearizesTask ?tlt.
-                                               ?tlt rdfs:label ?tltL.
-                                               FILTER (lang(?tltL) = 'en')
-                                            }}
-                                   OPTIONAL {{ 
-                                               ?t :similarToTask ?tst. 
-                                               ?tst rdfs:label ?tstL.
-                                               FILTER (lang(?tstL) = 'en')
-                                            }}
-                                }}
-    
-                    GROUP BY ?t ?TGBT ?TGBTL ?TGT ?TGTL ?TABT ?TABTL ?TAT ?TATL ?TDBT ?TDBTL ?TDT ?TDTL ?TICT ?TICTL ?TCT ?TCTL ?TLBT ?TLBTL ?TLT ?TLTL 
-                             ?TST ?TSTL''',
-
-       'PRelation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-         
-                       SELECT ?item ?label ?class
-                              (GROUP_CONCAT(DISTINCT(?pu1); separator=" <|> ") AS ?PU1) (GROUP_CONCAT(DISTINCT(?label1); separator=" <|> ") AS ?LABEL1)
-                              (GROUP_CONCAT(DISTINCT(?pu2); separator=" <|> ") AS ?PU2) (GROUP_CONCAT(DISTINCT(?label2); separator=" <|> ") AS ?LABEL2)
-                              (GROUP_CONCAT(DISTINCT(?pu3); separator=" <|> ") AS ?PU3) (GROUP_CONCAT(DISTINCT(?label3); separator=" <|> ") AS ?LABEL3)
-                              (GROUP_CONCAT(DISTINCT(?pu4); separator=" <|> ") AS ?PU4) (GROUP_CONCAT(DISTINCT(?label4); separator=" <|> ") AS ?LABEL4)
-                              (GROUP_CONCAT(DISTINCT(?pu5); separator=" <|> ") AS ?PU5) (GROUP_CONCAT(DISTINCT(?label5); separator=" <|> ") AS ?LABEL5)
-         
-                       WHERE {{
-         
-                              VALUES ?item {{{0}}}
-                              
-                              ?item rdfs:label ?label;
-                                    a ?class.
-                              
-                              FILTER (lang(?label) = 'en')
-                              FILTER (?class IN (:ResearchField, :ResearchProblem, :MathematicalModel, :MathematicalFormulation, :Quantity, :QuantityKind, :ComputationalTask))
-         
-                              OPTIONAL {{ ?item :documentedIn ?pu1.
-                                          ?pu1 rdfs:label ?label1.
-                                          FILTER (lang(?label1) = 'en')
-                                       }}
-         
-                              OPTIONAL {{ ?item :inventedIn ?pu2.
-                                          ?pu2 rdfs:label ?label2.
-                                          FILTER (lang(?label2) = 'en')
-                                       }}
-         
-                              OPTIONAL {{ ?item :studiedIn ?pu3.
-                                          ?pu3 rdfs:label ?label3.
-                                          FILTER (lang(?label3) = 'en')
-                                       }}
-         
-                              OPTIONAL {{ ?item :surveyedIn ?pu4.
-                                          ?pu4 rdfs:label ?label4.
-                                          FILTER (lang(?label4) = 'en')
-                                       }}
-         
-                              OPTIONAL {{ ?item :usedIn ?pu5.
-                                          ?pu5 rdfs:label ?label5.
-                                          FILTER (lang(?label5) = 'en')
-                                       }}
-         
-                             }}
-         
-                       GROUP BY ?item ?label ?class ?PU1 ?LABEL1 ?PU2 ?LABEL2 ?PU3 ?LABEL3 ?PU4 ?LABEL4 ?PU5 ?LABEL5''' 
+                    }}'''
        }
 
 queryHandler = {
@@ -2708,9 +2420,595 @@ queryHandler = {
                                                      
                                                      }}
                                                      GROUP BY ?id ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
-                                                              ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent'''
+                                                              ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent''',
 
-                                                    
+                              'taskInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                                               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
+                              
+                                               SELECT DISTINCT ?id
+                                                               ?isLinear ?isNotLinear
+                                                               (GROUP_CONCAT(DISTINCT(?mm); SEPARATOR=" / ") AS ?appliesModel)
+                                                               (GROUP_CONCAT(DISTINCT(?mml); SEPARATOR=" / ") AS ?appliesModelLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?mmd); SEPARATOR=" / ") AS ?appliesModelDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?mf); SEPARATOR=" / ") AS ?containsFormulation)
+                                                               (GROUP_CONCAT(DISTINCT(?mfl); SEPARATOR=" / ") AS ?containsFormulationLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?mfd); SEPARATOR=" / ") AS ?containsFormulationDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?a); SEPARATOR=" / ") AS ?containsAssumption)
+                                                               (GROUP_CONCAT(DISTINCT(?al); SEPARATOR=" / ") AS ?containsAssumptionLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?ad); SEPARATOR=" / ") AS ?containsAssumptionDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?bc); SEPARATOR=" / ") AS ?containsBoundaryCondition)
+                                                               (GROUP_CONCAT(DISTINCT(?bcl); SEPARATOR=" / ") AS ?containsBoundaryConditionLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?bcd); SEPARATOR=" / ") AS ?containsBoundaryConditionDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?cc); SEPARATOR=" / ") AS ?containsConstraintCondition)
+                                                               (GROUP_CONCAT(DISTINCT(?ccl); SEPARATOR=" / ") AS ?containsConstraintConditionLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?ccd); SEPARATOR=" / ") AS ?containsConstraintConditionDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?cpc); SEPARATOR=" / ") AS ?containsCouplingCondition)
+                                                               (GROUP_CONCAT(DISTINCT(?cpcl); SEPARATOR=" / ") AS ?containsCouplingConditionConditionLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?cpcd); SEPARATOR=" / ") AS ?containsCouplingConditionConditionDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?ic); SEPARATOR=" / ") AS ?containsInitialCondition)
+                                                               (GROUP_CONCAT(DISTINCT(?icl); SEPARATOR=" / ") AS ?containsInitialConditionLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?icd); SEPARATOR=" / ") AS ?containsInitialConditionDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?fc); SEPARATOR=" / ") AS ?containsFinalCondition)
+                                                               (GROUP_CONCAT(DISTINCT(?fcl); SEPARATOR=" / ") AS ?containsFinalConditionLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?fcd); SEPARATOR=" / ") AS ?containsFinalConditionDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?in); SEPARATOR=" / ") AS ?containsInput)
+                                                               (GROUP_CONCAT(DISTINCT(?inl); SEPARATOR=" / ") AS ?containsInputLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?ind); SEPARATOR=" / ") AS ?containsInputDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?ou); SEPARATOR=" / ") AS ?containsOutput)
+                                                               (GROUP_CONCAT(DISTINCT(?oul); SEPARATOR=" / ") AS ?containsOutputLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?oud); SEPARATOR=" / ") AS ?containsOutputDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?ob); SEPARATOR=" / ") AS ?containsObjective)
+                                                               (GROUP_CONCAT(DISTINCT(?obl); SEPARATOR=" / ") AS ?containsObjectiveLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?obd); SEPARATOR=" / ") AS ?containsObjectiveDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?pa); SEPARATOR=" / ") AS ?containsParameter)
+                                                               (GROUP_CONCAT(DISTINCT(?pal); SEPARATOR=" / ") AS ?containsParameterLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?pad); SEPARATOR=" / ") AS ?containsParameterDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?co); SEPARATOR=" / ") AS ?containsConstant)
+                                                               (GROUP_CONCAT(DISTINCT(?col); SEPARATOR=" / ") AS ?containsConstantLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?cod); SEPARATOR=" / ") AS ?containsConstantDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?gt); SEPARATOR=" / ") AS ?generalizesTask)
+                                                               (GROUP_CONCAT(DISTINCT(?gtl); SEPARATOR=" / ") AS ?generalizesTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?gtd); SEPARATOR=" / ") AS ?generalizesTaskDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?gbt); SEPARATOR=" / ") AS ?generalizedByTask)
+                                                               (GROUP_CONCAT(DISTINCT(?gbtl); SEPARATOR=" / ") AS ?generalizedByTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?gbtd); SEPARATOR=" / ") AS ?generalizedByTaskDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?at); SEPARATOR=" / ") AS ?approximatesTask)
+                                                               (GROUP_CONCAT(DISTINCT(?atl); SEPARATOR=" / ") AS ?approximatesTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?atd); SEPARATOR=" / ") AS ?approximatesTaskDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?abt); SEPARATOR=" / ") AS ?approximatedByTask)
+                                                               (GROUP_CONCAT(DISTINCT(?abtl); SEPARATOR=" / ") AS ?approximatedByTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?abtd); SEPARATOR=" / ") AS ?approximatedByTaskDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?ct); SEPARATOR=" / ") AS ?containsTask)
+                                                               (GROUP_CONCAT(DISTINCT(?ctl); SEPARATOR=" / ") AS ?containsTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?ctd); SEPARATOR=" / ") AS ?containsTaskDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?cit); SEPARATOR=" / ") AS ?containedInTask)
+                                                               (GROUP_CONCAT(DISTINCT(?citl); SEPARATOR=" / ") AS ?containedInTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?citd); SEPARATOR=" / ") AS ?containedInTaskDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?lt); SEPARATOR=" / ") AS ?linearizesTask)
+                                                               (GROUP_CONCAT(DISTINCT(?ltl); SEPARATOR=" / ") AS ?linearizesTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?ltd); SEPARATOR=" / ") AS ?linearizesTaskDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?lbt); SEPARATOR=" / ") AS ?linearizedByTask)
+                                                               (GROUP_CONCAT(DISTINCT(?lbtl); SEPARATOR=" / ") AS ?linearizedByTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?lbtd); SEPARATOR=" / ") AS ?linearizedByTaskDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?dt); SEPARATOR=" / ") AS ?discretizesTask)
+                                                               (GROUP_CONCAT(DISTINCT(?dtl); SEPARATOR=" / ") AS ?discretizesTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?dtd); SEPARATOR=" / ") AS ?discretizesTaskDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?dbt); SEPARATOR=" / ") AS ?discretizedByTask)
+                                                               (GROUP_CONCAT(DISTINCT(?dbtl); SEPARATOR=" / ") AS ?discretizedByTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?dbtd); SEPARATOR=" / ") AS ?discretizedByTaskDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?st); SEPARATOR=" / ") AS ?similarToTask)
+                                                               (GROUP_CONCAT(DISTINCT(?stl); SEPARATOR=" / ") AS ?similarToTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?std); SEPARATOR=" / ") AS ?similarToTaskDescription)
+                                                          
+                                               WHERE {{ 
+                                                       VALUES ?id {{{0}}}
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?id rdfs:label ?labelraw .
+                                                                  FILTER (lang(?labelraw) = 'en')
+                                                                }}
+                                                                
+                                                                BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
+
+                                                       OPTIONAL {{
+                                                                  ?id rdfs:comment ?descriptionraw .
+                                                                  FILTER (lang(?descriptionraw) = 'en')
+                                                                }}
+                                                                
+                                                                BIND(COALESCE(?descriptionraw, "No Description Provided!") AS ?description)
+
+                                                       OPTIONAL {{ ?id :isLinear ?isLinear.
+                                                                BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}} 
+
+                                                       OPTIONAL {{
+                                                                  ?id :appliesModel ?mmraw.
+                                                                  BIND(STRAFTER(STR(?mmraw), "#") AS ?mm)
+
+                                                                  OPTIONAL {{
+                                                                             ?mmraw rdfs:label ?mmlraw
+                                                                             FILTER (lang(?mmlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?mmlraw, "No Label Provided!") AS ?mml)
+
+                                                                  OPTIONAL {{
+                                                                             ?mmraw rdfs:comment ?mmdraw
+                                                                             FILTER (lang(?mmdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?mmdraw, "No Description Provided!") AS ?mmd)
+                                                                }}   
+                                                       OPTIONAL {{
+                                                                  ?id :containsFormulation ?mfraw.
+                                                                  BIND(STRAFTER(STR(?mfraw), "#") AS ?mf)
+
+                                                                  OPTIONAL {{
+                                                                             ?mfraw rdfs:label ?mflraw
+                                                                             FILTER (lang(?mflraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?mflraw, "No Label Provided!") AS ?mfl)
+
+                                                                  OPTIONAL {{
+                                                                             ?mfraw rdfs:comment ?mfdraw
+                                                                             FILTER (lang(?mfdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?mfdraw, "No Description Provided!") AS ?mfd)
+                                                                }}
+                                                        
+                                                        OPTIONAL {{
+                                                                  ?id :containsBoundaryCondition ?bcraw.
+                                                                  BIND(STRAFTER(STR(?bcraw), "#") AS ?bc)
+
+                                                                  OPTIONAL {{
+                                                                             ?bcraw rdfs:label ?bclraw
+                                                                             FILTER (lang(?bclraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?bclraw, "No Label Provided!") AS ?bcl)
+
+                                                                  OPTIONAL {{
+                                                                             ?bcraw rdfs:comment ?bcdraw
+                                                                             FILTER (lang(?bcdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?bcdraw, "No Description Provided!") AS ?bcd)
+                                                                }}
+
+                                                        OPTIONAL {{
+                                                                  ?id :containsConstraintCondition ?ccraw.
+                                                                  BIND(STRAFTER(STR(?ccraw), "#") AS ?cc)
+                                                                  
+                                                                  OPTIONAL {{
+                                                                             ?ccraw rdfs:label ?cclraw
+                                                                             FILTER (lang(?cclraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?cclraw, "No Label Provided!") AS ?ccl)
+
+                                                                  OPTIONAL {{
+                                                                             ?ccraw rdfs:comment ?ccdraw
+                                                                             FILTER (lang(?ccdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?ccdraw, "No Description Provided!") AS ?ccd)
+                                                                }}
+
+                                                        OPTIONAL {{
+                                                                  ?id :containsCouplingCondition ?cpcraw.
+                                                                  BIND(STRAFTER(STR(?cpcraw), "#") AS ?cpc)
+
+                                                                  OPTIONAL {{
+                                                                             ?cpcraw rdfs:label ?cpclraw
+                                                                             FILTER (lang(?cpclraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?cpclraw, "No Label Provided!") AS ?cpcl)
+
+                                                                  OPTIONAL {{
+                                                                             ?cpcraw rdfs:comment ?cpcdraw
+                                                                             FILTER (lang(?cpcdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?cpcdraw, "No Description Provided!") AS ?cpcd)
+                                                                }}
+
+                                                        OPTIONAL {{
+                                                                  ?id :containsAssumption ?araw.
+                                                                  BIND(STRAFTER(STR(?araw), "#") AS ?a)
+
+                                                                  OPTIONAL {{
+                                                                             ?araw rdfs:label ?alraw
+                                                                             FILTER (lang(?alraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?alraw, "No Label Provided!") AS ?al)
+
+                                                                  OPTIONAL {{
+                                                                             ?araw rdfs:comment ?adraw
+                                                                             FILTER (lang(?adraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?adraw, "No Description Provided!") AS ?ad)
+                                                                }}
+
+                                                        OPTIONAL {{
+                                                                  ?id :containsInitialCondition ?icraw.
+                                                                  BIND(STRAFTER(STR(?icraw), "#") AS ?ic)
+                                                                  
+                                                                  OPTIONAL {{
+                                                                             ?icraw rdfs:label ?iclraw
+                                                                             FILTER (lang(?iclraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?iclraw, "No Label Provided!") AS ?icl)
+
+                                                                  OPTIONAL {{
+                                                                             ?icraw rdfs:comment ?icdraw
+                                                                             FILTER (lang(?icdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?icdraw, "No Description Provided!") AS ?icd)
+                                                                }}
+
+                                                        OPTIONAL {{
+                                                                  ?id :containsFinalCondition ?fcraw.
+                                                                  BIND(STRAFTER(STR(?fcraw), "#") AS ?fc)
+
+                                                                  OPTIONAL {{
+                                                                             ?fcraw rdfs:label ?fclraw
+                                                                             FILTER (lang(?fclraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?fclraw, "No Label Provided!") AS ?fcl)
+
+                                                                  OPTIONAL {{
+                                                                             ?fcraw rdfs:comment ?fcdraw
+                                                                             FILTER (lang(?fcdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?fcdraw, "No Description Provided!") AS ?fcd)
+                                                                }}
+                                                        OPTIONAL {{
+                                                                  ?id :containsInput ?inraw.
+                                                                  BIND(STRAFTER(STR(?inraw), "#") AS ?in)
+
+                                                                  OPTIONAL {{
+                                                                             ?inraw rdfs:label ?inlraw
+                                                                             FILTER (lang(?inlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?inlraw, "No Label Provided!") AS ?inl)
+
+                                                                  OPTIONAL {{
+                                                                             ?inraw rdfs:comment ?indraw
+                                                                             FILTER (lang(?indraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?indraw, "No Description Provided!") AS ?ind)
+                                                                }}
+                                                        OPTIONAL {{
+                                                                  ?id :containsOutput ?ouraw.
+                                                                  BIND(STRAFTER(STR(?ouraw), "#") AS ?ou)
+
+                                                                  OPTIONAL {{
+                                                                             ?ouraw rdfs:label ?oulraw
+                                                                             FILTER (lang(?oulraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?oulraw, "No Label Provided!") AS ?oul)
+
+                                                                  OPTIONAL {{
+                                                                             ?ouraw rdfs:comment ?oudraw
+                                                                             FILTER (lang(?oudraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?oudraw, "No Description Provided!") AS ?oud)
+                                                                }}
+                                                        OPTIONAL {{
+                                                                  ?id :containsObjective ?obraw.
+                                                                  BIND(STRAFTER(STR(?obraw), "#") AS ?ob)
+
+                                                                  OPTIONAL {{
+                                                                             ?obraw rdfs:label ?oblraw
+                                                                             FILTER (lang(?oblraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?oblraw, "No Label Provided!") AS ?obl)
+
+                                                                  OPTIONAL {{
+                                                                             ?obraw rdfs:comment ?obdraw
+                                                                             FILTER (lang(?obdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?obdraw, "No Description Provided!") AS ?obd)
+                                                                }}
+                                                        OPTIONAL {{
+                                                                  ?id :containsParameter ?paraw.
+                                                                  BIND(STRAFTER(STR(?paraw), "#") AS ?pa)
+
+                                                                  OPTIONAL {{
+                                                                             ?paraw rdfs:label ?palraw
+                                                                             FILTER (lang(?palraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?palraw, "No Label Provided!") AS ?pal)
+
+                                                                  OPTIONAL {{
+                                                                             ?paraw rdfs:comment ?padraw
+                                                                             FILTER (lang(?padraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?padraw, "No Description Provided!") AS ?pad)
+                                                                }}
+                                                        OPTIONAL {{
+                                                                  ?id :containsConstant ?coraw.
+                                                                  BIND(STRAFTER(STR(?coraw), "#") AS ?co)
+
+                                                                  OPTIONAL {{
+                                                                             ?coraw rdfs:label ?colraw
+                                                                             FILTER (lang(?colraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?colraw, "No Label Provided!") AS ?col)
+
+                                                                  OPTIONAL {{
+                                                                             ?coraw rdfs:comment ?codraw
+                                                                             FILTER (lang(?codraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?codraw, "No Description Provided!") AS ?cod)
+                                                                }}
+                                                        OPTIONAL {{
+                                                                  ?id :generalizedByTask ?gbtraw.
+                                                                  BIND(STRAFTER(STR(?gbtraw), "#") AS ?gbt)
+
+                                                                  OPTIONAL {{
+                                                                             ?gbtraw rdfs:label ?gbtlraw
+                                                                             FILTER (lang(?gbtlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?gbtlraw, "No Label Provided!") AS ?gbtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?gbtraw rdfs:comment ?gbtdraw
+                                                                             FILTER (lang(?gbtdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?gbtdraw, "No Description Provided!") AS ?gbtd)
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?id :generalizesTask ?gtraw.
+                                                                  BIND(STRAFTER(STR(?gtraw), "#") AS ?gt)
+
+                                                                  OPTIONAL {{
+                                                                             ?gtraw rdfs:label ?gtlraw
+                                                                             FILTER (lang(?gtlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?gtlraw, "No Label Provided!") AS ?gtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?gtraw rdfs:comment ?gtdraw
+                                                                             FILTER (lang(?gtdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?gtdraw, "No Description Provided!") AS ?gtd)
+                                                                }}
+
+                                                      OPTIONAL {{
+                                                                  ?id :discretizedByTask ?dbtraw.
+                                                                  BIND(STRAFTER(STR(?dbtraw), "#") AS ?dbt)
+
+                                                                  OPTIONAL {{
+                                                                             ?dbtraw rdfs:label ?dbtlraw
+                                                                             FILTER (lang(?dbtlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?dbtlraw, "No Label Provided!") AS ?dbtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?dbtraw rdfs:comment ?dbtdraw
+                                                                             FILTER (lang(?dbtdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?dbtdraw, "No Description Provided!") AS ?dbtd)
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?id :discretizesModel ?dtraw.
+                                                                  BIND(STRAFTER(STR(?dtraw), "#") AS ?dt)
+
+                                                                  OPTIONAL {{
+                                                                             ?dtraw rdfs:label ?dtlraw
+                                                                             FILTER (lang(?dtlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?dtlraw, "No Label Provided!") AS ?dtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?dtraw rdfs:comment ?dtdraw
+                                                                             FILTER (lang(?dtdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?dtdraw, "No Description Provided!") AS ?dtd)
+                                                                }}
+
+                                                      OPTIONAL {{
+                                                                  ?id :containedInTask ?citraw.
+                                                                  BIND(STRAFTER(STR(?citraw), "#") AS ?cit)
+
+                                                                  OPTIONAL {{
+                                                                             ?citraw rdfs:label ?citlraw
+                                                                             FILTER (lang(?citlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?citlraw, "No Label Provided!") AS ?citl)
+
+                                                                  OPTIONAL {{
+                                                                             ?citraw rdfs:comment ?citdraw
+                                                                             FILTER (lang(?citdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?citdraw, "No Description Provided!") AS ?citd)
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?id :containsTask ?ctraw.
+                                                                  BIND(STRAFTER(STR(?ctraw), "#") AS ?ct)
+
+                                                                  OPTIONAL {{
+                                                                             ?ctraw rdfs:label ?ctlraw
+                                                                             FILTER (lang(?ctlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?ctlraw, "No Label Provided!") AS ?ctl)
+
+                                                                  OPTIONAL {{
+                                                                             ?ctraw rdfs:comment ?ctdraw
+                                                                             FILTER (lang(?ctdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?ctdraw, "No Description Provided!") AS ?ctd)
+                                                                }}
+
+                                                      OPTIONAL {{
+                                                                  ?id :approximatedByTask ?abtraw.
+                                                                  BIND(STRAFTER(STR(?abtraw), "#") AS ?abt)
+
+                                                                  OPTIONAL {{
+                                                                             ?abtraw rdfs:label ?abtlraw
+                                                                             FILTER (lang(?abtlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?abtlraw, "No Label Provided!") AS ?abtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?abtraw rdfs:comment ?abtdraw
+                                                                             FILTER (lang(?abtdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?abtdraw, "No Description Provided!") AS ?abtd)
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?id :approximatesTask ?atraw.
+                                                                  BIND(STRAFTER(STR(?atraw), "#") AS ?at)
+
+                                                                  OPTIONAL {{
+                                                                             ?atraw rdfs:label ?atlraw
+                                                                             FILTER (lang(?atlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?atlraw, "No Label Provided!") AS ?atl)
+
+                                                                  OPTIONAL {{
+                                                                             ?atraw rdfs:comment ?atdraw
+                                                                             FILTER (lang(?atdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?atdraw, "No Description Provided!") AS ?atd)
+                                                                }}
+
+                                                      OPTIONAL {{
+                                                                  ?id :linearizedByTask ?lbtraw.
+                                                                  BIND(STRAFTER(STR(?lbtraw), "#") AS ?lbt)
+
+                                                                  OPTIONAL {{
+                                                                             ?lbtraw rdfs:label ?lbtlraw
+                                                                             FILTER (lang(?lbtlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?lbtlraw, "No Label Provided!") AS ?lbtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?lbtraw rdfs:comment ?lbtdraw
+                                                                             FILTER (lang(?lbtdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?lbtdraw, "No Description Provided!") AS ?lbtd)
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?id :linearizesTask ?ltraw.
+                                                                  BIND(STRAFTER(STR(?ltraw), "#") AS ?lt)
+
+                                                                  OPTIONAL {{
+                                                                             ?ltraw rdfs:label ?ltlraw
+                                                                             FILTER (lang(?ltlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?ltlraw, "No Label Provided!") AS ?ltl)
+
+                                                                  OPTIONAL {{
+                                                                             ?ltraw rdfs:comment ?ltdraw
+                                                                             FILTER (lang(?ltdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?ltdraw, "No Description Provided!") AS ?ltd)
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?id :discretizedByTask ?dbtraw.
+                                                                  BIND(STRAFTER(STR(?dbtraw), "#") AS ?dbt)
+
+                                                                  OPTIONAL {{
+                                                                             ?dbtraw rdfs:label ?dbtlraw
+                                                                             FILTER (lang(?dbtlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?dbtlraw, "No Label Provided!") AS ?dbtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?dbtraw rdfs:comment ?dbtdraw
+                                                                             FILTER (lang(?dbtdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?dbtdraw, "No Description Provided!") AS ?dbtd)
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?id :discretizesTask ?dtraw.
+                                                                  BIND(STRAFTER(STR(?dtraw), "#") AS ?dt)
+
+                                                                  OPTIONAL {{
+                                                                             ?dtraw rdfs:label ?dtlraw
+                                                                             FILTER (lang(?dtlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?dtlraw, "No Label Provided!") AS ?dtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?dtraw rdfs:comment ?dtdraw
+                                                                             FILTER (lang(?dtdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?dtdraw, "No Description Provided!") AS ?dtd)
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?id :similarToTask ?straw.
+                                                                  BIND(STRAFTER(STR(?straw), "#") AS ?st)
+
+                                                                  OPTIONAL {{
+                                                                             ?straw rdfs:label ?stlraw
+                                                                             FILTER (lang(?stlraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?stlraw, "No Label Provided!") AS ?stl)
+
+                                                                  OPTIONAL {{
+                                                                             ?straw rdfs:comment ?stdraw
+                                                                             FILTER (lang(?stdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?stdraw, "No Description Provided!") AS ?std)
+                                                                }}
+                                                     }}
+                                                     GROUP BY ?id ?isLinear ?isNotLinear'''
+                                      
                                                       }
 
                       

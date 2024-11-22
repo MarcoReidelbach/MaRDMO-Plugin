@@ -34,6 +34,7 @@
            text-align: center;
          }
 </style>
+</style>
 </head>
 <body>
 <h1 id="title"> {{ title }} </h1>
@@ -57,54 +58,51 @@
     <h2 id="MM{{ forloop.counter }}"> MM{{ forloop.counter }}: {{ values.Name }} </h2>
 
     <p>
-    <b>Description</b>: {{ values.Description }} <br>
-    <b>MathModDB</b>: {% if 'mathmoddb' in values.ID %} 
-                          {{ values.ID|cut:"mathmoddb:" }} 
-             {% endif %} <br>
-    <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
-                         {{ values.ID|cut:"wikidata:" }} 
-		     {% endif %} <br>
-    <b>MaRDI</b>: {% if 'mardi' in values.ID %} 
-                      {{ values.ID|cut:"mardi:" }} 
-		  {% endif %} <br>
-    <b>Properties</b>: {% for value in values.Properties.values %} 
-               {% if value == option.isConvex %} 
-			       Is Convex 
-			   {% elif value == option.isNotConvex %} 
-			       Is Not Convex 
-			   {% elif value == option.isDeterministic %} 
-			       Is Deterministic 
-			   {% elif value == option.isStochastic %} 
-			       Is Stochastic 
-			   {% elif value == option.isDimensionless %} 
-			       Is Dimensionless 
-			   {% elif value == option.isDimensional %} 
-			       Is Dimensional 
-			   {% elif value == option.isDynamic %} 
-			       Is Dynamic 
-			   {% elif value == option.isStatic %} 
-			       Is Static 
-			   {% elif value == option.isLinear %} 
-			       Is Linear 
-			   {% elif value == option.isNotLinear %} 
-			       Is Not Linear 
-			   {% elif value == option.isSpaceContinuous %} 
-			       Is Space-Continuous 
-			   {% elif value == option.isSpaceDiscrete %} 
-			       Is Space-Discrete 
-			   {% elif value == option.isSpaceIndependent %} 
-			       Is Space-Independent 
-			   {% elif value == option.isTimeContinuous %} 
-			       Is Time-Continuous 
-			   {% elif value == option.isTimeDiscrete %} 
-			       Is Time-Discrete 
-			   {% elif value == option.isTimeIndependent %} 
-			       Is Time-Independent 
-			   {% endif %} 
-			   {% if not forloop.last %}
-			       , 
-			   {% endif %} 
-		       {% endfor %}
+        {% if values.Description %}
+            <b>Description</b>: {{ values.Description }} <br>
+        {% endif %}
+        <b>ID</b>: {% if 'user' in values.ID %} - {% else %} {{ values.ID }} {% endif %} <br>
+    </p>
+    {% if values.Properties %}
+        <b>Properties</b>: {% for value in values.Properties.values %} 
+                   {% if value == option.isConvex %} 
+	    		       Is Convex 
+	    		   {% elif value == option.isNotConvex %} 
+	    		       Is Not Convex 
+	    		   {% elif value == option.isDeterministic %} 
+	    		       Is Deterministic 
+	    		   {% elif value == option.isStochastic %} 
+	    		       Is Stochastic 
+	    		   {% elif value == option.isDimensionless %} 
+	    		       Is Dimensionless 
+	    		   {% elif value == option.isDimensional %} 
+	    		       Is Dimensional 
+	    		   {% elif value == option.isDynamic %} 
+	    		       Is Dynamic 
+	    		   {% elif value == option.isStatic %} 
+	    		       Is Static 
+	    		   {% elif value == option.isLinear %} 
+	    		       Is Linear 
+	    		   {% elif value == option.isNotLinear %} 
+	    		       Is Not Linear 
+	    		   {% elif value == option.isSpaceContinuous %} 
+	    		       Is Space-Continuous 
+	    		   {% elif value == option.isSpaceDiscrete %} 
+	    		       Is Space-Discrete 
+	    		   {% elif value == option.isSpaceIndependent %} 
+	    		       Is Space-Independent 
+	    		   {% elif value == option.isTimeContinuous %} 
+	    		       Is Time-Continuous 
+	    		   {% elif value == option.isTimeDiscrete %} 
+	    		       Is Time-Discrete 
+	    		   {% elif value == option.isTimeIndependent %} 
+	    		       Is Time-Independent 
+	    		   {% endif %} 
+	    		   {% if not forloop.last %}
+	    		       , 
+	    		   {% endif %} 
+	    	       {% endfor %}
+    {% endif %}
 
     {% for models in values.RelationRP1.values %}
         {% if forloop.counter == 1 %}
@@ -148,103 +146,103 @@
     {% for values in answers.MathematicalFormulation.values %}
         {% for models in values.RelationMM1.values %}
             {% if models.1 == forloop.parentloop.parentloop.counter %}
-                <h3 id="F{{ forloop.parentloop.counter }}"> F{{ forloop.parentloop.counter }}: {{ values.Name }} </h3>
-		<p>
+            <h3 id="F{{ forloop.parentloop.counter }}"> F{{ forloop.parentloop.counter }}: {{ values.Name }} </h3>
+            <p>
+                {% if values.Description %}
                     <b>Description</b>: {{ values.Description }} <br>
-		    <b>MathModDB</b>: {% if 'mathmoddb' in values.ID %} 
-                                  {{ values.ID|cut:"mathmoddb:" }} 
-                              {% endif %} <br>
-                    <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
-		                         {{ values.ID|cut:"wikidata:" }} 
-				     {% endif %} <br>
-		    <b>MaRDI</b>: {% if 'mardi' in values.ID %} 
-		                      {{ values.ID|cut:"mardi:" }} 
-				  {% endif %} <br>
-		</p>
-		<p>
-		    <b>Defining formulations</b>: {%for value in values.Formula.values %} 
-		                                      \( {{ value|cut:"$" }} \) 
-			    		              {% if not forloop.last %}
-						          , 
-						      {% endif %} 
-					          {% endfor %}
-		</p>
-                <br>
-		<table border="1">
-                    <colgroup>
-                        <col style="width: 10%" />
-                        <col style="width: 15%" />
-                        <col style="width: 15%" />
-                        <col style="width: 15%" />
-                        <col style="width: 15%" />
-			<col style="width: 30%" />
-                    </colgroup>
-                    <thead>
-                        <tr class="header">
-                            <th style="text-align: center; vertical-align: middle;">Symbol</th>
-                            <th style="text-align: center; vertical-align: middle;">Quantity</th>
-                            <th style="text-align: center; vertical-align: middle;">Quantity ID</th>
-                            <th style="text-align: center; vertical-align: middle;">Quantity Kind</th>
-                            <th style="text-align: center; vertical-align: middle;">Quantity Kind ID</th>
-			    <th style="text-align: center; vertical-align: middle;">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for value in values.Element.values %}
-                            <tr>
-                                <td style="text-align: center; vertical-align: middle;">${{ value.Symbol }}$</td>
-                                <td style="text-align: center; vertical-align: middle;">{% if value.Info %} 
-					                                                    {{ value.Info.Name }} 
-											{% else %} 
-											    {{ value.Quantity }} 
-											{% endif %}</td>
-                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.QID }}</td>
-                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKName }}</td>
-                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKID }}</td>
-                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }}</td>				
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <br>
-                <b>Properties</b>: {% for value in values.Properties.values %} 
-	                               {% if value == option.isConvex %} 
-		 		           Is Convex 
-				       {% elif value == option.isNotConvex %} 
-				           Is Not Convex 
-				       {% elif value == option.isDeterministic %} 
-				           Is Deterministic 
-				       {% elif value == option.isStochastic %} 
-				           Is Stochastic 
-				       {% elif value == option.isDimensionless %} 
-				           Is Dimensionless 
-				       {% elif value == option.isDimensional %} 
-				           Is Dimensional 
-				       {% elif value == option.isDynamic %} 
-				           Is Dynamic 
-				       {% elif value == option.isStatic %} 
-				           Is Static 
-				       {% elif value == option.isLinear %} 
-				           Is Linear 
-				       {% elif value == option.isNotLinear %} 
-				           Is Not Linear 
-				       {% elif value == option.isSpaceContinuous %} 
-				           Is Space-Continuous 
-				       {% elif value == option.isSpaceDiscrete %} 
-				           Is Space-Discrete 
-				       {% elif value == option.isSpaceIndependent %} 
-					   Is Space-Independent 
-				       {% elif value == option.isTimeContinuous %} 
-				           Is Time-Continuous 
-				       {% elif value == option.isTimeDiscrete %} 
-				           Is Time-Discrete 
-				       {% elif value == option.isTimeIndependent %} 
-				           Is Time-Independent 
-				       {% endif %} 
-				       {% if not forloop.last %}
-				           , 
-				       {% endif %} 
-				   {% endfor %}
+                {% endif %}
+                <b>ID</b>: {% if 'user' in values.ID %} - {% else %} {{ values.ID }} {% endif %} <br>
+            </p>
+            <p>
+                {% if values.Formula %}
+                    <b>Defining formulations</b>: 
+                                                  {%for value in values.Formula.values %} 
+                                                      \( {{ value|cut:"$" }} \) 
+                                                      {% if not forloop.last %}
+                                                          , 
+                                                      {% endif %} 
+                                                  {% endfor %}
+                    </p>
+                        <br>
+                        <table border="1">
+                                    <colgroup>
+                                        <col style="width: 10%" />
+                                        <col style="width: 15%" />
+                                        <col style="width: 15%" />
+                                        <col style="width: 15%" />
+                                        <col style="width: 15%" />
+                            <col style="width: 30%" />
+                                    </colgroup>
+                                    <thead>
+                                        <tr class="header">
+                                            <th style="text-align: center; vertical-align: middle;">Symbol</th>
+                                            <th style="text-align: center; vertical-align: middle;">Quantity</th>
+                                            <th style="text-align: center; vertical-align: middle;">Quantity ID</th>
+                                            <th style="text-align: center; vertical-align: middle;">Quantity Kind</th>
+                                            <th style="text-align: center; vertical-align: middle;">Quantity Kind ID</th>
+                                <th style="text-align: center; vertical-align: middle;">Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for value in values.Element.values %}
+                                            <tr>
+                                                <td style="text-align: center; vertical-align: middle;">${{ value.Symbol }}$</td>
+                                                <td style="text-align: center; vertical-align: middle;">{% if value.Info %} 
+                                                                                        {{ value.Info.Name }} 
+                                                            {% else %} 
+                                                                {{ value.Quantity }} 
+                                                            {% endif %}</td>
+                                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.QID }}</td>
+                                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKName }}</td>
+                                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKID }}</td>
+                                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }}</td>				
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <br>
+                {% endif %}
+            {% if values.Properties %}
+                <b>Properties</b>:  
+                               {% for value in values.Properties.values %} 
+                                   {% if value == option.isConvex %} 
+                                        Is Convex 
+                                   {% elif value == option.isNotConvex %} 
+                                       Is Not Convex 
+                                   {% elif value == option.isDeterministic %} 
+                                       Is Deterministic 
+                                   {% elif value == option.isStochastic %} 
+                                       Is Stochastic 
+                                   {% elif value == option.isDimensionless %} 
+                                       Is Dimensionless 
+                                   {% elif value == option.isDimensional %} 
+                                       Is Dimensional 
+                                   {% elif value == option.isDynamic %} 
+                                       Is Dynamic 
+                                   {% elif value == option.isStatic %} 
+                                       Is Static 
+                                   {% elif value == option.isLinear %} 
+                                       Is Linear 
+                                   {% elif value == option.isNotLinear %} 
+                                       Is Not Linear 
+                                   {% elif value == option.isSpaceContinuous %} 
+                                       Is Space-Continuous 
+                                   {% elif value == option.isSpaceDiscrete %} 
+                                       Is Space-Discrete 
+                                   {% elif value == option.isSpaceIndependent %} 
+                                       Is Space-Independent 
+                                   {% elif value == option.isTimeContinuous %} 
+                                       Is Time-Continuous 
+                                   {% elif value == option.isTimeDiscrete %} 
+                                       Is Time-Discrete 
+                                   {% elif value == option.isTimeIndependent %} 
+                                       Is Time-Independent 
+                                   {% endif %} 
+                                   {% if not forloop.last %}
+                                       , 
+                                   {% endif %} 
+                               {% endfor %}
+                    {% endif %}
 
                 {% for values in values.RelationMM1.values %}
                     {% if forloop.counter == 1 %}
@@ -345,16 +343,17 @@
     <h2 id="T{{ forloop.counter }}"> T{{ forloop.counter }}: {{ values.Name }} </h2>
 
     <p>
-    <b>Description</b>: {{ values.Description }} <br>
-    <b>MathModDB</b>: {% if values.MathModID and values.MathModID != 'not in MathModDB' %} 
-                          {{ values.MathModID }} 
-		      {% endif %} <br>
-    <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
-                         {{ values.ID|cut:"wikidata:" }} 
-		     {% endif %} <br>
-    <b>MaRDI</b>: {% if 'mardi' in values.ID %} 
-                      {{ values.ID|cut:"mardi:" }} 
-		  {% endif %} <br>
+        {% if values.Description %}
+            <b>Description</b>: {{ values.Description }} <br>
+        {% endif %}
+        <b>Class</b>: {% if values.TaskClass == option.ComputationalTask %} 
+			                  Computational Task 
+                          {% else %}
+                              -
+			              {% endif %} <br>
+        <b>ID</b>: {% if 'user' in values.ID %} - {% else %} {{ values.ID }} {% endif %} <br>
+    </p>
+    {% if values.Properties %}
     <b>Properties</b>: {% for value in values.Properties.values %} 
                            {% if value == option.isLinear %} 
 			       Is Linear 
@@ -364,11 +363,8 @@
 			   {% if not forloop.last %}
 			       , 
 			   {% endif %} 
-		      {% endfor %} <br>
-    <b>Task Type</b>: {% if values.TaskClass == option.ComputationalTask %} 
-			                  Computational Task 
-			          {% endif %} 
-    </p>
+		      {% endfor %} <br> 
+    {% endif %}
 
     {% for value in values.RelationMM.values %}
         {% if forloop.counter == 1 %}
@@ -428,103 +424,103 @@
     {% for values in answers.MathematicalFormulation.values %}
         {% for tasks in values.RelationT1.values %}
             {% if tasks.1 == forloop.parentloop.parentloop.counter %}
-                <h3 id="F{{ forloop.parentloop.counter }}2"> F{{ forloop.parentloop.counter }}: {{ values.Name }} </h3>
-                <p>
-		    <b>Description</b>: {{ values.Description }} <br>
-		    <b>MathModDB</b>: {% if 'mathmoddb' in values.ID %} 
-                                  {{ values.ID|cut:"mathmoddb:" }} 
-                              {% endif %} <br>
-		    <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
-		                         {{ values.ID|cut:"wikidata:" }} 
-				     {% endif %} <br>
-		    <b>MaRDI</b>: {% if 'mardi' in values.ID %} 
-		                      {{ values.ID|cut:"mardi:" }} 
-				  {% endif %} <br>
-	        </p>
-		<p>
-                    <b>Defining formulations</b>: {% for value in values.Formula.values %} 
-		                                      \( {{ value|cut:"$" }} \) 
-						      {% if not forloop.last %}
-						          , 
-						      {% endif %} 
-						  {% endfor %}
-		</p>
-                <br>
-                <table border="1">
-                    <colgroup>
-                        <col style="width: 10%" />
-                        <col style="width: 15%" />
-                        <col style="width: 15%" />
-                        <col style="width: 15%" />
-                        <col style="width: 15%" />
-                        <col style="width: 30%" />
-                    </colgroup>
-                    <thead>
-                        <tr class="header">
-                            <th style="text-align: center; vertical-align: middle;">Symbol</th>
-                            <th style="text-align: center; vertical-align: middle;">Quantity</th>
-                            <th style="text-align: center; vertical-align: middle;">Quantity ID</th>
-                            <th style="text-align: center; vertical-align: middle;">Quantity Kind</th>
-                            <th style="text-align: center; vertical-align: middle;">Quantity Kind ID</th>
-                            <th style="text-align: center; vertical-align: middle;">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for value in values.Element.values %}
-                            <tr>
-                                <td style="text-align: center; vertical-align: middle;">${{ value.Symbol }}$</td>
-                                <td style="text-align: center; vertical-align: middle;">{% if value.Info %}
-                                                                                            {{ value.Info.Name }}
-                                                                                        {% else %}
-                                                                                            {{ value.Quantity }}
-                                                                                        {% endif %}</td>
-                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.QID }}</td>
-                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKName }}</td>
-                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKID }}</td>
-                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <br>
-		<b>Properties</b>: {% for value in values.Properties.values %}
-                                       {% if value == option.isConvex %}
-                                           Is Convex
-                                       {% elif value == option.isNotConvex %}
-                                           Is Not Convex
-                                       {% elif value == option.isDeterministic %}
-                                           Is Deterministic
-                                       {% elif value == option.isStochastic %}
-                                           Is Stochastic
-                                       {% elif value == option.isDimensionless %}
-                                           Is Dimensionless
-                                       {% elif value == option.isDimensional %}
-                                           Is Dimensional
-                                       {% elif value == option.isDynamic %}
-                                           Is Dynamic
-                                       {% elif value == option.isStatic %}
-                                           Is Static
-                                       {% elif value == option.isLinear %}
-                                           Is Linear
-                                       {% elif value == option.isNotLinear %}
-                                           Is Not Linear
-                                       {% elif value == option.isSpaceContinuous %}
-                                           Is Space-Continuous
-                                       {% elif value == option.isSpaceDiscrete %}
-                                           Is Space-Discrete
-                                       {% elif value == option.isSpaceIndependent %}
-                                           Is Space-Independent
-                                       {% elif value == option.isTimeContinuous %}
-                                           Is Time-Continuous
-                                       {% elif value == option.isTimeDiscrete %}
-                                           Is Time-Discrete
-                                       {% elif value == option.isTimeIndependent %}
-                                           Is Time-Independent
-                                       {% endif %}
-                                       {% if not forloop.last %}
-                                           ,
-                                       {% endif %}
-                                   {% endfor %}
+                <h3 id="F{{ forloop.parentloop.counter }}"> F{{ forloop.parentloop.counter }}: {{ values.Name }} </h3>
+		            <p>
+                        {% if values.Description %}
+                            <b>Description</b>: {{ values.Description }} <br>
+                        {% endif %}
+                        <b>ID</b>: {% if 'user' in values.ID %} - {% else %} {{ values.ID }} {% endif %} <br>
+		            </p>
+		            <p>
+                        {% if values.Formula %}
+		                    <b>Defining formulations</b>: 
+                                                          {%for value in values.Formula.values %} 
+		                                                      \( {{ value|cut:"$" }} \) 
+			    		                                      {% if not forloop.last %}
+						                                          , 
+						                                      {% endif %} 
+					                                      {% endfor %}
+		                    </p>
+                                <br>
+	                            <table border="1">
+                                            <colgroup>
+                                                <col style="width: 10%" />
+                                                <col style="width: 15%" />
+                                                <col style="width: 15%" />
+                                                <col style="width: 15%" />
+                                                <col style="width: 15%" />
+	                            	<col style="width: 30%" />
+                                            </colgroup>
+                                            <thead>
+                                                <tr class="header">
+                                                    <th style="text-align: center; vertical-align: middle;">Symbol</th>
+                                                    <th style="text-align: center; vertical-align: middle;">Quantity</th>
+                                                    <th style="text-align: center; vertical-align: middle;">Quantity ID</th>
+                                                    <th style="text-align: center; vertical-align: middle;">Quantity Kind</th>
+                                                    <th style="text-align: center; vertical-align: middle;">Quantity Kind ID</th>
+	                            	    <th style="text-align: center; vertical-align: middle;">Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for value in values.Element.values %}
+                                                    <tr>
+                                                        <td style="text-align: center; vertical-align: middle;">${{ value.Symbol }}$</td>
+                                                        <td style="text-align: center; vertical-align: middle;">{% if value.Info %} 
+	                            			                                                    {{ value.Info.Name }} 
+	                            									{% else %} 
+	                            									    {{ value.Quantity }} 
+	                            									{% endif %}</td>
+                                                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.QID }}</td>
+                                                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKName }}</td>
+                                                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKID }}</td>
+                                                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }}</td>				
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                        <br>
+                        {% endif %}
+                    {% if values.Properties %}
+                        <b>Properties</b>:  
+                                       {% for value in values.Properties.values %} 
+	                                       {% if value == option.isConvex %} 
+		 		                               Is Convex 
+				                           {% elif value == option.isNotConvex %} 
+				                               Is Not Convex 
+				                           {% elif value == option.isDeterministic %} 
+				                               Is Deterministic 
+				                           {% elif value == option.isStochastic %} 
+				                               Is Stochastic 
+				                           {% elif value == option.isDimensionless %} 
+				                               Is Dimensionless 
+				                           {% elif value == option.isDimensional %} 
+				                               Is Dimensional 
+				                           {% elif value == option.isDynamic %} 
+				                               Is Dynamic 
+				                           {% elif value == option.isStatic %} 
+				                               Is Static 
+				                           {% elif value == option.isLinear %} 
+				                               Is Linear 
+				                           {% elif value == option.isNotLinear %} 
+				                               Is Not Linear 
+				                           {% elif value == option.isSpaceContinuous %} 
+				                               Is Space-Continuous 
+				                           {% elif value == option.isSpaceDiscrete %} 
+				                               Is Space-Discrete 
+				                           {% elif value == option.isSpaceIndependent %} 
+					                           Is Space-Independent 
+				                           {% elif value == option.isTimeContinuous %} 
+				                               Is Time-Continuous 
+				                           {% elif value == option.isTimeDiscrete %} 
+				                               Is Time-Discrete 
+				                           {% elif value == option.isTimeIndependent %} 
+				                               Is Time-Independent 
+				                           {% endif %} 
+				                           {% if not forloop.last %}
+				                               , 
+				                           {% endif %} 
+				                       {% endfor %}
+                            {% endif %}
 
                 {% for values in values.RelationT1.values %}
                     {% if forloop.counter == 1 %}
@@ -683,16 +679,10 @@
     <h2 id="RF{{ forloop.counter }}"> RF{{ forloop.counter }}: {{ values.Name }} </h2>
 
     <p>
-        <b>Description</b>: {{ values.Description }} <br>
-        <b>MathModDB</b>: {% if 'mathmoddb' in values.ID %} 
-                          {{ values.ID|cut:"mathmoddb:" }} 
-             {% endif %} <br>
-        <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
-	                     {{ values.ID|cut:"wikidata:" }} 
-			 {% endif %} <br>
-        <b>MaRDI</b>: {% if 'mardi' in values.ID %} 
-	                  {{ values.ID|cut:"mardi:" }} 
-		      {% endif %} <br>
+        {% if values.Description %}
+            <b>Description</b>: {{ values.Description }} <br>
+        {% endif %}
+        <b>ID</b>: {% if 'user' in values.ID %} - {% else %} {{ values.ID }} {% endif %} <br>
     </p>
 
     {% for relation in values.RelationRF1.values %}
@@ -716,16 +706,10 @@
     <h2 id="RP{{ forloop.counter }}"> RP{{ forloop.counter }}: {{ values.Name }} </h2>
 
     <p>
-        <b>Description</b>: {{ values.Description }} <br>
-        <b>MathModDB</b>: {% if 'mathmoddb' in values.ID %} 
-                              {{ values.ID|cut:"mathmoddb:" }} 
-                 {% endif %} <br>
-        <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
-                             {{ values.ID|cut:"wikidata:" }} 
-		         {% endif %} <br>
-        <b>MaRDI</b>: {% if 'mardi' in values.ID %} 
-                          {{ values.ID|cut:"mardi:" }} 
-		      {% endif %} <br>
+        {% if values.Description %}
+            <b>Description</b>: {{ values.Description }} <br>
+        {% endif %}
+        <b>ID</b>: {% if 'user' in values.ID %} - {% else %} {{ values.ID }} {% endif %} <br>
     </p>
 
     {% for researchfield in values.RelationRF1.values %}
@@ -756,24 +740,22 @@
     <h2 id="QQK{{ forloop.counter }}"> QQK{{ forloop.counter }}: {{ values.Name }} </h2>
 
     <p>
-        <b>Description</b>: {{ values.Description }} <br>
+        {% if values.Description %}
+            <b>Description</b>: {{ values.Description }} <br>
+        {% endif %}
         <b>Class</b>: {% if values.QorQK == option.Quantity %}
                           Quantity
                       {% elif values.QorQK == option.QuantityKind %}
                           Quantity Kind
                       {% endif %} <br>
-        <b>QUDT</b>: {% if 'qudt' in values.Reference %} 
-                        {{ values.Reference|cut:"qudt:" }} 
-	   	            {% endif %} <br>
-        <b>MathModDB</b>: {% if 'mathmoddb' in values.ID %} 
-                              {{ values.ID|cut:"mathmoddb:" }} 
-                          {% endif %} <br>
-        <b>WikiData</b>: {% if 'wikidata' in values.ID %} 
-                             {{ values.ID|cut:"wikidata:" }} 
-	                     {% endif %} <br>
-        <b>MaRDI</b>: {% if 'mardi' in values.ID %} 
-                          {{ values.ID|cut:"mardi:" }} 
-		              {% endif %} <br>
+        {% if values.Reference %}
+            <b>QUDT</b>: {% if 'qudt' in values.Reference %} 
+                            {{ values.Reference|cut:"qudt:" }} 
+	   	                {% endif %} <br>
+        {% endif %}
+        <b>ID</b>: {% if 'user' in values.ID %} - {% else %} {{ values.ID }} {% endif %} <br>
+    </p>
+        {% if values.Properties %}
         <b>Properties</b>: {% if values.Properties %}
                             {% for value in values.Properties.values %} 
                                 {% if value == option.isDimensionless %} 
@@ -790,7 +772,7 @@
 			                    {% endif %}
                             {% endfor %}
                            {% endif %}
-    </p>
+        {% endif %}
 
     {% if values.QorQK == option.Quantity %}
 
@@ -840,18 +822,13 @@
 
 	        <p>
 	            <b>Name</b>: {{ values.MDef.Name }} <br>
-	            <b>Description</b>: {{ values.MDef.Description }} <br>
-	            <b>MathModDB</b>: {% if 'mathmoddb' in values.MDef.ID %} 
-                                      {{ values.MDef.ID|cut:"mathmoddb:" }} 
-                                  {% endif %} <br>
-	            <b>WikiData</b>: {% if 'wikidata' in values.MDef.ID %} 
-	                                 {{ values.MDef.ID|cut:"wikidata:" }} 
-			                     {% endif %} <br>
-	            <b>MaRDI</b>: {% if 'mardi' in values.MDef.ID %} 
-	                              {{ values.MDef.ID|cut:"mardi:" }} 
-		                      {% endif %} <br>
+	            {% if values.Description %}
+                    <b>Description</b>: {{ values.Description }} <br>
+                {% endif %}
+                <b>ID</b>: {% if 'user' in values.ID %} - {% else %} {{ values.ID }} {% endif %} <br>
             </p>
-	        <p>
+                {% if values.MDef.Formula %}
+                <p>
                 <b>Defining formulations</b>: {%for value in values.MDef.Formula.values %} 
                                                   \( {{ value|cut:"$" }} \) 
 					                              {% if not forloop.last %}
@@ -897,6 +874,8 @@
                 </tbody>
             </table>
             <br>
+            {% endif %}
+            {% if values.MDef.Properties %}
             <b>Properties</b>: {% for value in values.MDef.Properties.values %}
                                    {% if value == option.isConvex %}
                                        Is Convex
@@ -935,6 +914,7 @@
                                        ,
                                    {% endif %}
                                {% endfor %}
+            {% endif %}
         {% endif %}
 
     {% elif values.QorQK == option.QuantityKind %}

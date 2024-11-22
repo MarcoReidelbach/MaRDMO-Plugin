@@ -1,10 +1,6 @@
-import re
-import requests
 import os, json
 
-from .sparql import queryModelDocumentation
-from .config import mardi_api, mathmoddb_endpoint
-from .utils import find_item, query_sparql
+from .utils import find_item
 
 def ModelRetriever(answers,mathmoddb):
     '''Function queries MathModDB to gather further Model Information
@@ -18,108 +14,34 @@ def ModelRetriever(answers,mathmoddb):
     with open(path, "r") as json_file:
         inversePropertyMapping = json.load(json_file)
     
-    # Kinds of Objects, Relations and Properties
-    formulationKinds = ['Formulation', 'Assumption', 'BoundaryCondition', 'ConstraintCondition', 'CouplingCondition', 'InitialCondition', 'FinalCondition']
-    quantityKinds = ['Input', 'Output', 'Objective', 'Parameter', 'Constant']
-    intraClassRelations = ['generalizedBy','generalizes','approximatedBy','approximates','discretizedBy','discretizes','linearizedBy','linearizes','nondimensionalizedBy','nondimensionalizes','similarTo']
-    publicationRelations = ['documentedIn', 'inventedIn', 'studiedIn', 'surveyedIn', 'usedIn']
-    dataProperties = ['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless',
-                     'isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']
-    
     # Flag all Tasks as unwanted by User in Workflow Documentation
     for key in answers['Task']:
         answers['Task'][key].update({'Include':False})
-
-    # Get additional Task Information from MathModDB
-    
-    qClass = 'Task'
-    
-    search_string = searchGenerator(answers,[qClass])
-    results = query_sparql(queryModelDocumentation[qClass].format(search_string))
-    
-    # Get MathModDB ID of all selected Tasks
-    mathmodidToKey = {answers[qClass][key].get('MathModID'): key for key in answers[qClass]}
-
-    for result in results:
-        # Get MathModDB ID of queried Task
-        mathmod_id = result.get(qClass, {}).get('value')
-        # Queried Task in Selection?
-        if mathmod_id in mathmodidToKey:    
-            key = mathmodidToKey[mathmod_id]
-            # Evaluate Comment of Task
-            assignValue(qClass, ['quote'], 'Description',result ,key, answers)
-            # Evaluate Data Properties of Task
-            assignProperties(answers[qClass][key], result, mathmoddb, dataProperties)
-            # Evaluate Subclass of Task
-            assignValue(qClass, ['subclass'], 'TaskClass',result ,key, answers, mathmoddb)
-            # Evaluate related Mathematical Models
-            assignSimpleEntityRelation(qClass, 'appliesModel', ['T2MM','MMRelatant','appliesModel'], result, key, answers, mathmoddb)
-            # Evaluate Tasks containend in Task
-            assignSimpleEntityRelation(qClass, 'containsTask', ['IntraClassRelation','IntraClassElement','containsTask'], result, key, answers, mathmoddb)
-            # Evaluate Task containing Task
-            assignSimpleEntityRelation(qClass, 'containedInTask', ['IntraClassRelation','IntraClassElement','containedInTask'], result, key, answers, mathmoddb)
-            # Evaluate different kinds of Mathematical Formulations of Task
-            for kind in formulationKinds:
-                assignComplexEntityRelations(qClass, 'MathematicalFormulation', f'contains{kind}', ['MF2T','TRelatant'], result, key, answers, mathmoddb, inversePropertyMapping)
-            # Evaluate different kinds of Quantities of Task
-            for kind in quantityKinds:
-                assignSimpleEntityRelation(qClass, f'contains{kind}', ['T2Q','QRelatant',f'contains{kind}'], result, key, answers, mathmoddb)
-    
-    # Add Mathematical Formulations from Task to Formulation List
-    name_to_key = {v['Name']: k for k, v in answers['MathematicalFormulation'].items()}
-    # Iterate through Tasks
-    for idx, key in enumerate(answers['Task']):
-        task = answers['Task'][key]
-        # Process each relation
-        for key2, relation in task.get('T2MF', {}).items():
-            Id, label = task['MFRelatant'][key2].split(' <|> ')[:2]
-            # Check if the label already exists in Mathematical Formulation
-            if label in name_to_key:
-                k = name_to_key[label]
-                math_form = answers['MathematicalFormulation'][k]
-                relation4 = math_form.setdefault('MF2T', {})
-                other4 = math_form.setdefault('TRelatant', {})
-                relation4[f'TF{key}{idx}'] = inversePropertyMapping[relation]
-                other4[f'TF{key}{idx}'] = f"{task.get('MathModID', idx)} <|> {task['Name']}"
-            else:
-                # Create a new entry for the Mathematical Formulation
-                new_key = max(answers['MathematicalFormulation'].keys(), default=-1) + 1
-                new_form = {
-                    'MathModID': Id,
-                    'Name': label,
-                    'MF2T': {f'TF{key}{idx}': inversePropertyMapping[relation]},
-                    'TRelatant': {f'TF{key}{idx}': f"{task.get('MathModID', idx)} <|> {task['Name']}"}
-                }
-                answers['MathematicalFormulation'][new_key] = new_form
-                # Update the lookup dictionary
-                name_to_key[label] = new_key
-
-    mathmodidToKey = {}
-
-    ## Get MathModID of all selected Entities
-    for className in ['ResearchField', 'ResearchProblem', 'Task', 'MathematicalFormulation', 'MathematicalModel', 'Quantity']:
-        mathmodidToKey[className] = {answers[className][key].get('ID').split(':')[1]: key for key in answers[className]}
+ 
+    # Get MathModID of all selected Entities
+    #for className in ['ResearchField', 'ResearchProblem', 'Task', 'MathematicalFormulation', 'MathematicalModel', 'Quantity']:
+    #    mathmodidToKey[className] = {answers[className][key].get('ID').split(':')[1]: key for key in answers[className]}
 
     # Get additional Publication Information from MathModDB
 
-    tClass = 'PublicationModel'
-    
-    search_string = searchGenerator(answers,['ResearchField','ResearchProblem','MathematicalModel','Quantity','Task'])
-    results = query_sparql(queryModelDocumentation[tClass].format(search_string))
-    
-    for result in results:
-        # Get MathModID and Class of queries entity
-        mathmodid, qClass = result['Item']['value'].split(' >|< ')
-    
-        t = mathmodid.split('#')
-        if len(t) == 2:
-            mathmodid = t[1]
-
-        # Queried entity in Selection?
-        if mathmodid in mathmodidToKey[qClass]:
-            key = mathmodidToKey[qClass][mathmodid]
-            for relation in publicationRelations:
-                assignComplexEntityRelations(qClass, tClass, relation, ['P2E','EntityRelatant'], result, key, answers, mathmoddb, inversePropertyMapping)
+    #tClass = 'PublicationModel'
+    #
+    #search_string = searchGenerator(answers,['ResearchField','ResearchProblem','MathematicalModel','Quantity','Task'])
+    #results = query_sparql(queryModelDocumentation[tClass].format(search_string))
+    #
+    #for result in results:
+    #    # Get MathModID and Class of queries entity
+    #    mathmodid, qClass = result['Item']['value'].split(' >|< ')
+    #
+    #    t = mathmodid.split('#')
+    #    if len(t) == 2:
+    #        mathmodid = t[1]
+#
+    #    # Queried entity in Selection?
+    #    if mathmodid in mathmodidToKey[qClass]:
+    #        key = mathmodidToKey[qClass][mathmodid]
+    #        for relation in publicationRelations:
+    #            assignComplexEntityRelations(qClass, tClass, relation, ['P2E','EntityRelatant'], result, key, answers, mathmoddb, inversePropertyMapping)
 
     # Research Field to Research Field Relations
     entityRelations(answers,'ResearchField','ResearchField','IntraClassRelation','IntraClassElement','RelationRF1','RF')
@@ -169,7 +91,31 @@ def ModelRetriever(answers,mathmoddb):
     
     # Add Mathematical Model to Mathematical Formulation Relations 1
     entityRelations(answers,'MathematicalFormulation','MathematicalModel','MF2MM','MMRelatant','RelationMM1','MM', 3)
-    
+
+    for _, task in answers['Task'].items():
+        # Extract MFRelatant from the task
+        mf_relations = task.get('T2MF', {})
+        mf_relatants = task.get('MFRelatant', {})
+        for mf_relation, mf_relatant in zip(mf_relations.values(),mf_relatants.values()):
+            # Parse the ID and Name from the MFRelatant string
+            mf_id, mf_name = mf_relatant.split(' <|> ')
+            # Check if the ID already exists in the formulation dict
+            existing_entry = next((key for key, value in answers['MathematicalFormulation'].items() if value.get('ID') == mf_id), None)
+            if existing_entry is not None:
+                # Update the existing entry with the task details
+                new_key = max(answers['MathematicalFormulation'][existing_entry].get('MF2T',{}).keys(), default=-1) + 1
+                answers['MathematicalFormulation'][existing_entry].setdefault('MF2T',{}).update({new_key:inversePropertyMapping[mf_relation]})
+                answers['MathematicalFormulation'][existing_entry].setdefault('TRelatant',{}).update({new_key:f"{task['ID']} <|> {task['Name']}"})
+            else:
+                # Create a new entry for the formulation
+                new_key = max(answers['MathematicalFormulation'].keys(), default=-1) + 1
+                answers['MathematicalFormulation'][new_key] = {
+                    'ID': mf_id,
+                    'Name': mf_name,
+                    'MF2T': {0: inversePropertyMapping[mf_relation]},
+                    'TRelatant': {0: f"{task['ID']} <|> {task['Name']}"}
+                }
+
     # Add Task to Mathematical Formulation Relations 1
     entityRelations(answers,'MathematicalFormulation','Task','MF2T','TRelatant','RelationT1','T', 3)
 
@@ -229,10 +175,11 @@ def ModelRetriever(answers,mathmoddb):
     for key in answers.get('Quantity',[]):
         for key2 in answers['MathematicalFormulation']:
             if answers['MathematicalFormulation'][key2].get('DefinedQuantity'):
+                print(answers['MathematicalFormulation'][key2].get('DefinedQuantity'))
                 Id,label = answers['MathematicalFormulation'][key2]['DefinedQuantity'].split(' <|> ')[:2]
                 if label == answers['Quantity'][key]['Name']:
                     answers['Quantity'][key].update({'MDef':answers['MathematicalFormulation'][key2]})
-    
+
     # Add Mathematical Model to Task Relations
     entityRelations(answers,'Task','MathematicalModel','T2MM','MMRelatant','RelationMM','MM')
         
@@ -253,13 +200,6 @@ def ModelRetriever(answers,mathmoddb):
                 answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['P2E'][key2],Id]})
     
     return answers
-
-def assignProperties(data, queryData, mathmoddb, properties):
-    # Add Data Property Information from Query to Data
-    for idx,property in enumerate(properties):
-        if queryData.get(property, {}).get('value') == 'true':
-            data.setdefault('Properties',{}).update({idx:mathmoddb[property]})
-    return
 
 def entityRelations(data, fromIDX, toIDX, relationOld, entityOld, relationNew, enc, no=2):
     # Add relations between model entities
@@ -306,18 +246,6 @@ def searchGenerator(data, class_list):
     
     return search_string
 
-def splitVariableText(inputString):
-    
-    match = re.match(r'(\$.*?\$)\s*,\s*(.*)', inputString)
-    
-    if match:
-        # Extract the groups: math part and text part
-        math_part, text_part = match.groups()
-        return math_part, text_part
-    else:
-        # Handle case where the pattern is not found
-        return '', ''
-    
 def assignComplexEntityRelations(qClass, tClass, qrel, trel_values, r, key, answers, mathmoddb=None, inversePropertyMapping=None):
 
     # Retrieve values for the current kind of class
@@ -392,69 +320,4 @@ def assignComplexEntityRelations(qClass, tClass, qrel, trel_values, r, key, answ
             existing_entries[entitySplit[0]] = next_available_key
             next_available_key += 1  # Increment the next available key
 
-    return
-
-def assignSimpleEntityRelation(qClass, qrel, trel, r, key, answers, mathmoddb=None):
-
-    condition_map = {
-                     ('ResearchField', 'ResearchField'): ('IntraClassRelation','IntraClassElement'),
-                     ('ResearchProblem', 'ResearchProblem'): ('IntraClassRelation','IntraClassElement'),
-                     ('MathematicalModel', 'MathematicalModel'): ('IntraClassRelation','IntraClassElement'),
-                     ('MathematicalFormulation', 'MathematicalFormulation'): ('IntraClassRelation','IntraClassElement'),
-                     ('ComputationalTask', 'ComputationalTask'): ('IntraClassRelation','IntraClassElement'),
-                     ('Quantity', 'Quantity'): ('Q2Q', 'QRelatant'),
-                     ('QuantityKind', 'QuantityKind'): ('QK2QK', 'QKRelatant'),
-                     ('Quantity', 'QuantityKind'): ('Q2QK', 'QKRelatant'),
-                     ('QuantityKind', 'Quantity'): ('QK2Q', 'QRelatant')
-                    }
-
-    values = r.get(qrel,{}).get('value')
-                
-    if values:
-    
-        # Split values into list of entities
-        entities = values.split(' <|> ')
-
-        for idx, entity in enumerate(entities):
-        
-            # Assign trelValues
-            trelValues = trel
-
-            # Get Id and label of entitiy
-            entitySplit = entity.split(' >|< ')
-
-            # trel's on-the-fly if needed
-            if len(entitySplit) == 4:
-                trelValues = condition_map[tuple(entitySplit[2:])] + tuple(trelValues)
-            
-            # Update answers with IntraClassRelation and IntraClassElement
-            data = answers[qClass][key]
-            data.setdefault(trelValues[0], {})[f'{qrel}{idx}'] = mathmoddb[trelValues[2]]
-            data.setdefault(trelValues[1], {})[f'{qrel}{idx}'] = f'{entitySplit[0]} <|> {entitySplit[1]}'
-    return
-
-def assignValue(qClass,keyOld,keyNew,r,key,answers,mathmoddb=None):
-    if len(keyOld) == 1:
-        if mathmoddb:
-            if r.get(keyOld[0], {}).get('value'):
-                answers[qClass].setdefault(key, {}).update({keyNew:mathmoddb[r[keyOld[0]]['value']]})
-        else:
-            if r.get(keyOld[0], {}).get('value'):
-                answers[qClass].setdefault(key, {}).update({keyNew:r[keyOld[0]]['value']})
-    elif len(keyOld) == 2:
-        if r.get(keyOld[0], {}).get('value') and r.get(keyOld[1], {}).get('value'):
-            answers[qClass].setdefault(key, {}).update({keyNew:f'{r[keyOld[0]]["value"]} <|> {r[keyOld[1]]["value"]}'})
-    return
-
-def assignValues(qClass,keyOld,keyNew,r,key,answers,splitVariableText=None):
-    if r.get(keyOld,{}).get('value'):
-        entities = r[keyOld]['value'].split(' <|> ')
-        for idx,entity in enumerate(entities):
-            if splitVariableText:
-                # Split Content
-                var, text = splitVariableText(entity)
-                answers[qClass][key].setdefault(keyNew[0],{}).update({idx:{keyNew[1]:f'${var}$',keyNew[2]:text}})
-            else:
-                # Keep Content as it is
-                answers[qClass][key].setdefault(keyNew[0],{}).update({idx:f'${entity}$'})
     return

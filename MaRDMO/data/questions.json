@@ -455,7 +455,7 @@
     "MathematicalFormulation Description": {
         "uName": "MathematicalFormulation",
         "dName": "Description",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/deescription",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/formulation/description",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -734,20 +734,10 @@
     },
     "Task MathModID": {
         "uName": "Task",
-        "dName": "MathModID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/TaskMathModDBID",
+        "dName": "ID",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/id",
         "set_prefix": false,
         "set_index": true,
-        "collection_index": false,
-        "option_text": false,
-        "external_id": true
-    },
-    "Task ID": {
-        "uName": "Task",
-        "dName": "ID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/TaskQID",
-        "set_prefix": true,
-        "set_index": false,
         "collection_index": false,
         "option_text": false,
         "external_id": true
@@ -755,7 +745,7 @@
     "Task Name": {
         "uName": "Task",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/TaskName",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/name",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -765,7 +755,7 @@
     "Task Description": {
         "uName": "Task",
         "dName": "Description",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/TaskDescription",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/description",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -775,7 +765,7 @@
     "Task Properties": {
         "uName": "Task",
         "dName": "Properties",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/TaskProperties",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/properties",
         "set_prefix": true,
         "set_index": false,
         "collection_index": true,
@@ -785,7 +775,7 @@
     "Task TaskClass": {
         "uName": "Task",
         "dName": "TaskClass",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/TaskCategory",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/category",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
@@ -795,7 +785,7 @@
     "Task T2MF": {
         "uName": "Task",
         "dName": "T2MF",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/TaskToMathematicalFormulationRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/formulation-relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -805,7 +795,7 @@
     "Task MFRelatant": {
         "uName": "Task",
         "dName": "MFRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalFormulationRelatedToTask",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/formulation-relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -815,7 +805,7 @@
     "Task T2Q": {
         "uName": "Task",
         "dName": "T2Q",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/TaskToQuantityOrQuantityKindRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/quantity-relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -825,7 +815,7 @@
     "Task QRelatant": {
         "uName": "Task",
         "dName": "QRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/QuantityOrQuantityKindRelatedToTask",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/quantity-relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -835,8 +825,8 @@
     "Task T2MM": {
         "uName": "Task",
         "dName": "T2MM",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/TaskToMathematicalModelRelation",
-        "set_prefix": false,
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/model-relation",
+        "set_prefix": true,
         "set_index": true,
         "collection_index": true,
         "option_text": false,
@@ -845,8 +835,8 @@
     "Task MMRelatant": {
         "uName": "Task",
         "dName": "MMRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/MathematicalModelRelatedToTask",
-        "set_prefix": false,
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/model-relatant",
+        "set_prefix": true,
         "set_index": true,
         "collection_index": true,
         "option_text": false,
@@ -855,7 +845,7 @@
     "Task IntraClassRelation": {
         "uName": "Task",
         "dName": "IntraClassRelation",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/TaskToTaskRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/task-relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
@@ -865,7 +855,7 @@
     "Task IntraClassElement": {
         "uName": "Task",
         "dName": "IntraClassElement",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/TaskRelatedToTask",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/task/task-relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,

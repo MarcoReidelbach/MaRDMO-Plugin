@@ -1103,9 +1103,9 @@ class MaRDIExport(OauthProviderMixin, Export):
                         if mardiID:
                             answers[entity][key].update({'ID':f"mardi:{mardiID}"})
                         else:
-                            answers[entity][key].update({'ID':None})
+                            answers[entity][key].update({'ID':f"user:{str(key)}"})
                     else:
-                        answers[entity][key].update({'ID':None})
+                        answers[entity][key].update({'ID':f"user:{str(key)}"})
                 # Refining Subproperties of entities
                 if answers[entity][key].get('SubProperty'):
                     for ikey in answers[entity][key]['SubProperty']:
@@ -1404,7 +1404,8 @@ class MaRDIExport(OauthProviderMixin, Export):
                         else:
                             if external_id:
                                 if len(value.set_prefix.split('|')) == 1:
-                                    val[uName].setdefault(int(value.set_prefix), {}).update({dName:value.external_id})
+                                    label,_,_ = extract_parts(value.text)
+                                    val[uName].setdefault(int(value.set_prefix), {}).update({dName:f"{value.external_id} <|> {label}"})
                                 elif len(value.set_prefix.split('|')) > 1:
                                     prefix = value.set_prefix.split('|')
                                     val[uName].setdefault(int(prefix[0]), {}).update({dName:value.external_id})
