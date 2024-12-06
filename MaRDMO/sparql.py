@@ -66,63 +66,171 @@ OPTIONAL{{?pro wdt:{0} '{1}'. ?pro rdfs:label ?label; schema:description ?quote.
 #Queries to MaRDI KG and Wikidata for Publication Handler
 
 queryPublication = {
+    
+       'All_MaRDI': '''PREFIX wdt:{15} PREFIX wd:{16}"
+                        SELECT ?id ?label ?description         
+                        (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" | ") AS ?authorInfos)                                                        
+                        ?entrytypelabel ?journalInfo ?languagelabel                               
+                        ?title ?date ?volume ?issue ?page          
 
-       'All': '''SELECT ?publicationQid ?publicationLabel ?publicationDescription1         
-                     ?authorInfo                                                        
-                     ?entrytypeQid ?entrytypeLabel ?entrytypeDescription1               
-                     ?journalQid ?journalLabel ?journalDescription1                     
-                     ?languageQid ?languageLabel ?languageDescription1                  
-                     ?title ?otherAuthor ?publicationDate ?volume ?issue ?page          
+                 WHERE {{?idraw wdt:P{0} "{1}";
+                        BIND(CONCAT("mardi:", STRAFTER(STR(?idraw), STR(wd:))) AS ?id)
+                        
+                        OPTIONAL {{?idraw rdfs:label ?labelraw.
+                                  FILTER (lang(?labelraw) = 'en')}}
+                        BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
+                        
+                        OPTIONAL {{?idraw schema:description ?descriptionraw.
+                                  FILTER (lang(?descriptionraw) = 'en')}}
+                        BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
+                        
+                        OPTIONAL {{?idraw (wdt:P{2} | wdt:P{8}) ?authorraw.
+                                  BIND(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("mardi:", STRAFTER(STR(?authorraw), STR(wd:))), "") AS ?author)
+     
+                                  OPTIONAL {{?authorraw rdfs:label ?authorlabelraw.
+                                            FILTER (lang(?authorlabelraw) = 'en')}}
+                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authorlabelraw, ?authorraw), "") AS ?authorlabel)
+   
+                                  OPTIONAL {{?authorraw schema:description ?authordescriptionraw.
+                                            FILTER (lang(?authordescriptionraw) = 'en')}}
+                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authordescriptionraw, ""), "") AS ?authordescription)
+   
+                                  OPTIONAL {{?authorraw wdt:P{3} ?authororcidraw.}}
+                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authororcidraw, ""), "") AS ?authororcid)
+                          
+                                  OPTIONAL {{?authorraw wdt:P{13} ?authorwikidataidraw}}
+                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("wikidata:", STRAFTER(STR(?authorwikidataidraw), STR(wd:))), ""), "") AS ?authorwikidataid)
+   
+                                  OPTIONAL {{?authorraw wdt:P{14} ?authorzbmathidraw.}}
+                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authorzbmathidraw, ""), "") AS ?authorzbmathid)
+     
+                                  BIND(CONCAT(?author, " <|> ", ?authorlabel, " <|> ", ?authordescription, " <|> ", ?authororcid, " <|> ", ?authorzbmathid, " <|> ", ?authorwikidataid) AS ?authorInfo)}}
+   
+                        OPTIONAL {{?idraw wdt:P{4} ?entrytyperaw.
+                                  
+                                   OPTIONAL {{?entrytyperaw rdfs:label ?entrytypelabelraw.
+                                            FILTER (lang(?entrytypelabelraw) = 'en')}}
+                                   BIND(COALESCE(?entrytypelabelraw, "No Label Provided!") As ?entrytypelabel)
+                                  }}
+                        
+                        OPTIONAL {{?idraw wdt:P{5} ?journalraw.
+                                  BIND(CONCAT("mardi:", STRAFTER(STR(?journalraw), STR(wd:))) AS ?journal)
+                                  
+                                  OPTIONAL {{?journalraw rdfs:label ?journallabelraw.
+                                            FILTER (lang(?journallabelraw) = 'en')}}
+                                  BIND(COALESCE(?journallabelraw, "No Label Provided!") As ?journallabel)
+                                  
+                                  OPTIONAL {{?journalraw schema:description ?journaldescriptionraw.
+                                            FILTER (lang(?journaldescriptionraw) = 'en')}}
+                                  BIND(COALESCE(?journaldescriptionraw, "No Description Provided!") As ?journaldescription)
+                                  
+                                  BIND(concat(?journal, " <|> ", ?journallabel, " <|> ", ?journaldescription) AS ?journalInfo)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{6} ?languageraw.
+                                   
+                                   OPTIONAL {{?languageraw rdfs:label ?languagelabelraw.
+                                              FILTER (lang(?languagelabelraw) = 'en')}}
+                                   BIND(COALESCE(?languagelabelraw, "No Label Provided!") As ?languagelabel)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{7} ?titleraw.
+                                   BIND(COALESCE(?titleraw, "No Title Provided!") As ?title)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{9} ?dateraw.
+                                   BIND(COALESCE(?dateraw, "No Publication Date Provided!") As ?date)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{10} ?volumeraw.
+                                   BIND(COALESCE(?volumeraw, "No Volume Provided!") As ?volume)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{11} ?issueraw.
+                                   BIND(COALESCE(?issueraw, "No Issue Provided!") As ?issue)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{12} ?pageraw.
+                                   BIND(COALESCE(?pageraw, "No Pages Provided!") As ?page)}}
+                        }}
+   
+                 GROUP BY ?id ?label ?description ?entrytypelabel ?journalInfo ?languagelabel ?title ?date ?volume ?issue ?page ''',
 
-              WHERE {{?publication wdt:P{0} "{1}";
-                              rdfs:label ?publicationLabel.
-                      OPTIONAL {{?publication schema:description ?publicationDescription.}}
-                      FILTER (lang(?publicationLabel) = 'en')
-                      FILTER (lang(?publicationDescription) = 'en') 
-                      BIND(COALESCE(?publicationDescription, "") As ?publicationDescription1)
-                      BIND(STRAFTER(STR(?publication),STR(wd:)) AS ?publicationQid).
-                      OPTIONAL {{?publication wdt:P{2} ?author.
-                                 ?author rdfs:label ?authorLabel;
-                                 OPTIONAL {{?author schema:description ?authorDescription.}}  
-                                 OPTIONAL {{?author wdt:P{3} ?authorOrcid.}}
-                                 OPTIONAL {{?author wdt:P{13} ?authorWikidataQid}}
-                                 OPTIONAL {{?author wdt:P{14} ?authorZbmathID}}
-                                 BIND(COALESCE(?authorOrcid, "") As ?authorOrcid1)
-                                 BIND(COALESCE(?authorWikidataQid, "") As ?authorWikidataQid1)
-                                 BIND(COALESCE(?authorZbmathID, "") As ?authorZbmathID1)
-                                 BIND(COALESCE(?authorDescription, "") As ?authorDescription1)
-                                 BIND(STRAFTER(STR(?author),STR(wd:)) AS ?authorQid).
-                                 FILTER (lang(?authorLabel) = 'en')
-                                 FILTER (lang(?authorDescription) = 'en')
-                                 BIND(concat(?authorQid," <|> ",?authorLabel," <|> ",?authorDescription1," <|> ",?authorOrcid1,
-                                             " <|> ",?authorWikidataQid1, " <|> ",?authorZbmathID1) AS ?authorInfo)}} 
-                     OPTIONAL {{?publication wdt:P{4} ?entrytype.
-                                ?entrytype rdfs:label ?entrytypeLabel.
-                                OPTIONAL {{?entrytype schema:description ?entrytypeDescription.}}
-                                FILTER (lang(?entrytypeLabel) = 'en')
-                                FILTER (lang(?entrytypeDescription) = 'en')
-                                BIND(COALESCE(?entrytypeDescription, "") As ?entrytypeDescription1)
-                                BIND(STRAFTER(STR(?entrytype),STR(wd:)) AS ?entrytypeQid).}}
-                     OPTIONAL {{?publication wdt:P{5} ?journal.
-                                ?journal rdfs:label ?journalLabel.
-                                OPTIONAL {{?journal schema:description ?journalDescription.}}
-                                FILTER (lang(?journalLabel) = 'en')
-                                FILTER (lang(?journalDescription) = 'en')
-                                BIND(COALESCE(?journalDescription, "") As ?journalDescription1)
-                                BIND(STRAFTER(STR(?journal),STR(wd:)) AS ?journalQid).}}
-                     OPTIONAL {{?publication wdt:P{6} ?language.
-                                ?language rdfs:label ?languageLabel.
-                                OPTIONAL {{?language schema:description ?languageDescription.}}
-                                FILTER (lang(?languageLabel) = 'en')
-                                FILTER (lang(?languageDescription) = 'en')
-                                BIND(COALESCE(?languageDescription, "") As ?languageDescription1)
-                                BIND(STRAFTER(STR(?language),STR(wd:)) AS ?languageQid).}}
-                     OPTIONAL {{?publication wdt:P{7} ?title.}}
-                     OPTIONAL {{?publication wdt:P{8} ?otherAuthor.}}
-                     OPTIONAL {{?publication wdt:P{9} ?publicationDate.}}
-                     OPTIONAL {{?publication wdt:P{10} ?volume.}}
-                     OPTIONAL {{?publication wdt:P{11} ?issue.}}
-                     OPTIONAL {{?publication wdt:P{12} ?page.}}}}''',
+       'All_Wikidata': '''SELECT ?id ?label ?description         
+                        (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" | ") AS ?authorInfos)                                                        
+                        ?entrytypelabel ?journalInfo ?languagelabel                               
+                        ?title ?date ?volume ?issue ?page          
+
+                 WHERE {{?idraw wdt:P{0} "{1}";
+                        BIND(CONCAT("wikidata:", STRAFTER(STR(?idraw), STR(wd:))) AS ?id)
+
+                        OPTIONAL {{?idraw rdfs:label ?labelraw.
+                                  FILTER (lang(?labelraw) = 'en')}}
+                        BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
+                        
+                        OPTIONAL {{?idraw schema:description ?descriptionraw.
+                                  FILTER (lang(?descriptionraw) = 'en')}}
+                        BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
+                        
+                        OPTIONAL {{?idraw (wdt:P{2} | wdt:P{8}) ?authorraw.
+                                  BIND(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("wikidata:", STRAFTER(STR(?authorraw), STR(wd:))), "") AS ?author)
+     
+                                  OPTIONAL {{?authorraw rdfs:label ?authorlabelraw.
+                                            FILTER (lang(?authorlabelraw) = 'en')}}
+                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authorlabelraw, ?authorraw), "") AS ?authorlabel)
+   
+                                  OPTIONAL {{?authorraw schema:description ?authordescriptionraw.
+                                            FILTER (lang(?authordescriptionraw) = 'en')}}
+                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authordescriptionraw, ""), "") AS ?authordescription)
+   
+                                  OPTIONAL {{?authorraw wdt:P{3} ?authororcidraw.}}
+                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authororcidraw, ""), "") AS ?authororcid)
+                          
+                                  OPTIONAL {{?authorraw wdt:P{13} ?authorwikidataidraw}}
+                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("wikidata:", STRAFTER(STR(?authorwikidataidraw), STR(wd:))), ""), "") AS ?authorwikidataid)
+   
+                                  OPTIONAL {{?authorraw wdt:P{14} ?authorzbmathidraw.}}
+                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authorzbmathidraw, ""), "") AS ?authorzbmathid)
+     
+                                  BIND(CONCAT(?author, " <|> ", ?authorlabel, " <|> ", ?authordescription, " <|> ", ?authororcid, " <|> ", ?authorzbmathid, " <|> ", ?authorwikidataid) AS ?authorInfo)}}
+   
+                        OPTIONAL {{?idraw wdt:P{4} ?entrytyperaw.
+                                  
+                                   OPTIONAL {{?entrytyperaw rdfs:label ?entrytypelabelraw.
+                                            FILTER (lang(?entrytypelabelraw) = 'en')}}
+                                   BIND(COALESCE(?entrytypelabelraw, "No Label Provided!") As ?entrytypelabel)
+                                  }}
+                        
+                        OPTIONAL {{?idraw wdt:P{5} ?journalraw.
+                                  BIND(CONCAT("wikidata:", STRAFTER(STR(?journalraw), STR(wd:))) AS ?journal)
+                                  
+                                  OPTIONAL {{?journalraw rdfs:label ?journallabelraw.
+                                            FILTER (lang(?journallabelraw) = 'en')}}
+                                  BIND(COALESCE(?journallabelraw, "No Label Provided!") As ?journallabel)
+                                  
+                                  OPTIONAL {{?journalraw schema:description ?journaldescriptionraw.
+                                            FILTER (lang(?journaldescriptionraw) = 'en')}}
+                                  BIND(COALESCE(?journaldescriptionraw, "No Description Provided!") As ?journaldescription)
+                                  
+                                  BIND(concat(?journal, " <|> ", ?journallabel, " <|> ", ?journaldescription) AS ?journalInfo)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{6} ?languageraw.
+                                   
+                                   OPTIONAL {{?languageraw rdfs:label ?languagelabelraw.
+                                              FILTER (lang(?languagelabelraw) = 'en')}}
+                                   BIND(COALESCE(?languagelabelraw, "No Label Provided!") As ?languagelabel)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{7} ?titleraw.
+                                   BIND(COALESCE(?titleraw, "No Title Provided!") As ?title)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{9} ?dateraw.
+                                   BIND(COALESCE(?dateraw, "No Publication Date Provided!") As ?date)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{10} ?volumeraw.
+                                   BIND(COALESCE(?volumeraw, "No Volume Provided!") As ?volume)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{11} ?issueraw.
+                                   BIND(COALESCE(?issueraw, "No Issue Provided!") As ?issue)}}
+                        
+                        OPTIONAL {{?idraw wdt:P{12} ?pageraw.
+                                   BIND(COALESCE(?pageraw, "No Pages Provided!") As ?page)}}
+                        }}
+   
+                 GROUP BY ?id ?label ?description ?entrytypelabel ?journalInfo ?languagelabel ?title ?date ?volume ?issue ?page ''',
 
        'WikiCheck': '''# Query for MaRDI portal                                              
 
@@ -141,21 +249,58 @@ queryPublication = {
                    }}''',
 
 
-       'AuthorViaOrcid': '''SELECT ?authorQid ?authorLabel ?authorDescription ?authorId        # Author of Publication via ORCID/zbMath
+       'authors': '''SELECT (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" | ") AS ?authorInfos)
+                          WHERE {{
+                            {{
+                              ?authorraw wdt:P{2} ?orcid .
+                              BIND(STRAFTER(STR(?authorraw), STR(wd:)) AS ?author)
+                              VALUES ?orcid {{{0}}}
+                            }}
+                            UNION
+                            {{
+                              ?authorraw wdt:P{3} ?zbmathid .
+                              BIND(STRAFTER(STR(?authorraw), STR(wd:)) AS ?author)
+                              VALUES ?zbmathid {{{1}}}
+                            }}
 
-             WHERE {{
+                            OPTIONAL {{?authorraw rdfs:label ?labelraw.
+                                       FILTER (lang(?labelraw) = 'en')}}
+                            BIND(COALESCE(?labelraw, "") AS ?label)
 
-                     VALUES ?authorId {{{0}}}
+                            OPTIONAL {{?authorraw schema:description ?descriptionraw.
+                                       FILTER (lang(?descriptionraw) = 'en')}}
+                            BIND(COALESCE(?descriptionraw, "") AS ?description)
 
-                     OPTIONAL {{
-                                # Author via ORCID
-                                ?author wdt:P{1} ?authorId
-                                BIND(STRAFTER(STR(?author),STR(wd:)) AS ?authorQid)
-                              }}
+                            OPTIONAL {{?authorraw wdt:P{4} ?wikidataidraw}}
+                            BIND(COALESCE(?wikidataidraw, "") AS ?wikidataid)
+                            
+                            OPTIONAL {{?authorraw wdt:P{2} ?ORCIDRAW}}
+                            BIND(COALESCE(?ORCIDRAW, "") AS ?ORCID)
+                            
+                            OPTIONAL {{?authorraw wdt:P{3} ?ZBMATHIDRAW}}
+                            BIND(COALESCE(?ZBMATHIDRAW, "") AS ?ZBMATHID)
 
-                      SERVICE wikibase:label {{bd:serviceParam wikibase:language "en,en".}}
+                            BIND(CONCAT(?author, " <|> ", ?label, " <|> ", ?description, " <|> ", ?ORCID, " <|> ", ?ZBMATHID, " <|> ", ?wikidataid) AS ?authorInfo)
 
-                    }}''',
+                            }}''',
+
+       'journal': '''SELECT ?journalInfos
+                           WHERE {{
+                               
+                               ?journalraw wdt:P{1} "{0}".
+                               BIND(STRAFTER(STR(?journalraw),STR(wd:)) AS ?journal).
+                               
+                               OPTIONAL {{?journalraw rdfs:label ?journallabelraw.
+                                         FILTER (lang(?journallabelraw) = 'en')}}
+                               BIND(COALESCE(?journallabelraw, "No Label Provided!") As ?journallabel)
+                               
+                               OPTIONAL {{?journalraw schema:description ?journaldescriptionraw.
+                                         FILTER (lang(?journaldescriptionraw) = 'en')}}
+                               BIND(COALESCE(?journaldescriptionraw, "No Description Provided!") As ?journaldescription)
+                               
+                               BIND(concat(?journal, " <|> ", ?journallabel, " <|> ", ?journaldescription) AS ?journalInfos)
+ 
+                             }}''',
 
        'AuthorViaWikidataQID': '''SELECT ?wikidataQid ?mardiQid ?authorLabel ?authorDescription         # Author of Publication via Wikidata QID
 
@@ -171,9 +316,115 @@ queryPublication = {
 
                      SERVICE wikibase:label {{bd:serviceParam wikibase:language "en,en".}}
 
-                   }}'''
-       }
+                   }}''',
+                   
+       'PublicationMathModDB': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
+                                  SELECT DISTINCT ?id ?label ?description
+                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?documentsentity, " | ", ?documentsentitylabel, " | ", ?documentsentitydescription)); SEPARATOR=" / ") AS ?documents)
+                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?inventsentity, " | ", ?inventsentitylabel, " | ", ?inventsentitydescription)); SEPARATOR=" / ") AS ?invents)
+                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?studiesentity, " | ", ?studiesentitylabel, " | ", ?studiesentitydescription)); SEPARATOR=" / ") AS ?studies)
+                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?surveysentity, " | ", ?surveysentitylabel, " | ", ?surveysentitydescription)); SEPARATOR=" / ") AS ?surveys)
+                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?usesentity, " | ", ?usesentitylabel, " | ", ?usesentitydescription)); SEPARATOR=" / ") AS ?uses)
+                                                                                    
+                                  WHERE {{
+                                          ?idraw :doiID <https://doi.org/{0}> .
+                                          BIND(CONCAT("mathmoddb:", STRAFTER(STR(?idraw), "#")) AS ?id)
+                                          ?idraw a :Publication.
+
+                                          OPTIONAL {{?idraw rdfs:label ?labelraw.
+                                                     FILTER (lang(?labelraw) = 'en')}}
+                                          BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
+
+                                          OPTIONAL {{?idraw rdfs:comment ?descriptionraw.
+                                                     FILTER (lang(?descriptionraw) = 'en')}}
+                                          BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
+
+                                          OPTIONAL {{?idraw :documents ?docuemntsentityraw.
+                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?documentsentityraw), "#")) AS ?documentsentity)
+
+                                                     OPTIONAL {{?docuemntsentityraw rdfs:label ?documentsentitylabelraw.
+                                                                FILTER (lang(?documentsentitylabelraw) = 'en')}}
+                                                     BIND(COALESCE(?documentsentitylabelraw, "No Label Provided!") As ?documentsentitylabel)
+
+                                                     OPTIONAL {{?docuemntsentityraw rdfs:comment ?docuemntsentitydescriptionraw.
+                                                                FILTER (lang(?docuemntsentitydescriptionraw) = 'en')}}
+                                                     BIND(COALESCE(?docuemntsentitydescriptionraw, "No Description Provided!") As ?docuemntsentitydescription)
+                                                   }}
+
+                                          OPTIONAL {{?idraw :invents ?inventsentityraw.
+                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?inventsentityraw), "#")) AS ?inventsentity)
+
+                                                     OPTIONAL {{?inventsentityraw rdfs:label ?inventsentitylabelraw.
+                                                                FILTER (lang(?inventsentitylabelraw) = 'en')}}
+                                                     BIND(COALESCE(?inventsentitylabelraw, "No Label Provided!") As ?inventsentitylabel)
+
+                                                     OPTIONAL {{?inventsentityraw rdfs:comment ?inventsentitydescriptionraw.
+                                                                FILTER (lang(?inventsentitydescriptionraw) = 'en')}}
+                                                     BIND(COALESCE(?inventsentitydescriptionraw, "No Description Provided!") As ?inventsentitydescription)
+                                                   }}
+
+                                          OPTIONAL {{?idraw :studies ?studiesentityraw.
+                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?studiesentityraw), "#")) AS ?studiesentity)
+
+                                                     OPTIONAL {{?studiesentityraw rdfs:label ?studiesentitylabelraw.
+                                                                FILTER (lang(?studiesentitylabelraw) = 'en')}}
+                                                     BIND(COALESCE(?studiesentitylabelraw, "No Label Provided!") As ?studiesentitylabel)
+
+                                                     OPTIONAL {{?studiesentityraw rdfs:comment ?studiesentitydescriptionraw.
+                                                                FILTER (lang(?studiesentitydescriptionraw) = 'en')}}
+                                                     BIND(COALESCE(?studiesentitydescriptionraw, "No Description Provided!") As ?studiesentitydescription)
+                                                   }}
+
+                                          OPTIONAL {{?idraw :surveys ?surveysentityraw.
+                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?surveysentityraw), "#")) AS ?surveysentity)
+
+                                                     OPTIONAL {{?surveysentityraw rdfs:label ?surveysentitylabelraw.
+                                                                FILTER (lang(?surveysentitylabelraw) = 'en')}}
+                                                     BIND(COALESCE(?surveysentitylabelraw, "No Label Provided!") As ?surveysentitylabel)
+
+                                                     OPTIONAL {{?surveysentityraw rdfs:comment ?surveysentitydescriptionraw.
+                                                                FILTER (lang(?surveysentitydescriptionraw) = 'en')}}
+                                                     BIND(COALESCE(?surveysentitydescriptionraw, "No Description Provided!") As ?surveysentitydescription)
+                                                   }}
+
+                                          OPTIONAL {{?idraw :uses ?usesentityraw.
+                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?usesentityraw), "#")) AS ?usesentity)
+
+                                                     OPTIONAL {{?usesentityraw rdfs:label ?usesentitylabelraw.
+                                                                FILTER (lang(?usesentitylabelraw) = 'en')}}
+                                                     BIND(COALESCE(?usesentitylabelraw, "No Label Provided!") As ?usesentitylabel)
+
+                                                     OPTIONAL {{?usesentityraw rdfs:comment ?usesentitydescriptionraw.
+                                                                FILTER (lang(?usesentitydescriptionraw) = 'en')}}
+                                                     BIND(COALESCE(?usesentitydescriptionraw, "No Description Provided!") As ?usesentitydescription)
+                                                   }}
+
+                                        }}
+                                  GROUP BY ?id ?label ?description''',
+
+       'PublicationMathAlgoDB': '''PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1#>
+                                   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                                   PREFIX dc: <http://purl.org/spar/datacite/>
+                                   
+                                   SELECT DISTINCT ?id ?label ?description
+                                   WHERE {{
+                                       ?idraw dc:hasIdentifier ?identifier .
+                                       BIND(CONCAT("mathalgodb:", STRAFTER(STR(?idraw), "#")) AS ?id)
+                                       ?idraw a :publication .
+                                       
+                                       OPTIONAL {{?idraw rdfs:label ?labelraw.}}
+                                       BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
+
+                                       OPTIONAL {{?idraw rdfs:comment ?descriptionraw.}}
+                                       BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
+
+                                       FILTER(LCASE(?identifier) = LCASE("doi:{0}"))
+                                   }}
+                                   GROUP BY ?id ?label ?description'''
+                                          }
+                                   
 ### SPARQL queries to get additional information from MathModDB during export
 
 queryModelDocumentation = {
@@ -779,6 +1030,7 @@ queryModelHandler = {
                                    (GROUP_CONCAT(DISTINCT(CONCAT(?mf, " | ", ?mfl, " | ", ?mfd)); SEPARATOR=" / ") AS ?formulation)
                                    (GROUP_CONCAT(DISTINCT(CONCAT(?q, " | ", ?ql, " | ", ?qd)); SEPARATOR=" / ") AS ?quantity)
                                    (GROUP_CONCAT(DISTINCT(CONCAT(?ta, " | ", ?tal, " | ", ?tad)); SEPARATOR=" / ") AS ?task)
+                                   (GROUP_CONCAT(DISTINCT(?doi); SEPARATOR=" / ") AS ?publication)
 
                    WHERE {{ 
                    
@@ -790,6 +1042,11 @@ queryModelHandler = {
                            OPTIONAL {{ ?mmraw rdfs:comment ?mmdraw
                                        FILTER (lang(?mmdraw) = 'en') }}
                            BIND(COALESCE(?mmdraw, "No Description Provided!") AS ?mmd)
+                           OPTIONAL {{
+                                      ?mmraw (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?publicationraw.
+                                      ?publicationraw :doiID ?doiraw.
+                                      BIND(REPLACE(STR(?doiraw), "https://doi.org/", "") AS ?doi)
+                                    }}
                            OPTIONAL {{
                                       ?mmraw (:containsFormulation | :containsBoundaryCondition | :containsAssumption | :containsConstraintCondition | :containsCouplingCondition | :containsInitialCondition | :containsFinalCondition) ?mfraw.
                                       BIND(STRAFTER(STR(?mfraw), "#") AS ?mf)

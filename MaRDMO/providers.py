@@ -1,3 +1,5 @@
+from django.utils.translation import gettext_lazy as _
+
 import requests
 import os
 import json
@@ -512,6 +514,20 @@ class Publication(Provider):
         
         return options
 
+class GetDetails(Provider):
+
+    search = False
+    refresh = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        options = [{'id': '0', 'text': 'MathModDB Knowledge Graph'}, 
+                   {'id': '1', 'text': 'MathAlgoDB Knowledge Graph'}, 
+                   {'id': '2', 'text': 'MaRDI Portal or Wikidata'},
+                   {'id': '3', 'text': 'all available Resources'}]  
+
+        return options      
+
 class WorkflowTask(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
@@ -548,94 +564,61 @@ class AllEntities(Provider):
         options =[]
 
         values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/field/id'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/field/name'))
-        values4 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemMathModDBID'))
-        values5 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemQID'))
-        values6 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/ResearchProblemName'))
-        values9 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelMathModDBID'))
-        values10 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelQID'))
-        values11 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalModelName'))
-        values12 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityMathModDBID'))
-        values13 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityQID'))
-        values14 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/QuantityName'))
-        values15 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationMathModDBID'))
-        values16 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationQID'))
-        values17 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/MathematicalFormulationName'))
-        values18 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskMathModDBID'))
-        values19 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskQID'))
-        values20 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/TaskName'))
-        values21 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/IsQuantityOrQuantityKind'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/field/name'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/field/description'))
+        values4 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/problem/id'))
+        values5 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/problem/name'))
+        values6 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/problem/description'))
+        values7 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/model/id'))
+        values8 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/model/name'))
+        values9 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/model/description'))
+        values10 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/quantity/id'))
+        values11 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/quantity/name'))
+        values12 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/quantity/description'))
+        values13 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/formulation/id'))
+        values14 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/formulation/name'))
+        values15 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/formulation/description'))
+        values16 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/task/id'))
+        values17 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/task/name'))
+        values18 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/task/description'))
         
-        for idx, value1 in enumerate(values1):
+        
+        for idx, (value1, value2, value3) in enumerate(zip(values1, values2, values3)):
             if value1.text and value1.text != 'not found':
-                options.append({'id': f"{value1.external_id} <|> ResearchField <|> RF",'text': f"{value1.text} (Research Field)"})
-        #for idx, value2 in enumerate(values2):
-        #    if value2.text:
-        #        options.append({'id': f"{value2.external_id.split(' <|> ')[:2]} <|> ResearchField <|> RF",'text': f"{value2.text} (Research Field)"})
-        for idx, value3 in enumerate(values3):
-            if value3.text:
-                options.append({'id': f"RF{str(idx+1)} <|> {value3.text} <|> ResearchField <|> RF",'text': f"{value3.text} (Research Field)"})
-        for idx, value4 in enumerate(values4):
-            if value4.text and value4.text != 'not in MathModDB':
-                options.append({'id': f"{value4.external_id} <|> ResearchProblem <|> RP",'text': f"{value4.text} (Research Problem)"})
-        for idx, value5 in enumerate(values5):
-            if value5.text:
-                options.append({'id': f"{' <|> '.join(value5.external_id.split(' <|> ')[:2])} <|> ResearchProblem <|> RP",'text': f"{value5.text} (Research Problem)"})
-        for idx, value6 in enumerate(values6):
-            if value6.text:
-                options.append({'id': f"RP{str(idx+1)} <|> {value6.text} <|> ResearchProblem <|> RP",'text': f"{value6.text} (Research Problem)"})
-        for idx, value9 in enumerate(values9):
-            if value9.text:
-                options.append({'id': f"{value9.external_id} <|> MathematicalModel <|> MM",'text': f"{value9.text} (Mathematical Model)"})
-        for idx, value10 in enumerate(values10):
-            if value10.text:
-                options.append({'id': f"{' <|> '.join(value10.external_id.split(' <|> ')[:2])} <|> MathematicalModel <|> MM",'text': f"{value10.text} (Mathematical Model)"})
-        for idx, value11 in enumerate(values11):
-            if value11.text:
-                options.append({'id': f"MM{str(idx+1)} <|> {value11.text} <|> MathematicalModel <|> MM",'text': f"{value11.text} (Mathematical Model)"})
-        for idx, value12 in enumerate(values12):
-            if value12.text and value12.text != 'not in MathModDB':
-                Id,label,qqk = value12.external_id.split(' <|> ')
-                if qqk == 'Quantity':
-                    options.append({'id':f"{Id} <|> {label} <|> Quantity <|> QQK",'text':f"{label} (Quantity)"})
-                elif qqk == 'QuantityKind':
-                    options.append({'id':f"{Id} <|> {label} <|> QuantityKind <|> QQK",'text':f"{label} (Quantity Kind)"})    
-        for idx, value21 in enumerate(values21):
-            if value21.option == Option.objects.get(uri=self.mathmoddb['QuantityClass']):
-                for idx, value13 in enumerate(values13):
-                    if value13.text and value21.set_prefix == value13.set_prefix:
-                        Id,label,quote = value13.external_id.split(' <|> ')
-                        options.append({'id': f"{' <|> '.join(value13.external_id.split(' <|> ')[:2])} <|> Quantity <|> QQK",'text': f"{label} (Quantity)"})
-                for idx, value14 in enumerate(values14):
-                    if value14.text and value21.set_prefix == value14.set_prefix:
-                        options.append({'id': f"QQK{str(idx+1)} <|> {value14.text} <|> Quantity <|> QQK",'text': f"{value14.text} (Quantity)"})
-            elif value21.option == Option.objects.get(uri=self.mathmoddb['QuantityKindClass']):
-                for idx, value13 in enumerate(values13):
-                    if value13.text and value21.set_prefix == value13.set_prefix:
-                        Id,label,quote = value13.external_id.split(' <|> ')
-                        options.append({'id': f"{' <|> '.join(value13.external_id.split(' <|> ')[:2])} <|> QuantityKind <|> QQK",'text': f"{label} (Quantity Kind)"})
-                for idx, value14 in enumerate(values14):
-                    if value14.text and value21.set_prefix == value14.set_prefix:
-                        options.append({'id': f"QQK{str(idx+1)} <|> {value14.text} <|> QuantityKind <|> QQK",'text': f"{value14.text} (Quantity Kind)"})
-        for idx, value15 in enumerate(values15):
-            if value15.text and value15.text != 'not in MathModDB':
-                options.append({'id': f"{value15.external_id} <|> MathematicalFormulation <|> MF",'text': f"{value15.text} (Mathematical Formulation)"})
-        for idx, value16 in enumerate(values16):
-            if value16.text:
-                options.append({'id': f"{' <|> '.join(value16.external_id.split(' <|> ')[:2])} <|> MathematicalFormulation <|> MF",'text': f"{value16.text} (Mathematical Formulation)"})
-        for idx, value17 in enumerate(values17):
-            if value17.text:
-                options.append({'id': f"MF{str(idx+1)} <|> {value17.text} <|> MathematicalFormulation <|> MF",'text': f"{value17.text} (Mathematical Formulation)"})
-        for idx, value18 in enumerate(values18):
-            if value18.text and value18.text != 'not in MathModDB':
-                options.append({'id': f"{value18.external_id} <|> Task <|> T",'text': f"{value18.text} (Task)"})
-        for idx, value19 in enumerate(values19):
-            if value19.text:
-                options.append({'id': f"{' <|> '.join(value19.external_id.split(' <|> ')[:2])} <|> Task <|> T",'text': f"{value19.text} (Task)"})
-        for idx, value20 in enumerate(values20):
-            if value20.text:
-                options.append({'id': f"T{str(idx+1)} <|> {value20.text} <|> Task <|> T",'text': f"{value20.text} (Task)"})
+                options.append({'id': value1.external_id, 'text': value1.text})
+            else:
+                options.append({'id': f"RF{str(idx+1)}",'text': f"{value2.text} ({value3.text}) [user-defined]"})
         
+        for idx, (value4, value5, value6) in enumerate(zip(values4, values5, values6)):
+            if value4.text and value4.text != 'not found':
+                options.append({'id': value4.external_id, 'text': value4.text})
+            else:
+                options.append({'id': f"RP{str(idx+1)}",'text': f"{value5.text} ({value6.text}) [user-defined]"})
+        
+        for idx, (value7, value8, value9) in enumerate(zip(values7, values8, values9)):
+            if value7.text and value7.text != 'not found':
+                options.append({'id': value7.external_id, 'text': value7.text})
+            else:
+                options.append({'id': f"MM{str(idx+1)}",'text': f"{value8.text} ({value9.text}) [user-defined]"})
+
+        for idx, (value10, value11, value12) in enumerate(zip(values10, values11, values12)):
+            if value10.text and value10.text != 'not found':
+                options.append({'id': value10.external_id, 'text': value10.text})
+            else:
+                options.append({'id': f"QQK{str(idx+1)}",'text': f"{value11.text} ({value12.text}) [user-defined]"})
+
+        for idx, (value13, value14, value15) in enumerate(zip(values13, values14, values15)):
+            if value13.text and value13.text != 'not found':
+                options.append({'id': value13.external_id, 'text': value13.text})
+            else:
+                options.append({'id': f"MF{str(idx+1)}",'text': f"{value14.text} ({value15.text}) [user-defined]"})
+
+        for idx, (value16, value17, value18) in enumerate(zip(values16, values17, values18)):
+            if value16.text and value16.text != 'not found':
+                options.append({'id': value16.external_id, 'text': value16.text})
+            else:
+                options.append({'id': f"T{str(idx+1)}",'text': f"{value17.text} ({value18.text}) [user-defined]"})
+
         return options
 
 def process_result(result, location):

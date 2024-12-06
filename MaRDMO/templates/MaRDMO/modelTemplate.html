@@ -638,20 +638,18 @@
 
 <h1 id="Publication"> Publications </h1>
 
-{% for values in answers.PublicationModel.values %}
+{% for values in answers.Publication.values %}
 
-    <h2 id="P{{ forloop.counter }}"> P{{ forloop.counter }}: {{ values.Name }} </h2>
+    <h2 id="P{{ forloop.counter }}"> P{{ forloop.counter }}: {{ values.Title }} </h2>
     
     <p>
-        <b>MathModID</b>: {% if values.MathModID and values.MathModID != 'not in MathModDB' %} 
-                              {{ values.MathModID }} 
-	    	          {% endif %} <br>
-        <b>DOI</b>: {% if 'doi' in values.Reference %} 
-                        {{ values.Reference|cut:"doi:" }} 
-	   	    {% endif %} <br>
-        <b>URL</b>: {% if 'url' in values.Reference %} 
-                        {{ values.Reference|cut:"url:" }} 
-		    {% endif %} <br>
+        <b>ID</b>: {% if 'user' in values.ID %} - {% else %} {{ values.ID }} {% endif %} <br>
+        {% if 'doi' in values.Reference %}
+        <b>DOI</b>: {{ values.Reference|cut:"doi:" }} <br>
+	    {% endif %} 
+        {% if 'url' in values.Reference %}
+        <b>URL</b>: {{ values.Reference|cut:"url:" }} <br>
+		{% endif %} 
     </p>
 
     {% for values in values.RelationP.values %}

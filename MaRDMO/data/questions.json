@@ -105,103 +105,6 @@
         "set_index": false,
         "collection_index": true
     },
-    "Publication Exists": {
-        "uName": "Publication",
-        "dName": "Exists",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/Published",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false,
-        "option_text": true
-    },
-    "Publication All Authors": {
-        "uName": "Publication",
-        "dName": "All Authors",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationAuthor",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": true
-    },
-    "Publication Info": {
-        "uName": "Publication",
-        "dName": "Info",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationQID_hidden",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
-    },
-    "Publication Type": {
-        "uName": "Publication",
-        "dName": "Type",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationType_hidden",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
-    },
-    "Publication Title": {
-        "uName": "Publication",
-        "dName": "Title",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationTitle_hidden",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
-    },
-    "Publication Identified Authors": {
-        "uName": "Publication",
-        "dName": "Identified Authors",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationAuthor_hidden",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": true
-    },
-    "Publication Language": {
-        "uName": "Publication",
-        "dName": "Language",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationLanguage_hidden",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
-    },
-    "Publication Journal": {
-        "uName": "Publication",
-        "dName": "Journal",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationJournal_hidden",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
-    },
-    "Publication Volume": {
-        "uName": "Publication",
-        "dName": "Volume",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationVolume_hidden",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
-    },
-    "Publication Issue": {
-        "uName": "Publication",
-        "dName": "Issue",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationIssue_hidden",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
-    },
-    "Publication Pages": {
-        "uName": "Publication",
-        "dName": "Pages",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationPage_hidden",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
-    },
-    "Publication Date": {
-        "uName": "Publication",
-        "dName": "Date",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationDate_hidden",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
-    },
     "Models MathModID": {
         "uName": "Models",
         "dName": "MathModID",
@@ -862,50 +765,151 @@
         "option_text": false,
         "external_id": true
     },
-    "PublicationModel MathModID": {
-        "uName": "PublicationModel",
-        "dName": "MathModID",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationModelMathModDBID",
-        "set_prefix": false,
-        "set_index": true,
+    "Publication ID": {
+        "uName": "Publication",
+        "dName": "ID",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/id",
+        "set_prefix": true,
+        "set_index": false,
         "collection_index": false,
         "option_text": false,
         "external_id": true
     },
-    "PublicationModel Name": {
-        "uName": "PublicationModel",
+    "Publication Name": {
+        "uName": "Publication",
         "dName": "Name",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationModelCitation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/name",
         "set_prefix": true,
         "set_index": false,
         "collection_index": false,
         "option_text": false,
         "external_id": false
     },
-    "PublicationModel Reference": {
-        "uName": "PublicationModel",
+    "Publication Description": {
+        "uName": "Publication",
+        "dName": "Description",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/description",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": false,
+        "option_text": false,
+        "external_id": false
+    },
+    "Publication Type": {
+        "uName": "Publication",
+        "dName": "Type",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/type",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": false,
+        "option_text": false,
+        "external_id": false
+    },
+    "Publication Title": {
+        "uName": "Publication",
+        "dName": "Title",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/title",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": false,
+        "option_text": false,
+        "external_id": false
+    },
+    "Publication Author": {
+        "uName": "Publication",
+        "dName": "Authors",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/author",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": true,
+        "option_text": false,
+        "external_id": false
+    },
+    "Publication Language": {
+        "uName": "Publication",
+        "dName": "Language",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/language",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": false,
+        "option_text": false,
+        "external_id": true
+    },
+    "Publication Journal": {
+        "uName": "Publication",
+        "dName": "Journal",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/journal",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": false,
+        "option_text": false,
+        "external_id": false
+    },
+    "Publication Volume": {
+        "uName": "Publication",
+        "dName": "Volume",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/volume",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": false,
+        "option_text": false,
+        "external_id": false
+    },
+    "Publication Issue": {
+        "uName": "Publication",
+        "dName": "Issue",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/issue",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": false,
+        "option_text": false,
+        "external_id": false
+    },
+    "Publication Pages": {
+        "uName": "Publication",
+        "dName": "Pages",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/pages",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": false,
+        "option_text": false,
+        "external_id": false
+    },
+    "Publication Date": {
+        "uName": "Publication",
+        "dName": "Date",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/volume",
+        "set_prefix": true,
+        "set_index": false,
+        "collection_index": false,
+        "option_text": false,
+        "external_id": false
+    },
+
+    "Publication Reference": {
+        "uName": "Publication",
         "dName": "Reference",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationModelID",
-        "set_prefix": true,
-        "set_index": false,
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/doi",
+        "set_prefix": false,
+        "set_index": true,
         "collection_index": false,
         "option_text": false,
         "external_id": false
     },
-    "PublicationModel P2E": {
-        "uName": "PublicationModel",
+    "Publication P2E": {
+        "uName": "Publication",
         "dName": "P2E",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/PublicationToModelEntityRelation",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/entity-relation",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,
         "option_text": false,
         "external_id": false
     },
-    "PublicationModel EntityRelatant": {
-        "uName": "PublicationModel",
+    "Publication EntityRelatant": {
+        "uName": "Publication",
         "dName": "EntityRelatant",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/ModelEntityRelatedToPublication",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/publication/entity-relatant",
         "set_prefix": true,
         "set_index": true,
         "collection_index": false,

@@ -5,8 +5,6 @@
   "Model": "https://rdmo.mardi4nfdi.de/terms/options/DocumentationType/Model",
   "Analysis": "https://rdmo.mardi4nfdi.de/terms/options/WorkflowType/DataAnalysis",
   "Computation": "https://rdmo.mardi4nfdi.de/terms/options/WorkflowType/Computational",
-  "English": "https://rdmo.mardi4nfdi.de/terms/options/PublicationLanguage/English",
-  "German": "https://rdmo.mardi4nfdi.de/terms/options/PublicationLanguage/German",
   "Small": "https://rdmo.mardi4nfdi.de/terms/options/DataSetSize/Small",
   "Medium": "https://rdmo.mardi4nfdi.de/terms/options/DataSetSize/Medium",
   "Large": "https://rdmo.mardi4nfdi.de/terms/options/DataSetSize/Large",
@@ -18,5 +16,11 @@
   "Yes": "https://rdmo.mardi4nfdi.de/terms/options/yes_no/yes",
   "No": "https://rdmo.mardi4nfdi.de/terms/options/yes_no/no",
   "YesText": "https://rdmorganiser.github.io/terms/options/yes_with_text_no/yes",
-  "NoText": "https://rdmorganiser.github.io/terms/options/yes_with_text_no/no"
+  "NoText": "https://rdmorganiser.github.io/terms/options/yes_with_text_no/no",
+  "ScholarlyArticle": "https://rdmo.mardi4nfdi.de/terms/options/publication-type/scholarly-article",
+  "GeneralPublication": "https://rdmo.mardi4nfdi.de/terms/options/publication-type/general-publication",
+  "English": "https://rdmo.mardi4nfdi.de/terms/options/publication-language/english",
+  "German": "https://rdmo.mardi4nfdi.de/terms/options/publication-language/german",
+  "User": "https://rdmo.mardi4nfdi.de/terms/options/automatic-or-manual/user",
+  "MaRDMO": "https://rdmo.mardi4nfdi.de/terms/options/automatic-or-manual/mardmo"
 }

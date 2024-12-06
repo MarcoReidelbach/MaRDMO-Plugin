@@ -5,6 +5,8 @@ from rdmo.projects.models import Value
 from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
 
+from multiprocessing.pool import ThreadPool
+
 from .config import BASE_URI, mardi_api, mathmoddb_endpoint
 
 def add_new_mathmoddb_entries_to_questionnaire(project, ids, query):
@@ -94,6 +96,19 @@ def query_sparql(query,endpoint=mathmoddb_endpoint):
         req = []
 
     return req
+
+def query_sparql_pool(input):
+    '''Pooled SPARQL request returning all items with matching properties from different endpoints'''
+    pool = ThreadPool(processes=len(input))
+    # Map each endpoint's query and store results in a dictionary
+    data = {key: result for key, result in zip(input.keys(), pool.map(lambda args: query_sparql(*args), input.values()))}
+    return data
+
+#def query_sparql_pool(input):
+#    '''Pooled SPARQL request returning all items with matching properties from different endpoints'''
+#    pool = ThreadPool(processes=len(input))
+#    data = pool.map(lambda args: query_sparql(*args), input)
+ #   return data
 
 def value_editor(project, uri, text=None, external_id=None, option=None, collection_index=None, set_index=None, set_prefix=None):
     '''Add values to the Questionnaire'''

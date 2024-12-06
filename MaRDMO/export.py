@@ -1070,7 +1070,7 @@ class MaRDIExport(OauthProviderMixin, Export):
         '''This function takes user answers and performs SPARQL queries to MaRDI portal.'''
         
         entities = ['NonMathematicalDiscipline','Models','Software','DataSet','Method','Hardware','ExperimentalDevice','ResearchField',
-                    'ResearchProblem','MathematicalModel','MathematicalFormulation','Quantity','Task','PublicationModel']
+                    'ResearchProblem','MathematicalModel','MathematicalFormulation','Quantity','Task','Publication']
 
         for entity in entities:
             for key in answers[entity]:
@@ -1404,8 +1404,11 @@ class MaRDIExport(OauthProviderMixin, Export):
                         else:
                             if external_id:
                                 if len(value.set_prefix.split('|')) == 1:
-                                    label,_,_ = extract_parts(value.text)
-                                    val[uName].setdefault(int(value.set_prefix), {}).update({dName:f"{value.external_id} <|> {label}"})
+                                    if uName == 'Publication':
+                                        val[uName].setdefault(int(value.set_prefix), {}).update({dName:value.external_id})
+                                    else:
+                                        label,_,_ = extract_parts(value.text)
+                                        val[uName].setdefault(int(value.set_prefix), {}).update({dName:f"{value.external_id} <|> {label}"})
                                 elif len(value.set_prefix.split('|')) > 1:
                                     prefix = value.set_prefix.split('|')
                                     val[uName].setdefault(int(prefix[0]), {}).update({dName:value.external_id})

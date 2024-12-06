@@ -8,324 +8,215 @@ from rdmo.projects.models import Value
 from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
 
-from .citation import GetCitation
-from .utils import query_sparql, value_editor, extract_parts, splitVariableText
+from .utils import query_sparql, query_sparql_pool, value_editor, extract_parts, splitVariableText
 from .sparql import queryPublication, queryModelHandler, queryHandler, wini, mini, pl_query, pl_vars, pro_query, pro_vars
 from .id import *
-from .config import wd, wdt, mardi_api, wikidata_api, mardi_endpoint, wikidata_endpoint, BASE_URI
+from .config import wd, wdt, mardi_endpoint, wikidata_endpoint, mathmoddb_endpoint, BASE_URI, crossref_api, datacite_api, doi_api
+from .models import Author, Journal, Publication
+from multiprocessing.pool import ThreadPool
+
 
 from difflib import SequenceMatcher
 
 @receiver(post_save, sender=Value)
-def PublicationCitationRetriever(sender, **kwargs): 
+def PInformation(sender, **kwargs): 
 
     instance = kwargs.get("instance", None)
 
-    if instance and instance.attribute.uri == f"{BASE_URI}domain/Published":
-    
-        # Activate (Yes)  / Deactivate (No or nothin) Publication Information Section
-        if instance.option_text == 'Yes':            
-            value_editor(instance.project,f"{BASE_URI}domain/PublicationInformation",1)
-        else: 
-            value_editor(instance.project,f"{BASE_URI}domain/PublicationInformation",0)
+    if instance and instance.attribute.uri == f"{BASE_URI}domain/publication/get-details":
 
-        # Evaluate Information provided for Yes case
-        if instance.text.split(':')[0] == 'url': 
-            
-            # If url provided, deactivate Publication Information section 
-            value_editor(instance.project,f"{BASE_URI}domain/PublicationInformation",0)
+        path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
+        with open(path, "r") as json_file:
+            option = json.load(json_file)
+
+        path = os.path.join(os.path.dirname(__file__), 'data', 'mathmoddb.json')
+        with open(path, "r") as json_file:
+            mathmoddb = json.load(json_file)
         
-        elif re.match(r'doi:10.\d{4,9}/[-._;()/:a-z0-9A-Z]+', instance.text):
+        # Source of Information
+        getDetails = instance.external_id
 
-            path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
-            with open(path, "r") as json_file:
-                option = json.load(json_file)
-            
-            # Extract DOI and Initialize different dictionaries
-            doi = instance.text.split(':')[1]   
-            
-            dict_merged = {}
-            author_dict_merged = {}
-            
-            # Define Prefix & Parameter for MaRDI KG search, Search Paper in MaRDI KG via DOI and merge results
-            mardi_prefix = f"PREFIX wdt:{wdt} PREFIX wd:{wd}"
-            mardi_query_parameter = [P16, doi.upper(), P8, P22, P4, P12, P10, P7, P9, P11, P13, P14, P15, P2, P23]
-            mardi_dicts = query_sparql(mardi_prefix + queryPublication['All'].format(*mardi_query_parameter), mardi_endpoint)
-            
-            # Combine dictionaries from MaRDI Query
-            for mardi_dict in mardi_dicts:
-                for key in mardi_dict.keys():
-                    if key == 'authorInfo':
-                        if mardi_dict.get(key, {}).get('value'):
-                            authorQid, authorLabel, authorDescription, authorOrcid, authorWikidataQid, authorZBmathID = mardi_dict[key]['value'].split(' <|> ')
-                            if authorQid not in dict_merged.get('mardi_authorQid', []):
-                                dict_merged.setdefault('mardi_authorQid', []).append(authorQid)
-                                dict_merged.setdefault('mardi_authorLabel', []).append(authorLabel)
-                                dict_merged.setdefault('mardi_authorDescription', []).append(authorDescription)
-                                dict_merged.setdefault('mardi_authorOrcid', []).append(authorOrcid)
-                                dict_merged.setdefault('mardi_authorWikidataQid', []).append(authorWikidataQid)
-                                dict_merged.setdefault('mardi_authorZBmathID', []).append(authorZBmathID)
-                    elif key == 'otherAuthor':
-                        if mardi_dict.get(key, {}).get('value'):
-                            if mardi_dict[key]['value'] not in dict_merged.get('mardi_'+key, []):
-                                dict_merged.setdefault('mardi_'+key, []).append(mardi_dict[key]['value'])
-                    elif key == 'publicationLabel':
-                        dict_merged['publication'] = mardi_dict.get(key, {}).get('value')
-                        dict_merged['mardi_'+key] = mardi_dict.get(key, {}).get('value')
-                    else:
-                        dict_merged['mardi_'+key] = mardi_dict.get(key, {}).get('value')
-            
-            if not dict_merged:
-            
-                # If results not found for Paper in MaRDI KG via DOI, define Parameters for Wikidata search, search paper via DOI and merge results
-                wikidata_parameter = ['356', doi.upper(), '50', '496', '31', '1433', '407', '1476', '2093', '577', '478', '433', '304', '', '1556']
-                wikidata_dicts = query_sparql(queryPublication['All'].format(*wikidata_parameter), wikidata_endpoint)
-            
-                # Combine dictionaries from Wikidata Query
-                for wikidata_dict in wikidata_dicts:
-                    for key in wikidata_dict.keys():
-                        if key == 'authorInfo':
-                            if wikidata_dict.get(key, {}).get('value'):
-                                authorQid, authorLabel, authorDescription, authorOrcid, authorWikidataQid, authorZBmathID = wikidata_dict[key]['value'].split(' <|> ')
-                                if authorQid not in dict_merged.get('wikidata_authorQid', []):
-                                    dict_merged.setdefault('wikidata_authorQid', []).append(authorQid)
-                                    dict_merged.setdefault('wikidata_authorLabel', []).append(authorLabel)
-                                    dict_merged.setdefault('wikidata_authorDescription', []).append(authorDescription)
-                                    dict_merged.setdefault('wikidata_authorOrcid', []).append(authorOrcid)
-                                    dict_merged.setdefault('wikidata_authorWikidataQid', []).append(authorWikidataQid)
-                                    dict_merged.setdefault('wikidata_authorZBmathID', []).append(authorZBmathID)
-                        elif key == 'otherAuthor':
-                            if wikidata_dict.get(key, {}).get('value'):
-                                if wikidata_dict[key]['value'] not in dict_merged.get('wikidata_'+key, []):
-                                    dict_merged.setdefault('wikidata_'+key, []).append(wikidata_dict[key]['value'])
-                        elif key == 'publicationLabel':
-                            dict_merged['publication'] = wikidata_dict.get(key, {}).get('value')
-                            dict_merged['wikidata_'+key] = wikidata_dict.get(key, {}).get('value')
-                        else:
-                            dict_merged['wikidata_'+key] = wikidata_dict.get(key, {}).get('value')
-                 
-                if dict_merged:
-            
-                    # If results found for Paper in Wikidata use Wikidata QID to search MaRDI KG again
-                    mardi_parameter = [P2, dict_merged.get('wikidata_publicationQid', '')]
-                    mardi_dict = query_sparql(mardi_prefix+queryPublication['WikiCheck'].format(*mardi_parameter), mardi_endpoint)
-            
-                    if mardi_dict:
-                        # If results found for Paper in MaRDI KG via Wikidata QID update results 
-                        dict_merged['mardi_publicationQid'] = mardi_dict[0].get('publicationQid', {}).get('value')
-                        dict_merged['mardi_publicationLabel'] = mardi_dict[0].get('publicationLabel', {}).get('value')
-                        dict_merged['mardi_publicationDescription1'] = mardi_dict[0].get('publicationDescription1', []).get('value')
-                else: 
-            
-                    # If no results found in MaRDI KG or Wikidata use DOI to get complete citation
-                    orcid_authors, zbmath_authors, other_authors, citation_dictionary = GetCitation(doi)
-            
-                    if citation_dictionary:
-            
-                        # If citation found, extract ORCID and zbMath IDs
-                        orcid_ids = [orcid_author[1] for orcid_author in orcid_authors]
-                        zbmath_ids = [zbmath_author[1] for zbmath_author in zbmath_authors]
-            
-                        # Search Authors related to publication 
-                        author_dict_merged = Author_Search(orcid_ids, zbmath_ids, orcid_authors, zbmath_authors)
-            
-                        # Define search objects, journal, for Wikidata API and MaRDI requests and store results 
-                        search_objects_wikidata = [[citation_dictionary.get('journal', '')]]
-                        make_api_requests(wikidata_api, search_objects_wikidata, dict_merged, 'cit_wikidata')
-                        search_objects_mardi = [[citation_dictionary.get('journal', ''), dict_merged.get('cit_wikidata_journalLabel', '')]]
-                        make_api_requests(mardi_api, search_objects_mardi, dict_merged, 'cit_mardi')
-            
-                        # Store Entrytype Data
-                        entry_type_data = {'article': {'wikidata_qid': 'Q13442814', 
-                                                       'mardi_qid': Q1, 
-                                                       'label': 'scholarly article', 
-                                                       'description': 'article in an academic publication, usually peer reviewed'},
-                                           
-                                           'publication': {'wikidata_qid': 'Q732577', 
-                                                           'mardi_qid': Q10, 
-                                                           'label': 'publication', 
-                                                           'description': 'content made available to the general public'}}
-            
-                        # Update dictionary with citation information
-                        dict_merged.update({
-                            'cit_wikidata_entrytypeQid': entry_type_data[citation_dictionary['ENTRYTYPE']]['wikidata_qid'],
-                            'cit_wikidata_entrytypeLabel': entry_type_data[citation_dictionary['ENTRYTYPE']]['label'],
-                            'cit_wikidata_entrytypeDescription1': entry_type_data[citation_dictionary['ENTRYTYPE']]['description'],
-                            'cit_mardi_entrytypeQid': entry_type_data[citation_dictionary['ENTRYTYPE']]['mardi_qid'],
-                            'cit_mardi_entrytypeLabel': entry_type_data[citation_dictionary['ENTRYTYPE']]['label'],
-                            'cit_mardi_entrytypeDescription1': entry_type_data[citation_dictionary['ENTRYTYPE']]['description'],
-                            'cit_wikidata_languageQid': citation_dictionary.get('language',['','',''])[0], 
-                            'cit_wikidata_languageLabel': citation_dictionary.get('language',['','',''])[1],
-                            'cit_wikidata_languageDescription1': citation_dictionary.get('language',['','',''])[2],
-                            'publication': citation_dictionary.get('title',''),
-                            'volume': citation_dictionary.get('volume',''),
-                            'issue': citation_dictionary.get('number',''),
-                            'page': citation_dictionary.get('pages',''),
-                            'publicationDate': citation_dictionary.get('pub_date',''),
-                            'otherAuthor': other_authors,
-                            'journal': citation_dictionary.get('journal',''),
-                            'entrytypeQid': citation_dictionary.get('ENTRYTYPE','')})
-        
-            # Gather Data for fill out and storage for later export
-            paper_information = {}
-            
-            # Store publication, entrytype, language and journal information
-            citation_properties = [['publicationQid', 'publicationLabel', 'publicationDescription1'],
-                                   ['entrytypeQid', 'entrytypeLabel', 'entrytypeDescription1'],
-                                   ['languageQid', 'languageLabel', 'languageDescription1'],
-                                   ['journalQid', 'journalLabel', 'journalDescription1']]
-            
-            for citation_property in citation_properties:
-                prefix = 'mardi_' if dict_merged.get('mardi_' + citation_property[0]) else \
-                         'wikidata_' if dict_merged.get('wikidata_' + citation_property[0]) else \
-                         'cit_mardi_' if dict_merged.get('cit_mardi_' + citation_property[0]) else \
-                         'cit_wikidata_'
-                if dict_merged.get(prefix + citation_property[0]):
-                    qid = prefix[:-1].removeprefix('cit_') + ':' + dict_merged[prefix + citation_property[0]]
-                    if citation_property[0] == 'publicationQid':
-                        paper_information[citation_property[0]] = [qid]
-                    else:
-                        paper_information[citation_property[0]] = [dict_merged[prefix + citation_property[1]]]
-                    paper_information[citation_property[0] + '_back'] = [qid + ' <|> ' + dict_merged[prefix + citation_property[1]] + ' <|> ' + dict_merged[prefix + citation_property[2]]]
-                else:
-                    default_value = 'no information available'
-                    if dict_merged.get(citation_property[0][:-3]):
-                        if citation_property[0].startswith('publication'):
-                            paper_information[citation_property[0]] = [default_value]
-                            paper_information[citation_property[0] + '_back'] = ['no id <|> ' + dict_merged[citation_property[0][:-3]] + ' <|> ' + citation_property[0][:-3]]
-                        else:
-                            paper_information[citation_property[0]] = [dict_merged[citation_property[0][:-3]]]
-                            paper_information[citation_property[0] + '_back'] = ['no id <|> ' + dict_merged[citation_property[0][:-3]] + ' <|> ' + citation_property[0][:-3]]
-                    else:
-                        paper_information[citation_property[0]] = [default_value]
-                        paper_information[citation_property[0] + '_back'] = ['NONE']        
-            
-            # Store Author Information
-            paper_information['author_label'] = []
-            paper_information['author_label_back'] = []
-            
-            if 'mardi_authorQid' in dict_merged or 'mardi_otherAuthor' in dict_merged:
-            
-                # Store MaRDI Author QID /Label
-                try:
-                    for qid, label in zip(dict_merged['mardi_authorQid'], dict_merged['mardi_authorLabel']):
-                    
-                        if qid:
-                            paper_information['author_label'].append(label+' (mardi:'+qid+')')
-                        else:
-                            paper_information['author_label'].append(label)
-                    
-                        paper_information['author_label_back'].append(['mardi:'+qid])
-                except KeyError:
-                    pass
-                if dict_merged.get('mardi_otherAuthor', ''): 
-                    paper_information['author_label'].extend(dict_merged['mardi_otherAuthor'])
-            
-            elif 'wikidata_authorQid' in dict_merged or 'wikidata_otherAuthor' in dict_merged:
-            
-                # Store Wikidata Author QID / Label
-                try:
-                    for qid, label in zip(dict_merged['wikidata_authorQid'], dict_merged['wikidata_authorLabel']):
-                        
-                        if qid:
-                            paper_information['author_label'].append(label+' (wikidata:'+qid+')')
-                        else:
-                            paper_information['author_label'].append(label)
-
-                        paper_information['author_label_back'].append(['wikidata:'+qid])
-                except KeyError:
-                    pass
-                if dict_merged.get('wikidata_otherAuthor', ''):
-                    paper_information['author_label'].extend(dict_merged['wikidata_otherAuthor'])
-            
-            elif author_dict_merged:
-            
-                # Store Publication Authors from Citation via ORCID and zbMath
-                for author in author_dict_merged.keys():
-                    if author_dict_merged[author]['mardiQID']:
-                        paper_information['author_label'].append(author_dict_merged[author]['mardiLabel'] + ' (mardi:' + author_dict_merged[author]['mardiQID'] + ')')
-                        paper_information['author_label_back'].append('mardi:' + author_dict_merged[author]['mardiQID'])
-                    elif author_dict_merged[author]['wikiQID']:
-                        paper_information['author_label'].append(author_dict_merged[author]['wikiLabel'] + ' (wikidata:' + author_dict_merged[author]['wikiQID'] + ')')
-                        paper_information['author_label_back'].append('wikidata:' + author_dict_merged[author]['wikiQID'] +
-                                                                          ' <|> ' + author_dict_merged[author]['wikiLabel'] +
-                                                                          ' <|> ' + author_dict_merged[author]['wikiDescription'])
-                    elif author_dict_merged[author]['orcid']:
-                        if author_dict_merged[author]['zbmath']:
-                            paper_information['author_label'].append(author+' (orcid:'+author_dict_merged[author]['orcid']+', zbmath:'+author_dict_merged[author]['zbmath']+')')
-                            paper_information['author_label_back'].append('orcid:'+author_dict_merged[author]['orcid']+'; zbmath:'+author_dict_merged[author]['zbmath']+' <|> '+author+' <|> researcher (ORCID '+author_dict_merged[author]['orcid']+')')
-                        else:
-                            paper_information['author_label'].append(author+' (orcid:'+author_dict_merged[author]['orcid']+')')
-                            paper_information['author_label_back'].append('orcid:'+author_dict_merged[author]['orcid']+' <|> '+author+' <|> researcher (ORCID '+author_dict_merged[author]['orcid']+')')
-                    elif author_dict_merged[author]['zbmath']:
-                        paper_information['author_label'].append(author+' (zbmath:'+author_dict_merged[author]['zbmath']+')')
-                        paper_information['author_label_back'].append('zbmath:'+author_dict_merged[author]['zbmath']+' <|> '+author+' <|> researcher (zbMath '+author_dict_merged[author]['zbmath']+')')
-                
-                if dict_merged.get('otherAuthor', ''):
-                    paper_information['author_label'].extend(dict_merged['otherAuthor'])
-            
-            else:
-            
-                if dict_merged.get('otherAuthor', ''):
-                    paper_information['author_label'].extend(dict_merged['otherAuthor'])
-                    paper_information['author_label_back'].append('')
-                else:
-                    paper_information['author_label'].append('no information available')
-                    paper_information['author_label_back'].append('')
-            
-            # Store publication volume, issue, page and publication date
-            citation_properties = ['volume', 'issue', 'page', 'publicationDate', 'publication']
-            for citation_property in citation_properties:
-                if dict_merged.get('mardi_'+citation_property):
-                    # Store MaRDI Property
-                    paper_information[citation_property] = [dict_merged['mardi_'+citation_property]]
-                    paper_information[citation_property+'_back'] = [dict_merged['mardi_'+citation_property]]
-                elif dict_merged.get('wikidata_'+citation_property):
-                    # Store Wikidata Property
-                    paper_information[citation_property] = [dict_merged['wikidata_'+citation_property]]
-                    paper_information[citation_property+'_back'] = [dict_merged['wikidata_'+citation_property]]
-                elif dict_merged.get(citation_property):
-                    # Store Citation Property
-                    paper_information[citation_property] = [dict_merged[citation_property]]
-                    paper_information[citation_property+'_back'] = [dict_merged[citation_property]]
-                else:
-                    # No Publication Volume available
-                    paper_information[citation_property] = ['no information available']
-                    paper_information[citation_property+'_back'] = ['NONE']
-            
-            # Append paper information to question ids 
-            paper_infos = [paper_information['publicationQid'], paper_information['publicationQid_back'],
-                           paper_information['entrytypeQid'], paper_information['entrytypeQid_back'],
-                           paper_information['publication'], paper_information['publication_back'],
-                           paper_information['author_label'], paper_information['author_label_back'],
-                           paper_information['languageQid'], paper_information['languageQid_back'],
-                           paper_information['journalQid'], paper_information['journalQid_back'],
-                           paper_information['volume'], paper_information['volume_back'],
-                           paper_information['issue'], paper_information['issue_back'],
-                           paper_information['page'], paper_information['page_back'],
-                           paper_information['publicationDate'], paper_information['publicationDate_back']]
-            
-            object_uris = [f'{BASE_URI}domain/PublicationQID', f'{BASE_URI}domain/PublicationQID_hidden',
-                           f'{BASE_URI}domain/PublicationType', f'{BASE_URI}domain/PublicationType_hidden',
-                           f'{BASE_URI}domain/PublicationTitle', f'{BASE_URI}domain/PublicationTitle_hidden',
-                           f'{BASE_URI}domain/PublicationAuthor', f'{BASE_URI}domain/PublicationAuthor_hidden',
-                           f'{BASE_URI}domain/PublicationLanguage', f'{BASE_URI}domain/PublicationLanguage_hidden',
-                           f'{BASE_URI}domain/PublicationJournal', f'{BASE_URI}domain/PublicationJournal_hidden',
-                           f'{BASE_URI}domain/PublicationVolume', f'{BASE_URI}domain/PublicationVolume_hidden',
-                           f'{BASE_URI}domain/PublicationIssue', f'{BASE_URI}domain/PublicationIssue_hidden',
-                           f'{BASE_URI}domain/PublicationPage', f'{BASE_URI}domain/PublicationPage_hidden',
-                           f'{BASE_URI}domain/PublicationDate', f'{BASE_URI}domain/PublicationDate_hidden']
-            
-            for paper_info, object_uri in zip(paper_infos, object_uris):
-                if object_uri == f'{BASE_URI}domain/PublicationLanguage':
-                    for idx,val in enumerate(paper_info):
-                        if option.get(val) is not None:
-                            value_editor(instance.project, object_uri, None, None, Option.objects.get(uri=option.get(val)))
-                else:
-                    for idx,val in enumerate(paper_info):
-                        value_editor(instance.project, object_uri, val, None, None, idx)
-
+        # Autmatic or manual Search
+        automatic_or_manual = index_check(instance,'option',f'{BASE_URI}domain/publication/automatic-or-manual')
+        if automatic_or_manual == Option.objects.get(uri=option['User']):
             return
+        
+        # Citation already in Questionnaire?
+        publication_id = index_check(instance,'text',f'{BASE_URI}domain/publication/id')
+        if publication_id:
+            return
+
+        # ID of Publication
+        publication_id = index_check(instance,'text',f'{BASE_URI}domain/publication/doi').split(':')
+        if len(publication_id) == 1:
+            return
+        else:
+            prefix = publication_id[0]
+            if prefix == 'doi':
+                DOI = publication_id[1]
+            elif prefix == 'url':
+                URL = publication_id[1]            
+
+        if re.match(r'10.\d{4,9}/[-._;()/:a-z0-9A-Z]+', DOI):
+
+            choice = None
+            
+            # Define MaRDI Portal / Wikidata / MathModDB / MathAlgoDB SPARQL Queries
+            mardi_query = queryPublication['All_MaRDI'].format(P16, DOI.upper(), P8, P22, P4, P12, P10, P7, P9, P11, P13, P14, P15, P2, P23, wdt, wd)
+            wikidata_query = queryPublication['All_Wikidata'].format('356', DOI.upper(), '50', '496', '31', '1433', '407', '1476', '2093', '577', '478', '433', '304', '', '1556')
+            mathmoddb_query = queryPublication['PublicationMathModDB'].format(DOI)
+            mathalgodb_query = queryPublication['PublicationMathAlgoDB'].format(DOI)
+            
+            # Get Citation Data from MaRDI Portal / Wikidata / MathModDB / MathAlgoDB
+            results = {}
+            if getDetails == '0':
+                results = query_sparql_pool({'mathmoddb':(mathmoddb_query, mathmoddb_endpoint)})
+            elif getDetails == '1':
+                results = query_sparql_pool({'mathalgodb':(mathalgodb_query, mathmoddb_endpoint)})
+            elif getDetails == '2':
+                results = query_sparql_pool({'wikidata':(wikidata_query, wikidata_endpoint), 'mardi':(mardi_query, mardi_endpoint)})
+            elif getDetails == '3':
+                results = query_sparql_pool({'wikidata':(wikidata_query, wikidata_endpoint), 'mardi':(mardi_query, mardi_endpoint), 'mathmoddb':(mathmoddb_query, mathmoddb_endpoint), 'mathalgodb':(mathalgodb_query, mathmoddb_endpoint)})
+
+            # Structure Publication Information            
+            publication = {}
+            for key in ['mardi', 'wikidata', 'mathmoddb', 'mathalgodb']:
+                try:
+                    publication[key] = Publication.from_query(results.get(key))
+                except:
+                    publication[key] = None
+ 
+            if not (publication['mardi'] or publication['wikidata']) and getDetails == '3':
+                
+                # If no Citation Data in KGs and additional sources requested by User, get Citation Information from CrossRef, DataCite, DOI, zbMath 
+                pool = ThreadPool(processes=4)
+                results = pool.map(lambda fn: fn(DOI), [get_crossref_data, get_datacite_data, get_doi_data, get_zbmath_data])
+                
+                for idx, source in enumerate(['crossref', 'datacite', 'doi', 'zbmath']):
+                    try:
+                        publication[source] = Publication.from_crossref(results[idx])
+                    except:
+                        publication[source] = None
+
+                # Get Authors assigned to publication from ORCID
+                publication['orcid'] = {}
+                response = get_orcids(DOI)
+                if response.status_code == 200:
+                    orcids = response.json().get('result')
+                    if orcids:
+                        for idx, entry in enumerate(orcids):
+                            orcid_id = entry.get('orcid-identifier', {}).get('path', '')
+                            response = get_author_by_orcid(orcid_id)
+                            if response.status_code == 200:
+                                orcid_author = response.json()
+                                publication['orcid'][idx] = Author.from_orcid(orcid_author)
+
+                # Add (missing) ORCID IDs to authors
+                for choice in ['zbmath', 'crossref', 'datacite', 'doi']:
+                    if publication[choice]:
+                        assign_orcid(publication, choice)
+                        break
+                else:
+                    choice = None
+                
+                # Additional for chosen information source
+                if choice:
+                    # Check if Authors already in MaRDI Portal or Wikidata
+                    orcid_id = ' '.join(f'"{author.orcid_id}"' if author.orcid_id else '""' for author in publication[choice].authors)
+                    zbmath_id = ' '.join(f'"{author.zbmath_id}"' if author.zbmath_id else '""' for author in publication[choice].authors)
+                    if orcid_id and zbmath_id:
+                        additional_queries(publication, choice, 'authors', [orcid_id, zbmath_id, P22, P23, P2], [orcid_id, zbmath_id, '496', '1556', ''], extract_authors)
+                    # Check if Journal already in MaRDI Portal or Wikidata
+                    journal_id = publication[choice].journal[0].issn
+                    if journal_id:
+                        additional_queries(publication, choice, 'journal', [journal_id, P33], [journal_id, '236'], extract_journals)
+            
+            # Add Citation Information to Questionnaire
+            if getDetails == '0':
+                cit = publication['mathmoddb']
+                if cit:
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/id', f"{cit.label} ({cit.description}) [mathmoddb]" if cit.id else 'not found', cit.id if cit.id else 'not found', None, None, 0, instance.set_index)
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/name', cit.label if cit.label else None, None, None, None, 0, instance.set_index)
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/description', cit.description if cit.description else None, None, None, None, 0, instance.set_index)
+                else:
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/id', 'not found', None, None, None, 0, instance.set_index)
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/name', None, None, None, None, 0, instance.set_index)
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/description', None, None, None, None, 0, instance.set_index)
+            elif getDetails == '1':
+                cit = publication['mathalgodb']
+                if cit:  
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/id', f"{cit.label} ({cit.description}) [mathalgodb]" if cit.id else 'not found', cit.id if cit.id else 'not found', None, None, 0, instance.set_index)
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/name', cit.label if cit.label else None, None, None, None, 0, instance.set_index)
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/description', cit.description if cit.description else None, None, None, None, 0, instance.set_index)
+                else:
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/id', 'not found', None, None, None, 0, instance.set_index)
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/name', None, None, None, None, 0, instance.set_index)
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/description', None, None, None, None, 0, instance.set_index)       
+            elif getDetails == '2' or getDetails == '3':
+                
+                # Choose existing Citation Information from appropriate source 
+                cit = publication.get('mardi') or publication.get('wikidata') or publication.get(choice) or None
+
+                if cit:
+                    if cit.id:
+                        # Add ID to Questionnaire
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/id', f"{cit.label} ({cit.description}) [{cit.id.split(':')[0]}]", cit.id, None, None, 0, instance.set_index)
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/name', cit.label if cit.label else None, None, None, None, 0, instance.set_index)
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/description', cit.description if cit.description else None, None, None, None, 0, instance.set_index)
+                    elif publication['mathmoddb']:
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/id', f"{publication['mathmoddb'].label} ({publication['mathmoddb'].description}) [mathmoddb]", publication['mathmoddb'].id, None, None, 0, instance.set_index)
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/name', publication['mathmoddb'].label if publication['mathmoddb'].label else None, None, None, None, 0, instance.set_index)
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/description', publication['mathmoddb'].description if publication['mathmoddb'].description else None, None, None, None, 0, instance.set_index)
+                    elif publication['mathalgodb']:
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/id', f"{publication['mathalgodb'].label} ({publication['mathalgodb'].description}) [mathalgodb]", publication['mathalgodb'].id, None, None, 0, instance.set_index)
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/name', publication['mathalgodb'].label if publication['mathalgodb'].label else None, None, None, None, 0, instance.set_index)
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/description', publication['mathalgodb'].description if publication['mathalgodb'].description else None, None, None, None, 0, instance.set_index)
+                    else:
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/id', "not found", "not found", None, None, 0, instance.set_index)
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/name', None, None, None, None, 0, instance.set_index)
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/description', None, None, None, None, 0, instance.set_index)
+                    # Add Publication Type to Questionnaire
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/type', None, None, Option.objects.get(uri=option['ScholarlyArticle']) if cit.entrytype == 'scholarly article' else Option.objects.get(uri=option['GeneralPublication']), None, 0, instance.set_index)
+                    # Add Publication Title to Questionnaire
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/title', cit.title if cit.title else '', None, None, None, 0, instance.set_index)
+                    # Add Authors to Questionnaire
+                    for idx, author in enumerate(cit.authors):
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/author', f"{author.label} [{', '.join(([author.id] if author.id else []) + [f'{pre}:{suf}' for pre, suf in {'orcid': author.orcid_id, 'zbmath': author.zbmath_id}.items() if suf])}]" if any([author.id, author.orcid_id, author.zbmath_id]) else author.label, author.id if author.id else None, None, idx, 0, instance.set_index)
+                    # Add Language to Questionnaire
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/language', None, None, Option.objects.get(uri=cit.language) if cit.language else None, None, 0, instance.set_index)
+                    # Add Journal of the Publication
+                    for journal in cit.journal:
+                        value_editor(instance.project, f'{BASE_URI}domain/publication/journal', f"{journal.label} ({journal.description}) [{journal.id}]" if journal.id else f"{journal.label} (issn:{journal.issn})" if journal.label and journal.issn else '', journal.id if journal.id else None, None, None, 0, instance.set_index)
+                    # Add Volume of the publication
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/volume', cit.volume if cit.volume else '', None, None, None, 0, instance.set_index)
+                    # Add Issue of the Publication
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/issue', cit.issue if cit.issue else '', None, None, None, 0, instance.set_index)
+                    # Add Pages of the Publication
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/page', cit.page if cit.page else '', None, None, None, 0, instance.set_index)
+                    # Add Publication Date
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/date', cit.date if cit.date else '', None, None, None, 0, instance.set_index)
+                else:
+                    value_editor(instance.project, f'{BASE_URI}domain/publication/id', 'not found', None, None, None, 0, instance.set_index)
+
+            # Add relations for publications from MathModDB
+            if getDetails == '0':
+                Ids = []
+                idx = 0
+                for property in ['documents', 'invents', 'studies', 'surveys', 'uses']:
+                    if results['mathmoddb'][0].get(property, {}).get('value'):
+                        entities = results['mathmoddb'][0][property]['value'].split(' / ')
+                        for entity in entities:
+                            id, label, description = entity.split(' | ')
+                            if id and label and description:
+                                if id not in Ids:
+                                    value_editor(instance.project, f'{BASE_URI}domain/publication/entity-relation', None, None, Option.objects.get(uri=mathmoddb[property]), None, idx, instance.set_index)
+                                    value_editor(instance.project, f'{BASE_URI}domain/publication/entity-relatant', f"{label} ({description}) [mathmoddb]", f'{id}', None, None, idx, instance.set_index)    
+                                    Ids.append(id)
+
+        elif URL:
+            return
+
+    return
 
 @receiver(post_save, sender=Value)
 def WorkflowOrModel(sender, **kwargs):
@@ -448,6 +339,9 @@ def ModelHandler(sender, **kwargs):
 
             # Add Task Information to Questionnaire
             add_entity(instance.project, results, 'task')
+
+            # Add Publication Information to Questionnaire
+            add_entity(instance.project, results, 'publication')
 
     return
 
@@ -777,6 +671,7 @@ def MFInformation(sender, **kwargs):
                 path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
                 with open(path, "r") as json_file:
                     option = json.load(json_file)
+                print(results)
                 if results:
                     # Add the Mathematical Model Properties to the Questionnaire
                     for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless',
@@ -1046,21 +941,116 @@ def add_entity(project, results, kind):
     Ids =[]
     Labels = []
     Descriptions = []
+    DOIs = []
 
-    if results[0].get(kind,{}).get('value'):
-        entities = results[0][kind]['value'].split(' / ')
-        for entity in entities:
-            id, label, description = entity.split(' | ')
-            if id and label and description:
-                if id not in Ids:
-                    Ids.append(id)
-                    Labels.append(label)
-                    Descriptions.append(description)
+    if kind == 'publication':
 
-        for idx, (Id, Label, Description) in enumerate(zip(Ids,Labels,Descriptions)):
-            # Set up Qauntity / Quantity Kind Page
-            value_editor(project, f'{BASE_URI}domain/{kind}', idx, None, None, None, idx)
-            # Add Quantity / Quantity Kind Values
-            value_editor(project, f'{BASE_URI}domain/{kind}/id', f'{Label} ({Description}) [mathmoddb]', f"mathmoddb:{Id}", None, None, idx)
+        path = os.path.join(os.path.dirname(__file__), 'data', 'options.json')
+        with open(path, "r") as json_file:
+            option = json.load(json_file)
+
+        if results[0].get(kind,{}).get('value'):
+            entities = results[0][kind]['value'].split(' / ')
+            for entity in entities:
+                DOIs.append(entity)
+
+        for idx, DOI in enumerate(DOIs):
+                # Set up Page
+                value_editor(project, f'{BASE_URI}domain/{kind}', idx, None, None, None, idx)
+                # Add DOI Values
+                value_editor(project, f'{BASE_URI}domain/{kind}/doi', f"doi:{DOI}", None, None, None, idx)
+                # Add MaRDMO for further Information
+                value_editor(project, f'{BASE_URI}domain/{kind}/automatic-or-manual', None, None, Option.objects.get(uri=option['MaRDMO']), None, idx)
+                # Add MathModDB as Source
+                value_editor(project, f'{BASE_URI}domain/{kind}/get-details', 'MathModDB Knowledge Graph', '0', None, None, idx)
+
+    else:
+        if results[0].get(kind,{}).get('value'):
+            entities = results[0][kind]['value'].split(' / ')
+            for entity in entities:
+                id, label, description = entity.split(' | ')
+                if id and label and description:
+                    if id not in Ids:
+                        Ids.append(id)
+                        Labels.append(label)
+                        Descriptions.append(description)
+
+            for idx, (Id, Label, Description) in enumerate(zip(Ids,Labels,Descriptions)):
+                # Set up Page
+                value_editor(project, f'{BASE_URI}domain/{kind}', idx, None, None, None, idx)
+                # Add ID Values
+                value_editor(project, f'{BASE_URI}domain/{kind}/id', f'{Label} ({Description}) [mathmoddb]', f"mathmoddb:{Id}", None, None, idx)
 
     return
+
+def get_crossref_data(doi):
+    return requests.get(f'{crossref_api}{doi}')
+
+def get_datacite_data(doi):
+    return requests.get(f'{datacite_api}{doi}')
+
+def get_doi_data(doi):
+    return requests.get(f'{doi_api}{doi}', headers={"accept": "application/json"})
+
+def get_zbmath_data(doi):
+    return requests.get(f'https://api.zbmath.org/v1/document/_structured_search?page=0&results_per_page=100&external%20id={doi}')
+
+def get_orcids(doi):
+    return requests.get(f'https://pub.orcid.org/v3.0/search/?q=doi-self:{doi}', headers={'Accept': 'application/json'})
+
+def get_author_by_orcid(orcid_id):
+    return requests.get(f'https://pub.orcid.org/v3.0/{orcid_id}/personal-details', headers={'Accept': 'application/json'})
+
+def assign_orcid(publication, source, id='orcid'):
+    for author in publication[source].authors:
+        if not author.orcid_id:
+            for id_author in publication[id].values():
+                if author.label == id_author.label:
+                    author.orcid_id = id_author.orcid_id
+
+def assign_id(entities, target, prefix):
+    for entity in entities:
+        if not entity.id:
+            for id_entity in target.values():
+                if entity.label == id_entity.label:
+                    entity.id = f"{prefix}:{id_entity.id}"
+                    entity.label = id_entity.label
+                    entity.description = id_entity.description
+
+def extract_authors(data):
+    authors = {}
+    if data:
+        for idx, entry in enumerate(data[0].get('authorInfos', {}).get('value', '').split(" | ")):
+            if entry:
+                authors[idx] = Author.from_query(entry)
+    return authors
+
+def extract_journals(data):
+    journals = {}
+    if data:
+        for idx, entry in enumerate(data[0].get('journalInfos', {}).get('value', '').split(" | ")):
+            if entry:
+                journals[idx] = Journal.from_query(entry)
+    return journals
+
+def additional_queries(publication, choice, key, mardi_parameter, wikidata_parameter, function):
+    '''Additional MaRDI Portal and Wikidata SPARQL Queries instance like authors or journals'''
+    mardi_query = queryPublication[key].format(*mardi_parameter)
+    wikidata_query = queryPublication[key].format(*wikidata_parameter)
+    # Get Journal Information from MaRDI Portal / Wikidata
+    results = query_sparql_pool({'wikidata':(wikidata_query, wikidata_endpoint), 'mardi':(mardi_query, mardi_endpoint)})
+    mardi_info = function(results['mardi'])
+    wikidata_info = function(results['wikidata'])
+    # Add (missing) MaRDI Portal / Wikidata IDs to authors
+    assign_id(getattr(publication[choice],key), mardi_info, 'mardi')
+    assign_id(getattr(publication[choice],key), wikidata_info, 'wikidata')
+
+def index_check(instance,key,uri):
+    '''Get value with similar index as instance value'''
+    index_value = ''
+    values = instance.project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
+    for value in values:
+        if value.set_index == instance.set_index:
+            index_value = getattr(value,key)
+            break
+    return index_value

@@ -18,31 +18,6 @@ def ModelRetriever(answers,mathmoddb):
     for key in answers['Task']:
         answers['Task'][key].update({'Include':False})
  
-    # Get MathModID of all selected Entities
-    #for className in ['ResearchField', 'ResearchProblem', 'Task', 'MathematicalFormulation', 'MathematicalModel', 'Quantity']:
-    #    mathmodidToKey[className] = {answers[className][key].get('ID').split(':')[1]: key for key in answers[className]}
-
-    # Get additional Publication Information from MathModDB
-
-    #tClass = 'PublicationModel'
-    #
-    #search_string = searchGenerator(answers,['ResearchField','ResearchProblem','MathematicalModel','Quantity','Task'])
-    #results = query_sparql(queryModelDocumentation[tClass].format(search_string))
-    #
-    #for result in results:
-    #    # Get MathModID and Class of queries entity
-    #    mathmodid, qClass = result['Item']['value'].split(' >|< ')
-    #
-    #    t = mathmodid.split('#')
-    #    if len(t) == 2:
-    #        mathmodid = t[1]
-#
-    #    # Queried entity in Selection?
-    #    if mathmodid in mathmodidToKey[qClass]:
-    #        key = mathmodidToKey[qClass][mathmodid]
-    #        for relation in publicationRelations:
-    #            assignComplexEntityRelations(qClass, tClass, relation, ['P2E','EntityRelatant'], result, key, answers, mathmoddb, inversePropertyMapping)
-
     # Research Field to Research Field Relations
     entityRelations(answers,'ResearchField','ResearchField','IntraClassRelation','IntraClassElement','RelationRF1','RF')
     
@@ -175,7 +150,6 @@ def ModelRetriever(answers,mathmoddb):
     for key in answers.get('Quantity',[]):
         for key2 in answers['MathematicalFormulation']:
             if answers['MathematicalFormulation'][key2].get('DefinedQuantity'):
-                print(answers['MathematicalFormulation'][key2].get('DefinedQuantity'))
                 Id,label = answers['MathematicalFormulation'][key2]['DefinedQuantity'].split(' <|> ')[:2]
                 if label == answers['Quantity'][key]['Name']:
                     answers['Quantity'][key].update({'MDef':answers['MathematicalFormulation'][key2]})
@@ -190,15 +164,17 @@ def ModelRetriever(answers,mathmoddb):
     entityRelations(answers,'Task','Task','IntraClassRelation','IntraClassElement','RelationT','T')
 
     # Add Entities to Publication Relations
-    for key in answers['PublicationModel']:
-        for key2 in answers['PublicationModel'][key].get('P2E',{}):
-            Id,label,kind,abbr = answers['PublicationModel'][key]['EntityRelatant'][key2].split(' <|> ')
-            for idx, k in enumerate(answers[kind]):
-                if label == answers[kind][k]['Name']:
-                    answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['P2E'][key2],f"{abbr}{str(idx+1)}"]})
-            if not answers['PublicationModel'][key].get('RelationP',{}).get(key2):
-                answers['PublicationModel'][key].setdefault('RelationP',{}).update({key2:[answers['PublicationModel'][key]['P2E'][key2],Id]})
-    
+    for key in answers['Publication']:
+        for key2 in answers['Publication'][key].get('P2E',{}):
+            found = False
+            _,label = answers['Publication'][key]['EntityRelatant'][key2].split(' <|> ')
+            for kind in [['ResearchField','RF'], ['ResearchProblem','RP'],['MathematicalModel','MM'], ['Quantity','QQK'], ['MathematicalFormulation','MF'], ['Task','T']]:
+                for idx, k in enumerate(answers[kind[0]]):
+                    if label == answers[kind[0]][k]['Name']:
+                        answers['Publication'][key].setdefault('RelationP',{}).update({key2:[answers['Publication'][key]['P2E'][key2],f"{kind[1]}{str(idx+1)}"]})
+                        found = True
+                        break
+
     return answers
 
 def entityRelations(data, fromIDX, toIDX, relationOld, entityOld, relationNew, enc, no=2):
@@ -223,101 +199,4 @@ def entityRelations(data, fromIDX, toIDX, relationOld, entityOld, relationNew, e
                     else:
                         if [data[fromIDX][key][relationOld][key2], Id, Id] not in data[fromIDX][key].get(relationNew,{}).values():
                             data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], Id, Id]})
-    return
-
-def searchGenerator(data, class_list):
-    """
-    Generates a search string for SPARQL queries.
-
-    Parameters:
-        data (dict): The data structure containing relevant information.
-        class_list (list): The list of keys to look up in the data.
-
-    Returns:
-        str: The generated search string.
-    """
-    search_string = ""
-
-    for key in class_list:
-        for key2 in data[key]:
-            math_mod_id = data[key][key2].get('ID')
-            if math_mod_id and math_mod_id != 'not found':
-                search_string += f" :{math_mod_id.split(':')[1]}"
-    
-    return search_string
-
-def assignComplexEntityRelations(qClass, tClass, qrel, trel_values, r, key, answers, mathmoddb=None, inversePropertyMapping=None):
-
-    # Retrieve values for the current kind of class
-    values1 = r.get(qrel, {}).get('value')
-
-    if not values1:
-        return  # Exit if values are missing
-
-    # Split values into a list of entities
-    entities = values1.split(' <|> ')
-
-    # Existing entries in the target class
-    existing_entries = {v.get('MathModID'): k for k, v in answers[tClass].items()}
-
-    if tClass == 'PublicationModel':
-        current = f"{answers[qClass][key]['ID']} <|> {answers[qClass][key]['Name']} <|> {qClass} <|> {''.join(filter(str.isupper, qClass))}"
-    else:
-        current = f"{answers[qClass][key]['ID']} <|> {answers[qClass][key]['Name']}"
-
-    # Track the next available key in the target class
-    next_available_key = max(answers[tClass].keys(), default=-1) + 1
-
-    for idx, entity in enumerate(entities):
-
-        # Get Id and label of the entity
-        entitySplit = entity.split(' >|< ')
-
-        # Update qrel in source entity if not present
-        if f"{entitySplit[0]} <|> {entitySplit[1]}" not in answers[qClass][key].setdefault(qrel, {}).values():
-            answers[qClass][key][qrel].update({f"{qrel}{idx}": f"{entitySplit[0]} <|> {entitySplit[1]}"})
-
-        if entitySplit[0] in existing_entries:
-            tkey = existing_entries[entitySplit[0]]
-
-            if len(trel_values) == 2:
-                # Check if New relation pair is not already present
-                newPair = (inversePropertyMapping[mathmoddb[qrel]], current)
-                existingPairs = set(zip(answers[tClass][tkey].setdefault(trel_values[0], {}).values(), answers[tClass][tkey].setdefault(trel_values[1], {}).values()))
-
-            if len(trel_values) != 2 or newPair not in existingPairs:
-                # Update relations in target class entity
-                for i, trel in enumerate(trel_values):
-                    if i == len(trel_values) - 1: 
-                        # Related Element
-                        new_inner_key = max(answers[tClass][tkey].setdefault(trel, {}).keys(), default=-1) + 1
-                        answers[tClass][tkey][trel][new_inner_key] = current
-                    else:
-                        # Relation Kind
-                        if mathmoddb and inversePropertyMapping:
-                            new_inner_key = max(answers[tClass][tkey].setdefault(trel, {}).keys(), default=-1) + 1
-                            answers[tClass][tkey][trel].update({
-                                new_inner_key: inversePropertyMapping[mathmoddb[qrel]]
-                            })
-        else:
-            # Add a new entity entry if it does not exist
-            if tClass == 'Quantity':
-                answers[tClass][next_available_key] = {'MathModID': entitySplit[0], 'Name': entitySplit[1], 'QorQK': mathmoddb[f'{entitySplit[2]}Class']}
-            elif tClass == 'ResearchField':
-                answers[tClass][next_available_key] = {'MathModID': entitySplit[0], 'Name': entitySplit[1], 'Description': entitySplit[2]}
-            else:
-                answers[tClass][next_available_key] = {'MathModID': entitySplit[0], 'Name': entitySplit[1]}
-            for i, trel in enumerate(trel_values):
-                if i == len(trel_values) - 1:  # Check if it's the last trel value
-                    answers[tClass][next_available_key].setdefault(trel, {}).update({0: current})
-                else:
-                    if mathmoddb and inversePropertyMapping:
-                        answers[tClass][next_available_key].setdefault(trel, {}).update({
-                            0: inversePropertyMapping[mathmoddb[qrel]]
-                        })
-
-            # Update existing entries map with the new entity
-            existing_entries[entitySplit[0]] = next_available_key
-            next_available_key += 1  # Increment the next available key
-
     return
