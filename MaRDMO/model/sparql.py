@@ -1,870 +1,20 @@
-from .config import wd, wdt 
-
-#SPARQL Query Base and components for Workflow Search
-
-query_base="""
-PREFIX wdt: """+wdt+"""
-PREFIX wd: """+wd+"""
-SELECT DISTINCT ?label ?qid
-WHERE {{
-?workflow wdt:P{0} wd:{1};
-          rdfs:label ?label;
-          {2}
-          {3}
-          {4}
-{5}
-BIND(STRAFTER(STR(?workflow),STR(wd:)) AS ?qid).
-}}
-LIMIT 10"""
-
-quote_sparql = "schema:description ?quote;"
-res_obj_sparql = "FILTER(CONTAINS(lcase(str(?quote)), '{}'@en)).\n"
-res_disc_sparql = "wdt:P{0} wd:{1};\n"
-mmsio_sparql = "wdt:P{0} wd:{1};\n"
-
-#SPARQL Query parts
-
-mbody = '''
-OPTIONAL{{?chk rdfs:label '{0}'@en;schema:description '{1}'@en.BIND(STRAFTER(STR(?chk),STR(wd:)) AS ?qid).}}
-'''
-
-mbody2 = '''
-OPTIONAL{{?chk rdfs:label '{0}'@en;schema:description '{1}'@en.BIND(STRAFTER(STR(?chk),STR(wd:)) AS ?qid).}}
-OPTIONAL{{?chk wdt:P{2} ?author.}}
-OPTIONAL{{?author wdt:P{3} ?orcid.}}
-OPTIONAL{{?author wdt:P{4} ?zbmath.}}
-'''
-
-
-
-wini='''
-SELECT {0}
-WHERE
-{{
-{1}
-}}
-LIMIT {2}'''
-
-mini='''
-PREFIX wdt:'''+wdt+''' PREFIX wd:'''+wd+wini
-
-#SPARQL Query for additional entities
-
-pl_vars = '?qid ?label ?quote'
-
-pl_query = '''
-OPTIONAL{{wd:{0} wdt:{1} ?pl. ?pl rdfs:label ?label; schema:description ?quote.BIND(STRAFTER(STR(?pl),STR(wd:)) AS ?qid).FILTER (lang(?label) = 'en').FILTER (lang(?quote) = 'en').}}
-'''
-
-pro_vars = '?qid ?label ?quote'
-
-pro_query = '''
-OPTIONAL{{?pro wdt:{0} '{1}'. ?pro rdfs:label ?label; schema:description ?quote.BIND(STRAFTER(STR(?pro),STR(wd:)) AS ?qid).FILTER (lang(?label) = 'en').FILTER (lang(?quote) = 'en').}}
-'''
-
-
-#Queries to MaRDI KG and Wikidata for Publication Handler
-
-queryPublication = {
-    
-       'All_MaRDI': '''PREFIX wdt:{15} PREFIX wd:{16}"
-                        SELECT ?id ?label ?description         
-                        (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" | ") AS ?authorInfos)                                                        
-                        ?entrytypelabel ?journalInfo ?languagelabel                               
-                        ?title ?date ?volume ?issue ?page          
-
-                 WHERE {{?idraw wdt:P{0} "{1}";
-                        BIND(CONCAT("mardi:", STRAFTER(STR(?idraw), STR(wd:))) AS ?id)
-                        
-                        OPTIONAL {{?idraw rdfs:label ?labelraw.
-                                  FILTER (lang(?labelraw) = 'en')}}
-                        BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
-                        
-                        OPTIONAL {{?idraw schema:description ?descriptionraw.
-                                  FILTER (lang(?descriptionraw) = 'en')}}
-                        BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
-                        
-                        OPTIONAL {{?idraw (wdt:P{2} | wdt:P{8}) ?authorraw.
-                                  BIND(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("mardi:", STRAFTER(STR(?authorraw), STR(wd:))), "") AS ?author)
-     
-                                  OPTIONAL {{?authorraw rdfs:label ?authorlabelraw.
-                                            FILTER (lang(?authorlabelraw) = 'en')}}
-                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authorlabelraw, ?authorraw), "") AS ?authorlabel)
-   
-                                  OPTIONAL {{?authorraw schema:description ?authordescriptionraw.
-                                            FILTER (lang(?authordescriptionraw) = 'en')}}
-                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authordescriptionraw, ""), "") AS ?authordescription)
-   
-                                  OPTIONAL {{?authorraw wdt:P{3} ?authororcidraw.}}
-                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authororcidraw, ""), "") AS ?authororcid)
-                          
-                                  OPTIONAL {{?authorraw wdt:P{13} ?authorwikidataidraw}}
-                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("wikidata:", STRAFTER(STR(?authorwikidataidraw), STR(wd:))), ""), "") AS ?authorwikidataid)
-   
-                                  OPTIONAL {{?authorraw wdt:P{14} ?authorzbmathidraw.}}
-                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authorzbmathidraw, ""), "") AS ?authorzbmathid)
-     
-                                  BIND(CONCAT(?author, " <|> ", ?authorlabel, " <|> ", ?authordescription, " <|> ", ?authororcid, " <|> ", ?authorzbmathid, " <|> ", ?authorwikidataid) AS ?authorInfo)}}
-   
-                        OPTIONAL {{?idraw wdt:P{4} ?entrytyperaw.
-                                  
-                                   OPTIONAL {{?entrytyperaw rdfs:label ?entrytypelabelraw.
-                                            FILTER (lang(?entrytypelabelraw) = 'en')}}
-                                   BIND(COALESCE(?entrytypelabelraw, "No Label Provided!") As ?entrytypelabel)
-                                  }}
-                        
-                        OPTIONAL {{?idraw wdt:P{5} ?journalraw.
-                                  BIND(CONCAT("mardi:", STRAFTER(STR(?journalraw), STR(wd:))) AS ?journal)
-                                  
-                                  OPTIONAL {{?journalraw rdfs:label ?journallabelraw.
-                                            FILTER (lang(?journallabelraw) = 'en')}}
-                                  BIND(COALESCE(?journallabelraw, "No Label Provided!") As ?journallabel)
-                                  
-                                  OPTIONAL {{?journalraw schema:description ?journaldescriptionraw.
-                                            FILTER (lang(?journaldescriptionraw) = 'en')}}
-                                  BIND(COALESCE(?journaldescriptionraw, "No Description Provided!") As ?journaldescription)
-                                  
-                                  BIND(concat(?journal, " <|> ", ?journallabel, " <|> ", ?journaldescription) AS ?journalInfo)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{6} ?languageraw.
-                                   
-                                   OPTIONAL {{?languageraw rdfs:label ?languagelabelraw.
-                                              FILTER (lang(?languagelabelraw) = 'en')}}
-                                   BIND(COALESCE(?languagelabelraw, "No Label Provided!") As ?languagelabel)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{7} ?titleraw.
-                                   BIND(COALESCE(?titleraw, "No Title Provided!") As ?title)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{9} ?dateraw.
-                                   BIND(COALESCE(?dateraw, "No Publication Date Provided!") As ?date)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{10} ?volumeraw.
-                                   BIND(COALESCE(?volumeraw, "No Volume Provided!") As ?volume)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{11} ?issueraw.
-                                   BIND(COALESCE(?issueraw, "No Issue Provided!") As ?issue)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{12} ?pageraw.
-                                   BIND(COALESCE(?pageraw, "No Pages Provided!") As ?page)}}
-                        }}
-   
-                 GROUP BY ?id ?label ?description ?entrytypelabel ?journalInfo ?languagelabel ?title ?date ?volume ?issue ?page ''',
-
-       'All_Wikidata': '''SELECT ?id ?label ?description         
-                        (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" | ") AS ?authorInfos)                                                        
-                        ?entrytypelabel ?journalInfo ?languagelabel                               
-                        ?title ?date ?volume ?issue ?page          
-
-                 WHERE {{?idraw wdt:P{0} "{1}";
-                        BIND(CONCAT("wikidata:", STRAFTER(STR(?idraw), STR(wd:))) AS ?id)
-
-                        OPTIONAL {{?idraw rdfs:label ?labelraw.
-                                  FILTER (lang(?labelraw) = 'en')}}
-                        BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
-                        
-                        OPTIONAL {{?idraw schema:description ?descriptionraw.
-                                  FILTER (lang(?descriptionraw) = 'en')}}
-                        BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
-                        
-                        OPTIONAL {{?idraw (wdt:P{2} | wdt:P{8}) ?authorraw.
-                                  BIND(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("wikidata:", STRAFTER(STR(?authorraw), STR(wd:))), "") AS ?author)
-     
-                                  OPTIONAL {{?authorraw rdfs:label ?authorlabelraw.
-                                            FILTER (lang(?authorlabelraw) = 'en')}}
-                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authorlabelraw, ?authorraw), "") AS ?authorlabel)
-   
-                                  OPTIONAL {{?authorraw schema:description ?authordescriptionraw.
-                                            FILTER (lang(?authordescriptionraw) = 'en')}}
-                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authordescriptionraw, ""), "") AS ?authordescription)
-   
-                                  OPTIONAL {{?authorraw wdt:P{3} ?authororcidraw.}}
-                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authororcidraw, ""), "") AS ?authororcid)
-                          
-                                  OPTIONAL {{?authorraw wdt:P{13} ?authorwikidataidraw}}
-                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("wikidata:", STRAFTER(STR(?authorwikidataidraw), STR(wd:))), ""), "") AS ?authorwikidataid)
-   
-                                  OPTIONAL {{?authorraw wdt:P{14} ?authorzbmathidraw.}}
-                                  BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authorzbmathidraw, ""), "") AS ?authorzbmathid)
-     
-                                  BIND(CONCAT(?author, " <|> ", ?authorlabel, " <|> ", ?authordescription, " <|> ", ?authororcid, " <|> ", ?authorzbmathid, " <|> ", ?authorwikidataid) AS ?authorInfo)}}
-   
-                        OPTIONAL {{?idraw wdt:P{4} ?entrytyperaw.
-                                  
-                                   OPTIONAL {{?entrytyperaw rdfs:label ?entrytypelabelraw.
-                                            FILTER (lang(?entrytypelabelraw) = 'en')}}
-                                   BIND(COALESCE(?entrytypelabelraw, "No Label Provided!") As ?entrytypelabel)
-                                  }}
-                        
-                        OPTIONAL {{?idraw wdt:P{5} ?journalraw.
-                                  BIND(CONCAT("wikidata:", STRAFTER(STR(?journalraw), STR(wd:))) AS ?journal)
-                                  
-                                  OPTIONAL {{?journalraw rdfs:label ?journallabelraw.
-                                            FILTER (lang(?journallabelraw) = 'en')}}
-                                  BIND(COALESCE(?journallabelraw, "No Label Provided!") As ?journallabel)
-                                  
-                                  OPTIONAL {{?journalraw schema:description ?journaldescriptionraw.
-                                            FILTER (lang(?journaldescriptionraw) = 'en')}}
-                                  BIND(COALESCE(?journaldescriptionraw, "No Description Provided!") As ?journaldescription)
-                                  
-                                  BIND(concat(?journal, " <|> ", ?journallabel, " <|> ", ?journaldescription) AS ?journalInfo)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{6} ?languageraw.
-                                   
-                                   OPTIONAL {{?languageraw rdfs:label ?languagelabelraw.
-                                              FILTER (lang(?languagelabelraw) = 'en')}}
-                                   BIND(COALESCE(?languagelabelraw, "No Label Provided!") As ?languagelabel)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{7} ?titleraw.
-                                   BIND(COALESCE(?titleraw, "No Title Provided!") As ?title)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{9} ?dateraw.
-                                   BIND(COALESCE(?dateraw, "No Publication Date Provided!") As ?date)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{10} ?volumeraw.
-                                   BIND(COALESCE(?volumeraw, "No Volume Provided!") As ?volume)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{11} ?issueraw.
-                                   BIND(COALESCE(?issueraw, "No Issue Provided!") As ?issue)}}
-                        
-                        OPTIONAL {{?idraw wdt:P{12} ?pageraw.
-                                   BIND(COALESCE(?pageraw, "No Pages Provided!") As ?page)}}
-                        }}
-   
-                 GROUP BY ?id ?label ?description ?entrytypelabel ?journalInfo ?languagelabel ?title ?date ?volume ?issue ?page ''',
-
-       'WikiCheck': '''# Query for MaRDI portal                                              
-
-             SELECT  ?publicationQid ?publicationLabel ?publicationDescription1                                               
-             
-             WHERE {{
-                     # Publication via Wikidata QID
-
-                     ?publication wdt:P{0} "{1}";
-                             rdfs:label ?publicationLabel.
-                     OPTIONAL {{?publication schema:description ?publicationDescription.}}
-
-                     BIND(COALESCE(?publicationDescription, "") As ?publicationDescription1)
-                     BIND(STRAFTER(STR(?publication),STR(wd:)) AS ?publicationQid).
-                   
-                   }}''',
-
-
-       'authors': '''SELECT (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" | ") AS ?authorInfos)
-                          WHERE {{
-                            {{
-                              ?authorraw wdt:P{2} ?orcid .
-                              BIND(STRAFTER(STR(?authorraw), STR(wd:)) AS ?author)
-                              VALUES ?orcid {{{0}}}
-                            }}
-                            UNION
-                            {{
-                              ?authorraw wdt:P{3} ?zbmathid .
-                              BIND(STRAFTER(STR(?authorraw), STR(wd:)) AS ?author)
-                              VALUES ?zbmathid {{{1}}}
-                            }}
-
-                            OPTIONAL {{?authorraw rdfs:label ?labelraw.
-                                       FILTER (lang(?labelraw) = 'en')}}
-                            BIND(COALESCE(?labelraw, "") AS ?label)
-
-                            OPTIONAL {{?authorraw schema:description ?descriptionraw.
-                                       FILTER (lang(?descriptionraw) = 'en')}}
-                            BIND(COALESCE(?descriptionraw, "") AS ?description)
-
-                            OPTIONAL {{?authorraw wdt:P{4} ?wikidataidraw}}
-                            BIND(COALESCE(?wikidataidraw, "") AS ?wikidataid)
-                            
-                            OPTIONAL {{?authorraw wdt:P{2} ?ORCIDRAW}}
-                            BIND(COALESCE(?ORCIDRAW, "") AS ?ORCID)
-                            
-                            OPTIONAL {{?authorraw wdt:P{3} ?ZBMATHIDRAW}}
-                            BIND(COALESCE(?ZBMATHIDRAW, "") AS ?ZBMATHID)
-
-                            BIND(CONCAT(?author, " <|> ", ?label, " <|> ", ?description, " <|> ", ?ORCID, " <|> ", ?ZBMATHID, " <|> ", ?wikidataid) AS ?authorInfo)
-
-                            }}''',
-
-       'journal': '''SELECT ?journalInfos
-                           WHERE {{
-                               
-                               ?journalraw wdt:P{1} "{0}".
-                               BIND(STRAFTER(STR(?journalraw),STR(wd:)) AS ?journal).
-                               
-                               OPTIONAL {{?journalraw rdfs:label ?journallabelraw.
-                                         FILTER (lang(?journallabelraw) = 'en')}}
-                               BIND(COALESCE(?journallabelraw, "No Label Provided!") As ?journallabel)
-                               
-                               OPTIONAL {{?journalraw schema:description ?journaldescriptionraw.
-                                         FILTER (lang(?journaldescriptionraw) = 'en')}}
-                               BIND(COALESCE(?journaldescriptionraw, "No Description Provided!") As ?journaldescription)
-                               
-                               BIND(concat(?journal, " <|> ", ?journallabel, " <|> ", ?journaldescription) AS ?journalInfos)
- 
-                             }}''',
-
-       'AuthorViaWikidataQID': '''SELECT ?wikidataQid ?mardiQid ?authorLabel ?authorDescription         # Author of Publication via Wikidata QID
-
-             WHERE {{
-
-                     VALUES ?wikidataQid {{{0}}}
-
-                     OPTIONAL {{
-                                # Author via Wikidata QID
-                                ?author wdt:P{1} ?wikidataQid
-                                BIND(STRAFTER(STR(?author),STR(wd:)) AS ?mardiQid)
-                              }}
-
-                     SERVICE wikibase:label {{bd:serviceParam wikibase:language "en,en".}}
-
-                   }}''',
-                   
-       'PublicationMathModDB': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-                                  SELECT DISTINCT ?id ?label ?description
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?documentsentity, " | ", ?documentsentitylabel, " | ", ?documentsentitydescription)); SEPARATOR=" / ") AS ?documents)
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?inventsentity, " | ", ?inventsentitylabel, " | ", ?inventsentitydescription)); SEPARATOR=" / ") AS ?invents)
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?studiesentity, " | ", ?studiesentitylabel, " | ", ?studiesentitydescription)); SEPARATOR=" / ") AS ?studies)
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?surveysentity, " | ", ?surveysentitylabel, " | ", ?surveysentitydescription)); SEPARATOR=" / ") AS ?surveys)
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?usesentity, " | ", ?usesentitylabel, " | ", ?usesentitydescription)); SEPARATOR=" / ") AS ?uses)
-                                                                                    
-                                  WHERE {{
-                                          ?idraw :doiID <https://doi.org/{0}> .
-                                          BIND(CONCAT("mathmoddb:", STRAFTER(STR(?idraw), "#")) AS ?id)
-                                          ?idraw a :Publication.
-
-                                          OPTIONAL {{?idraw rdfs:label ?labelraw.
-                                                     FILTER (lang(?labelraw) = 'en')}}
-                                          BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
-
-                                          OPTIONAL {{?idraw rdfs:comment ?descriptionraw.
-                                                     FILTER (lang(?descriptionraw) = 'en')}}
-                                          BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
-
-                                          OPTIONAL {{?idraw :documents ?docuemntsentityraw.
-                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?documentsentityraw), "#")) AS ?documentsentity)
-
-                                                     OPTIONAL {{?docuemntsentityraw rdfs:label ?documentsentitylabelraw.
-                                                                FILTER (lang(?documentsentitylabelraw) = 'en')}}
-                                                     BIND(COALESCE(?documentsentitylabelraw, "No Label Provided!") As ?documentsentitylabel)
-
-                                                     OPTIONAL {{?docuemntsentityraw rdfs:comment ?docuemntsentitydescriptionraw.
-                                                                FILTER (lang(?docuemntsentitydescriptionraw) = 'en')}}
-                                                     BIND(COALESCE(?docuemntsentitydescriptionraw, "No Description Provided!") As ?docuemntsentitydescription)
-                                                   }}
-
-                                          OPTIONAL {{?idraw :invents ?inventsentityraw.
-                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?inventsentityraw), "#")) AS ?inventsentity)
-
-                                                     OPTIONAL {{?inventsentityraw rdfs:label ?inventsentitylabelraw.
-                                                                FILTER (lang(?inventsentitylabelraw) = 'en')}}
-                                                     BIND(COALESCE(?inventsentitylabelraw, "No Label Provided!") As ?inventsentitylabel)
-
-                                                     OPTIONAL {{?inventsentityraw rdfs:comment ?inventsentitydescriptionraw.
-                                                                FILTER (lang(?inventsentitydescriptionraw) = 'en')}}
-                                                     BIND(COALESCE(?inventsentitydescriptionraw, "No Description Provided!") As ?inventsentitydescription)
-                                                   }}
-
-                                          OPTIONAL {{?idraw :studies ?studiesentityraw.
-                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?studiesentityraw), "#")) AS ?studiesentity)
-
-                                                     OPTIONAL {{?studiesentityraw rdfs:label ?studiesentitylabelraw.
-                                                                FILTER (lang(?studiesentitylabelraw) = 'en')}}
-                                                     BIND(COALESCE(?studiesentitylabelraw, "No Label Provided!") As ?studiesentitylabel)
-
-                                                     OPTIONAL {{?studiesentityraw rdfs:comment ?studiesentitydescriptionraw.
-                                                                FILTER (lang(?studiesentitydescriptionraw) = 'en')}}
-                                                     BIND(COALESCE(?studiesentitydescriptionraw, "No Description Provided!") As ?studiesentitydescription)
-                                                   }}
-
-                                          OPTIONAL {{?idraw :surveys ?surveysentityraw.
-                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?surveysentityraw), "#")) AS ?surveysentity)
-
-                                                     OPTIONAL {{?surveysentityraw rdfs:label ?surveysentitylabelraw.
-                                                                FILTER (lang(?surveysentitylabelraw) = 'en')}}
-                                                     BIND(COALESCE(?surveysentitylabelraw, "No Label Provided!") As ?surveysentitylabel)
-
-                                                     OPTIONAL {{?surveysentityraw rdfs:comment ?surveysentitydescriptionraw.
-                                                                FILTER (lang(?surveysentitydescriptionraw) = 'en')}}
-                                                     BIND(COALESCE(?surveysentitydescriptionraw, "No Description Provided!") As ?surveysentitydescription)
-                                                   }}
-
-                                          OPTIONAL {{?idraw :uses ?usesentityraw.
-                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?usesentityraw), "#")) AS ?usesentity)
-
-                                                     OPTIONAL {{?usesentityraw rdfs:label ?usesentitylabelraw.
-                                                                FILTER (lang(?usesentitylabelraw) = 'en')}}
-                                                     BIND(COALESCE(?usesentitylabelraw, "No Label Provided!") As ?usesentitylabel)
-
-                                                     OPTIONAL {{?usesentityraw rdfs:comment ?usesentitydescriptionraw.
-                                                                FILTER (lang(?usesentitydescriptionraw) = 'en')}}
-                                                     BIND(COALESCE(?usesentitydescriptionraw, "No Description Provided!") As ?usesentitydescription)
-                                                   }}
-
-                                        }}
-                                  GROUP BY ?id ?label ?description''',
-
-       'PublicationMathAlgoDB': '''PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1#>
-                                   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                                   PREFIX dc: <http://purl.org/spar/datacite/>
-                                   
-                                   SELECT DISTINCT ?id ?label ?description
-                                   WHERE {{
-                                       ?idraw dc:hasIdentifier ?identifier .
-                                       BIND(CONCAT("mathalgodb:", STRAFTER(STR(?idraw), "#")) AS ?id)
-                                       ?idraw a :publication .
-                                       
-                                       OPTIONAL {{?idraw rdfs:label ?labelraw.}}
-                                       BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
-
-                                       OPTIONAL {{?idraw rdfs:comment ?descriptionraw.}}
-                                       BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
-
-                                       FILTER(LCASE(?identifier) = LCASE("doi:{0}"))
-                                   }}
-                                   GROUP BY ?id ?label ?description'''
-                                          }
-                                   
-### SPARQL queries to get additional information from MathModDB during export
-
 queryModelDocumentation = {
     
                   'IDCheck': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                                SELECT ?ID ?qC                   
+                                SELECT ?ID ?quote                   
                                 WHERE {{
-                                        ?ID rdfs:label {0}@en.
-                                        ?ID a ?qC.
-                                        FILTER (?qC IN (:ResearchField, :ResearchProblem, :MathematicalModel, :MathematicalFormulation, :Quantity, :QuantityKind, :ComputationalTask, :Publication))
+                                        ?idraw rdfs:label {0}@en.
+                                        BIND(STRAFTER(STR(?idraw), "#") AS ?ID)
+                                        OPTIONAL {{?idraw rdfs:comment ?quoteraw.
+                                                   FILTER (lang(?quoteraw) = 'en')}}
+                                        BIND(COALESCE(?quoteraw, "No Description Provided!") AS ?quote)
                                       }}
-                                      GROUP BY ?ID ?qC''',
-
-                  'Quantity': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                            
-                            SELECT ?Quantity ?qlabel ?qquote ?qk ?qklabel ?qkquote ?label ?quote ?isLinear ?isNotLinear ?isDimensionless ?isDimensional
-                            WHERE {{
-                              VALUES ?Quantity {{{0}}}
-                              # Handle Quantities
-                              OPTIONAL {{
-                                         ?Quantity a :Quantity .
-                                         ?Quantity rdfs:label ?qlabel .
-                                         FILTER (lang(?qlabel) = 'en')
+                                      GROUP BY ?ID ?quote''',
+}
     
-                                         OPTIONAL {{ ?Quantity rdfs:comment ?qquote . FILTER (lang(?qquote) = 'en') }}
-                                         OPTIONAL {{ ?Quantity :isLinear ?isLinear . BIND(IF(?isLinear = false, true, false) AS ?isNotLinear) }}
-                                         OPTIONAL {{ ?Quantity :isDimensionless ?isDimensionless . BIND(IF(?isDimensionless = false, true, false) AS ?isDimensional) }}
 
-                                         # Match QuantityKind with zero to n intermediates
-                                         OPTIONAL {{ 
-                                                    ?Quantity (:generalizesQuantity|:generalizedByQuantity|:similarToQuantity)* ?intermediate .
-                                                    ?intermediate a :Quantity .
-                                                    ?intermediate (:generalizedByQuantity|:similarToQuantity) ?qk .
-                                                    ?qk a :QuantityKind .
-                                                    ?qk rdfs:label ?qklabel .
-                                                    FILTER (lang(?qklabel) = 'en')
-      
-                                                    # Optional comment for QuantityKind
-                                                    OPTIONAL {{ ?qk rdfs:comment ?qkquote . FILTER (lang(?qkquote) = 'en') }}
-                                                  }}
-    
-                                         BIND(?qlabel AS ?label)
-                                         BIND(?qquote AS ?quote)
-                                       }}
-                            
-                              # Handle QuantityKinds
-                              OPTIONAL {{
-                                ?Quantity a :QuantityKind .
-                                ?Quantity rdfs:label ?qklabel .
-                                FILTER (lang(?qklabel) = 'en')
-                                
-                                OPTIONAL {{ ?Quantity rdfs:comment ?qkquote . FILTER (lang(?qkquote) = 'en') }}
-                                OPTIONAL {{ ?Quantity :isDimensionless ?isDimensionless . BIND(IF(?isDimensionless = false, true, false) AS ?isDimensional) }}
-                                BIND(IF(BOUND(?qlabel), ?qlabel, ?qklabel) AS ?label)
-                                BIND(IF(BOUND(?qquote), ?qquote, ?qkquote) AS ?quote)
-                              }}
-
-                           }}
-                            GROUP BY ?Quantity ?qlabel ?qquote ?qk ?qklabel ?qkquote ?label ?quote ?isLinear ?isNotLinear ?isDimensionless ?isDimensional''',
-
-                  'QuantityDefinition': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                  
-                                 SELECT ?q ?qlabel ?MathematicalFormulation ?label ?quote ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic 
-                                        ?isDimensionless ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent
-                                        (GROUP_CONCAT(DISTINCT(?elements); separator=" <|> ") AS ?formula_elements) (GROUP_CONCAT(DISTINCT(?formulas); separator=" <|> ") AS ?formula)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?qID), " >|< ", STR(?qL), " >|< ", STR(?qC))); separator=" <|> ") AS ?ContainsQuantity)
-                  
-                                 WHERE {{
-                                        
-                                        VALUES ?q {{{0}}}
-                  
-                                        ?q rdfs:label ?qlabel.
-                                        FILTER (lang(?qlabel) = 'en')
-                                        
-                                        ?q :definedBy ?MathematicalFormulation.
-                  
-                                        OPTIONAL {{ ?MathematicalFormulation rdfs:label ?label.
-                                                    FILTER (lang(?label) = 'en')}}
-                  
-                                        OPTIONAL {{ ?MathematicalFormulation rdfs:comment ?quote.
-                                                    FILTER (lang(?quote) = 'en')}}
-                  
-                                        OPTIONAL {{ ?MathematicalFormulation :isLinear ?isLinear.
-                                                    BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}}
-                                        OPTIONAL {{ ?MathematicalFormulation :isConvex ?isConvex.
-                                                    BIND(IF(?isConvex = false, true, false) AS ?isNotConvex)}}  
-                                        OPTIONAL {{ ?MathematicalFormulation :isDynamic ?isDynamic.
-                                                    BIND(IF(?isDynamic = false, true, false) AS ?isStatic)}}                             
-                                        OPTIONAL {{ ?MathematicalFormulation :isDeterministic ?isDeterministic.
-                                                    BIND(IF(?isDeterministic = false, true, false) AS ?isStochastic)}}
-                          		          OPTIONAL {{ ?MathematicalFormulation :isDimensionless ?isDimensionless.
-                                                    BIND(IF(?isDimensionless = false, true, false) AS ?isDimensional)}}
-                                        OPTIONAL {{ ?MathematicalFormulation :isTimeContinuous ?isTimeContinuous.
-                                                    BIND(IF(BOUND(?isTimeContinuous) && ?isTimeContinuous = false, true, false) AS ?isTimeDiscrete)}}
-                                                    BIND(IF(!BOUND(?isTimeContinuous), true, false) AS ?isTimeIndependent)
-                                        OPTIONAL {{ ?MathematicalFormulation :isSpaceContinuous ?isSpaceContinuous.
-                                                    BIND(IF(BOUND(?isSpaceContinuous) && ?isSpaceContinuous = false, true, false) AS ?isSpaceDiscrete)}}
-                                                    BIND(IF(!BOUND(?isSpaceContinuous), true, false) AS ?isSpaceIndependent)
-                  
-                                        OPTIONAL {{ ?MathematicalFormulation :definingFormulation ?formulas.}}
-                                        OPTIONAL {{ ?MathematicalFormulation :inDefiningFormulation ?elements.}}
-                  
-                                        OPTIONAL {{ ?MathematicalFormulation :containsQuantity ?qID.
-                                                    ?qID rdfs:label ?qL;
-                                                                a ?qc.
-                                                    FILTER (?qc IN (:Quantity, :QuantityKind))
-                                                    BIND(STRAFTER(STR(?qc), "#") AS ?qC)
-                                                    FILTER (lang(?qL) = 'en')}}
-                  
-                                        }}
-                  
-                                        GROUP BY ?q ?qlabel ?MathematicalFormulation ?label ?quote ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic 
-                                                 ?isDimensionless ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent''',
-                                    
-                  'Task': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                  
-                                 SELECT ?Task ?subclass ?quote ?isLinear ?isNotLinear
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?mm), " >|< ", STR(?mmL))); separator=" <|> ") AS ?appliesModel)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?f), " >|< ", STR(?fL))); separator=" <|> ") AS ?containsFormulation)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?a), " >|< ", STR(?aL))); separator=" <|> ") AS ?containsAssumption)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?bc), " >|< ", STR(?bcL))); separator=" <|> ") AS ?containsBoundaryCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cc), " >|< ", STR(?ccL))); separator=" <|> ") AS ?containsConstraintCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cpc), " >|< ", STR(?cpcL))); separator=" <|> ") AS ?containsCouplingCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ic), " >|< ", STR(?icL))); separator=" <|> ") AS ?containsInitialCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?fc), " >|< ", STR(?fcL))); separator=" <|> ") AS ?containsFinalCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ct), " >|< ", STR(?ctL))); separator=" <|> ") AS ?containsTask)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ict), " >|< ", STR(?ictL))); separator=" <|> ") AS ?containedInTask)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?in), " >|< ", STR(?inL))); separator=" <|> ") AS ?containsInput)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?o), " >|< ", STR(?oL))); separator=" <|> ") AS ?containsOutput)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ob), " >|< ", STR(?obL))); separator=" <|> ") AS ?containsObjective)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pa), " >|< ", STR(?paL))); separator=" <|> ") AS ?containsParameter)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?co), " >|< ", STR(?coL))); separator=" <|> ") AS ?containsConstant)
-                                        
-                                 WHERE {{
-                                        VALUES ?Task {{{0}}}
-                  
-                                        OPTIONAL {{ ?sclass rdfs:subClassOf :Task.
-                                                    ?Task a ?sclass .
-                                                    BIND(STRAFTER(STR(?sclass), "#") AS ?subclass)}}
-                                        OPTIONAL {{ ?Task rdfs:comment ?quote.
-                                                    FILTER (lang(?quote) = 'en')}}
-                                        OPTIONAL {{ ?Task :isLinear ?isLinear.
-                                                    BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}}
-                                        OPTIONAL {{ ?Task :appliesModel ?mm. 
-                                                    ?mm rdfs:label ?mmL.
-                                                    FILTER (lang(?mmL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsFormulation ?f. 
-                                                    ?f rdfs:label ?fL.
-                                                    FILTER (lang(?fL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsAssumption ?a. 
-                                                    ?a rdfs:label ?aL.
-                                                    FILTER (lang(?aL) = 'en')}}
-                                       OPTIONAL {{ ?Task :containsBoundaryCondition ?bc. 
-                                                    ?bc rdfs:label ?bcL.
-                                                    FILTER (lang(?bcL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsConstraintCondition ?cc. 
-                                                    ?cc rdfs:label ?ccL.
-                                                    FILTER (lang(?ccL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsCouplingCondition ?cpc. 
-                                                    ?cpc rdfs:label ?cpcL.
-                                                    FILTER (lang(?cpcL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsInitialCondition ?ic. 
-                                                    ?ic rdfs:label ?icL.
-                                                    FILTER (lang(?icL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsFinalCondition ?fc. 
-                                                    ?fc rdfs:label ?fcL.
-                                                    FILTER (lang(?fcL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsTask ?ct. 
-                                                    ?ct rdfs:label ?ctL.
-                                                    FILTER (lang(?ctL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containedInTask ?ict. 
-                                                    ?ict rdfs:label ?ictL.
-                                                    FILTER (lang(?ictL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsInput ?in.
-                                                    ?in rdfs:label ?inL.
-                                                    FILTER (lang(?inL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsOutput ?o.
-                                                    ?o rdfs:label ?oL.   
-                                                    FILTER (lang(?oL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsObjective ?ob.
-                                                    ?ob rdfs:label ?obL.
-                                                    FILTER (lang(?obL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsParameter ?pa.
-                                                    ?pa rdfs:label ?paL.
-                                                    FILTER (lang(?paL) = 'en')}}
-                                        OPTIONAL {{ ?Task :containsConstant ?co.
-                                                    ?co rdfs:label ?coL.
-                                                    FILTER (lang(?coL) = 'en')}}
-                                       }}
-                  
-                                 GROUP BY ?Task ?subclass ?quote ?isLinear ?isNotLinear''',
-                  
-                  'IntraClass': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                  
-                                        SELECT ?t ?tc ?tC ?TC
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?t), " >|< ", STR(?TC))); separator=" <|> ") AS ?Item)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?gb), " >|< ", STR(?gbL), " >|< ", STR(?tC), " >|< ", STR(?gbC))); separator=" <|> ") AS ?generalizedBy)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?g), " >|< ", STR(?gL), " >|< ", STR(?tC), " >|< ", STR(?gC))); separator=" <|> ") AS ?generalizes)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ab), " >|< ", STR(?abL), " >|< ", STR(?tC), " >|< ", STR(?abC))); separator=" <|> ") AS ?approximatedBy)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?a), " >|< ", STR(?aL), " >|< ", STR(?tC), " >|< ", STR(?aC))); separator=" <|> ") AS ?approximates)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?db), " >|< ", STR(?dbL), " >|< ", STR(?tC), " >|< ", STR(?dbC))); separator=" <|> ") AS ?discretizedBy)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?d), " >|< ", STR(?dL), " >|< ", STR(?tC), " >|< ", STR(?dC))); separator=" <|> ") AS ?discretizes)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?lb), " >|< ", STR(?lbL), " >|< ", STR(?tC), " >|< ", STR(?lbC))); separator=" <|> ") AS ?linearizedBy)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?l), " >|< ", STR(?lL), " >|< ", STR(?tC), " >|< ", STR(?lC))); separator=" <|> ") AS ?linearizes)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?nb), " >|< ", STR(?nbL), " >|< ", STR(?tC), " >|< ", STR(?nbC))); separator=" <|> ") AS ?nondimensionalizedBy)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?n), " >|< ", STR(?nL), " >|< ", STR(?tC), " >|< ", STR(?nC))); separator=" <|> ") AS ?nondimensionalizes)
-                                               (GROUP_CONCAT(DISTINCT(CONCAT(STR(?s), " >|< ", STR(?sL), " >|< ", STR(?tC), " >|< ", STR(?sC))); separator=" <|> ") AS ?similarTo)
-                                               
-                                        WHERE {{
-                                                 VALUES ?t {{{0}}}
-                                                 ?t a ?tc.
-                                                 FILTER (?tc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind, :ResearchField, :ResearchProblem))
-                                                 BIND(STRAFTER(STR(?tc), "#") AS ?tC)
-                                                 BIND(IF(STRAFTER(STR(?tc), "#") = "ComputationalTask", "Task", IF(STRAFTER(STR(?tc), "#") = "QuantityKind", "Quantity", STRAFTER(STR(?tc), "#"))) AS ?TC)
-                                                 OPTIONAL {{ 
-                                                             ?t (:generalizedByTask | :generalizedByModel | :generalizedByFormulation | :generalizedByQuantity | :generalizedByField | :generalizedByProblem)  ?gb. 
-                                                             ?gb rdfs:label ?gbL.
-                                                             ?gb a ?gbc.
-                                                             FILTER (lang(?gbL) = 'en')
-                                                             FILTER (?gbc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind, :ResearchField, :ResearchProblem))
-                                                             BIND(STRAFTER(STR(?gbc), "#") AS ?gbC)
-                                                          }}
-                                                 OPTIONAL {{ 
-                                                             ?t (:generalizesTask | :generalizesModel | :generalizesFormulation | :generalizesQuantity | :generalizesField | :generalizesProblem) ?g. 
-                                                             ?g rdfs:label ?gL.
-                                                             ?g a ?gc.
-                                                             FILTER (lang(?gL) = 'en')
-                                                             FILTER (?gc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind, :ResearchField, :ResearchProblem))
-                                                             BIND(STRAFTER(STR(?gc), "#") AS ?gC)
-                                                          }}
-                                                 OPTIONAL {{ 
-                                                             ?t (:approximatedByTask | :approximatedByModel | :approximatedByFormulation | :approximatedByQuantity) ?ab. 
-                                                             ?ab rdfs:label ?abL.
-                                                             ?ab a ?abc.
-                                                             FILTER (lang(?abL) = 'en')
-                                                             FILTER (?abc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
-                                                             BIND(STRAFTER(STR(?abc), "#") AS ?abC)
-                                                          }}
-                                                 OPTIONAL {{ 
-                                                             ?t (:approximatesTask | :approximatesModel | :approximatesFormulation | :approximatesQuantity) ?a. 
-                                                             ?a rdfs:label ?aL.
-                                                             ?a a ?ac.
-                                                             FILTER (lang(?aL) = 'en')
-                                                             FILTER (?ac IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
-                                                             BIND(STRAFTER(STR(?ac), "#") AS ?aC)
-                                                          }}
-                                                 OPTIONAL {{ 
-                                                             ?t (:discretizedByTask | :discretizedByModel | :discretizedByFormulation) ?db. 
-                                                             ?db rdfs:label ?dbL.
-                                                             ?db a ?dbc.
-                                                             FILTER (lang(?dbL) = 'en')
-                                                             FILTER (?dbc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
-                                                             BIND(STRAFTER(STR(?dbc), "#") AS ?dbC)
-                                                          }}
-                                                 OPTIONAL {{ ?t (:discretizesTask | :discretizesModel | :discretizesFormulation) ?d. 
-                                                             ?d rdfs:label ?dL.
-                                                             ?d a ?dc.
-                                                             FILTER (lang(?dL) = 'en')
-                                                             FILTER (?dc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
-                                                             BIND(STRAFTER(STR(?dc), "#") AS ?dC)
-                                                          }}
-                                                 OPTIONAL {{ 
-                                                             ?t (:linearizedByTask | :linearizedByModel | :linearizedByFormulation | :linearizedByQuantity) ?lb.
-                                                             ?lb rdfs:label ?lbL.
-                                                             ?lb a ?lbc.
-                                                             FILTER (lang(?lbL) = 'en')
-                                                             FILTER (?lbc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
-                                                             BIND(STRAFTER(STR(?lbc), "#") AS ?lbC)
-                                                          }}
-                                                 OPTIONAL {{ 
-                                                             ?t (:linearizesTask | :linearizesModel | :linearizesFormulation | :linearizesQuantity) ?l.
-                                                             ?l rdfs:label ?lL.
-                                                             ?l a ?lc.
-                                                             FILTER (lang(?lL) = 'en')
-                                                             FILTER (?lc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
-                                                             BIND(STRAFTER(STR(?lc), "#") AS ?lC)
-                                                          }}
-                                                 OPTIONAL {{ 
-                                                             ?t (:nondimensionalizedByFormulation | :nondimensionalizedByQuantity) ?nb.
-                                                             ?nb rdfs:label ?nbL.
-                                                             ?nb a ?nbc.
-                                                             FILTER (lang(?nbL) = 'en')
-                                                             FILTER (?nbc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
-                                                             BIND(STRAFTER(STR(?nbc), "#") AS ?nbC)
-                                                          }}
-                                                 OPTIONAL {{ 
-                                                             ?t (:nondimensionalizesFormulation | :nondimensionalizesQuantity) ?n.
-                                                             ?n rdfs:label ?nL.
-                                                             ?n a ?nc.
-                                                             FILTER (lang(?nL) = 'en')
-                                                             FILTER (?nc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
-                                                             BIND(STRAFTER(STR(?nc), "#") AS ?nC)
-                                                          }}
-                                                 OPTIONAL {{ 
-                                                             ?t (:similarToTask | :similarToModel | :similarToFormulation | :similarToQuantity) ?s. 
-                                                             ?s rdfs:label ?sL.
-                                                             ?s a ?sc.
-                                                             FILTER (lang(?sL) = 'en')
-                                                             FILTER (?sc IN (:MathematicalModel, :MathematicalFormulation, :ComputationalTask, :Quantity, :QuantityKind))
-                                                             BIND(STRAFTER(STR(?sc), "#") AS ?sC)
-                                                          }}
-                                              }}
-                  
-                                  GROUP BY ?t ?tc ?tC ?TC''',
-                                  
-                  'MathematicalFormulation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                  
-                                 SELECT ?MathematicalFormulation ?quote ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic 
-                                        ?isDimensionless ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?f), " >|< ", STR(?fL))); separator=" <|> ") AS ?containsFormulation)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?a), " >|< ", STR(?aL))); separator=" <|> ") AS ?containsAssumption)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?bc), " >|< ", STR(?bcL))); separator=" <|> ") AS ?containsBoundaryCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cc), " >|< ", STR(?ccL))); separator=" <|> ") AS ?containsConstraintCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?cpc), " >|< ", STR(?cpcL))); separator=" <|> ") AS ?containsCouplingCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?ic), " >|< ", STR(?icL))); separator=" <|> ") AS ?containsInitialCondition)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?fc), " >|< ", STR(?fcL))); separator=" <|> ") AS ?containsFinalCondition)
-                                        (GROUP_CONCAT(DISTINCT(?elements); separator=" <|> ") AS ?formula_elements) (GROUP_CONCAT(DISTINCT(?formulas); separator=" <|> ") AS ?formula)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?qID), " >|< ", STR(?qL), " >|< ", STR(?qC))); separator=" <|> ") AS ?ContainsQuantity)
-                  
-                                 WHERE {{
-                                        
-                                        VALUES ?MathematicalFormulation {{{0}}}
-                  
-                                        OPTIONAL {{ ?MathematicalFormulation rdfs:comment ?quote.
-                                                    FILTER (lang(?quote) = 'en')}}
-                  
-                                        OPTIONAL {{ ?MathematicalFormulation :isLinear ?isLinear.
-                                                    BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}}
-                                        OPTIONAL {{ ?MathematicalFormulation :isConvex ?isConvex.
-                                                    BIND(IF(?isConvex = false, true, false) AS ?isNotConvex)}}  
-                                        OPTIONAL {{ ?MathematicalFormulation :isDynamic ?isDynamic.
-                                                    BIND(IF(?isDynamic = false, true, false) AS ?isStatic)}}                             
-                                        OPTIONAL {{ ?MathematicalFormulation :isDeterministic ?isDeterministic.
-                                                    BIND(IF(?isDeterministic = false, true, false) AS ?isStochastic)}}
-                          		          OPTIONAL {{ ?MathematicalFormulation :isDimensionless ?isDimensionless.
-                                                    BIND(IF(?isDimensionless = false, true, false) AS ?isDimensional)}}
-                                        OPTIONAL {{ ?MathematicalFormulation :isTimeContinuous ?isTimeContinuous.
-                                                    BIND(IF(BOUND(?isTimeContinuous) && ?isTimeContinuous = false, true, false) AS ?isTimeDiscrete)}}
-                                                    BIND(IF(!BOUND(?isTimeContinuous), true, false) AS ?isTimeIndependent)
-                                        OPTIONAL {{ ?MathematicalFormulation :isSpaceContinuous ?isSpaceContinuous.
-                                                    BIND(IF(BOUND(?isSpaceContinuous) && ?isSpaceContinuous = false, true, false) AS ?isSpaceDiscrete)}}
-                                                    BIND(IF(!BOUND(?isSpaceContinuous), true, false) AS ?isSpaceIndependent)
-
-                                        OPTIONAL {{ ?MathematicalFormulation :containsFormulation ?f.
-                                                    ?f rdfs:label ?fL.
-                                                    FILTER (lang(?fL) = 'en')}}
-                                        OPTIONAL {{ ?MathematicalFormulation :containsAssumption ?a.
-                                                    ?a rdfs:label ?aL.
-                                                    FILTER (lang(?aL) = 'en')}}
-                                        OPTIONAL {{ ?MathematicalFormulation :containsBoundaryCondition ?bc.
-                                                    ?bc rdfs:label ?bcL.
-                                                    FILTER (lang(?bcL) = 'en')}}
-                                        OPTIONAL {{ ?MathematicalFormulation :containsConstraintCondition ?cc.
-                                                    ?cc rdfs:label ?ccL.
-                                                    FILTER (lang(?ccL) = 'en')}}
-                                        OPTIONAL {{ ?MathematicalFormulation :containsCouplingCondition ?cpc.
-                                                    ?cpc rdfs:label ?cpcL.
-                                                    FILTER (lang(?cpcL) = 'en')}}
-                                        OPTIONAL {{ ?MathematicalFormulation :containsInitialCondition ?ic.
-                                                    ?ic rdfs:label ?icL.
-                                                    FILTER (lang(?icL) = 'en')}}
-                                        OPTIONAL {{ ?MathematicalFormulation :containsFinalCondition ?fc.
-                                                    ?fc rdfs:label ?fcL.
-                                                    FILTER (lang(?fcL) = 'en')}}
-                  
-                                        OPTIONAL {{ ?MathematicalFormulation :definingFormulation ?formulas.}}
-                                        OPTIONAL {{ ?MathematicalFormulation :inDefiningFormulation ?elements.}}
-                  
-                                        OPTIONAL {{ ?MathematicalFormulation :containsQuantity ?qID.
-                                                    ?qID rdfs:label ?qL;
-                                                                a ?qc.
-                                                    FILTER (?qc IN (:Quantity, :QuantityKind))
-                                                    FILTER (lang(?qL) = 'en')
-                                                    BIND(STRAFTER(STR(?qc), "#") AS ?qC)}}
-                  
-                                        }}
-                  
-                                        GROUP BY ?MathematicalFormulation ?quote ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
-                                                 ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent''',
-                  
-                  'PublicationModel': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                  
-                                 SELECT ?item ?label ?class
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?item), " >|< ", STR(?class))); separator=" <|> ") AS ?Item)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu1), " >|< ", STR(?label1))); separator=" <|> ") AS ?documentedIn)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu2), " >|< ", STR(?label2))); separator=" <|> ") AS ?inventedIn)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu3), " >|< ", STR(?label3))); separator=" <|> ") AS ?studiedIn)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu4), " >|< ", STR(?label4))); separator=" <|> ") AS ?surveyedIn)
-                                        (GROUP_CONCAT(DISTINCT(CONCAT(STR(?pu5), " >|< ", STR(?label5))); separator=" <|> ") AS ?usedIn)
-                  
-                                 WHERE {{
-                  
-                                        VALUES ?item {{{0}}}
-                                        
-                                        ?item rdfs:label ?label;
-                                              a ?itemclass.
-                                        
-                                        FILTER (lang(?label) = 'en')
-                                        FILTER (?itemclass IN (:ResearchField, :ResearchProblem, :MathematicalModel, :MathematicalFormulation, :Quantity, :QuantityKind, :ComputationalTask))
-                                        
-                                        BIND(IF(STRAFTER(STR(?itemclass), "#") = "ComputationalTask", "Task", IF(STRAFTER(STR(?itemclass), "#") = "QuantityKind", "Quantity", STRAFTER(STR(?itemclass), "#"))) AS ?class)
-
-                                        OPTIONAL {{ ?item :documentedIn ?pu1.
-                                                    ?pu1 rdfs:label ?label1.
-                                                    FILTER (lang(?label1) = 'en')
-                                                 }}
-                  
-                                        OPTIONAL {{ ?item :inventedIn ?pu2.
-                                                    ?pu2 rdfs:label ?label2.
-                                                    FILTER (lang(?label2) = 'en')
-                                                 }}
-                  
-                                        OPTIONAL {{ ?item :studiedIn ?pu3.
-                                                    ?pu3 rdfs:label ?label3.
-                                                    FILTER (lang(?label3) = 'en')
-                                                 }}
-                  
-                                        OPTIONAL {{ ?item :surveyedIn ?pu4.
-                                                    ?pu4 rdfs:label ?label4.
-                                                    FILTER (lang(?label4) = 'en')
-                                                 }}
-                  
-                                        OPTIONAL {{ ?item :usedIn ?pu5.
-                                                    ?pu5 rdfs:label ?label5.
-                                                    FILTER (lang(?label5) = 'en')
-                                                 }}
-                  
-                                       }}
-                  
-                                 GROUP BY ?item ?label ?class ?Documents ?Invents ?Studies ?Surveys  ?Uses'''
-                 }    
-
-queryProvider = {
+queryProviderMM = {
                  'RT': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                           PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
@@ -989,16 +139,21 @@ queryProvider = {
                                     }
                                GROUP BY ?id ?label ?quote''',
                  
-                 'P': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                 'PU': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
-                              SELECT DISTINCT ?answer (GROUP_CONCAT(DISTINCT(?l); SEPARATOR=" / ") AS ?label)  
-                              WHERE {
-                                     ?answer a :Publication . 
-                                     ?answer rdfs:label ?l .
-                                     FILTER (lang(?l) = 'en')
+                              SELECT DISTINCT ?id ?label ?quote
+                              WHERE { 
+                                     ?idraw a :Publication .
+                                     BIND(STRAFTER(STR(?idraw), "#") AS ?id)
+                                     OPTIONAL {?idraw rdfs:label ?labelraw .
+                                               FILTER (lang(?labelraw) = 'en')}
+                                     BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
+                                     OPTIONAL {?idraw rdfs:comment ?quoteraw.
+                                               FILTER (lang(?quoteraw) = 'en')}
+                                     BIND(COALESCE(?quoteraw, "No Description Provided!") AS ?quote)
                                     }
-                               GROUP BY ?answer ?label''',
+                               GROUP BY ?id ?label ?quote''',
                  
                  'QQK': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
@@ -1019,90 +174,92 @@ queryProvider = {
                                GROUP BY ?id ?label ?quote'''
                 }
 
-queryModelHandler = {
-    
-       'All':   '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
-             
-                   SELECT DISTINCT (GROUP_CONCAT(DISTINCT(CONCAT(?mm, " | ", ?mml, " | ", ?mmd)); SEPARATOR=" / ") AS ?model)
-                                   (GROUP_CONCAT(DISTINCT(CONCAT(?rp, " | ", ?rpl, " | ", ?rpd)); SEPARATOR=" / ") AS ?problem)
-                                   (GROUP_CONCAT(DISTINCT(CONCAT(?rf, " | ", ?rfl, " | ", ?rfd)); SEPARATOR=" / ") AS ?field)
-                                   (GROUP_CONCAT(DISTINCT(CONCAT(?mf, " | ", ?mfl, " | ", ?mfd)); SEPARATOR=" / ") AS ?formulation)
-                                   (GROUP_CONCAT(DISTINCT(CONCAT(?q, " | ", ?ql, " | ", ?qd)); SEPARATOR=" / ") AS ?quantity)
-                                   (GROUP_CONCAT(DISTINCT(CONCAT(?ta, " | ", ?tal, " | ", ?tad)); SEPARATOR=" / ") AS ?task)
-                                   (GROUP_CONCAT(DISTINCT(?doi); SEPARATOR=" / ") AS ?publication)
-
-                   WHERE {{ 
-                   
-                           VALUES ?mmraw {{{0}}}
-                           BIND(STRAFTER(STR(?mmraw), "#") AS ?mm)
-                           OPTIONAL {{ ?mmraw rdfs:label ?mmlraw
-                                       FILTER (lang(?mmlraw) = 'en') }}
-                           BIND(COALESCE(?mmlraw, "No Label Provided!") AS ?mml)
-                           OPTIONAL {{ ?mmraw rdfs:comment ?mmdraw
-                                       FILTER (lang(?mmdraw) = 'en') }}
-                           BIND(COALESCE(?mmdraw, "No Description Provided!") AS ?mmd)
-                           OPTIONAL {{
-                                      ?mmraw (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?publicationraw.
-                                      ?publicationraw :doiID ?doiraw.
-                                      BIND(REPLACE(STR(?doiraw), "https://doi.org/", "") AS ?doi)
-                                    }}
-                           OPTIONAL {{
-                                      ?mmraw (:containsFormulation | :containsBoundaryCondition | :containsAssumption | :containsConstraintCondition | :containsCouplingCondition | :containsInitialCondition | :containsFinalCondition) ?mfraw.
-                                      BIND(STRAFTER(STR(?mfraw), "#") AS ?mf)
-                                      OPTIONAL {{ ?mfraw rdfs:label ?mflraw
-                                                  FILTER (lang(?mflraw) = 'en') }}
-                                      BIND(COALESCE(?mflraw, "No Label Provided!") AS ?mfl)
-                                      OPTIONAL {{ ?mfraw rdfs:comment ?mfdraw
-                                                  FILTER (lang(?mfdraw) = 'en') }}
-                                      BIND(COALESCE(?mfdraw, "No Description Provided!") AS ?mfd)
-                                      OPTIONAL {{
-                                                 ?mfraw :containsQuantity ?qraw.
-                                                 BIND(STRAFTER(STR(?qraw), "#") AS ?q)
-                                                 OPTIONAL {{ ?qraw rdfs:label ?qlraw
-                                                             FILTER (lang(?qlraw) = 'en') }}
-                                                 BIND(COALESCE(?qlraw, "No Label Provided!") AS ?ql)
-                                                 OPTIONAL {{ ?qraw rdfs:comment ?qdraw
-                                                             FILTER (lang(?qdraw) = 'en') }}
-                                                 BIND(COALESCE(?qdraw, "No Description Provided!") AS ?qd)
-                                               }}
-                                    }}
-                           OPTIONAL {{
-                                      ?mmraw :models ?rpraw.
-                                      BIND(STRAFTER(STR(?rpraw), "#") AS ?rp)
-                                      OPTIONAL {{ ?rpraw rdfs:label ?rplraw .
-                                                  FILTER (lang(?rplraw) = 'en') }}
-                                      BIND(COALESCE(?rplraw, "No Label Provided!") AS ?rpl)
-                                      OPTIONAL {{ ?rpraw rdfs:comment ?rpdraw.
-                                                  FILTER (lang(?rpdraw) = 'en') }}
-                                      BIND(COALESCE(?rpdraw, "No Description Provided!") AS ?rpd)  
-
-                                      OPTIONAL {{
-                                                 ?rpraw :containedInField ?rfraw.
-                                                 BIND(STRAFTER(STR(?rfraw), "#") AS ?rf)
-                                                 OPTIONAL {{ ?rfraw rdfs:label ?rflraw .
-                                                             FILTER (lang(?rflraw) = 'en') }}
-                                                 BIND(COALESCE(?rflraw, "No Label Provided!") AS ?rfl)
-                                                 OPTIONAL {{ ?rfraw rdfs:comment ?rfdraw.
-                                                             FILTER (lang(?rfdraw) = 'en') }}
-                                                 BIND(COALESCE(?rfdraw, "No Description Provided!") AS ?rfd)
-                                               }}
-
-                                    }}
-                           OPTIONAL {{         
-                                      ?mmraw :appliedByTask ?taraw.
-                                      BIND(STRAFTER(STR(?taraw), "#") AS ?ta)
-                                      OPTIONAL {{ ?taraw rdfs:label ?talraw .
-                                                  FILTER (lang(?talraw) = 'en') }}
-                                      BIND(COALESCE(?talraw, "No Label Provided!") AS ?tal)
-                                      OPTIONAL {{ ?taraw rdfs:comment ?tadraw.
-                                                  FILTER (lang(?tadraw) = 'en') }}
-                                      BIND(COALESCE(?tadraw, "No Description Provided!") AS ?tad)
-                                    }} 
-                    }}'''
-       }
-
 queryHandler = {
+    
+    'publicationInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+                                 SELECT DISTINCT ?MathModDBID ?DOI ?MaRDIPortalID ?WikidataID
+                                                 (GROUP_CONCAT(DISTINCT(CONCAT(?documentsentity, " | ", ?documentsentitylabel, " | ", ?documentsentitydescription)); SEPARATOR=" / ") AS ?documents)
+                                                 (GROUP_CONCAT(DISTINCT(CONCAT(?inventsentity, " | ", ?inventsentitylabel, " | ", ?inventsentitydescription)); SEPARATOR=" / ") AS ?invents)
+                                                 (GROUP_CONCAT(DISTINCT(CONCAT(?studiesentity, " | ", ?studiesentitylabel, " | ", ?studiesentitydescription)); SEPARATOR=" / ") AS ?studies)
+                                                 (GROUP_CONCAT(DISTINCT(CONCAT(?surveysentity, " | ", ?surveysentitylabel, " | ", ?surveysentitydescription)); SEPARATOR=" / ") AS ?surveys)
+                                                 (GROUP_CONCAT(DISTINCT(CONCAT(?usesentity, " | ", ?usesentitylabel, " | ", ?usesentitydescription)); SEPARATOR=" / ") AS ?uses)
+                                                                                   
+                                 WHERE {{
+                                         VALUES ?idraw {{{0}}}
+
+                                         ?idraw :doiID ?doiraw .
+                                         ?idraw a :Publication.
+                                         
+                                         BIND(STRAFTER(STR(?idraw), "#") AS ?MathModDBID)
+                                         BIND(REPLACE(STR(?doiraw), "https://doi.org/", "") AS ?DOI)
+                                         OPTIONAL {{ ?idraw :mardiID ?MaRDIPortalID }}
+                                         OPTIONAL {{ ?idraw :wikidataID ?WikidataID }}
+                                         
+                                         OPTIONAL {{?idraw :documents ?docuemntsentityraw.
+                                                    BIND(CONCAT("mathmoddb:", STRAFTER(STR(?documentsentityraw), "#")) AS ?documentsentity)
+
+                                                    OPTIONAL {{?docuemntsentityraw rdfs:label ?documentsentitylabelraw.
+                                                               FILTER (lang(?documentsentitylabelraw) = 'en')}}
+                                                    BIND(COALESCE(?documentsentitylabelraw, "No Label Provided!") As ?documentsentitylabel)
+
+                                                    OPTIONAL {{?docuemntsentityraw rdfs:comment ?docuemntsentitydescriptionraw.
+                                                               FILTER (lang(?docuemntsentitydescriptionraw) = 'en')}}
+                                                    BIND(COALESCE(?docuemntsentitydescriptionraw, "No Description Provided!") As ?docuemntsentitydescription)
+                                                  }}
+
+                                         OPTIONAL {{?idraw :invents ?inventsentityraw.
+                                                    BIND(CONCAT("mathmoddb:", STRAFTER(STR(?inventsentityraw), "#")) AS ?inventsentity)
+
+                                                    OPTIONAL {{?inventsentityraw rdfs:label ?inventsentitylabelraw.
+                                                               FILTER (lang(?inventsentitylabelraw) = 'en')}}
+                                                    BIND(COALESCE(?inventsentitylabelraw, "No Label Provided!") As ?inventsentitylabel)
+
+                                                    OPTIONAL {{?inventsentityraw rdfs:comment ?inventsentitydescriptionraw.
+                                                               FILTER (lang(?inventsentitydescriptionraw) = 'en')}}
+                                                    BIND(COALESCE(?inventsentitydescriptionraw, "No Description Provided!") As ?inventsentitydescription)
+                                                  }}
+
+                                         OPTIONAL {{?idraw :studies ?studiesentityraw.
+                                                    BIND(CONCAT("mathmoddb:", STRAFTER(STR(?studiesentityraw), "#")) AS ?studiesentity)
+
+                                                    OPTIONAL {{?studiesentityraw rdfs:label ?studiesentitylabelraw.
+                                                               FILTER (lang(?studiesentitylabelraw) = 'en')}}
+                                                    BIND(COALESCE(?studiesentitylabelraw, "No Label Provided!") As ?studiesentitylabel)
+
+                                                    OPTIONAL {{?studiesentityraw rdfs:comment ?studiesentitydescriptionraw.
+                                                               FILTER (lang(?studiesentitydescriptionraw) = 'en')}}
+                                                    BIND(COALESCE(?studiesentitydescriptionraw, "No Description Provided!") As ?studiesentitydescription)
+                                                  }}
+
+                                         OPTIONAL {{?idraw :surveys ?surveysentityraw.
+                                                    BIND(CONCAT("mathmoddb:", STRAFTER(STR(?surveysentityraw), "#")) AS ?surveysentity)
+
+                                                    OPTIONAL {{?surveysentityraw rdfs:label ?surveysentitylabelraw.
+                                                               FILTER (lang(?surveysentitylabelraw) = 'en')}}
+                                                    BIND(COALESCE(?surveysentitylabelraw, "No Label Provided!") As ?surveysentitylabel)
+
+                                                    OPTIONAL {{?surveysentityraw rdfs:comment ?surveysentitydescriptionraw.
+                                                               FILTER (lang(?surveysentitydescriptionraw) = 'en')}}
+                                                    BIND(COALESCE(?surveysentitydescriptionraw, "No Description Provided!") As ?surveysentitydescription)
+                                                  }}
+
+                                         OPTIONAL {{?idraw :uses ?usesentityraw.
+                                                    BIND(CONCAT("mathmoddb:", STRAFTER(STR(?usesentityraw), "#")) AS ?usesentity)
+
+                                                    OPTIONAL {{?usesentityraw rdfs:label ?usesentitylabelraw.
+                                                               FILTER (lang(?usesentitylabelraw) = 'en')}}
+                                                    BIND(COALESCE(?usesentitylabelraw, "No Label Provided!") As ?usesentitylabel)
+
+                                                    OPTIONAL {{?usesentityraw rdfs:comment ?usesentitydescriptionraw.
+                                                               FILTER (lang(?usesentitydescriptionraw) = 'en')}}
+                                                    BIND(COALESCE(?usesentitydescriptionraw, "No Description Provided!") As ?usesentitydescription)
+                                                  }}
+
+                                       }}
+                                 GROUP BY ?MathModDBID ?DOI ?MaRDIPortalID ?WikidataID''',
+
     'researchFieldInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
@@ -1116,8 +273,22 @@ queryHandler = {
                                                                (GROUP_CONCAT(DISTINCT(?sf); SEPARATOR=" / ") AS ?similarToField)
                                                                (GROUP_CONCAT(DISTINCT(?sfl); SEPARATOR=" / ") AS ?similarToFieldLabel)
                                                                (GROUP_CONCAT(DISTINCT(?sfd); SEPARATOR=" / ") AS ?similarToFieldDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?pub); SEPARATOR=" / ") AS ?publication)
+                                                               (GROUP_CONCAT(DISTINCT(?publ); SEPARATOR=" / ") AS ?publicationLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?pubd); SEPARATOR=" / ") AS ?publicationDescription)
                                                WHERE {{ 
                                                        VALUES ?id {{{0}}} 
+
+                                                        OPTIONAL {{
+                                                                   ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
+                                                                   BIND(STRAFTER(STR(?pubraw), "#") AS ?pub)
+                                                                   OPTIONAL {{ ?pubraw rdfs:label ?publraw
+                                                                               FILTER (lang(?publraw) = 'en') }}
+                                                                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
+                                                                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw
+                                                                               FILTER (lang(?pubdraw) = 'en') }}
+                                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+                                                                 }}
                                                       
                                                         OPTIONAL {{
                                                                   ?id :generalizedByField ?gbfraw.
@@ -1195,8 +366,22 @@ queryHandler = {
                                                                (GROUP_CONCAT(DISTINCT(?sp); SEPARATOR=" / ") AS ?similarToProblem)
                                                                (GROUP_CONCAT(DISTINCT(?spl); SEPARATOR=" / ") AS ?similarToProblemLabel)
                                                                (GROUP_CONCAT(DISTINCT(?spd); SEPARATOR=" / ") AS ?similarToProblemDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?pub); SEPARATOR=" / ") AS ?publication)
+                                                               (GROUP_CONCAT(DISTINCT(?publ); SEPARATOR=" / ") AS ?publicationLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?pubd); SEPARATOR=" / ") AS ?publicationDescription)
                                                WHERE {{ 
                                                        VALUES ?id {{{0}}} 
+
+                                                        OPTIONAL {{
+                                                                   ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
+                                                                   BIND(STRAFTER(STR(?pubraw), "#") AS ?pub)
+                                                                   OPTIONAL {{ ?pubraw rdfs:label ?publraw
+                                                                               FILTER (lang(?publraw) = 'en') }}
+                                                                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
+                                                                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw
+                                                                               FILTER (lang(?pubdraw) = 'en') }}
+                                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+                                                                 }}
                                                        
                                                         OPTIONAL {{
                                                                    ?id :containedInField ?rfraw.
@@ -1288,6 +473,12 @@ queryHandler = {
                                                                ?isDimensionless ?isDimensional
                                                                ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent
                                                                ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent
+                                                               (GROUP_CONCAT(DISTINCT(?mf); SEPARATOR=" / ") AS ?formulation)
+                                                               (GROUP_CONCAT(DISTINCT(?mfl); SEPARATOR=" / ") AS ?formulationLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?mfd); SEPARATOR=" / ") AS ?formulationDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?ta); SEPARATOR=" / ") AS ?appliedByTask)
+                                                               (GROUP_CONCAT(DISTINCT(?tal); SEPARATOR=" / ") AS ?appliedByTaskLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?tad); SEPARATOR=" / ") AS ?appliedByTaskDescription)
                                                                (GROUP_CONCAT(DISTINCT(?rp); SEPARATOR=" / ") AS ?models)
                                                                (GROUP_CONCAT(DISTINCT(?rpl); SEPARATOR=" / ") AS ?modelsLabel)
                                                                (GROUP_CONCAT(DISTINCT(?rpd); SEPARATOR=" / ") AS ?modelsDescription)
@@ -1324,8 +515,44 @@ queryHandler = {
                                                                (GROUP_CONCAT(DISTINCT(?sm); SEPARATOR=" / ") AS ?similarToModel)
                                                                (GROUP_CONCAT(DISTINCT(?sml); SEPARATOR=" / ") AS ?similarToModelLabel)
                                                                (GROUP_CONCAT(DISTINCT(?smd); SEPARATOR=" / ") AS ?similarToModelDescription)
+                                                               (GROUP_CONCAT(DISTINCT(?pub); SEPARATOR=" / ") AS ?publication)
+                                                               (GROUP_CONCAT(DISTINCT(?publ); SEPARATOR=" / ") AS ?publicationLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?pubd); SEPARATOR=" / ") AS ?publicationDescription)
                                                WHERE {{ 
                                                        VALUES ?id {{{0}}} 
+
+                                                        OPTIONAL {{
+                                                                   ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
+                                                                   BIND(STRAFTER(STR(?pubraw), "#") AS ?pub)
+                                                                   OPTIONAL {{ ?pubraw rdfs:label ?publraw
+                                                                               FILTER (lang(?publraw) = 'en') }}
+                                                                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
+                                                                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw
+                                                                               FILTER (lang(?pubdraw) = 'en') }}
+                                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+                                                                 }}
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?id(:containsFormulation | :containsBoundaryCondition | :containsAssumption | :containsConstraintCondition | :containsCouplingCondition | :containsInitialCondition | :containsFinalCondition) ?mfraw.
+                                                                  BIND(STRAFTER(STR(?mfraw), "#") AS ?mf)
+                                                                  OPTIONAL {{ ?mfraw rdfs:label ?mflraw
+                                                                              FILTER (lang(?mflraw) = 'en') }}
+                                                                  BIND(COALESCE(?mflraw, "No Label Provided!") AS ?mfl)
+                                                                  OPTIONAL {{ ?mfraw rdfs:comment ?mfdraw
+                                                                              FILTER (lang(?mfdraw) = 'en') }}
+                                                                  BIND(COALESCE(?mfdraw, "No Description Provided!") AS ?mfd)
+                                                                }}
+
+                                                        OPTIONAL {{
+                                                                  ?id :appliedByTask ?taraw.
+                                                                  BIND(STRAFTER(STR(?taraw), "#") AS ?ta)
+                                                                  OPTIONAL {{ ?taraw rdfs:label ?talraw
+                                                                              FILTER (lang(?talraw) = 'en') }}
+                                                                  BIND(COALESCE(?talraw, "No Label Provided!") AS ?tal)
+                                                                  OPTIONAL {{ ?taraw rdfs:comment ?tadraw
+                                                                              FILTER (lang(?tadraw) = 'en') }}
+                                                                  BIND(COALESCE(?tadraw, "No Description Provided!") AS ?tad)
+                                                                }}
 
                                                         OPTIONAL {{ ?id :isLinear ?isLinear.
                                                                 BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}}
@@ -1600,9 +827,22 @@ queryHandler = {
                                                                (GROUP_CONCAT(DISTINCT CONCAT(?nbq, " | ", ?nbql, " | ", ?nbqd, " | ", ?nbqc); separator=" / ") AS ?nondimensionalizedByQuantity)
                                                                (GROUP_CONCAT(DISTINCT CONCAT(?nq, " | ", ?nql, " | ", ?nqd, " | ", ?nqc); separator=" / ") AS ?nondimensionalizesQuantity)
                                                                (GROUP_CONCAT(DISTINCT CONCAT(?sq, " | ", ?sql, " | ", ?sqd, " | ", ?sqc); separator=" / ") AS ?similarToQuantity)
-                                                               
+                                                               (GROUP_CONCAT(DISTINCT(?pub); SEPARATOR=" / ") AS ?publication)
+                                                               (GROUP_CONCAT(DISTINCT(?publ); SEPARATOR=" / ") AS ?publicationLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?pubd); SEPARATOR=" / ") AS ?publicationDescription)
                                                WHERE {{ 
-                                                       VALUES ?id {{{0}}}
+                                                       VALUES ?id {{{0}}} 
+
+                                                        OPTIONAL {{
+                                                                   ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
+                                                                   BIND(STRAFTER(STR(?pubraw), "#") AS ?pub)
+                                                                   OPTIONAL {{ ?pubraw rdfs:label ?publraw
+                                                                               FILTER (lang(?publraw) = 'en') }}
+                                                                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
+                                                                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw
+                                                                               FILTER (lang(?pubdraw) = 'en') }}
+                                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+                                                                 }}
                                                        
                                                        ?id a ?classraw
                                                        FILTER (?classraw IN (:Quantity, :QuantityKind))
@@ -1965,9 +1205,22 @@ queryHandler = {
                                                                (GROUP_CONCAT(DISTINCT(?smf); SEPARATOR=" / ") AS ?similarToFormulation)
                                                                (GROUP_CONCAT(DISTINCT(?smfl); SEPARATOR=" / ") AS ?similarToFormulationLabel)
                                                                (GROUP_CONCAT(DISTINCT(?smfd); SEPARATOR=" / ") AS ?similarToFormulationDescription)
-
+                                                               (GROUP_CONCAT(DISTINCT(?pub); SEPARATOR=" / ") AS ?publication)
+                                                               (GROUP_CONCAT(DISTINCT(?publ); SEPARATOR=" / ") AS ?publicationLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?pubd); SEPARATOR=" / ") AS ?publicationDescription)
                                                WHERE {{ 
-                                                       VALUES ?id {{{0}}}
+                                                       VALUES ?id {{{0}}} 
+
+                                                        OPTIONAL {{
+                                                                   ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
+                                                                   BIND(STRAFTER(STR(?pubraw), "#") AS ?pub)
+                                                                   OPTIONAL {{ ?pubraw rdfs:label ?publraw
+                                                                               FILTER (lang(?publraw) = 'en') }}
+                                                                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
+                                                                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw
+                                                                               FILTER (lang(?pubdraw) = 'en') }}
+                                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+                                                                 }}
                                                        
                                                        OPTIONAL {{
                                                                   ?id rdfs:label ?labelraw .
@@ -2756,9 +2009,22 @@ queryHandler = {
                                                                (GROUP_CONCAT(DISTINCT(?st); SEPARATOR=" / ") AS ?similarToTask)
                                                                (GROUP_CONCAT(DISTINCT(?stl); SEPARATOR=" / ") AS ?similarToTaskLabel)
                                                                (GROUP_CONCAT(DISTINCT(?std); SEPARATOR=" / ") AS ?similarToTaskDescription)
-                                                          
+                                                               (GROUP_CONCAT(DISTINCT(?pub); SEPARATOR=" / ") AS ?publication)
+                                                               (GROUP_CONCAT(DISTINCT(?publ); SEPARATOR=" / ") AS ?publicationLabel)
+                                                               (GROUP_CONCAT(DISTINCT(?pubd); SEPARATOR=" / ") AS ?publicationDescription)
                                                WHERE {{ 
-                                                       VALUES ?id {{{0}}}
+                                                       VALUES ?id {{{0}}} 
+
+                                                        OPTIONAL {{
+                                                                   ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
+                                                                   BIND(STRAFTER(STR(?pubraw), "#") AS ?pub)
+                                                                   OPTIONAL {{ ?pubraw rdfs:label ?publraw
+                                                                               FILTER (lang(?publraw) = 'en') }}
+                                                                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
+                                                                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw
+                                                                               FILTER (lang(?pubdraw) = 'en') }}
+                                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+                                                                 }}
                                                        
                                                        OPTIONAL {{
                                                                   ?id rdfs:label ?labelraw .
@@ -3267,5 +2533,3 @@ queryHandler = {
                                                      GROUP BY ?id ?isLinear ?isNotLinear'''
                                       
                                                       }
-
-                      

@@ -1,0 +1,505 @@
+{
+    "Creator Name": {
+        "key1": "Creator",
+        "key2": "Name",
+        "uri": "domain/creator/name"
+    },
+    "Creator IDs": {
+        "key1": "Creator",
+        "key2": "IDs",
+        "uri": "domain/creator/id",
+        "collection_index": true
+    },
+    "ResearchField ID": {
+        "key1": "field",
+        "key2": "ID",
+        "uri": "domain/field/id",
+        "set_index": true,
+        "external_id": true
+    },
+    "ResearchField Name": {
+        "key1": "field",
+        "key2": "Name",
+        "uri": "domain/field/name",
+        "set_prefix": true
+    },
+    "ResearchField Description": {
+        "key1": "field",
+        "key2": "Description",
+        "uri": "domain/field/description",
+        "set_prefix": true
+    },
+    "ResearchField IntraClassRelation": {
+        "key1": "field",
+        "key2": "IntraClassRelation",
+        "uri": "domain/field/field-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "ResearchField IntraClassElement": {
+        "key1": "field",
+        "key2": "IntraClassElement",
+        "uri": "domain/field/field-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "ResearchProblem ID": {
+        "key1": "problem",
+        "key2": "ID",
+        "uri": "domain/problem/id",
+        "set_index": true,
+        "external_id": true
+    },
+    "ResearchProblem Name": {
+        "key1": "problem",
+        "key2": "Name",
+        "uri": "domain/problem/name",
+        "set_prefix": true
+    },
+    "ResearchProblem Description": {
+        "key1": "problem",
+        "key2": "Description",
+        "uri": "domain/problem/description",
+        "set_prefix": true
+    },
+    "ResearchProblem RP2RF": {
+        "key1": "problem",
+        "key2": "RP2RF",
+        "uri": "domain/problem/field-relation",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "ResearchProblem RFRelatant": {
+        "key1": "problem",
+        "key2": "RFRelatant",
+        "uri": "domain/problem/field-relatant",
+        "set_prefix": true,
+        "collection_index": true,
+        "external_id": true
+    },
+    "ResearchProblem IntraClassRelation": {
+        "key1": "problem",
+        "key2": "IntraClassRelation",
+        "uri": "domain/problem/problem-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "ResearchProblem IntraClassElement": {
+        "key1": "problem",
+        "key2": "IntraClassElement",
+        "uri": "domain/problem/problem-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "MathematicalModel ID": {
+        "key1": "model",
+        "key2": "ID",
+        "uri": "domain/model/id",
+        "set_index": true,
+        "external_id": true
+    },
+    "MathematicalModel Name": {
+        "key1": "model",
+        "key2": "Name",
+        "uri": "domain/model/name",
+        "set_prefix": true
+    },
+    "MathematicalModel Description": {
+        "key1": "model",
+        "key2": "Description",
+        "uri": "domain/model/description",
+        "set_prefix": true
+    },
+    "MathematicalModel Properties": {
+        "key1": "model",
+        "key2": "Properties",
+        "uri": "domain/model/properties",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "MathematicalModel MM2RP": {
+        "key1": "model",
+        "key2": "MM2RP",
+        "uri": "domain/model/problem-relation",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "MathematicalModel RPRelatant": {
+        "key1": "model",
+        "key2": "RPRelatant",
+        "uri": "domain/model/problem-relatant",
+        "set_prefix": true,
+        "collection_index": true,
+        "external_id": true
+    },
+    "MathematicalModel IntraClassRelation": {
+        "key1": "model",
+        "key2": "IntraClassRelation",
+        "uri": "domain/model/model-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "MathematicalModel IntraClassElement": {
+        "key1": "model",
+        "key2": "IntraClassElement",
+        "uri": "domain/model/model-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "MathematicalFormulation MathModID": {
+        "key1": "formulation",
+        "key2": "ID",
+        "uri": "domain/formulation/id",
+        "set_index": true,
+        "external_id": true
+    },
+    "MathematicalFormulation Name": {
+        "key1": "formulation",
+        "key2": "Name",
+        "uri": "domain/formulation/name",
+        "set_prefix": true
+    },
+    "MathematicalFormulation Description": {
+        "key1": "formulation",
+        "key2": "Description",
+        "uri": "domain/formulation/description",
+        "set_prefix": true
+    },
+    "MathematicalFormulation Properties": {
+        "key1": "formulation",
+        "key2": "Properties",
+        "uri": "domain/formulation/properties",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "MathematicalFormulation Definition": {
+        "key1": "formulation",
+        "key2": "Definition",
+        "uri": "domain/formulation/is-definition",
+        "set_prefix": true
+    },
+    "MathematicalFormulation DefinedQuantity": {
+        "key1": "formulation",
+        "key2": "DefinedQuantity",
+        "uri": "domain/formulation/defined-quantity",
+        "set_prefix": true,
+        "external_id": true
+    },
+    "MathematicalFormulation Formula": {
+        "key1": "formulation",
+        "key2": "Formula",
+        "uri": "domain/formulation/formula",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "MathematicalFormulation Element Symbol": {
+        "key1": "formulation",
+        "key2": "element",
+        "key3": "symbol",
+        "uri": "domain/formulation/element/symbol",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "MathematicalFormulation Element Quantity": {
+        "key1": "formulation",
+        "key2": "element",
+        "key3": "quantity",
+        "uri": "domain/formulation/element/quantity",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "MathematicalFormulation MF2MM": {
+        "key1": "formulation",
+        "key2": "MF2MM",
+        "uri": "domain/formulation/model-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "MathematicalFormulation MMRelatant": {
+        "key1": "formulation",
+        "key2": "MMRelatant",
+        "uri": "domain/formulation/model-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "MathematicalFormulation MF2MF": {
+        "key1": "formulation",
+        "key2": "MF2MF",
+        "uri": "domain/formulation/formulation-relation-1",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "MathematicalFormulation MFRelatant": {
+        "key1": "formulation",
+        "key2": "MFRelatant",
+        "uri": "domain/formulation/formulation-relatant-1",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "MathematicalFormulation IntraClassRelation": {
+        "key1": "formulation",
+        "key2": "IntraClassRelation",
+        "uri": "domain/formulation/formulation-relation-2",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "MathematicalFormulation IntraClassElement": {
+        "key1": "formulation",
+        "key2": "IntraClassElement",
+        "uri": "domain/formulation/formulation-relatant-2",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "Quantity ID": {
+        "key1": "quantity",
+        "key2": "ID",
+        "uri": "domain/quantity/id",
+        "set_index": true,
+        "external_id": true
+    },
+    "Quantity Name": {
+        "key1": "quantity",
+        "key2": "Name",
+        "uri": "domain/quantity/name",
+        "set_prefix": true
+    },
+    "Quantity Description": {
+        "key1": "quantity",
+        "key2": "Description",
+        "uri": "domain/quantity/description",
+        "set_prefix": true
+    },
+    "Quantity Reference": {
+        "key1": "quantity",
+        "key2": "reference",
+        "uri": "domain/quantity/reference",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "Quantity QorQK": {
+        "key1": "quantity",
+        "key2": "QorQK",
+        "uri": "domain/quantity/is-quantity-or-quantity-kind",
+        "set_prefix": true
+    },
+    "Quantity QProperties": {
+        "key1": "quantity",
+        "key2": "Properties",
+        "uri": "domain/quantity/quantity-properties",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "Quantity QKProperties": {
+        "key1": "quantity",
+        "key2": "Properties",
+        "uri": "domain/quantity/quantity-kind-properties",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "Quantity Q2Q": {
+        "key1": "quantity",
+        "key2": "Q2Q",
+        "uri": "domain/quantity/quantity-to-quantity/relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Quantity QRelatant": {
+        "key1": "quantity",
+        "key2": "QRelatant",
+        "uri": "domain/quantity/quantity-to-quantity/relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "QuantityKind QK2QK": {
+        "key1": "quantity",
+        "key2": "QK2QK",
+        "uri": "domain/quantity/quantity-kind-to-quantity-kind/relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "QuantityKind QKRelatant": {
+        "key1": "quantity",
+        "key2": "QKRelatant",
+        "uri": "domain/quantity/quantity-kind-to-quantity-kind/relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "Quantity Q2QK": {
+        "key1": "quantity",
+        "key2": "Q2QK",
+        "uri": "domain/quantity/quantity-to-quantity-kind/relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Quantity QKRelatant": {
+        "key1": "quantity",
+        "key2": "QKRelatant",
+        "uri": "domain/quantity/quantity-to-quantity-kind/relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "QuantityKind QK2Q": {
+        "key1": "quantity",
+        "key2": "QK2Q",
+        "uri": "domain/quantity/quantity-kind-to-quantity/relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "QuantityKind QRelatant": {
+        "key1": "quantity",
+        "key2": "QRelatant",
+        "uri": "domain/quantity/quantity-kind-to-quantity/relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "Task MathModID": {
+        "key1": "task",
+        "key2": "ID",
+        "uri": "domain/task/id",
+        "set_index": true,
+        "external_id": true
+    },
+    "Task Name": {
+        "key1": "task",
+        "key2": "Name",
+        "uri": "domain/task/name",
+        "set_prefix": true
+    },
+    "Task Description": {
+        "key1": "task",
+        "key2": "Description",
+        "uri": "domain/task/description",
+        "set_prefix": true
+    },
+    "Task Properties": {
+        "key1": "task",
+        "key2": "Properties",
+        "uri": "domain/task/properties",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "Task TaskClass": {
+        "key1": "task",
+        "key2": "TaskClass",
+        "uri": "domain/task/category",
+        "set_prefix": true
+    },
+    "Task T2MF": {
+        "key1": "task",
+        "key2": "T2MF",
+        "uri": "domain/task/formulation-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Task MFRelatant": {
+        "key1": "task",
+        "key2": "MFRelatant",
+        "uri": "domain/task/formulation-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "Task T2Q": {
+        "key1": "task",
+        "key2": "T2Q",
+        "uri": "domain/task/quantity-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Task QRelatant": {
+        "key1": "task",
+        "key2": "QRelatant",
+        "uri": "domain/task/quantity-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "Task T2MM": {
+        "key1": "task",
+        "key2": "T2MM",
+        "uri": "domain/task/model-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Task MMRelatant": {
+        "key1": "task",
+        "key2": "MMRelatant",
+        "uri": "domain/task/model-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "Task IntraClassRelation": {
+        "key1": "task",
+        "key2": "IntraClassRelation",
+        "uri": "domain/task/task-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Task IntraClassElement": {
+        "key1": "task",
+        "key2": "IntraClassElement",
+        "uri": "domain/task/task-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "Publication ID": {
+        "key1": "publication",
+        "key2": "ID",
+        "uri": "domain/publication/id",
+        "set_index": true,
+        "external_id": true
+    },
+    "Publication Name": {
+        "key1": "publication",
+        "key2": "Name",
+        "uri": "domain/publication/name",
+        "set_index": true
+    },
+    "Publication Description": {
+        "key1": "publication",
+        "key2": "Description",
+        "uri": "domain/publication/description",
+        "set_index": true
+    },
+    "Publication Reference": {
+        "key1": "publication",
+        "key2": "reference",
+        "uri": "domain/publication/reference",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication URL Citation": {
+        "key1": "publication",
+        "key2": "urlcitation",
+        "uri": "domain/publication/url-citation",
+        "set_index": true
+    },
+    "Publication P2E": {
+        "key1": "publication",
+        "key2": "P2E",
+        "uri": "domain/publication/entity-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Publication EntityRelatant": {
+        "key1": "publication",
+        "key2": "EntityRelatant",
+        "uri": "domain/publication/entity-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    }
+}

@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
-from typing import List, Optional
-from .id import *
+from typing import List, Optional, Dict
+from ..id import *
+from ..utils import get_data
 import os, json
-
 
 @dataclass
 class Author:
@@ -151,6 +151,7 @@ class Publication:
     volume: Optional[str]
     issue: Optional[str]
     page: Optional[str]
+    doi: Optional[str]
     journal: Optional[List[Journal]] = field(default_factory=list)
     authors: Optional[List[Author]] = field(default_factory=list)
 
@@ -159,9 +160,7 @@ class Publication:
 
         data = raw_data[0]
 
-        path = os.path.join(os.path.dirname(__file__), 'data', 'lang.json')
-        with open(path, "r") as json_file:
-            lang_dict = json.load(json_file)
+        lang_dict = get_data('data/lang.json')
 
         return cls(
             id = data.get('id', {}).get('value'),
@@ -174,6 +173,7 @@ class Publication:
             volume = data.get('volume', {}).get('value'),
             issue = data.get('issue', {}).get('value'),
             page = data.get('page', {}).get('value'),
+            doi = data.get('doi', {}).get('value'),
             journal = [Journal.from_query(data.get('journalInfo', {}).get('value'))] if 'journalInfo' in data else [],
             authors = [
                 Author.from_query(author)
@@ -187,9 +187,7 @@ class Publication:
 
         data = raw_data.json().get('message', {})
 
-        path = os.path.join(os.path.dirname(__file__), 'data', 'lang.json')
-        with open(path, "r") as json_file:
-            lang_dict = json.load(json_file)
+        lang_dict = get_data('data/lang.json')
 
         return cls(
             id = None,
@@ -202,6 +200,7 @@ class Publication:
             volume = data.get('volume', ''),
             issue = data.get('issue', ''),
             page = data.get('page', ''),
+            doi = data.get('DOI', ''),
             journal = [Journal.from_crossref(data.get('ISSN'), data.get('container-title'))] if 'ISSN' in data or 'container-title' in data else [],
             authors = [
                 Author.from_crossref(author)
@@ -215,9 +214,7 @@ class Publication:
 
         data = raw_data.json().get('data', {}).get('attributes', {})
 
-        path = os.path.join(os.path.dirname(__file__), 'data', 'lang.json')
-        with open(path, "r") as json_file:
-            lang_dict = json.load(json_file)
+        lang_dict = get_data('data/lang.json')
 
         return cls(
             id = None,
@@ -230,6 +227,7 @@ class Publication:
             volume = data['relatedItems'][0].get('volume') if data.get('relatedItems') else None,
             issue = data['relatedItems'][0].get('issue') if data.get('relatedItems') else None,
             page = f"{data['relatedItems'][0].get('firstPage', '')}-{data['relatedItems'][0].get('lastPage', '')}" if data.get('relatedItems') else None,
+            doi = data.get('doi', ''),
             journal = [Journal.from_datacite(data.get('relatedIdentifiers'), data.get('relatedItems'))] if 'relatedIdentifiers' in data or 'relatedItems' in data else [],            
             authors = [
                 Author.from_datacite(author)
@@ -243,9 +241,7 @@ class Publication:
 
         data = raw_data.json()
 
-        path = os.path.join(os.path.dirname(__file__), 'data', 'lang.json')
-        with open(path, "r") as json_file:
-            lang_dict = json.load(json_file)
+        lang_dict = get_data('data/lang.json')
 
         return cls(
             id = None,
@@ -254,10 +250,11 @@ class Publication:
             entrytype = 'scholarly article' if data.get('type', {}) == 'journal-article' else 'publication',
             language = lang_dict[data.get('language','').lower()][3] if data.get('language') else None,
             title = data.get('title', ''),
-            date = '{0[0]}-{0[1]:02d}-{0[2]:02d}'.format(data.get('published-online', {}).get('date-parts', [''])[0] + [1] * (3 - len(data.get('published-online', {}).get('date-parts', [''])))),
+            date = '{0[0]}-{0[1]:02d}-{0[2]:02d}'.format(data.get('published', {}).get('date-parts', [''])[0] + [1] * (3 - len(data.get('published', {}).get('date-parts', [''])))),
             volume = data.get('volume'),
             issue = data.get('issue'),
             page = data.get('page'),
+            doi = data.get('DOI'),
             journal = [Journal.from_doi(data.get('ISSN'), data.get('container-title'))] if 'ISSN' in data or 'container-title' in data else [],
             authors = [
                 Author.from_doi(author)
@@ -271,21 +268,20 @@ class Publication:
 
         data = raw_data.json().get('result', [''])[0]
 
-        path = os.path.join(os.path.dirname(__file__), 'data', 'lang.json')
-        with open(path, "r") as json_file:
-            lang_dict = json.load(json_file)
+        lang_dict = get_data('data/lang.json')
 
         return cls(
             id = None,
             label = None,
             description = None,
             entrytype = 'scholarly article' if data.get('document_type', {}).get('description') == 'journal article' else 'publication',
-            language = lang_dict[data.get('language',{}).get('languages',[''])[3].lower()][0] if data.get('language',{}).get('languages') else None,
+            language = lang_dict[data.get('language',{}).get('languages',[''])[0].lower()][3] if data.get('language',{}).get('languages') else None,
             title = data.get('title', {}).get('title', {}),
             date = f"{data.get('year','')}-01-01",
             volume = data.get('source', {}).get('series', [''])[0].get('volume'),
             issue = data.get('source', {}).get('series', [''])[0].get('issue'),
             page = data.get('source', {}).get('page'),
+            doi = next((link.get('identifier') for link in data.get('links', []) if link.get('type') == 'doi'), None),
             journal = [Journal.from_zbmath(data.get('source'))] if 'source' in data else [],
             authors = [
                 Author.from_zbmath(author)

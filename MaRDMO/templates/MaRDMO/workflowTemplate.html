@@ -1,8 +1,3 @@
-{% extends 'core/page.html' %}
-{% load i18n %}
-
-{% block page %}
-
  <head>
  <script type="text/javascript" id="MathJax-script" async
          src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-mml-chtml.js">
@@ -35,507 +30,544 @@
          }
 </style>
 </head>
+
 <body>
+
 <h1 id="title"> {{ title }} </h1>
-{% if answers.Publication.Exists.1 %}
-{% if 'doi' in answers.Publication.Exists.1 %}
-<p>Workflow ID: doi:<a href="https://doi.org/{{ answers.Publication.Exists.1|cut:"doi:" }}">{{ answers.Publication.Exists.1|cut:"doi:" }}</a></p>
-{% elif 'url' in answers.Publication.Exists.1 %}
-<p>Workflow ID: url:<a href="{{ answers.Publication.Exists.1|cut:"url:" }}">{{ answers.Publication.Exists.1|cut:"url:" }}</a></p>
-{% endif %}
-{% endif %}
-{% if not answers.Publication.Exists.1 %}
-<p>Workflow ID: not published</p>
-{% endif %}
+
 <h2 id="problem-statement">Problem Statement</h2>
-<p> {{ answers.GeneralInformation.ProblemStatement }}</p>    
+
+<p> {{ answers.general.problem }}</p>    
+
 <h3 id="object-of-research-and-objective">Object of Research and Objective</h3>
-<p> {{ answers.GeneralInformation.ResearchObjective }} </p>    
+
+<p> {{ answers.general.objective }} </p>    
+
 <h3 id="procedure">Procedure</h3>
-<p> {{ answers.GeneralInformation.Procedure }} </p>    
+
+<p> {{ answers.general.procedure }} </p>    
+
 <h3 id="involved-disciplines">Involved Disciplines</h3>    
-<p><b>Mathematical Areas:</b></p>
-{% for value in answers.MathematicalArea.values %} 
-{% if value %} 
-{{ forloop.counter }} - {{ value }} <br>  
-{% endif %}
-{% endfor %}
-<br>        
-<p><b>Non-Mathematical Disciplines:</b></p>
-{% for value in answers.NonMathematicalDiscipline.values %}
-{% if value.mardiId != 'tbd' %}
-{{ forloop.counter }} - <a href=" {{value.uri}} ">{{ value.Name }}</a> <br>
-{% endif %}
-{% if value.mardiId == 'tbd' %}
-{{ forloop.counter }} - {{ value.Name }}  <br>
-{% endif %}
-{% endfor %}
+
+    <p><b>Mathematical Subjects:</b></p>
+
+        {% for values in answers.mathsubject.values %} 
+            {{ forloop.counter }} - {{ values.Name }} [{{ values.ID }}] <br>
+        {% endfor %}
+    
+    <br>        
+    
+    <p><b>Non-Mathematical Disciplines:</b></p>
+
+        {% for values in answers.nonmathdiscipline.values %}
+            {% if 'mardi' in values.ID %}
+                {{ forloop.counter }} - <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+            {% elif 'wikidata' in values.ID %}
+                {{ forloop.counter }} - <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+            {% endif %}
+        {% endfor %}
+
 <h3 id="data-streams">Data Streams</h3>        
-{% for value in answers.GeneralInformation.DataStream.values %}
+
+{% for value in answers.general.streams.values %}
 {{ forloop.counter }} - {{ value }} <br>
 {% endfor %}    
-<h2 id="model">Model</h2>        
-{% for value in answers.Models.values %}
-{% if value.mardiId != 'tbd' %}
-<p><a href=" {{value.uri}} ">{{ value.Name }}</a> ({{ value.Description }})</p>
-{% endif %}
-{% if value.mardiId == 'tbd' %}
-<p>{{ value.Name }}  ({{ value.Description}})</p>
-{% endif %}
-{% endfor %}
-<h3 id="discretization">Discretization</h3>
-<ul>
-{% for value in answers.Models.values %}
-{% if option.isTimeDiscrete in value.Properties.values %}
-<li> Time: Yes</li>
-{% elif option.isTimeContinuous in value.Properties.values %}
-<li> Time: No</li>
-{% elif option.isTimeIndependent in value.Properties.values %}
-<li> Time: Independent</li>
-{% endif %}
-{% if option.isSpaceDiscrete in value.Properties.values %}
-<li> Space: Yes</li>
-{% elif option.isSpaceContinuous in value.Properties.values %}
-<li> Space: No</li>
-{% elif option.isSpaceIndependent in value.Properties.values %}
-<li> Space: Independent</li>
-{% endif %}
-{% endfor %}
-</ul>    
-<h3 id="variables">Variables</h3>
-<table border="1">
-<colgroup>
-<col style="width: 20%" />
-<col style="width: 10%" />
-<col style="width: 10%" />
-<col style="width: 30%" />
-<col style="width: 30%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: center; vertical-align: middle;">Name</th>
-<th style="text-align: center; vertical-align: middle;">Unit</th>
-<th style="text-align: center; vertical-align: middle;">Symbol</th>
-<th style="text-align: center; vertical-align: middle;">dependent/independent</th>
-<th style="text-align: center; vertical-align: middle;">Task</th>
-</tr>
-</thead>
-<tbody>
-{% for values in answers.Task.values %}
-{% for value in values.RelationQ.values %}
-{% if value.0 == option.containsInput or value.0 == option.containsOutput %}
-<tr>
-<td style="text-align: center; vertical-align: middle;">{{ value.1 }}</td>
-<td style="text-align: center; vertical-align: middle;"></td>
-<td style="text-align: center; vertical-align: middle;">{{ value.2 }}</td>
-{% if option.containsInput == value.0 %}
-<td style="text-align: center; vertical-align: middle;">independent</td>
-{% endif %}
-{% if option.containsOutput == value.0 %}
-<td style="text-align: center; vertical-align: middle;">dependent</td>
-{% endif %}
-<td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
-</tr>
-{% endif %}
-{% endfor %}
-{% endfor %}
-</tbody>
-</table>
 
-    <h3 id="parameters">Parameters</h3>
-                
+{% if answers.model.values %}
+    <h2 id="model">Model</h2>   
+
         <table border="1">
-                        <colgroup>
-                                <col style="width: 25%" />
-                                <col style="width: 25%" />
-                                <col style="width: 25%" />
-				<col style="width: 25%" />
-                        </colgroup>
-                        <thead>
-                                <tr class="header">
-                                        <th style="text-align: center; vertical-align: middle;">Name</th>
-                                        <th style="text-align: center; vertical-align: middle;">Unit</th>
-                                        <th style="text-align: center; vertical-align: middle;">Symbol</th>
-					<th style="text-align: center; vertical-align: middle;">Task</th>
-                                </tr>
-                        </thead>
-                        <tbody>
-                    {% for values in answers.Task.values %}
-                    {% for value in values.RelationQ.values %}
-                        {% if value.0 == option.containsParameter %}
-                                            <tr>
-                                                    <td style="text-align: center; vertical-align: middle;">{{ value.1 }}</td>
-                                                    <td style="text-align: center; vertical-align: middle;"></td>
-                                                    <td style="text-align: center; vertical-align: middle;">{{ value.2 }}</td>
-						    <td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
-                                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                                {% endfor %}
-                        </tbody>
-                </table>
+            <colgroup>
+                <col style="width: 30%" />
+                <col style="width: 40%" />
+                <col style="width: 15%" />
+                <col style="width: 15%" />
+            </colgroup>
+            <thead>
+                <tr class="header">
+                    <th style="text-align: center; vertical-align: middle;">Name</th>
+                    <th style="text-align: center; vertical-align: middle;">Description</th>
+                    <th style="text-align: center; vertical-align: middle;">Time</th>
+                    <th style="text-align: center; vertical-align: middle;">Space</th>
+                </tr>
+            </thead>
+            <tbody>
+                    <tr>
+                        <td style="text-align: center; vertical-align: middle;">
+                            <a href="{{ mathmoddbURI }}{{ values.ID|cut:"mathmoddb:"}}"" style="color:dodgerblue;">{{ answers.model.Name }}</a>
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">{{ answers.model.Description }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ answers.model.Time }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ answers.model.Space }}</td>
+                    </tr>
+            </tbody>
+        </table>
+{% endif %}
+
+{% if answers.variables.values %}
+    <h3 id="variables">Variables</h3>
+
+        <table border="1">
+            <colgroup>
+                <col style="width: 20%" />
+                <col style="width: 10%" />
+                <col style="width: 10%" />
+                <col style="width: 30%" />
+                <col style="width: 30%" />
+            </colgroup>
+            <thead>
+                <tr class="header">
+                    <th style="text-align: center; vertical-align: middle;">Name</th>
+                    <th style="text-align: center; vertical-align: middle;">Unit</th>
+                    <th style="text-align: center; vertical-align: middle;">Symbol</th>
+                    <th style="text-align: center; vertical-align: middle;">Task</th>
+                    <th style="text-align: center; vertical-align: middle;">Dependency Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for values in answers.variables.values %}
+                    <tr>
+                        <td style="text-align: center; vertical-align: middle;">
+                            <a href="{{ mathmoddbURI }}{{ values.ID|cut:"mathmoddb:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.Unit }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.Symbol }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.Task }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.Type }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{% endif %}
+
+{% if answers.parameters.values %}
+    <h3 id="parameters">Parameters</h3>
+
+        <table border="1">
+            <colgroup>
+                <col style="width: 30%" />
+                <col style="width: 15%" />
+                <col style="width: 15%" />
+                <col style="width: 40%" />
+            </colgroup>
+            <thead>
+                <tr class="header">
+                    <th style="text-align: center; vertical-align: middle;">Name</th>
+                    <th style="text-align: center; vertical-align: middle;">Unit</th>
+                    <th style="text-align: center; vertical-align: middle;">Symbol</th>
+                    <th style="text-align: center; vertical-align: middle;">Task</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for values in answers.parameters.values %}
+                    <tr>
+                        <td style="text-align: center; vertical-align: middle;">
+                            <a href="{{ mathmoddbURI }}{{ values.ID|cut:"mathmoddb:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.Unit }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.Symbol }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.Task }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{% endif %}
 
     <h2 id="process-information">Process Information</h2>
 
-    <h3 id="process-steps">Process Steps</h3>
+        <h3 id="process-steps">Process Steps</h3>
+        {% if answers.processstep.values %}
 
-        <table border="1">
-            <colgroup>
-                <col style="width: 12%" />
-                <col style="width: 12%" />
-                <col style="width: 12%" />
-                <col style="width: 12%" />
-                <col style="width: 12%" />
-                <col style="width: 12%" />
-                <col style="width: 12%" />
-                <col style="width: 12%" />
-            </colgroup>
-            <thead>
-                <tr class="header">
-                    <th style="text-align: center; vertical-align: middle;">Name</th>
-                    <th style="text-align: center; vertical-align: middle;">Description</th>
-                    <th style="text-align: center; vertical-align: middle;">Input</th>
-                    <th style="text-align: center; vertical-align: middle;">Output</th>
-                    <th style="text-align: center; vertical-align: middle;">Method</th>
-                    <th style="text-align: center; vertical-align: middle;">Parameter</th>
-                    <th style="text-align: center; vertical-align: middle;">Environment</th>
-                    <th style="text-align: center; vertical-align: middle;">Mathematical Area</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for values in answers.ProcessStep.values %}
-                    <tr>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>
-                        <td style="text-align: center; vertical-align: middle;">
-                                                    {% for input in values.Input.values %}
-                                                            {{ input }}
-                                                            {% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
-                        </td>   
-                        <td style="text-align: center; vertical-align: middle;">
-                                                    {% for output in values.Output.values %}
-                                                            {{ output }}
-                                                            {% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            {% for method in values.Method.values %}
-                                    {{ method }}
-                                    {% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Parameter }}</td>
-                        <td style="text-align: center; vertical-align: middle;">
-                                                    {% for environment in values.Environment.values %}
-                                                            {{ environment }}
-                                                            {% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                                                    {% for matharea in values.MathArea.values %}
-                                                            {{ matharea }}
-                                                            {% if not forloop.last %}, {% endif %}
-                                                    {% endfor %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-    <h3 id="applied-methods">Applied Methods</h3>
-
-        <table border="1">
-            <colgroup>
-                <col style="width: 20%" />
-                <col style="width: 20%" />
-                <col style="width: 20%" />
-                <col style="width: 20%" />
-                <col style="width: 20%" />
-            </colgroup>
-            <thead>
-                <tr class="header">
-                    <th style="text-align: center; vertical-align: middle;">ID</th>
-                    <th style="text-align: center; vertical-align: middle;">Name</th>
-                    <th style="text-align: center; vertical-align: middle;">Process Step</th>
-                    <th style="text-align: center; vertical-align: middle;">Parameter</th>
-                    <th style="text-align: center; vertical-align: middle;">implemented by</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for values in answers.Method.values %}
-                    <tr>
-                        <td style="text-align: center; vertical-align: middle;">
-                            {% if values.mardiId != 'tbd' %}
-                                                mardi:<a href=" {{values.uri}} ">{{ values.mardiId }}</a> <br>
+                <table border="1">
+                    <colgroup>
+                        <col style="width: 12%" />
+                        <col style="width: 12%" />
+                        <col style="width: 12%" />
+                        <col style="width: 12%" />
+                        <col style="width: 12%" />
+                        <col style="width: 12%" />
+                        <col style="width: 12%" />
+                        <col style="width: 12%" />
+                    </colgroup>
+                    <thead>
+                        <tr class="header">
+                            <th style="text-align: center; vertical-align: middle;">Name</th>
+                            <th style="text-align: center; vertical-align: middle;">Description</th>
+                            <th style="text-align: center; vertical-align: middle;">Input</th>
+                            <th style="text-align: center; vertical-align: middle;">Output</th>
+                            <th style="text-align: center; vertical-align: middle;">Algorithm</th>
+                            <th style="text-align: center; vertical-align: middle;">Parameter</th>
+                            <th style="text-align: center; vertical-align: middle;">Environment</th>
+                            <th style="text-align: center; vertical-align: middle;">Discipline</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for values in answers.processstep.values %}
+                            <tr>
+                                <td style="text-align: center; vertical-align: middle;">
+                                    {% if 'mardi' in values.ID %}
+                                        <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                    {% elif 'wikidata' in values.ID %}
+                                        <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                    {% elif values.ID == 'not found' %}
+                                        {{ values.Name }}
+                                    {% endif %}
+                                <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>
+                                <td style="text-align: center; vertical-align: middle;">
+                                    {% for input in values.input.values %}
+                                        {% if 'mardi' in input.ID %}
+                                            <a href="{{ mardiURI }}{{ input.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ input.Name }}</a>
+                                        {% elif 'wikidata' in input.ID %}
+                                            <a href="{{ wikidataURI }}{{ input.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ input.Name }}</a>
                                         {% endif %}
-                            {% if values.mardiId == 'tbd' %}
-                                                            mardi:{{ values.mardiId }}</a> <br>
-                                                        {% endif %}
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
-                        <td style="text-align: center; vertical-align: middle;">
-                                {% for processstep in values.ProcessStep.values %}
-                                                                {{ processstep }}
-                                                                {% if not forloop.last %}, {% endif %}
-                                                        {% endfor %}
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Parameter }}</td>
-                        <td style="text-align: center; vertical-align: middle;">
-                                                        {% for software in values.Software.values %}
-                                                                {{ software }}
-                                                                {% if not forloop.last %}, {% endif %}
-                                                        {% endfor %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>   
+                                <td style="text-align: center; vertical-align: middle;">
+                                    {% for output in values.output.values %}
+                                        {% if 'mardi' in output.ID %}
+                                            <a href="{{ mardiURI }}{{ output.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ output.Name }}</a>
+                                        {% elif 'wikidata' in output.ID %}
+                                            <a href="{{ wikidataURI }}{{ output.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ output.Name }}</a>
+                                        {% endif %}
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align: center; vertical-align: middle;">
+                                    {% for algorithm in values.algorithm.values %}
+                                        <a href="{{ mathalgodbURI }}{{ algorithm.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ algorithm.Name }}</a>
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align: center; vertical-align: middle;">{{ values.parameter }}</td>
+                                <td style="text-align: center; vertical-align: middle;">
+                                    {% for environment in values.environment.values %}
+                                        {% if 'mardi' in environment.ID %}
+                                            <a href="{{ mardiURI }}{{ environment.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ environment.Name }}</a>
+                                        {% elif 'wikidata' in environment.ID %}
+                                            <a href="{{ wikidataURI }}{{ environment.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ environment.Name }}</a>
+                                        {% endif %}
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td style="text-align: center; vertical-align: middle;">
+                                    {% for discipline in values.discipline.values %}
+                                        {% if 'mardi' in discipline.ID %}
+                                            <a href="{{ mardiURI }}{{ discipline.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ discipline.Name }}</a>
+                                        {% elif 'wikidata' in discipline.ID %}
+                                            <a href="{{ wikidataURI }}{{ discipline.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ discipline.Name }}</a>
+                                        {% elif 'msc' in discipline.ID %}
+                                            {{ discipline.Name }}
+                                        {% endif %}
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+        {% endif %}
 
-    <h3 id="software-used">Software used</h3>
+    <h3 id="algorithms">Algorithms</h3>
+    {% if answers.algorithm.values %}
 
-        <table border="1">
-            <colgroup>
-                <col style="width: 11%" />
-                <col style="width: 11%" />
-                <col style="width: 11%" />
-                <col style="width: 11%" />
-                <col style="width: 11%" />
-                <col style="width: 11%" />
-                <col style="width: 11%" />
-                <col style="width: 11%" />
-                <col style="width: 11%" />
-            </colgroup>
-            <thead>
-                <tr class="header">
-                    <th style="text-align: center; vertical-align: middle;">ID</th>
-                    <th style="text-align: center; vertical-align: middle;">Name</th>
-                    <th style="text-align: center; vertical-align: middle;">Description</th>
-                    <th style="text-align: center; vertical-align: middle;">Version</th>
-                    <th style="text-align: center; vertical-align: middle;">Programming Language</th>
-                    <th style="text-align: center; vertical-align: middle;">Dependencies</th>
-                    <th style="text-align: center; vertical-align: middle;">versioned</th>
-                    <th style="text-align: center; vertical-align: middle;">published</th>
-                    <th style="text-align: center; vertical-align: middle;">documented</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for values in answers.Software.values %}
-                    <tr>
-                        <td style="text-align: center; vertical-align: middle;">
-                                                    {% if values.mardiId != 'tbd' %}
-                                                            mardi:<a href=" {{values.uri}} ">{{ values.mardiId }}</a> <br>
-                                                    {% endif %}
-                                                        {% if values.mardiId == 'tbd' %}
-                                                                mardi:{{ values.mardiId }}</a> <br>
-                                                        {% endif %}
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Version }}</td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            {% for subproperty in values.SubProperty.values %}
-                                                                {% if subproperty.mardiId != 'tbd' %}
-                                                                    <a href=" {{subproperty.uri}} ">{{ subproperty.Name }}</a> <br>
-                                                            {% endif %}
-                                                            {% if subproperty.mardiId == 'tbd' %}
-                                                                    {{ subproperty.Name }}</a> <br>
-                                                            {% endif %}
-                                                                {% if not forloop.last %}, {% endif %}
-                                                        {% endfor %}
-
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                                                        {% for dependency in values.Dependency.values %}
-                                                                {{ dependency }}
-                                                                {% if not forloop.last %}, {% endif %}
-                                                        {% endfor %}
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                            {% if values.Versioned.0 == option.YesText %}
-                                                                <a href=" {{values.Versioned.1}} ">Yes</a> <br>
-                                                        {% endif %}
-                            {% if values.Versioned.0 != option.YesText %}
-                                                                No
-                                                        {% endif %}
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                                                        {% if values.Published.0 == option.YesText %}
-                                                                <a href=" {{values.Published.1}} ">Yes</a> <br>
-                                                        {% endif %}
-                                                        {% if values.Published.0 != option.YesText %}
-                                                                No
-                            {% endif %}
-                        </td>
-                        <td style="text-align: center; vertical-align: middle;">
-                                                        {% if values.Documented.0 == option.YesText %}
-                                                                <a href=" {{values.Documented.1}} ">Yes</a> <br>
-                                                        {% endif %}
-                                                        {% if values.Documented.0 != option.YesText %}
-                                                                No
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-    {% if answers.Settings.WorkflowType == option.Computation %}  
-        <h3 id="hardware">Hardware</h3>
             <table border="1">
                 <colgroup>
-                    <col style="width: 16%" />
-                    <col style="width: 16%" />
-                    <col style="width: 16%" />
-                    <col style="width: 16%" />
-                    <col style="width: 16%" />
-                    <col style="width: 16%" />
+                    <col style="width: 20%" />
+                    <col style="width: 20%" />
+                    <col style="width: 20%" />
+                    <col style="width: 20%" />
+                    <col style="width: 20%" />
                 </colgroup>
                 <thead>
                     <tr class="header">
-                        <th style="text-align: center; vertical-align: middle;">ID</th>
                         <th style="text-align: center; vertical-align: middle;">Name</th>
-                        <th style="text-align: center; vertical-align: middle;">Processor</th>
+                        <th style="text-align: center; vertical-align: middle;">Description</th>
+                        <th style="text-align: center; vertical-align: middle;">Process Step</th>
+                        <th style="text-align: center; vertical-align: middle;">Parameter</th>
+                        <th style="text-align: center; vertical-align: middle;">implemented by</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for values in answers.algorithm.values %}
+                        <tr>
+                            <td style="text-align: center; vertical-align: middle;">
+                                <a href="{{ mathalgodbURI }}{{ values.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                            </td>
+                            <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>
+                            <td style="text-align: center; vertical-align: middle;"> 
+                                {% for processstep in answers.processstep.values %}
+                                    {% for algorithm in processstep.algorithm.values %}
+                                        {% if values.ID == algorithm.ID %}
+                                            {% if 'mardi' in processstep.ID %}
+                                                <a href="{{ mardiURI }}{{ processstep.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ processstep.Name }}</a>
+                                            {% elif 'wikidata' in processstep.ID %}
+                                                <a href="{{ wikidataURI }}{{ processstep.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ processstep.Name }}</a>
+                                            {% elif processstep.ID == 'not found' %}
+                                                {{ processstep.Name }}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% for value in values.Parameter.values %}
+                                    {{ value }}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% for software in values.software.values %}
+                                    {% if 'mardi' in software.ID %}
+                                        <a href="{{ mardiURI }}{{ software.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
+                                    {% elif 'wikidata' in software.ID %}
+                                        <a href="{{ wikidataURI }}{{ software.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
+                                    {% endif %}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+    {% endif %}
+
+    <h3 id="software-used">Software</h3>
+    {% if answers.software.values %}
+
+            <table border="1">
+                <colgroup>
+                    <col style="width: 12.5%" />
+                    <col style="width: 12.5%" />
+                    <col style="width: 12.5%" />
+                    <col style="width: 12.5%" />
+                    <col style="width: 12.5%" />
+                    <col style="width: 12.5%" />
+                    <col style="width: 12.5%" />
+                    <col style="width: 12.5%" />
+                </colgroup>
+                <thead>
+                    <tr class="header">
+                        <th style="text-align: center; vertical-align: middle;">Name</th>
+                        <th style="text-align: center; vertical-align: middle;">Description</th>
+                        <th style="text-align: center; vertical-align: middle;">Version</th>
+                        <th style="text-align: center; vertical-align: middle;">Programming Language</th>
+                        <th style="text-align: center; vertical-align: middle;">Dependencies</th>
+                        <th style="text-align: center; vertical-align: middle;">versioned</th>
+                        <th style="text-align: center; vertical-align: middle;">published</th>
+                        <th style="text-align: center; vertical-align: middle;">documented</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for values in answers.software.values %}
+                        <tr>
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% if 'mardi' in values.ID %}
+                                    <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% elif 'wikidata' in values.ID %}
+                                    <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>
+                            <td style="text-align: center; vertical-align: middle;">{{ values.Version }}</td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% for programminglanguage in values.programminglanguage.values %}
+                                    {% if 'mardi' in programminglanguage.ID %}
+                                        <a href="{{ mardiURI }}{{ programminglanguage.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ programminglanguage.Name }}</a>
+                                    {% elif 'wikidata' in programminglanguage.ID %}
+                                        <a href="{{ wikidataURI }}{{ programminglanguage.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ programminglanguage.Name }}</a>
+                                    {% endif %}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% for dependency in values.dependency.values %}
+                                    {% if 'mardi' in dependency.ID %}
+                                        <a href="{{ mardiURI }}{{ dependency.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ dependency.Name }}</a>
+                                    {% elif 'wikidata' in dependency.ID %}
+                                        <a href="{{ wikidataURI }}{{ dependency.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ dependency.Name }}</a>
+                                    {% endif %}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% if values.Version %}
+                                    Yes
+                                {% else %}
+                                    No
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% if values.Published.0 == option.YesText %}
+                                        <a href=" {{values.Published.1}} ">Yes</a> <br>
+                                {% elif values.Published.0 == option.NoText %}
+                                        No
+                                {% else %}
+                                        -
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% if values.Documented.0 == option.YesText %}
+                                        <a href=" {{values.Documented.1}} ">Yes</a> <br>
+                                {% elif values.Documented.0 == option.NoText %}
+                                        No
+                                {% else %}
+                                        -
+                                {% endif %}
+                            </td>
+                        </tr>
+                    
+                    {% endfor %}
+                </tbody>
+            </table>
+    {% endif %}
+
+    <h3 id="hardware">Hardware</h3>
+    {% if answers.hardware.values %}  
+            <table border="1">
+                <colgroup>
+                    <col style="width: 16.6%" />
+                    <col style="width: 16.6%" />
+                    <col style="width: 16.6%" />
+                    <col style="width: 16.6%" />
+                    <col style="width: 16.6%" />
+                    <col style="width: 16.6%" />
+                </colgroup>
+                <thead>
+                    <tr class="header">
+                        <th style="text-align: center; vertical-align: middle;">Name</th>
+                        <th style="text-align: center; vertical-align: middle;">Description</th>
+                        <th style="text-align: center; vertical-align: middle;">CPU</th>
                         <th style="text-align: center; vertical-align: middle;">Compiler</th>
                         <th style="text-align: center; vertical-align: middle;">#Nodes</th>
                         <th style="text-align: center; vertical-align: middle;">#Cores</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for values in answers.Hardware.values %}
-		        <tr>
+                    {% for values in answers.hardware.values %}
+                        <tr>
+		                    <td style="text-align: center; vertical-align: middle;">
+                                {% if 'mardi' in values.ID %}
+                                    <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% elif 'wikidata' in values.ID %}
+                                    <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center; vertical-align: middle;">{{ values.Description }}
                             <td style="text-align: center; vertical-align: middle;">
-				    			    {% if values.mardiId != 'tbd' %}
-                                                            	    mardi:<a href=" {{values.uri}} ">{{ values.mardiId }}</a> <br>
-                                                            {% endif %}
-                                                            {% if values.mardiId == 'tbd' %}
-                                                                    mardi:{{ values.mardiId }}</a> <br>
-                                                            {% endif %}
-			    </td>
-                            <td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
+                                {% for cpu in values.cpu.values %}
+                                    {% if 'mardi' in cpu.ID %}
+                                        <a href="{{ mardiURI }}{{ cpu.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ cpu.Name }}</a>
+                                    {% elif 'wikidata' in cpu.ID %}
+                                        <a href="{{ wikidataURI }}{{ cpu.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ cpu.Name }}</a>
+                                    {% endif %}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
                             <td style="text-align: center; vertical-align: middle;">
-				{% for subproperty in values.SubProperty.values %}
-                                                                {% if subproperty.mardiId != 'tbd' %}
-                                                                    <a href=" {{subproperty.uri}} ">{{ subproperty.Name }}</a> <br>
-                                                            {% endif %}
-                                                            {% if subproperty.mardiId == 'tbd' %}
-                                                                    {{ subproperty.Name }}</a> <br>
-                                                            {% endif %}
-                                                                {% if not forloop.last %}, {% endif %}
-                                                        {% endfor %}
-
-			    </td>
-                            <td style="text-align: center; vertical-align: middle;">
-				{% for subproperty2 in values.SubProperty2.values %}
-                                                                {% if subproperty2.mardiId != 'tbd' %}
-                                                                    <a href=" {{subproperty2.uri}} ">{{ subproperty2.Name }}</a> <br>
-                                                            {% endif %}
-                                                            {% if subproperty2.mardiId == 'tbd' %}
-                                                                    {{ subproperty2.Name }}</a> <br>
-                                                            {% endif %}
-                                                                {% if not forloop.last %}, {% endif %}
-                                                        {% endfor %}
-
-			    </td>
+                                {% for compiler in values.compiler.values %}
+                                    {% if 'mardi' in compiler.ID %}
+                                        <a href="{{ mardiURI }}{{ compiler.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ compiler.Name }}</a>
+                                    {% elif 'wikidata' in compiler.ID %}
+                                        <a href="{{ wikidataURI }}{{ compiler.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ compiler.Name }}</a>
+                                    {% endif %}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
                             <td style="text-align: center; vertical-align: middle;">{{ values.Node }}</td>
                             <td style="text-align: center; vertical-align: middle;">{{ values.Core }}</td>
                     	</tr>
-		    {% endfor %}
+		            {% endfor %}
                 </tbody>
             </table>
     {% endif %}
 
-    {% if answers.Settings.WorkflowType == option.Analysis %}
-        <h3 id="experimental-device">Experimental Devices</h3>
-                        <table border="1">
-                                <colgroup>
-                                        <col style="width: 12%" />
-                                        <col style="width: 12%" />
-                                        <col style="width: 12%" />
-                                        <col style="width: 12%" />
-                                        <col style="width: 12%" />
-                                        <col style="width: 12%" />
-                    <col style="width: 12%" />
-                                        <col style="width: 12%" />
-                                </colgroup>
-                                <thead>
-                                       <tr class="header">
-                                                <th style="text-align: center; vertical-align: middle;">ID</th>
-                                                <th style="text-align: center; vertical-align: middle;">Name</th>
-                                                <th style="text-align: center; vertical-align: middle;">Description</th>
-                                                <th style="text-align: center; vertical-align: middle;">Version</th>
-                                                <th style="text-align: center; vertical-align: middle;">Part Number</th>
-                                                <th style="text-align: center; vertical-align: middle;">Serial Number</th>
-                        			<th style="text-align: center; vertical-align: middle;">Location</th>
-                                                <th style="text-align: center; vertical-align: middle;">Software</th>
-                                        </tr>
-                                </thead>
-                                <tbody>
-                                        {% for values in answers.ExperimentalDevice.values %}
-					    <tr>
-                                                        <td style="text-align: center; vertical-align: middle;">
-								{% if values.mardiId != 'tbd' %}
-                                                                    mardi:<a href=" {{values.uri}} ">{{ values.mardiId }}</a> <br>
-        	                                                {% endif %}
-	                                                        {% if values.mardiId == 'tbd' %}
-                                                                    mardi:{{ values.mardiId }}</a> <br>
-                                                            	{% endif %}
-							</td>
-                                                        <td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
-                                                        <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>
-                                                        <td style="text-align: center; vertical-align: middle;">{{ values.Version }}</td>
-                                                        <td style="text-align: center; vertical-align: middle;">{{ values.PartNumber }}</td>
-                                                        <td style="text-align: center; vertical-align: middle;">{{ values.SerialNumber }}</td>
-                            				<td style="text-align: center; vertical-align: middle;">
-								{% for subproperty in values.SubProperty.values %}
-                                                                	{% if subproperty.mardiId != 'tbd' %}
-                                                                    		<a href=" {{subproperty.uri}} ">{{ subproperty.Name }}</a> <br>
-                                                            		{% endif %}
-                                                            		{% if subproperty.mardiId == 'tbd' %}
-                                                                    		{{ subproperty.Name }}</a> <br>
-                                                            		{% endif %}
-                                                                	{% if not forloop.last %}, {% endif %}
-                                                        	{% endfor %}
-							</td>
-                                                        <td style="text-align: center; vertical-align: middle;">
-								{% for subproperty2 in values.SubProperty2.values %}
-        	                                                        {% if subproperty2.mardiId != 'tbd' %}
-	                                                                    <a href=" {{subproperty2.uri}} ">{{ subproperty2.Name }}</a> <br>
-                                                                        {% endif %}
-                            		                                {% if subproperty2.mardiId == 'tbd' %}
-                                        	                            {{ subproperty2.Name }}</a> <br>
-                                                	                {% endif %}
-                                                           		{% if not forloop.last %}, {% endif %}
-                                                        	{% endfor %}
-							</td>
-                                            <tr>
-					{% endfor %}
-                                </tbody>
+    <h3 id="instrument">Instrument</h3>
+    {% if answers.instrument.values %}
+            <table border="1">
+                <colgroup>
+                        <col style="width: 14.2%" />
+                        <col style="width: 14.2%" />
+                        <col style="width: 14.2%" />
+                        <col style="width: 14.2%" />
+                        <col style="width: 14.2%" />
+                        <col style="width: 14.2%" />
+                        <col style="width: 14.2%" />
+                </colgroup>
+                <thead>
+                       <tr class="header">
+                                <th style="text-align: center; vertical-align: middle;">Name</th>
+                                <th style="text-align: center; vertical-align: middle;">Description</th>
+                                <th style="text-align: center; vertical-align: middle;">Version</th>
+                                <th style="text-align: center; vertical-align: middle;">Part Number</th>
+                                <th style="text-align: center; vertical-align: middle;">Serial Number</th>
+            		            <th style="text-align: center; vertical-align: middle;">Location</th>
+                                <th style="text-align: center; vertical-align: middle;">Software</th>
+                        </tr>
+                </thead>
+                <tbody>
+                        {% for values in answers.instrument.values %}
+			            <tr>
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% if 'mardi' in values.ID %}
+                                    <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% elif 'wikidata' in values.ID %}
+                                    <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>
+                            <td style="text-align: center; vertical-align: middle;">{{ values.Version }}</td>
+                            <td style="text-align: center; vertical-align: middle;">{{ values.PartNumber }}</td>
+                            <td style="text-align: center; vertical-align: middle;">{{ values.SerialNumber }}</td>
+            				<td style="text-align: center; vertical-align: middle;">
+                                {% for location in values.location.values %}
+                                    {% if 'mardi' in location.ID %}
+                                        <a href="{{ mardiURI }}{{ location.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ location.Name }}</a>
+                                    {% elif 'wikidata' in location.ID %}
+                                        <a href="{{ wikidataURI }}{{ location.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ location.Name }}</a>
+                                    {% endif %}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+			                </td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% for software in values.software.values %}
+                                    {% if 'mardi' in software.ID %}
+                                        <a href="{{ mardiURI }}{{ software.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
+                                    {% elif 'wikidata' in software.ID %}
+                                        <a href="{{ wikidataURI }}{{ software.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
+                                    {% endif %}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+			                </td>
+                        </tr>
+			        {% endfor %}
+                </tbody>
             </table>
     {% endif %}
 
-    <h3 id="input-data">Input Data</h3>
+    <h3 id="data-sets">Data Sets</h3>
+    {% if answers.dataset.values %}
         <table border="1">
             <colgroup>
                 <col style="width: 10%" />
+                <col style="width: 19%" />
                 <col style="width: 10%" />
                 <col style="width: 10%" />
                 <col style="width: 10%" />
                 <col style="width: 10%" />
                 <col style="width: 10%" />
-                <col style="width: 10%" />
-                <col style="width: 10%" />
-                <col style="width: 10%" />
-                <col style="width: 10%" />
+                <col style="width: 7%" />
+                <col style="width: 7%" />
+                <col style="width: 7%" />
             </colgroup>
             <thead>
                 <tr class="header">
-                    <th style="text-align: center; vertical-align: middle;">ID</th>
                     <th style="text-align: center; vertical-align: middle;">Name</th>
+                    <th style="text-align: center; vertical-align: middle;">Description</th>
                     <th style="text-align: center; vertical-align: middle;">Size</th>
-                    <th style="text-align: center; vertical-align: middle;">Data Structure</th>
-                    <th style="text-align: center; vertical-align: middle;">Format Representation</th>
-                    <th style="text-align: center; vertical-align: middle;">Format Exchange</th>
+                    <th style="text-align: center; vertical-align: middle;">Data Type</th>
+                    <th style="text-align: center; vertical-align: middle;">Representation Format</th>
+                    <th style="text-align: center; vertical-align: middle;">File Format</th>
                     <th style="text-align: center; vertical-align: middle;">binary/text</th>
                     <th style="text-align: center; vertical-align: middle;">proprietary</th>
                     <th style="text-align: center; vertical-align: middle;">to publish</th>
@@ -543,195 +575,174 @@
                 </tr>
             </thead>
             <tbody>
-                {% for values in answers.DataSet.values %}
-                    {% if 'Input' in values.Type.values %}
-                        <tr>
-                            <td style="text-align: center; vertical-align: middle;">
-                                                            {% if values.mardiId != 'tbd' %}
-                                                                    mardi:<a href=" {{values.uri}} ">{{ values.mardiId }}</a> <br>
-                                                            {% endif %}
-                                                            {% if values.mardiId == 'tbd' %}
-                                                                    mardi:{{ values.mardiId }}</a> <br>
-                                                            {% endif %}
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                {% if values.Size == option.Small %}
-                                    Small (KB - MB)
-                                {% elif values.Size == option.Medium %}
-                                                                        Medium (MB - GB)
-                                {% elif values.Size == option.Large %}  
-                                                                        Large (GB - TB)
-                                {% elif value.Size == option.VeryLarge %}  
-                                    Very Large (>TB)
+                {% for values in answers.dataset.values %}
+                    <tr>
+                        <td style="text-align: center; vertical-align: middle;">
+                            {% if 'mardi' in values.ID %}
+                                <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                            {% elif 'wikidata' in values.ID %}
+                                <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            {% if values.Size.0 == option.kilobyte %}
+                                {{ values.Size.1 }} kilobyte
+                            {% elif values.Size.0 == option.megabyte %}
+                                {{ values.Size.1 }} megabyte
+                            {% elif values.Size.0 == option.gigabyte %}  
+                                {{ values.Size.1 }} gigabyte
+                            {% elif values.Size.0 == option.terabyte %}  
+                                {{ values.Size.1 }} terabyte
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            {% for datatype in values.datatype.values %}
+                                {% if 'mardi' in datatype.ID %}
+                                    <a href="{{ mardiURI }}{{ datatype.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ datatype.Name }}</a>
+                                {% elif 'wikidata' in datatype.ID %}
+                                    <a href="{{ wikidataURI }}{{ datatype.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ datatype.Name }}</a>
                                 {% endif %}
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">{{ values.DataStructure }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ values.RepresentationFormat }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ values.ExchangeFormat }}</td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                {% if values.BinaryText == option.Binary %}
-                                    Binary
-                                {% elif values.BinaryText == option.Text %}
-                                    Text
-                                {% endif %}
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                {% if values.Proprietary == option.Yes %}
+                                {% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            {% for representationformat in values.representationformat.values %}
+                                {% if 'mardi' in representationformat.ID %}
+                                    <a href="{{ mardiURI }}{{ representationformat.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ representationformat.Name }}</a>
+                                {% elif 'wikidata' in representationformat.ID %}
+                                    <a href="{{ wikidataURI }}{{ representationformat.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ representationformat.Name }}</a>
+                                {% endif %}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.FileFormat }}</td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            {% if values.BinaryText == option.binary %}
+                                binary
+                            {% elif values.BinaryText == option.text %}
+                                text
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            {% if values.Proprietary == option.Yes %}
+                                Yes
+                            {% elif values.Proprietary == option.No %}
+                                No
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            {% if values.ToPublish.0 == option.YesText %}
+                                {% if values.ToPublish.1 %}
+                                    <a href="{{ values.ToPublish.1 }}"" style="color:dodgerblue;">Yes</a>
+                                    {{ values.ToPublish.1}}
+                                {% else %}
                                     Yes
-                                {% elif values.Proprietary == option.No %}
-                                    No
                                 {% endif %}
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                {% if values.Publication == option.Yes %}
-                                                                        Yes
-                                                                {% elif values.Publication == option.No %}
-                                                                        No
-                                                                {% endif %}
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                {% if values.Archiving.0 == option.YesText %}
-                                                                        {{ values.Archiving.1 }}
-                                                                {% elif values.Archiving.0 == option.NoText %}
-                                                                        No
-                                                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
+                            {% elif values.ToPublish.0 == option.NoText %}
+                                    No
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            {% if values.ToArchive.0 == option.YesText %}
+                                {% if values.ToArchive.1 %}
+                                    {{ values.ToArchive.1 }}
+                                {% else %}
+                                    Yes
+                                {% endif %}
+                            {% elif values.ToArchive.0 == option.NoText %}
+                                    No
+                            {% endif %}
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
-
-    <h3 id="output-data">Output Data</h3>
-        <table border="1">
-            <colgroup>
-                <col style="width: 10%" />
-                <col style="width: 10%" />
-                <col style="width: 10%" />
-                <col style="width: 10%" />
-                <col style="width: 10%" />
-                <col style="width: 10%" />
-                <col style="width: 10%" />
-                <col style="width: 10%" />
-                <col style="width: 10%" />
-                <col style="width: 10%" />
-            </colgroup>
-            <thead>
-                <tr class="header">
-                    <th style="text-align: center; vertical-align: middle;">ID</th>
-                    <th style="text-align: center; vertical-align: middle;">Name</th>
-                    <th style="text-align: center; vertical-align: middle;">Size</th>
-                    <th style="text-align: center; vertical-align: middle;">Data Structure</th>
-                    <th style="text-align: center; vertical-align: middle;">Format Representation</th>
-                    <th style="text-align: center; vertical-align: middle;">Format Exchange</th>
-                    <th style="text-align: center; vertical-align: middle;">binary/text</th>
-                    <th style="text-align: center; vertical-align: middle;">proprietary</th>
-                    <th style="text-align: center; vertical-align: middle;">to publish</th>
-                    <th style="text-align: center; vertical-align: middle;">to archive</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for values in answers.DataSet.values %}
-                    {% if 'Output' in values.Type.values %}
-                        <tr>
-                            <td style="text-align: center; vertical-align: middle;">
-                                                            {% if values.mardiId != 'tbd' %}
-                                                                    mardi:<a href=" {{values.uri}} ">{{ values.mardiId }}</a> <br>
-                                                            {% endif %}
-                                                            {% if values.mardiId == 'tbd' %}
-                                                                    mardi:{{ values.mardiId }}</a> <br>
-                                                            {% endif %}
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">{{ values.Name }}</td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                {% if values.Size == option.Small %}
-                                    Small (KB - MB)
-                                {% elif values.Size == option.Medium %}
-                                                                        Medium (MB - GB)
-                                {% elif values.Size == option.Large %}  
-                                                                        Large (GB - TB)
-                                {% elif value.Size == option.VeryLarge %}  
-                                    Very Large (>TB)
-                                {% endif %}
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">{{ values.DataStructure }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ values.RepresentationFormat }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ values.ExchangeFormat }}</td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                {% if values.BinaryText == option.Binary %}
-                                    Binary
-                                {% elif values.BinaryText == option.Text %}
-                                    Text
-                                {% endif %}
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                {% if values.Proprietary == option.Yes %}
-                                    Yes
-                                {% elif values.Proprietary == option.No %}
-                                    No
-                                {% endif %}
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                {% if values.Publication == option.Yes %}
-                                                                        Yes
-                                                                {% elif values.Publication == option.No %}
-                                                                        No
-                                                                {% endif %}
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">
-                                {% if values.Archiving.0 == option.YesText %}
-                                                                        {{ values.Archiving.1 }}
-                                                                {% elif values.Archiving.0 == option.NoText %}
-                                                                        No
-                                                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
+    {% endif %}
 
     <h2 id="reproducibility">Reproducibility</h2>
 
-    {% if answers.Settings.WorkflowType == option.Computation %}
         <h3 id="mathematical-reproducibility">Mathematical Reproducibility</h3>
-            {% if answers.ReproducibilityComputational.Mathematically == option.Yes %}
-                <p>Yes: {{ answers.ReproducibilityComputational.MathematicallyInfo }}</p>
-            {% elif answers.ReproducibilityComputational.Mathematically == option.No %}
-                                <p>No</p>
+            {% if answers.reproducibility.mathematical == option.Yes %}
+                <p>Yes: {{ answers.reproducibility.mathematicalcondition }}</p>
+            {% elif answers.reproducibility.mathematical == option.No %}
+                <p>No</p>
+            {% elif answers.reproducibility.mathematical == option.NotRelevant %}
+                <p>Not relevant</p>                    
             {% endif %}
         <h3 id="runtime-reproducibility">Runtime Reproducibility</h3>
-                        {% if answers.ReproducibilityComputational.Runtime == option.Yes %}
-                                <p>Yes: {{ answers.ReproducibilityComputational.RuntimeInfo }}</p>
-                        {% elif answers.ReproducibilityComputational.Runtime == option.No %}
-                                <p>No</p>
+            {% if answers.reproducibility.runtime == option.Yes %}
+                <p>Yes: {{ answers.reproducibility.runtimecondition }}</p>
+            {% elif answers.reproducibility.runtime == option.No %}
+                <p>No</p>
+            {% elif answers.reproducibility.runtime == option.NotRelevant %}
+                <p>Not relevant</p>
             {% endif %}
         <h3 id="reproducibility-of-results">Reproducibility of Results</h3>
-                        {% if answers.ReproducibilityComputational.Result == option.Yes %}
-                                <p>Yes: {{ answers.ReproducibilityComputational.ResultInfo }}</p>
-                        {% elif answers.ReproducibilityComputational.Result == option.No %}
-                                <p>No</p>
+            {% if answers.reproducibility.result == option.Yes %}
+                <p>Yes: {{ answers.reproducibility.resultcondition }}</p>
+            {% elif answers.reproducibility.result == option.No %}
+                <p>No</p>
+            {% elif answers.reproducibility.result == option.NotRelevant %}
+                <p>Not relevant</p>
             {% endif %}
-    {% endif %}
-        <h3 id="reproducibility-on-original-hardware">Reproducibility on original {% if answers.Settings.WorkflowType == option.Computation %}Hardware{% elif answers.Settings.WorkflowType == option.Analysis %}Devices/Instruments/Hardware{% endif %}</h3>
-                        {% if answers.ReproducibilityComputational.OriginalHardware == option.Yes %}
-                                <p>Yes: {{ answers.ReproducibilityComputational.OriginalHardwareInfo }}</p>
-                        {% elif answers.ReproducibilityComputational.OriginalHardware == option.No %}
-                                <p>No</p>
+        <h3 id="reproducibility-on-original-platform">Reproducibility on original Platform (i.e. Hardware or Instrument)</h3>
+            {% if answers.reproducibility.originalplatform == option.Yes %}
+                <p>Yes: {{ answers.reproducibility.originalplatformcondition }}</p>
+            {% elif answers.reproducibility.originalplatform == option.No %}
+                <p>No</p>
+            {% elif answers.reproducibility.originalplatform == option.NotRelevant %}
+                <p>Not relevant</p>
             {% endif %}
-        <h3 id="reproducibility-on-other-hardware">Reproducibility on other {% if answers.Settings.WorkflowType == option.Computation %}Hardware{% elif answers.Settings.WorkflowType == option.Analysis %}Devices/Instruments/Hardware{% endif %}</h3>
-                        {% if answers.ReproducibilityComputational.OtherHardware == option.Yes %}
-                                <p>Yes: {{ answers.ReproducibilityComputational.OtherHardwareInfo }}</p>
-                        {% elif answers.ReproducibilityComputational.OtherHardware == option.No %}
-                                <p>No</p>
+        <h3 id="reproducibility-on-other-platform">Reproducibility on other Platform (i.e. Hardware or Instrument)</h3>
+            {% if answers.reproducibility.otherplatform == option.Yes %}
+                    <p>Yes: {{ answers.reproducibility.otherplatformcondition }}</p>
+            {% elif answers.reproducibility.otherplatform == option.No %}
+                    <p>No</p>
+            {% elif answers.reproducibility.otherplatform == option.NotRelevant %}
+                <p>Not relevant</p>
             {% endif %}
         <h3 id="transferability-to">Transferability to</h3>
-            {% for value in answers.ReproducibilityComputational.Transferability.values %}
-                            {{ value }}
+            {% for value in answers.reproducibility.transferability.values %}
+                {{ value }}
                 {% if not forloop.last %}<br>{% endif %}
-                        {% endfor %}
-                
+            {% endfor %}
+    
+<h2 id="related-publications">Workflow Published In</h2>
+{% for values in answers.publication.values %}
+    {% if values.workflow == option.Yes %}
+        
+        <h3 id="P{{ forloop.counter }}"> {{ values.Name }} </h2>
+        
+        <p> 
+            {% for reference in values.reference.values %}
+                {% if reference.0 == option.DOI %}
+                    <b>DOI</b>: {{ reference.1 }} <br>
+                {% endif %} 
+                {% if reference.0 == option.URL %}
+                    <b>URL</b>: {{ reference.1 }} <br>
+                {% endif %}
+            {% endfor %}
+        </p>
+    {% endif %}
+{% endfor %}
+
+<h2 id="related-publications">References For Individual Workflow Aspects</h2>
+{% for values in answers.publication.values %}
+    {% if values.workflow == option.No %}
+        
+        <p> 
+            {% for reference in values.reference.values %}
+                {% if reference.0 == option.DOI %}
+                    <b>DOI</b>: {{ reference.1 }} <br>
+                {% endif %} 
+                {% if reference.0 == option.URL %}
+                    <b>URL</b>: {{ reference.1 }} <br>
+                {% endif %}
+            {% endfor %}
+        </p>
+    {% endif %}
+{% endfor %}
+
     <h2 id="legend">Legend</h2>
         <p>The following abbreviations are used in the document to indicate/resolve IDs:</p>
     <p>doi: DOI / https://dx.doi.org/</p>
@@ -739,5 +750,3 @@
     <p>wikidata: https://www.wikidata.org/wiki/</p>
     <p>mardi: https://portal.mardi4nfdi.de/wiki/</p>
     </body>
-
-{% endblock %}

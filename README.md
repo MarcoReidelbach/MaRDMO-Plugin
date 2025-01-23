@@ -8,9 +8,7 @@
 
 This repository contains the MaRDMO Plugin for the [Research Datamanagement Organizer](https://rdmorganiser.github.io/) (RDMO) developed within the [Mathematical Research Data Initiative](https://www.mardi4nfdi.de/about/mission) (MaRDI). The plugin allows a standardized documentation of interdisciplinary workflows, where the connection to experiments or computational approaches, like simulations, is possible and desired. Documented workflows can be stored locally (depreciated) or shared with other scientists on the [MaRDI Portal](https://portal.mardi4nfdi.de/wiki/Portal). In the latter case a Wiki Page is created for the documented workflow and integral aspects of the workflow are integrated into the MaRDI Knowledge Graph. Integration into the MaRDI Knowledge Graph allows specific workflow queries which are also possible through the MaRDMO Plugin.
 
-To document the underlying mathematical model(s) MaRDMO relies on the [MathModDB](https://portal.mardi4nfdi.de/wiki/MathModDB) ontology developed within Task Area 4 of MaRDI. Existing model documentations are retrieved from the MathModDB Knowledge Graph. Export into the MathModDB KG is possible upon authentification. If credentials are missing, it is possible to export the documented model into a standardized model documentation template and share it with the MaRDI TA4 Team for integration.
-
-Currently it is not possible to export a workflow documentation and a model documentation at the same time to the respective KGs. This will be added in the next update, until then document the model, export it to the MathModDB KG and select it in the Workflow documentation.    
+To document the underlying mathematical model(s) MaRDMO relies on the [MathModDB](https://portal.mardi4nfdi.de/wiki/MathModDB) ontology developed within Task Area 4 of MaRDI. Existing model documentations are retrieved from the MathModDB Knowledge Graph. Export into the MathModDB KG is possible upon authentification. If credentials are missing, it is possible to export the documented model into a standardized model documentation template and share it with the MaRDI TA4 Team for integration.    
   
 ## MaRDMO Plugin Installation
 
@@ -32,55 +30,54 @@ from django.utils.translation import gettext_lazy as _
 INSTALLED_APPS = ['MaRDMO'] + INSTALLED_APPS
 
 PROJECT_EXPORTS += [
-        ('mde', _('MaRDI Export/Query'), 'MaRDMO.export.MaRDIExport'),
+        ('wikibase', _('MaRDMO Button'), 'MaRDMO.main.MaRDMOExportProvider'),
         ]
 
 OPTIONSET_PROVIDERS = [
-    ('MaRDIAndWikidataSearch', _('Options for MaRDI and Wikidata Search'), 'MaRDMO.providers.MaRDIAndWikidataSearch'),
-    ('MaRDISearch', _('Options for MaRDI Search'), 'MaRDMO.providers.MaRDISearch'),
-    ('MSCProvider', _('Options for Mathematical Subject Classification Search'), 'MaRDMO.providers.MSCProvider'),
-    ('ProcessorProvider', _('Options for Processor Search'), 'MaRDMO.providers.ProcessorProvider'),
-    ('AvailableSoftware', _('Options for Available Software'), 'MaRDMO.providers.AvailableSoftware'),
-    ('MathAreaProvider', _('Options for Math Areas'), 'MaRDMO.providers.MathAreaProvider'),
-    ('EnvironmentProvider', _('Options for Environments'), 'MaRDMO.providers.EnvironmentProvider'),
-    ('MethodProvider', _('Options for Methods'), 'MaRDMO.providers.MethodProvider'),
-    ('DataProvider', _('Options for Data Sets'), 'MaRDMO.providers.DataProvider'),
-    ('SoftwareProvider', _('Options for Software'), 'MaRDMO.providers.SoftwareProvider'),
-    ('ResearchField', _('Options for Research Fields'), 'MaRDMO.providers.ResearchField'),
-    ('RelatedResearchField', _('Options for Related Research Fields'), 'MaRDMO.providers.RelatedResearchField'),
-    ('ResearchProblem', _('Options for Research Problems'), 'MaRDMO.providers.ResearchProblem'),
-    ('ResearchFieldWithUserAddition', _('Options for Research Fields with User Additions'), 'MaRDMO.providers.ResearchFieldWithUserAddition'),
-    ('RelatedResearchProblem', _('Options for Related Research Problems'), 'MaRDMO.providers.RelatedResearchProblem'),
-    ('MainMathematicalModel', _('Options for main Mathematical Model'), 'MaRDMO.providers.MainMathematicalModel'),
-    ('MathematicalModel', _('Options for Mathematical Models'), 'MaRDMO.providers.MathematicalModel'),
-    ('RelatedMathematicalModel', _('Options for related Mathematical Model'), 'MaRDMO.providers.RelatedMathematicalModel'),
-    ('MathematicalModelWithUserAddition', _('Options for Mathematical Models with User Additions'), 'MaRDMO.providers.MathematicalModelWithUserAddition'),
-    ('QuantityOrQuantityKind', _('Options for Quantities and Quantity Kinds'), 'MaRDMO.providers.QuantityOrQuantityKind'),
-    ('RelatedQuantity', _('Options for related Quantities'), 'MaRDMO.providers.RelatedQuantity'),
-    ('RelatedQuantityKind', _('Options for related Quantity Kinds'), 'MaRDMO.providers.RelatedQuantityKind'),
-    ('MathematicalFormulation', _('Options for Mathematical Formulation'), 'MaRDMO.providers.MathematicalFormulation'),
-    ('MathematicalFormulationWithUserAddition', _('Options for Mathematical Formulations with User Additions '), 'MaRDMO.providers.MathematicalFormulationWithUserAddition'),
-    ('QuantityOrQuantityKindWithUserAddition', _('Options for Quantities and Quantity Kinds with User Additions'), 'MaRDMO.providers.QuantityOrQuantityKindWithUserAddition'),
-    ('WorkflowTask', _('Options for Workflow Task'), 'MaRDMO.providers.WorkflowTask'),
-    ('Task', _('Options for Task'), 'MaRDMO.providers.Task'),
-    ('RelatedTask', _('Options for related Tasks'), 'MaRDMO.providers.RelatedTask'),
-    ('Publication', _('Options for Publications'), 'MaRDMO.providers.Publication'),
-    ('AllEntities', _('Options for All Entities'), 'MaRDMO.providers.AllEntities')
+    # Search
+    ('MaRDISearch', _('Options for MaRDI Search'), 'MaRDMO.search.providers.MaRDISearch'),
+    # Workflow
+    ('MaRDIAndWikidataSearch', _('Options for MaRDI and Wikidata Search'), 'MaRDMO.workflow.providers.MaRDIAndWikidataSearch'),
+    ('MainMathematicalModel', _('Options for Main Mathematical Model'), 'MaRDMO.workflow.providers.MainMathematicalModel'),
+    ('WorkflowTask', _('Options for Workflow Task'), 'MaRDMO.workflow.providers.WorkflowTask'),
+    ('Software', _('Options for Software'), 'MaRDMO.workflow.providers.Software'),
+    ('Hardware', _('Options for Hardware'), 'MaRDMO.workflow.providers.Hardware'),
+    ('Instrument', _('Options for Instruments'), 'MaRDMO.workflow.providers.Instrument'),
+    ('DataSet', _('Options for Data Sets'), 'MaRDMO.workflow.providers.DataSet'),
+    ('RelatedDataSet', _('Options for related Data Sets'), 'MaRDMO.workflow.providers.RelatedDataSet'),
+    ('RelatedSoftware', _('Options for related Software'), 'MaRDMO.workflow.providers.RelatedSoftware'),
+    ('RelatedInstrument', _('Options for related Instruments'), 'MaRDMO.workflow.providers.RelatedInstrument'),
+    ('MainAlgorithm', _('Options for Algorithm'), 'MaRDMO.workflow.providers.MainAlgorithm'),
+    ('ProcessStep', _('Options for Process Step'), 'MaRDMO.workflow.providers.ProcessStep'),
+    ('Discipline', _('Options for Disciplines'), 'MaRDMO.workflow.providers.Discipline'),
+    # Model
+    ('ResearchField', _('Options for Research Fields'), 'MaRDMO.model.providers.ResearchField'),
+    ('RelatedResearchField', _('Options for Related Research Fields'), 'MaRDMO.model.providers.RelatedResearchField'),
+    ('ResearchProblem', _('Options for Research Problems'), 'MaRDMO.model.providers.ResearchProblem'),
+    ('RelatedResearchProblem', _('Options for Related Research Problems'), 'MaRDMO.model.providers.RelatedResearchProblem'),
+    ('MathematicalModel', _('Options for Mathematical Model'), 'MaRDMO.model.providers.MathematicalModel'),
+    ('RelatedMathematicalModel', _('Options for related Mathematical Model'), 'MaRDMO.model.providers.RelatedMathematicalModel'),
+    ('QuantityOrQuantityKind', _('Options for Quantities and Quantity Kinds'), 'MaRDMO.model.providers.QuantityOrQuantityKind'),
+    ('RelatedQuantity', _('Options for related Quantities'), 'MaRDMO.model.providers.RelatedQuantity'),
+    ('RelatedQuantityKind', _('Options for related Quantity Kinds'), 'MaRDMO.model.providers.RelatedQuantityKind'),
+    ('RelatedQuantityOrQuantityKind', _('Options for related Quantites or Quantity Kinds'), 'MaRDMO.model.providers.RelatedQuantityOrQuantityKind'),
+    ('MathematicalFormulation', _('Options for Mathematical Formulation'), 'MaRDMO.model.providers.MathematicalFormulation'),
+    ('RelatedMathematicalFormulation', _('Options for related Mathematical Formulations'), 'MaRDMO.model.providers.RelatedMathematicalFormulation'),
+    ('AllEntities', _('Options for All Entities'), 'MaRDMO.model.providers.AllEntities'),
+    ('Task', _('Options for Task'), 'MaRDMO.model.providers.Task'),
+    ('RelatedTask', _('Options for related Tasks'), 'MaRDMO.model.providers.RelatedTask'),
+    # Publication
+    ('Publication', _('Options for Publication'), 'MaRDMO.publication.providers.Publication'),
     ]
 ```
 
-Thereby, the MaRDMO Plugin is installed and a "MaRDI Export/Query" button is added in the project view.
+Thereby, the MaRDMO Plugin is installed and a "MaRDI Button" button is added in the project view.
 
 ## MaRDI Portal and MathModDB Connection
 
-To add data to the MaRDI Portal a login is required. In the MaRDMO Plugin this is currently facilitated using a bot. To set up the bot visit the MaRDI Portal, log in with your user credentials, choose `Special Pages` and `Bot passwords`. Provide a name for the new bot, select `Create`, grant the bot permission for `High-volume (bot) access`, `Edit existing pages` and `Create, edit, and move pages` and select again `Create`. Thereby, a bot is created. Add its credentials to `config/settigs/local.py`:
+To add data to the MaRDI Portal an OAuth2 login procedure will be integrated soon. No export to the MaRDI Portal is possible until. Login via Bots is not supported anymore.
 
-```python
-lgname = 'username@botname'
-lgpassword = 'password'
-```
-
-To write to the MathModDB KG a login is required. Credentials might be obtained by contacting the MaRDI staff. Add the to `config/settigs/local.py`:
+To write to the MathModDB KG a login is required. Credentials might be obtained by contacting the MaRDI staff. Add them to `config/settigs/local.py`:
 
 ```python
 mathmoddb_username = 'username'
@@ -99,7 +96,9 @@ Integrate the MaRDMO Questionnaire into your RDMO instance through the user inte
 python manage.py import /path/to/MaRDMO-Questionnaire/catalog/attributes.xml
 python manage.py import /path/to/MaRDMO-Questionnaire/catalog/optionsets.xml
 python manage.py import /path/to/MaRDMO-Questionnaire/catalog/conditions.xml
-python manage.py import /path/to/MaRDMO-Questionnaire/catalog/catalogs.xml
+python manage.py import /path/to/MaRDMO-Questionnaire/catalog/mardmo-search-catalog.xml
+python manage.py import /path/to/MaRDMO-Questionnaire/catalog/mardmo-model-catalog.xml
+python manage.py import /path/to/MaRDMO-Questionnaire/catalog/mardmo-interdisciplinary-workflow-catalog.xml
 ```
 
 ## Usage of MaRDMO Plugin

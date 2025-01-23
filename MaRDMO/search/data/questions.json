@@ -1,0 +1,62 @@
+{
+    "search_options": {
+        "uName": "search",
+        "dName": "options",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/options",
+        "set_prefix": false,
+        "set_index": false,
+        "collection_index": false
+    },
+    "via_research_objective": {
+        "uName": "search",
+        "dName": "via_research_objective",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/via-research-objective",
+        "set_prefix": false,
+        "set_index": false,
+        "collection_index": false
+    },
+    "research_objective": {
+        "uName": "search",
+        "dName": "research_objective",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/research-objective",
+        "set_prefix": false,
+        "set_index": false,
+        "collection_index": true
+    },
+    "via_research_discipline": {
+        "uName": "search",
+        "dName": "via_research_discipline",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/via-research-discipline",
+        "set_prefix": false,
+        "set_index": false,
+        "collection_index": false
+    },
+    "research_discipline": {
+        "uName": "search",
+        "dName": "research_discipline",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/research-discipline",
+        "set_prefix": false,
+        "set_index": false,
+        "collection_index": true,
+        "option_text": false,
+        "external_id": true
+    },
+    "via_workflow_entity": {
+        "uName": "search",
+        "dName": "via_workflow_entity",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/via-workflow-entity",
+        "set_prefix": false,
+        "set_index": false,
+        "collection_index": false
+    },
+    "workflow_entity": {
+        "uName": "search",
+        "dName": "workflow_entity",
+        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/workflow-entity",
+        "set_prefix": false,
+        "set_index": false,
+        "collection_index": true,
+        "option_text": false,
+        "external_id": true
+    }
+}
