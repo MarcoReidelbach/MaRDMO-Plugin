@@ -29,7 +29,7 @@ homepage = "https://github.com/MarcoReidelbach/MaRDMO"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["MaRDMO"]
+include = ["MaRDMO*"]
 
 [tool.setuptools.package-data]
 "MaRDMO" = ["templates/MaRDMO/*.html", "data/*.json", "static/MaRDMO/images/*.png", "model/data/*.json", "search/data/*.json", "workflow/data/*.json"]
