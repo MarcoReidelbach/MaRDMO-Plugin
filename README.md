@@ -40,14 +40,14 @@ OPTIONSET_PROVIDERS = [
     ('MaRDIAndWikidataSearch', _('Options for MaRDI and Wikidata Search'), 'MaRDMO.workflow.providers.MaRDIAndWikidataSearch'),
     ('MainMathematicalModel', _('Options for Main Mathematical Model'), 'MaRDMO.workflow.providers.MainMathematicalModel'),
     ('WorkflowTask', _('Options for Workflow Task'), 'MaRDMO.workflow.providers.WorkflowTask'),
-    ('Software', _('Options for Software'), 'MaRDMO.workflow.providers.Software'),
+    ('SoftwareW', _('Options for Software (Workflow)'), 'MaRDMO.workflow.providers.Software'),
     ('Hardware', _('Options for Hardware'), 'MaRDMO.workflow.providers.Hardware'),
     ('Instrument', _('Options for Instruments'), 'MaRDMO.workflow.providers.Instrument'),
     ('DataSet', _('Options for Data Sets'), 'MaRDMO.workflow.providers.DataSet'),
     ('RelatedDataSet', _('Options for related Data Sets'), 'MaRDMO.workflow.providers.RelatedDataSet'),
     ('RelatedSoftware', _('Options for related Software'), 'MaRDMO.workflow.providers.RelatedSoftware'),
     ('RelatedInstrument', _('Options for related Instruments'), 'MaRDMO.workflow.providers.RelatedInstrument'),
-    ('MainAlgorithm', _('Options for Algorithm'), 'MaRDMO.workflow.providers.MainAlgorithm'),
+    ('MainAlgorithm', _('Options for Main Algorithm'), 'MaRDMO.workflow.providers.MainAlgorithm'),
     ('ProcessStep', _('Options for Process Step'), 'MaRDMO.workflow.providers.ProcessStep'),
     ('Discipline', _('Options for Disciplines'), 'MaRDMO.workflow.providers.Discipline'),
     # Model
@@ -68,6 +68,15 @@ OPTIONSET_PROVIDERS = [
     ('RelatedTask', _('Options for related Tasks'), 'MaRDMO.model.providers.RelatedTask'),
     # Publication
     ('Publication', _('Options for Publication'), 'MaRDMO.publication.providers.Publication'),
+    # Algorithm
+    ('Algorithm', _('Options for Algorithms'), 'MaRDMO.algorithm.providers.Algorithm'),
+    ('RelatedAlgorithm', _('Options for related Algorithms'), 'MaRDMO.algorithm.providers.RelatedAlgorithm'),
+    ('AlgorithmicProblem', _('Options for Algorithmic Problems'), 'MaRDMO.algorithm.providers.AlgorithmicProblem'),
+    ('RelatedAlgorithmicProblem', _('Options for related Algorithmic Problems'), 'MaRDMO.algorithm.providers.RelatedAlgorithmicProblem'),
+    ('SoftwareAL', _('Options for Software (Algorithm)'), 'MaRDMO.algorithm.providers.Software'),
+    ('RelatedSoftwareAL', _('Options for related Software (Algorithm)'), 'MaRDMO.algorithm.providers.RelatedSoftware'),
+    ('Benchmark', _('Options for Benchmarks'), 'MaRDMO.algorithm.providers.Benchmark'),
+    ('RelatedBenchmark', _('Options for related Benchmarks'), 'MaRDMO.algorithm.providers.RelatedBenchmark'),
     ]
 ```
 

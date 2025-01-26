@@ -19,6 +19,21 @@ class Algorithm(Provider):
 
         return query_sources(search, queryID, sources)
     
+class RelatedAlgorithm(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'AL'
+        queryAttribute = 'algorithm'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, ['mathalgodb'])
+    
 class AlgorithmicProblem(Provider):
 
     search = True
@@ -34,6 +49,21 @@ class AlgorithmicProblem(Provider):
         sources = ['mathalgodb','mardi','wikidata']
 
         return query_sources(search, queryID, sources)
+    
+class RelatedAlgorithmicProblem(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'AP'
+        queryAttribute = 'algorithmic-problem'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, ['mathalgodb'])
     
 class Software(Provider):
 
@@ -51,6 +81,21 @@ class Software(Provider):
 
         return query_sources(search, queryID, sources)
     
+class RelatedSoftware(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'SO'
+        queryAttribute = 'software'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, ['mathalgodb'])
+    
 class Benchmark(Provider):
 
     search = True
@@ -66,3 +111,19 @@ class Benchmark(Provider):
         sources = ['mathalgodb','mardi','wikidata']
 
         return query_sources(search, queryID, sources)
+    
+class RelatedBenchmark(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'BE'
+        queryAttribute = 'benchmark'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, ['mathalgodb'])
+    
