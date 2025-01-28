@@ -33,6 +33,7 @@ def PInformation(sender, **kwargs):
             elif source == 'mathalgodb':
                 query = queryPublication['PublicationMathAlgoDB'].format(f"pb:{id}")
                 results = query_sparql(query,mathalgodb_endpoint)
+                print(results)
                 if results:
                     data = Publication.from_query(results)
                     value_editor(instance.project, f'{BASE_URI}domain/publication/name', data.label, None, None, None, instance.set_index)
@@ -68,16 +69,40 @@ def PInformation(sender, **kwargs):
                 if source == 'mathmoddb':
                     mathmoddb = get_data('model/data/mapping.json')
                     idx = 0
-                    for result in results:
-                        for property in ['documents', 'invents', 'studies', 'surveys', 'uses']:
-                            if result.get(property, {}).get('value'):
-                                entities = result[property]['value'].split(' / ')
-                                for entity in entities:
-                                    id, label, description = entity.split(' | ')
-                                    if id and label and description:
-                                        value_editor(instance.project, f'{BASE_URI}domain/publication/entity-relation', None, None, Option.objects.get(uri=mathmoddb[property]), None, idx, instance.set_index)
-                                        value_editor(instance.project, f'{BASE_URI}domain/publication/entity-relatant', f"{label} ({description}) [mathmoddb]", f'{id}', None, None, idx, instance.set_index)
-                                        idx += 1
+                    for property in ['documents', 'invents', 'studies', 'surveys', 'uses']:
+                        if results[0].get(property, {}).get('value'):
+                            entities = results[0][property]['value'].split(' / ')
+                            for entity in entities:
+                                id, label, description = entity.split(' | ')
+                                if id and label and description:
+                                    value_editor(instance.project, f'{BASE_URI}domain/publication/entity-relation', None, None, Option.objects.get(uri=mathmoddb[property]), None, idx, instance.set_index)
+                                    value_editor(instance.project, f'{BASE_URI}domain/publication/entity-relatant', f"{label} ({description}) [mathmoddb]", f'{id}', None, None, idx, instance.set_index)
+                                    idx += 1
+
+            if str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
+                if source == 'mathalgodb':
+                    mathalgodb = get_data('algorithm/data/mapping.json')
+                    idx = 0
+                    for property in ['analyzes', 'applies', 'invents', 'studies', 'surveys']:
+                        if results[0].get(property, {}).get('value'):
+                            entities = results[0][property]['value'].split(' / ')
+                            for entity in entities:
+                                id, label, description = entity.split(' | ')
+                                if id and label and description:
+                                    value_editor(instance.project, f'{BASE_URI}domain/publication/algorithm-relation', None, None, Option.objects.get(uri=mathalgodb[property]), None, idx, instance.set_index)
+                                    value_editor(instance.project, f'{BASE_URI}domain/publication/algorithm-relatant', f"{label} ({description}) [mathalgodb]", f'{id}', None, None, idx, instance.set_index)
+                                    idx += 1
+
+                    idx = 0
+                    for property in ['documents', 'uses']:
+                        if results[0].get(property, {}).get('value'):
+                            entities = results[0][property]['value'].split(' / ')
+                            for entity in entities:
+                                id, label, description = entity.split(' | ')
+                                if id and label and description:
+                                    value_editor(instance.project, f'{BASE_URI}domain/publication/benchmark-or-software-relation', None, None, Option.objects.get(uri=mathalgodb[property]), None, idx, instance.set_index)
+                                    value_editor(instance.project, f'{BASE_URI}domain/publication/benchmark-or-software-relatant', f"{label} ({description}) [mathalgodb]", f'{id}', None, None, idx, instance.set_index)
+                                    idx += 1
 
 
     return

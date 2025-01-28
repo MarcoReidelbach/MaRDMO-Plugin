@@ -6,7 +6,7 @@ from ..id import *
 from ..config import BASE_URI, mardi_endpoint, wd, wdt, wikidata_endpoint
 from ..utils import get_data, value_editor, query_sparql
 
-from .utils import add_basics, add_entity, add_entity_multi
+from .utils import add_basics, add_entity
 from .sparql import mardiProvider, wikidataProvider
 
 @receiver(post_save, sender=Value)

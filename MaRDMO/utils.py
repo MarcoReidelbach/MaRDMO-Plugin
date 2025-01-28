@@ -100,7 +100,7 @@ def query_sparql(query,endpoint=mathmoddb_endpoint):
         req = response.json().get('results',{}).get('bindings',[])
     else:
         req = []
-
+        
     return req
 
 def query_sparql_pool(input):
@@ -791,3 +791,17 @@ def index_check(instance,key,uri):
             index_value = getattr(value,key)
             break
     return index_value
+
+def information_exists(project, domain_type, set_index):
+    """
+    Checks if a matching name and description with the same set index exist in the project.
+    """
+    names = project.values.filter(snapshot = None, attribute = Attribute.objects.get(uri=f'{BASE_URI}domain/{domain_type}/name'))
+    descriptions = project.values.filter(snapshot = None, attribute = Attribute.objects.get(uri=f'{BASE_URI}domain/{domain_type}/description'))
+    
+    return any(
+        name.text and description.text and
+        name.set_prefix == str(set_index) and
+        description.set_prefix == str(set_index)
+        for name, description in zip(names, descriptions)
+    )

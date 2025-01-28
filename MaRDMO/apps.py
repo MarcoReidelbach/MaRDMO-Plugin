@@ -6,6 +6,7 @@ class MaRDMOConfig(AppConfig):
     verbose_name = 'MaRDMO Plugin'
 
     def ready(self):
+        from .algorithm import handlers
         from .model import handlers
         from .workflow import handlers
         from .publication import handlers

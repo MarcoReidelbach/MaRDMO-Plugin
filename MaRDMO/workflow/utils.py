@@ -92,36 +92,3 @@ def add_entity(instance, results, url_set, url_id, prop, prefix, source):
                 value_editor(instance.project, url_id, f'{Label} ({Description}) [{source}]', f"{source}:{ID}", None, None, idx)
                 idx += 1
                 value_ids.append(ID)
-
-def add_entity_multi(instance, results, url_set, url_id, prop, prefix, source):
-    set_ids_1 = get_id(instance, url_set[0], ['set_index'])
-    value_ids_1 = get_id(instance, url_id[0], ['external_id'])
-    set_ids_2 = get_id(instance, url_set[1], ['set_index'])
-    value_ids_2 = get_id(instance, url_id[1], ['external_id'])
-    # Add Research Field entry to questionnaire
-    idx_1 = max(set_ids_1, default = -1) + 1
-    idx_2 = max(set_ids_2, default = -1) + 1
-    if results[0].get(prop, {}).get('value'):
-        for result in results[0][prop]['value'].split(' / '):
-            ID, Label, Description, Type = result.split(' | ')
-            if Type == Q5:
-                if ID not in value_ids_1:
-                    # Set up Page
-                    value_editor(instance.project, url_set[0], f"{prefix[0]}{idx_1}", None, None, None, idx_1)
-                    # Add ID Values
-                    value_editor(instance.project, url_id[0], f'{Label} ({Description}) [{source}]', f"{source}:{ID}", None, None, idx_1)
-                    idx_1 += 1
-                    value_ids_1.append(ID)
-            elif Type == Q13:
-                if ID not in value_ids_2:
-                    # Set up Page
-                    value_editor(instance.project, url_set[1], f"{prefix[1]}{idx_2}", None, None, None, idx_2)
-                    # Add ID Values
-                    value_editor(instance.project, url_id[1], f'{Label} ({Description}) [{source}]', f"{source}:{ID}", None, None, idx_2)
-                    idx_2 += 1
-                    value_ids_2.append(ID)
-
-
-            
-
-
