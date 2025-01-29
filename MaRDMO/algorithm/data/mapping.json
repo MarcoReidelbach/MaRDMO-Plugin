@@ -14,4 +14,5 @@
  "studies": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/studies",
  "surveys": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/surveys",
  "documents": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/documents",
- "uses": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/uses"}
+ "uses": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/uses",
+ "tests": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/tests"}

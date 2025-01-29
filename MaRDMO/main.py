@@ -13,13 +13,13 @@ from rdmo.services.providers import OauthProviderMixin
 
 from .oauth2 import OauthProviderMixin
 
-from .utils import get_answer, get_data, merge_dicts_with_unique_keys, dict_to_triples, generate_sparql_insert_with_new_ids, get_new_ids, query_sparql
+from .utils import get_answer, get_data, get_new_ids, query_sparql
 from .model.worker import model_relations
 from .search.worker import search
 from .config import mathmoddb_update, mardi_uri, mathalgodb_uri, mathmoddb_uri, wikidata_uri
 
 from .model.sparql import queryModelDocumentation
-from .model.utils import get_answer_model
+from .model.utils import get_answer_model, merge_dicts_with_unique_keys, dict_to_triples, generate_sparql_insert_with_new_ids
 
 from .workflow.sparql import queryPreview
 from .workflow.utils import get_answer_workflow, get_discipline

@@ -198,7 +198,7 @@
         "set_index": true,
         "collection_index": true
     },
-    "Publication Refernce": {
+    "Publication Reference": {
         "key1": "publication",
         "key2": "reference",
         "uri": "domain/publication/reference",

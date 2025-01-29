@@ -1,0 +1,217 @@
+{
+    "Publication": {
+    "uri": "domain/publication"
+    },
+    "Publication ID": {
+        "key1": "publication",
+        "key2": "ID",
+        "uri": "domain/publication/id",
+        "set_index": true,
+        "external_id": true
+    },
+    "Publication Name": {
+        "key1": "publication",
+        "key2": "Name",
+        "uri": "domain/publication/name",
+        "set_index": true
+    },
+    "Publication Description": {
+        "key1": "publication",
+        "key2": "Description",
+        "uri": "domain/publication/description",
+        "set_index": true
+    },
+    "Publication Reference": {
+        "key1": "publication",
+        "key2": "reference",
+        "uri": "domain/publication/reference",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication URL Citation": {
+        "key1": "publication",
+        "key2": "urlcitation",
+        "uri": "domain/publication/url-citation",
+        "set_index": true
+    },
+    "Publication P2A": {
+        "key1": "publication",
+        "key2": "P2A",
+        "uri": "domain/publication/algorithm-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Publication ARelatant": {
+        "key1": "publication",
+        "key2": "ARelatant",
+        "uri": "domain/publication/algorithm-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "Publication P2BS": {
+        "key1": "publication",
+        "key2": "P2BS",
+        "uri": "domain/publication/benchmark-or-software-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Publication BSRelatant": {
+        "key1": "publication",
+        "key2": "BSRelatant",
+        "uri": "domain/publication/benchmark-or-software-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "Publication P2E": {
+        "key1": "publication",
+        "key2": "P2E",
+        "uri": "domain/publication/entity-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Publication EntityRelatant": {
+        "key1": "publication",
+        "key2": "EntityRelatant",
+        "uri": "domain/publication/entity-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "Publication Entrytype": {
+        "key1": "publication",
+        "key2": "entrytype",
+        "uri": "domain/publication/entry-type",
+        "set_index": true
+    },
+    "Publication Language": {
+        "key1": "publication",
+        "key2": "language",
+        "uri": "domain/publication/language",
+        "set_index": true
+    },
+    "Publication Date": {
+        "key1": "publication",
+        "key2": "date",
+        "uri": "domain/publication/date",
+        "set_index": true
+    },
+    "Publication Volume": {
+        "key1": "publication",
+        "key2": "volume",
+        "uri": "domain/publication/volume",
+        "set_index": true
+    },
+    "Publication Issue": {
+        "key1": "publication",
+        "key2": "issue",
+        "uri": "domain/publication/issue",
+        "set_index": true
+    },
+    "Publication Page": {
+        "key1": "publication",
+        "key2": "page",
+        "uri": "domain/publication/page",
+        "set_index": true
+    },
+    "Publication Title": {
+        "key1": "publication",
+        "key2": "title",
+        "uri": "domain/publication/title",
+        "set_index": true
+    },
+    "Publication Journal ID": {
+        "key1": "publication",
+        "key2": "journal",
+        "key3": "ID",
+        "uri": "domain/publication/journal/id",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Journal Name": {
+        "key1": "publication",
+        "key2": "journal",
+        "key3": "Name",
+        "uri": "domain/publication/journal/name",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Journal Description": {
+        "key1": "publication",
+        "key2": "journal",
+        "key3": "Description",
+        "uri": "domain/publication/journal/description",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Journal ISSN": {
+        "key1": "publication",
+        "key2": "journal",
+        "key3": "issn",
+        "uri": "domain/publication/journal/issn",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Author ID": {
+        "key1": "publication",
+        "key2": "author",
+        "key3": "ID",
+        "uri": "domain/publication/author/ID",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Author Name": {
+        "key1": "publication",
+        "key2": "author",
+        "key3": "Name",
+        "uri": "domain/publication/author/name",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Author Description": {
+        "key1": "publication",
+        "key2": "author",
+        "key3": "Description",
+        "uri": "domain/publication/author/description",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Author ORCID": {
+        "key1": "publication",
+        "key2": "author",
+        "key3": "orcid",
+        "uri": "domain/publication/author/orcid",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Author ZBMath": {
+        "key1": "publication",
+        "key2": "author",
+        "key3": "zbmath",
+        "uri": "domain/publication/author/zbmath",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Author Wikidata": {
+        "key1": "publication",
+        "key2": "author",
+        "key3": "wikidata",
+        "uri": "domain/publication/author/wikidata",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Workflow Reference": {
+        "key1": "publication",
+        "key2": "workflow",
+        "uri": "domain/publication/workflow-reference",
+        "set_index": true
+    },
+    "Publication Entity Reference": {
+        "key1": "publication",
+        "key2": "element",
+        "uri": "domain/publication/workflow-element-reference",
+        "set_index": true,
+        "collection_index": true
+    }
+}

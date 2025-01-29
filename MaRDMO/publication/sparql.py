@@ -23,7 +23,7 @@ queryPublication = {
                         ?entrytypelabel ?journalInfo ?languagelabel                               
                         ?title ?date ?volume ?issue ?page          
 
-                 WHERE {{ OPTIONAL {{ {1} wdt:P{0} ?doi. }}
+                 WHERE {{ OPTIONAL {{ wd:{1} wdt:P{0} ?doi. }}
                         
                         OPTIONAL {{{1} rdfs:label ?labelraw.
                                   FILTER (lang(?labelraw) = 'en')}}
@@ -193,7 +193,7 @@ queryPublication = {
                         ?entrytypelabel ?journalInfo ?languagelabel                               
                         ?title ?date ?volume ?issue ?page          
 
-                 WHERE {{ OPTIONAL {{ {1} wdt:P{0} ?doi. }}
+                 WHERE {{ OPTIONAL {{ wd:{1} wdt:P{0} ?doi. }}
 
                         OPTIONAL {{{1} rdfs:label ?labelraw.
                                   FILTER (lang(?labelraw) = 'en')}}
@@ -450,7 +450,7 @@ queryPublication = {
                                                   (GROUP_CONCAT(DISTINCT(CONCAT(?usesentity, " | ", ?usesentitylabel, " | ", ?usesentitydescription)); SEPARATOR=" / ") AS ?uses)
                                                                                     
                                   WHERE {{
-                                          VALUES ?idraw {{{0}}}
+                                          VALUES ?idraw {{ :{0} }}
 
                                           ?idraw a :Publication.
                                           BIND(CONCAT("mathmoddb:", STRAFTER(STR(?idraw), "#")) AS ?id)
@@ -581,7 +581,7 @@ queryPublication = {
                                                   (GROUP_CONCAT(DISTINCT(CONCAT(?usesentity, " | ", ?usesentitylabel, " | ", ?usesentitydescription)); SEPARATOR=" / ") AS ?uses)
                                                                                     
                                   WHERE {{
-                                          VALUES ?idraw {{{0}}}
+                                          VALUES ?idraw {{ pb:{0} }}
 
                                           ?idraw a :publication.
                                           BIND(CONCAT("mathalgodb:", STRAFTER(STR(?idraw), "#")) AS ?id)

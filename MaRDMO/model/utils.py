@@ -1,3 +1,5 @@
+import re
+
 from rdmo.options.models import Option
 from rdmo.domain.models import Attribute
 
@@ -34,47 +36,6 @@ def add_properties(instance, results, mathmoddb, url_properties):
     for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']):
         if results[0].get(prop, {}).get('value') == 'true':
             value_editor(instance.project, url_properties, None, None, Option.objects.get(uri=mathmoddb[prop]), idx, 0, instance.set_index)
-    return
-
-def add_publications(instance, results, options):
-    # Gather DOIs for Query
-    Id = ''
-    if results[0].get('publication',{}).get('value'):
-        entities = results[0]['publication']['value'].split(' / ')
-        for entity in entities:
-            Id = Id + f' :{entity}'
-    # Query MathModDB for Publications
-    results = query_sparql(queryHandler['publicationInformation'].format(f":{Id}"))
-    # Get set and value ids of Publications in Questionnaire
-    set_ids = get_id(instance, f'{BASE_URI}domain/publication', ['set_index'])
-    value_ids = get_id(instance, f'{BASE_URI}domain/publication/reference', ['option_uri', 'text'])
-    # Load MathModDB Mapping
-    mathmoddb = get_data('model/data/mapping.json')
-    # Add Publication entry to questionnaire
-    idx = max(set_ids, default = -1) + 1
-    for result in results:
-        if all([options[src], result.get(src, {}).get('value')] not in value_ids for src in ['DOI', 'URL', 'MaRDIPortalID',  'MathAlgoDBID', 'MathModDBID', 'WikidataID']):
-            # Set up Page
-            value_editor(instance.project, f'{BASE_URI}domain/publication', f"P{idx}", None, None, None, idx)
-            # Add Values
-            for src_idx, src in enumerate(['DOI', 'URL', 'MaRDIPortalID',  'MathAlgoDBID', 'MathModDBID', 'WikidataID']):
-                if result.get(src, {}).get('value'):
-                    value_editor(instance.project, f'{BASE_URI}domain/publication/reference', result[src]['value'], None, Option.objects.get(uri=options[src]), src_idx, idx)
-                    # Add ID to ID List
-                    value_ids.append([options[src],result[src]['value']])
-            # Add Relations
-            prop_idx = 0
-            for property in ['documents', 'invents', 'studies', 'surveys', 'uses']:
-                if result.get(property, {}).get('value'):
-                    entities = result[property]['value'].split(' / ')
-                    for entity in entities:
-                        id, label, description = entity.split(' | ')
-                        if id and label and description:
-                            value_editor(instance.project, f'{BASE_URI}domain/publication/entity-relation', None, None, Option.objects.get(uri=mathmoddb[property]), None, prop_idx, idx)
-                            value_editor(instance.project, f'{BASE_URI}domain/publication/entity-relatant', f"{label} ({description}) [mathmoddb]", f'{id}', None, None, prop_idx, idx)
-                            prop_idx =+ 1
-        idx =+ 1
-                
     return
 
 def add_relations(instance, results, mathmoddb, url_relation, url_relatant, props, relation = True, appendix = '', set_prefix = None, collection_index = False):
@@ -178,6 +139,246 @@ def get_answer_model(project, val, uri, key1, key2, key3 = None, set_prefix = No
                 val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:f"{value.external_id} <|> {label}"})
                 
     return val
+
+def merge_dicts_with_unique_keys(answers):
+    
+    keys = ['field','problem','model','formulation','quantity','task','publication']
+    
+    merged_dict = {}
+    
+    for key in keys:
+        for inner_key, value in answers[key].items():
+            new_inner_key = f"{inner_key}{key}"
+            merged_dict[new_inner_key] = value    
+    
+    return merged_dict
+
+def dict_to_triples(data):
+
+    inversePropertyMapping = get_data('model/data/inversePropertyMapping.json')
+    options = get_data('data/options.json')
+
+    relations = ['IntraClassRelation','RP2RF','MM2RP','MF2MM','MF2MF','Q2Q','Q2QK','QK2Q','QK2QK','T2MF','T2Q','T2MM','P2E']
+    relatants = ['IntraClassElement','RFRelatant','RPRelatant','MMRelatant','MFRelatant','QRelatant','QKRelatant','QRelatant','QKRelatant','MFRelatant','QRelatant','MMRelatant','EntityRelatant']
+    
+    triples = []
+    ids = {} 
+    
+    # Get ID Dict
+    for idx, item in data.items():
+        if item['ID'] and item['ID'].startswith('mathmoddb:'):
+            ids[item['Name']] = item['ID']
+        else:
+            ids[item['Name']] = idx
+    
+    # Go through all individuals
+    for idx, item in data.items():
+
+        # Get ID of Individual
+        subject = ids[item['Name']]
+        
+        if not subject.startswith('mathmoddb:'):
+        
+            # Assign Individual Label 
+            triples.append((subject, "rdfs:label", f'"{item["Name"]}"@en'))
+        
+            # Assign Individual Description
+            if item.get('Description'):
+                triples.append((subject, "rdfs:comment", f'"{item["Description"]}"@en'))
+        
+            # Assign Individual Class
+            if 'field' in idx:
+                triples.append((subject, "a", 'mathmoddb:ResearchField'))
+            elif 'problem' in idx:
+                triples.append((subject, "a", 'mathmoddb:ResearchProblem'))
+            elif 'model' in idx:
+                triples.append((subject, "a", 'mathmoddb:MathematicalModel'))
+            elif 'quantity' in idx:
+                if item['QorQK'] == 'https://rdmo.mardi4nfdi.de/terms/options/MathModDB/Quantity':
+                    triples.append((subject, "a", 'mathmoddb:Quantity'))
+                else:
+                    triples.append((subject, "a", 'mathmoddb:QuantityKind'))
+            elif 'formulation' in idx:
+                triples.append((subject, "a", 'mathmoddb:MathematicalFormulation'))
+            elif 'task' in idx:
+                if item.get('TaskClass') == 'https://rdmo.mardi4nfdi.de/terms/options/MathModDB/ComputationalTask':
+                    triples.append((subject, "a", 'mathmoddb:ComputationalTask'))
+            elif 'publication' in idx:
+                triples.append((subject, "a", 'mathmoddb:Publication'))
+        
+            # Assign Individual MaRDI/Wikidata ID
+            if item.get('ID'):
+                if item['ID'].startswith('wikidata:'):
+                    q_number = item['ID'].split(':')[-1]
+                    triples.append((subject, "mathmoddb:wikidataID", f'"{q_number}"'))
+                elif item['ID'].startswith('mardi:'):
+                    q_number = item['ID'].split(':')[-1]
+                    triples.append((subject, "mathmoddb:mardiID", f'"{q_number}"'))
+
+            # Assign Individual DOI/QUDT ID
+            if item.get('reference'):
+                print(item.get('reference'))
+                if item['reference'].get(0):
+                    if item['reference'][0][0] == options['DOI']:
+                        doi_value = item['reference'][0][1]
+                        triples.append((subject, "mathmoddb:doiID", f'<https://doi.org/{doi_value}>'))
+                    if item['reference'][0][0] == options['QUDT']:
+                        qudt_value = item['reference'][0][1]
+                        triples.append((subject, "mathmoddb:qudtID", f'"{qudt_value}"'))
+        
+            # Assign Quantity definey by Individual
+            if item.get('DefinedQuantity'):
+                defined_quantity = item['DefinedQuantity'].split(' <|> ')
+                if defined_quantity[0].startswith('mathmoddb:'):
+                    object_value = defined_quantity[0]
+                else:
+                    #referred_name = defined_quantity[1]
+                    object_value = ids.get(referred_name)
+                triples.append((subject, 'mathmoddb:defines', object_value))
+                triples.append((object_value, 'mathmoddb:definedBy', subject))
+        
+            # Assign Individual Formula
+            if item.get('Formula'):
+                formulas = item['Formula'].values()
+                for formula in formulas:
+                    formula = formula.replace('\\', '\\\\')
+                    triples.append((subject, 'mathmoddb:definingFormulation', f'"{formula[1:-1]}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
+                if item.get('Element'):
+                    elements = item['Element'].values()
+                    for element in elements:
+                        symbol = element['Symbol'].replace('\\', '\\\\')
+                        quantity = element['quantity'].split(' <|> ')
+                        if len(quantity) == 1:
+                            referred_name = quantity[0]
+                            object_value = ids.get(referred_name)
+                        else:
+                            if quantity[0].startswith('mathmoddb:'):
+                                referred_name = quantity[1]
+                                object_value = quantity[0]
+                            else:
+                                referred_name = quantity[1]
+                                object_value = ids.get(referred_name)
+                        if object_value:
+                            triples.append((subject, 'mathmoddb:inDefiningFormulation', f'"{symbol[1:-1]}, {referred_name}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
+                            triples.append((subject, 'mathmoddb:containsQuantity', object_value))
+                            triples.append((object_value, 'mathmoddb:containedInFormulation', subject))
+        
+            # Assign Individual Properties
+            if item.get('Properties'):
+                prefix = 'https://rdmo.mardi4nfdi.de/terms/options/MathModDB/'
+                values = item['Properties'].values()
+                if prefix + 'isLinear' in values:
+                    triples.append((subject, "mathmoddb:isLinear", '"true"^^xsd:boolean'))
+                elif prefix + 'isNotLinear' in values:
+                    triples.append((subject, "mathmoddb:isLinear", '"false"^^xsd:boolean'))
+                if prefix + 'isConvex' in values:
+                    triples.append((subject, "mathmoddb:isConvex", '"true"^^xsd:boolean'))
+                elif prefix + 'isNotConvex' in values:
+                    triples.append((subject, "mathmoddb:isConvex", '"false"^^xsd:boolean'))
+                if prefix + 'isDeterministic' in values:
+                    triples.append((subject, "mathmoddb:isDeterministic", '"true"^^xsd:boolean'))
+                elif prefix + 'isStochastic' in values:
+                    triples.append((subject, "mathmoddb:isDeterministic", '"false"^^xsd:boolean'))
+                if prefix + 'isDimensionless' in values:
+                    triples.append((subject, "mathmoddb:isDimensionless", '"true"^^xsd:boolean'))
+                elif prefix + 'isDimensional' in values:
+                    triples.append((subject, "mathmoddb:isDimensionless", '"false"^^xsd:boolean'))
+                if prefix + 'isDynamic' in values:
+                    triples.append((subject, "mathmoddb:isDynamic", '"true"^^xsd:boolean'))
+                elif prefix + 'isStatic' in values:
+                    triples.append((subject, "mathmoddb:isDynamic", '"false"^^xsd:boolean'))
+                if prefix + 'isSpaceContinuous' in values:
+                    triples.append((subject, "mathmoddb:isSpaceContinuous", '"true"^^xsd:boolean'))
+                elif prefix + 'isSpaceDiscrete' in values:
+                    triples.append((subject, "mathmoddb:isSpaceContinuous", '"false"^^xsd:boolean'))
+                if prefix + 'isTimeContinuous' in values:
+                    triples.append((subject, "mathmoddb:isTimeContinuous", '"true"^^xsd:boolean'))
+                elif prefix + 'isTimeDiscrete' in values:
+                    triples.append((subject, "mathmoddb:isTimeContinuous", '"false"^^xsd:boolean'))	
+
+        # Assign Individual Properties
+        for relation, relatant in zip(relations,relatants):
+            relation_dict = item.get(relation, {})
+            relatant_dict = item.get(relatant, {})
+            for key in relation_dict:
+                if relatant_dict.get(key):
+                    relation_uri = relation_dict[key]
+                    relatant_value = relatant_dict[key].split(' <|> ')
+                    if relatant_value[0].startswith('mathmoddb:'):
+                        object_value = relatant_value[0]
+                    else:
+                        referred_name = relatant_value[1]
+                        object_value = ids.get(referred_name)
+                    triples.append((subject, f"mathmoddb:{relation_uri.split('/')[-1]}", object_value))
+                    triples.append((object_value, f"mathmoddb:{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
+    
+    return triples, ids
+
+def generate_sparql_insert_with_new_ids(triples):
+    # Step 1: Identify new items that need mardmo IDs
+    new_items = {}
+    counter = 0
+    for triple in triples:
+        subject = triple[0]
+        if not subject.startswith("mathmoddb:"):
+            # Assign temporary placeholders for new IDs
+            new_items[subject] = f"newItem{counter}"
+            counter += 1
+
+    # Step 2: Generate SPARQL query with BIND for new mardmo IDs
+    insert_query = """
+    PREFIX mathmoddb: <https://mardi4nfdi.de/mathmoddb#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+    INSERT{
+    """
+    # Construct the insert part
+    for triple in triples:
+        subject = triple[0]
+        predicate = triple[1]
+        obj = triple[2]
+
+        # Replace new subjects with placeholders
+        if subject in new_items:
+            subject = f"?{new_items[subject]}"
+        else:
+            subject = f"{subject}"
+
+        # Format object based on whether it's a literal or a URI
+        if re.match(r'^https?://', obj):
+            obj_formatted = f"<{obj}>"
+        else:
+            if obj.startswith('mathmoddb:') or obj.startswith('"') or obj.startswith(':') or obj.startswith('<'):
+                obj_formatted = f'{obj}'
+            else:
+                obj_formatted = f"?{new_items[obj]}"
+
+        # Construct the triple in the query
+        insert_query += f"  {subject} {predicate} {obj_formatted} .\n"
+
+    insert_query += "}\nWHERE {\n"
+
+    # Step 3: Add logic to get the next free mardmo ID
+    insert_query += """
+    {
+      SELECT (MAX(?num) AS ?maxID) WHERE {
+        ?id a ?type .
+        FILTER (STRSTARTS(STR(?id), "https://mardi4nfdi.de/mathmoddb#mardmo"))
+        BIND (xsd:integer(SUBSTR(STR(?id), STRLEN("https://mardi4nfdi.de/mathmoddb#mardmo") + 1)) AS ?num)
+      }
+    }
+    BIND (IF(BOUND(?maxID), ?maxID + 1, 0) AS ?nextID)
+    """
+    id_counter = 0
+    for new_item in new_items:
+        insert_query += f"BIND(IRI(CONCAT('https://mardi4nfdi.de/mathmoddb#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
+        id_counter += 1
+
+    insert_query += "}"
+
+    return insert_query
+
 
 
                     
