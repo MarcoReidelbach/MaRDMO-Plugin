@@ -63,7 +63,6 @@ OPTIONSET_PROVIDERS = [
     ('RelatedQuantityOrQuantityKind', _('Options for related Quantites or Quantity Kinds'), 'MaRDMO.model.providers.RelatedQuantityOrQuantityKind'),
     ('MathematicalFormulation', _('Options for Mathematical Formulation'), 'MaRDMO.model.providers.MathematicalFormulation'),
     ('RelatedMathematicalFormulation', _('Options for related Mathematical Formulations'), 'MaRDMO.model.providers.RelatedMathematicalFormulation'),
-    ('AllEntities', _('Options for All Entities'), 'MaRDMO.model.providers.AllEntities'),
     ('Task', _('Options for Task'), 'MaRDMO.model.providers.Task'),
     ('RelatedTask', _('Options for related Tasks'), 'MaRDMO.model.providers.RelatedTask'),
     # Publication

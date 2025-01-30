@@ -1,0 +1,254 @@
+<head>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        table {
+          margin-left: 0;
+          margin-right: auto;
+          margin-bottom: 24px;
+          border-spacing: 0;
+          border-bottom: 2px solid black;
+          border-top: 2px solid black;
+        }
+        table th {
+          padding: 3px 10px;
+          background-color: white;
+          border-top: none;
+          border-left: 1px solid black;
+          border-right: 1px solid black;
+          border-bottom: 1px solid black;
+          text-align: center;
+        }
+        table td {
+          padding: 3px 10px;
+          border-top: 1px solid black;
+          border-left: 1px solid black;
+          border-bottom: 1px solid black;
+          border-right: 1px solid black;
+          text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title"> {{ title }} </h1>
+        {% for values in answers.algorithm.values %}
+            {% if forloop.counter == 1 %}
+                <h1 id="Algorithm"> Algorithms </h1>
+            {% endif %}
+      
+            <h2 id="A{{ forloop.counter }}"> A{{ forloop.counter }}: {{ values.Name }} </h2>
+   
+            <p>
+                {% if values.Description %}
+                    <b>Description</b>: {{ values.Description }} <br>
+                {% endif %}
+                {% if 'not found' in values.ID %} 
+                    <b>ID</b>: - 
+                {% elif 'mathmoddb' in values.ID %} 
+                    <b>MathModDB ID</b>: {{ values.ID|cut:"mathmoddb:"}}
+                {% elif 'mathalgodb' in values.ID %} 
+                    <b>MathAlgoDB ID</b>: {{ values.ID|cut:"mathalgodb:"}}
+                {% elif 'mardi' in values.ID %} 
+                    <b>MaRDI Portal ID</b>: {{ values.ID|cut:"mardi:"}} 
+                {% elif 'wikidata' in values.ID %} 
+                    <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
+                {% endif %} 
+            </p>
+        
+            {% for solves in values.RelationP.values %}
+                {% if forloop.counter == 1 %}
+                    <h3 id="RelationsToAlgorithmicProblems"> Relations to Algorithmic Problems </h3>
+                {% endif %}
+	            solves: {{ solves.1 }} <br>
+            {% endfor %}
+
+            {% for implementedBy in values.RelationS.values %}
+                {% if forloop.counter == 1 %}
+                    <h3 id="RelationsToSoftware"> Relations to Software </h3>
+                {% endif %}
+	            implemented by: {{ implementedBy.1 }} <br>
+            {% endfor %}
+
+            {% for relation in values.RelationA.values %}
+                {% if forloop.counter == 1 %}
+                    <h3 id="RelationsToAlgorithms"> Relations to Algorithms </h3>
+                {% endif %}
+                {% if relation.0 == option.hasComponent %} 
+	                has Component: {{relation.1 }} <br>
+                {% elif relation.0 == option.componentOf %} 
+	                component of: {{relation.1 }} <br>
+                {% elif relation.0 == option.hasSubclass %} 
+	                has subclass: {{relation.1 }} <br>
+                {% elif relation.0 == option.subclassOf %} 
+	                subclass of: {{relation.1 }} <br>
+                {% elif relation.0 == option.relatedTo %} 
+	                related to: {{relation.1 }} <br>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    
+        {% for values in answers.problem.values %}
+            {% if forloop.counter == 1 %}
+                <h1 id="AlgorithmicProblem"> Algorithmic Problem </h1>
+            {% endif %}
+      
+            <h2 id="AP{{ forloop.counter }}"> AP{{ forloop.counter }}: {{ values.Name }} </h2>
+   
+            <p>
+                {% if values.Description %}
+                    <b>Description</b>: {{ values.Description }} <br>
+                {% endif %}
+                {% if 'not found' in values.ID %} 
+                    <b>ID</b>: - 
+                {% elif 'mathmoddb' in values.ID %} 
+                    <b>MathModDB ID</b>: {{ values.ID|cut:"mathmoddb:"}}
+                {% elif 'mathalgodb' in values.ID %} 
+                    <b>MathAlgoDB ID</b>: {{ values.ID|cut:"mathalgodb:"}}
+                {% elif 'mardi' in values.ID %} 
+                    <b>MaRDI Portal ID</b>: {{ values.ID|cut:"mardi:"}} 
+                {% elif 'wikidata' in values.ID %} 
+                    <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
+                {% endif %} 
+            </p>
+
+            {% for instantiates in values.RelationB.values %}
+                {% if forloop.counter == 1 %}
+                    <h3 id="RelationsToBenchmarks"> Relations to Benchmarks </h3>
+                {% endif %}
+	            instantiates: {{ instantiates.1 }} <br>
+            {% endfor %}
+
+            {% for relation in values.RelationP.values %}
+                {% if forloop.counter == 1 %}
+                    <h3 id="RelationsToAlgorithmicProblems"> Relations to Algorithmic Problems </h3>
+                {% endif %}
+                {% if relation.0 == option.specializes %} 
+	                specializes: {{relation.1 }} <br>
+                {% elif relation.0 == option.specializedBy %} 
+	                specializedby: {{relation.1 }} <br>
+                {% endif %}
+            {% endfor %}
+
+        {% endfor %}
+   
+        {% for values in answers.software.values %}
+            {% if forloop.counter == 1 %}
+                <h1 id="Software"> Software </h1>
+            {% endif %}
+      
+            <h2 id="S{{ forloop.counter }}"> S{{ forloop.counter }}: {{ values.Name }} </h2>
+   
+            <p>
+                {% if values.Description %}
+                    <b>Description</b>: {{ values.Description }} <br>
+                {% endif %}
+                {% if 'not found' in values.ID %} 
+                    <b>ID</b>: - 
+                {% elif 'mathmoddb' in values.ID %} 
+                    <b>MathModDB ID</b>: {{ values.ID|cut:"mathmoddb:"}}
+                {% elif 'mathalgodb' in values.ID %} 
+                    <b>MathAlgoDB ID</b>: {{ values.ID|cut:"mathalgodb:"}}
+                {% elif 'mardi' in values.ID %} 
+                    <b>MaRDI Portal ID</b>: {{ values.ID|cut:"mardi:"}} 
+                {% elif 'wikidata' in values.ID %} 
+                    <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
+                {% endif %}
+                <br>
+                {% if values.Reference %}
+                    <b>Reference</b>: {{ values.Reference }} <br>
+                {% endif %} 
+            </p>
+
+            {% for tests in values.RelationB.values %}
+                {% if forloop.counter == 1 %}
+                    <h3 id="RelationsToBenchmarks"> Relations to Benchmarks </h3>
+                {% endif %}
+	            tests: {{ tests.1 }} <br>
+            {% endfor %}
+
+        {% endfor %}
+
+        {% for values in answers.benchmark.values %}
+            {% if forloop.counter == 1 %}
+                <h1 id="Benchmark"> Benchmark </h1>
+            {% endif %}
+      
+            <h2 id="B{{ forloop.counter }}"> B{{ forloop.counter }}: {{ values.Name }} </h2>
+   
+            <p>
+                {% if values.Description %}
+                    <b>Description</b>: {{ values.Description }} <br>
+                {% endif %}
+                {% if 'not found' in values.ID %} 
+                    <b>ID</b>: - 
+                {% elif 'mathmoddb' in values.ID %} 
+                    <b>MathModDB ID</b>: {{ values.ID|cut:"mathmoddb:"}}
+                {% elif 'mathalgodb' in values.ID %} 
+                    <b>MathAlgoDB ID</b>: {{ values.ID|cut:"mathalgodb:"}}
+                {% elif 'mardi' in values.ID %} 
+                    <b>MaRDI Portal ID</b>: {{ values.ID|cut:"mardi:"}} 
+                {% elif 'wikidata' in values.ID %} 
+                    <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
+                {% endif %}
+                <br>
+                {% if values.Reference %}
+                    <b>Reference</b>: {{ values.Reference }} <br>
+                {% endif %} 
+            </p>
+
+        {% endfor %}
+
+        {% for values in answers.publication.values %}
+
+            {% if forloop.counter == 1 %}
+                <h1 id="Publication"> Publications </h1>
+            {% endif %}
+
+            <h2 id="P{{ forloop.counter }}"> P{{ forloop.counter }}: {{ values.Name }} </h2>
+
+            <p> {% if values.ID %}
+                    <b>ID</b>: {{ values.ID }} <br>
+                {% endif %}
+                {% for reference in values.reference.values %}
+                    {% if reference.0 == option.DOI %}
+                        <b>DOI</b>: {{ reference.1 }} <br>
+        	        {% endif %} 
+                    {% if reference.0 == option.URL %}
+                        <b>URL</b>: {{ reference.1 }} <br>
+        	        {% endif %}
+                {% endfor %}
+            </p>
+        
+            {% for values in values.RelationA.values %}
+                {% if forloop.counter == 1 %}
+                    <h3 id="RelationsToAlgorithms"> Relations to Algorithms </h3>
+                {% endif %}
+                {% if values.0 == option.analyzes %} 
+        	    analyzes: {{ values.1 }} <br>
+                {% elif values.0 == option.applies %} 
+        	    applies: {{ values.1 }} <br>
+                {% elif values.0 == option.invents %} 
+        	    invents: {{ values.1 }} <br>
+                {% elif values.0 == option.studies %} 
+        	    studies: {{ values.1 }} <br>
+                {% elif values.0 == option.surveys %} 
+        	    surveys: {{ values.1 }} <br>
+                {% endif %}
+            {% endfor %}
+
+            {% for values in values.RelationBS.values %}
+                {% if forloop.counter == 1 %}
+                    <h3 id="RelationsToAlgorithms"> Relations to Benchmarks or Software </h3>
+                {% endif %}
+                {% if values.0 == option.documents %} 
+        	    documents: {{ values.1 }} <br>
+                {% elif values.0 == option.uses %} 
+        	    uses: {{ values.1 }} <br>
+                {% endif %}
+            {% endfor %}
+
+        {% endfor %}
+
+
+</body>

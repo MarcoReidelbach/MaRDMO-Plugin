@@ -148,49 +148,53 @@ def Discipline(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def SoftwareInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/software/id':
-        if instance.text and instance.text != 'not found':
-            add_basics(instance, 
-                       f'{BASE_URI}domain/software/name', 
-                       f'{BASE_URI}domain/software/description')
-            # Get source and ID of Item
-            source, Id = instance.external_id.split(':')
-            results = []
-            if source == 'mardi':
-                results = query_sparql(mardiProvider['Software'].format(wdt, wd, f"wd:{Id}", P19, P34, P35, P36, P16, P20), mardi_endpoint)
-            elif source == 'wikidata':
-                results = query_sparql(wikidataProvider['Software'].format(f"wd:{Id}"), wikidata_endpoint)
-            if results:
-                # Load Options
-                options = get_data('data/options.json')
-                # Add Reference of Software
-                if results[0].get('doi', {}).get('value'):
-                    reference = f"doi:{results[0]['doi']['value']}"
-                elif results[0].get('swmath', {}).get('value'):
-                    reference = f"sw:{results[0]['swmath']['value']}"
-                else:
-                    reference = ''
-                value_editor(instance.project, f'{BASE_URI}domain/software/reference', reference, None, None, None, instance.set_index, None)
-                # Add Programming Languages of Software
-                idx = 0
-                if results[0].get(f'PL', {}).get('value'):
-                    for result in results[0]['PL']['value'].split(' / '):
-                        ID, Label, Description = result.split(' | ')
-                        value_editor(instance.project, f'{BASE_URI}domain/software/programming-language/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                        idx += 1
-                # Add Dependencies of Software
-                idx = 0
-                if results[0].get(f'DP', {}).get('value'):
-                    for result in results[0]['DP']['value'].split(' / '):
-                        ID, Label, Description = result.split(' | ')
-                        value_editor(instance.project, f'{BASE_URI}domain/software/dependency/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                        idx += 1
-                # Software Published?
-                if results[0].get(f'published', {}).get('value'):
-                    value_editor(instance.project, f'{BASE_URI}domain/software/published', results[0]['published']['value'], None, options['YesText'], None, instance.set_index, None)
-                # Software Documented?
-                if results[0].get(f'documented', {}).get('value'):
-                    value_editor(instance.project, f'{BASE_URI}domain/software/documented', results[0]['documented']['value'], None, options['YesText'], None, instance.set_index, None)
+    if (
+        instance 
+        and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog') 
+        and instance.attribute.uri == f'{BASE_URI}domain/software/id'
+        and instance.text and instance.text != 'not found'
+        ):
+        add_basics(instance, 
+                   f'{BASE_URI}domain/software/name', 
+                   f'{BASE_URI}domain/software/description')
+        # Get source and ID of Item
+        source, Id = instance.external_id.split(':')
+        results = []
+        if source == 'mardi':
+            results = query_sparql(mardiProvider['Software'].format(wdt, wd, f"wd:{Id}", P19, P34, P35, P36, P16, P20), mardi_endpoint)
+        elif source == 'wikidata':
+            results = query_sparql(wikidataProvider['Software'].format(f"wd:{Id}"), wikidata_endpoint)
+        if results:
+            # Load Options
+            options = get_data('data/options.json')
+            # Add Reference of Software
+            if results[0].get('doi', {}).get('value'):
+                reference = f"doi:{results[0]['doi']['value']}"
+            elif results[0].get('swmath', {}).get('value'):
+                reference = f"sw:{results[0]['swmath']['value']}"
+            else:
+                reference = ''
+            value_editor(instance.project, f'{BASE_URI}domain/software/reference', reference, None, None, None, instance.set_index, None)
+            # Add Programming Languages of Software
+            idx = 0
+            if results[0].get(f'PL', {}).get('value'):
+                for result in results[0]['PL']['value'].split(' / '):
+                    ID, Label, Description = result.split(' | ')
+                    value_editor(instance.project, f'{BASE_URI}domain/software/programming-language/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
+                    idx += 1
+            # Add Dependencies of Software
+            idx = 0
+            if results[0].get(f'DP', {}).get('value'):
+                for result in results[0]['DP']['value'].split(' / '):
+                    ID, Label, Description = result.split(' | ')
+                    value_editor(instance.project, f'{BASE_URI}domain/software/dependency/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
+                    idx += 1
+            # Software Published?
+            if results[0].get(f'published', {}).get('value'):
+                value_editor(instance.project, f'{BASE_URI}domain/software/published', results[0]['published']['value'], None, options['YesText'], None, instance.set_index, None)
+            # Software Documented?
+            if results[0].get(f'documented', {}).get('value'):
+                value_editor(instance.project, f'{BASE_URI}domain/software/documented', results[0]['documented']['value'], None, options['YesText'], None, instance.set_index, None)
     return
 
 @receiver(post_save, sender=Value)

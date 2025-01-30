@@ -219,28 +219,3 @@ class RelatedTask(Provider):
         queryAttribute = 'task'
 
         return query_sources_with_user_additions(search, project, queryID, queryAttribute)
-    
-class AllEntities(Provider):
-
-    mathmoddb = get_data('model/data/mapping.json')
-
-    def get_options(self, project, search=None, user=None, site=None):
-        
-        options = []
-        values = {}
-
-        for idx, type in enumerate(['field', 'problem', 'model', 'quantity', 'formulation', 'task']):
-            values.update({
-                           idx: {'id': project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{type}/id')),
-                                 'name': project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{type}/name')),
-                                 'description': project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{type}/description'))}
-                         })
-            
-        for key, pre in zip(values, ['RF', 'RP', 'MM', 'QQK', 'MF', 'T']):
-            for idx, (id, name, description) in enumerate(zip(values[key]['id'], values[key]['name'], values[key]['description'])):
-                if id.text and id.text != 'not found':
-                    options.append({'id': id.external_id, 'text': id.text})
-                else:
-                    options.append({'id': f"{pre}{str(idx+1)}",'text': f"{name.text} ({description.text}) [user-defined]"})
-
-        return options

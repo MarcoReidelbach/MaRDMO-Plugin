@@ -33,18 +33,6 @@
 </head>
 <body>
 <h1 id="title"> {{ title }} </h1>
-<h2 id="Authors"> Authors </h2>
-
-<p>
-    <b>Family Names</b>: {{ answers.Creator.Surname }} <br>
-    <b>Given Names</b>: {{ answers.Creator.GivenName }} <br>
-    {% for id in answers.Creator.orcidID %} 
-        <b>orcid</b>: {{ id }} <br>
-    {% endfor %}
-    {% for id in answers.Creator.zbmathID %} 
-        <b>zbmath</b>: {{ id }}
-    {% endfor %}
-</p>
 
 {% for values in answers.model.values %}
     

@@ -4,7 +4,7 @@ from rdmo.options.models import Option
 from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI
-from ..utils import extract_parts, get_data, value_editor, query_sparql
+from ..utils import extract_parts, get_data, value_editor
 
 from .sparql import queryHandler
 

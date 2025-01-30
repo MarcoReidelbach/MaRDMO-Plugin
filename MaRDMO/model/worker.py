@@ -1,10 +1,7 @@
-from ..utils import get_data
-from ..publication.worker import PublicationRetriever
-
+from ..utils import entityRelations, get_data
 
 def model_relations(instance, answers,mathmoddb):
-    '''Function queries MathModDB to gather further Model Information
-       and connects them with Information provided by the User'''
+    '''Function to establish relations between Model Documentation Data'''
      
     inversePropertyMapping = get_data('model/data/inversePropertyMapping.json')
     options = get_data('data/options.json')
@@ -132,29 +129,9 @@ def model_relations(instance, answers,mathmoddb):
     
     # Add Task to Task Relations
     entityRelations(answers,'task','task','IntraClassRelation','IntraClassElement','RelationT','T')
+
+    # Add Publication to Entity Relations
+    entityRelations(answers,'publication',['field', 'problem', 'model', 'formulation', 'quantity', 'task'],'P2E','EntityRelatant','RelationP',['RF', 'RP', 'MM', 'MF', 'QQK', 'T'])
+    
     
     return answers
-
-def entityRelations(data, fromIDX, toIDX, relationOld, entityOld, relationNew, enc, no=2):
-    # Add relations between model entities
-    label_to_index = {data[toIDX][k].get('Name'): idx for idx, k in enumerate(data.get(toIDX,{}))}
-    for key in data.get(fromIDX, []):
-        for key2 in data[fromIDX][key].get(relationOld, {}):
-            if data[fromIDX][key][entityOld].get(key2):
-                Id, label = data[fromIDX][key][entityOld][key2].split(' <|> ')[:2]
-                if label in label_to_index:
-                    idx = label_to_index[label]
-                    if no == 2:
-                        if [data[fromIDX][key][relationOld][key2], f'{enc}{idx+1}'] not in data[fromIDX][key].get(relationNew,{}).values():
-                            data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], f'{enc}{idx+1}']})
-                    else:
-                        if [data[fromIDX][key][relationOld][key2], idx+1, f'{enc}{idx+1}'] not in data[fromIDX][key].get(relationNew,{}).values():
-                            data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], idx+1, f'{enc}{idx+1}']})
-                else:
-                    if no == 2:
-                        if [data[fromIDX][key][relationOld][key2], Id] not in data[fromIDX][key].get(relationNew,{}).values():
-                            data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], Id]})
-                    else:
-                        if [data[fromIDX][key][relationOld][key2], Id, Id] not in data[fromIDX][key].get(relationNew,{}).values():
-                            data[fromIDX][key].setdefault(relationNew, {}).update({key2: [data[fromIDX][key][relationOld][key2], Id, Id]})
-    return

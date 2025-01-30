@@ -23,17 +23,19 @@ queryPublication = {
                         ?entrytypelabel ?journalInfo ?languagelabel                               
                         ?title ?date ?volume ?issue ?page          
 
-                 WHERE {{ OPTIONAL {{ wd:{1} wdt:P{0} ?doi. }}
+                 WHERE {{ VALUES ?publication {{ wd:{1} }}
+                 
+                        OPTIONAL {{ ?publication wdt:P{0} ?doi. }}
                         
-                        OPTIONAL {{{1} rdfs:label ?labelraw.
+                        OPTIONAL {{?publication rdfs:label ?labelraw.
                                   FILTER (lang(?labelraw) = 'en')}}
                         BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
                         
-                        OPTIONAL {{{1} schema:description ?descriptionraw.
+                        OPTIONAL {{?publication schema:description ?descriptionraw.
                                   FILTER (lang(?descriptionraw) = 'en')}}
                         BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
                         
-                        OPTIONAL {{{1} (wdt:P{2} | wdt:P{8}) ?authorraw.
+                        OPTIONAL {{?publication (wdt:P{2} | wdt:P{8}) ?authorraw.
                                   BIND(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("mardi:", STRAFTER(STR(?authorraw), STR(wd:))), "") AS ?author)
      
                                   OPTIONAL {{?authorraw rdfs:label ?authorlabelraw.
@@ -55,14 +57,14 @@ queryPublication = {
      
                                   BIND(CONCAT(?author, " <|> ", ?authorlabel, " <|> ", ?authordescription, " <|> ", ?authororcid, " <|> ", ?authorzbmathid, " <|> ", ?authorwikidataid) AS ?authorInfo)}}
    
-                        OPTIONAL {{{1} wdt:P{4} ?entrytyperaw.
+                        OPTIONAL {{?publication wdt:P{4} ?entrytyperaw.
                                   
                                    OPTIONAL {{?entrytyperaw rdfs:label ?entrytypelabelraw.
                                             FILTER (lang(?entrytypelabelraw) = 'en')}}
                                    BIND(COALESCE(?entrytypelabelraw, "No Label Provided!") As ?entrytypelabel)
                                   }}
                         
-                        OPTIONAL {{{1} wdt:P{5} ?journalraw.
+                        OPTIONAL {{?publication wdt:P{5} ?journalraw.
                                   BIND(CONCAT("mardi:", STRAFTER(STR(?journalraw), STR(wd:))) AS ?journal)
                                   
                                   OPTIONAL {{?journalraw rdfs:label ?journallabelraw.
@@ -75,25 +77,25 @@ queryPublication = {
                                   
                                   BIND(concat(?journal, " <|> ", ?journallabel, " <|> ", ?journaldescription) AS ?journalInfo)}}
                         
-                        OPTIONAL {{{1} wdt:P{6} ?languageraw.
+                        OPTIONAL {{?publication wdt:P{6} ?languageraw.
                                    
                                    OPTIONAL {{?languageraw rdfs:label ?languagelabelraw.
                                               FILTER (lang(?languagelabelraw) = 'en')}}
                                    BIND(COALESCE(?languagelabelraw, "No Label Provided!") As ?languagelabel)}}
                         
-                        OPTIONAL {{{1} wdt:P{7} ?titleraw.
+                        OPTIONAL {{?publication wdt:P{7} ?titleraw.
                                    BIND(COALESCE(?titleraw, "No Title Provided!") As ?title)}}
                         
-                        OPTIONAL {{{1} wdt:P{9} ?dateraw.
+                        OPTIONAL {{?publication wdt:P{9} ?dateraw.
                                    BIND(COALESCE(?dateraw, "No Publication Date Provided!") As ?date)}}
                         
-                        OPTIONAL {{{1} wdt:P{10} ?volumeraw.
+                        OPTIONAL {{?publication wdt:P{10} ?volumeraw.
                                    BIND(COALESCE(?volumeraw, "No Volume Provided!") As ?volume)}}
                         
-                        OPTIONAL {{{1} wdt:P{11} ?issueraw.
+                        OPTIONAL {{?publication wdt:P{11} ?issueraw.
                                    BIND(COALESCE(?issueraw, "No Issue Provided!") As ?issue)}}
                         
-                        OPTIONAL {{{1} wdt:P{12} ?pageraw.
+                        OPTIONAL {{?publication wdt:P{12} ?pageraw.
                                    BIND(COALESCE(?pageraw, "No Pages Provided!") As ?page)}}
                         }}
    
@@ -193,17 +195,19 @@ queryPublication = {
                         ?entrytypelabel ?journalInfo ?languagelabel                               
                         ?title ?date ?volume ?issue ?page          
 
-                 WHERE {{ OPTIONAL {{ wd:{1} wdt:P{0} ?doi. }}
+                 WHERE {{ VALUES ?publication {{ wd:{1} }}
+                 
+                        OPTIONAL {{ ?publication wdt:P{0} ?doi. }}
 
-                        OPTIONAL {{{1} rdfs:label ?labelraw.
+                        OPTIONAL {{?publication rdfs:label ?labelraw.
                                   FILTER (lang(?labelraw) = 'en')}}
                         BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
                         
-                        OPTIONAL {{{1} schema:description ?descriptionraw.
+                        OPTIONAL {{?publication schema:description ?descriptionraw.
                                   FILTER (lang(?descriptionraw) = 'en')}}
                         BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
                         
-                        OPTIONAL {{{1} (wdt:P{2} | wdt:P{8}) ?authorraw.
+                        OPTIONAL {{?publication (wdt:P{2} | wdt:P{8}) ?authorraw.
                                   BIND(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("wikidata:", STRAFTER(STR(?authorraw), STR(wd:))), "") AS ?author)
      
                                   OPTIONAL {{?authorraw rdfs:label ?authorlabelraw.
@@ -225,14 +229,14 @@ queryPublication = {
      
                                   BIND(CONCAT(?author, " <|> ", ?authorlabel, " <|> ", ?authordescription, " <|> ", ?authororcid, " <|> ", ?authorzbmathid, " <|> ", ?authorwikidataid) AS ?authorInfo)}}
    
-                        OPTIONAL {{{1} wdt:P{4} ?entrytyperaw.
+                        OPTIONAL {{?publication wdt:P{4} ?entrytyperaw.
                                   
                                    OPTIONAL {{?entrytyperaw rdfs:label ?entrytypelabelraw.
                                             FILTER (lang(?entrytypelabelraw) = 'en')}}
                                    BIND(COALESCE(?entrytypelabelraw, "No Label Provided!") As ?entrytypelabel)
                                   }}
                         
-                        OPTIONAL {{{1} wdt:P{5} ?journalraw.
+                        OPTIONAL {{?publication wdt:P{5} ?journalraw.
                                   BIND(CONCAT("wikidata:", STRAFTER(STR(?journalraw), STR(wd:))) AS ?journal)
                                   
                                   OPTIONAL {{?journalraw rdfs:label ?journallabelraw.
@@ -245,25 +249,25 @@ queryPublication = {
                                   
                                   BIND(concat(?journal, " <|> ", ?journallabel, " <|> ", ?journaldescription) AS ?journalInfo)}}
                         
-                        OPTIONAL {{{1} wdt:P{6} ?languageraw.
+                        OPTIONAL {{?publication wdt:P{6} ?languageraw.
                                    
                                    OPTIONAL {{?languageraw rdfs:label ?languagelabelraw.
                                               FILTER (lang(?languagelabelraw) = 'en')}}
                                    BIND(COALESCE(?languagelabelraw, "No Label Provided!") As ?languagelabel)}}
                         
-                        OPTIONAL {{{1} wdt:P{7} ?titleraw.
+                        OPTIONAL {{?publication wdt:P{7} ?titleraw.
                                    BIND(COALESCE(?titleraw, "No Title Provided!") As ?title)}}
                         
-                        OPTIONAL {{{1} wdt:P{9} ?dateraw.
+                        OPTIONAL {{?publication wdt:P{9} ?dateraw.
                                    BIND(COALESCE(?dateraw, "No Publication Date Provided!") As ?date)}}
                         
-                        OPTIONAL {{{1} wdt:P{10} ?volumeraw.
+                        OPTIONAL {{?publication wdt:P{10} ?volumeraw.
                                    BIND(COALESCE(?volumeraw, "No Volume Provided!") As ?volume)}}
                         
-                        OPTIONAL {{{1} wdt:P{11} ?issueraw.
+                        OPTIONAL {{?publication wdt:P{11} ?issueraw.
                                    BIND(COALESCE(?issueraw, "No Issue Provided!") As ?issue)}}
                         
-                        OPTIONAL {{{1} wdt:P{12} ?pageraw.
+                        OPTIONAL {{?publication wdt:P{12} ?pageraw.
                                    BIND(COALESCE(?pageraw, "No Pages Provided!") As ?page)}}
                         }}
    

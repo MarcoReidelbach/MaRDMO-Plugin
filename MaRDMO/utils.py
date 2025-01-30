@@ -491,3 +491,44 @@ def query_sources_with_user_additions(search, project, queryID, queryAttribute, 
 
     # Return combined, sorted options
     return sorted(options, key=lambda option: option['text'])
+
+def entityRelations(data, fromIDX, toIDX, relationOld, entityOld, relationNew, enc, no=2):
+
+    # Ensure toIDX and enc are lists
+    if not isinstance(toIDX, list):
+        toIDX = [toIDX]
+    if not isinstance(enc, list):
+        enc = [enc]
+
+    # Create mappings for all toIDX lists
+    label_to_index_maps = []
+    for toIDX_entry in toIDX:
+        label_to_index_maps.append({data[toIDX_entry][k].get('Name'): idx for idx, k in enumerate(data.get(toIDX_entry, {}))})
+
+    # Use Template or Ressource Label
+    for from_entry in data.get(fromIDX, {}).values():
+        for key in from_entry.get(relationOld, {}):
+            if from_entry[entityOld].get(key):
+                Id, label = from_entry[entityOld][key].split(' <|> ')[:2]
+                
+                match_found = False
+                for enc_entry, label_to_index in zip(enc, label_to_index_maps):
+                    if label in label_to_index:
+                        idx = label_to_index[label]
+                        match_found = True
+                        if no == 2:
+                            if [from_entry[relationOld][key], f'{enc_entry}{idx+1}'] not in from_entry.get(relationNew, {}).values():
+                                from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], f'{enc_entry}{idx+1}']})
+                        else:
+                            if [from_entry[relationOld][key], idx+1, f'{enc_entry}{idx+1}'] not in from_entry.get(relationNew, {}).values():
+                                from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], idx+1, f'{enc_entry}{idx+1}']})
+                        break
+                
+                if not match_found:
+                    if no == 2:
+                        if [from_entry[relationOld][key], Id] not in from_entry.get(relationNew, {}).values():
+                            from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], Id]})
+                    else:
+                        if [from_entry[relationOld][key], Id, Id] not in from_entry.get(relationNew, {}).values():
+                            from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], Id, Id]})
+    return
