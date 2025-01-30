@@ -77,7 +77,7 @@ def get_citation(DOI):
         wikidata_query = queryPublication['All_Wikidata'].format('356', DOI.upper(), '50', '496', '31', '1433', '407', '1476', '2093', '577', '478', '433', '304', '', '1556')
         mathmoddb_query = queryPublication['PublicationMathModDBDOI'].format(DOI)
         mathalgodb_query = queryPublication['PublicationMathAlgoDBDOI'].format(DOI)
-        print(mathalgodb_query)
+        
         # Get Citation Data from MaRDI Portal / Wikidata / MathModDB / MathAlgoDB
         results = query_sparql_pool({'wikidata':(wikidata_query, wikidata_endpoint), 'mardi':(mardi_query, mardi_endpoint), 'mathmoddb':(mathmoddb_query, mathmoddb_endpoint), 'mathalgodb':(mathalgodb_query, mathalgodb_endpoint)})
 

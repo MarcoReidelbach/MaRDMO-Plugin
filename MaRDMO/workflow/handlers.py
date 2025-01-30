@@ -270,7 +270,6 @@ def DataSetInformation(sender, **kwargs):
                     idx = 0
                     if results[0].get(f'DataType', {}).get('value'):
                         for result in results[0]['DataType']['value'].split(' / '):
-                            print(idx)
                             ID, Label, Description = result.split(' | ')
                             value_editor(instance.project, f'{BASE_URI}domain/data-set/data-type/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
                             idx += 1

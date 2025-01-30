@@ -25,6 +25,17 @@ def get_questionsPU():
     """Retrieve the questions dictionary from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").questionsPU
 
+def merge_dicts_with_unique_keys(answers, keys):
+    
+    merged_dict = {}
+    
+    for key in keys:
+        for inner_key, value in answers[key].items():
+            new_inner_key = f"{inner_key}{key}"
+            merged_dict[new_inner_key] = value    
+    
+    return merged_dict
+
 def get_new_ids(project, ids, query):
     '''Request IDs for new MathModDB Items and add them to the Questionnaire'''
     new_ids ={}

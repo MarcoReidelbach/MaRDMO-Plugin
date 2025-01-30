@@ -140,20 +140,7 @@ def get_answer_model(project, val, uri, key1, key2, key3 = None, set_prefix = No
                 
     return val
 
-def merge_dicts_with_unique_keys(answers):
-    
-    keys = ['field','problem','model','formulation','quantity','task','publication']
-    
-    merged_dict = {}
-    
-    for key in keys:
-        for inner_key, value in answers[key].items():
-            new_inner_key = f"{inner_key}{key}"
-            merged_dict[new_inner_key] = value    
-    
-    return merged_dict
-
-def dict_to_triples(data):
+def dict_to_triples_mathmoddb(data):
 
     inversePropertyMapping = get_data('model/data/inversePropertyMapping.json')
     options = get_data('data/options.json')
@@ -217,7 +204,6 @@ def dict_to_triples(data):
 
             # Assign Individual DOI/QUDT ID
             if item.get('reference'):
-                print(item.get('reference'))
                 if item['reference'].get(0):
                     if item['reference'][0][0] == options['DOI']:
                         doi_value = item['reference'][0][1]

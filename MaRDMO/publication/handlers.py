@@ -102,12 +102,9 @@ def PInformation(sender, **kwargs):
                                  set_index = instance.set_index)
             # If Publication from Wikidata...   
             elif source == 'wikidata':
-                print('HI')
                 #...query Wikidata,...
                 query = queryPublication['All_WikidataLabel'].format('356', id, '50', '496', '31', '1433', '407', '1476', '2093', '577', '478', '433', '304', '', '1556')
-                print(query)
                 results = query_sparql(query,wikidata_endpoint)
-                print(results)
                 if results:
                     #...structure the data...
                     data = Publication.from_query(results)

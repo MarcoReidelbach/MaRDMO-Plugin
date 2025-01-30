@@ -249,7 +249,7 @@ queryHandlerAL = {
                                                 }}
 
                                        OPTIONAL {{
-                                                  ?idraw (prop:documentedIn | prop:usedIn) ?pubraw.
+                                                  ?idraw (prop:analyzedIn | prop:appliedIn | prop:inventedIn | prop:studiedIn | prop:reviewedIn) ?pubraw.
                                                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?pubraw), "#")) AS ?pub)
                                                   OPTIONAL {{ ?pubraw rdfs:label ?publraw}}
                                                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)

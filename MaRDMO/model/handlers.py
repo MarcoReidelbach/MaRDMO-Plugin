@@ -93,7 +93,6 @@ def QQKInformation(sender, **kwargs):
             if source== 'mathmoddb':
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 results = query_sparql(queryHandler['quantityOrQuantityKindInformation'].format(f":{Id}"))
-                print(results)
                 mathmoddb = get_data('model/data/mapping.json')
                 options = get_data('data/options.json')
                 if results:
@@ -300,7 +299,6 @@ def MMInformation(sender, **kwargs):
                 results = query_sparql(queryHandler['mathematicalModelInformation'].format(f":{Id}"))
                 mathmoddb = get_data('model/data/mapping.json')
                 if results:
-                    print(results)
                     # Add the Mathematical Model Properties to the Questionnaire
                     add_properties(instance, results, mathmoddb, 
                                    f'{BASE_URI}domain/model/properties')

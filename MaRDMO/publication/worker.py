@@ -151,7 +151,6 @@ class PublicationRetriever:
 
         # Go through all Publications
         for key in answers['publication']:
-            print(answers['publication'])
             # If User selected Publication from MathModDB, MaRDI Portal or Wikidata...
             if answers['publication'][key]['ID'].startswith('mathmoddb') or answers['publication'][key]['ID'].startswith('mardi') or answers['publication'][key]['ID'].startswith('wikidata'):
                 #...check if ressource returned a DOI and...

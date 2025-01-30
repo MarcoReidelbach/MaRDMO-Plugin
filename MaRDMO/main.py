@@ -13,14 +13,14 @@ from rdmo.services.providers import OauthProviderMixin
 
 from .oauth2 import OauthProviderMixin
 
-from .utils import get_answer, get_data, get_new_ids, query_sparql
+from .utils import get_answer, get_data, get_new_ids, merge_dicts_with_unique_keys, query_sparql
 from .model.worker import model_relations
 from .algorithm.worker import algorithm_relations
 from .search.worker import search
 from .config import mathmoddb_update, mardi_uri, mathalgodb_uri, mathmoddb_uri, wikidata_uri
 
 from .model.sparql import queryModelDocumentation
-from .model.utils import get_answer_model, merge_dicts_with_unique_keys, dict_to_triples, generate_sparql_insert_with_new_ids
+from .model.utils import get_answer_model, dict_to_triples_mathmoddb, generate_sparql_insert_with_new_ids
 
 from .algorithm.utils import get_answer_algorithm
 
@@ -185,9 +185,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 data = self.get_post_data()
                 
                 # Merge answers related to mathematical model
-                merged_dict = merge_dicts_with_unique_keys(data[0])         
+                merged_dict = merge_dicts_with_unique_keys(data[0], ['field','problem','model','formulation','quantity','task','publication'])         
                 # Generate list of triples
-                triple_list, ids = dict_to_triples(merged_dict) 
+                triple_list, ids = dict_to_triples_mathmoddb(merged_dict) 
                 # Generate query for MathModDB KG
                 query = generate_sparql_insert_with_new_ids(triple_list)
                 
@@ -215,6 +215,13 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
             # MaRDMO: Algorithm Documentation
             if str(self.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
+
+                data = self.get_post_data()
+                
+                # Merge answers related to mathematical model
+                merged_dict = merge_dicts_with_unique_keys(data[0], ['algorithm', 'problem', 'software', 'benchmark', 'publication'])
+
+                
 
                 return render(self.request,
                               'MaRDMO/Export_soon.html',        

@@ -649,7 +649,7 @@ queryPublication = {
                                                      BIND(COALESCE(?studiesentitydescriptionraw, "No Description Provided!") As ?studiesentitydescription)
                                                    }}
 
-                                          OPTIONAL {{?idraw :surveys ?surveysentityraw.
+                                          OPTIONAL {{?idraw :reviews ?surveysentityraw.
                                                      BIND(CONCAT("mathalgodb:", STRAFTER(STR(?surveysentityraw), "#")) AS ?surveysentity)
 
                                                      OPTIONAL {{?surveysentityraw rdfs:label ?surveysentitylabelraw.}}
