@@ -1,62 +1,42 @@
 {
     "search_options": {
-        "uName": "search",
-        "dName": "options",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/options",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
+        "key1": "search",
+        "key2": "options",
+        "uri": "domain/search/options"
     },
     "via_research_objective": {
-        "uName": "search",
-        "dName": "via_research_objective",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/via-research-objective",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
+        "key1": "search",
+        "key2": "via_research_objective",
+        "uri": "domain/search/workflow-search/via-research-objective"
     },
     "research_objective": {
-        "uName": "search",
-        "dName": "research_objective",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/research-objective",
-        "set_prefix": false,
-        "set_index": false,
+        "key1": "search",
+        "key2": "research_objective",
+        "uri": "domain/search/workflow-search/research-objective",
         "collection_index": true
     },
     "via_research_discipline": {
-        "uName": "search",
-        "dName": "via_research_discipline",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/via-research-discipline",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
+        "key1": "search",
+        "key2": "via_research_discipline",
+        "uri": "domain/search/workflow-search/via-research-discipline"
     },
     "research_discipline": {
-        "uName": "search",
-        "dName": "research_discipline",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/research-discipline",
-        "set_prefix": false,
-        "set_index": false,
+        "key1": "search",
+        "key2": "research_discipline",
+        "uri": "domain/search/workflow-search/research-discipline",
         "collection_index": true,
-        "option_text": false,
         "external_id": true
     },
     "via_workflow_entity": {
-        "uName": "search",
-        "dName": "via_workflow_entity",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/via-workflow-entity",
-        "set_prefix": false,
-        "set_index": false,
-        "collection_index": false
+        "key1": "search",
+        "key2": "via_workflow_entity",
+        "uri": "domain/search/workflow-search/via-workflow-entity"
     },
     "workflow_entity": {
-        "uName": "search",
-        "dName": "workflow_entity",
-        "Id": "https://rdmo.mardi4nfdi.de/terms/domain/search/workflow-search/workflow-entity",
-        "set_prefix": false,
-        "set_index": false,
+        "key1": "search",
+        "key2": "workflow_entity",
+        "uri": "domain/search/workflow-search/workflow-entity",
         "collection_index": true,
-        "option_text": false,
         "external_id": true
     }
 }

@@ -12,22 +12,23 @@ from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
 from .oauth2 import OauthProviderMixin
-
 from .utils import get_answer, get_data, get_new_ids, merge_dicts_with_unique_keys, query_sparql
-from .model.worker import model_relations
-from .algorithm.worker import algorithm_relations
-from .search.worker import search
 from .config import mathmoddb_endpoint, mathmoddb_update, mathalgodb_endpoint, mathalgodb_update, mardi_uri, mathalgodb_uri, mathmoddb_uri, wikidata_uri
 
 from .model.sparql import queryModelDocumentation
+from .model.worker import model_relations
 from .model.utils import get_answer_model, dict_to_triples_mathmoddb, generate_sparql_insert_with_new_ids_mathmoddb
 
 from .algorithm.sparql import queryAlgorithmDocumentation
+from .algorithm.worker import algorithm_relations
 from .algorithm.utils import get_answer_algorithm, dict_to_triples_mathalgodb, generate_sparql_insert_with_new_ids_mathalgodb
 
 from .workflow.sparql import queryPreview
 from .workflow.utils import get_answer_workflow, get_discipline
 from .workflow.models import ModelProperties, Variables, Parameters
+
+from .search.worker import search
+from .search.utils import get_answer_search
 
 from .publication.worker import PublicationRetriever
 
@@ -114,7 +115,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
             
             data = self.get_post_data()
-            print(data[0])
+            
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
@@ -199,10 +200,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                         auth=(mathmoddb_username, mathmoddb_password),
                                         verify = False
                                     )
-                print(response.status_code)
+                
                 if response.status_code == 204:
                     ids = get_new_ids(self.project, ids, queryModelDocumentation['IDCheck'], mathmoddb_endpoint, 'mathmoddb')
-                    print(ids)
+                    
                     # Links to newly created Entities
                     return render(self.request,
                                   'MaRDMO/modelExport.html', 
@@ -226,7 +227,6 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 triple_list, ids = dict_to_triples_mathalgodb(merged_dict)
                 # Generate query for MathModDB KG
                 query = generate_sparql_insert_with_new_ids_mathalgodb(triple_list)
-                print(query)
 
                 response = requests.post(mathalgodb_update, data=query, headers={
                                         "Content-Type": "application/sparql-update",
@@ -366,7 +366,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             
             answers ={}
             for _, info in questions.items():
-                answers = get_answer(self.project, answers, **info)
+                answers = get_answer_search(self.project, answers, **info)
 
             # Get Results from MaRDI Resources
             answers = search(answers, options)

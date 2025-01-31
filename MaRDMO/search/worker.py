@@ -54,10 +54,11 @@ def search(answers, options):
                 mmsios_str += mmsio_sparql.format(P6, ID.split(':')[-1])
 
     # Set up entire SPARQL query
-    query = query_base.format(P4, Q2, res_disc_str, mmsios_str, quote_str, res_obj_strs)
+    query = "\n".join(line for line in query_base.format(P4, Q2, res_disc_str, mmsios_str, quote_str, res_obj_strs).splitlines() if line.strip())
 
+    # Add Query to answer dictionary
     answers['query'] = html.escape(query).replace('\n', '<br>')
-
+    
     # Query MaRDI Portal
     results = query_sparql(query, mardi_endpoint)
 
