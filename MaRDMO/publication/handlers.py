@@ -176,25 +176,38 @@ def PInformation(sender, **kwargs):
                                                  set_prefix = instance.set_index)
                                     idx += 1
 
-                    idx = 0
+                    idxB = 0
+                    idxS = 0
                     for property in ['documents', 'uses']:
                         if results[0].get(property, {}).get('value'):
                             entities = results[0][property]['value'].split(' / ')
                             for entity in entities:
-                                id, label, description = entity.split(' | ')
-                                if id and label and description:
-                                    value_editor(project = instance.project, 
-                                                 uri = f'{BASE_URI}{questions["Publication P2BS"]["uri"]}', 
-                                                 option = Option.objects.get(uri=mathalgodb[property]), 
-                                                 set_index = idx, 
-                                                 set_prefix = instance.set_index)
-                                    value_editor(project = instance.project, 
-                                                 uri = f'{BASE_URI}{questions["Publication BSRelatant"]["uri"]}', 
-                                                 text = f"{label} ({description}) [mathalgodb]", 
-                                                 external_id = id, 
-                                                 set_index = idx, 
-                                                 set_prefix = instance.set_index)
-                                    idx += 1
-
-
+                                id, label, description, Class = entity.split(' | ')
+                                if id and label and description and Class:
+                                    if Class == 'benchmark':
+                                        value_editor(project = instance.project, 
+                                                     uri = f'{BASE_URI}{questions["Publication P2B"]["uri"]}', 
+                                                     option = Option.objects.get(uri=mathalgodb[property]), 
+                                                     set_index = idxB, 
+                                                     set_prefix = instance.set_index)
+                                        value_editor(project = instance.project, 
+                                                     uri = f'{BASE_URI}{questions["Publication BRelatant"]["uri"]}', 
+                                                     text = f"{label} ({description}) [mathalgodb]", 
+                                                     external_id = id, 
+                                                     set_index = idxB, 
+                                                     set_prefix = instance.set_index)
+                                        idxB += 1
+                                    elif Class == 'software':
+                                        value_editor(project = instance.project, 
+                                                     uri = f'{BASE_URI}{questions["Publication P2S"]["uri"]}', 
+                                                     option = Option.objects.get(uri=mathalgodb[property]), 
+                                                     set_index = idxS, 
+                                                     set_prefix = instance.set_index)
+                                        value_editor(project = instance.project, 
+                                                     uri = f'{BASE_URI}{questions["Publication SRelatant"]["uri"]}', 
+                                                     text = f"{label} ({description}) [mathalgodb]", 
+                                                     external_id = id, 
+                                                     set_index = idxS, 
+                                                     set_prefix = instance.set_index)
+                                        idxS += 1
     return

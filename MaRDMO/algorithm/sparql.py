@@ -78,12 +78,12 @@ queryHandlerAL = {
                                PREFIX dc: <http://purl.org/spar/datacite/>   
                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>                          
                                
-                               SELECT DISTINCT ?reference
+                               SELECT DISTINCT (GROUP_CONCAT(DISTINCT ?referenceraw; separator=" | ") AS ?reference)
                                                (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
                                WHERE {{
                                        VALUES ?idraw {{ :{0} }}
 
-                                       OPTIONAL {{ ?idraw dc:hasIdentifier ?reference }}
+                                       OPTIONAL {{ ?idraw dc:hasIdentifier ?referenceraw }}
                                      
                                        OPTIONAL {{
                                                   ?idraw (prop:documentedIn | prop:usedIn) ?pubraw.
@@ -102,13 +102,13 @@ queryHandlerAL = {
                                PREFIX dc: <http://purl.org/spar/datacite/>   
                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>                          
                                
-                               SELECT DISTINCT ?reference
+                               SELECT DISTINCT (GROUP_CONCAT(DISTINCT ?referenceraw; separator=" | ") AS ?reference)
                                                (GROUP_CONCAT(DISTINCT CONCAT(?bench, " | ", ?benchl, " | ", ?benchd); separator=" / ") AS ?benchmark)
                                                (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
                                WHERE {{
                                        VALUES ?idraw {{ :{0} }}
 
-                                       OPTIONAL {{ ?idraw dc:hasIdentifier ?reference }}
+                                       OPTIONAL {{ ?idraw dc:hasIdentifier ?referenceraw }}
 
                                        OPTIONAL {{
                                                   ?idraw prop:tests ?benchraw.
@@ -256,6 +256,20 @@ queryHandlerAL = {
                                                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw}}
                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
                                                 }}
-                                     }}''',
+                                     }}''',   
+}
+
+queryAlgorithmDocumentation = {
     
+                  'IDCheck': '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                                SELECT ?ID ?quote ?class     
+                                WHERE {{
+                                        ?idraw rdfs:label {0}.
+                                        BIND(STRAFTER(STR(?idraw), "#") AS ?ID)
+                                        OPTIONAL {{ ?idraw rdfs:comment ?quoteraw}}
+                                        BIND(COALESCE(?quoteraw, "No Description Provided!") AS ?quote)
+                                        ?idraw a ?classraw.
+                                        BIND(STRAFTER(STR(?classraw), "#") AS ?class)
+                                      }}
+                                      GROUP BY ?ID ?quote ?class''',
 }

@@ -23,7 +23,7 @@ class Benchmark:
     id: Optional[str]
     label: Optional[str]
     description: Optional[str]
-    reference: Optional[str]
+    reference: Optional[List] = field(default_factory=list)
     publications: Optional[List[Relatant]] = field(default_factory=list)
     
 
@@ -36,7 +36,7 @@ class Benchmark:
             id = None,
             label = None,
             description = None,
-            reference = data.get('reference', {}).get('value'),
+            reference = [reference for reference in data.get('reference', {}).get('value').split(' | ')], 
             publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
         )
         
@@ -45,7 +45,7 @@ class Software:
     id: Optional[str]
     label: Optional[str]
     description: Optional[str]
-    reference: Optional[str]
+    reference: Optional[List] = field(default_factory=list)
     benchmarks: Optional[List[Relatant]] = field(default_factory=list)
     publications: Optional[List[Relatant]] = field(default_factory=list)
     
@@ -59,7 +59,7 @@ class Software:
             id = None,
             label = None,
             description = None,
-            reference = data.get('reference', {}).get('value'),
+            reference = [reference for reference in data.get('reference', {}).get('value').split(' | ')],
             benchmarks =  [Relatant.from_query(benchmark) for benchmark in data.get('benchmark', {}).get('value', '').split(" / ") if benchmark] if 'benchmark' in data else [], 
             publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
         )

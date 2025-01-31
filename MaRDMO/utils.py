@@ -36,23 +36,38 @@ def merge_dicts_with_unique_keys(answers, keys):
     
     return merged_dict
 
-def get_new_ids(project, ids, query):
+def get_new_ids(project, ids, query, endpoint, source):
     '''Request IDs for new MathModDB Items and add them to the Questionnaire'''
     new_ids ={}
     for key, id_value in ids.items():
         # Identify Items missing a MathModDB ID
-        if not id_value.startswith('https://mardi4nfdi.de/mathmoddb#'):
-            # Get MathModDB ID
-            results = query_sparql(query.format(f"'{key}'"))
+        if not id_value.startswith(('mathmoddb:','bm:','pr:','so:','al:','pb')):
+            # Get MathModDB or MathAlgoDB ID
+            results = query_sparql(query.format(f'"{key}"'), endpoint)
             if results and results[0].get('ID', {}).get('value'):
+                print(id_value)
                 match = re.match(r"(\d+)(\D+)", id_value)
                 if not match:
                     continue
                 setID, setName = match.groups()
                 # Generate Entry
-                value_editor(project, f"{BASE_URI}domain/{setName}/id", f"{key} ({results[0]['quote']['value']}) [mathmoddb]", f"mathmoddb:{results[0]['ID']['value']}", None, None, setID)
-                # Stor new IDs
-                new_ids.update({key: results[0]['ID']['value']})
+                value_editor(project, f"{BASE_URI}domain/{setName}/id", f"{key} ({results[0]['quote']['value']}) [{source}]", f"{source}:{results[0]['ID']['value']}", None, None, setID)
+                # Store new IDs
+                if source == 'mathmoddb':
+                    new_ids.update({key: results[0]['ID']['value']})
+                elif source == 'mathalgodb':
+                    if results[0].get('class', {}).get('value'):
+                        if results[0]['class']['value'] == 'algorithm':
+                            new_ids.update({key: f"al:{results[0]['ID']['value']}"})
+                        elif results[0]['class']['value'] == 'problem':
+                            new_ids.update({key: f"pr:{results[0]['ID']['value']}"})
+                        elif results[0]['class']['value'] == 'benchmark':
+                            new_ids.update({key: f"bm:{results[0]['ID']['value']}"})
+                        elif results[0]['class']['value'] == 'software':
+                            new_ids.update({key: f"sw:{results[0]['ID']['value']}"})
+                        elif results[0]['class']['value'] == 'publication':
+                            new_ids.update({key: f"pb:{results[0]['ID']['value']}"})
+                        
     return new_ids
 
 def extract_parts(string):

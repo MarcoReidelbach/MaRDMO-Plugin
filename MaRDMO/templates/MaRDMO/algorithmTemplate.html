@@ -155,9 +155,14 @@
                     <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
                 {% endif %}
                 <br>
-                {% if values.Reference %}
-                    <b>Reference</b>: {{ values.Reference }} <br>
-                {% endif %} 
+                {% for reference in values.Reference.values %}
+                    {% if reference.0 == option.SWMATH %}
+                        <b>swMath ID</b>: {{ reference.1 }} <br>
+                    {% endif %}
+                    {% if reference.0 == option.DOI %}
+                        <b>DOI</b>: {{ reference.1 }}
+                    {% endif %}
+                {% endfor %}
             </p>
 
             {% for tests in values.RelationB.values %}
@@ -192,9 +197,14 @@
                     <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
                 {% endif %}
                 <br>
-                {% if values.Reference %}
-                    <b>Reference</b>: {{ values.Reference }} <br>
-                {% endif %} 
+                {% for reference in values.Reference.values %}
+                    {% if reference.0 == option.MORWIKI %}
+                        <b>MORwiki ID</b>: {{ reference.1 }} <br>
+                    {% endif %}
+                    {% if reference.0 == option.DOI %}
+                        <b>DOI</b>: {{ reference.1 }}
+                    {% endif %}
+                {% endfor %} 
             </p>
 
         {% endfor %}
@@ -237,9 +247,20 @@
                 {% endif %}
             {% endfor %}
 
-            {% for values in values.RelationBS.values %}
+            {% for values in values.RelationB.values %}
                 {% if forloop.counter == 1 %}
-                    <h3 id="RelationsToAlgorithms"> Relations to Benchmarks or Software </h3>
+                    <h3 id="RelationsToBenchmarks"> Relations to Benchmarks </h3>
+                {% endif %}
+                {% if values.0 == option.documents %} 
+        	    documents: {{ values.1 }} <br>
+                {% elif values.0 == option.uses %} 
+        	    uses: {{ values.1 }} <br>
+                {% endif %}
+            {% endfor %}
+
+            {% for values in values.RelationS.values %}
+                {% if forloop.counter == 1 %}
+                    <h3 id="RelationsToSoftware"> Relations to Software </h3>
                 {% endif %}
                 {% if values.0 == option.documents %} 
         	    documents: {{ values.1 }} <br>

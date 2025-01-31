@@ -28,11 +28,13 @@
   "MathematicalModel": "https://rdmo.mardi4nfdi.de/terms/options/search-options/mathematical-model",
   "Algorithm": "https://rdmo.mardi4nfdi.de/terms/options/search-options/algorithm",
   "NotRelevant": "https://rdmo.mardi4nfdi.de/terms/options/yes_no_not_relevant/not_relevant",
-  "DOI": "https://rdmo.mardi4nfdi.de/terms/options/publication-reference/doi",
-  "URL": "https://rdmo.mardi4nfdi.de/terms/options/publication-reference/url",
   "MaRDIPortalID": "https://rdmo.mardi4nfdi.de/terms/options/publication-reference/mardi-portal-id",
   "WikidataID": "https://rdmo.mardi4nfdi.de/terms/options/publication-reference/wikidata-id",
   "MathModDBID": "https://rdmo.mardi4nfdi.de/terms/options/publication-reference/mathmoddb-id",
   "MathAlgoDBID": "https://rdmo.mardi4nfdi.de/terms/options/publication-reference/mathalgodb-id",
-  "QUDT": "https://rdmo.mardi4nfdi.de/terms/options/quantity-reference/qudt" 
+  "DOI": "https://rdmo.mardi4nfdi.de/terms/options/doi",
+  "URL": "https://rdmo.mardi4nfdi.de/terms/options/url",
+  "QUDT": "https://rdmo.mardi4nfdi.de/terms/options/qudt",
+  "SWMATH": "https://rdmo.mardi4nfdi.de/terms/options/swmath",
+  "MORWIKI": "https://rdmo.mardi4nfdi.de/terms/options/morwiki" 
 }

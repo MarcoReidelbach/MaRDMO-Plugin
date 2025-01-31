@@ -578,11 +578,11 @@ queryPublication = {
                                   SELECT DISTINCT ?id ?label ?description ?doi
                                                   (GROUP_CONCAT(DISTINCT(CONCAT(?appliesentity, " | ", ?appliesentitylabel, " | ", ?appliesentitydescription)); SEPARATOR=" / ") AS ?applies)
                                                   (GROUP_CONCAT(DISTINCT(CONCAT(?analyzesentity, " | ", ?analyzesentitylabel, " | ", ?analyzesentitydescription)); SEPARATOR=" / ") AS ?analyzes)
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?documentsentity, " | ", ?documentsentitylabel, " | ", ?documentsentitydescription)); SEPARATOR=" / ") AS ?documents)
+                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?documentsentity, " | ", ?documentsentitylabel, " | ", ?documentsentitydescription, " | ", ?documentsentityclass)); SEPARATOR=" / ") AS ?documents)
                                                   (GROUP_CONCAT(DISTINCT(CONCAT(?inventsentity, " | ", ?inventsentitylabel, " | ", ?inventsentitydescription)); SEPARATOR=" / ") AS ?invents)
                                                   (GROUP_CONCAT(DISTINCT(CONCAT(?studiesentity, " | ", ?studiesentitylabel, " | ", ?studiesentitydescription)); SEPARATOR=" / ") AS ?studies)
                                                   (GROUP_CONCAT(DISTINCT(CONCAT(?surveysentity, " | ", ?surveysentitylabel, " | ", ?surveysentitydescription)); SEPARATOR=" / ") AS ?surveys)
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?usesentity, " | ", ?usesentitylabel, " | ", ?usesentitydescription)); SEPARATOR=" / ") AS ?uses)
+                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?usesentity, " | ", ?usesentitylabel, " | ", ?usesentitydescription, " | ", ?usesentityclass)); SEPARATOR=" / ") AS ?uses)
                                                                                     
                                   WHERE {{
                                           VALUES ?idraw {{ pb:{0} }}
@@ -621,6 +621,9 @@ queryPublication = {
 
                                           OPTIONAL {{?idraw :documents ?documentsentityraw.
                                                      BIND(CONCAT("mathalgodb:", STRAFTER(STR(?documentsentityraw), "#")) AS ?documentsentity)
+
+                                                     ?documentsentityraw a ?documentsentityclassraw.
+                                                     BIND(STRAFTER(STR(?documentsentityclassraw), "#") AS ?documentsentityclass)
 
                                                      OPTIONAL {{?documentsentityraw rdfs:label ?documentsentitylabelraw.}}
                                                      BIND(COALESCE(?documentsentitylabelraw, "No Label Provided!") As ?documentsentitylabel)
@@ -661,6 +664,9 @@ queryPublication = {
 
                                           OPTIONAL {{?idraw :uses ?usesentityraw.
                                                      BIND(CONCAT("mathalgodb:", STRAFTER(STR(?usesentityraw), "#")) AS ?usesentity)
+
+                                                     ?usesentityraw a ?usesentityclassraw.
+                                                     BIND(STRAFTER(STR(?usesentityclassraw), "#") AS ?usesentityclass)
 
                                                      OPTIONAL {{?usesentityraw rdfs:label ?usesentitylabelraw.}}
                                                      BIND(COALESCE(?usesentitylabelraw, "No Label Provided!") As ?usesentitylabel)

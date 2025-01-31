@@ -23,6 +23,8 @@ def BenchmarkInformation(sender, **kwargs):
     if instance and instance.attribute.uri == f'{BASE_URI}{questions["Benchmark ID"]["uri"]}':
         # Check if actual Benchmark chosen
         if instance.text and instance.text != 'not found':
+            # Load Options
+            options = get_data('data/options.json')
             # Add Information to Questionnaire if not already present
             add_basics(instance, 
                        f'{BASE_URI}{questions["Benchmark Name"]["uri"]}', 
@@ -36,10 +38,13 @@ def BenchmarkInformation(sender, **kwargs):
                     # Get Benchmark Data from Query
                     data = Benchmark.from_query(results)
                     # Add Identifier to Questionnaire
-                    if data.reference:
+                    for reference in data.reference:
+                        reference_prefix, reference_id = reference.split(':')
                         value_editor(project = instance.project, 
                                      uri  = f'{BASE_URI}{questions["Benchmark Reference"]["uri"]}', 
-                                     text = data.reference, 
+                                     text = reference_id,
+                                     option = Option.objects.get(uri=options['MORWIKI']) if reference_prefix == 'morwiki' else Option.objects.get(uri=options['DOI']) if reference_prefix == 'doi' else None,
+                                     collection_index = 0 if reference_prefix == 'morwiki' else 1 if reference_prefix == 'doi' else None,
                                      set_index = 0, 
                                      set_prefix = instance.set_index)
                     # Add Publications to Questionnaire
@@ -55,6 +60,8 @@ def SoftwareInformation(sender, **kwargs):
     if instance and instance.attribute.uri == f'{BASE_URI}{questions["Software ID"]["uri"]}':
         # Check if actual Software chosen
         if instance.text and instance.text != 'not found':
+            # Load Options
+            options = get_data('data/options.json')
             # Add Information to Questionnaire if not already present
             add_basics(instance, 
                        f'{BASE_URI}{questions["Software Name"]["uri"]}', 
@@ -68,10 +75,13 @@ def SoftwareInformation(sender, **kwargs):
                     # Structure Results
                     data = Software.from_query(results)
                     # Add Identifier to Questionnaire
-                    if data.reference:
+                    for reference in data.reference:
+                        reference_prefix, reference_id = reference.split(':')
                         value_editor(project = instance.project, 
                                      uri = f'{BASE_URI}{questions["Software Reference"]["uri"]}', 
-                                     text = data.reference, 
+                                     text = reference_id, 
+                                     option = Option.objects.get(uri=options['SWMATH']) if reference_prefix == 'swmath' else Option.objects.get(uri=options['DOI']) if reference_prefix == 'doi' else None,
+                                     collection_index = 0 if reference_prefix == 'swmath' else 1 if reference_prefix == 'doi' else None,
                                      set_index = 0, 
                                      set_prefix = instance.set_index)
                     # Add Benchmarks to Questionnaire

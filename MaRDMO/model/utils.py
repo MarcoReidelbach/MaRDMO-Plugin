@@ -300,7 +300,7 @@ def dict_to_triples_mathmoddb(data):
     
     return triples, ids
 
-def generate_sparql_insert_with_new_ids(triples):
+def generate_sparql_insert_with_new_ids_mathmoddb(triples):
     # Step 1: Identify new items that need mardmo IDs
     new_items = {}
     counter = 0

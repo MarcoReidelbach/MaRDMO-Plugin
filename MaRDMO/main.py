@@ -17,12 +17,13 @@ from .utils import get_answer, get_data, get_new_ids, merge_dicts_with_unique_ke
 from .model.worker import model_relations
 from .algorithm.worker import algorithm_relations
 from .search.worker import search
-from .config import mathmoddb_update, mardi_uri, mathalgodb_uri, mathmoddb_uri, wikidata_uri
+from .config import mathmoddb_endpoint, mathmoddb_update, mathalgodb_endpoint, mathalgodb_update, mardi_uri, mathalgodb_uri, mathmoddb_uri, wikidata_uri
 
 from .model.sparql import queryModelDocumentation
-from .model.utils import get_answer_model, dict_to_triples_mathmoddb, generate_sparql_insert_with_new_ids
+from .model.utils import get_answer_model, dict_to_triples_mathmoddb, generate_sparql_insert_with_new_ids_mathmoddb
 
-from .algorithm.utils import get_answer_algorithm
+from .algorithm.sparql import queryAlgorithmDocumentation
+from .algorithm.utils import get_answer_algorithm, dict_to_triples_mathalgodb, generate_sparql_insert_with_new_ids_mathalgodb
 
 from .workflow.sparql import queryPreview
 from .workflow.utils import get_answer_workflow, get_discipline
@@ -113,7 +114,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
             
             data = self.get_post_data()
-            
+            print(data[0])
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
@@ -189,7 +190,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 # Generate list of triples
                 triple_list, ids = dict_to_triples_mathmoddb(merged_dict) 
                 # Generate query for MathModDB KG
-                query = generate_sparql_insert_with_new_ids(triple_list)
+                query = generate_sparql_insert_with_new_ids_mathmoddb(triple_list)
                 
                 # Add Model Documentation to MathModDB
                 response = requests.post(mathmoddb_update, data=query, headers={
@@ -198,9 +199,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                         auth=(mathmoddb_username, mathmoddb_password),
                                         verify = False
                                     )
-                
+                print(response.status_code)
                 if response.status_code == 204:
-                    ids = get_new_ids(self.project, ids, queryModelDocumentation['IDCheck'])
+                    ids = get_new_ids(self.project, ids, queryModelDocumentation['IDCheck'], mathmoddb_endpoint, 'mathmoddb')
+                    print(ids)
                     # Links to newly created Entities
                     return render(self.request,
                                   'MaRDMO/modelExport.html', 
@@ -220,8 +222,32 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 
                 # Merge answers related to mathematical model
                 merged_dict = merge_dicts_with_unique_keys(data[0], ['algorithm', 'problem', 'software', 'benchmark', 'publication'])
+                # Generate list of triples
+                triple_list, ids = dict_to_triples_mathalgodb(merged_dict)
+                # Generate query for MathModDB KG
+                query = generate_sparql_insert_with_new_ids_mathalgodb(triple_list)
+                print(query)
 
+                response = requests.post(mathalgodb_update, data=query, headers={
+                                        "Content-Type": "application/sparql-update",
+                                        "Accept": "text/turtle"},
+                                        auth=(mathmoddb_username, mathmoddb_password),
+                                        verify = False
+                                    )
                 
+                if response.status_code == 204:
+                    ids = get_new_ids(self.project, ids, queryAlgorithmDocumentation['IDCheck'], mathalgodb_endpoint, 'mathalgodb')
+                    # Links to newly created Entities
+                    return render(self.request,
+                                  'MaRDMO/algorithmExport.html', 
+                                  {'ids': ids,
+                                   'mathalgodb_uri': mathalgodb_uri}, 
+                                  status=200)
+                else:
+                    return render(self.request,
+                                  'MaRDMO/workflowError.html', 
+                                  {'error': 'The mathematical model could not be integrated into the MathodDB!'}, 
+                                  status=200)
 
                 return render(self.request,
                               'MaRDMO/Export_soon.html',        

@@ -24,7 +24,10 @@ def algorithm_relations(instance, answers, mathalgodb):
     # Publication to Algorithm Relations
     entityRelations(answers,'publication','algorithm','P2A','ARelatant','RelationA','A')
 
-    # Publication to Benchmark or Software Relations
-    entityRelations(answers,'publication',['benchmark', 'software'],'P2BS','BSRelatant','RelationBS',['B', 'S'])
+    # Publication to Benchmark Relations
+    entityRelations(answers,'publication','benchmark','P2B','BRelatant','RelationB','B')
+
+    # Publication to Software Relations
+    entityRelations(answers,'publication','software','P2S','SRelatant','RelationS','S')
 
     return answers

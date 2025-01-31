@@ -49,21 +49,36 @@
         "set_index": true,
         "external_id": true
     },
-    "Publication P2BS": {
-        "key1": "publication",
-        "key2": "P2BS",
-        "uri": "domain/publication/benchmark-or-software-relation",
-        "set_prefix": true,
-        "set_index": true
-    },
-    "Publication BSRelatant": {
-        "key1": "publication",
-        "key2": "BSRelatant",
-        "uri": "domain/publication/benchmark-or-software-relatant",
-        "set_prefix": true,
-        "set_index": true,
-        "external_id": true
-    },
+"Publication P2B": {
+    "key1": "publication",
+    "key2": "P2B",
+    "uri": "domain/publication/benchmark-relation",
+    "set_prefix": true,
+    "set_index": true
+},
+"Publication BRelatant": {
+    "key1": "publication",
+    "key2": "BRelatant",
+    "uri": "domain/publication/benchmark-relatant",
+    "set_prefix": true,
+    "set_index": true,
+    "external_id": true
+},
+"Publication P2S": {
+    "key1": "publication",
+    "key2": "P2S",
+    "uri": "domain/publication/software-relation",
+    "set_prefix": true,
+    "set_index": true
+},
+"Publication SRelatant": {
+    "key1": "publication",
+    "key2": "BRelatant",
+    "uri": "domain/publication/software-relatant",
+    "set_prefix": true,
+    "set_index": true,
+    "external_id": true
+},
     "Publication P2E": {
         "key1": "publication",
         "key2": "P2E",
