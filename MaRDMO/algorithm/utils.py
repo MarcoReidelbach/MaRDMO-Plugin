@@ -123,7 +123,7 @@ def dict_to_triples_mathalgodb(data):
                 triples.append((subject, "a", 'mathalgodb:publication'))
         
             # Assign Individual References
-            for reference in item.get('Reference', {}).values():
+            for reference in item.get('reference', {}).values():
                 if reference[0] == options['DOI']:
                     doi_value = reference[1]
                     triples.append((subject, "dc:hasIdentifier", f'"doi:{doi_value}"'))

@@ -12,7 +12,7 @@ from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
 from .oauth2 import OauthProviderMixin
-from .utils import get_answer, get_data, get_new_ids, merge_dicts_with_unique_keys, query_sparql
+from .utils import get_data, get_new_ids, merge_dicts_with_unique_keys, query_sparql
 from .config import mathmoddb_endpoint, mathmoddb_update, mathalgodb_endpoint, mathalgodb_update, mardi_uri, mathalgodb_uri, mathmoddb_uri, wikidata_uri
 
 from .model.sparql import queryModelDocumentation
@@ -227,7 +227,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 triple_list, ids = dict_to_triples_mathalgodb(merged_dict)
                 # Generate query for MathModDB KG
                 query = generate_sparql_insert_with_new_ids_mathalgodb(triple_list)
-
+                
                 response = requests.post(mathalgodb_update, data=query, headers={
                                         "Content-Type": "application/sparql-update",
                                         "Accept": "text/turtle"},
