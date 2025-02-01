@@ -7,12 +7,12 @@ from rdmo.options.models import Option
 
 from .sparql import queryHandlerAL
 from .models import Benchmark, Software, AlgorithmicProblem, Algorithm
-from .utils import add_publication
 
 from ..config import BASE_URI
-from ..utils import extract_parts, get_data, get_questionsAL, query_sparql, value_editor
+from ..utils import extract_parts, get_id, get_data, get_questionsAL, query_sparql, value_editor
 
-from ..model.utils import add_basics, get_id
+from ..model.utils import add_basics
+from ..publication.utils import add_publication
 
 @receiver(post_save, sender=Value)
 def BenchmarkInformation(sender, **kwargs):

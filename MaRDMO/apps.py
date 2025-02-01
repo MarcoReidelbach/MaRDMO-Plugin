@@ -13,5 +13,6 @@ class MaRDMOConfig(AppConfig):
         from .publication import handlers
         
         self.questionsAL = get_data('algorithm/data/questions.json')
+        self.questionsMO = get_data('model/data/questions.json')
         self.questionsPU = get_data('publication/data/questions.json')
 

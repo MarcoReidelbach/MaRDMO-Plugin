@@ -10,7 +10,23 @@ from .sparql import queryPublication
 
 from ..id import *
 from ..config import BASE_URI, crossref_api, datacite_api, doi_api, mardi_endpoint, mathmoddb_endpoint, mathalgodb_endpoint, wikidata_endpoint, wd, wdt
-from ..utils import query_sparql_pool, value_editor
+from ..utils import get_id, query_sparql_pool, value_editor
+
+def add_publication(instance, publications, source):
+    # Get Set Ids and IDs of Publications
+    set_ids = get_id(instance, f'{BASE_URI}domain/publication', ['set_index'])
+    value_ids = get_id(instance, f'{BASE_URI}domain/publication/id', ['external_id'])
+    # Add Publication to Questionnaire
+    idx = max(set_ids, default = -1) + 1
+    for publication in publications:
+        if publication.id not in value_ids:
+            # Set up Page
+            value_editor(instance.project, f'{BASE_URI}domain/publication', f"P{idx}", None, None, None, idx)
+            # Add ID Values
+            value_editor(instance.project, f'{BASE_URI}domain/publication/id', f'{publication.label} ({publication.description}) [{source}]', f"{publication.id}", None, None, idx)
+            idx += 1
+            value_ids.append(publication.id)
+    return
 
 def additional_queries(publication, choice, key, mardi_parameter, wikidata_parameter, function):
     '''Additional MaRDI Portal and Wikidata SPARQL Queries instance like authors or journals'''

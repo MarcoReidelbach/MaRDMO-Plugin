@@ -1,42 +1,31 @@
 {
-    "Creator Name": {
-        "key1": "Creator",
-        "key2": "Name",
-        "uri": "domain/creator/name"
-    },
-    "Creator IDs": {
-        "key1": "Creator",
-        "key2": "IDs",
-        "uri": "domain/creator/id",
-        "collection_index": true
-    },
-    "ResearchField ID": {
+    "Research Field ID": {
         "key1": "field",
         "key2": "ID",
         "uri": "domain/field/id",
         "set_index": true,
         "external_id": true
     },
-    "ResearchField Name": {
+    "Research Field Name": {
         "key1": "field",
         "key2": "Name",
         "uri": "domain/field/name",
         "set_prefix": true
     },
-    "ResearchField Description": {
+    "Research Field Description": {
         "key1": "field",
         "key2": "Description",
         "uri": "domain/field/description",
         "set_prefix": true
     },
-    "ResearchField IntraClassRelation": {
+    "Research Field IntraClassRelation": {
         "key1": "field",
         "key2": "IntraClassRelation",
         "uri": "domain/field/field-relation",
         "set_prefix": true,
         "set_index": true
     },
-    "ResearchField IntraClassElement": {
+    "Research Field IntraClassElement": {
         "key1": "field",
         "key2": "IntraClassElement",
         "uri": "domain/field/field-relatant",

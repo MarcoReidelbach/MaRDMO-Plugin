@@ -4,7 +4,7 @@ from rdmo.options.models import Option
 from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI
-from ..utils import extract_parts, get_data, value_editor
+from ..utils import get_id, extract_parts, get_data, value_editor
 
 from .sparql import queryHandler
 
@@ -59,20 +59,6 @@ def add_relations(instance, results, mathmoddb, url_relation, url_relatant, prop
                     value_editor(instance.project, url_relatant, f"{Label} ({Description}) [mathmoddb]", f'mathmoddb:{ID}', None, None, idx, set_prefix)
                 idx += 1
     return
-
-def get_id(instance, uri, keys):
-    values = instance.project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
-    ids = []
-    if len(keys) == 1:
-        for value in values:
-            ids.append(getattr(value, keys[0]))
-    else:
-        for value in values:
-            id = []
-            for key in keys:
-                id.append(getattr(value, key))
-            ids.append(id)
-    return ids 
 
 def get_answer_model(project, val, uri, key1, key2, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
     '''Function to get user answers into dictionary.'''

@@ -21,9 +21,27 @@ def get_questionsAL():
     """Retrieve the questions dictionary from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").questionsAL
 
+def get_questionsMO():
+    """Retrieve the questions dictionary from MaRDMOConfig."""
+    return apps.get_app_config("MaRDMO").questionsMO
+
 def get_questionsPU():
     """Retrieve the questions dictionary from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").questionsPU
+
+def get_id(instance, uri, keys):
+    values = instance.project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
+    ids = []
+    if len(keys) == 1:
+        for value in values:
+            ids.append(getattr(value, keys[0]))
+    else:
+        for value in values:
+            id = []
+            for key in keys:
+                id.append(getattr(value, key))
+            ids.append(id)
+    return ids 
 
 def merge_dicts_with_unique_keys(answers, keys):
     

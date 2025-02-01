@@ -263,25 +263,17 @@ queryHandler = {
     'researchFieldInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
-                                               SELECT DISTINCT ?id 
-                                                               (GROUP_CONCAT(DISTINCT(?gbf); SEPARATOR=" / ") AS ?generalizedByField)
-                                                               (GROUP_CONCAT(DISTINCT(?gbfl); SEPARATOR=" / ") AS ?generalizedByFieldLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?gbfd); SEPARATOR=" / ") AS ?generalizedByFieldDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?gf); SEPARATOR=" / ") AS ?generalizesField)
-                                                               (GROUP_CONCAT(DISTINCT(?gfl); SEPARATOR=" / ") AS ?generalizesFieldLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?gfd); SEPARATOR=" / ") AS ?generalizesFieldDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?sf); SEPARATOR=" / ") AS ?similarToField)
-                                                               (GROUP_CONCAT(DISTINCT(?sfl); SEPARATOR=" / ") AS ?similarToFieldLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?sfd); SEPARATOR=" / ") AS ?similarToFieldDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?pub); SEPARATOR=" / ") AS ?publication)
-                                                               (GROUP_CONCAT(DISTINCT(?publ); SEPARATOR=" / ") AS ?publicationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?pubd); SEPARATOR=" / ") AS ?publicationDescription)
+                                               SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?gbf, " | ", ?gbfl, " | ", ?gbfd); separator=" / ") AS ?generalizedByField)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?gf, " | ", ?gfl, " | ", ?gfd); separator=" / ") AS ?generalizesField)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?sf, " | ", ?sfl, " | ", ?sfd); separator=" / ") AS ?similarToField)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+                                                               
                                                WHERE {{ 
-                                                       VALUES ?id {{{0}}} 
+                                                       VALUES ?id {{ :{0} }} 
 
                                                         OPTIONAL {{
                                                                    ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
-                                                                   BIND(STRAFTER(STR(?pubraw), "#") AS ?pub)
+                                                                   BIND(CONCAT("mathmoddb:", STRAFTER(STR(?pubraw), "#")) AS ?pub)
                                                                    OPTIONAL {{ ?pubraw rdfs:label ?publraw
                                                                                FILTER (lang(?publraw) = 'en') }}
                                                                    BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
@@ -292,7 +284,7 @@ queryHandler = {
                                                       
                                                         OPTIONAL {{
                                                                   ?id :generalizedByField ?gbfraw.
-                                                                  BIND(STRAFTER(STR(?gbfraw), "#") AS ?gbf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gbfraw), "#")) AS ?gbf)
 
                                                                   OPTIONAL {{
                                                                              ?gbfraw rdfs:label ?gbflraw
@@ -311,7 +303,7 @@ queryHandler = {
                                                         
                                                         OPTIONAL {{
                                                                   ?id :generalizesField ?gfraw.
-                                                                  BIND(STRAFTER(STR(?gfraw), "#") AS ?gf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gfraw), "#")) AS ?gf)
 
                                                                   OPTIONAL {{
                                                                              ?gfraw rdfs:label ?gflraw
@@ -330,7 +322,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :similarToField ?sfraw.
-                                                                  BIND(STRAFTER(STR(?sfraw), "#") AS ?sf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?sfraw), "#")) AS ?sf)
 
                                                                   OPTIONAL {{
                                                                              ?sfraw rdfs:label ?sflraw
@@ -347,8 +339,7 @@ queryHandler = {
                                                                   BIND(COALESCE(?sfdraw, "No Description Provided!") AS ?sfd)
                                                                 }}
  
-                                                       }}
-                                                       GROUP BY ?id''',
+                                                       }}''',
 
     'researchProblemInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  

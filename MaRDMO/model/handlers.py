@@ -6,7 +6,9 @@ from rdmo.options.models import Option
 
 from .utils import add_basics, add_entity, add_properties, add_relations
 from .sparql import queryHandler
-from ..utils import get_data, query_sparql, splitVariableText, value_editor
+from .models import ResearchField
+from ..publication.utils import add_publication
+from ..utils import get_data, get_questionsMO, query_sparql, splitVariableText, value_editor
 from ..config import BASE_URI
 from ..id import *
 
@@ -14,29 +16,41 @@ from ..id import *
 @receiver(post_save, sender=Value)
 def RFInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/field/id':
+    # Get Questions of Model Catalog
+    questions = get_questionsMO()
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Research Field ID"]["uri"]}':
         if instance.text and instance.text != 'not found':
             add_basics(instance, 
-                       f'{BASE_URI}domain/field/name', 
-                       f'{BASE_URI}domain/field/description')
+                       f'{BASE_URI}{questions["Research Field Name"]["uri"]}', 
+                       f'{BASE_URI}{questions["Research Field Description"]["uri"]}')
             # Get source and ID of Item
             source, Id = instance.external_id.split(':')
             if source== 'mathmoddb':
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                results = query_sparql(queryHandler['researchFieldInformation'].format(f":{Id}"))
+                results = query_sparql(queryHandler['researchFieldInformation'].format(Id))
                 mathmoddb = get_data('model/data/mapping.json')
-                options = get_data('data/options.json')
                 if results:
-                    # Add relations of the Research Field to the Questionnaire
-                    add_relations(instance, results, mathmoddb, 
-                                  f'{BASE_URI}domain/field/field-relation', 
-                                  f'{BASE_URI}domain/field/field-relatant', 
-                                  ['generalizedByField','generalizesField','similarToField'])
+                    # Structure Results
+                    data = ResearchField.from_query(results)
+                    # Add Relations between Research Fields to Questionnaire
+                    props = ['generalizedByField', 'generalizesField', 'similarToField']
+                    idx = 0
+                    for prop in props:
+                        for value in getattr(data, prop):
+                            value_editor(project = instance.project, 
+                                         uri = f'{BASE_URI}{questions["Research Field IntraClassRelation"]["uri"]}', 
+                                         option = Option.objects.get(uri=mathmoddb[prop]), 
+                                         set_index = idx, 
+                                         set_prefix = instance.set_index)
+                            value_editor(project = instance.project, 
+                                         uri = f'{BASE_URI}{questions["Research Field IntraClassElement"]["uri"]}', 
+                                         text = f"{value.label} ({value.description}) [{source}]", 
+                                         external_id = value.id, 
+                                         set_index = idx, 
+                                         set_prefix = instance.set_index)
+                            idx +=1
                     # Add Publications to Questionnaire
-                    add_entity(instance, results, 
-                               f'{BASE_URI}domain/publication', 
-                               f'{BASE_URI}domain/publication/id', 
-                               'publication', 'P')
+                    add_publication(instance, data.publications, source)
     return
 
 @receiver(post_save, sender=Value)

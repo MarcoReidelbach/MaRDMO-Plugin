@@ -1,9 +1,8 @@
 from rdmo.domain.models import Attribute
 
-from ..utils import extract_parts, value_editor
+from ..utils import extract_parts, get_id, value_editor
 from ..config import BASE_URI
 from ..id import Q5, Q13
-from ..model.utils import get_id
 
 def add_basics(instance, url_name, url_description):
     label, description, _ = extract_parts(instance.text)
