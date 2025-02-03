@@ -9,10 +9,9 @@ from .sparql import queryHandlerAL
 from .models import Benchmark, Software, AlgorithmicProblem, Algorithm
 
 from ..config import BASE_URI
-from ..utils import extract_parts, get_id, get_data, get_questionsAL, query_sparql, value_editor
+from ..utils import add_entities, extract_parts, get_id, get_data, get_questionsAL, query_sparql, value_editor
 
 from ..model.utils import add_basics
-from ..publication.utils import add_publication
 
 @receiver(post_save, sender=Value)
 def BenchmarkInformation(sender, **kwargs):
@@ -48,7 +47,7 @@ def BenchmarkInformation(sender, **kwargs):
                                      set_index = 0, 
                                      set_prefix = instance.set_index)
                     # Add Publications to Questionnaire
-                    add_publication(instance, data.publications, source)
+                    add_entities(instance, data.publications, source, 'publication', 'P')
     return
 
 @receiver(post_save, sender=Value)
@@ -94,7 +93,7 @@ def SoftwareInformation(sender, **kwargs):
                                      set_index = 0, 
                                      set_prefix = instance.set_index)
                     # Add Publications to Questionnaire
-                    add_publication(instance, data.publications, source)
+                    add_entities(instance, data.publications, source, 'publication', 'P')
     return
 
 @receiver(post_save, sender=Value)
@@ -208,7 +207,7 @@ def AlgorithmInformation(sender, **kwargs):
                                          set_prefix = instance.set_index)
                             idx +=1
                     # Add Publications to Questionnaire
-                    add_publication(instance, data.publications, source)
+                    add_entities(instance, data.publications, source, 'publication', 'P')
     return
 
 @receiver(post_save, sender=Value)

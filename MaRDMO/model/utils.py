@@ -60,7 +60,7 @@ def add_relations(instance, results, mathmoddb, url_relation, url_relatant, prop
                 idx += 1
     return
 
-def get_answer_model(project, val, uri, key1, key2, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
+def get_answer_model(project, val, uri, key1 = None, key2 = None, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
     '''Function to get user answers into dictionary.'''
     val.setdefault(key1, {})
     
@@ -68,6 +68,9 @@ def get_answer_model(project, val, uri, key1, key2, key3 = None, set_prefix = No
         values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f"{BASE_URI}{uri}"))
     except:
         values = []
+
+    if not (key1 or key2):
+        values =[]
 
     for value in values:
         if value.option:

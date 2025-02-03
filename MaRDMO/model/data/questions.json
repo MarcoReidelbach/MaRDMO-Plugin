@@ -1,4 +1,7 @@
-{
+{   
+    "Research Field": {
+        "uri": "domain/field"
+    },
     "Research Field ID": {
         "key1": "field",
         "key2": "ID",
@@ -33,33 +36,36 @@
         "set_index": true,
         "external_id": true
     },
-    "ResearchProblem ID": {
+    "Research Problem": {
+        "uri": "domain/problem"
+    },
+    "Research Problem ID": {
         "key1": "problem",
         "key2": "ID",
         "uri": "domain/problem/id",
         "set_index": true,
         "external_id": true
     },
-    "ResearchProblem Name": {
+    "Research Problem Name": {
         "key1": "problem",
         "key2": "Name",
         "uri": "domain/problem/name",
         "set_prefix": true
     },
-    "ResearchProblem Description": {
+    "Research Problem Description": {
         "key1": "problem",
         "key2": "Description",
         "uri": "domain/problem/description",
         "set_prefix": true
     },
-    "ResearchProblem RP2RF": {
+    "Research Problem RP2RF": {
         "key1": "problem",
         "key2": "RP2RF",
         "uri": "domain/problem/field-relation",
         "set_prefix": true,
         "collection_index": true
     },
-    "ResearchProblem RFRelatant": {
+    "Research Problem RFRelatant": {
         "key1": "problem",
         "key2": "RFRelatant",
         "uri": "domain/problem/field-relatant",
@@ -67,14 +73,14 @@
         "collection_index": true,
         "external_id": true
     },
-    "ResearchProblem IntraClassRelation": {
+    "Research Problem IntraClassRelation": {
         "key1": "problem",
         "key2": "IntraClassRelation",
         "uri": "domain/problem/problem-relation",
         "set_prefix": true,
         "set_index": true
     },
-    "ResearchProblem IntraClassElement": {
+    "Research Problem IntraClassElement": {
         "key1": "problem",
         "key2": "IntraClassElement",
         "uri": "domain/problem/problem-relatant",
@@ -82,40 +88,43 @@
         "set_index": true,
         "external_id": true
     },
-    "MathematicalModel ID": {
+    "Mathematical Model": {
+        "uri": "domain/model"
+    },
+    "Mathematical Model ID": {
         "key1": "model",
         "key2": "ID",
         "uri": "domain/model/id",
         "set_index": true,
         "external_id": true
     },
-    "MathematicalModel Name": {
+    "Mathematical Model Name": {
         "key1": "model",
         "key2": "Name",
         "uri": "domain/model/name",
         "set_prefix": true
     },
-    "MathematicalModel Description": {
+    "Mathematical Model Description": {
         "key1": "model",
         "key2": "Description",
         "uri": "domain/model/description",
         "set_prefix": true
     },
-    "MathematicalModel Properties": {
+    "Mathematical Model Properties": {
         "key1": "model",
         "key2": "Properties",
         "uri": "domain/model/properties",
         "set_prefix": true,
         "collection_index": true
     },
-    "MathematicalModel MM2RP": {
+    "Mathematical Model MM2RP": {
         "key1": "model",
         "key2": "MM2RP",
         "uri": "domain/model/problem-relation",
         "set_prefix": true,
         "collection_index": true
     },
-    "MathematicalModel RPRelatant": {
+    "Mathematical Model RPRelatant": {
         "key1": "model",
         "key2": "RPRelatant",
         "uri": "domain/model/problem-relatant",
@@ -123,14 +132,14 @@
         "collection_index": true,
         "external_id": true
     },
-    "MathematicalModel IntraClassRelation": {
+    "Mathematical Model IntraClassRelation": {
         "key1": "model",
         "key2": "IntraClassRelation",
         "uri": "domain/model/model-relation",
         "set_prefix": true,
         "set_index": true
     },
-    "MathematicalModel IntraClassElement": {
+    "Mathematical Model IntraClassElement": {
         "key1": "model",
         "key2": "IntraClassElement",
         "uri": "domain/model/model-relatant",

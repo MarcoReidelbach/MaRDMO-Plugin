@@ -43,6 +43,22 @@ def get_id(instance, uri, keys):
             ids.append(id)
     return ids 
 
+def add_entities(instance, datas, source, type, prefix):
+    # Get Set Ids and IDs of Publications
+    set_ids = get_id(instance, f'{BASE_URI}domain/{type}', ['set_index'])
+    value_ids = get_id(instance, f'{BASE_URI}domain/{type}/id', ['external_id'])
+    # Add Publication to Questionnaire
+    idx = max(set_ids, default = -1) + 1
+    for data in datas:
+        if data.id not in value_ids:
+            # Set up Page
+            value_editor(instance.project, f'{BASE_URI}domain/{type}', f"{prefix}{idx}", None, None, None, idx)
+            # Add ID Values
+            value_editor(instance.project, f'{BASE_URI}domain/{type}/id', f'{data.label} ({data.description}) [{source}]', f"{data.id}", None, None, idx)
+            idx += 1
+            value_ids.append(data.id)
+    return
+
 def merge_dicts_with_unique_keys(answers, keys):
     
     merged_dict = {}

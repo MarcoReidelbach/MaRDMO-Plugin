@@ -93,6 +93,7 @@ class Algorithm:
     id: Optional[str]
     label: Optional[str]
     description: Optional[str]
+    properties : Optional[List] = field(default_factory=list)
     componentOf: Optional[List[Relatant]] = field(default_factory=list)
     hasComponent: Optional[List[Relatant]] = field(default_factory=list)
     subclassOf: Optional[List[Relatant]] = field(default_factory=list)
