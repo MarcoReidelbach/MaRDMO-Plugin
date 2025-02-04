@@ -761,12 +761,10 @@ queryHandler = {
                     'quantityOrQuantityKindInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
-                                               SELECT DISTINCT ?id ?class ?qudtID
+                                               SELECT DISTINCT ?class ?qudtID
                                                                ?isLinear ?isNotLinear
                                                                ?isDimensionless ?isDimensional
-                                                               (GROUP_CONCAT(DISTINCT(?label); SEPARATOR=" / ") AS ?Label) 
-                                                               (GROUP_CONCAT(DISTINCT(?description); SEPARATOR=" / ") AS ?Description)
-                                                               (GROUP_CONCAT(DISTINCT(?mf); SEPARATOR=" / ") AS ?definedBy)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mf, " | ", ?mfl, " | ", ?mfd); separator=" / ") AS ?definedBy)
                                                                (GROUP_CONCAT(DISTINCT CONCAT(?gbq, " | ", ?gbql, " | ", ?gbqd, " | ", ?gbqc); separator=" / ") AS ?generalizedByQuantity)
                                                                (GROUP_CONCAT(DISTINCT CONCAT(?gq, " | ", ?gql, " | ", ?gqd, " | ", ?gqc); separator=" / ") AS ?generalizesQuantity)
                                                                (GROUP_CONCAT(DISTINCT CONCAT(?abq, " | ", ?abql, " | ", ?abqd, " | ", ?abqc); separator=" / ") AS ?approximatedByQuantity)
@@ -776,15 +774,14 @@ queryHandler = {
                                                                (GROUP_CONCAT(DISTINCT CONCAT(?nbq, " | ", ?nbql, " | ", ?nbqd, " | ", ?nbqc); separator=" / ") AS ?nondimensionalizedByQuantity)
                                                                (GROUP_CONCAT(DISTINCT CONCAT(?nq, " | ", ?nql, " | ", ?nqd, " | ", ?nqc); separator=" / ") AS ?nondimensionalizesQuantity)
                                                                (GROUP_CONCAT(DISTINCT CONCAT(?sq, " | ", ?sql, " | ", ?sqd, " | ", ?sqc); separator=" / ") AS ?similarToQuantity)
-                                                               (GROUP_CONCAT(DISTINCT(?pub); SEPARATOR=" / ") AS ?publication)
-                                                               (GROUP_CONCAT(DISTINCT(?publ); SEPARATOR=" / ") AS ?publicationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?pubd); SEPARATOR=" / ") AS ?publicationDescription)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+                                                               
                                                WHERE {{ 
-                                                       VALUES ?id {{{0}}} 
+                                                       VALUES ?id {{ :{0} }} 
 
                                                         OPTIONAL {{
                                                                    ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
-                                                                   BIND(STRAFTER(STR(?pubraw), "#") AS ?pub)
+                                                                   BIND(CONCAT("mathmoddb:", STRAFTER(STR(?pubraw), "#")) AS ?pub)
                                                                    OPTIONAL {{ ?pubraw rdfs:label ?publraw
                                                                                FILTER (lang(?publraw) = 'en') }}
                                                                    BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
@@ -799,26 +796,26 @@ queryHandler = {
                                                      
                                                        OPTIONAL {{
                                                                   ?id :definedBy ?mfraw.
-                                                                  BIND(STRAFTER(STR(?mfraw), "#") AS ?mf).
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mfraw), "#")) AS ?mf)
+
+                                                                  OPTIONAL {{
+                                                                             ?mfraw rdfs:label ?mflraw
+                                                                             FILTER (lang(?mflraw) = 'en')
+                                                                           }}
+                                                                  
+                                                                  BIND(COALESCE(?mflraw, "No Label Provided!") AS ?mfl)
+
+                                                                  OPTIONAL {{
+                                                                             ?mfraw rdfs:comment ?mfdraw
+                                                                             FILTER (lang(?mfdraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?mfdraw, "No Description Provided!") AS ?mfd)
                                                                 }}
 
                                                        OPTIONAL {{
                                                                   ?id :qudtID ?qudtID.
                                                                 }}
-
-                                                       OPTIONAL {{
-                                                                  ?id rdfs:label ?labelraw .
-                                                                  FILTER (lang(?labelraw) = 'en')
-                                                                }}
-                                                                
-                                                                BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
-
-                                                       OPTIONAL {{
-                                                                  ?id rdfs:comment ?descriptionraw .
-                                                                  FILTER (lang(?descriptionraw) = 'en')
-                                                                }}
-                                                                
-                                                                BIND(COALESCE(?descriptionraw, "No Description Provided!") AS ?description)
 
                                                        OPTIONAL {{ ?id :isLinear ?isLinear.
                                                                 BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}}
@@ -828,7 +825,7 @@ queryHandler = {
                                         
                                                         OPTIONAL {{
                                                                   ?id :generalizedByQuantity ?gbqraw.
-                                                                  BIND(STRAFTER(STR(?gbqraw), "#") AS ?gbq)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gbqraw), "#")) AS ?gbq)
                                                                   
                                                                   ?gbqraw a ?gbqcraw
                                                                   FILTER (?gbqcraw IN (:Quantity, :QuantityKind))
@@ -851,7 +848,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :generalizesQuantity ?gqraw.
-                                                                  BIND(STRAFTER(STR(?gqraw), "#") AS ?gq)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gqraw), "#")) AS ?gq)
 
                                                                   ?gqraw a ?gqcraw
                                                                   FILTER (?gqcraw IN (:Quantity, :QuantityKind))
@@ -874,7 +871,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :approximatedByQuantity ?abqraw.
-                                                                  BIND(STRAFTER(STR(?abqraw), "#") AS ?abq)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?abqraw), "#")) AS ?abq)
 
                                                                   ?abqraw a ?abqcraw
                                                                   FILTER (?abqcraw IN (:Quantity, :QuantityKind))
@@ -897,7 +894,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :approximatesQuantity ?aqraw.
-                                                                  BIND(STRAFTER(STR(?aqraw), "#") AS ?aq)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?aqraw), "#")) AS ?aq)
 
                                                                   ?aqraw a ?aqcraw
                                                                   FILTER (?aqcraw IN (:Quantity, :QuantityKind))
@@ -920,7 +917,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :linearizedByQuantity ?lbqraw.
-                                                                  BIND(STRAFTER(STR(?lbqraw), "#") AS ?lbq)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?lbqraw), "#")) AS ?lbq)
 
                                                                   ?lbqraw a ?lbqcraw
                                                                   FILTER (?lbqcraw IN (:Quantity, :QuantityKind))
@@ -943,7 +940,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :linearizesQuantity ?lqraw.
-                                                                  BIND(STRAFTER(STR(?lqraw), "#") AS ?lq)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?lqraw), "#")) AS ?lq)
 
                                                                   ?lqraw a ?lqcraw
                                                                   FILTER (?lqcraw IN (:Quantity, :QuantityKind))
@@ -966,7 +963,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :nondimensionalizedByQuantity ?nbqraw.
-                                                                  BIND(STRAFTER(STR(?nbqraw), "#") AS ?nbq)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?nbqraw), "#")) AS ?nbq)
 
                                                                   ?nbqraw a ?nbqcraw
                                                                   FILTER (?nbqcraw IN (:Quantity, :QuantityKind))
@@ -989,7 +986,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :nondimensionalizesQuantity ?nqraw.
-                                                                  BIND(STRAFTER(STR(?nqraw), "#") AS ?nq)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?nqraw), "#")) AS ?nq)
 
                                                                   ?nqraw a ?nqcraw
                                                                   FILTER (?nqcraw IN (:Quantity, :QuantityKind))
@@ -1013,7 +1010,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :similarToQuantity ?sqraw.
-                                                                  BIND(STRAFTER(STR(?sqraw), "#") AS ?sq)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?sqraw), "#")) AS ?sq)
 
                                                                   ?sqraw a ?sqcraw
                                                                   FILTER (?sqcraw IN (:Quantity, :QuantityKind))
@@ -1035,134 +1032,62 @@ queryHandler = {
                                                                 }}
  
                                                        }}
-                                                       GROUP BY ?id ?class ?qudtID ?isLinear ?isNotLinear ?isDimensionless ?isDimensional''',
+                                                       GROUP BY ?class ?qudtID ?isLinear ?isNotLinear ?isDimensionless ?isDimensional''',
 
                       'mathematicalFormulationInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
-                                               SELECT DISTINCT ?id
-                                                               ?isLinear ?isNotLinear
+                                               SELECT DISTINCT ?isLinear ?isNotLinear
                                                                ?isConvex ?isNotConvex
                                                                ?isDynamic ?isStatic
                                                                ?isDeterministic ?isStochastic
                                                                ?isDimensionless ?isDimensional
                                                                ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent
                                                                ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent
-                                                               (GROUP_CONCAT(DISTINCT(?label); SEPARATOR=" / ") AS ?Label) 
-                                                               (GROUP_CONCAT(DISTINCT(?description); SEPARATOR=" / ") AS ?Description)
-                                                               (GROUP_CONCAT(DISTINCT(?dq); SEPARATOR=" / ") AS ?defines)
-                                                               (GROUP_CONCAT(DISTINCT(?dql); SEPARATOR=" / ") AS ?definesLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?dqd); SEPARATOR=" / ") AS ?definesDescription)
                                                                (GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" / ") AS ?formulas)
                                                                (GROUP_CONCAT(DISTINCT(?term); SEPARATOR=" / ") AS ?terms)
-                                                               (GROUP_CONCAT(DISTINCT(?q); SEPARATOR=" / ") AS ?containsQuantity)
-                                                               (GROUP_CONCAT(DISTINCT(?ql); SEPARATOR=" / ") AS ?containsQuantityLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?qd); SEPARATOR=" / ") AS ?containsQuantityDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mmmf); SEPARATOR=" / ") AS ?containedAsFormulationInMM)
-                                                               (GROUP_CONCAT(DISTINCT(?mmmfl); SEPARATOR=" / ") AS ?containedAsFormulationInMMLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mmmfd); SEPARATOR=" / ") AS ?containedAsFormulationInMMDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mma); SEPARATOR=" / ") AS ?containedAsAssumptionInMM)
-                                                               (GROUP_CONCAT(DISTINCT(?mmal); SEPARATOR=" / ") AS ?containedAsAssumptionInMMLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mmad); SEPARATOR=" / ") AS ?containedAsAssumptionInMMDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mmbc); SEPARATOR=" / ") AS ?containedAsBoundaryConditionInMM)
-                                                               (GROUP_CONCAT(DISTINCT(?mmbcl); SEPARATOR=" / ") AS ?containedAsBoundaryConditionInMMLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mmbcd); SEPARATOR=" / ") AS ?containedAsBoundaryConditionInMMDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mmfc); SEPARATOR=" / ") AS ?containedAsFinalConditionInMM)
-                                                               (GROUP_CONCAT(DISTINCT(?mmfcl); SEPARATOR=" / ") AS ?containedAsFinalConditionInMMLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mmfcd); SEPARATOR=" / ") AS ?containedAsFinalConditionInMMDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mmic); SEPARATOR=" / ") AS ?containedAsInitialConditionInMM)
-                                                               (GROUP_CONCAT(DISTINCT(?mmicl); SEPARATOR=" / ") AS ?containedAsInitialConditionInMMLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mmicd); SEPARATOR=" / ") AS ?containedAsInitialConditionInMMDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mmcc); SEPARATOR=" / ") AS ?containedAsConstraintConditionInMM)
-                                                               (GROUP_CONCAT(DISTINCT(?mmccl); SEPARATOR=" / ") AS ?containedAsConstraintConditionInMMLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mmccd); SEPARATOR=" / ") AS ?containedAsConstraintConditionInMMDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mmcpc); SEPARATOR=" / ") AS ?containedAsCouplingConditionInMM)
-                                                               (GROUP_CONCAT(DISTINCT(?mmcpcl); SEPARATOR=" / ") AS ?containedAsCouplingConditionInMMLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mmcpcd); SEPARATOR=" / ") AS ?containedAsCouplingConditionInMMDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mfmf); SEPARATOR=" / ") AS ?containedAsFormulationInMF)
-                                                               (GROUP_CONCAT(DISTINCT(?mfmfl); SEPARATOR=" / ") AS ?containedAsFormulationInMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mfmfd); SEPARATOR=" / ") AS ?containedAsFormulationInMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mfa); SEPARATOR=" / ") AS ?containedAsAssumptionInMF)
-                                                               (GROUP_CONCAT(DISTINCT(?mfal); SEPARATOR=" / ") AS ?containedAsAssumptionInMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mfad); SEPARATOR=" / ") AS ?containedAsAssumptionInMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mfbc); SEPARATOR=" / ") AS ?containedAsBoundaryConditionInMF)
-                                                               (GROUP_CONCAT(DISTINCT(?mfbcl); SEPARATOR=" / ") AS ?containedAsBoundaryConditionInMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mfbcd); SEPARATOR=" / ") AS ?containedAsBoundaryConditionInMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mffc); SEPARATOR=" / ") AS ?containedAsFinalConditionInMF)
-                                                               (GROUP_CONCAT(DISTINCT(?mffcl); SEPARATOR=" / ") AS ?containedAsFinalConditionInMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mffcd); SEPARATOR=" / ") AS ?containedAsFinalConditionInMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mfic); SEPARATOR=" / ") AS ?containedAsInitialConditionInMF)
-                                                               (GROUP_CONCAT(DISTINCT(?mficl); SEPARATOR=" / ") AS ?containedAsInitialConditionInMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mficd); SEPARATOR=" / ") AS ?containedAsInitialConditionInMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mfcc); SEPARATOR=" / ") AS ?containedAsConstraintConditionInMF)
-                                                               (GROUP_CONCAT(DISTINCT(?mfccl); SEPARATOR=" / ") AS ?containedAsConstraintConditionInMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mfccd); SEPARATOR=" / ") AS ?containedAsConstraintConditionInMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mfcpc); SEPARATOR=" / ") AS ?containedAsCouplingConditionInMF)
-                                                               (GROUP_CONCAT(DISTINCT(?mfcpcl); SEPARATOR=" / ") AS ?containedAsCouplingConditionInMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mfcpcd); SEPARATOR=" / ") AS ?containedAsCouplingConditionInMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfmf); SEPARATOR=" / ") AS ?containsFormulationMF)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfmfl); SEPARATOR=" / ") AS ?containsFormulationMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfmfd); SEPARATOR=" / ") AS ?containsFormulationMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfa); SEPARATOR=" / ") AS ?containsAssumptionMF)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfal); SEPARATOR=" / ") AS ?containsAssumptionMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfad); SEPARATOR=" / ") AS ?containsAssumptionMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfbc); SEPARATOR=" / ") AS ?containsBoundaryConditionMF)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfbcl); SEPARATOR=" / ") AS ?containsBoundaryConditionMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfbcd); SEPARATOR=" / ") AS ?containsBoundaryConditionMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?cmffc); SEPARATOR=" / ") AS ?containsFinalConditionMF)
-                                                               (GROUP_CONCAT(DISTINCT(?cmffcl); SEPARATOR=" / ") AS ?containsFinalConditionMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?cmffcd); SEPARATOR=" / ") AS ?containsFinalConditionMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfic); SEPARATOR=" / ") AS ?containsInitialConditionMF)
-                                                               (GROUP_CONCAT(DISTINCT(?cmficl); SEPARATOR=" / ") AS ?containsInitialConditionMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?cmficd); SEPARATOR=" / ") AS ?containsInitialConditionMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfcc); SEPARATOR=" / ") AS ?containsConstraintConditionMF)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfccl); SEPARATOR=" / ") AS ?containsConstraintConditionMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfccd); SEPARATOR=" / ") AS ?containsConstraintConditionMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfcpc); SEPARATOR=" / ") AS ?containsCouplingConditionMF)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfcpcl); SEPARATOR=" / ") AS ?containsCouplingConditionMFLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?cmfcpcd); SEPARATOR=" / ") AS ?containsCouplingConditionMFDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?dbmf); SEPARATOR=" / ") AS ?discretizedByFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?dbmfl); SEPARATOR=" / ") AS ?discretizedByFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?dbmfd); SEPARATOR=" / ") AS ?discretizedByFormulationDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?dmf); SEPARATOR=" / ") AS ?discretizesFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?dmfl); SEPARATOR=" / ") AS ?discretizesFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?dmfd); SEPARATOR=" / ") AS ?discretizesFormulationDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?gbmf); SEPARATOR=" / ") AS ?generalizedByFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?gbmfl); SEPARATOR=" / ") AS ?generalizedByFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?gbmfd); SEPARATOR=" / ") AS ?generalizedByFormulationDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?gmf); SEPARATOR=" / ") AS ?generalizesFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?gmfl); SEPARATOR=" / ") AS ?generalizesFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?gmfd); SEPARATOR=" / ") AS ?generalizesFormulationDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?abmf); SEPARATOR=" / ") AS ?approximatedByFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?abmfl); SEPARATOR=" / ") AS ?approximatedByFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?abmfd); SEPARATOR=" / ") AS ?approximatedByFormaultionDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?amf); SEPARATOR=" / ") AS ?approximatesFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?amfl); SEPARATOR=" / ") AS ?approximatesFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?amfd); SEPARATOR=" / ") AS ?approximatesFormulationDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?lbmf); SEPARATOR=" / ") AS ?linearizedByFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?lbmfl); SEPARATOR=" / ") AS ?linearizedByFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?lbmfd); SEPARATOR=" / ") AS ?linearizedByFormulationDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?lmf); SEPARATOR=" / ") AS ?linearizesFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?lmfl); SEPARATOR=" / ") AS ?linearizesFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?lmfd); SEPARATOR=" / ") AS ?linearizesFormulationDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?nbmf); SEPARATOR=" / ") AS ?nondimensionalizedByFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?nbmfl); SEPARATOR=" / ") AS ?nondimensionalizedByFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?nbmfd); SEPARATOR=" / ") AS ?nondimensionalizedByFormulationDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?nmf); SEPARATOR=" / ") AS ?nondimensionalizesFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?nmfl); SEPARATOR=" / ") AS ?nondimensionalizesFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?nmfd); SEPARATOR=" / ") AS ?nondimensionalizesFormulationDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?smf); SEPARATOR=" / ") AS ?similarToFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?smfl); SEPARATOR=" / ") AS ?similarToFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?smfd); SEPARATOR=" / ") AS ?similarToFormulationDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?pub); SEPARATOR=" / ") AS ?publication)
-                                                               (GROUP_CONCAT(DISTINCT(?publ); SEPARATOR=" / ") AS ?publicationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?pubd); SEPARATOR=" / ") AS ?publicationDescription)
-                                               WHERE {{ 
-                                                       VALUES ?id {{{0}}} 
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?dq, " | ", ?dql, " | ", ?dqd); separator=" / ") AS ?defines)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?q, " | ", ?ql, " | ", ?qd); separator=" / ") AS ?containsQuantity)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mmmf, " | ", ?mmmfl, " | ", ?mmmfd); separator=" / ") AS ?containedAsFormulationInMM)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mma, " | ", ?mmal, " | ", ?mmad); separator=" / ") AS ?containedAsAssumptionInMM)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mmbc, " | ", ?mmbcl, " | ", ?mmbcd); separator=" / ") AS ?containedAsBoundaryConditionInMM)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mmfc, " | ", ?mmfcl, " | ", ?mmfcd); separator=" / ") AS ?containedAsFinalConditionInMM)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mmic, " | ", ?mmicl, " | ", ?mmicd); separator=" / ") AS ?containedAsInitialConditionInMM)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mmcc, " | ", ?mmccl, " | ", ?mmccd); separator=" / ") AS ?containedAsConstraintConditionInMM)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mmcpc, " | ", ?mmcpcl, " | ", ?mmcpcd); separator=" / ") AS ?containedAsCouplingConditionInMM)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mfmf, " | ", ?mfmfl, " | ", ?mfmfd); separator=" / ") AS ?containedAsFormulationInMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mfa, " | ", ?mfal, " | ", ?mfad); separator=" / ") AS ?containedAsAssumptionInMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mfbc, " | ", ?mfbcl, " | ", ?mfbcd); separator=" / ") AS ?containedAsBoundaryConditionInMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mffc, " | ", ?mffcl, " | ", ?mffcd); separator=" / ") AS ?containedAsFinalConditionInMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mfic, " | ", ?mficl, " | ", ?mficd); separator=" / ") AS ?containedAsInitialConditionInMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mfcc, " | ", ?mfccl, " | ", ?mfccd); separator=" / ") AS ?containedAsConstraintConditionInMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mfcpc, " | ", ?mfcpcl, " | ", ?mfcpcd); separator=" / ") AS ?containedAsCouplingConditionInMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?cmfmf, " | ", ?cmfmfl, " | ", ?cmfmfd); separator=" / ") AS ?containsFormulationMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?cmfa, " | ", ?cmfal, " | ", ?cmfad); separator=" / ") AS ?containsAssumptionMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?cmfbc, " | ", ?cmfbcl, " | ", ?cmfbcd); separator=" / ") AS ?containsBoundaryConditionMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?cmffc, " | ", ?cmffcl, " | ", ?cmffcd); separator=" / ") AS ?containsFinalConditionMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?cmfic, " | ", ?cmficl, " | ", ?cmficd); separator=" / ") AS ?containsInitialConditionMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?cmfcc, " | ", ?cmfccl, " | ", ?cmfccd); separator=" / ") AS ?containsConstraintConditionMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?cmfcpc, " | ", ?cmfcpcl, " | ", ?cmfcpcd); separator=" / ") AS ?containsCouplingConditionMF)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?dbmf, " | ", ?dbmfl, " | ", ?dbmfd); separator=" / ") AS ?discretizedByFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?dmf, " | ", ?dmfl, " | ", ?dmfd); separator=" / ") AS ?discretizesFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?gbmf, " | ", ?gbmfl, " | ", ?gbmfd); separator=" / ") AS ?generalizedByFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?gmf, " | ", ?gmfl, " | ", ?gmfd); separator=" / ") AS ?generalizesFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?abmf, " | ", ?abmfl, " | ", ?abmfd); separator=" / ") AS ?approximatedByFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?amf, " | ", ?amfl, " | ", ?amfd); separator=" / ") AS ?approximatesFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?lbmf, " | ", ?lbmfl, " | ", ?lbmfd); separator=" / ") AS ?linearizedByFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?lmf, " | ", ?lmfl, " | ", ?lmfd); separator=" / ") AS ?linearizesFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?nbmf, " | ", ?nbmfl, " | ", ?nbmfd); separator=" / ") AS ?nondimensionalizedByFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?nmf, " | ", ?nmfl, " | ", ?nmfd); separator=" / ") AS ?nondimensionalizesFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?smf, " | ", ?smfl, " | ", ?smfd); separator=" / ") AS ?similarToFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+
+                                                WHERE {{ 
+                                                       VALUES ?id {{ :{0} }} 
 
                                                         OPTIONAL {{
                                                                    ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
-                                                                   BIND(STRAFTER(STR(?pubraw), "#") AS ?pub)
+                                                                   BIND(CONCAT("mathmoddb:", STRAFTER(STR(?pubraw), "#")) AS ?pub)
                                                                    OPTIONAL {{ ?pubraw rdfs:label ?publraw
                                                                                FILTER (lang(?publraw) = 'en') }}
                                                                    BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
@@ -1171,20 +1096,6 @@ queryHandler = {
                                                                    BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
                                                                  }}
                                                        
-                                                       OPTIONAL {{
-                                                                  ?id rdfs:label ?labelraw .
-                                                                  FILTER (lang(?labelraw) = 'en')
-                                                                }}
-                                                                
-                                                                BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
-
-                                                       OPTIONAL {{
-                                                                  ?id rdfs:comment ?descriptionraw .
-                                                                  FILTER (lang(?descriptionraw) = 'en')
-                                                                }}
-                                                                
-                                                                BIND(COALESCE(?descriptionraw, "No Description Provided!") AS ?description)
-
                                                        OPTIONAL {{ ?id :isLinear ?isLinear.
                                                                 BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}}
 
@@ -1207,8 +1118,13 @@ queryHandler = {
                                                        OPTIONAL {{ ?id :isSpaceContinuous ?isSpaceContinuous.
                                                                 BIND(IF(BOUND(?isSpaceContinuous) && ?isSpaceContinuous = false, true, false) AS ?isSpaceDiscrete)}}
                                                                 BIND(IF(!BOUND(?isSpaceContinuous), true, false) AS ?isSpaceIndependent)
-                                                       OPTIONAL {{?id :defines ?dqraw.
-                                                                  BIND(STRAFTER(STR(?dqraw), "#") AS ?dq).
+                                                        
+                                                        OPTIONAL {{?id :definingFormulation ?formula.}}
+
+                                                        OPTIONAL {{?id :inDefiningFormulation ?term.}}
+
+                                                        OPTIONAL {{?id :defines ?dqraw.
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?dqraw), "#")) AS ?dq)
                                                        
                                                                   OPTIONAL {{
                                                                              ?dqraw rdfs:label ?dqlraw
@@ -1224,13 +1140,10 @@ queryHandler = {
 
                                                                   BIND(COALESCE(?dqdraw, "No Description Provided!") AS ?dqd)
                                                                 }}
-                                                        
-                                                        OPTIONAL {{?id :definingFormulation ?formula.}}
-
-                                                        OPTIONAL {{?id :inDefiningFormulation ?term.}}
+                                                       
 
                                                         OPTIONAL {{?id :containsQuantity ?qraw.
-                                                                  BIND(STRAFTER(STR(?qraw), "#") AS ?q).
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?qraw), "#")) AS ?q)
 
                                                                   OPTIONAL {{
                                                                              ?qraw rdfs:label ?qlraw
@@ -1249,7 +1162,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsFormulationIn ?mmmfraw.
-                                                                  BIND(STRAFTER(STR(?mmmfraw), "#") AS ?mmmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mmmfraw), "#")) AS ?mmmf)
                                                                   ?mmmfraw a :MathematicalModel. 
 
                                                                   OPTIONAL {{
@@ -1269,7 +1182,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsFormulationIn ?mfmfraw.
-                                                                  BIND(STRAFTER(STR(?mfmfraw), "#") AS ?mfmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mfmfraw), "#")) AS ?mfmf)
                                                                   ?mfmfraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1289,7 +1202,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsFormulation ?cmfmfraw.
-                                                                  BIND(STRAFTER(STR(?cmfmfraw), "#") AS ?cmfmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?cmfmfraw), "#")) AS ?cmfmf)
                                                                   ?cmfmfraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1309,7 +1222,7 @@ queryHandler = {
                                                         
                                                         OPTIONAL {{
                                                                   ?id :containedAsBoundaryConditionIn ?mmbcraw.
-                                                                  BIND(STRAFTER(STR(?mmbcraw), "#") AS ?mmbc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mmbcraw), "#")) AS ?mmbc)
                                                                   ?mmbcraw a :MathematicalModel.
 
                                                                   OPTIONAL {{
@@ -1329,7 +1242,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsBoundaryConditionIn ?mfbcraw.
-                                                                  BIND(STRAFTER(STR(?mfbcraw), "#") AS ?mfbc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mfbcraw), "#")) AS ?mfbc)
                                                                   ?mfbcraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1349,7 +1262,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsBoundaryCondition ?cmfbcraw.
-                                                                  BIND(STRAFTER(STR(?cmfbcraw), "#") AS ?cmfbc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?cmfbcraw), "#")) AS ?cmfbc)
                                                                   ?cmfbcraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1369,7 +1282,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsConstraintConditionIn ?mmccraw.
-                                                                  BIND(STRAFTER(STR(?mmccraw), "#") AS ?mmcc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mmccraw), "#")) AS ?mmcc)
                                                                   ?mmccraw a :MathematicalModel.
 
                                                                   OPTIONAL {{
@@ -1389,7 +1302,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsConstraintConditionIn ?mfccraw.
-                                                                  BIND(STRAFTER(STR(?mfccraw), "#") AS ?mfcc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mfccraw), "#")) AS ?mfcc)
                                                                   ?mfccraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1409,7 +1322,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsConstraintCondition ?cmfccraw.
-                                                                  BIND(STRAFTER(STR(?cmfccraw), "#") AS ?cmfcc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?cmfccraw), "#")) AS ?cmfcc)
                                                                   ?cmfccraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1430,7 +1343,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsCouplingConditionIn ?mmcpcraw.
-                                                                  BIND(STRAFTER(STR(?mmcpcraw), "#") AS ?mmcpc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mmcpcraw), "#")) AS ?mmcpc)
                                                                   ?mmcpcraw a :MathematicalModel.
 
                                                                   OPTIONAL {{
@@ -1450,7 +1363,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsCouplingConditionIn ?mfcpcraw.
-                                                                  BIND(STRAFTER(STR(?mfcpcraw), "#") AS ?mfcpc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mfcpcraw), "#")) AS ?mfcpc)
                                                                   ?mfcpcraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1470,7 +1383,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsCouplingCondition ?cmfcpcraw.
-                                                                  BIND(STRAFTER(STR(?cmfcpcraw), "#") AS ?cmfcpc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?cmfcpcraw), "#")) AS ?cmfcpc)
                                                                   ?cmfcpcraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1490,7 +1403,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsAssumptionIn ?mmaraw.
-                                                                  BIND(STRAFTER(STR(?mmaraw), "#") AS ?mma)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mmaraw), "#")) AS ?mma)
                                                                   ?mmaraw a :MathematicalModel
 
                                                                   OPTIONAL {{
@@ -1510,7 +1423,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsAssumptionIn ?mfaraw.
-                                                                  BIND(STRAFTER(STR(?mfaraw), "#") AS ?mfa)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mfaraw), "#")) AS ?mfa)
                                                                   ?mfaraw a :MathematicalFormulation
 
                                                                   OPTIONAL {{
@@ -1530,7 +1443,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsAssumption ?cmfaraw.
-                                                                  BIND(STRAFTER(STR(?cmfaraw), "#") AS ?cmfa)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?cmfaraw), "#")) AS ?cmfa)
                                                                   ?cmfaraw a :MathematicalFormulation
 
                                                                   OPTIONAL {{
@@ -1550,7 +1463,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsInitialConditionIn ?mmicraw.
-                                                                  BIND(STRAFTER(STR(?mmicraw), "#") AS ?mmic)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mmicraw), "#")) AS ?mmic)
                                                                   ?mmicraw a :MathematicalModel.
 
                                                                   OPTIONAL {{
@@ -1570,7 +1483,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsInitialConditionIn ?mficraw.
-                                                                  BIND(STRAFTER(STR(?mficraw), "#") AS ?mfic)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mficraw), "#")) AS ?mfic)
                                                                   ?mficraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1590,7 +1503,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsInitialCondition ?cmficraw.
-                                                                  BIND(STRAFTER(STR(?cmficraw), "#") AS ?cmfic)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?cmficraw), "#")) AS ?cmfic)
                                                                   ?cmficraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1610,7 +1523,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsFinalConditionIn ?mmfcraw.
-                                                                  BIND(STRAFTER(STR(?mmfcraw), "#") AS ?mmfc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mmfcraw), "#")) AS ?mmfc)
                                                                   ?mmfcraw a :MathematicalModel.
 
                                                                   OPTIONAL {{
@@ -1630,7 +1543,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containedAsFinalConditionIn ?mffcraw.
-                                                                  BIND(STRAFTER(STR(?mffcraw), "#") AS ?mffc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mffcraw), "#")) AS ?mffc)
                                                                   ?mffcraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1650,7 +1563,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsFinalCondition ?cmffcraw.
-                                                                  BIND(STRAFTER(STR(?cmffcraw), "#") AS ?cmffc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?cmffcraw), "#")) AS ?cmffc)
                                                                   ?cmffcraw a :MathematicalFormulation.
 
                                                                   OPTIONAL {{
@@ -1670,7 +1583,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :generalizedByFormulation ?gbmfraw.
-                                                                  BIND(STRAFTER(STR(?gbmfraw), "#") AS ?gbmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gbmfraw), "#")) AS ?gbmf)
                                                                   
                                                                   OPTIONAL {{
                                                                              ?gbmfraw rdfs:label ?gbmflraw
@@ -1689,7 +1602,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :generalizesFormulation ?gmfraw.
-                                                                  BIND(STRAFTER(STR(?gmfraw), "#") AS ?gmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gmfraw), "#")) AS ?gmf)
 
                                                                   OPTIONAL {{
                                                                              ?gmfraw rdfs:label ?gmflraw
@@ -1708,7 +1621,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :approximatedByFormulation ?abmfraw.
-                                                                  BIND(STRAFTER(STR(?abmfraw), "#") AS ?abmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?abmfraw), "#")) AS ?abmf)
 
                                                                   OPTIONAL {{
                                                                              ?abmfraw rdfs:label ?abmflraw
@@ -1727,7 +1640,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :approximatesFormulation ?amfraw.
-                                                                  BIND(STRAFTER(STR(?amfraw), "#") AS ?amf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?amfraw), "#")) AS ?amf)
 
                                                                   OPTIONAL {{
                                                                              ?amfraw rdfs:label ?amflraw
@@ -1746,7 +1659,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :linearizedByFormulation ?lbmfraw.
-                                                                  BIND(STRAFTER(STR(?lbmfraw), "#") AS ?lbmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?lbmfraw), "#")) AS ?lbmf)
 
                                                                   OPTIONAL {{
                                                                              ?lbmfraw rdfs:label ?lbmflraw
@@ -1765,7 +1678,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :linearizesFormulation ?lmfraw.
-                                                                  BIND(STRAFTER(STR(?lmfraw), "#") AS ?lmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?lmfraw), "#")) AS ?lmf)
 
                                                                   OPTIONAL {{
                                                                              ?lmfraw rdfs:label ?lmflraw
@@ -1784,7 +1697,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :nondimensionalizedByFormulation ?nbmfraw.
-                                                                  BIND(STRAFTER(STR(?nbmfraw), "#") AS ?nbmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?nbmfraw), "#")) AS ?nbmf)
 
                                                                   OPTIONAL {{
                                                                              ?nbmfraw rdfs:label ?nbmflraw
@@ -1803,7 +1716,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :nondimensionalizesFormulation ?nmfraw.
-                                                                  BIND(STRAFTER(STR(?nmfraw), "#") AS ?nmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?nmfraw), "#")) AS ?nmf)
 
                                                                   OPTIONAL {{
                                                                              ?nmfraw rdfs:label ?nmflraw
@@ -1822,7 +1735,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :discretizedByFormulation ?dbmfraw.
-                                                                  BIND(STRAFTER(STR(?dbmfraw), "#") AS ?dbmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?dbmfraw), "#")) AS ?dbmf)
 
                                                                   OPTIONAL {{
                                                                              ?dbmfraw rdfs:label ?dbmflraw
@@ -1841,7 +1754,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :discretizesFormulation ?dmfraw.
-                                                                  BIND(STRAFTER(STR(?dmfraw), "#") AS ?dmf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?dmfraw), "#")) AS ?dmf)
 
                                                                   OPTIONAL {{
                                                                              ?dmfraw rdfs:label ?dmflraw
@@ -1860,7 +1773,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :similarToFormulation ?smfraw.
-                                                                  BIND(STRAFTER(STR(?smfraw), "#") AS ?smf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?smfraw), "#")) AS ?smf)
 
                                                                   OPTIONAL {{
                                                                              ?smfraw rdfs:label ?smflraw
@@ -1878,7 +1791,7 @@ queryHandler = {
                                                                 }}
                                                      
                                                      }}
-                                                     GROUP BY ?id ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
+                                                     GROUP BY ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
                                                               ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent''',
 
                               'taskInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
