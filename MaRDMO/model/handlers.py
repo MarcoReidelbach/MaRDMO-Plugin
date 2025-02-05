@@ -3,11 +3,11 @@ from django.db.models.signals import post_save
 from rdmo.projects.models import Value
 from rdmo.options.models import Option
 
-
-from .utils import add_basics, add_entity, add_properties, add_relations
+from .constants import PROPS, RELATANT_URIS, RELATION_URIS, INDEX_COUNTERS
+from .utils import add_basics
 from .sparql import queryHandler
-from .models import ResearchField, ResearchProblem, MathematicalModel, QuantityOrQuantityKind, MathematicalFormulation
-from ..utils import add_entities, extract_parts, get_data, get_id, get_questionsMO, query_sparql, splitVariableText, value_editor
+from .models import ResearchField, ResearchProblem, MathematicalModel, QuantityOrQuantityKind, MathematicalFormulation, Task
+from ..utils import add_entities, add_relations, extract_parts, get_data, get_id, get_questionsMO, query_sparql, splitVariableText, value_editor
 from ..config import BASE_URI
 from ..id import *
 
@@ -32,22 +32,14 @@ def RFInformation(sender, **kwargs):
                     # Structure Results
                     data = ResearchField.from_query(results)
                     # Add Relations between Research Fields to Questionnaire
-                    props = ['generalizedByField', 'generalizesField', 'similarToField']
-                    idx = 0
-                    for prop in props:
-                        for value in getattr(data, prop):
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Research Field IntraClassRelation"]["uri"]}', 
-                                         option = Option.objects.get(uri=mathmoddb[prop]), 
-                                         set_index = idx, 
-                                         set_prefix = instance.set_index)
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Research Field IntraClassElement"]["uri"]}', 
-                                         text = f"{value.label} ({value.description}) [{source}]", 
-                                         external_id = value.id, 
-                                         set_index = idx, 
-                                         set_prefix = instance.set_index)
-                            idx +=1
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['Field'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Research Field IntraClassElement"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Research Field IntraClassRelation"]["uri"]}')
                     # Add Publications to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
@@ -77,32 +69,23 @@ def RPInformation(sender, **kwargs):
                 if results:
                     # Structure Results
                     data = ResearchProblem.from_query(results)
-                    # Add Research Fields to Questionnaire
-                    for idx, field in enumerate(data.containedInField):
-                        value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Research Problem RFRelatant"]["uri"]}', 
-                                     text = f"{field.label} ({field.description}) [{source}]", 
-                                     external_id = field.id, 
-                                     collection_index = idx, 
-                                     set_index = 0, 
-                                     set_prefix = instance.set_index)
+                    # Add Relations between Research Problem and Research Fields to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['RP2RF'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Research Problem RFRelatant"]["uri"]}')
                     # Add Relations between Research Problems to Questionnaire
-                    props = ['generalizedByProblem', 'generalizesProblem', 'similarToProblem']
-                    idx = 0
-                    for prop in props:
-                        for value in getattr(data, prop):
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Research Problem IntraClassRelation"]["uri"]}', 
-                                         option = Option.objects.get(uri=mathmoddb[prop]), 
-                                         set_index = idx, 
-                                         set_prefix = instance.set_index)
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Research Problem IntraClassElement"]["uri"]}', 
-                                         text = f"{value.label} ({value.description}) [{source}]", 
-                                         external_id = value.id, 
-                                         set_index = idx, 
-                                         set_prefix = instance.set_index)
-                            idx +=1
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['Problem'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Research Problem IntraClassElement"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Research Problem IntraClassRelation"]["uri"]}')
                     # Add Publications to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
@@ -134,6 +117,7 @@ def QQKInformation(sender, **kwargs):
                 if results:
                     # Structure Results
                     data = QuantityOrQuantityKind.from_query(results)
+                    
                     # Add Type of Quantity
                     if data.qclass:
                         value_editor(project = instance.project, 
@@ -141,6 +125,7 @@ def QQKInformation(sender, **kwargs):
                                      option = Option.objects.get(uri=mathmoddb[results[0]['class']['value']]),
                                      set_index = 0, 
                                      set_prefix = instance.set_index)
+                    
                     # Add the Quantity or QuantityKind Properties to the Questionnaire
                     if data.qclass == 'Quantity':
                         for key, property in data.properties.items():
@@ -158,6 +143,7 @@ def QQKInformation(sender, **kwargs):
                                          collection_index = key,
                                          set_index = 0, 
                                          set_prefix = instance.set_index)
+                    
                     # Add ofther References (QUDT ID)
                     if data.qudtID:
                         value_editor(project = instance.project, 
@@ -167,63 +153,31 @@ def QQKInformation(sender, **kwargs):
                                      collection_index = 0, 
                                      set_index = 0, 
                                      set_prefix = instance.set_index)
+                    
                     # Add Relations between Quantities and Quantity Kinds to Questionnaire
-                    props = ['generalizedByQuantity','generalizesQuantity','approximatedByQuantity','approximatesQuantity','linearizedByQuantity','linearizesQuantity','nondimensionalizedByQuantity','nondimensionalizesQuantity','similarToQuantity']
-                    idx_qq = 0; idx_qkqk = 0; idx_qqk = 0; idx_qkq = 0
-                    for prop in props:
+                    for prop in PROPS['Quantity']:
                         for value in getattr(data, prop):
-                            if data.qclass == 'Quantity' and value.qclass == 'Quantity':
-                                value_editor(project = instance.project, 
-                                             uri = f'{BASE_URI}{questions["Quantity Q2Q"]["uri"]}', 
-                                             option = Option.objects.get(uri=mathmoddb[prop]), 
-                                             set_index = idx_qq, 
-                                             set_prefix = f"{instance.set_index}|0")
-                                value_editor(project = instance.project, 
-                                             uri = f'{BASE_URI}{questions["Quantity QRelatant"]["uri"]}', 
-                                             text = f"{value.label} ({value.description}) [{source}]", 
-                                             external_id = value.id, 
-                                             set_index = idx_qq, 
-                                             set_prefix = f"{instance.set_index}|0")
-                                idx_qq +=1
-                            elif data.qclass == 'QuantityKind' and value.qclass == 'QuantityKind':
-                                value_editor(project = instance.project, 
-                                             uri = f'{BASE_URI}{questions["QuantityKind QK2QK"]["uri"]}', 
-                                             option = Option.objects.get(uri=mathmoddb[prop]), 
-                                             set_index = idx_qkqk, 
-                                             set_prefix = f"{instance.set_index}|0")
-                                value_editor(project = instance.project, 
-                                             uri = f'{BASE_URI}{questions["QuantityKind QKRelatant"]["uri"]}', 
-                                             text = f"{value.label} ({value.description}) [{source}]", 
-                                             external_id = value.id, 
-                                             set_index = idx_qkqk, 
-                                             set_prefix = f"{instance.set_index}|0")
-                                idx_qkqk +=1
-                            elif data.qclass == 'Quantity' and value.qclass == 'QuantityKind':
-                                value_editor(project = instance.project, 
-                                             uri = f'{BASE_URI}{questions["Quantity Q2QK"]["uri"]}', 
-                                             option = Option.objects.get(uri=mathmoddb[prop]), 
-                                             set_index = idx_qqk, 
-                                             set_prefix = f"{instance.set_index}|0")
-                                value_editor(project = instance.project, 
-                                             uri = f'{BASE_URI}{questions["Quantity QKRelatant"]["uri"]}', 
-                                             text = f"{value.label} ({value.description}) [{source}]", 
-                                             external_id = value.id, 
-                                             set_index = idx_qqk, 
-                                             set_prefix = f"{instance.set_index}|0")
-                                idx_qqk +=1
-                            elif data.qclass == 'QuantityKind' and value.qclass == 'Quantity':
-                                value_editor(project = instance.project, 
-                                             uri = f'{BASE_URI}{questions["QuantityKind QK2Q"]["uri"]}', 
-                                             option = Option.objects.get(uri=mathmoddb[prop]), 
-                                             set_index = idx_qkq, 
-                                             set_prefix = f"{instance.set_index}|0")
-                                value_editor(project = instance.project, 
-                                             uri = f'{BASE_URI}{questions["QuantityKind QRelatant"]["uri"]}', 
-                                             text = f"{value.label} ({value.description}) [{source}]", 
-                                             external_id = value.id, 
-                                             set_index = idx_qkq, 
-                                             set_prefix = f"{instance.set_index}|0")
-                                idx_qkq +=1
+                            qclass_pair = (data.qclass, value.qclass)
+
+                            value_editor(
+                                project=instance.project,
+                                uri=f"{BASE_URI}{questions[RELATION_URIS[qclass_pair]]['uri']}",
+                                option=Option.objects.get(uri=mathmoddb[prop]),
+                                set_index=INDEX_COUNTERS[qclass_pair],
+                                set_prefix=f"{instance.set_index}|0"
+                            )
+
+                            value_editor(
+                                project=instance.project,
+                                uri=f"{BASE_URI}{questions[RELATANT_URIS[qclass_pair]]['uri']}",
+                                text=f"{value.label} ({value.description}) [{source}]",
+                                external_id=value.id,
+                                set_index=INDEX_COUNTERS[qclass_pair],
+                                set_prefix=f"{instance.set_index}|0"
+                            )
+
+                            INDEX_COUNTERS[qclass_pair] += 1
+                    
                     # Add Formulations to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
@@ -231,6 +185,7 @@ def QQKInformation(sender, **kwargs):
                                  datas = data.definedBy, 
                                  source = source,
                                  prefix = 'MF')            
+                    
                     # Add Publications to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
@@ -260,7 +215,9 @@ def MFInformation(sender, **kwargs):
                 mathmoddb = get_data('model/data/mapping.json')
                 options = get_data('data/options.json')
                 if results:
+                    # Structure Results
                     data = MathematicalFormulation.from_query(results)
+                    
                     # Add the Mathematical Formulation Properties to the Questionnaire
                     for key, property in data.properties.items():
                         value_editor(project = instance.project, 
@@ -269,6 +226,7 @@ def MFInformation(sender, **kwargs):
                                      collection_index = key,
                                      set_index = 0, 
                                      set_prefix = instance.set_index)
+                    
                     # Add the defined Quantity
                     if data.defines:
                         value_editor(project = instance.project, 
@@ -276,19 +234,20 @@ def MFInformation(sender, **kwargs):
                                      option = Option.objects.get(uri=options['Yes']), 
                                      set_index = 0, 
                                      set_prefix =instance.set_index)
-                        for quantity in data.defines:
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Mathematical Formulation Defined Quantity"]["uri"]}', 
-                                         text = f"{quantity.label} ({quantity.description}) [{source}]", 
-                                         external_id = quantity.id, 
-                                         set_index = 0, 
-                                         set_prefix = instance.set_index)
+                        add_relations(project = instance.project, 
+                                      data = data, 
+                                      props = PROPS['Q2MF'], 
+                                      mapping = mathmoddb, 
+                                      source = source, 
+                                      set_prefix = instance.set_index, 
+                                      relatant = f'{BASE_URI}{questions["Mathematical Formulation Defined Quantity"]["uri"]}')
                     else:
                         value_editor(project = instance.project, 
                                      uri = f'{BASE_URI}{questions["Mathematical Formulation Definition"]["uri"]}', 
                                      option = Option.objects.get(uri=options['No']), 
                                      set_index = 0, 
                                      set_prefix = instance.set_index)
+                    
                     # Add the Formula to the Questionnaire
                     for idx, formula in enumerate(data.formulas):
                             value_editor(project = instance.project, 
@@ -297,6 +256,7 @@ def MFInformation(sender, **kwargs):
                                          collection_index = idx, 
                                          set_index = 0, 
                                          set_prefix =instance.set_index)
+                    
                     # Add the Formula Elements to the Questionnaire
                     for idx, term in enumerate(data.terms):
                         symbol, quantityLabel = splitVariableText(term)
@@ -313,58 +273,39 @@ def MFInformation(sender, **kwargs):
                                              external_id = quantity.id, 
                                              set_index = idx, 
                                              set_prefix = f"{instance.set_index}|0")
+                    
                     # Add Relations between Formulations and Models
-                    props = ['containedAsAssumptionIn','containedAsFormulationIn','containedAsBoundaryConditionIn','containedAsConstraintConditionIn','containedAsCouplingConditionIn','containedAsInitialConditionIn','containedAsFinalConditionIn']
-                    idx = 0
-                    for prop in props:
-                        for value in getattr(data, f"{prop}MM"):
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Mathematical Formulation MF2MM"]["uri"]}', 
-                                         option = Option.objects.get(uri=mathmoddb[prop]), 
-                                         set_index = idx, 
-                                         set_prefix = f"{instance.set_index}|0")
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Mathematical Formulation MMRelatant"]["uri"]}', 
-                                         text = f"{value.label} ({value.description}) [{source}]", 
-                                         external_id = value.id, 
-                                         set_index = idx, 
-                                         set_prefix = f"{instance.set_index}|0")
-                            idx +=1
-
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['MF2MM'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = f"{instance.set_index}|0",
+                                  suffix = 'MM', 
+                                  relatant = f'{BASE_URI}{questions["Mathematical Formulation MMRelatant"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Mathematical Formulation MF2MM"]["uri"]}')
+                    
                     # Add Relations between Formulations I
-                    props = ['containedAsAssumptionIn','containedAsFormulationIn','containedAsBoundaryConditionIn','containedAsConstraintConditionIn','containedAsCouplingConditionIn','containedAsInitialConditionIn','containedAsFinalConditionIn','containsAssumption','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalCondition']
-                    idx = 0
-                    for prop in props:
-                        for value in getattr(data, f"{prop}MF"):
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Mathematical Formulation MF2MF"]["uri"]}', 
-                                         option = Option.objects.get(uri=mathmoddb[prop]), 
-                                         set_index = idx, 
-                                         set_prefix = f"{instance.set_index}|0")
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Mathematical Formulation MFRelatant"]["uri"]}', 
-                                         text = f"{value.label} ({value.description}) [{source}]", 
-                                         external_id = value.id, 
-                                         set_index = idx, 
-                                         set_prefix = f"{instance.set_index}|0")
-                            idx +=1
-                    # Add relations of the Mathematical Model to the Questionnaire
-                    props = ['generalizedByFormulation','generalizesFormulation','discretizedByFormulation','discretizesFormulation','approximatedByFormulation','approximatesFormulation','linearizedByFormulation','linearizesFormulation','nondimensionalizedByFormulation','nondimensionalizesFormulation','similarToFormulation']
-                    idx = 0
-                    for prop in props:
-                        for value in getattr(data, prop):
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Mathematical Formulation IntraClassRelation"]["uri"]}', 
-                                         option = Option.objects.get(uri=mathmoddb[prop]), 
-                                         set_index = idx, 
-                                         set_prefix = instance.set_index)
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Mathematical Formulation IntraClassElement"]["uri"]}', 
-                                         text = f"{value.label} ({value.description}) [{source}]", 
-                                         external_id = value.id, 
-                                         set_index = idx, 
-                                         set_prefix = instance.set_index)
-                            idx +=1
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['MF2MF'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = f"{instance.set_index}|0",
+                                  suffix = 'MF', 
+                                  relatant = f'{BASE_URI}{questions["Mathematical Formulation MFRelatant"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Mathematical Formulation MF2MF"]["uri"]}')
+                    
+                    # Add Relations between Formulations II to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['Formulation'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Mathematical Formulation IntraClassElement"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Mathematical Formulation IntraClassRelation"]["uri"]}')
+                    
                     # Add Publications to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
@@ -378,65 +319,84 @@ def MFInformation(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def TInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/task/id':
+    # Get Questions of Model Catalog
+    questions = get_questionsMO()
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task ID"]["uri"]}':
         if instance.text and instance.text != 'not found':
             # Get Label and Description of Item and add to questionnaire
             add_basics(instance, 
-                       f'{BASE_URI}domain/task/name', 
-                       f'{BASE_URI}domain/task/description')
+                       f'{BASE_URI}{questions["Task Name"]["uri"]}', 
+                       f'{BASE_URI}{questions["Task Description"]["uri"]}')
             # Get source and ID of Item
             source, Id = instance.external_id.split(':')
             if source== 'mathmoddb':
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                results = query_sparql(queryHandler['taskInformation'].format(f":{Id}"))
+                results = query_sparql(queryHandler['taskInformation'].format(Id))
                 mathmoddb = get_data('model/data/mapping.json')
-                options = get_data('data/options.json')
                 if results:
+                    #Structure Results
+                    data = Task.from_query(results)
                     # Add the Task Properties to the Questionnaire
-                    add_properties(instance, results, mathmoddb, 
-                                   f'{BASE_URI}domain/task/properties')
+                    for key, property in data.properties.items():
+                        value_editor(project = instance.project, 
+                                     uri  = f'{BASE_URI}{questions["Task Properties"]["uri"]}', 
+                                     option = Option.objects.get(uri=property), 
+                                     collection_index = key,
+                                     set_index = 0, 
+                                     set_prefix = instance.set_index)
                     # Add the Category to the Questionnaire
-                    value_editor(instance.project, f'{BASE_URI}domain/task/category', None, None, Option.objects.get(uri=mathmoddb['ComputationalTask']), None, 0, instance.set_index)
-                    # Add applied Model to the Questionnaire
-                    add_relations(instance, results, mathmoddb, 
-                                  f'{BASE_URI}domain/task/model-relation', 
-                                  f'{BASE_URI}domain/task/model-relatant', 
-                                  ['appliesModel'], 
-                                  False, '', None, True)
+                    if data.subclass:
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Task Subclass"]["uri"]}', 
+                                     option = Option.objects.get(uri=mathmoddb[data.subclass]), 
+                                     set_index =  0, 
+                                     set_prefix = instance.set_index)
+                    # Add applied Models to Questionnaire
+                    for idx, model in enumerate(data.appliesModel):
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Task MMRelatant"]["uri"]}', 
+                                     text = f"{model.label} ({model.description}) [{source}]", 
+                                     external_id = model.id, 
+                                     collection_index = idx, 
+                                     set_index = 0, 
+                                     set_prefix = instance.set_index)
                     # Add Formulations contained in Task
-                    add_relations(instance, results, mathmoddb, 
-                                  f'{BASE_URI}domain/task/formulation-relation', 
-                                  f'{BASE_URI}domain/task/formulation-relatant', 
-                                  ['containsAssumption','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalCondition'],
-                                  True, '', f"{instance.set_index}|0")
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['T2MF'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = f"{instance.set_index}|0",
+                                  relatant = f'{BASE_URI}{questions["Task MFRelatant"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Task T2MF"]["uri"]}')
+                    
                     # Add Quantity contained in Task
-                    add_relations(instance, results, mathmoddb, 
-                                  f'{BASE_URI}domain/task/quantity-relation', 
-                                  f'{BASE_URI}domain/task/quantity-relatant', 
-                                  ['containsInput','containsOutput','containsObjective','containsParameter','containsConstant'],
-                                  True, '', f"{instance.set_index}|0")
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['T2Q'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = f"{instance.set_index}|0",
+                                  relatant = f'{BASE_URI}{questions["Task QRelatant"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Task T2Q"]["uri"]}')
+                    
                     # Add related Task to questionnaire
-                    add_relations(instance, results, mathmoddb, 
-                                  f'{BASE_URI}domain/task/task-relation', 
-                                  f'{BASE_URI}domain/task/task-relatant', 
-                                  ['generalizedByTask','generalizesTask','discretizedByTask','discretizesTask','containedInTask','containsTask','approximatedByTask','approximatesTask','linearizedByTask','linearizesTask','similarToTask'])
-                    # Add Quantities and Quantity Kinds to Questionnaire
-                    for prop in ['containsInput','containsOutput','containsObjective','containsParameter','containsConstant']:
-                        add_entity(instance, results, 
-                                   f'{BASE_URI}domain/quantity', 
-                                   f'{BASE_URI}domain/quantity/id', 
-                                   prop, 'QQK')
-                    # Add Formulations to Questionnaire
-                    for prop in ['containsAssumption','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalCondition']:
-                        add_entity(instance, results, 
-                                   f'{BASE_URI}domain/formulation', 
-                                   f'{BASE_URI}domain/formulation/id', 
-                                   prop, 'MF')
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['Task'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = instance.set_index,
+                                  relatant = f'{BASE_URI}{questions["Task IntraClassElement"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Task IntraClassRelation"]["uri"]}')
+                    
                     # Add Publications to Questionnaire
-                    add_entity(instance, results, 
-                               f'{BASE_URI}domain/publication', 
-                               f'{BASE_URI}domain/publication/id', 
-                               'publication', 'P')
+                    add_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
+                                 question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
+                                 datas = data.publications, 
+                                 source = source,
+                                 prefix = 'P')
     return                    
 
 @receiver(post_save, sender=Value)
@@ -459,6 +419,7 @@ def MMInformation(sender, **kwargs):
                 if results:
                     # Structure Results
                     data = MathematicalModel.from_query(results)
+                    
                     # Add the Mathematical Model Properties to the Questionnaire
                     for key, property in data.properties.items():
                         value_editor(project = instance.project, 
@@ -467,39 +428,34 @@ def MMInformation(sender, **kwargs):
                                      collection_index = key,
                                      set_index = 0, 
                                      set_prefix = instance.set_index)
-                    # Add Research Problem to Questionnaire
-                    for idx, problem in enumerate(data.models):
-                        value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Mathematical Model RPRelatant"]["uri"]}', 
-                                     text = f"{problem.label} ({problem.description}) [{source}]", 
-                                     external_id = problem.id, 
-                                     collection_index = idx, 
-                                     set_index = 0, 
-                                     set_prefix = instance.set_index)
-                    # Add Relations between Research Fields to Questionnaire
-                    props = ['generalizedByModel','generalizesModel','discretizedByModel','discretizesModel','containedInModel','containsModel','approximatedByModel','approximatesModel','linearizedByModel','linearizesModel','similarToModel']
-                    idx = 0
-                    for prop in props:
-                        for value in getattr(data, prop):
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Mathematical Model IntraClassRelation"]["uri"]}', 
-                                         option = Option.objects.get(uri=mathmoddb[prop]), 
-                                         set_index = idx, 
-                                         set_prefix = instance.set_index)
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Mathematical Model IntraClassElement"]["uri"]}', 
-                                         text = f"{value.label} ({value.description}) [{source}]", 
-                                         external_id = value.id, 
-                                         set_index = idx, 
-                                         set_prefix = instance.set_index)
-                            idx +=1
+                    
+                    # Add Relations between Mathematical Models and Research Problems to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['MM2RP'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Mathematical Model RPRelatant"]["uri"]}')
+                    
+                    # Add related Models to questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['Model'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = instance.set_index,
+                                  relatant = f'{BASE_URI}{questions["Mathematical Model IntraClassElement"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Mathematical Model IntraClassRelation"]["uri"]}')
+                    
                     # Add Formulation to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
                                  question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
-                                 datas = data.appliedByTask, 
+                                 datas = data.formulation, 
                                  source = source,
                                  prefix = 'MF')
+                    
                     # Add Task to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Task"]["uri"]}',
@@ -507,6 +463,7 @@ def MMInformation(sender, **kwargs):
                                  datas = data.appliedByTask, 
                                  source = source,
                                  prefix = 'T')
+                    
                     # Add Publications to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
@@ -561,11 +518,76 @@ def RP2RF(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def T2MM(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/task/model-relatant':
+    # Get Questions of Model Catalog
+    questions = get_questionsMO()
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task MMRelatant"]["uri"]}':
         # Load MathModDB Vocabulary
         mathmoddb = get_data('model/data/mapping.json')
         # Add Model Relation to questionnaire
-        value_editor(instance.project, f'{BASE_URI}domain/task/model-relation', mathmoddb['appliesModel'], None, None, instance.collection_index, 0, instance.set_prefix)
+        value_editor(project = instance.project, 
+                     uri = f'{BASE_URI}{questions["Task T2MM"]["uri"]}', 
+                     text = mathmoddb['appliesModel'], 
+                     collection_index = instance.collection_index, 
+                     set_index = 0, 
+                     set_prefix = instance.set_prefix)
+        
+@receiver(post_save, sender=Value)
+def T2QQK(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    # Get Questions of Model Catalog
+    questions = get_questionsMO()
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task QRelatant"]["uri"]}':
+        label, description, source =  extract_parts(instance.text)
+        if source != 'user':
+                ID = instance.external_id
+                # Get (set) ids of exisitng research problem in questionnaire
+                set_ids = get_id(instance.project, f'{BASE_URI}{questions["Quantity"]["uri"]}', ['set_index'])
+                value_ids = get_id(instance.project, f'{BASE_URI}{questions["Quantity ID"]["uri"]}', ['external_id'])
+                # Add Research Field entry to questionnaire
+                idx = max(set_ids, default = -1) + 1
+                if ID not in value_ids:
+                    # Set up Page
+                    value_editor(project = instance.project, 
+                                 uri = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
+                                 text = f"QQK{idx}", 
+                                 set_index = idx)
+                    # Add ID Values
+                    value_editor(project = instance.project, 
+                                 uri = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
+                                 text = f'{label} ({description}) [{source}]', 
+                                 external_id = ID, 
+                                 set_index = idx)
+                    idx += 1
+                    value_ids.append(ID)
+
+@receiver(post_save, sender=Value)
+def T2MF(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    # Get Questions of Model Catalog
+    questions = get_questionsMO()
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task MFRelatant"]["uri"]}':
+        label, description, source =  extract_parts(instance.text)
+        if source != 'user':
+                ID = instance.external_id
+                # Get (set) ids of exisitng research problem in questionnaire
+                set_ids = get_id(instance.project, f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', ['set_index'])
+                value_ids = get_id(instance.project, f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', ['external_id'])
+                # Add Research Field entry to questionnaire
+                idx = max(set_ids, default = -1) + 1
+                if ID not in value_ids:
+                    # Set up Page
+                    value_editor(project = instance.project, 
+                                 uri = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
+                                 text = f"MF{idx}", 
+                                 set_index = idx)
+                    # Add ID Values
+                    value_editor(project = instance.project, 
+                                 uri = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
+                                 text = f'{label} ({description}) [{source}]', 
+                                 external_id = ID, 
+                                 set_index = idx)
+                    idx += 1
+                    value_ids.append(ID)
 
 @receiver(post_save, sender=Value)
 def QQK2MF(sender, **kwargs):

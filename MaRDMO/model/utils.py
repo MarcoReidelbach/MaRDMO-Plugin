@@ -14,24 +14,6 @@ def add_basics(instance, url_name, url_description):
     value_editor(instance.project, url_description, description, None, None, None, 0, instance.set_index)
     return
 
-def add_entity(instance, results, url_set, url_id, prop, prefix):
-    set_ids = get_id(instance, url_set, ['set_index'])
-    value_ids = get_id(instance, url_id, ['external_id'])
-    # Add Research Field entry to questionnaire
-    idx = max(set_ids, default = -1) + 1
-    if results[0].get(prop, {}).get('value'):
-        IDs = results[0][prop]['value'].split(' / ')
-        Labels = results[0][f'{prop}Label']['value'].split(' / ')
-        Descriptions = results[0][f'{prop}Description']['value'].split(' / ')
-        for ID, Label, Description in zip(IDs, Labels, Descriptions):
-            if f"mathmoddb:{ID}" not in value_ids:
-                # Set up Page
-                value_editor(instance.project, url_set, f"{prefix}{idx}", None, None, None, idx)
-                # Add ID Values
-                value_editor(instance.project, url_id, f'{Label} ({Description}) [mathmoddb]', f"mathmoddb:{ID}", None, None, idx)
-                idx += 1
-                value_ids.append(f"mathmoddb:{ID}")
-
 def add_properties(instance, results, mathmoddb, url_properties):
     for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']):
         if results[0].get(prop, {}).get('value') == 'true':

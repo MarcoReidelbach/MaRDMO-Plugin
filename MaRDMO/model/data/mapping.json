@@ -34,7 +34,7 @@
     "nondimensionalizedByFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/nondimensionalizedByFormulation",
     "nondimensionalizesFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/nondimensionalizesFormulation",
     "linearizedByFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/linearizedByFormulation",
-    "linearizesFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/linearizesFormualtion",
+    "linearizesFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/linearizesFormulation",
     "similarToFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/similarToFormulation",    
     "containedAsAssumptionIn": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/containedAsAssumptionIn",
     "containedAsBoundaryConditionIn": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/containedAsBoundaryConditionIn",

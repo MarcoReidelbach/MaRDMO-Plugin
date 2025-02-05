@@ -370,7 +370,7 @@
     "Task": {
         "uri": "domain/task"
     },
-    "Task MathModID": {
+    "Task ID": {
         "key1": "task",
         "key2": "ID",
         "uri": "domain/task/id",
@@ -396,7 +396,7 @@
         "set_prefix": true,
         "collection_index": true
     },
-    "Task TaskClass": {
+    "Task Subclass": {
         "key1": "task",
         "key2": "TaskClass",
         "uri": "domain/task/category",

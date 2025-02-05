@@ -59,6 +59,34 @@ def add_entities(project, question_set, question_id, datas, source, prefix):
             value_ids.append(data.id)
     return
 
+def add_relations(project, data, props, mapping, source, set_prefix, relatant, relation = None, suffix = ''):
+
+    idx = 0
+    for prop in props:
+        print(f"{prop}{suffix}")
+        for value in getattr(data, f"{prop}{suffix}"):
+            print(value)
+            if relation:
+                collection_index = None
+                set_index = idx
+                value_editor(project = project, 
+                             uri = relation, 
+                             option = Option.objects.get(uri=mapping[prop]), 
+                             collection_index = collection_index,
+                             set_index = set_index, 
+                             set_prefix = set_prefix)
+            else:
+                collection_index = idx
+                set_index = 0
+            value_editor(project = project, 
+                         uri = relatant, 
+                         text = f"{value.label} ({value.description}) [{source}]", 
+                         external_id = value.id, 
+                         collection_index = collection_index,
+                         set_index = set_index, 
+                         set_prefix = set_prefix)
+            idx +=1
+
 def merge_dicts_with_unique_keys(answers, keys):
     
     merged_dict = {}

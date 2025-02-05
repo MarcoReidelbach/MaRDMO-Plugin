@@ -288,3 +288,77 @@ class MathematicalFormulation:
             similarToFormulation = [Relatant.from_query(formulation) for formulation in data.get('similarToFormulation', {}).get('value', '').split(" / ") if formulation] if 'similarToFormulation' in data else [],
             publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
         )
+    
+@dataclass
+class Task:
+    id: Optional[str]
+    label: Optional[str]
+    description: Optional[str]
+    subclass: Optional[str]
+    properties: Optional[Dict[int, str]] = field(default_factory=dict)
+    appliesModel: Optional[List[Relatant]] = field(default_factory=list)
+    containsFormulation: Optional[List[Relatant]] = field(default_factory=list)
+    containsAssumption: Optional[List[Relatant]] = field(default_factory=list)
+    containsBoundaryCondition: Optional[List[Relatant]] = field(default_factory=list)
+    containsFinalCondition: Optional[List[Relatant]] = field(default_factory=list)
+    containsInitialCondition: Optional[List[Relatant]] = field(default_factory=list)
+    containsConstraintCondition: Optional[List[Relatant]] = field(default_factory=list)
+    containsCouplingCondition: Optional[List[Relatant]] = field(default_factory=list)
+    containsInput: Optional[List[Relatant]] = field(default_factory=list)
+    containsOutput: Optional[List[Relatant]] = field(default_factory=list)
+    containsObjective: Optional[List[Relatant]] = field(default_factory=list)
+    containsParameter: Optional[List[Relatant]] = field(default_factory=list)
+    containsConstant: Optional[List[Relatant]] = field(default_factory=list)
+    generalizedByTask: Optional[List[Relatant]] = field(default_factory=list)
+    generalizesTask: Optional[List[Relatant]] = field(default_factory=list)
+    approximatedByTask: Optional[List[Relatant]] = field(default_factory=list)
+    approximatesTask: Optional[List[Relatant]] = field(default_factory=list)
+    containsTask: Optional[List[Relatant]] = field(default_factory=list)
+    containedInTask: Optional[List[Relatant]] = field(default_factory=list)
+    linearizedByTask: Optional[List[Relatant]] = field(default_factory=list)
+    linearizesTask: Optional[List[Relatant]] = field(default_factory=list)
+    discretizedByTask: Optional[List[Relatant]] = field(default_factory=list)
+    discretizesTask: Optional[List[Relatant]] = field(default_factory=list)
+    similarToTask: Optional[List[Relatant]] = field(default_factory=list)
+    publications: Optional[List[Relatant]] = field(default_factory=list)
+    
+
+    @classmethod
+    def from_query(cls, raw_data: dict) -> 'Task':
+
+        mathmoddb = get_data('model/data/mapping.json')
+
+        data = raw_data[0]
+
+        return cls(
+            id = None,
+            label = None,
+            description = None,
+            subclass = data.get('class', {}).get('value', ''),
+            properties = {idx: mathmoddb[prop] for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']) if data.get(prop, {}).get('value') == 'true'},
+            appliesModel = [Relatant.from_query(model) for model in data.get('appliesModel', {}).get('value', '').split(" / ") if model] if 'appliesModel' in data else [],
+            containsFormulation = [Relatant.from_query(formulation) for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation] if 'containsFormulation' in data else [],
+            containsAssumption = [Relatant.from_query(formulation) for formulation in data.get('containsAssumption', {}).get('value', '').split(" / ") if formulation] if 'containsAssumption' in data else [],
+            containsBoundaryCondition = [Relatant.from_query(formulation) for formulation in data.get('containsBoundaryCondition', {}).get('value', '').split(" / ") if formulation] if 'containsBoundaryCondition' in data else [],
+            containsConstraintCondition = [Relatant.from_query(formulation) for formulation in data.get('containsConstraintCondition', {}).get('value', '').split(" / ") if formulation] if 'containsConstraintCondition' in data else [],
+            containsCouplingCondition = [Relatant.from_query(formulation) for formulation in data.get('containsCouplingCondition', {}).get('value', '').split(" / ") if formulation] if 'containsCouplingCondition' in data else [],
+            containsInitialCondition = [Relatant.from_query(formulation) for formulation in data.get('containsInitialCondition', {}).get('value', '').split(" / ") if formulation] if 'containsInitialCondition' in data else [],
+            containsFinalCondition = [Relatant.from_query(formulation) for formulation in data.get('containsFinalCondition', {}).get('value', '').split(" / ") if formulation] if 'containsFinalCondition' in data else [],
+            containsInput = [Relatant.from_query(quantity) for quantity in data.get('containsInput', {}).get('value', '').split(" / ") if quantity] if 'containsInput' in data else [],
+            containsOutput = [Relatant.from_query(quantity) for quantity in data.get('containsOutput', {}).get('value', '').split(" / ") if quantity] if 'containsOutput' in data else [],
+            containsObjective = [Relatant.from_query(quantity) for quantity in data.get('containsObjective', {}).get('value', '').split(" / ") if quantity] if 'containsObjective' in data else [],
+            containsParameter = [Relatant.from_query(quantity) for quantity in data.get('containsParameter', {}).get('value', '').split(" / ") if quantity] if 'containsParameter' in data else [],
+            containsConstant = [Relatant.from_query(quantity) for quantity in data.get('containsConstant', {}).get('value', '').split(" / ") if quantity] if 'containsConstant' in data else [],
+            generalizedByTask = [Relatant.from_query(task) for task in data.get('generalizedByTask', {}).get('value', '').split(" / ") if task] if 'generalizedByTask' in data else [],
+            generalizesTask = [Relatant.from_query(task) for task in data.get('generalizesTask', {}).get('value', '').split(" / ") if task] if 'generalizesTask' in data else [],
+            approximatedByTask = [Relatant.from_query(task) for task in data.get('approximatedByTask', {}).get('value', '').split(" / ") if task] if 'approximatedByTask' in data else [],
+            approximatesTask = [Relatant.from_query(task) for task in data.get('approximatesTask', {}).get('value', '').split(" / ") if task] if 'approximatesTask' in data else [],
+            containsTask = [Relatant.from_query(task) for task in data.get('containsTask', {}).get('value', '').split(" / ") if task] if 'containsTask' in data else [],
+            containedInTask = [Relatant.from_query(task) for task in data.get('containedInTask', {}).get('value', '').split(" / ") if task] if 'containedInTask' in data else [],
+            linearizedByTask = [Relatant.from_query(task) for task in data.get('linearizedByTask', {}).get('value', '').split(" / ") if task] if 'linearizedByTask' in data else [],
+            linearizesTask = [Relatant.from_query(task) for task in data.get('linearizesTask', {}).get('value', '').split(" / ") if task] if 'linearizesTask' in data else [],
+            discretizedByTask = [Relatant.from_query(task) for task in data.get('discretizedByTask', {}).get('value', '').split(" / ") if task] if 'discretizedByTask' in data else [],
+            discretizesTask = [Relatant.from_query(task) for task in data.get('discretizesTask', {}).get('value', '').split(" / ") if task] if 'discretizesTask' in data else [],
+            similarToTask = [Relatant.from_query(task) for task in data.get('similarToTask', {}).get('value', '').split(" / ") if task] if 'similarToTask' in data else [],
+            publications = [Relatant.from_query(publication) for publication in data.get('publications', {}).get('value', '').split(" / ") if publication] if 'publications' in data else []            
+            )

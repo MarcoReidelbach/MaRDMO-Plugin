@@ -1797,89 +1797,39 @@ queryHandler = {
                               'taskInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
-                                               SELECT DISTINCT ?id
-                                                               ?isLinear ?isNotLinear
-                                                               (GROUP_CONCAT(DISTINCT(?mm); SEPARATOR=" / ") AS ?appliesModel)
-                                                               (GROUP_CONCAT(DISTINCT(?mml); SEPARATOR=" / ") AS ?appliesModelLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mmd); SEPARATOR=" / ") AS ?appliesModelDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?mf); SEPARATOR=" / ") AS ?containsFormulation)
-                                                               (GROUP_CONCAT(DISTINCT(?mfl); SEPARATOR=" / ") AS ?containsFormulationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?mfd); SEPARATOR=" / ") AS ?containsFormulationDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?a); SEPARATOR=" / ") AS ?containsAssumption)
-                                                               (GROUP_CONCAT(DISTINCT(?al); SEPARATOR=" / ") AS ?containsAssumptionLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?ad); SEPARATOR=" / ") AS ?containsAssumptionDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?bc); SEPARATOR=" / ") AS ?containsBoundaryCondition)
-                                                               (GROUP_CONCAT(DISTINCT(?bcl); SEPARATOR=" / ") AS ?containsBoundaryConditionLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?bcd); SEPARATOR=" / ") AS ?containsBoundaryConditionDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?cc); SEPARATOR=" / ") AS ?containsConstraintCondition)
-                                                               (GROUP_CONCAT(DISTINCT(?ccl); SEPARATOR=" / ") AS ?containsConstraintConditionLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?ccd); SEPARATOR=" / ") AS ?containsConstraintConditionDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?cpc); SEPARATOR=" / ") AS ?containsCouplingCondition)
-                                                               (GROUP_CONCAT(DISTINCT(?cpcl); SEPARATOR=" / ") AS ?containsCouplingConditionConditionLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?cpcd); SEPARATOR=" / ") AS ?containsCouplingConditionConditionDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?ic); SEPARATOR=" / ") AS ?containsInitialCondition)
-                                                               (GROUP_CONCAT(DISTINCT(?icl); SEPARATOR=" / ") AS ?containsInitialConditionLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?icd); SEPARATOR=" / ") AS ?containsInitialConditionDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?fc); SEPARATOR=" / ") AS ?containsFinalCondition)
-                                                               (GROUP_CONCAT(DISTINCT(?fcl); SEPARATOR=" / ") AS ?containsFinalConditionLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?fcd); SEPARATOR=" / ") AS ?containsFinalConditionDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?in); SEPARATOR=" / ") AS ?containsInput)
-                                                               (GROUP_CONCAT(DISTINCT(?inl); SEPARATOR=" / ") AS ?containsInputLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?ind); SEPARATOR=" / ") AS ?containsInputDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?ou); SEPARATOR=" / ") AS ?containsOutput)
-                                                               (GROUP_CONCAT(DISTINCT(?oul); SEPARATOR=" / ") AS ?containsOutputLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?oud); SEPARATOR=" / ") AS ?containsOutputDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?ob); SEPARATOR=" / ") AS ?containsObjective)
-                                                               (GROUP_CONCAT(DISTINCT(?obl); SEPARATOR=" / ") AS ?containsObjectiveLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?obd); SEPARATOR=" / ") AS ?containsObjectiveDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?pa); SEPARATOR=" / ") AS ?containsParameter)
-                                                               (GROUP_CONCAT(DISTINCT(?pal); SEPARATOR=" / ") AS ?containsParameterLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?pad); SEPARATOR=" / ") AS ?containsParameterDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?co); SEPARATOR=" / ") AS ?containsConstant)
-                                                               (GROUP_CONCAT(DISTINCT(?col); SEPARATOR=" / ") AS ?containsConstantLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?cod); SEPARATOR=" / ") AS ?containsConstantDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?gt); SEPARATOR=" / ") AS ?generalizesTask)
-                                                               (GROUP_CONCAT(DISTINCT(?gtl); SEPARATOR=" / ") AS ?generalizesTaskLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?gtd); SEPARATOR=" / ") AS ?generalizesTaskDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?gbt); SEPARATOR=" / ") AS ?generalizedByTask)
-                                                               (GROUP_CONCAT(DISTINCT(?gbtl); SEPARATOR=" / ") AS ?generalizedByTaskLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?gbtd); SEPARATOR=" / ") AS ?generalizedByTaskDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?at); SEPARATOR=" / ") AS ?approximatesTask)
-                                                               (GROUP_CONCAT(DISTINCT(?atl); SEPARATOR=" / ") AS ?approximatesTaskLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?atd); SEPARATOR=" / ") AS ?approximatesTaskDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?abt); SEPARATOR=" / ") AS ?approximatedByTask)
-                                                               (GROUP_CONCAT(DISTINCT(?abtl); SEPARATOR=" / ") AS ?approximatedByTaskLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?abtd); SEPARATOR=" / ") AS ?approximatedByTaskDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?ct); SEPARATOR=" / ") AS ?containsTask)
-                                                               (GROUP_CONCAT(DISTINCT(?ctl); SEPARATOR=" / ") AS ?containsTaskLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?ctd); SEPARATOR=" / ") AS ?containsTaskDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?cit); SEPARATOR=" / ") AS ?containedInTask)
-                                                               (GROUP_CONCAT(DISTINCT(?citl); SEPARATOR=" / ") AS ?containedInTaskLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?citd); SEPARATOR=" / ") AS ?containedInTaskDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?lt); SEPARATOR=" / ") AS ?linearizesTask)
-                                                               (GROUP_CONCAT(DISTINCT(?ltl); SEPARATOR=" / ") AS ?linearizesTaskLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?ltd); SEPARATOR=" / ") AS ?linearizesTaskDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?lbt); SEPARATOR=" / ") AS ?linearizedByTask)
-                                                               (GROUP_CONCAT(DISTINCT(?lbtl); SEPARATOR=" / ") AS ?linearizedByTaskLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?lbtd); SEPARATOR=" / ") AS ?linearizedByTaskDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?dt); SEPARATOR=" / ") AS ?discretizesTask)
-                                                               (GROUP_CONCAT(DISTINCT(?dtl); SEPARATOR=" / ") AS ?discretizesTaskLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?dtd); SEPARATOR=" / ") AS ?discretizesTaskDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?dbt); SEPARATOR=" / ") AS ?discretizedByTask)
-                                                               (GROUP_CONCAT(DISTINCT(?dbtl); SEPARATOR=" / ") AS ?discretizedByTaskLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?dbtd); SEPARATOR=" / ") AS ?discretizedByTaskDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?st); SEPARATOR=" / ") AS ?similarToTask)
-                                                               (GROUP_CONCAT(DISTINCT(?stl); SEPARATOR=" / ") AS ?similarToTaskLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?std); SEPARATOR=" / ") AS ?similarToTaskDescription)
-                                                               (GROUP_CONCAT(DISTINCT(?pub); SEPARATOR=" / ") AS ?publication)
-                                                               (GROUP_CONCAT(DISTINCT(?publ); SEPARATOR=" / ") AS ?publicationLabel)
-                                                               (GROUP_CONCAT(DISTINCT(?pubd); SEPARATOR=" / ") AS ?publicationDescription)
-                                               WHERE {{ 
-                                                       VALUES ?id {{{0}}} 
+                                               SELECT DISTINCT ?class ?isLinear ?isNotLinear
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mm, " | ", ?mml, " | ", ?mmd); separator=" / ") AS ?appliesModel)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?mf, " | ", ?mfl, " | ", ?mfd); separator=" / ") AS ?containsFormulation)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?a, " | ", ?al, " | ", ?ad); separator=" / ") AS ?containsAssumption)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?bc, " | ", ?bcl, " | ", ?bcd); separator=" / ") AS ?containsBoundaryCondition)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?cc, " | ", ?ccl, " | ", ?ccd); separator=" / ") AS ?containsConstraintCondition)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?cpc, " | ", ?cpcl, " | ", ?cpcd); separator=" / ") AS ?containsCouplingCondition)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?ic, " | ", ?icl, " | ", ?icd); separator=" / ") AS ?containsInitialCondition)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?fc, " | ", ?fcl, " | ", ?fcd); separator=" / ") AS ?containsFinalCondition)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?in, " | ", ?inl, " | ", ?ind); separator=" / ") AS ?containsInput)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?ou, " | ", ?oul, " | ", ?oud); separator=" / ") AS ?containsOutput)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?ob, " | ", ?obl, " | ", ?obd); separator=" / ") AS ?containsObjective)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?pa, " | ", ?pal, " | ", ?pad); separator=" / ") AS ?containsParameter)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?co, " | ", ?col, " | ", ?cod); separator=" / ") AS ?containsConstant)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?gt, " | ", ?gtl, " | ", ?gtd); separator=" / ") AS ?generalizesTask)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?gbt, " | ", ?gbtl, " | ", ?gbtd); separator=" / ") AS ?generalizedByTask)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?at, " | ", ?atl, " | ", ?atd); separator=" / ") AS ?approximatesTask)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?abt, " | ", ?abtl, " | ", ?abtd); separator=" / ") AS ?approximatedByTask)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?ct, " | ", ?ctl, " | ", ?ctd); separator=" / ") AS ?containsTask)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?cit, " | ", ?citl, " | ", ?citd); separator=" / ") AS ?containedInTask)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?lt, " | ", ?ltl, " | ", ?ltd); separator=" / ") AS ?linearizesTask)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?lbt, " | ", ?lbtl, " | ", ?lbtd); separator=" / ") AS ?linearizedByTask)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?dt, " | ", ?dtl, " | ", ?dtd); separator=" / ") AS ?discretizesTask)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?dbt, " | ", ?dbtl, " | ", ?dbtd); separator=" / ") AS ?discretizedByTask)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?st, " | ", ?stl, " | ", ?std); separator=" / ") AS ?similarToTask)
+                                                               (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+
+                                                 WHERE {{ 
+                                                       VALUES ?id {{ :{0} }} 
 
                                                         OPTIONAL {{
                                                                    ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
-                                                                   BIND(STRAFTER(STR(?pubraw), "#") AS ?pub)
+                                                                   BIND(CONCAT("mathmoddb:", STRAFTER(STR(?pubraw), "#")) AS ?pub)
                                                                    OPTIONAL {{ ?pubraw rdfs:label ?publraw
                                                                                FILTER (lang(?publraw) = 'en') }}
                                                                    BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
@@ -1888,26 +1838,18 @@ queryHandler = {
                                                                    BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
                                                                  }}
                                                        
-                                                       OPTIONAL {{
-                                                                  ?id rdfs:label ?labelraw .
-                                                                  FILTER (lang(?labelraw) = 'en')
-                                                                }}
-                                                                
-                                                                BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
-
-                                                       OPTIONAL {{
-                                                                  ?id rdfs:comment ?descriptionraw .
-                                                                  FILTER (lang(?descriptionraw) = 'en')
-                                                                }}
-                                                                
-                                                                BIND(COALESCE(?descriptionraw, "No Description Provided!") AS ?description)
-
                                                        OPTIONAL {{ ?id :isLinear ?isLinear.
                                                                 BIND(IF(?isLinear = false, true, false) AS ?isNotLinear)}} 
 
                                                        OPTIONAL {{
+                                                                  ?id a ?classraw
+                                                                  FILTER (?classraw IN (:ComputationalTask))
+                                                                  BIND(STRAFTER(STR(?classraw), "#") AS ?class).
+                                                                }}
+
+                                                       OPTIONAL {{
                                                                   ?id :appliesModel ?mmraw.
-                                                                  BIND(STRAFTER(STR(?mmraw), "#") AS ?mm)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mmraw), "#")) AS ?mm)
 
                                                                   OPTIONAL {{
                                                                              ?mmraw rdfs:label ?mmlraw
@@ -1925,7 +1867,7 @@ queryHandler = {
                                                                 }}   
                                                        OPTIONAL {{
                                                                   ?id :containsFormulation ?mfraw.
-                                                                  BIND(STRAFTER(STR(?mfraw), "#") AS ?mf)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?mfraw), "#")) AS ?mf)
 
                                                                   OPTIONAL {{
                                                                              ?mfraw rdfs:label ?mflraw
@@ -1944,7 +1886,7 @@ queryHandler = {
                                                         
                                                         OPTIONAL {{
                                                                   ?id :containsBoundaryCondition ?bcraw.
-                                                                  BIND(STRAFTER(STR(?bcraw), "#") AS ?bc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?bcraw), "#")) AS ?bc)
 
                                                                   OPTIONAL {{
                                                                              ?bcraw rdfs:label ?bclraw
@@ -1963,7 +1905,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsConstraintCondition ?ccraw.
-                                                                  BIND(STRAFTER(STR(?ccraw), "#") AS ?cc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?ccraw), "#")) AS ?cc)
                                                                   
                                                                   OPTIONAL {{
                                                                              ?ccraw rdfs:label ?cclraw
@@ -1982,7 +1924,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsCouplingCondition ?cpcraw.
-                                                                  BIND(STRAFTER(STR(?cpcraw), "#") AS ?cpc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?cpcraw), "#")) AS ?cpc)
 
                                                                   OPTIONAL {{
                                                                              ?cpcraw rdfs:label ?cpclraw
@@ -2001,7 +1943,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsAssumption ?araw.
-                                                                  BIND(STRAFTER(STR(?araw), "#") AS ?a)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?araw), "#")) AS ?a)
 
                                                                   OPTIONAL {{
                                                                              ?araw rdfs:label ?alraw
@@ -2020,7 +1962,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsInitialCondition ?icraw.
-                                                                  BIND(STRAFTER(STR(?icraw), "#") AS ?ic)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?icraw), "#")) AS ?ic)
                                                                   
                                                                   OPTIONAL {{
                                                                              ?icraw rdfs:label ?iclraw
@@ -2039,7 +1981,7 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                   ?id :containsFinalCondition ?fcraw.
-                                                                  BIND(STRAFTER(STR(?fcraw), "#") AS ?fc)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?fcraw), "#")) AS ?fc)
 
                                                                   OPTIONAL {{
                                                                              ?fcraw rdfs:label ?fclraw
@@ -2057,7 +1999,7 @@ queryHandler = {
                                                                 }}
                                                         OPTIONAL {{
                                                                   ?id :containsInput ?inraw.
-                                                                  BIND(STRAFTER(STR(?inraw), "#") AS ?in)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?inraw), "#")) AS ?in)
 
                                                                   OPTIONAL {{
                                                                              ?inraw rdfs:label ?inlraw
@@ -2075,7 +2017,7 @@ queryHandler = {
                                                                 }}
                                                         OPTIONAL {{
                                                                   ?id :containsOutput ?ouraw.
-                                                                  BIND(STRAFTER(STR(?ouraw), "#") AS ?ou)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?ouraw), "#")) AS ?ou)
 
                                                                   OPTIONAL {{
                                                                              ?ouraw rdfs:label ?oulraw
@@ -2093,7 +2035,7 @@ queryHandler = {
                                                                 }}
                                                         OPTIONAL {{
                                                                   ?id :containsObjective ?obraw.
-                                                                  BIND(STRAFTER(STR(?obraw), "#") AS ?ob)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?obraw), "#")) AS ?ob)
 
                                                                   OPTIONAL {{
                                                                              ?obraw rdfs:label ?oblraw
@@ -2111,7 +2053,7 @@ queryHandler = {
                                                                 }}
                                                         OPTIONAL {{
                                                                   ?id :containsParameter ?paraw.
-                                                                  BIND(STRAFTER(STR(?paraw), "#") AS ?pa)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?paraw), "#")) AS ?pa)
 
                                                                   OPTIONAL {{
                                                                              ?paraw rdfs:label ?palraw
@@ -2129,7 +2071,7 @@ queryHandler = {
                                                                 }}
                                                         OPTIONAL {{
                                                                   ?id :containsConstant ?coraw.
-                                                                  BIND(STRAFTER(STR(?coraw), "#") AS ?co)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?coraw), "#")) AS ?co)
 
                                                                   OPTIONAL {{
                                                                              ?coraw rdfs:label ?colraw
@@ -2147,7 +2089,7 @@ queryHandler = {
                                                                 }}
                                                         OPTIONAL {{
                                                                   ?id :generalizedByTask ?gbtraw.
-                                                                  BIND(STRAFTER(STR(?gbtraw), "#") AS ?gbt)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gbtraw), "#")) AS ?gbt)
 
                                                                   OPTIONAL {{
                                                                              ?gbtraw rdfs:label ?gbtlraw
@@ -2166,7 +2108,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :generalizesTask ?gtraw.
-                                                                  BIND(STRAFTER(STR(?gtraw), "#") AS ?gt)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gtraw), "#")) AS ?gt)
 
                                                                   OPTIONAL {{
                                                                              ?gtraw rdfs:label ?gtlraw
@@ -2185,7 +2127,7 @@ queryHandler = {
 
                                                       OPTIONAL {{
                                                                   ?id :discretizedByTask ?dbtraw.
-                                                                  BIND(STRAFTER(STR(?dbtraw), "#") AS ?dbt)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?dbtraw), "#")) AS ?dbt)
 
                                                                   OPTIONAL {{
                                                                              ?dbtraw rdfs:label ?dbtlraw
@@ -2204,7 +2146,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :discretizesModel ?dtraw.
-                                                                  BIND(STRAFTER(STR(?dtraw), "#") AS ?dt)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?dtraw), "#")) AS ?dt)
 
                                                                   OPTIONAL {{
                                                                              ?dtraw rdfs:label ?dtlraw
@@ -2223,7 +2165,7 @@ queryHandler = {
 
                                                       OPTIONAL {{
                                                                   ?id :containedInTask ?citraw.
-                                                                  BIND(STRAFTER(STR(?citraw), "#") AS ?cit)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?citraw), "#")) AS ?cit)
 
                                                                   OPTIONAL {{
                                                                              ?citraw rdfs:label ?citlraw
@@ -2242,7 +2184,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :containsTask ?ctraw.
-                                                                  BIND(STRAFTER(STR(?ctraw), "#") AS ?ct)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?ctraw), "#")) AS ?ct)
 
                                                                   OPTIONAL {{
                                                                              ?ctraw rdfs:label ?ctlraw
@@ -2261,7 +2203,7 @@ queryHandler = {
 
                                                       OPTIONAL {{
                                                                   ?id :approximatedByTask ?abtraw.
-                                                                  BIND(STRAFTER(STR(?abtraw), "#") AS ?abt)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?abtraw), "#")) AS ?abt)
 
                                                                   OPTIONAL {{
                                                                              ?abtraw rdfs:label ?abtlraw
@@ -2280,7 +2222,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :approximatesTask ?atraw.
-                                                                  BIND(STRAFTER(STR(?atraw), "#") AS ?at)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?atraw), "#")) AS ?at)
 
                                                                   OPTIONAL {{
                                                                              ?atraw rdfs:label ?atlraw
@@ -2299,7 +2241,7 @@ queryHandler = {
 
                                                       OPTIONAL {{
                                                                   ?id :linearizedByTask ?lbtraw.
-                                                                  BIND(STRAFTER(STR(?lbtraw), "#") AS ?lbt)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?lbtraw), "#")) AS ?lbt)
 
                                                                   OPTIONAL {{
                                                                              ?lbtraw rdfs:label ?lbtlraw
@@ -2318,7 +2260,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :linearizesTask ?ltraw.
-                                                                  BIND(STRAFTER(STR(?ltraw), "#") AS ?lt)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?ltraw), "#")) AS ?lt)
 
                                                                   OPTIONAL {{
                                                                              ?ltraw rdfs:label ?ltlraw
@@ -2337,7 +2279,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :discretizedByTask ?dbtraw.
-                                                                  BIND(STRAFTER(STR(?dbtraw), "#") AS ?dbt)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?dbtraw), "#")) AS ?dbt)
 
                                                                   OPTIONAL {{
                                                                              ?dbtraw rdfs:label ?dbtlraw
@@ -2356,7 +2298,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :discretizesTask ?dtraw.
-                                                                  BIND(STRAFTER(STR(?dtraw), "#") AS ?dt)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?dtraw), "#")) AS ?dt)
 
                                                                   OPTIONAL {{
                                                                              ?dtraw rdfs:label ?dtlraw
@@ -2375,7 +2317,7 @@ queryHandler = {
 
                                                        OPTIONAL {{
                                                                   ?id :similarToTask ?straw.
-                                                                  BIND(STRAFTER(STR(?straw), "#") AS ?st)
+                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?straw), "#")) AS ?st)
 
                                                                   OPTIONAL {{
                                                                              ?straw rdfs:label ?stlraw
@@ -2392,6 +2334,6 @@ queryHandler = {
                                                                   BIND(COALESCE(?stdraw, "No Description Provided!") AS ?std)
                                                                 }}
                                                      }}
-                                                     GROUP BY ?id ?isLinear ?isNotLinear'''
+                                                     GROUP BY ?class ?isLinear ?isNotLinear'''
                                       
                                                       }
