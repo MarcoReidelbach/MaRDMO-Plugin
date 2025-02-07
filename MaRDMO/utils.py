@@ -2,6 +2,9 @@ import re
 import requests
 import os
 import json
+import logging
+
+from django.apps import apps
 
 from rdmo.projects.models import Value
 from rdmo.domain.models import Attribute
@@ -15,7 +18,7 @@ from .id import *
 from .model.sparql import queryProviderMM
 from .algorithm.sparql import queryProviderAL
 
-from django.apps import apps
+logger = logging.getLogger(__name__)  # Get Django's logger for the current module
 
 def get_questionsAL():
     """Retrieve the questions dictionary from MaRDMOConfig."""
@@ -43,6 +46,12 @@ def get_id(project, uri, keys):
             ids.append(id)
     return ids 
 
+def add_basics(instance, url_name, url_description):
+    label, description, _ = extract_parts(instance.text)
+    value_editor(instance.project, url_name, label, None, None, None, 0, instance.set_index)
+    value_editor(instance.project, url_description, description, None, None, None, 0, instance.set_index)
+    return
+
 def add_entities(project, question_set, question_id, datas, source, prefix):
     # Get Set Ids and IDs of Publications
     set_ids = get_id(project, question_set, ['set_index'])
@@ -63,9 +72,7 @@ def add_relations(project, data, props, mapping, source, set_prefix, relatant, r
 
     idx = 0
     for prop in props:
-        print(f"{prop}{suffix}")
         for value in getattr(data, f"{prop}{suffix}"):
-            print(value)
             if relation:
                 collection_index = None
                 set_index = idx
@@ -86,6 +93,28 @@ def add_relations(project, data, props, mapping, source, set_prefix, relatant, r
                          set_index = set_index, 
                          set_prefix = set_prefix)
             idx +=1
+    return
+
+def add_properties(project, data, uri, set_prefix):
+
+    for key, value in data.properties.items():
+        value_editor(project = project, 
+                     uri  = uri, 
+                     option = Option.objects.get(uri=value[0]), 
+                     collection_index = key,
+                     set_index = 0, 
+                     set_prefix = set_prefix)
+        
+def add_references(project, data, uri, set_prefix):
+
+    for key, value in data.reference.items():
+        value_editor(project = project, 
+                     uri  = uri, 
+                     text = value[1],
+                     option = Option.objects.get(uri=value[0]), 
+                     collection_index = key,
+                     set_index = 0, 
+                     set_prefix = set_prefix)
 
 def merge_dicts_with_unique_keys(answers, keys):
     
@@ -186,22 +215,34 @@ def query_api(api_url, search_term):
 
     return result
 
-def query_sparql(query,endpoint=mathmoddb_endpoint):
+def query_sparql(query, endpoint=mathmoddb_endpoint):
     '''SPARQL request returning all Items with matching properties.'''
-    if endpoint:
-        response = requests.post(endpoint,
-                                 data=query,
-                                 headers={"Content-Type": "application/sparql-query","Accept": "application/sparql-results+json"}
-                                )
-        # Check if request was successfull
+    if not endpoint:
+        logger.warning("SPARQL query attempted without a valid endpoint.")
+        return []
+    
+    try:
+        response = requests.post(
+            endpoint,
+            data=query,
+            headers={
+                "Content-Type": "application/sparql-query",
+                "Accept": "application/sparql-results+json"
+            }
+        )
+        # Check if request was successful
         if response.status_code == 200:
-            req = response.json().get('results',{}).get('bindings',[])
+            return response.json().get('results', {}).get('bindings', [])
         else:
-            req = []
-    else:
-        req = []
-        
-    return req
+            logger.error(f"SPARQL request failed with status {response.status_code}: {response.text}")
+            return []
+
+    except requests.exceptions.ConnectionError:
+        logger.error(f"SPARQL query failed: Unable to connect to the {endpoint}.")
+        return []
+    except requests.exceptions.RequestException as e:
+        logger.exception(f"SPARQL request failed: {e}")
+        return []
 
 def query_sparql_pool(input):
     '''Pooled SPARQL request returning all items with matching properties from different endpoints'''

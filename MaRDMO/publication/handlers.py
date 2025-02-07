@@ -30,6 +30,7 @@ def PInformation(sender, **kwargs):
                 #...query Math MathModDB,...
                 query = queryPublication['PublicationMathModDB'].format(id)
                 results = query_sparql(query,mathmoddb_endpoint)
+                print(results)
                 if results:
                     #...structure the data,... 
                     data = Publication.from_query(results)
@@ -42,12 +43,13 @@ def PInformation(sender, **kwargs):
                                  uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
                                  text = data.description, 
                                  set_index = instance.set_index)
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
-                                 text = data.doi, 
-                                 option = Option.objects.get(uri=options['DOI']), 
-                                 collection_index = 0, 
-                                 set_index = instance.set_index)
+                    for key, reference in data.reference.items():
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
+                                     text = reference[1], 
+                                     option = Option.objects.get(uri=reference[0]), 
+                                     collection_index = key, 
+                                     set_index = instance.set_index)
             # If Publication from MathAlgoDB...
             elif source == 'mathalgodb':
                 #...query the MathAlgoDB,...
@@ -65,12 +67,13 @@ def PInformation(sender, **kwargs):
                                  uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
                                  text = data.description, 
                                  set_index = instance.set_index)
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
-                                 text = data.doi, 
-                                 option = Option.objects.get(uri=options['DOI']), 
-                                 collection_index = 0, 
-                                 set_index = instance.set_index)
+                    for key, reference in data.reference.items():
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
+                                     text = reference[1], 
+                                     option = Option.objects.get(uri=reference[0]), 
+                                     collection_index = key, 
+                                     set_index = instance.set_index)
             # If Publication from MaRDI Portal...
             elif source == 'mardi':
                 #...query the MaRDI Portal,...
@@ -94,12 +97,13 @@ def PInformation(sender, **kwargs):
                                  uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
                                  text = data.description, 
                                  set_index = instance.set_index)
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
-                                 text = data.doi, 
-                                 option = Option.objects.get(uri=options['DOI']), 
-                                 collection_index = 0, 
-                                 set_index = instance.set_index)
+                    for key, reference in data.reference.items():
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
+                                     text = reference[1], 
+                                     option = Option.objects.get(uri=reference[0]), 
+                                     collection_index = key, 
+                                     set_index = instance.set_index)
             # If Publication from Wikidata...   
             elif source == 'wikidata':
                 #...query Wikidata,...
@@ -123,12 +127,13 @@ def PInformation(sender, **kwargs):
                                  uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
                                  text = data.description, 
                                  set_index = instance.set_index)
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
-                                 text = data.doi, 
-                                 option = Option.objects.get(uri=options['DOI']), 
-                                 collection_index = 0, 
-                                 set_index = instance.set_index)
+                    for key, reference in data.reference.items():
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
+                                     text = reference[1], 
+                                     option = Option.objects.get(uri=reference[0]), 
+                                     collection_index = key, 
+                                     set_index = instance.set_index)
             # For Models add Relations          
             if str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
                 if source == 'mathmoddb':

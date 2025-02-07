@@ -139,7 +139,7 @@
 },
 "Software Reference": {
     "key1": "software",
-    "key2": "Reference",
+    "key2": "reference",
     "uri": "domain/software/reference",
     "collection_index": true,
     "set_prefix": true
@@ -183,7 +183,7 @@
 },
 "Benchmark Reference": {
     "key1": "benchmark",
-    "key2": "Reference",
+    "key2": "reference",
     "uri": "domain/benchmark/reference",
     "collection_index": true,
     "set_prefix": true

@@ -1,46 +1,10 @@
 import re
 
-from rdmo.options.models import Option
 from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI
-from ..utils import get_id, extract_parts, get_data, value_editor
+from ..utils import extract_parts, get_data
 
-from .sparql import queryHandler
-
-def add_basics(instance, url_name, url_description):
-    label, description, _ = extract_parts(instance.text)
-    value_editor(instance.project, url_name, label, None, None, None, 0, instance.set_index)
-    value_editor(instance.project, url_description, description, None, None, None, 0, instance.set_index)
-    return
-
-def add_properties(instance, results, mathmoddb, url_properties):
-    for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']):
-        if results[0].get(prop, {}).get('value') == 'true':
-            value_editor(instance.project, url_properties, None, None, Option.objects.get(uri=mathmoddb[prop]), idx, 0, instance.set_index)
-    return
-
-def add_relations(instance, results, mathmoddb, url_relation, url_relatant, props, relation = True, appendix = '', set_prefix = None, collection_index = False):
-    if set_prefix == None:
-        set_prefix = instance.set_index
-    idx = 0
-    for prop in props:
-        if results[0].get(f'{prop}{appendix}', {}).get('value'):
-            IDs = results[0][f'{prop}{appendix}']['value'].split(' / ')
-            Labels = results[0][f'{prop}{appendix}Label']['value'].split(' / ')
-            Descriptions = results[0][f'{prop}{appendix}Description']['value'].split(' / ')
-            for ID, Label, Description in zip(IDs, Labels, Descriptions):
-                if relation:
-                    if collection_index:
-                        value_editor(instance.project, url_relation, None, None, Option.objects.get(uri=mathmoddb[prop]), idx, 0, set_prefix)
-                    else:
-                        value_editor(instance.project, url_relation, None, None, Option.objects.get(uri=mathmoddb[prop]), None, idx, set_prefix)
-                if collection_index:
-                    value_editor(instance.project, url_relatant, f"{Label} ({Description}) [mathmoddb]", f'mathmoddb:{ID}', None, idx, 0, set_prefix)
-                else:
-                    value_editor(instance.project, url_relatant, f"{Label} ({Description}) [mathmoddb]", f'mathmoddb:{ID}', None, None, idx, set_prefix)
-                idx += 1
-    return
 
 def get_answer_model(project, val, uri, key1 = None, key2 = None, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
     '''Function to get user answers into dictionary.'''

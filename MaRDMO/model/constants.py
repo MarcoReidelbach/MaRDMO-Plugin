@@ -1,5 +1,6 @@
 # Dictionary with list of property names
 PROPS = {
+    'T2MM': ['appliesModel'],
     'T2MF': ['containsAssumption','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalCondition'],
     'T2Q': ['containsInput','containsOutput','containsObjective','containsParameter','containsConstant'],
     'Q2MF': ['defines'],

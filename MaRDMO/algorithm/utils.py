@@ -3,9 +3,7 @@ import re
 from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI
-from ..utils import extract_parts, get_data, value_editor
-
-from ..model.utils import get_id
+from ..utils import extract_parts, get_data
 
 
 def get_answer_algorithm(project, val, uri, key1 = None, key2 = None, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
@@ -118,6 +116,9 @@ def dict_to_triples_mathalgodb(data):
                 if reference[0] == options['MORWIKI']:
                     morwiki_value = reference[1]
                     triples.append((subject, "dc:hasIdentifier", f'"morwiki:{morwiki_value}"'))
+                if reference[0] == options['URL']:
+                    url_value = reference[1]
+                    triples.append((subject, "dc:hasIdentifier", f'"{url_value}"'))
         
         # Assign Individual Properties
         for relation, relatant in zip(relations,relatants):

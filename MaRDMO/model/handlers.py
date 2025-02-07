@@ -4,12 +4,11 @@ from rdmo.projects.models import Value
 from rdmo.options.models import Option
 
 from .constants import PROPS, RELATANT_URIS, RELATION_URIS, INDEX_COUNTERS
-from .utils import add_basics
 from .sparql import queryHandler
-from .models import ResearchField, ResearchProblem, MathematicalModel, QuantityOrQuantityKind, MathematicalFormulation, Task
-from ..utils import add_entities, add_relations, extract_parts, get_data, get_id, get_questionsMO, query_sparql, splitVariableText, value_editor
+from .models import ResearchField, ResearchProblem, MathematicalModel, QuantityOrQuantityKind, MathematicalFormulation, Task, Relatant
+
+from ..utils import add_basics, add_entities, add_properties, add_relations, add_references, extract_parts, get_data, get_questionsMO, query_sparql, splitVariableText, value_editor
 from ..config import BASE_URI
-from ..id import *
 
 
 @receiver(post_save, sender=Value)
@@ -113,11 +112,9 @@ def QQKInformation(sender, **kwargs):
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 results = query_sparql(queryHandler['quantityOrQuantityKindInformation'].format(Id))
                 mathmoddb = get_data('model/data/mapping.json')
-                options = get_data('data/options.json')
                 if results:
                     # Structure Results
                     data = QuantityOrQuantityKind.from_query(results)
-                    
                     # Add Type of Quantity
                     if data.qclass:
                         value_editor(project = instance.project, 
@@ -128,31 +125,21 @@ def QQKInformation(sender, **kwargs):
                     
                     # Add the Quantity or QuantityKind Properties to the Questionnaire
                     if data.qclass == 'Quantity':
-                        for key, property in data.properties.items():
-                            value_editor(project = instance.project, 
-                                         uri  = f'{BASE_URI}{questions["Quantity QProperties"]["uri"]}', 
-                                         option = Option.objects.get(uri=property), 
-                                         collection_index = key,
-                                         set_index = 0, 
-                                         set_prefix = instance.set_index)
+                        add_properties(project = instance.project,
+                                       data = data,
+                                       uri = f'{BASE_URI}{questions["Quantity QProperties"]["uri"]}',
+                                       set_prefix = instance.set_index)
                     elif data.qclass == 'QuantityKind':
-                        for key, property in data.properties.items():
-                            value_editor(project = instance.project, 
-                                         uri  = f'{BASE_URI}{questions["Quantity QKProperties"]["uri"]}', 
-                                         option = Option.objects.get(uri=property), 
-                                         collection_index = key,
-                                         set_index = 0, 
-                                         set_prefix = instance.set_index)
+                        add_properties(project = instance.project,
+                                       data = data,
+                                       uri = f'{BASE_URI}{questions["Quantity QKProperties"]["uri"]}',
+                                       set_prefix = instance.set_index)
                     
-                    # Add ofther References (QUDT ID)
-                    if data.qudtID:
-                        value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Quantity Reference"]["uri"]}', 
-                                     text = data.qudtID, 
-                                     option = Option.objects.get(uri=options['QUDT']), 
-                                     collection_index = 0, 
-                                     set_index = 0, 
-                                     set_prefix = instance.set_index)
+                    # Add References to the Questionnaire
+                    add_references(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Quantity Reference"]["uri"]}',
+                                   set_prefix = instance.set_index)
                     
                     # Add Relations between Quantities and Quantity Kinds to Questionnaire
                     for prop in PROPS['Quantity']:
@@ -218,14 +205,11 @@ def MFInformation(sender, **kwargs):
                     # Structure Results
                     data = MathematicalFormulation.from_query(results)
                     
-                    # Add the Mathematical Formulation Properties to the Questionnaire
-                    for key, property in data.properties.items():
-                        value_editor(project = instance.project, 
-                                     uri  = f'{BASE_URI}{questions["Mathematical Formulation Properties"]["uri"]}', 
-                                     option = Option.objects.get(uri=property), 
-                                     collection_index = key,
-                                     set_index = 0, 
-                                     set_prefix = instance.set_index)
+                    # Add Properties to the Questionnaire
+                    add_properties(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Mathematical Formulation Properties"]["uri"]}',
+                                   set_prefix = instance.set_index)
                     
                     # Add the defined Quantity
                     if data.defines:
@@ -336,14 +320,13 @@ def TInformation(sender, **kwargs):
                 if results:
                     #Structure Results
                     data = Task.from_query(results)
-                    # Add the Task Properties to the Questionnaire
-                    for key, property in data.properties.items():
-                        value_editor(project = instance.project, 
-                                     uri  = f'{BASE_URI}{questions["Task Properties"]["uri"]}', 
-                                     option = Option.objects.get(uri=property), 
-                                     collection_index = key,
-                                     set_index = 0, 
-                                     set_prefix = instance.set_index)
+                    
+                    # Add roperties to the Questionnaire
+                    add_properties(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Task Properties"]["uri"]}',
+                                   set_prefix = instance.set_index)
+                    
                     # Add the Category to the Questionnaire
                     if data.subclass:
                         value_editor(project = instance.project, 
@@ -351,15 +334,16 @@ def TInformation(sender, **kwargs):
                                      option = Option.objects.get(uri=mathmoddb[data.subclass]), 
                                      set_index =  0, 
                                      set_prefix = instance.set_index)
+                    
                     # Add applied Models to Questionnaire
-                    for idx, model in enumerate(data.appliesModel):
-                        value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Task MMRelatant"]["uri"]}', 
-                                     text = f"{model.label} ({model.description}) [{source}]", 
-                                     external_id = model.id, 
-                                     collection_index = idx, 
-                                     set_index = 0, 
-                                     set_prefix = instance.set_index)
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['T2MM'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = instance.set_index,
+                                  relatant = f'{BASE_URI}{questions["Task MMRelatant"]["uri"]}')
+                    
                     # Add Formulations contained in Task
                     add_relations(project = instance.project, 
                                   data = data, 
@@ -421,13 +405,10 @@ def MMInformation(sender, **kwargs):
                     data = MathematicalModel.from_query(results)
                     
                     # Add the Mathematical Model Properties to the Questionnaire
-                    for key, property in data.properties.items():
-                        value_editor(project = instance.project, 
-                                     uri  = f'{BASE_URI}{questions["Mathematical Model Properties"]["uri"]}', 
-                                     option = Option.objects.get(uri=property), 
-                                     collection_index = key,
-                                     set_index = 0, 
-                                     set_prefix = instance.set_index)
+                    add_properties(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Mathematical Model Properties"]["uri"]}',
+                                   set_prefix = instance.set_index)
                     
                     # Add Relations between Mathematical Models and Research Problems to Questionnaire
                     add_relations(project = instance.project, 
@@ -493,26 +474,12 @@ def RP2RF(sender, **kwargs):
                          set_index = 0, 
                          set_prefix = instance.set_prefix)
             if source != 'user':
-                ID = instance.external_id
-                # Get (set) ids of exisitng research field in questionnaire
-                set_ids = get_id(instance.project, f'{BASE_URI}{questions["Research Field"]["uri"]}', ['set_index'])
-                value_ids = get_id(instance.project, f'{BASE_URI}{questions["Research Field ID"]["uri"]}', ['external_id'])
-                # Add Research Field entry to questionnaire
-                idx = max(set_ids, default = -1) + 1
-                if ID not in value_ids:
-                    # Set up Page
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Research Field"]["uri"]}', 
-                                 text = f"RF{idx}", 
-                                 set_index = idx)
-                    # Add ID Values
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Research Field ID"]["uri"]}', 
-                                 text = f'{label} ({description}) [{source}]', 
-                                 external_id = ID, 
-                                 set_index = idx)
-                    idx += 1
-                    value_ids.append(ID)
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Research Field"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Research Field ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "RF")
     return
 
 @receiver(post_save, sender=Value)
@@ -539,26 +506,13 @@ def T2QQK(sender, **kwargs):
     if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task QRelatant"]["uri"]}':
         label, description, source =  extract_parts(instance.text)
         if source != 'user':
-                ID = instance.external_id
-                # Get (set) ids of exisitng research problem in questionnaire
-                set_ids = get_id(instance.project, f'{BASE_URI}{questions["Quantity"]["uri"]}', ['set_index'])
-                value_ids = get_id(instance.project, f'{BASE_URI}{questions["Quantity ID"]["uri"]}', ['external_id'])
-                # Add Research Field entry to questionnaire
-                idx = max(set_ids, default = -1) + 1
-                if ID not in value_ids:
-                    # Set up Page
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
-                                 text = f"QQK{idx}", 
-                                 set_index = idx)
-                    # Add ID Values
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
-                                 text = f'{label} ({description}) [{source}]', 
-                                 external_id = ID, 
-                                 set_index = idx)
-                    idx += 1
-                    value_ids.append(ID)
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "QQK")
+    return
 
 @receiver(post_save, sender=Value)
 def T2MF(sender, **kwargs):
@@ -568,26 +522,13 @@ def T2MF(sender, **kwargs):
     if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task MFRelatant"]["uri"]}':
         label, description, source =  extract_parts(instance.text)
         if source != 'user':
-                ID = instance.external_id
-                # Get (set) ids of exisitng research problem in questionnaire
-                set_ids = get_id(instance.project, f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', ['set_index'])
-                value_ids = get_id(instance.project, f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', ['external_id'])
-                # Add Research Field entry to questionnaire
-                idx = max(set_ids, default = -1) + 1
-                if ID not in value_ids:
-                    # Set up Page
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                                 text = f"MF{idx}", 
-                                 set_index = idx)
-                    # Add ID Values
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                                 text = f'{label} ({description}) [{source}]', 
-                                 external_id = ID, 
-                                 set_index = idx)
-                    idx += 1
-                    value_ids.append(ID)
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "MF")
+    return
 
 @receiver(post_save, sender=Value)
 def QQK2MF(sender, **kwargs):
@@ -597,27 +538,13 @@ def QQK2MF(sender, **kwargs):
     if instance and instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Formulation Element Quantity"]["uri"]}':
         label, description, source =  extract_parts(instance.text)
         if source != 'user':
-                ID = instance.external_id
-                # Get (set) ids of exisitng research problem in questionnaire
-                set_ids = get_id(instance.project, f'{BASE_URI}{questions["Quantity"]["uri"]}', ['set_index'])
-                value_ids = get_id(instance.project, f'{BASE_URI}{questions["Quantity ID"]["uri"]}', ['external_id'])
-                # Add Research Field entry to questionnaire
-                idx = max(set_ids, default = -1) + 1
-                if ID not in value_ids:
-                    # Set up Page
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
-                                 text = f"QQK{idx}", 
-                                 set_index = idx)
-                    # Add ID Values
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
-                                 text = f'{label} ({description}) [{source}]', 
-                                 external_id = ID, 
-                                 set_index = idx)
-                    idx += 1
-                    value_ids.append(ID)
-
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "QQK")
+    return
 
 @receiver(post_save, sender=Value)
 def RP2MM(sender, **kwargs):
@@ -638,23 +565,10 @@ def RP2MM(sender, **kwargs):
                          set_index = 0, 
                          set_prefix = instance.set_prefix)
             if source != 'user':
-                ID = instance.external_id
-                # Get (set) ids of exisitng research problem in questionnaire
-                set_ids = get_id(instance.project, f'{BASE_URI}{questions["Research Problem"]["uri"]}', ['set_index'])
-                value_ids = get_id(instance.project, f'{BASE_URI}{questions["Research Problem ID"]["uri"]}', ['external_id'])
-                # Add Research Field entry to questionnaire
-                idx = max(set_ids, default = -1) + 1
-                if ID not in value_ids:
-                    # Set up Page
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Research Problem"]["uri"]}', 
-                                 text = f"RF{idx}", 
-                                 set_index = idx)
-                    # Add ID Values
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Research Problem ID"]["uri"]}', 
-                                 text = f'{label} ({description}) [{source}]', 
-                                 external_id = ID, 
-                                 set_index = idx)
-                    idx += 1
-                    value_ids.append(ID)
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Research Problem"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Research Problem ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "RP")
+    return

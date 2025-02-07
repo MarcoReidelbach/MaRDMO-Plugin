@@ -151,7 +151,7 @@ class Publication:
     volume: Optional[str]
     issue: Optional[str]
     page: Optional[str]
-    doi: Optional[str]
+    reference: Optional[str]
     journal: Optional[List[Journal]] = field(default_factory=list)
     authors: Optional[List[Author]] = field(default_factory=list)
 
@@ -161,6 +161,7 @@ class Publication:
         data = raw_data[0]
 
         lang_dict = get_data('data/lang.json')
+        options = get_data('data/options.json')
 
         return cls(
             id = data.get('id', {}).get('value'),
@@ -173,7 +174,7 @@ class Publication:
             volume = data.get('volume', {}).get('value'),
             issue = data.get('issue', {}).get('value'),
             page = data.get('page', {}).get('value'),
-            doi = data.get('doi', {}).get('value'),
+            reference = {idx: [options['DOI'], data[prop]['value']] for idx, prop in enumerate(['doi']) if data.get(prop, {}).get('value')},
             journal = [Journal.from_query(data.get('journalInfo', {}).get('value'))] if 'journalInfo' in data else [],
             authors = [
                 Author.from_query(author)
@@ -188,6 +189,7 @@ class Publication:
         data = raw_data.json().get('message', {})
 
         lang_dict = get_data('data/lang.json')
+        options = get_data('data/options.json')
 
         return cls(
             id = None,
@@ -200,7 +202,7 @@ class Publication:
             volume = data.get('volume', ''),
             issue = data.get('issue', ''),
             page = data.get('page', ''),
-            doi = data.get('DOI', ''),
+            reference = {idx: [options['DOI'], data[prop]] for idx, prop in enumerate(['DOI']) if data.get('DOI', '')},
             journal = [Journal.from_crossref(data.get('ISSN'), data.get('container-title'))] if 'ISSN' in data or 'container-title' in data else [],
             authors = [
                 Author.from_crossref(author)
@@ -215,6 +217,7 @@ class Publication:
         data = raw_data.json().get('data', {}).get('attributes', {})
 
         lang_dict = get_data('data/lang.json')
+        options = get_data('data/options.json')
 
         return cls(
             id = None,
@@ -227,7 +230,7 @@ class Publication:
             volume = data['relatedItems'][0].get('volume') if data.get('relatedItems') else None,
             issue = data['relatedItems'][0].get('issue') if data.get('relatedItems') else None,
             page = f"{data['relatedItems'][0].get('firstPage', '')}-{data['relatedItems'][0].get('lastPage', '')}" if data.get('relatedItems') else None,
-            doi = data.get('doi', ''),
+            reference = {idx: [options['DOI'], data[prop]] for idx, prop in enumerate(['DOI']) if data.get('DOI', '')},
             journal = [Journal.from_datacite(data.get('relatedIdentifiers'), data.get('relatedItems'))] if 'relatedIdentifiers' in data or 'relatedItems' in data else [],            
             authors = [
                 Author.from_datacite(author)
@@ -242,6 +245,7 @@ class Publication:
         data = raw_data.json()
 
         lang_dict = get_data('data/lang.json')
+        options = get_data('data/options.json')
 
         return cls(
             id = None,
@@ -254,7 +258,7 @@ class Publication:
             volume = data.get('volume'),
             issue = data.get('issue'),
             page = data.get('page'),
-            doi = data.get('DOI'),
+            reference = {idx: [options['DOI'], data[prop]] for idx, prop in enumerate(['DOI']) if data.get('DOI', '')},
             journal = [Journal.from_doi(data.get('ISSN'), data.get('container-title'))] if 'ISSN' in data or 'container-title' in data else [],
             authors = [
                 Author.from_doi(author)
@@ -269,6 +273,7 @@ class Publication:
         data = raw_data.json().get('result', [''])[0]
 
         lang_dict = get_data('data/lang.json')
+        options = get_data('data/options.json')
 
         return cls(
             id = None,
@@ -281,7 +286,7 @@ class Publication:
             volume = data.get('source', {}).get('series', [''])[0].get('volume'),
             issue = data.get('source', {}).get('series', [''])[0].get('issue'),
             page = data.get('source', {}).get('page'),
-            doi = next((link.get('identifier') for link in data.get('links', []) if link.get('type') == 'doi'), None),
+            reference = {idx: [options['DOI'], next((link.get('identifier') for link in data.get(prop, []) if link.get('type') == 'doi'), None)] for idx, prop in enumerate(['links']) if any(link.get('type') == 'doi' for link in data.get(prop, []))},
             journal = [Journal.from_zbmath(data.get('source'))] if 'source' in data else [],
             authors = [
                 Author.from_zbmath(author)

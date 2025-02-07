@@ -1,7 +1,6 @@
 from rdmo.options.providers import Provider
 
-from ..config import BASE_URI
-from ..utils import get_data, query_sources, query_sources_with_user_additions
+from ..utils import query_sources, query_sources_with_user_additions
 
 class Algorithm(Provider):
 

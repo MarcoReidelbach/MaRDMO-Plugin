@@ -103,7 +103,7 @@ queryHandlerAL = {
                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>                          
                                
                                SELECT DISTINCT (GROUP_CONCAT(DISTINCT ?referenceraw; separator=" | ") AS ?reference)
-                                               (GROUP_CONCAT(DISTINCT CONCAT(?bench, " | ", ?benchl, " | ", ?benchd); separator=" / ") AS ?benchmark)
+                                               (GROUP_CONCAT(DISTINCT CONCAT(?bench, " | ", ?benchl, " | ", ?benchd); separator=" / ") AS ?tests)
                                                (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
                                WHERE {{
                                        VALUES ?idraw {{ :{0} }}
@@ -135,7 +135,7 @@ queryHandlerAL = {
                                PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/problem#>
                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>                          
                                
-                               SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?bench, " | ", ?benchl, " | ", ?benchd); separator=" / ") AS ?benchmark)
+                               SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?bench, " | ", ?benchl, " | ", ?benchd); separator=" / ") AS ?instantiates)
                                                (GROUP_CONCAT(DISTINCT CONCAT(?spec, " | ", ?specl, " | ", ?specd); separator=" / ") AS ?specializes)
                                                (GROUP_CONCAT(DISTINCT CONCAT(?specby, " | ", ?specbyl, " | ", ?specbyd); separator=" / ") AS ?specializedBy)
                                WHERE {{
@@ -174,8 +174,8 @@ queryHandlerAL = {
                                PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/algorithm#>
                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>                          
                                
-                               SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?prob, " | ", ?probl, " | ", ?probd); separator=" / ") AS ?problem)
-                                               (GROUP_CONCAT(DISTINCT CONCAT(?imple, " | ", ?implel, " | ", ?impled); separator=" / ") AS ?software)
+                               SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?prob, " | ", ?probl, " | ", ?probd); separator=" / ") AS ?solves)
+                                               (GROUP_CONCAT(DISTINCT CONCAT(?imple, " | ", ?implel, " | ", ?impled); separator=" / ") AS ?implementedBy)
                                                (GROUP_CONCAT(DISTINCT CONCAT(?hascomp, " | ", ?hascompl, " | ", ?hascompd); separator=" / ") AS ?hasComponent)
                                                (GROUP_CONCAT(DISTINCT CONCAT(?comp, " | ", ?compl, " | ", ?compd); separator=" / ") AS ?componentOf)
                                                (GROUP_CONCAT(DISTINCT CONCAT(?hassub, " | ", ?hassubl, " | ", ?hassubd); separator=" / ") AS ?hasSubclass)
@@ -197,7 +197,7 @@ queryHandlerAL = {
                                        OPTIONAL {{
                                                   ?idraw prop:implementedBy ?impleraw.
                                                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?impleraw), "#")) AS ?imple)
-                                                  OPTIONAL {{ ?impleraw rdfs:label ?implellraw}}
+                                                  OPTIONAL {{ ?impleraw rdfs:label ?implelraw}}
                                                   BIND(COALESCE(?implelraw, "No Label Provided!") AS ?implel)
                                                   OPTIONAL {{ ?impleraw rdfs:comment ?impledraw}}
                                                   BIND(COALESCE(?impledraw, "No Description Provided!") AS ?impled)

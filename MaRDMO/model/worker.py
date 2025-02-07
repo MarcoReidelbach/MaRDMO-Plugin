@@ -4,7 +4,6 @@ def model_relations(instance, answers,mathmoddb):
     '''Function to establish relations between Model Documentation Data'''
      
     inversePropertyMapping = get_data('model/data/inversePropertyMapping.json')
-    options = get_data('data/options.json')
 
     # Flag all Tasks as unwanted by User in Workflow Documentation
     for key in answers['task']:

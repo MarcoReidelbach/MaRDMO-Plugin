@@ -20,6 +20,15 @@ class Relatant:
             description = description,
         )
     
+    @classmethod
+    def from_relation(cls, id: str, label: str, description: str) -> 'Relatant':
+
+        return cls(
+            id = id,
+            label = label,
+            description = description,
+        )
+    
 @dataclass
 class QRelatant:
     id: Optional[str]
@@ -127,7 +136,7 @@ class MathematicalModel:
             id = None,
             label = None,
             description = None,
-            properties = {idx: mathmoddb[prop] for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']) if data.get(prop, {}).get('value') == 'true'},
+            properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']) if data.get(prop, {}).get('value') == 'true'},
             formulation = [Relatant.from_query(formulation) for formulation in data.get('formulation', {}).get('value', '').split(" / ") if formulation] if 'formulation' in data else [],
             appliedByTask = [Relatant.from_query(task) for task in data.get('appliedByTask', {}).get('value', '').split(" / ") if task] if 'appliedByTask' in data else [],
             models = [Relatant.from_query(problem) for problem in data.get('models', {}).get('value', '').split(" / ") if problem] if 'models' in data else [],
@@ -150,7 +159,7 @@ class QuantityOrQuantityKind:
     id: Optional[str]
     label: Optional[str]
     description: Optional[str]
-    qudtID: Optional[str]
+    reference: Optional[str]
     qclass: Optional[str]
     properties: Optional[Dict[int, str]] = field(default_factory=dict)
     definedBy: Optional[List[Relatant]] = field(default_factory=list)
@@ -170,6 +179,7 @@ class QuantityOrQuantityKind:
     def from_query(cls, raw_data: dict) -> 'QuantityOrQuantityKind':
 
         mathmoddb = get_data('model/data/mapping.json')
+        options = get_data('data/options.json')
 
         data = raw_data[0]
 
@@ -177,9 +187,9 @@ class QuantityOrQuantityKind:
             id = None,
             label = None,
             description = None,
-            qudtID = data.get('qudtID', {}).get('value', '').removeprefix('https://qudt.org/vocab/'),
+            reference = {idx: [options['QUDT'], data[prop]['value'].removeprefix('https://qudt.org/vocab/')] for idx, prop in enumerate(['reference']) if data.get(prop, {}).get('value')},
             qclass = data.get('class', {}).get('value'),
-            properties = {idx: mathmoddb[prop] for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']) if data.get(prop, {}).get('value') == 'true'},
+            properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']) if data.get(prop, {}).get('value') == 'true'},
             definedBy = [Relatant.from_query(formulation) for formulation in data.get('definedBy', {}).get('value', '').split(" / ") if formulation] if 'definedBy' in data else [],
             generalizedByQuantity = [QRelatant.from_query(quantity) for quantity in data.get('generalizedByQuantity', {}).get('value', '').split(" / ") if quantity] if 'generalizedByQuantity' in data else [],            
             generalizesQuantity = [QRelatant.from_query(quantity) for quantity in data.get('generalizesQuantity', {}).get('value', '').split(" / ") if quantity] if 'generalizesQuantity' in data else [],
@@ -249,7 +259,7 @@ class MathematicalFormulation:
             id = None,
             label = None,
             description = None,
-            properties = {idx: mathmoddb[prop] for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']) if data.get(prop, {}).get('value') == 'true'},
+            properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']) if data.get(prop, {}).get('value') == 'true'},
             formulas = [formula for formula in data.get('formulas', {}).get('value', '').split(" / ") if formula] if 'formulas' in data else [],
             terms = [term for term in data.get('terms', {}).get('value', '').split(" / ") if term] if 'terms' in data else [],   
             defines = [Relatant.from_query(quantity) for quantity in data.get('defines', {}).get('value', '').split(" / ") if quantity] if 'defines' in data else [],
@@ -335,7 +345,7 @@ class Task:
             label = None,
             description = None,
             subclass = data.get('class', {}).get('value', ''),
-            properties = {idx: mathmoddb[prop] for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']) if data.get(prop, {}).get('value') == 'true'},
+            properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']) if data.get(prop, {}).get('value') == 'true'},
             appliesModel = [Relatant.from_query(model) for model in data.get('appliesModel', {}).get('value', '').split(" / ") if model] if 'appliesModel' in data else [],
             containsFormulation = [Relatant.from_query(formulation) for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation] if 'containsFormulation' in data else [],
             containsAssumption = [Relatant.from_query(formulation) for formulation in data.get('containsAssumption', {}).get('value', '').split(" / ") if formulation] if 'containsAssumption' in data else [],

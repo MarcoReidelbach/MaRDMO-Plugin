@@ -761,7 +761,7 @@ queryHandler = {
                     'quantityOrQuantityKindInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
-                                               SELECT DISTINCT ?class ?qudtID
+                                               SELECT DISTINCT ?class ?reference
                                                                ?isLinear ?isNotLinear
                                                                ?isDimensionless ?isDimensional
                                                                (GROUP_CONCAT(DISTINCT CONCAT(?mf, " | ", ?mfl, " | ", ?mfd); separator=" / ") AS ?definedBy)
@@ -814,7 +814,7 @@ queryHandler = {
                                                                 }}
 
                                                        OPTIONAL {{
-                                                                  ?id :qudtID ?qudtID.
+                                                                  ?id :qudtID ?reference.
                                                                 }}
 
                                                        OPTIONAL {{ ?id :isLinear ?isLinear.
@@ -1032,7 +1032,7 @@ queryHandler = {
                                                                 }}
  
                                                        }}
-                                                       GROUP BY ?class ?qudtID ?isLinear ?isNotLinear ?isDimensionless ?isDimensional''',
+                                                       GROUP BY ?class ?reference ?isLinear ?isNotLinear ?isDimensionless ?isDimensional''',
 
                       'mathematicalFormulationInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
