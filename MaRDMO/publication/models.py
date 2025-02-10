@@ -1,8 +1,31 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict
+from typing import List, Optional
 from ..id import *
 from ..utils import get_data
-import os, json
+
+@dataclass
+class Relatant:
+    id: Optional[str]
+    label: Optional[str]
+    description: Optional[str]
+    bsclass: Optional[str]
+    
+    @classmethod
+    def from_query(cls, raw: str) -> 'Relatant':
+
+        raw_split = raw.split(" | ")
+
+        if len(raw_split) == 3:
+            bsclass = None
+        else:
+            bsclass = raw_split[3]
+
+        return cls(
+            id = raw_split[0],
+            label = raw_split[1],
+            description = raw_split[2],
+            bsclass = bsclass
+        )
 
 @dataclass
 class Author:
@@ -154,6 +177,13 @@ class Publication:
     reference: Optional[str]
     journal: Optional[List[Journal]] = field(default_factory=list)
     authors: Optional[List[Author]] = field(default_factory=list)
+    applies: Optional[List[Relatant]] = field(default_factory=list)
+    analyzes: Optional[List[Relatant]] = field(default_factory=list)
+    documents: Optional[List[Relatant]] = field(default_factory=list)
+    invents: Optional[List[Relatant]] = field(default_factory=list)
+    studies: Optional[List[Relatant]] = field(default_factory=list)
+    surveys: Optional[List[Relatant]] = field(default_factory=list)
+    uses: Optional[List[Relatant]] = field(default_factory=list)
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Publication':
@@ -181,6 +211,13 @@ class Publication:
                 for author in data.get('authorInfos', {}).get('value', '').split(" | ")
                 if author
             ] if 'authorInfos' in data else [],
+            applies = [Relatant.from_query(publication) for publication in data.get('applies', {}).get('value', '').split(" / ") if publication] if 'applies' in data else [],
+            analyzes = [Relatant.from_query(publication) for publication in data.get('analyzes', {}).get('value', '').split(" / ") if publication] if 'analyzes' in data else [],
+            documents = [Relatant.from_query(publication) for publication in data.get('documents', {}).get('value', '').split(" / ") if publication] if 'documents' in data else [],
+            invents = [Relatant.from_query(publication) for publication in data.get('invents', {}).get('value', '').split(" / ") if publication] if 'invents' in data else [],
+            studies = [Relatant.from_query(publication) for publication in data.get('studies', {}).get('value', '').split(" / ") if publication] if 'studies' in data else [],
+            surveys = [Relatant.from_query(publication) for publication in data.get('surveys', {}).get('value', '').split(" / ") if publication] if 'surveys' in data else [],
+            uses = [Relatant.from_query(publication) for publication in data.get('uses', {}).get('value', '').split(" / ") if publication] if 'uses' in data else [],
         )
     
     @classmethod

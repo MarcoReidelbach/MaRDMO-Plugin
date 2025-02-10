@@ -624,6 +624,7 @@ queryPublication = {
 
                                                      ?documentsentityraw a ?documentsentityclassraw.
                                                      BIND(STRAFTER(STR(?documentsentityclassraw), "#") AS ?documentsentityclass)
+                                                     FILTER (?documentsentityclassraw IN (:benchmark, :software))
 
                                                      OPTIONAL {{?documentsentityraw rdfs:label ?documentsentitylabelraw.}}
                                                      BIND(COALESCE(?documentsentitylabelraw, "No Label Provided!") As ?documentsentitylabel)
@@ -667,6 +668,7 @@ queryPublication = {
 
                                                      ?usesentityraw a ?usesentityclassraw.
                                                      BIND(STRAFTER(STR(?usesentityclassraw), "#") AS ?usesentityclass)
+                                                     FILTER (?usesentityclass IN (:benchmark, :software))
 
                                                      OPTIONAL {{?usesentityraw rdfs:label ?usesentitylabelraw.}}
                                                      BIND(COALESCE(?usesentitylabelraw, "No Label Provided!") As ?usesentitylabel)

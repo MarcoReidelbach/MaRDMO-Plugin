@@ -105,7 +105,7 @@ def add_properties(project, data, uri, set_prefix):
                      set_index = 0, 
                      set_prefix = set_prefix)
         
-def add_references(project, data, uri, set_prefix):
+def add_references(project, data, uri, set_index = 0, set_prefix = None):
 
     for key, value in data.reference.items():
         value_editor(project = project, 
@@ -113,7 +113,7 @@ def add_references(project, data, uri, set_prefix):
                      text = value[1],
                      option = Option.objects.get(uri=value[0]), 
                      collection_index = key,
-                     set_index = 0, 
+                     set_index = set_index, 
                      set_prefix = set_prefix)
 
 def merge_dicts_with_unique_keys(answers, keys):

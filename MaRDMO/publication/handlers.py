@@ -5,9 +5,10 @@ from rdmo.projects.models import Value
 from rdmo.options.models import Option
 
 from ..config import BASE_URI, mardi_endpoint, mathalgodb_endpoint, mathmoddb_endpoint, wikidata_endpoint, wdt, wd
-from ..utils import get_data, get_questionsPU, query_sparql, value_editor
+from ..utils import add_references, add_relations, get_data, get_questionsPU, query_sparql, value_editor
 from ..id import *
 
+from .constants import INDEX_COUNTERS, PROPS, RELATANT_URIS, RELATION_URIS
 from .utils import generate_label
 from .sparql import queryPublication
 from .models import Publication
@@ -30,7 +31,6 @@ def PInformation(sender, **kwargs):
                 #...query Math MathModDB,...
                 query = queryPublication['PublicationMathModDB'].format(id)
                 results = query_sparql(query,mathmoddb_endpoint)
-                print(results)
                 if results:
                     #...structure the data,... 
                     data = Publication.from_query(results)
@@ -43,13 +43,10 @@ def PInformation(sender, **kwargs):
                                  uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
                                  text = data.description, 
                                  set_index = instance.set_index)
-                    for key, reference in data.reference.items():
-                        value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
-                                     text = reference[1], 
-                                     option = Option.objects.get(uri=reference[0]), 
-                                     collection_index = key, 
-                                     set_index = instance.set_index)
+                    add_references(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}',
+                                   set_index = instance.set_index)
             # If Publication from MathAlgoDB...
             elif source == 'mathalgodb':
                 #...query the MathAlgoDB,...
@@ -58,6 +55,7 @@ def PInformation(sender, **kwargs):
                 if results:
                     #...structure the data...
                     data = Publication.from_query(results)
+                    print(data)
                     #...and add the Information to the Questionnaire.
                     value_editor(project = instance.project, 
                                  uri = f'{BASE_URI}{questions["Publication Name"]["uri"]}', 
@@ -67,13 +65,10 @@ def PInformation(sender, **kwargs):
                                  uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
                                  text = data.description, 
                                  set_index = instance.set_index)
-                    for key, reference in data.reference.items():
-                        value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
-                                     text = reference[1], 
-                                     option = Option.objects.get(uri=reference[0]), 
-                                     collection_index = key, 
-                                     set_index = instance.set_index)
+                    add_references(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}',
+                                   set_index = instance.set_index)
             # If Publication from MaRDI Portal...
             elif source == 'mardi':
                 #...query the MaRDI Portal,...
@@ -97,13 +92,10 @@ def PInformation(sender, **kwargs):
                                  uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
                                  text = data.description, 
                                  set_index = instance.set_index)
-                    for key, reference in data.reference.items():
-                        value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
-                                     text = reference[1], 
-                                     option = Option.objects.get(uri=reference[0]), 
-                                     collection_index = key, 
-                                     set_index = instance.set_index)
+                    add_references(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}',
+                                   set_index = instance.set_index)
             # If Publication from Wikidata...   
             elif source == 'wikidata':
                 #...query Wikidata,...
@@ -127,92 +119,48 @@ def PInformation(sender, **kwargs):
                                  uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
                                  text = data.description, 
                                  set_index = instance.set_index)
-                    for key, reference in data.reference.items():
-                        value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}', 
-                                     text = reference[1], 
-                                     option = Option.objects.get(uri=reference[0]), 
-                                     collection_index = key, 
-                                     set_index = instance.set_index)
+                    add_references(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}',
+                                   set_index = instance.set_index)
             # For Models add Relations          
             if str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
                 if source == 'mathmoddb':
                     mathmoddb = get_data('model/data/mapping.json')
-                    idx = 0
-                    for property in ['documents', 'invents', 'studies', 'surveys', 'uses']:
-                        if results[0].get(property, {}).get('value'):
-                            entities = results[0][property]['value'].split(' / ')
-                            for entity in entities:
-                                id, label, description = entity.split(' | ')
-                                if id and label and description:
-                                    value_editor(project = instance.project, 
-                                                 uri = f'{BASE_URI}{questions["Publication P2E"]["uri"]}', 
-                                                 option = Option.objects.get(uri=mathmoddb[property]), 
-                                                 set_index = idx, 
-                                                 set_prefix = instance.set_index)
-                                    value_editor(project = instance.project, 
-                                                 uri = f'{BASE_URI}{questions["Publication EntityRelatant"]["uri"]}', 
-                                                 text = f"{label} ({description}) [mathmoddb]", 
-                                                 external_id = id, 
-                                                 set_index = idx, 
-                                                 set_prefix = instance.set_index)
-                                    idx += 1
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['P2E'], 
+                                  mapping = mathmoddb, 
+                                  source = source, 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Publication EntityRelatant"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Publication P2E"]["uri"]}')
+                    
             # For Algorithms add Relations
             if str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
                 if source == 'mathalgodb':
                     mathalgodb = get_data('algorithm/data/mapping.json')
-                    idx = 0
-                    for property in ['analyzes', 'applies', 'invents', 'studies', 'surveys']:
-                        if results[0].get(property, {}).get('value'):
-                            entities = results[0][property]['value'].split(' / ')
-                            for entity in entities:
-                                id, label, description = entity.split(' | ')
-                                if id and label and description:
-                                    value_editor(project = instance.project, 
-                                                 uri = f'{BASE_URI}{questions["Publication P2A"]["uri"]}', 
-                                                 option = Option.objects.get(uri=mathalgodb[property]), 
-                                                 set_index = idx, 
-                                                 set_prefix = instance.set_index)
-                                    value_editor(project = instance.project, 
-                                                 uri = f'{BASE_URI}{questions["Publication ARelatant"]["uri"]}', 
-                                                 text = f"{label} ({description}) [mathalgodb]", 
-                                                 external_id = id, 
-                                                 set_index = idx, 
-                                                 set_prefix = instance.set_index)
-                                    idx += 1
-
-                    idxB = 0
-                    idxS = 0
-                    for property in ['documents', 'uses']:
-                        if results[0].get(property, {}).get('value'):
-                            entities = results[0][property]['value'].split(' / ')
-                            for entity in entities:
-                                id, label, description, Class = entity.split(' | ')
-                                if id and label and description and Class:
-                                    if Class == 'benchmark':
-                                        value_editor(project = instance.project, 
-                                                     uri = f'{BASE_URI}{questions["Publication P2B"]["uri"]}', 
-                                                     option = Option.objects.get(uri=mathalgodb[property]), 
-                                                     set_index = idxB, 
-                                                     set_prefix = instance.set_index)
-                                        value_editor(project = instance.project, 
-                                                     uri = f'{BASE_URI}{questions["Publication BRelatant"]["uri"]}', 
-                                                     text = f"{label} ({description}) [mathalgodb]", 
-                                                     external_id = id, 
-                                                     set_index = idxB, 
-                                                     set_prefix = instance.set_index)
-                                        idxB += 1
-                                    elif Class == 'software':
-                                        value_editor(project = instance.project, 
-                                                     uri = f'{BASE_URI}{questions["Publication P2S"]["uri"]}', 
-                                                     option = Option.objects.get(uri=mathalgodb[property]), 
-                                                     set_index = idxS, 
-                                                     set_prefix = instance.set_index)
-                                        value_editor(project = instance.project, 
-                                                     uri = f'{BASE_URI}{questions["Publication SRelatant"]["uri"]}', 
-                                                     text = f"{label} ({description}) [mathalgodb]", 
-                                                     external_id = id, 
-                                                     set_index = idxS, 
-                                                     set_prefix = instance.set_index)
-                                        idxS += 1
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['P2A'], 
+                                  mapping = mathalgodb, 
+                                  source = source, 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Publication ARelatant"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Publication P2A"]["uri"]}')
+                    
+                    for prop in PROPS['P2BS']:
+                        for value in getattr(data, prop):
+                            value_editor(project = instance.project, 
+                                         uri = f'{BASE_URI}{questions[RELATION_URIS[value.bsclass]]["uri"]}', 
+                                         option = Option.objects.get(uri=mathalgodb[prop]), 
+                                         set_index = INDEX_COUNTERS[value.bsclass], 
+                                         set_prefix = instance.set_index)
+                            value_editor(project = instance.project, 
+                                         uri = f'{BASE_URI}{questions[RELATANT_URIS[value.bsclass]]["uri"]}', 
+                                         text = f"{value.label} ({value.description}) [mathalgodb]", 
+                                         external_id = value.id, 
+                                         set_index = INDEX_COUNTERS[value.bsclass], 
+                                         set_prefix = instance.set_index)
+                            INDEX_COUNTERS[value.bsclass] += 1
     return

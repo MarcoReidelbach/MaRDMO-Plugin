@@ -21,7 +21,7 @@ class Relatant:
         )
     
     @classmethod
-    def from_user(cls, id: str, label: str, description: str) -> 'Relatant':
+    def from_relation(cls, id: str, label: str, description: str) -> 'Relatant':
 
         return cls(
             id = id,
