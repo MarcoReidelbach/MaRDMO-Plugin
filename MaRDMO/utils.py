@@ -20,6 +20,10 @@ from .algorithm.sparql import queryProviderAL
 
 logger = logging.getLogger(__name__)  # Get Django's logger for the current module
 
+def get_questionsWO():
+    """Retrieve the questions dictionary from MaRDMOConfig."""
+    return apps.get_app_config("MaRDMO").questionsWO
+
 def get_questionsAL():
     """Retrieve the questions dictionary from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").questionsAL
@@ -47,10 +51,10 @@ def get_id(project, uri, keys):
     return ids 
 
 def add_basics(instance, url_name, url_description):
-    label, description, _ = extract_parts(instance.text)
+    label, description, source = extract_parts(instance.text)
     value_editor(instance.project, url_name, label, None, None, None, 0, instance.set_index)
     value_editor(instance.project, url_description, description, None, None, None, 0, instance.set_index)
-    return
+    return label, description, source
 
 def add_entities(project, question_set, question_id, datas, source, prefix):
     # Get Set Ids and IDs of Publications
@@ -68,31 +72,47 @@ def add_entities(project, question_set, question_id, datas, source, prefix):
             value_ids.append(data.id)
     return
 
-def add_relations(project, data, props, mapping, source, set_prefix, relatant, relation = None, suffix = ''):
-
-    idx = 0
+def add_relations(project, data, props, set_prefix, relatant, mapping = None, relation = None, suffix = ''):
+    # Get Set Ids and IDs of Publications
+    set_ids = get_id(project, relatant, ['set_index'])
+    collection_ids = get_id(project, relatant, ['collection_index'])
+    value_ids = get_id(project, relatant, ['external_id'])
+    # Set initial Value of Counter
+    if relation:
+        idx = max(set_ids, default = -1) + 1
+    else:
+        idx = max(collection_ids, default = -1) + 1
+    #Add Relations and Relatants
     for prop in props:
         for value in getattr(data, f"{prop}{suffix}"):
-            if relation:
-                collection_index = None
-                set_index = idx
+            if value.id not in value_ids:
+                # If Relation, add it
+                if relation:
+                    collection_index = None
+                    set_index = idx
+                    value_editor(project = project, 
+                                 uri = relation, 
+                                 option = Option.objects.get(uri=mapping[prop]), 
+                                 collection_index = collection_index,
+                                 set_index = set_index, 
+                                 set_prefix = set_prefix)
+                else:
+                    collection_index = idx
+                    set_index = 0
+
+                # Get source of Relatant
+                source, _ = value.id.split(':')
+
+                # Add Relatant
                 value_editor(project = project, 
-                             uri = relation, 
-                             option = Option.objects.get(uri=mapping[prop]), 
+                             uri = relatant, 
+                             text = f"{value.label} ({value.description}) [{source}]", 
+                             external_id = value.id, 
                              collection_index = collection_index,
                              set_index = set_index, 
                              set_prefix = set_prefix)
-            else:
-                collection_index = idx
-                set_index = 0
-            value_editor(project = project, 
-                         uri = relatant, 
-                         text = f"{value.label} ({value.description}) [{source}]", 
-                         external_id = value.id, 
-                         collection_index = collection_index,
-                         set_index = set_index, 
-                         set_prefix = set_prefix)
-            idx +=1
+                idx +=1
+                value_ids.append(value.id)
     return
 
 def add_properties(project, data, uri, set_prefix):
@@ -346,7 +366,7 @@ def query_sources(search, queryID, sources, notFound=True):
 
         if notFound:
             options = [{'id': 'not found', 'text': 'not found'}] + options
-
+        print(options)
         return options
 
 def MathDBProvider(search, query, source):

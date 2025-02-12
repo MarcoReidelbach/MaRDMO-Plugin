@@ -47,7 +47,8 @@ OPTIONSET_PROVIDERS = [
     ('RelatedDataSet', _('Options for related Data Sets'), 'MaRDMO.workflow.providers.RelatedDataSet'),
     ('RelatedSoftware', _('Options for related Software'), 'MaRDMO.workflow.providers.RelatedSoftware'),
     ('RelatedInstrument', _('Options for related Instruments'), 'MaRDMO.workflow.providers.RelatedInstrument'),
-    ('MainAlgorithm', _('Options for Main Algorithm'), 'MaRDMO.workflow.providers.MainAlgorithm'),
+    ('Method', _('Options for Methods'), 'MaRDMO.workflow.providers.Method'),
+    ('RelatedMethod', _('Options for related Methods'), 'MaRDMO.workflow.providers.RelatedMethod'),
     ('ProcessStep', _('Options for Process Step'), 'MaRDMO.workflow.providers.ProcessStep'),
     ('Discipline', _('Options for Disciplines'), 'MaRDMO.workflow.providers.Discipline'),
     # Model
@@ -63,6 +64,7 @@ OPTIONSET_PROVIDERS = [
     ('RelatedQuantityOrQuantityKind', _('Options for related Quantites or Quantity Kinds'), 'MaRDMO.model.providers.RelatedQuantityOrQuantityKind'),
     ('MathematicalFormulation', _('Options for Mathematical Formulation'), 'MaRDMO.model.providers.MathematicalFormulation'),
     ('RelatedMathematicalFormulation', _('Options for related Mathematical Formulations'), 'MaRDMO.model.providers.RelatedMathematicalFormulation'),
+    ('AllEntities', _('Options for All Entities'), 'MaRDMO.model.providers.AllEntities'),
     ('Task', _('Options for Task'), 'MaRDMO.model.providers.Task'),
     ('RelatedTask', _('Options for related Tasks'), 'MaRDMO.model.providers.RelatedTask'),
     # Publication
@@ -107,6 +109,7 @@ python manage.py import /path/to/MaRDMO-Questionnaire/catalog/conditions.xml
 python manage.py import /path/to/MaRDMO-Questionnaire/catalog/mardmo-search-catalog.xml
 python manage.py import /path/to/MaRDMO-Questionnaire/catalog/mardmo-model-catalog.xml
 python manage.py import /path/to/MaRDMO-Questionnaire/catalog/mardmo-interdisciplinary-workflow-catalog.xml
+python manage.py import /path/to/MaRDMO-Questionnaire/catalog/mardmo-algorithm-catalog.xml
 ```
 
 ## Usage of MaRDMO Plugin

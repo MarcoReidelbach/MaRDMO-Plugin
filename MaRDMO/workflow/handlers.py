@@ -4,10 +4,12 @@ from rdmo.projects.models import Value
 
 from ..id import *
 from ..config import BASE_URI, mardi_endpoint, wd, wdt, wikidata_endpoint
-from ..utils import get_data, value_editor, query_sparql
+from ..utils import add_basics, add_entities, add_relations, get_data, get_questionsWO, extract_parts, value_editor, query_sparql
 
-from .utils import add_basics, add_entity
+#from .utils import add_basics #, add_entity
 from .sparql import mardiProvider, wikidataProvider
+from .models import ProcessStep, Relatant
+from .constants import PROPS
 
 @receiver(post_save, sender=Value)
 def ProgrammingLanguage(sender, **kwargs):
@@ -100,42 +102,112 @@ def ImplementingSoftware(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def InputData(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/process-step/input/id':
-        add_basics(instance,
-                   f'{BASE_URI}domain/process-step/input/name',
-                   f'{BASE_URI}domain/process-step/input/description')
+    # Get Questions of Workflow Catalog
+    questions = get_questionsWO()
+    # Check if related Input Data Set concerned
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Process Step Input ID"]["uri"]}':
+        # Check if actual Input Data Set is chosen
+        if instance.text:
+            # Add Basic Information
+            label, description, source = add_basics(instance,
+                                                    f'{BASE_URI}{questions["Process Step Input Name"]["uri"]}',
+                                                    f'{BASE_URI}{questions["Process Step Input Description"]["uri"]}')
+            # If Data Set not defined by User
+            if source != 'user':
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Data Set"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Data Set ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "DS")
         
 @receiver(post_save, sender=Value)
 def OutputData(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/process-step/output/id':
-        add_basics(instance,
-                   f'{BASE_URI}domain/process-step/output/name',
-                   f'{BASE_URI}domain/process-step/output/description')
+    # Get Questions of Workflow Catalog
+    questions = get_questionsWO()
+    # Check if related Input Data Set concerned
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Process Step Output ID"]["uri"]}':
+        # Check if actual Input Data Set is chosen
+        if instance.text:
+            # Add Basic Information
+            label, description, source = add_basics(instance,
+                                                    f'{BASE_URI}{questions["Process Step Output Name"]["uri"]}',
+                                                    f'{BASE_URI}{questions["Process Step Output Description"]["uri"]}')
+            # If Data Set not defined by User
+            if source != 'user':
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Data Set"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Data Set ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "DS")
         
 @receiver(post_save, sender=Value)
-def Algorithm(sender, **kwargs):
+def Method(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/process-step/algorithm/id':
-        add_basics(instance,
-                   f'{BASE_URI}domain/process-step/algorithm/name',
-                   f'{BASE_URI}domain/process-step/algorithm/description')
+    # Get Questions of Workflow Catalog
+    questions = get_questionsWO()
+    # Check if related Input Data Set concerned
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Process Step Method ID"]["uri"]}':
+        # Check if actual Input Data Set is chosen
+        if instance.text:
+            # Add Basic Information
+            label, description, source = add_basics(instance,
+                                                    f'{BASE_URI}{questions["Process Step Method Name"]["uri"]}',
+                                                    f'{BASE_URI}{questions["Process Step Method Description"]["uri"]}')
+            # If Data Set not defined by User
+            if source != 'user':
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Method"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Method ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "M")
         
 @receiver(post_save, sender=Value)
 def EnvironmentSoftware(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/process-step/environment-software/id':
-        add_basics(instance,
-                   f'{BASE_URI}domain/process-step/environment-software/name',
-                   f'{BASE_URI}domain/process-step/environment-software/description')
+    # Get Questions of Workflow Catalog
+    questions = get_questionsWO()
+    # Check if related Input Data Set concerned
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Process Step Environment-Software ID"]["uri"]}':
+        # Check if actual Input Data Set is chosen
+        if instance.text:
+            # Add Basic Information
+            label, description, source = add_basics(instance,
+                                                    f'{BASE_URI}{questions["Process Step Environment-Software Name"]["uri"]}',
+                                                    f'{BASE_URI}{questions["Process Step Environment-Software Description"]["uri"]}')
+            # If Data Set not defined by User
+            if source != 'user':
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Software"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Software ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "S")
         
 @receiver(post_save, sender=Value)
 def EnvironmentInstrument(sender, **kwargs):
     instance = kwargs.get("instance", None)
-    if instance and instance.attribute.uri == f'{BASE_URI}domain/process-step/environment-instrument/id':
-        add_basics(instance,
-                   f'{BASE_URI}domain/process-step/environment-instrument/name',
-                   f'{BASE_URI}domain/process-step/environment-instrument/description')
+    # Get Questions of Workflow Catalog
+    questions = get_questionsWO()
+    # Check if related Input Data Set concerned
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Process Step Environment-Instrument ID"]["uri"]}':
+        # Check if actual Input Data Set is chosen
+        if instance.text:
+            # Add Basic Information
+            label, description, source = add_basics(instance,
+                                                    f'{BASE_URI}{questions["Process Step Environment-Instrument Name"]["uri"]}',
+                                                    f'{BASE_URI}{questions["Process Step Environment-Instrument Description"]["uri"]}')
+            # If Data Set not defined by User
+            if source != 'user':
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Instrument"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Instrument ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "S")
         
 @receiver(post_save, sender=Value)
 def Discipline(sender, **kwargs):
@@ -309,79 +381,73 @@ def DataSetInformation(sender, **kwargs):
 @receiver(post_save, sender=Value)
 def ProcessStepInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
+    # Get Questions of Workflow Section
+    questions = get_questionsWO()
     if instance and instance.attribute.uri == f'{BASE_URI}domain/process-step/id':
         if instance.text and instance.text != 'not found':
             add_basics(instance, 
-                       f'{BASE_URI}domain/process-step/name', 
-                       f'{BASE_URI}domain/process-step/description')
+                       f'{BASE_URI}{questions["Process Step Name"]["uri"]}',
+                       f'{BASE_URI}{questions["Process Step Description"]["uri"]}')
             # Get source and ID of Item
             source, Id = instance.external_id.split(':')
             results = []
             if source == 'mardi':
-                results = query_sparql(mardiProvider['ProcessStep'].format(wdt, wd, f"wd:{Id}", P42, P43, P6, P44, P5, P25, P45, Q5, Q13), mardi_endpoint)
+                results = query_sparql(mardiProvider['ProcessStep'].format(wdt, wd, Id, P42, P43, P6, P44, P5, P25, P45, Q5, Q13), mardi_endpoint)
             elif source == 'wikidata':
-                results = query_sparql(wikidataProvider['ProcessStep'].format(f"wd:{Id}"), wikidata_endpoint)
+                results = query_sparql(wikidataProvider['ProcessStep'].format(Id), wikidata_endpoint)
+
             if results:
-                # Load MSC Classification
-                msc = get_data('data/msc2020.json')
+                # Structure Results
+                data = ProcessStep.from_query(results)
                 
-                # Add Input to Process Step Page
-                idx = 0
-                if results[0].get('Input', {}).get('value'):
-                    for result in results[0]['Input']['value'].split(' / '):
-                        ID, Label, Description = result.split(' | ')
-                        value_editor(instance.project, f'{BASE_URI}domain/process-step/input/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                        idx += 1
-
-                # Add Output to Process Step Page
-                idx = 0
-                if results[0].get(f'Output', {}).get('value'):
-                    for result in results[0]['Output']['value'].split(' / '):
-                        ID, Label, Description = result.split(' | ')
-                        value_editor(instance.project, f'{BASE_URI}domain/process-step/output/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                        idx += 1 
-
-                # Add Output to Data Set Page
-                add_entity(instance, results,
-                           f'{BASE_URI}domain/data-set', 
-                           f'{BASE_URI}domain/data-set/id', 
-                           'Output', 'DS', source)
+                # Add Relations between Input Data Set and Process Step to Questionnaire
+                add_relations(project = instance.project, 
+                              data = data, 
+                              props = PROPS['PS2IDS'], 
+                              set_prefix = instance.set_index, 
+                              relatant = f'{BASE_URI}{questions["Process Step Input ID"]["uri"]}')
                 
-                # Add Algorithm of Process Step
-                idx = 0
-                if results[0].get(f'Algorithm', {}).get('value'):
-                    for result in results[0]['Algorithm']['value'].split(' / '):
-                        ID, Label, Description = result.split(' | ')
-                        value_editor(instance.project, f'{BASE_URI}domain/process-step/algorithm/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                        idx += 1
-
-                # Add Software Environment of Process Step
-                idx = 0
-                if results[0].get(f'PlatformSoftware', {}).get('value'):
-                    for result in results[0]['PlatformSoftware']['value'].split(' / '):
-                        ID, Label, Description = result.split(' | ')
-                        value_editor(instance.project, f'{BASE_URI}domain/process-step/environment-software/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                        idx += 1
-
-                # Add Instrument Environment of Process Step
-                idx = 0
-                if results[0].get(f'PlatformInstrument', {}).get('value'):
-                    for result in results[0]['PlatformInstrument']['value'].split(' / '):
-                        ID, Label, Description = result.split(' | ')
-                        value_editor(instance.project, f'{BASE_URI}domain/process-step/environment-instrument/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                        idx += 1
-                    
-                # Add Field or MSC ID of Process Step
-                idx = 0
-                if results[0].get(f'Field', {}).get('value'):
-                    for result in results[0]['Field']['value'].split(' / '):
-                        ID, Label, Description = result.split(' | ')
-                        value_editor(instance.project, f'{BASE_URI}domain/process-step/discipline/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                        idx += 1
-                if results[0].get(f'mscID', {}).get('value'):
-                    for result in results[0]['mscID']['value'].split(' / '):
-                        value_editor(instance.project, f'{BASE_URI}domain/process-step/discipline/id', f"{next((key for key, value in msc.items() if value.get('id') == result), None)} ({result}) [msc]", f'msc:{result}', None, idx, instance.set_index, None)
-                        idx += 1
+                # Add Relations between Output Data Set and Process Step to Questionnaire
+                add_relations(project = instance.project, 
+                              data = data, 
+                              props = PROPS['PS2ODS'], 
+                              set_prefix = instance.set_index, 
+                              relatant = f'{BASE_URI}{questions["Process Step Output ID"]["uri"]}')
                 
+                # Add Relations between Method and Process Step to Questionnaire
+                add_relations(project = instance.project, 
+                              data = data, 
+                              props = PROPS['PS2M'], 
+                              set_prefix = instance.set_index, 
+                              relatant = f'{BASE_URI}{questions["Process Step Method ID"]["uri"]}')
+                
+                # Add Relations between Software Platform and Process Step to Questionnaire
+                add_relations(project = instance.project, 
+                              data = data, 
+                              props = PROPS['PS2PLS'], 
+                              set_prefix = instance.set_index, 
+                              relatant = f'{BASE_URI}{questions["Process Step Environment-Software ID"]["uri"]}')
+                
+                # Add Relations between Instrument Platform and Process Step to Questionnaire
+                add_relations(project = instance.project, 
+                              data = data, 
+                              props = PROPS['PS2PLI'], 
+                              set_prefix = instance.set_index, 
+                              relatant = f'{BASE_URI}{questions["Process Step Environment-Instrument ID"]["uri"]}')
+                
+                # Add Relations between Fields and Process Step to Questionnaire
+                add_relations(project = instance.project, 
+                              data = data, 
+                              props = PROPS['PS2F'], 
+                              set_prefix = instance.set_index, 
+                              relatant = f'{BASE_URI}{questions["Process Step Discipline ID"]["uri"]}')
+                
+                # Add Relations between Math Areas and Process Step to Questionnaire
+                add_relations(project = instance.project, 
+                              data = data, 
+                              props = PROPS['PS2MA'], 
+                              set_prefix = instance.set_index, 
+                              relatant = f'{BASE_URI}{questions["Process Step Discipline ID"]["uri"]}')
+
     return
 

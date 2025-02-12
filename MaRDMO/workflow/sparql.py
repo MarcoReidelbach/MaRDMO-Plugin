@@ -216,18 +216,20 @@ mardiProvider = {
                                     PREFIX wd:{1}
 
                                     SELECT (GROUP_CONCAT(DISTINCT(?msc); SEPARATOR=" / ") AS ?mscID)
-                                           (GROUP_CONCAT(DISTINCT CONCAT(?input, " | ", ?inputl, " | ", ?inputd); separator=" / ") AS ?Input)
-                                           (GROUP_CONCAT(DISTINCT CONCAT(?output, " | ", ?outputl, " | ", ?outputd); separator=" / ") AS ?Output)
-                                           (GROUP_CONCAT(DISTINCT CONCAT(?algorithm, " | ", ?algorithml, " | ", ?algorithmd); separator=" / ") AS ?Algorithm)
-                                           (GROUP_CONCAT(DISTINCT CONCAT(?platformsoftware, " | ", ?platformsoftwarel, " | ", ?platformsoftwared); separator=" / ") AS ?PlatformSoftware)
-                                           (GROUP_CONCAT(DISTINCT CONCAT(?platforminstrument, " | ", ?platforminstrumentl, " | ", ?platforminstrumentd); separator=" / ") AS ?PlatformInstrument)
-                                           (GROUP_CONCAT(DISTINCT CONCAT(?field, " | ", ?fieldl, " | ", ?fieldd); separator=" / ") AS ?Field)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?input, " | ", ?inputl, " | ", ?inputd); separator=" / ") AS ?inputDataSet)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?output, " | ", ?outputl, " | ", ?outputd); separator=" / ") AS ?outputDataSet)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?method, " | ", ?methodl, " | ", ?methodd, " | ", STR(?methodurl)); separator=" / ") AS ?uses)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?platformsoftware, " | ", ?platformsoftwarel, " | ", ?platformsoftwared); separator=" / ") AS ?platformSoftware)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?platforminstrument, " | ", ?platforminstrumentl, " | ", ?platforminstrumentd); separator=" / ") AS ?platformInstrument)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?field, " | ", ?fieldl, " | ", ?fieldd); separator=" / ") AS ?fieldOfWork)
 
                                     WHERE {{
 
+                                            VALUES ?step {{ wd:{2} }}
+
                                             OPTIONAL {{
-                                                       {2} wdt:P{3} ?inputraw
-                                                       BIND(replace( xsd:string(?inputraw),'https://portal.mardi4nfdi.de/entity/','') as ?input) 
+                                                       ?step wdt:P{3} ?inputraw
+                                                       BIND(replace( xsd:string(?inputraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?input) 
                                                        
                                                        OPTIONAL {{
                                                                   ?inputraw rdfs:label ?inputlraw
@@ -245,8 +247,8 @@ mardiProvider = {
                                                      }}
 
                                             OPTIONAL {{
-                                                       {2} wdt:P{4} ?outputraw
-                                                       BIND(replace( xsd:string(?outputraw),'https://portal.mardi4nfdi.de/entity/','') as ?output) 
+                                                       ?step wdt:P{4} ?outputraw
+                                                       BIND(replace( xsd:string(?outputraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?output) 
                                                        
                                                        OPTIONAL {{
                                                                   ?outputraw rdfs:label ?outputlraw
@@ -264,26 +266,33 @@ mardiProvider = {
                                                      }}
 
                                             OPTIONAL {{
-                                                       {2} wdt:P{5} ?algorithmraw
-                                                       BIND(replace( xsd:string(?algorithmraw),'https://portal.mardi4nfdi.de/entity/','') as ?algorithm) 
+                                                       ?step wdt:P{5} ?methodraw
+                                                       BIND(replace( xsd:string(?methodraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?method) 
                                                        
                                                        OPTIONAL {{
-                                                                  ?algorithmraw rdfs:label ?algorithmlraw
-                                                                  FILTER (lang(?algorithmlraw) = 'en')
+                                                                  ?methodraw rdfs:label ?methodlraw
+                                                                  FILTER (lang(?methodlraw) = 'en')
                                                                 }}
                                                        
-                                                       BIND(COALESCE(?algorithmlraw, "No Label Provided!") AS ?algorithml)
+                                                       BIND(COALESCE(?methodlraw, "No Label Provided!") AS ?methodl)
                                                        
                                                        OPTIONAL {{
-                                                                  ?algorithmraw schema:description ?algorithmdraw
-                                                                  FILTER (lang(?algorithmdraw) = 'en')
+                                                                  ?methodraw schema:description ?methoddraw
+                                                                  FILTER (lang(?methoddraw) = 'en')
                                                                 }}
                                                        
-                                                       BIND(COALESCE(?algorithmdraw, "No Description Provided!") AS ?algorithmd)
+                                                       BIND(COALESCE(?methoddraw, "No Description Provided!") AS ?methodd)
+
+                                                       OPTIONAL {{
+                                                                  ?methodraw wdt:P188 ?methodurl
+                                                                }}
+
+                                                       BIND(COALESCE(?methodurl, "") AS ?methodurl)
+
                                                      }}
 
                                             OPTIONAL {{
-                                                       {2} p:P{6} ?statement0.
+                                                       ?step p:P{6} ?statement0.
                                                        ?statement0 ps:P{6} ?platformsoftwareraw.
 
                                                       
@@ -292,7 +301,7 @@ mardiProvider = {
                                                        FILTER (?platformsoftwaretype = "{10}")
 
 
-                                                       BIND(replace( xsd:string(?platformsoftwareraw),'https://portal.mardi4nfdi.de/entity/','') as ?platformsoftware) 
+                                                       BIND(replace( xsd:string(?platformsoftwareraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?platformsoftware) 
                                                        
                                                        OPTIONAL {{
                                                                   ?platformsoftwareraw rdfs:label ?platformsoftwarelraw
@@ -310,7 +319,7 @@ mardiProvider = {
                                                      }}
 
                                             OPTIONAL {{
-                                                       {2} p:P{6} ?statement1.
+                                                       ?step p:P{6} ?statement1.
                                                        ?statement1 ps:P{6} ?platforminstrumentraw.
 
                                                        
@@ -319,7 +328,7 @@ mardiProvider = {
                                                        FILTER (?platforminstrumenttype = "{11}")
                                                                 
 
-                                                       BIND(replace( xsd:string(?platforminstrumentraw),'https://portal.mardi4nfdi.de/entity/','') as ?platforminstrument) 
+                                                       BIND(replace( xsd:string(?platforminstrumentraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?platforminstrument) 
                                                        
                                                        OPTIONAL {{
                                                                   ?platforminstrumentraw rdfs:label ?platforminstrumentlraw
@@ -337,8 +346,8 @@ mardiProvider = {
                                                      }}
 
                                             OPTIONAL {{
-                                                       {2} wdt:P{7} ?fieldraw.
-                                                       BIND(replace( xsd:string(?fieldraw),'https://portal.mardi4nfdi.de/entity/','') as ?field)
+                                                       ?step wdt:P{7} ?fieldraw.
+                                                       BIND(replace( xsd:string(?fieldraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?field)
 
                                                        OPTIONAL {{
                                                                   ?fieldraw rdfs:label ?fieldlraw
@@ -356,7 +365,7 @@ mardiProvider = {
                                                      }}
 
                                             OPTIONAL {{
-                                                       {2} wdt:P{8} ?msc.
+                                                       ?step wdt:P{8} ?msc.
                                                      }}
 
                                     }}'''
@@ -440,7 +449,7 @@ wikidataProvider = {
                                   OPTIONAL {{
                                              {0} p:P880 ?statement.
                                              ?statement ps:P880 ?cpuraw.
-                                             BIND(replace( xsd:string(?cpuraw),'https://portal.mardi4nfdi.de/entity/','') as ?cpu) 
+                                             BIND(replace( xsd:string(?cpuraw),'http://www.wikidata.org/entity/','') as ?cpu) 
                                              
                                              OPTIONAL {{
                                                         ?cpuraw rdfs:label ?cpulraw
@@ -495,7 +504,7 @@ wikidataProvider = {
                                              ?statement_dt pq:P3831 ?qualifier.
                                              FILTER (?qualifier = wd:Q190087)
 
-                                             BIND(replace( xsd:string(?datatyperaw),'https://portal.mardi4nfdi.de/entity/','') as ?datatype)
+                                             BIND(replace( xsd:string(?datatyperaw),'http://www.wikidata.org/entity/','') as ?datatype)
                                              
                                              OPTIONAL {{
                                                         ?datatyperaw rdfs:label ?datatypelraw
@@ -519,7 +528,7 @@ wikidataProvider = {
                                              ?statement_dt2 pq:P3831 ?qualifier2.
                                              FILTER (?qualifier2 = wd:)
 
-                                             BIND(replace( xsd:string(?representationformatraw),'https://portal.mardi4nfdi.de/entity/','') as ?representationformat)
+                                             BIND(replace( xsd:string(?representationformatraw),'http://www.wikidata.org/entity/','') as ?representationformat)
                                              
                                              OPTIONAL {{
                                                         ?representationformatraw rdfs:label ?representationformatlraw
@@ -564,7 +573,155 @@ wikidataProvider = {
                                                        }}
                                            }}
                                   }}    
-                                  GROUP BY ?sizeValue ?sizeUnit ?sizeRecord ?FileFormat ?BinaryOrText ?Proprietary ?DOI ?URL ?Publishing ?Archiving ?endTime'''
+                                  GROUP BY ?sizeValue ?sizeUnit ?sizeRecord ?FileFormat ?BinaryOrText ?Proprietary ?DOI ?URL ?Publishing ?Archiving ?endTime''',
+
+                'ProcessStep':  '''SELECT (GROUP_CONCAT(DISTINCT(?msc); SEPARATOR=" / ") AS ?mscID)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?input, " | ", ?inputl, " | ", ?inputd); separator=" / ") AS ?inputDataSet)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?output, " | ", ?outputl, " | ", ?outputd); separator=" / ") AS ?outputDataSet)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?method, " | ", ?methodl, " | ", ?methodd); separator=" / ") AS ?uses)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?platformsoftware, " | ", ?platformsoftwarel, " | ", ?platformsoftwared); separator=" / ") AS ?platformSoftware)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?platforminstrument, " | ", ?platforminstrumentl, " | ", ?platforminstrumentd); separator=" / ") AS ?platformInstrument)
+                                           (GROUP_CONCAT(DISTINCT CONCAT(?field, " | ", ?fieldl, " | ", ?fieldd); separator=" / ") AS ?fieldOfWork)
+
+                                    WHERE {{
+
+                                            VALUES ?step {{ wd:{0} }}
+
+                                            OPTIONAL {{
+                                                       ?step wdt:P ?inputraw
+                                                       BIND(replace( xsd:string(?inputraw),'http://www.wikidata.org/entity/','wikidata:') as ?input) 
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?inputraw rdfs:label ?inputlraw
+                                                                  FILTER (lang(?inputlraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?inputlraw, "No Label Provided!") AS ?inputl)
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?inputraw schema:description ?inputdraw
+                                                                  FILTER (lang(?inputdraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?inputdraw, "No Description Provided!") AS ?inputd)
+                                                     }}
+
+                                            OPTIONAL {{
+                                                       ?step wdt:P ?outputraw
+                                                       BIND(replace( xsd:string(?outputraw),'http://www.wikidata.org/entity/','wikidata:') as ?output) 
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?outputraw rdfs:label ?outputlraw
+                                                                  FILTER (lang(?outputlraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?outputlraw, "No Label Provided!") AS ?outputl)
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?outputraw schema:description ?outputdraw
+                                                                  FILTER (lang(?outputdraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?outputdraw, "No Description Provided!") AS ?outputd)
+                                                     }}
+
+                                            OPTIONAL {{
+                                                       ?step wdt:P2283 ?methodraw
+                                                       BIND(replace( xsd:string(?methodraw),'http://www.wikidata.org/entity/','wikidata:') as ?method) 
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?methodraw rdfs:label ?methodlraw
+                                                                  FILTER (lang(?methodlraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?methodlraw, "No Label Provided!") AS ?methodl)
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?methodraw schema:description ?methoddraw
+                                                                  FILTER (lang(?methoddraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?methoddraw, "No Description Provided!") AS ?methodd)
+                                                     }}
+
+                                            OPTIONAL {{
+                                                       ?step p:P400 ?statement0.
+                                                       ?statement0 ps:P400 ?platformsoftwareraw.
+
+                                                      
+                                                       ?statement pq:P3831 ?platformsoftwaretyperaw.
+                                                       BIND(replace( xsd:string(?platformsoftwaretyperaw),'http://www.wikidata.org/entity/','') as ?platformsoftwaretype)
+                                                       FILTER (?platformsoftwaretype = "Q7397")
+
+
+                                                       BIND(replace( xsd:string(?platformsoftwareraw),'http://www.wikidata.org/entity/','wikidata:') as ?platformsoftware) 
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?platformsoftwareraw rdfs:label ?platformsoftwarelraw
+                                                                  FILTER (lang(?platformsoftwarelraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?platformsoftwarelraw, "No Label Provided!") AS ?platformsoftwarel)
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?platformsoftwareraw schema:description ?platformsoftwaredraw
+                                                                  FILTER (lang(?platformsoftwaredraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?platformsoftwaredraw, "No Description Provided!") AS ?platformsoftwared)
+                                                     }}
+
+                                            OPTIONAL {{
+                                                       ?step p:P400 ?statement1.
+                                                       ?statement1 ps:P400 ?platforminstrumentraw.
+
+                                                       
+                                                       ?statement pq:P3831 ?platforminstrumenttyperaw.
+                                                       BIND(replace( xsd:string(?platforminstrumenttyperaw),'http://www.wikidata.org/entity/','') as ?platforminstrumenttype)
+                                                       FILTER (?platforminstrumenttype = "")
+                                                                
+
+                                                       BIND(replace( xsd:string(?platforminstrumentraw),'http://www.wikidata.org/entity/','wikidata:') as ?platforminstrument) 
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?platforminstrumentraw rdfs:label ?platforminstrumentlraw
+                                                                  FILTER (lang(?platforminstrumentlraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?platforminstrumentlraw, "No Label Provided!") AS ?platforminstrumentl)
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?platforminstrumentraw schema:description ?platforminstrumentdraw
+                                                                  FILTER (lang(?platforminstrumentdraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?platforminstrumentdraw, "No Description Provided!") AS ?platforminstrumentd)
+                                                     }}
+
+                                            OPTIONAL {{
+                                                       ?step wdt:P101 ?fieldraw.
+                                                       BIND(replace( xsd:string(?fieldraw),'http://www.wikidata.org/entity/','wikidata:') as ?field)
+
+                                                       OPTIONAL {{
+                                                                  ?fieldraw rdfs:label ?fieldlraw
+                                                                  FILTER (lang(?fieldlraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?fieldlraw, "No Label Provided!") AS ?fieldl)
+                                                       
+                                                       OPTIONAL {{
+                                                                  ?fieldraw schema:description ?fielddraw
+                                                                  FILTER (lang(?fielddraw) = 'en')
+                                                                }}
+                                                       
+                                                       BIND(COALESCE(?fielddraw, "No Description Provided!") AS ?fieldd)
+                                                     }}
+
+                                            OPTIONAL {{
+                                                       ?step wdt:P3285 ?msc.
+                                                     }}
+
+                                    }}'''
 
 }
 

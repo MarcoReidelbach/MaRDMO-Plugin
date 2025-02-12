@@ -195,7 +195,7 @@
                             <th style="text-align: center; vertical-align: middle;">Description</th>
                             <th style="text-align: center; vertical-align: middle;">Input</th>
                             <th style="text-align: center; vertical-align: middle;">Output</th>
-                            <th style="text-align: center; vertical-align: middle;">Algorithm</th>
+                            <th style="text-align: center; vertical-align: middle;">Method</th>
                             <th style="text-align: center; vertical-align: middle;">Parameter</th>
                             <th style="text-align: center; vertical-align: middle;">Environment</th>
                             <th style="text-align: center; vertical-align: middle;">Discipline</th>
@@ -234,14 +234,24 @@
                                     {% endfor %}
                                 </td>
                                 <td style="text-align: center; vertical-align: middle;">
-                                    {% for algorithm in values.algorithm.values %}
-                                        <a href="{{ mathalgodbURI }}object/al:{{ algorithm.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ algorithm.Name }}</a>
+                                    {% for method in values.method.values %}
+                                        {% if 'mathalgodb' in method.ID %}
+                                            <a href="{{ mathalgodbURI }}object/al:{{ method.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ method.Name }}</a>
+                                        {% endif %}
                                         {% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                 </td>
                                 <td style="text-align: center; vertical-align: middle;">{{ values.parameter }}</td>
                                 <td style="text-align: center; vertical-align: middle;">
-                                    {% for environment in values.environment.values %}
+                                    {% for environment in values.environmentSoftware.values %}
+                                        {% if 'mardi' in environment.ID %}
+                                            <a href="{{ mardiURI }}{{ environment.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ environment.Name }}</a>
+                                        {% elif 'wikidata' in environment.ID %}
+                                            <a href="{{ wikidataURI }}{{ environment.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ environment.Name }}</a>
+                                        {% endif %}
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                    {% for environment in values.environmentInstrument.values %}
                                         {% if 'mardi' in environment.ID %}
                                             <a href="{{ mardiURI }}{{ environment.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ environment.Name }}</a>
                                         {% elif 'wikidata' in environment.ID %}

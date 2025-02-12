@@ -1,9 +1,8 @@
-import os, json
-
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 
 from ..id import *
+from ..utils import get_data
 
 @dataclass
 class ModelProperties:
@@ -56,4 +55,95 @@ class Parameters:
             Unit = data.get('Unit', {}).get('value'),
             Symbol = f"$${data.get('Symbol', {}).get('value')}$$",
             Task = data.get('label', {}).get('value')
+        )
+    
+@dataclass
+class Relatant:
+    id: Optional[str]
+    label: Optional[str]
+    description: Optional[str]
+    
+    @classmethod
+    def from_query(cls, raw: str) -> 'Relatant':
+
+        id, label, description = raw.split(" | ")
+
+        return cls(
+            id = id,
+            label = label,
+            description = description,
+        )
+    
+    @classmethod
+    def from_relation(cls, id: str, label: str, description: str) -> 'Relatant':
+
+        return cls(
+            id = id,
+            label = label,
+            description = description,
+        )
+    
+    @classmethod
+    def from_msc(cls, id: str, label: str, description: str) -> 'Relatant':
+
+        return cls(
+            id = f"msc:{id}",
+            label = label,
+            description = description,
+        )
+    
+@dataclass
+class MRelatant:
+    id: Optional[str]
+    label: Optional[str]
+    description: Optional[str]
+    
+    @classmethod
+    def from_query(cls, raw: str) -> 'MRelatant':
+
+        id_mathalgodb = ''
+        id_general, label, description, link = raw.split(" | ")
+
+        if link and link.startswith('https://mardi4nfdi.de/mathalgodb/0.1/algorithm#'):
+            _, id_mathalgodb = link.split('#')
+
+        return cls(
+            id = f"mathalgodb:{id_mathalgodb}" if id_mathalgodb else id_general,
+            label = label,
+            description = description,
+        )
+    
+@dataclass
+class ProcessStep:
+    id: Optional[str]
+    label: Optional[str]
+    description: Optional[str]
+    inputDataSet: Optional[List[Relatant]] = field(default_factory=list)
+    outputDataSet: Optional[List[Relatant]] = field(default_factory=list)
+    uses: Optional[List[Relatant]] = field(default_factory=list)
+    platformSoftware: Optional[List[Relatant]] = field(default_factory=list)
+    platformInstrument: Optional[List[Relatant]] = field(default_factory=list)
+    fieldOfWork: Optional[List[Relatant]] = field(default_factory=list)
+    mscID: Optional[List[Relatant]] = field(default_factory=list)
+
+    
+    @classmethod
+    def from_query(cls, raw_data: List) -> 'ProcessStep':
+
+        data = raw_data[0]
+        
+        # Load MSC Classification
+        msc = get_data('data/msc2020.json')
+
+        return cls(
+            id = None,
+            label = None,
+            description = None,
+            inputDataSet = [Relatant.from_query(input) for input in data.get('inputDataSet', {}).get('value', '').split(" / ") if input] if 'inputDataSet' in data else [],
+            outputDataSet = [Relatant.from_query(output) for output in data.get('outputDataSet', {}).get('value', '').split(" / ") if output] if 'outputDataSet' in data else [],
+            uses = [MRelatant.from_query(algorithm) for algorithm in data.get('uses', {}).get('value', '').split(" / ") if algorithm] if 'uses' in data else [], 
+            platformSoftware = [Relatant.from_query(software) for software in data.get('platformSoftware', {}).get('value', '').split(" / ") if software] if 'platformSoftware' in data else [],
+            platformInstrument = [Relatant.from_query(instrument) for instrument in data.get('platformInstrument', {}).get('value', '').split(" / ") if instrument] if 'platformInstrument' in data else [], 
+            fieldOfWork = [Relatant.from_query(field) for field in data.get('fieldOfWork', {}).get('value', '').split(" / ") if field] if 'fieldOfWork' in data else [],
+            mscID = [Relatant.from_msc(mscID, next((key for key, value in msc.items() if value['id'] == mscID), None), next((value['quote'] for key, value in msc.items() if value['id'] == mscID), None)) for mscID in data.get('mscID', {}).get('value', '').split(" / ") if mscID] if 'mscID' in data else [],
         )

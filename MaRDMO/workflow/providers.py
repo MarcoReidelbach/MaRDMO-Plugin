@@ -36,20 +36,36 @@ class MainMathematicalModel(Provider):
 
         return query_sources(search, queryID, sources)
     
-class MainAlgorithm(Provider):
+class Method(Provider):
 
     search = True
+    refresh = True
 
     def get_options(self, project, search, user=None, site=None):
-        '''Queries MathAlgoDB for user input'''
+        '''Queries MathModDB for user input'''
         if not search or len(search) < 3:
             return []
 
         # Define the sources to query
         queryID = 'AL'
-        sources = ['mathalgodb']
+        sources = ['mathalgodb','mardi','wikidata']
 
         return query_sources(search, queryID, sources)
+    
+class RelatedMethod(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'AL'
+        queryAttribute = 'method'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, ['mathalgodb', 'mardi', 'wikidata'])
     
 class WorkflowTask(Provider):
 
@@ -217,6 +233,6 @@ class Discipline(Provider):
         options = query_sources(search, queryID, sources, False)
 
         # Mathematical Subjects
-        options.extend([{'id': f"msc:{self.msc[key]['id']}" + ' - ' + key , 'text': f"{key} ({self.msc[key]['id']}) [msc]"} for key in self.msc if search.lower() in key.lower()])
+        options.extend([{'id': f"msc:{self.msc[key]['id']}", 'text': f"{key} ({self.msc[key]['quote']}) [msc]"} for key in self.msc if search.lower() in key.lower()])
 
         return sorted(options, key=lambda option: option['text'].lower())[:30]

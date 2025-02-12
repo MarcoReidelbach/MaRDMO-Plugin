@@ -218,6 +218,9 @@
         "set_index": true,
         "collection_index": true
     },
+    "Software": {
+        "uri": "domain/software"
+    },
     "Software ID": {
         "key1": "software",
         "key2": "ID",
@@ -394,6 +397,9 @@
         "uri": "domain/hardware/cores",
         "set_index": true
     },
+    "Instrument": {
+        "uri": "domain/instrument"
+    },
     "Instrument ID": {
         "key1": "instrument",
         "key2": "ID",
@@ -481,7 +487,10 @@
         "set_index": true,
         "collection_index": true
     },
-    "DataSet ID": {
+    "Data Set": {
+        "uri": "domain/data-set"
+    },
+    "Data Set ID": {
         "key1": "dataset",
         "key2": "ID",
         "uri": "domain/data-set/id",
@@ -589,54 +598,57 @@
         "set_index": true,
         "option_text": true
     },
-    "Algorithm ID": {
-        "key1": "algorithm",
+    "Method": {
+        "uri": "domain/method"
+    },
+    "Method ID": {
+        "key1": "method",
         "key2": "ID",
-        "uri": "domain/main-algorithm/id",
+        "uri": "domain/method/id",
         "set_index": true,
         "external_id": true
     },
-    "Algorithm Name": {
-        "key1": "algorithm",
+    "Method Name": {
+        "key1": "method",
         "key2": "Name",
-        "uri": "domain/main-algorithm/name",
+        "uri": "domain/method/name",
         "set_index": true
     },
-    "Algorithm Description": {
-        "key1": "algorithm",
+    "Method Description": {
+        "key1": "method",
         "key2": "Description",
-        "uri": "domain/main-algorithm/description",
+        "uri": "domain/method/description",
         "set_index": true
     },
-    "Algorithm Parameter": {
-        "key1": "algorithm",
+    "Method Parameter": {
+        "key1": "method",
         "key2": "Parameter",
-        "uri": "domain/main-algorithm/parameter",
+        "uri": "domain/method/parameter",
         "set_index": true,
         "collection_index": true
     },
-    "Algorithm Software ID": {
-        "key1": "algorithm",
+    "Method Software ID": {
+        "key1": "method",
         "key2": "software",
         "key3": "ID",
-        "uri": "domain/main-algorithm/software/id",
+        "uri": "domain/method/software/id",
         "set_index": true,
         "collection_index": true,
         "external_id": true
     },
-    "Algorithm Software Name": {
-        "key1": "algorithm",
+    "Method Software Name": {
+        "key1": "method",
         "key2": "software",
         "key3": "Name",
-        "uri": "domain/main-algorithm/software/name",
+        "uri": "domain/method/software/name",
         "set_index": true,
         "collection_index": true
     },
-    "Algorithm Software Description": {
-        "key1": "algorithm",
+    "Method Software Description": {
+        "key1": "method",
         "key2": "software",
         "key3": "Description",
-        "uri": "domain/main-algorithm/software/description",
+        "uri": "domain/method/software/description",
         "set_index": true,
         "collection_index": true
     },
@@ -659,7 +671,7 @@
         "uri": "domain/process-step/description",
         "set_index": true
     },
-    "ProcessStep Input ID": {
+    "Process Step Input ID": {
         "key1": "processstep",
         "key2": "input",
         "key3": "ID",
@@ -668,7 +680,7 @@
         "collection_index": true,
         "external_id": true
     },
-    "ProcessStep Input Name": {
+    "Process Step Input Name": {
         "key1": "processstep",
         "key2": "input",
         "key3": "Name",
@@ -676,7 +688,7 @@
         "set_index": true,
         "collection_index": true
     },
-    "ProcessStep Input Description": {
+    "Process Step Input Description": {
         "key1": "processstep",
         "key2": "input",
         "key3": "Description",
@@ -684,7 +696,7 @@
         "set_index": true,
         "collection_index": true
     },
-    "ProcessStep Output ID": {
+    "Process Step Output ID": {
         "key1": "processstep",
         "key2": "output",
         "key3": "ID",
@@ -693,7 +705,7 @@
         "collection_index": true,
         "external_id": true
     },
-    "ProcessStep Output Name": {
+    "Process Step Output Name": {
         "key1": "processstep",
         "key2": "output",
         "key3": "Name",
@@ -701,7 +713,7 @@
         "set_index": true,
         "collection_index": true
     },
-    "ProcessStep Output Description": {
+    "Process Step Output Description": {
         "key1": "processstep",
         "key2": "output",
         "key3": "Description",
@@ -709,88 +721,88 @@
         "set_index": true,
         "collection_index": true
     },
-    "ProcessStep Algorithm ID": {
+    "Process Step Method ID": {
         "key1": "processstep",
-        "key2": "algorithm",
+        "key2": "method",
         "key3": "ID",
-        "uri": "domain/process-step/algorithm/id",
+        "uri": "domain/process-step/method/id",
         "set_index": true,
         "collection_index": true,
         "external_id": true
     },
-    "ProcessStep Algorithm Name": {
+    "Process Step Method Name": {
         "key1": "processstep",
-        "key2": "algorithm",
+        "key2": "method",
         "key3": "Name",
-        "uri": "domain/process-step/algorithm/name",
+        "uri": "domain/process-step/method/name",
         "set_index": true,
         "collection_index": true
     },
-    "ProcessStep Algorithm Description": {
+    "Process Step Method Description": {
         "key1": "processstep",
-        "key2": "algorithm",
+        "key2": "method",
         "key3": "Description",
-        "uri": "domain/process-step/algorithm/description",
+        "uri": "domain/process-step/method/description",
         "set_index": true,
         "collection_index": true
     },
-    "ProcessStep Parameter": {
+    "Process Step Parameter": {
         "key1": "processstep",
         "key2": "parameter",
         "uri": "domain/process-step/parameter",
         "set_index": true
     },
-    "ProcessStep Environment-Software ID": {
+    "Process Step Environment-Software ID": {
         "key1": "processstep",
-        "key2": "environment-software",
+        "key2": "environmentSoftware",
         "key3": "ID",
         "uri": "domain/process-step/environment-software/id",
         "set_index": true,
         "collection_index": true,
         "external_id": true
     },
-    "ProcessStep Environment-Software Name": {
+    "Process Step Environment-Software Name": {
         "key1": "processstep",
-        "key2": "environment-software",
+        "key2": "environmentSoftware",
         "key3": "Name",
         "uri": "domain/process-step/environment-software/name",
         "set_index": true,
         "collection_index": true
     },
-    "ProcessStep Environment-Software Description": {
+    "Process Step Environment-Software Description": {
         "key1": "processstep",
-        "key2": "environment-software",
+        "key2": "environmentSoftware",
         "key3": "Description",
         "uri": "domain/process-step/environment-software/description",
         "set_index": true,
         "collection_index": true
     },
-    "ProcessStep Environment-Instrument ID": {
+    "Process Step Environment-Instrument ID": {
         "key1": "processstep",
-        "key2": "environment-instrument",
+        "key2": "environmentInstrument",
         "key3": "ID",
         "uri": "domain/process-step/environment-instrument/id",
         "set_index": true,
         "collection_index": true,
         "external_id": true
     },
-    "ProcessStep Environment-Instrument Name": {
+    "Process Step Environment-Instrument Name": {
         "key1": "processstep",
-        "key2": "environment-instrument",
+        "key2": "environmentInstrument",
         "key3": "Name",
         "uri": "domain/process-step/environment-instrument/name",
         "set_index": true,
         "collection_index": true
     },
-    "ProcessStep Environment-Instrument Description": {
+    "Process Step Environment-Instrument Description": {
         "key1": "processstep",
-        "key2": "environment-instrument",
+        "key2": "environmentInstrument",
         "key3": "Description",
         "uri": "domain/process-step/environment-instrument/description",
         "set_index": true,
         "collection_index": true
     },
-    "ProcessStep Discipline ID": {
+    "Process Step Discipline ID": {
         "key1": "processstep",
         "key2": "discipline",
         "key3": "ID",
@@ -799,7 +811,7 @@
         "collection_index": true,
         "external_id": true
     },
-    "ProcessStep Discipline Name": {
+    "Process Step Discipline Name": {
         "key1": "processstep",
         "key2": "discipline",
         "key3": "Name",
@@ -807,7 +819,7 @@
         "set_index": true,
         "collection_index": true
     },
-    "ProcessStep Discipline Description": {
+    "Process Step Discipline Description": {
         "key1": "processstep",
         "key2": "discipline",
         "key3": "Description",
