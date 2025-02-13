@@ -5,7 +5,7 @@ from rdmo.projects.models import Value
 from rdmo.options.models import Option
 
 from ..config import BASE_URI, mardi_endpoint, mathalgodb_endpoint, mathmoddb_endpoint, wikidata_endpoint, wdt, wd
-from ..utils import add_references, add_relations, get_data, get_questionsPU, query_sparql, value_editor
+from ..utils import add_basics, add_references, add_relations, get_data, get_questionsPU, query_sparql, value_editor
 from ..id import *
 
 from .constants import INDEX_COUNTERS, PROPS, RELATANT_URIS, RELATION_URIS
@@ -35,14 +35,12 @@ def PInformation(sender, **kwargs):
                     #...structure the data,... 
                     data = Publication.from_query(results)
                     #...and add the Information to the Questionnaire.
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Publication Name"]["uri"]}', 
-                                 text = data.label, 
-                                 set_index = instance.set_index)
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
-                                 text = data.description, 
-                                 set_index = instance.set_index)
+                    add_basics(project = instance.project,
+                               text = instance.text,
+                               url_name = f'{BASE_URI}{questions["Publication Name"]["uri"]}',
+                               url_description = f'{BASE_URI}{questions["Publication Description"]["uri"]}',
+                               set_index = instance.set_index
+                               )
                     add_references(project = instance.project,
                                    data = data,
                                    uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}',
@@ -55,16 +53,13 @@ def PInformation(sender, **kwargs):
                 if results:
                     #...structure the data...
                     data = Publication.from_query(results)
-                    print(data)
                     #...and add the Information to the Questionnaire.
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Publication Name"]["uri"]}', 
-                                 text = data.label, 
-                                 set_index = instance.set_index)
-                    value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
-                                 text = data.description, 
-                                 set_index = instance.set_index)
+                    add_basics(project = instance.project,
+                               text = instance.text,
+                               url_name = f'{BASE_URI}{questions["Publication Name"]["uri"]}',
+                               url_description = f'{BASE_URI}{questions["Publication Description"]["uri"]}',
+                               set_index = instance.set_index
+                               )
                     add_references(project = instance.project,
                                    data = data,
                                    uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}',
@@ -131,7 +126,6 @@ def PInformation(sender, **kwargs):
                                   data = data, 
                                   props = PROPS['P2E'], 
                                   mapping = mathmoddb, 
-                                  source = source, 
                                   set_prefix = instance.set_index, 
                                   relatant = f'{BASE_URI}{questions["Publication EntityRelatant"]["uri"]}', 
                                   relation = f'{BASE_URI}{questions["Publication P2E"]["uri"]}')
@@ -144,7 +138,6 @@ def PInformation(sender, **kwargs):
                                   data = data, 
                                   props = PROPS['P2A'], 
                                   mapping = mathalgodb, 
-                                  source = source, 
                                   set_prefix = instance.set_index, 
                                   relatant = f'{BASE_URI}{questions["Publication ARelatant"]["uri"]}', 
                                   relation = f'{BASE_URI}{questions["Publication P2A"]["uri"]}')

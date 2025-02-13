@@ -47,16 +47,29 @@ def get_answer_workflow(project, val, uri, key1 = None, key2 = None, key3 = None
                 val[key1].setdefault(value.set_index, {}).update({key2:value.text})
             elif not set_prefix and set_index and not collection_index and external_id and not option_text:
                 val[key1].setdefault(value.set_index, {}).update({key2:value.external_id})
-            elif not set_prefix and set_index and collection_index and not external_id and not option_text:
+            elif set_prefix and not set_index and collection_index and not external_id and not option_text:
+                prefix = value.set_prefix.split('|')
                 if key3:
-                    val[key1].setdefault(value.set_index, {}).setdefault(key2, {}).setdefault(value.collection_index, {}).update({key3:value.text})
+                    val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).setdefault(value.collection_index, {}).update({key3:value.text})
                 else:
-                    val[key1].setdefault(value.set_index, {}).setdefault(key2, {}).update({value.collection_index:value.text})
-            elif not set_prefix and set_index and collection_index and external_id and not option_text:
+                    val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:value.text})
+            elif set_prefix and not set_index and collection_index and external_id and not option_text:
+                prefix = value.set_prefix.split('|')
                 if key3:
-                    val[key1].setdefault(value.set_index, {}).setdefault(key2, {}).setdefault(value.collection_index, {}).update({key3:value.external_id})
+                    val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).setdefault(value.collection_index, {}).update({key3:value.external_id})
                 else:
-                    val[key1].setdefault(value.set_index, {}).setdefault(key2, {}).update({value.collection_index:value.external_id})
+                    val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:value.external_id})    
+            elif set_prefix and not set_index and not collection_index and not external_id and not option_text:
+                prefix = value.set_prefix.split('|')
+                val[key1].setdefault(int(prefix[0]), {}).update({key2:value.text})
+            #elif set_prefix and not set_index and collection_index and not external_id and not option_text:
+            #    prefix = value.set_prefix.split('|')
+            #    val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:value.text})    
+            #elif set_prefix and not set_index and collection_index and external_id and not option_text:
+            #    prefix = value.set_prefix.split('|')
+            #    label,_,_ = extract_parts(value.text)
+            #    val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:f"{value.external_id} <|> {label}"})
+            
             
     return val
 

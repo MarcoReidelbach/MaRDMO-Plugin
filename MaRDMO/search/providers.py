@@ -1,5 +1,4 @@
 from rdmo.options.providers import Provider
-from ..config import mardi_api
 from ..utils import query_sources
 
 class MaRDISearch(Provider):

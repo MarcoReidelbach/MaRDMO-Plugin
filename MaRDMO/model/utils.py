@@ -51,7 +51,11 @@ def get_answer_model(project, val, uri, key1 = None, key2 = None, key3 = None, s
                 val[key1].setdefault(int(prefix[0]), {}).update({key2:value.text})
             elif set_prefix and not set_index and not collection_index and external_id and not option_text:
                 prefix = value.set_prefix.split('|')
-                val[key1].setdefault(int(prefix[0]), {}).update({key2:value.external_id})    
+                if key2 == 'DefinedQuantity':
+                    label,_,_ = extract_parts(value.text)
+                    val[key1].setdefault(int(prefix[0]), {}).update({key2:f"{value.external_id} <|> {label}"})
+                else:
+                    val[key1].setdefault(int(prefix[0]), {}).update({key2:value.external_id})    
             elif set_prefix and set_index and not collection_index and not external_id and not option_text:
                 prefix = value.set_prefix.split('|')
                 if key3:

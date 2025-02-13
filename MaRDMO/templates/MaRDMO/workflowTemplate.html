@@ -237,6 +237,10 @@
                                     {% for method in values.method.values %}
                                         {% if 'mathalgodb' in method.ID %}
                                             <a href="{{ mathalgodbURI }}object/al:{{ method.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ method.Name }}</a>
+                                        {% elif 'mardi' in method.ID %}
+                                            <a href="{{ mardiURI }}{{ method.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ method.Name }}</a>
+                                        {% elif 'wikidata' in method.ID %}
+                                            <a href="{{ wikidataURI }}{{ method.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ method.Name }}</a>
                                         {% endif %}
                                         {% if not forloop.last %}, {% endif %}
                                     {% endfor %}

@@ -50,10 +50,10 @@ def get_id(project, uri, keys):
             ids.append(id)
     return ids 
 
-def add_basics(instance, url_name, url_description):
-    label, description, source = extract_parts(instance.text)
-    value_editor(instance.project, url_name, label, None, None, None, 0, instance.set_index)
-    value_editor(instance.project, url_description, description, None, None, None, 0, instance.set_index)
+def add_basics(project, text, url_name, url_description, collection_index = None, set_index = None, set_prefix = None):
+    label, description, source = extract_parts(text)
+    value_editor(project, url_name, label, None, None, collection_index, set_index, set_prefix)
+    value_editor(project, url_description, description, None, None, collection_index, set_index, set_prefix)
     return label, description, source
 
 def add_entities(project, question_set, question_id, datas, source, prefix):
@@ -366,7 +366,6 @@ def query_sources(search, queryID, sources, notFound=True):
 
         if notFound:
             options = [{'id': 'not found', 'text': 'not found'}] + options
-        print(options)
         return options
 
 def MathDBProvider(search, query, source):
@@ -420,12 +419,14 @@ def query_sources_with_user_additions(search, project, queryID, queryAttribute, 
                 # User-Defined Cases
                 label = value2.text or "No Label Provided!"
                 description = value3.text or "No Description Provided!"
+                id = idx
                 source = 'user'
-            elif 'mathmoddb' not in value1.text:
+            else:
                 # ID Cases
                 label, description, source = extract_parts(value1.text)
+                _, id = value1.external_id.split(':')
         if source not in sources:
-            dic[f"{label} ({description}) [{source}]"] = {'id': f"{source}:{idx}"}
+            dic[f"{label} ({description}) [{source}]"] = {'id': f"{source}:{id}"}
             
     # Add the user-defined options to the list, filtered by search
     options.extend([{'id': f"{dic[key]['id']}", 'text': key} for key in dic if search.lower() in key.lower()])

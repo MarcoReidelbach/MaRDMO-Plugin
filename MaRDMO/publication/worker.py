@@ -113,7 +113,6 @@ class PublicationRetriever:
                 #...but provided a DOI.
                 if answers['publication'][key]['reference'].get(0, ['',''])[1]:
                     #Get the Citation of several ressource.
-                    print('yes')
                     data = get_citation(answers['publication'][key]['reference'][0][1])
                     #If Publication available at MathModDB...
                     if data['mathmoddb']:

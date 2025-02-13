@@ -240,7 +240,7 @@
         "uri": "domain/software/description",
         "set_index": true
     },
-    "Programming Language ID": {
+    "Software Programming Language ID": {
         "key1": "software",
         "key2": "programminglanguage",
         "key3": "ID",
@@ -249,7 +249,7 @@
         "collection_index": true,
         "external_id": true
     },
-    "Programming Language Name": {
+    "Software Programming Language Name": {
         "key1": "software",
         "key2": "programminglanguage",
         "key3": "Name",
@@ -257,7 +257,7 @@
         "set_index": true,
         "collection_index": true
     },
-    "Programming Language Description": {
+    "Software Programming Language Description": {
         "key1": "software",
         "key2": "programminglanguage",
         "key3": "Description",
@@ -286,7 +286,7 @@
         "collection_index": true,
         "external_id": true
     },
-    "Dependency Name": {
+    "Software Dependency Name": {
         "key1": "software",
         "key2": "dependency",
         "key3": "Name",
@@ -294,7 +294,7 @@
         "set_index": true,
         "collection_index": true
     },
-    "Dependency Description": {
+    "Software Dependency Description": {
         "key1": "software",
         "key2": "dependency",
         "key3": "Description",
@@ -497,26 +497,26 @@
         "set_index": true,
         "external_id": true
     },
-    "DataSet Name": {
+    "Data Set Name": {
         "key1": "dataset",
         "key2": "Name",
         "uri": "domain/data-set/name",
         "set_index": true
     },
-    "DataSet Description": {
+    "Data Set Description": {
         "key1": "dataset",
         "key2": "Description",
         "uri": "domain/data-set/description",
         "set_index": true
     },
-    "DataSet Size": {
+    "Data Set Size": {
         "key1": "dataset",
         "key2": "Size",
         "uri": "domain/data-set/size",
         "set_index": true,
         "option_text": true
     },
-    "DataSet DataType ID": {
+    "Data Set Data Type ID": {
         "key1": "dataset",
         "key2": "datatype",
         "key3": "ID",
@@ -525,7 +525,7 @@
         "collection_index": true,
         "external_id": true
     },
-    "DataSet DataType Name": {
+    "Data Set Data Type Name": {
         "key1": "dataset",
         "key2": "datatype",
         "key3": "Name",
@@ -533,7 +533,7 @@
         "set_index": true,
         "collection_index": true
     },
-    "DataSet DataType Description": {
+    "Data Set Data Type Description": {
         "key1": "dataset",
         "key2": "datatype",
         "key3": "Description",
@@ -541,7 +541,7 @@
         "set_index": true,
         "collection_index": true
     },
-    "DataSet RepresentationFormat ID": {
+    "Data Set Representation Format ID": {
         "key1": "dataset",
         "key2": "representationformat",
         "key3": "ID",
@@ -550,7 +550,7 @@
         "collection_index": true,
         "external_id": true
     },
-    "DataSet RepresentationFormat Name": {
+    "Data Set Representation Format Name": {
         "key1": "dataset",
         "key2": "representationformat",
         "key3": "Name",
@@ -558,7 +558,7 @@
         "set_index": true,
         "collection_index": true
     },
-    "DataSet RepresentationFormat Description": {
+    "Data Set Representation Format Description": {
         "key1": "dataset",
         "key2": "representationformat",
         "key3": "Description",
@@ -566,32 +566,32 @@
         "set_index": true,
         "collection_index": true
     },
-    "DataSet FileFormat": {
+    "Data Set File Format": {
         "key1": "dataset",
         "key2": "FileFormat",
         "uri": "domain/data-set/file-format",
         "set_index": true
     },
-    "DataSet BinaryText": {
+    "Data Set Binary or Text": {
         "key1": "dataset",
         "key2": "BinaryText",
         "uri": "domain/data-set/binary-or-text",
         "set_index": true
     },
-    "DataSet Proprietary": {
+    "Data Set Proprietary": {
         "key1": "dataset",
         "key2": "Proprietary",
         "uri": "domain/data-set/proprietary",
         "set_index": true
     },
-    "DataSet ToPublish": {
+    "Data Set To Publish": {
         "key1": "dataset",
         "key2": "ToPublish",
         "uri": "domain/data-set/to-publish",
         "set_index": true,
         "option_text": true
     },
-    "DataSet ToArchive": {
+    "Data Set To Archive": {
         "key1": "dataset",
         "key2": "ToArchive",
         "uri": "domain/data-set/to-archive",
@@ -663,20 +663,20 @@
         "key1": "processstep",
         "key2": "Name",
         "uri": "domain/process-step/name",
-        "set_index": true
+        "set_prefix": true
     },
     "Process Step Description": {
         "key1": "processstep",
         "key2": "Description",
         "uri": "domain/process-step/description",
-        "set_index": true
+        "set_prefix": true
     },
     "Process Step Input ID": {
         "key1": "processstep",
         "key2": "input",
         "key3": "ID",
         "uri": "domain/process-step/input/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -685,7 +685,7 @@
         "key2": "input",
         "key3": "Name",
         "uri": "domain/process-step/input/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step Input Description": {
@@ -693,7 +693,7 @@
         "key2": "input",
         "key3": "Description",
         "uri": "domain/process-step/input/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step Output ID": {
@@ -701,7 +701,7 @@
         "key2": "output",
         "key3": "ID",
         "uri": "domain/process-step/output/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -710,7 +710,7 @@
         "key2": "output",
         "key3": "Name",
         "uri": "domain/process-step/output/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step Output Description": {
@@ -718,7 +718,7 @@
         "key2": "output",
         "key3": "Description",
         "uri": "domain/process-step/output/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step Method ID": {
@@ -726,7 +726,7 @@
         "key2": "method",
         "key3": "ID",
         "uri": "domain/process-step/method/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -735,7 +735,7 @@
         "key2": "method",
         "key3": "Name",
         "uri": "domain/process-step/method/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step Method Description": {
@@ -743,21 +743,21 @@
         "key2": "method",
         "key3": "Description",
         "uri": "domain/process-step/method/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step Parameter": {
         "key1": "processstep",
         "key2": "parameter",
         "uri": "domain/process-step/parameter",
-        "set_index": true
+        "set_prefix": true
     },
     "Process Step Environment-Software ID": {
         "key1": "processstep",
         "key2": "environmentSoftware",
         "key3": "ID",
         "uri": "domain/process-step/environment-software/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -766,7 +766,7 @@
         "key2": "environmentSoftware",
         "key3": "Name",
         "uri": "domain/process-step/environment-software/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step Environment-Software Description": {
@@ -774,7 +774,7 @@
         "key2": "environmentSoftware",
         "key3": "Description",
         "uri": "domain/process-step/environment-software/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step Environment-Instrument ID": {
@@ -782,7 +782,7 @@
         "key2": "environmentInstrument",
         "key3": "ID",
         "uri": "domain/process-step/environment-instrument/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -791,7 +791,7 @@
         "key2": "environmentInstrument",
         "key3": "Name",
         "uri": "domain/process-step/environment-instrument/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step Environment-Instrument Description": {
@@ -799,7 +799,7 @@
         "key2": "environmentInstrument",
         "key3": "Description",
         "uri": "domain/process-step/environment-instrument/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step Discipline ID": {
@@ -807,7 +807,7 @@
         "key2": "discipline",
         "key3": "ID",
         "uri": "domain/process-step/discipline/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -816,7 +816,7 @@
         "key2": "discipline",
         "key3": "Name",
         "uri": "domain/process-step/discipline/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step Discipline Description": {
@@ -824,7 +824,7 @@
         "key2": "discipline",
         "key3": "Description",
         "uri": "domain/process-step/discipline/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Reproducibility Mathematical": {
