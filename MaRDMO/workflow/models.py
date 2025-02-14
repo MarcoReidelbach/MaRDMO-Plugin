@@ -197,6 +197,29 @@ class Software:
             programmedIn =  [Relatant.from_query(language) for language in data.get('programmedIn', {}).get('value', '').split(" / ") if language] if 'programmedIn' in data else [], 
             dependsOnSoftware = [Relatant.from_query(software) for software in data.get('dependsOnSoftware', {}).get('value', '').split(" / ") if software] if 'dependsOnSoftware' in data else []
         )
+    
+@dataclass
+class Hardware:
+    id: Optional[str]
+    label: Optional[str]
+    description: Optional[str]
+    nodes: Optional[str]
+    cores: Optional[str]
+    CPU: Optional[List[Relatant]] = field(default_factory=list)
+    
+    @classmethod
+    def from_query(cls, raw_data: dict) -> 'Hardware':
+
+        data = raw_data[0]
+
+        return cls(
+            id = None,
+            label = None,
+            description = None, 
+            nodes = data.get('nodes', {}).get('value', ''),
+            cores = data.get('cores', {}).get('value', ''),
+            CPU = [Relatant.from_query(cpu) for cpu in data.get('CPU', {}).get('value', '').split(" / ") if cpu] if 'CPU' in data else []
+        )
 
 
 

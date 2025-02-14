@@ -8,7 +8,7 @@ from ..utils import add_basics, add_entities, add_references, add_relations, get
 
 #from .utils import add_basics #, add_entity
 from .sparql import mardiProvider, wikidataProvider, queryInfo
-from .models import Method, ProcessStep, Relatant, Software
+from .models import Method, ProcessStep, Relatant, Software, Hardware
 from .constants import PROPS
 
 @receiver(post_save, sender=Value)
@@ -342,8 +342,10 @@ def HardwareInformation(sender, **kwargs):
     if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
         # Get Questions of Workflow Section
         questions = get_questionsWO()
-        if instance.attribute.uri == f'{BASE_URI}domain/hardware/id':
+        if instance.attribute.uri == f'{BASE_URI}{questions["Hardware ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
+
+                # Add Basic Information
                 add_basics(project = instance.project,
                            text = instance.text,
                            url_name = f'{BASE_URI}{questions["Hardware Name"]["uri"]}',
@@ -351,27 +353,38 @@ def HardwareInformation(sender, **kwargs):
                            set_index = 0,
                            set_prefix = instance.set_index
                            )
+                
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
-                results = []
-                if source == 'mardi':
-                    results = query_sparql(mardiProvider['Hardware'].format(wdt, wd, f"wd:{Id}", P26, P32, P31), mardi_endpoint)
-                elif source == 'wikidata':
-                    results = query_sparql(wikidataProvider['Hardware'].format(f"wd:{Id}"), wikidata_endpoint)
+
+                # Query source for further Information
+                results = query_sparql(queryInfo[source]['hardware'].format(Id), endpoint[source]['sparql'])
+
                 if results:
-                    # Add CPU of Hardware
-                    idx = 0
-                    if results[0].get(f'CPU', {}).get('value'):
-                        for result in results[0]['CPU']['value'].split(' / '):
-                            ID, Label, Description = result.split(' | ')
-                            value_editor(instance.project, f'{BASE_URI}domain/hardware/cpu/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                            idx += 1
+
+                    # Structure Results
+                    data = Hardware.from_query(results)
+                    
+                    # Add Relations between CPU and Hardware to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['H2CPU'], 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Hardware CPU ID"]["uri"]}')
+                    
                     # Number of Nodes
-                    if results[0].get(f'nodes', {}).get('value'):
-                        value_editor(instance.project, f'{BASE_URI}domain/hardware/nodes', results[0]['nodes']['value'], None, None, None, instance.set_index, None)
+                    if data.nodes:
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Hardware Nodes"]["uri"]}', 
+                                     text = data.nodes, 
+                                     set_prefix = instance.set_index)
+                    
                     # Number of Cores
-                    if results[0].get(f'cores', {}).get('value'):
-                        value_editor(instance.project, f'{BASE_URI}domain/hardware/cores', results[0]['cores']['value'], None, None, None, instance.set_index, None)                
+                    if data.cores:
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Hardware Cores"]["uri"]}', 
+                                     text = data.cores, 
+                                     set_prefix = instance.set_index)                
     return
 
 @receiver(post_save, sender=Value)

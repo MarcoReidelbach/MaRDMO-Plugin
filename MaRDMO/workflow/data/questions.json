@@ -327,20 +327,20 @@
         "key1": "hardware",
         "key2": "Name",
         "uri": "domain/hardware/name",
-        "set_index": true
+        "set_prefix": true
     },
     "Hardware Description": {
         "key1": "hardware",
         "key2": "Description",
         "uri": "domain/hardware/description",
-        "set_index": true
+        "set_prefix": true
     },
     "Hardware CPU ID": {
         "key1": "hardware",
         "key2": "cpu",
         "key3": "ID",
         "uri": "domain/hardware/cpu/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -349,7 +349,7 @@
         "key2": "cpu",
         "key3": "Name",
         "uri": "domain/hardware/cpu/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Hardware CPU Description": {
@@ -357,7 +357,7 @@
         "key2": "cpu",
         "key3": "Description",
         "uri": "domain/hardware/cpu/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Hardware Compiler ID": {
@@ -365,7 +365,7 @@
         "key2": "compiler",
         "key3": "ID",
         "uri": "domain/hardware/compiler/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -374,7 +374,7 @@
         "key2": "compiler",
         "key3": "Name",
         "uri": "domain/hardware/compiler/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Hardware Compiler Description": {
@@ -382,20 +382,20 @@
         "key2": "compiler",
         "key3": "Description",
         "uri": "domain/hardware/compiler/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
-    "Hardware Node": {
+    "Hardware Nodes": {
         "key1": "hardware",
-        "key2": "Node",
+        "key2": "Nodes",
         "uri": "domain/hardware/nodes",
-        "set_index": true
+        "set_prefix": true
     },
-    "Hardware Core": {
+    "Hardware Cores": {
         "key1": "hardware",
-        "key2": "Core",
+        "key2": "Cores",
         "uri": "domain/hardware/cores",
-        "set_index": true
+        "set_prefix": true
     },
     "Instrument": {
         "uri": "domain/instrument"

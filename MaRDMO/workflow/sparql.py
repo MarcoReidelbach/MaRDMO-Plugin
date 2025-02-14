@@ -278,7 +278,48 @@ queryInfo = {
 
                                         }}  
                                         
-                                        GROUP BY ?sourceCodeRepository ?userManualURL ?reference'''
+                                        GROUP BY ?sourceCodeRepository ?userManualURL ?reference''',
+
+                         'hardware': '''PREFIX wdt:<https://portal.mardi4nfdi.de/prop/direct/>
+                                        PREFIX wd:<https://portal.mardi4nfdi.de/entity/>
+        
+                                        SELECT ?nodes ?cores
+                                               (GROUP_CONCAT(DISTINCT CONCAT(?cpu, " | ", ?cpul, " | ", ?cpud); separator=" / ") AS ?CPU)
+               
+                                        WHERE {{
+
+                                          VALUES ?hardware {{ wd:{0} }}
+        
+                                          # Get CPU
+                                          OPTIONAL {{
+                                                     ?hardware p:P1540 ?statement.
+                                                     ?statement ps:P1540 ?cpuraw.
+                                                     BIND(replace( xsd:string(?cpuraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?cpu) 
+                                                     
+                                                     OPTIONAL {{
+                                                                ?cpuraw rdfs:label ?cpulraw
+                                                                FILTER (lang(?cpulraw) = 'en')
+                                                              }}
+                                                     
+                                                     BIND(COALESCE(?cpulraw, "No Label Provided!") AS ?cpul)
+                                                     
+                                                     OPTIONAL {{
+                                                                ?cpuraw schema:description ?cpudraw
+                                                                FILTER (lang(?cpudraw) = 'en')
+                                                              }}
+                                                     
+                                                     BIND(COALESCE(?cpudraw, "No Description Provided!") AS ?cpud)
+        
+                                                     OPTIONAL {{
+                                                                ?cpuraw wdt:P1565 ?cores.
+                                                              }}
+                                                                
+                                                     OPTIONAL {{
+                                                                ?statement pq:P149 ?nodes.
+                                                              }}
+                                                   }}
+                                              }}
+                                        GROUP BY ?nodes ?cores '''
                      },
             'wikidata': { 
                          'step':  '''SELECT (GROUP_CONCAT(DISTINCT(?msc); SEPARATOR=" / ") AS ?mscID)
@@ -560,7 +601,45 @@ queryInfo = {
                                              BIND(IF(STRENDS(?referenceraw, " | "), STRBEFORE(?referenceraw, " | "), ?referenceraw) AS ?reference)
            
                                             }}
-                                           GROUP BY ?sourceCodeRepository ?userManualURL ?reference'''
+                                           GROUP BY ?sourceCodeRepository ?userManualURL ?reference''',
+
+                           'hardware': '''SELECT ?nodes ?cores
+                                          (GROUP_CONCAT(DISTINCT CONCAT(?cpu, " | ", ?cpul, " | ", ?cpud); separator=" / ") AS ?CPU)
+       
+                                          WHERE {{
+
+                                            VALUES ?hardware {{ wd:{0} }}
+
+                                            # Get CPU
+                                            OPTIONAL {{
+                                                       ?hardware p:P880 ?statement.
+                                                       ?statement ps:P880 ?cpuraw.
+                                                       BIND(replace( xsd:string(?cpuraw),'http://www.wikidata.org/entity/','wikidata:') as ?cpu) 
+
+                                                       OPTIONAL {{
+                                                                  ?cpuraw rdfs:label ?cpulraw
+                                                                  FILTER (lang(?cpulraw) = 'en')
+                                                                }}
+
+                                                       BIND(COALESCE(?cpulraw, "No Label Provided!") AS ?cpul)
+
+                                                       OPTIONAL {{
+                                                                  ?cpuraw schema:description ?cpudraw
+                                                                  FILTER (lang(?cpudraw) = 'en')
+                                                                }}
+
+                                                       BIND(COALESCE(?cpudraw, "No Description Provided!") AS ?cpud)
+
+                                                       OPTIONAL {{
+                                                                  ?cpuraw wdt:P1141 ?cores.
+                                                                }}
+
+                                                       OPTIONAL {{
+                                                                  ?statement pq:P1114 ?nodes.
+                                                                }}
+                                                     }}
+                                                }}
+                                                GROUP BY ?nodes ?cores '''
             },
             'mathalgodb': {
                            'method': '''PREFIX prop: <https://mardi4nfdi.de/mathalgodb/0.1#>

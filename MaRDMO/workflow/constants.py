@@ -14,7 +14,8 @@ PROPS = {
     'M2S': ['implementedBySoftware'],
     'M2I': ['implementedByInstrument'],
     'S2PL': ['programmedIn'],
-    'S2DP': ['dependsOnSoftware']
+    'S2DP': ['dependsOnSoftware'],
+    'H2CPU': ['CPU']
 }
 
 # Order of References
