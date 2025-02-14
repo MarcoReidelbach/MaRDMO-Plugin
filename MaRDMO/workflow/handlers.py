@@ -4,11 +4,11 @@ from rdmo.projects.models import Value
 
 from ..id import *
 from ..config import BASE_URI, mardi_endpoint, wd, wdt, wikidata_endpoint, endpoint
-from ..utils import add_basics, add_entities, add_relations, get_data, get_questionsWO, value_editor, query_sparql
+from ..utils import add_basics, add_entities, add_references, add_relations, get_data, get_questionsWO, value_editor, query_sparql
 
 #from .utils import add_basics #, add_entity
 from .sparql import mardiProvider, wikidataProvider, queryInfo
-from .models import Method, ProcessStep, Relatant
+from .models import Method, ProcessStep, Relatant, Software
 from .constants import PROPS
 
 @receiver(post_save, sender=Value)
@@ -274,8 +274,9 @@ def SoftwareInformation(sender, **kwargs):
         # Get Questions of Workflow Catalog
         questions = get_questionsWO()
         # Check if Software ID is concerned
-        if instance.attribute.uri == f'{BASE_URI}domain/software/id':
+        if instance.attribute.uri == f'{BASE_URI}{questions["Software ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
+                
                 # Add Basic Information
                 add_basics(project = instance.project,
                                text = instance.text,
@@ -284,44 +285,54 @@ def SoftwareInformation(sender, **kwargs):
                                set_index = 0,
                                set_prefix = instance.set_index
                                )
+                
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
-                results = []
-                if source == 'mardi':
-                    results = query_sparql(mardiProvider['Software'].format(wdt, wd, f"wd:{Id}", P19, P34, P35, P36, P16, P20), mardi_endpoint)
-                elif source == 'wikidata':
-                    results = query_sparql(wikidataProvider['Software'].format(f"wd:{Id}"), wikidata_endpoint)
+
+                # Query source for further Information
+                results = query_sparql(queryInfo[source]['software'].format(Id), endpoint[source]['sparql'])
+                
                 if results:
-                    # Load Options
+                
+                    # Structure Results and load options
+                    data = Software.from_query(results)
                     options = get_data('data/options.json')
-                    # Add Reference of Software
-                    if results[0].get('doi', {}).get('value'):
-                        reference = f"doi:{results[0]['doi']['value']}"
-                    elif results[0].get('swmath', {}).get('value'):
-                        reference = f"sw:{results[0]['swmath']['value']}"
-                    else:
-                        reference = ''
-                    value_editor(instance.project, f'{BASE_URI}domain/software/reference', reference, None, None, None, instance.set_index, None)
-                    # Add Programming Languages of Software
-                    idx = 0
-                    if results[0].get(f'PL', {}).get('value'):
-                        for result in results[0]['PL']['value'].split(' / '):
-                            ID, Label, Description = result.split(' | ')
-                            value_editor(instance.project, f'{BASE_URI}domain/software/programming-language/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                            idx += 1
-                    # Add Dependencies of Software
-                    idx = 0
-                    if results[0].get(f'DP', {}).get('value'):
-                        for result in results[0]['DP']['value'].split(' / '):
-                            ID, Label, Description = result.split(' | ')
-                            value_editor(instance.project, f'{BASE_URI}domain/software/dependency/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                            idx += 1
-                    # Software Published?
-                    if results[0].get(f'published', {}).get('value'):
-                        value_editor(instance.project, f'{BASE_URI}domain/software/published', results[0]['published']['value'], None, options['YesText'], None, instance.set_index, None)
-                    # Software Documented?
-                    if results[0].get(f'documented', {}).get('value'):
-                        value_editor(instance.project, f'{BASE_URI}domain/software/documented', results[0]['documented']['value'], None, options['YesText'], None, instance.set_index, None)
+
+                    # Add References to Questionnaire
+                    add_references(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Software Reference"]["uri"]}',
+                                   set_prefix = instance.set_index)
+                    
+                    # Add Relations between Programming Language and Method to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['S2PL'], 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Software Programming Language ID"]["uri"]}')
+                    
+                    # Add Relations between Programming Language and Method to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['S2DP'], 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Software Dependency ID"]["uri"]}')
+                    
+                    # Software Source Code Published?
+                    if data.sourceCodeRepository:
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Software Published"]["uri"]}', 
+                                     text = data.sourceCodeRepository, 
+                                     option = options['YesText'], 
+                                     set_prefix = instance.set_index)
+                        
+                    # Software User Manual Documented?
+                    if data.userManualURL: 
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Software Documented"]["uri"]}', 
+                                     text = data.userManualURL,
+                                     option = options['YesText'],
+                                     set_prefix = instance.set_index)
     return
 
 @receiver(post_save, sender=Value)

@@ -430,7 +430,7 @@ def query_sources_with_user_additions(search, project, queryID, queryAttribute, 
             
     # Add the user-defined options to the list, filtered by search
     options.extend([{'id': f"{dic[key]['id']}", 'text': key} for key in dic if search.lower() in key.lower()])
-    print(options)
+    
     # Return combined, sorted options
     return sorted(options, key=lambda option: option['text'])
 

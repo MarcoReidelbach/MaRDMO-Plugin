@@ -408,10 +408,14 @@
                     {% for values in answers.software.values %}
                         <tr>
                             <td style="text-align: center; vertical-align: middle;">
-                                {% if 'mardi' in values.ID %}
+                                {% if 'mathalgodb' in values.ID %}
+                                    <a href="{{ mathalgodbURI }}object/al:{{ values.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% elif 'mardi' in values.ID %}
                                     <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
                                 {% elif 'wikidata' in values.ID %}
                                     <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% else %}
+                                    {{ values.Name }}
                                 {% endif %}
                             </td>
                             <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>

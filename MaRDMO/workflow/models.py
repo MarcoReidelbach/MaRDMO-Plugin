@@ -4,6 +4,8 @@ from typing import List, Optional
 from ..id import *
 from ..utils import get_data
 
+from .constants import reference_order_software
+
 @dataclass
 class ModelProperties:
     Time: Optional[str]
@@ -167,6 +169,33 @@ class Method:
             description = None,
             implementedBySoftware = [Relatant.from_query(software) for software in data.get('implementedBySoftware', {}).get('value', '').split(" / ") if field] if 'implementedBySoftware' in data else [],
             implementedByInstrument = [Relatant.from_query(software) for software in data.get('implementedByInstrument', {}).get('value', '').split(" / ") if field] if 'implementedByInstrument' in data else [] 
+        )
+    
+@dataclass
+class Software:
+    id: Optional[str]
+    label: Optional[str]
+    description: Optional[str]
+    sourceCodeRepository: Optional[str]
+    userManualURL: Optional[str]
+    reference: Optional[List] = field(default_factory=list)
+    programmedIn: Optional[List[Relatant]] = field(default_factory=list)
+    dependsOnSoftware: Optional[List[Relatant]] = field(default_factory=list)
+    
+    @classmethod
+    def from_query(cls, raw_data: dict) -> 'Software':
+
+        data = raw_data[0]
+
+        return cls(
+            id = None,
+            label = None,
+            description = None,
+            sourceCodeRepository = data.get('sourceCodeRepository', {}).get('value', '') ,
+            userManualURL = data.get('userManualURL', {}).get('value', ''),
+            reference = {reference_order_software[key][0]: [reference_order_software[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in reference_order_software and (value := part.split(':')[1])} | ({reference_order_software['url'][0]: [reference_order_software['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
+            programmedIn =  [Relatant.from_query(language) for language in data.get('programmedIn', {}).get('value', '').split(" / ") if language] if 'programmedIn' in data else [], 
+            dependsOnSoftware = [Relatant.from_query(software) for software in data.get('dependsOnSoftware', {}).get('value', '').split(" / ") if software] if 'dependsOnSoftware' in data else []
         )
 
 

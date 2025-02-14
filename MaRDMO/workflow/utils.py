@@ -30,7 +30,7 @@ def get_answer_workflow(project, val, uri, key1 = None, key2 = None, key3 = None
                 val[key1].update({key2:value.option_uri})
             elif not set_prefix and set_index and not collection_index and not external_id and not option_text:
                 val[key1].setdefault(value.set_index, {}).update({key2:value.option_uri})
-            elif not set_prefix and set_index and not collection_index and not external_id and option_text:
+            elif set_prefix and not set_index and not collection_index and not external_id and option_text:
                 val[key1].setdefault(value.set_index, {}).update({key2:[value.option_uri, value.text]})
             elif not set_prefix and set_index and collection_index and not external_id and not option_text:
                 val[key1].setdefault(value.set_index, {}).setdefault(key2, {}).update({value.collection_index:[value.option_uri,value.text]})
@@ -62,15 +62,6 @@ def get_answer_workflow(project, val, uri, key1 = None, key2 = None, key3 = None
             elif set_prefix and not set_index and not collection_index and not external_id and not option_text:
                 prefix = value.set_prefix.split('|')
                 val[key1].setdefault(int(prefix[0]), {}).update({key2:value.text})
-            #elif set_prefix and not set_index and collection_index and not external_id and not option_text:
-            #    prefix = value.set_prefix.split('|')
-            #    val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:value.text})    
-            #elif set_prefix and not set_index and collection_index and external_id and not option_text:
-            #    prefix = value.set_prefix.split('|')
-            #    label,_,_ = extract_parts(value.text)
-            #    val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:f"{value.external_id} <|> {label}"})
-            
-            
     return val
 
 def get_discipline(answers):

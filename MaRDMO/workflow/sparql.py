@@ -189,7 +189,96 @@ queryInfo = {
                                                           
                                                           BIND(COALESCE(?impInstdraw, "No Description Provided!") AS ?impInstd)
                                                         }}
-                                            }}'''
+                                            }}''',
+
+                         'software': '''PREFIX wdt:<https://portal.mardi4nfdi.de/prop/direct/>
+                                        PREFIX wd:<https://portal.mardi4nfdi.de/entity/>
+        
+                                        SELECT ?userManualURL ?sourceCodeRepository ?reference
+                                               (GROUP_CONCAT(DISTINCT CONCAT(?pl, " | ", ?pll, " | ", ?pld); separator=" / ") AS ?programmedIn)
+                                               (GROUP_CONCAT(DISTINCT CONCAT(?dp, " | ", ?dpl, " | ", ?dpd); separator=" / ") AS ?dependsOnSoftware)
+               
+                                        WHERE {{
+                                          
+                                          VALUES ?software {{ wd:{0} }}
+                                          
+                                          # Get Programming Language
+                                          OPTIONAL {{
+                                                     ?software wdt:P114 ?plraw.
+                                                     BIND(replace( xsd:string(?plraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?pl) 
+                                                     
+                                                     OPTIONAL {{
+                                                                ?plraw rdfs:label ?pllraw
+                                                                FILTER (lang(?pllraw) = 'en')
+                                                              }}
+                                                     
+                                                     BIND(COALESCE(?pllraw, "No Label Provided!") AS ?pll)
+                                                     
+                                                     OPTIONAL {{
+                                                                ?plraw schema:description ?pldraw
+                                                                FILTER (lang(?pldraw) = 'en')
+                                                              }}
+                                                     
+                                                     BIND(COALESCE(?pldraw, "No Description Provided!") AS ?pld)
+                                                   }}  
+                                          
+                                          # Get Dependencies
+                                          OPTIONAL {{
+                                                     ?software wdt:P342 ?dpraw.
+                                                     BIND(replace( xsd:string(?dpraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?dp) 
+                                                     
+                                                     OPTIONAL {{
+                                                                ?dpraw rdfs:label ?dplraw
+                                                                FILTER (lang(?dplraw) = 'en')
+                                                              }}
+                                                     
+                                                     BIND(COALESCE(?dplraw, "No Label Provided!") AS ?dpl)
+                                                     
+                                                     OPTIONAL {{
+                                                                ?dpraw schema:description ?dpdraw
+                                                                FILTER (lang(?dpdraw) = 'en')
+                                                              }}
+                                                     
+                                                     BIND(COALESCE(?dpdraw, "No Description Provided!") AS ?dpd)
+                                                   }}
+        
+                                          # Source Code Repository
+                                          OPTIONAL {{
+                                                     ?software wdt:P339 ?sourceCodeRepository.
+                                                   }}
+        
+                                          # User Manual URL
+                                          OPTIONAL {{
+                                                     ?software wdt:P340 ?userManualURL.
+                                                   }}
+                                          # DOI
+                                          OPTIONAL {{
+                                                     ?software wdt:P27 ?doi.
+                                                   }}
+                                          
+                                          # SWMATH
+                                          OPTIONAL {{
+                                                     ?software wdt:P13 ?swmath.
+                                                   }}
+
+                                          # URL
+                                          OPTIONAL {{
+                                                     ?software wdt:P188 ?url.
+                                                   }}
+
+                                         BIND(
+                                              CONCAT(
+                                                  IF(BOUND(?doi), CONCAT("doi:", STR(?doi), " | "), ""),
+                                                  IF(BOUND(?swmath), CONCAT("swmath:", STR(?swmath), " | "), ""),
+                                                  IF(BOUND(?url), STR(?url), "")
+                                              ) AS ?referenceraw
+                                          )
+                                          
+                                          BIND(IF(STRENDS(?referenceraw, " | "), STRBEFORE(?referenceraw, " | "), ?referenceraw) AS ?reference)
+
+                                        }}  
+                                        
+                                        GROUP BY ?sourceCodeRepository ?userManualURL ?reference'''
                      },
             'wikidata': { 
                          'step':  '''SELECT (GROUP_CONCAT(DISTINCT(?msc); SEPARATOR=" / ") AS ?mscID)
@@ -386,7 +475,92 @@ queryInfo = {
                                                             
                                                             BIND(COALESCE(?impInstdraw, "No Description Provided!") AS ?impInstd)
                                                           }}
-                                               }}'''
+                                               }}''',
+
+                           'software':  '''SELECT ?sourceCodeRepository ?userManualURL ?reference
+                                                  (GROUP_CONCAT(DISTINCT CONCAT(?pl, " | ", ?pll, " | ", ?pld); separator=" / ") AS ?programmedIn)
+                                                  (GROUP_CONCAT(DISTINCT CONCAT(?dp, " | ", ?dpl, " | ", ?dpd); separator=" / ") AS ?dependsOnSoftware)
+                                       
+                                           WHERE {{
+
+                                             VALUES ?software {{ wd:{0} }}
+           
+                                             # Get Programming Language
+                                             OPTIONAL {{
+                                                        ?software wdt:P277 ?plraw.
+                                                        BIND(replace( xsd:string(?plraw),'http://www.wikidata.org/entity/','wikidata:') as ?pl) 
+                                                        
+                                                        OPTIONAL {{
+                                                                   ?plraw rdfs:label ?pllraw
+                                                                   FILTER (lang(?pllraw) = 'en')
+                                                                 }}
+                                                        
+                                                        BIND(COALESCE(?pllraw, "No Label Provided!") AS ?pll)
+                                                        
+                                                        OPTIONAL {{
+                                                                   ?plraw schema:description ?pldraw
+                                                                   FILTER (lang(?pldraw) = 'en')
+                                                                 }}
+                                                        
+                                                        BIND(COALESCE(?pldraw, "No Description Provided!") AS ?pld)
+                                                      }}  
+                                             
+                                             # Get Dependencies
+                                             OPTIONAL {{
+                                                        ?software wdt:P1547 ?dpraw.
+                                                        BIND(replace( xsd:string(?dpraw),'http://www.wikidata.org/entity/','wikidata:') as ?dp) 
+                                                        
+                                                        OPTIONAL {{
+                                                                   ?dpraw rdfs:label ?dplraw
+                                                                   FILTER (lang(?dplraw) = 'en')
+                                                                 }}
+                                                        
+                                                        BIND(COALESCE(?dplraw, "No Label Provided!") AS ?dpl)
+                                                        
+                                                        OPTIONAL {{
+                                                                   ?dpraw schema:description ?dpdraw
+                                                                   FILTER (lang(?dpdraw) = 'en')
+                                                                 }}
+                                                        
+                                                        BIND(COALESCE(?dpdraw, "No Description Provided!") AS ?dpd)
+                                                      }}
+           
+                                             # Source Code Published
+                                             OPTIONAL {{
+                                                        ?software wdt:P1324 ?published.
+                                                      }}
+           
+                                             # User Manual Documented
+                                             OPTIONAL {{
+                                                        ?software wdt:P2078 ?documented.
+                                                      }}
+                                             # DOI
+                                             OPTIONAL {{
+                                                        ?software wdt:P356 ?doi.
+                                                      }}
+                                             
+                                             # SWMATH
+                                             OPTIONAL {{
+                                                        ?software wdt:P6830 ?swmath.
+                                                      }}
+
+                                             # URL
+                                             OPTIONAL {{
+                                                        ?software wdt:P2699 ?url.
+                                                      }}
+
+                                             BIND(
+                                              CONCAT(
+                                                  IF(BOUND(?doi), CONCAT("doi:", STR(?doi), " | "), ""),
+                                                  IF(BOUND(?swmath), CONCAT("swmath:", STR(?swmath), " | "), ""),
+                                                  IF(BOUND(?url), STR(?url), "")
+                                              ) AS ?referenceraw
+                                             )
+                                          
+                                             BIND(IF(STRENDS(?referenceraw, " | "), STRBEFORE(?referenceraw, " | "), ?referenceraw) AS ?reference)
+           
+                                            }}
+                                           GROUP BY ?sourceCodeRepository ?userManualURL ?reference'''
             },
             'mathalgodb': {
                            'method': '''PREFIX prop: <https://mardi4nfdi.de/mathalgodb/0.1#>
@@ -406,7 +580,20 @@ queryInfo = {
                                                            OPTIONAL {{ ?impleraw rdfs:comment ?impledraw}}
                                                            BIND(COALESCE(?impledraw, "No Description Provided!") AS ?impled)
                                                          }}
-                                              }}'''
+                                              }}''',
+
+                           'software': '''PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/software#>
+                                          PREFIX dc: <http://purl.org/spar/datacite/>   
+                                          
+                                          SELECT DISTINCT (GROUP_CONCAT(DISTINCT ?referenceraw; separator=" | ") AS ?reference)
+                                                          
+                                          WHERE {{
+                                                  VALUES ?idraw {{ :{0} }}
+           
+                                                  OPTIONAL {{ ?idraw dc:hasIdentifier ?referenceraw }}
+           
+                                                }}
+                                          GROUP BY ?reference''' 
             }
 
 }
