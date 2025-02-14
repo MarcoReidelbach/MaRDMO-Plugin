@@ -219,6 +219,8 @@
                                             <a href="{{ mardiURI }}{{ input.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ input.Name }}</a>
                                         {% elif 'wikidata' in input.ID %}
                                             <a href="{{ wikidataURI }}{{ input.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ input.Name }}</a>
+                                        {% else %}
+                                            {{ input.Name }}
                                         {% endif %}
                                         {% if not forloop.last %}, {% endif %}
                                     {% endfor %}
@@ -229,6 +231,8 @@
                                             <a href="{{ mardiURI }}{{ output.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ output.Name }}</a>
                                         {% elif 'wikidata' in output.ID %}
                                             <a href="{{ wikidataURI }}{{ output.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ output.Name }}</a>
+                                        {% else %}
+                                            {{ output.Name }}
                                         {% endif %}
                                         {% if not forloop.last %}, {% endif %}
                                     {% endfor %}
@@ -241,6 +245,8 @@
                                             <a href="{{ mardiURI }}{{ method.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ method.Name }}</a>
                                         {% elif 'wikidata' in method.ID %}
                                             <a href="{{ wikidataURI }}{{ method.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ method.Name }}</a>
+                                        {% else %}
+                                            {{ method.Name }}
                                         {% endif %}
                                         {% if not forloop.last %}, {% endif %}
                                     {% endfor %}
@@ -252,6 +258,8 @@
                                             <a href="{{ mardiURI }}{{ environment.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ environment.Name }}</a>
                                         {% elif 'wikidata' in environment.ID %}
                                             <a href="{{ wikidataURI }}{{ environment.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ environment.Name }}</a>
+                                        {% else %}
+                                            {{ environment.Name }}
                                         {% endif %}
                                         {% if not forloop.last %}, {% endif %}
                                     {% endfor %}
@@ -260,6 +268,8 @@
                                             <a href="{{ mardiURI }}{{ environment.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ environment.Name }}</a>
                                         {% elif 'wikidata' in environment.ID %}
                                             <a href="{{ wikidataURI }}{{ environment.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ environment.Name }}</a>
+                                        {% else %}
+                                            {{ environment.Name }}
                                         {% endif %}
                                         {% if not forloop.last %}, {% endif %}
                                     {% endfor %}
@@ -282,8 +292,8 @@
                 </table>
         {% endif %}
 
-    <h3 id="algorithms">Algorithms</h3>
-    {% if answers.algorithm.values %}
+    <h3 id="algorithms">Methods</h3>
+    {% if answers.method.values %}
 
             <table border="1">
                 <colgroup>
@@ -303,16 +313,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for values in answers.algorithm.values %}
+                    {% for values in answers.method.values %}
                         <tr>
                             <td style="text-align: center; vertical-align: middle;">
-                                <a href="{{ mathalgodbURI }}{{ values.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% if 'mathalgodb' in values.ID %}
+                                    <a href="{{ mathalgodbURI }}object/al:{{ values.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% elif 'mardi' in values.ID %}
+                                    <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% elif 'wikidata' in values.ID %}
+                                    <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% else %}
+                                    {{ values.Name }}
+                                {% endif %}
                             </td>
                             <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>
                             <td style="text-align: center; vertical-align: middle;"> 
                                 {% for processstep in answers.processstep.values %}
-                                    {% for algorithm in processstep.algorithm.values %}
-                                        {% if values.ID == algorithm.ID %}
+                                    {% for method in processstep.method.values %}
+                                        {% if values.ID == method.ID %}
                                             {% if 'mardi' in processstep.ID %}
                                                 <a href="{{ mardiURI }}{{ processstep.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ processstep.Name }}</a>
                                             {% elif 'wikidata' in processstep.ID %}
@@ -332,10 +350,24 @@
                             </td>
                             <td style="text-align: center; vertical-align: middle;">
                                 {% for software in values.software.values %}
-                                    {% if 'mardi' in software.ID %}
+                                    {% if 'mathalgodb' in software.ID %}
+                                        <a href="{{ mathalgodbURI }}{{ software.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
+                                    {% elif 'mardi' in software.ID %}
                                         <a href="{{ mardiURI }}{{ software.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
                                     {% elif 'wikidata' in software.ID %}
                                         <a href="{{ wikidataURI }}{{ software.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
+                                    {% else %}
+                                        {{ software.Name}}
+                                    {% endif %}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                {% for instrument in values.instrument.values %}
+                                    {% if 'mardi' in instrument.ID %}
+                                        <a href="{{ mardiURI }}{{ instrument.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ instrument.Name }}</a>
+                                    {% elif 'wikidata' in instrument.ID %}
+                                        <a href="{{ wikidataURI }}{{ instrument.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ instrument.Name }}</a>
+                                    {% else %}
+                                        {{ instrument.Name}}
                                     {% endif %}
                                     {% if not forloop.last %}, {% endif %}
                                 {% endfor %}

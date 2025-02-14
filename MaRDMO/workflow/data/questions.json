@@ -612,19 +612,19 @@
         "key1": "method",
         "key2": "Name",
         "uri": "domain/method/name",
-        "set_index": true
+        "set_prefix": true
     },
     "Method Description": {
         "key1": "method",
         "key2": "Description",
         "uri": "domain/method/description",
-        "set_index": true
+        "set_prefix": true
     },
     "Method Parameter": {
         "key1": "method",
         "key2": "Parameter",
         "uri": "domain/method/parameter",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Method Software ID": {
@@ -632,7 +632,7 @@
         "key2": "software",
         "key3": "ID",
         "uri": "domain/method/software/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -641,7 +641,7 @@
         "key2": "software",
         "key3": "Name",
         "uri": "domain/method/software/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Method Software Description": {
@@ -649,7 +649,32 @@
         "key2": "software",
         "key3": "Description",
         "uri": "domain/method/software/description",
-        "set_index": true,
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "Method Instrument ID": {
+        "key1": "method",
+        "key2": "instrument",
+        "key3": "ID",
+        "uri": "domain/method/instrument/id",
+        "set_prefix": true,
+        "collection_index": true,
+        "external_id": true
+    },
+    "Method Instrument Name": {
+        "key1": "method",
+        "key2": "instrument",
+        "key3": "Name",
+        "uri": "domain/method/instrument/name",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "Method Instrument Description": {
+        "key1": "method",
+        "key2": "instrument",
+        "key3": "Description",
+        "uri": "domain/method/instrument/description",
+        "set_prefix": true,
         "collection_index": true
     },
     "Process Step ID": {

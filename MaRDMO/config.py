@@ -29,3 +29,21 @@ wdt = '<https://portal.mardi4nfdi.de/prop/direct/>'
 crossref_api = 'https://api.crossref.org/works/'
 datacite_api = 'https://api.datacite.org/dois/'
 doi_api = 'https://citation.doi.org/metadata?doi='
+
+# Endpoints
+endpoint = {'mardi': {
+                      'api': 'https://portal.mardi4nfdi.de/w/api.php',
+                      'sparql': 'https://query.portal.mardi4nfdi.de/proxy/wdqs/bigdata/namespace/wdq/sparql',
+                     },
+           'wikidata': {
+                        'api': 'https://www.wikidata.org/w/api.php',
+                        'sparql': 'https://query.wikidata.org/sparql'
+                       },
+           'mathalgodb': {
+                          'sparql': 'http://localhost:3030/mathalgodb/query',
+                         },
+           'mathmoddb': {
+                          'sparql': 'http://localhost:3030/mathalgodb/query',
+                         }
+           }
+

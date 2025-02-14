@@ -96,11 +96,27 @@ class Software(Provider):
             return []
 
         # Define the query parameter
-        queryID = ''
-        sources = ['mardi', 'wikidata']
+        queryID = 'SO'
+        sources = ['mathalgodb', 'mardi', 'wikidata']
 
         return query_sources(search, queryID, sources)
+
+class RelatedSoftware(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
     
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'SO'
+        sources = ['mathalgodb', 'mardi', 'wikidata']
+        queryAttribute = 'software'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources)
+
 class Hardware(Provider):
 
     search = True
@@ -149,22 +165,6 @@ class DataSet(Provider):
 
         return query_sources(search, queryID, sources)
     
-class RelatedSoftware(Provider):
-
-    search = True
-
-    def get_options(self, project, search=None, user=None, site=None):
-    
-        if not search:
-            return []
-        
-        # Define the query parameter
-        queryID = ''
-        sources = ['mardi', 'wikidata']
-        queryAttribute = 'software'
-
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources)
-    
 class RelatedInstrument(Provider):
 
     search = True
@@ -176,7 +176,7 @@ class RelatedInstrument(Provider):
         
         # Define the query parameter
         queryID = ''
-        sources = []
+        sources = ['mardi', 'wikidata']
         queryAttribute = 'instrument'
 
         return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources)

@@ -8,7 +8,7 @@ from ..utils import add_basics, add_entities, add_relations, get_data, get_quest
 
 #from .utils import add_basics #, add_entity
 from .sparql import mardiProvider, wikidataProvider, queryInfo
-from .models import ProcessStep, Relatant
+from .models import Method, ProcessStep, Relatant
 from .constants import PROPS
 
 @receiver(post_save, sender=Value)
@@ -97,16 +97,6 @@ def BasicInformation(sender, **kwargs):
                        set_index = instance.set_index,
                        set_prefix = instance.set_prefix
                        ) 
-        # Implementing Software or Instrument
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Method Software ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["Method Software Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["Method Software Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       )
         # Discipline
         elif instance.attribute.uri == f'{BASE_URI}{questions["Process Step Discipline ID"]["uri"]}':
             add_basics(project = instance.project,
@@ -229,7 +219,51 @@ def BasicInformationAndEntryAddition(sender, **kwargs):
                                  question_id = f'{BASE_URI}{questions["Instrument ID"]["uri"]}', 
                                  datas = [Relatant.from_relation(instance.external_id, label, description)], 
                                  source = source, 
+                                 prefix = "I")
+        # Implementing Software
+        elif instance.attribute.uri == f'{BASE_URI}{questions["Method Software ID"]["uri"]}':
+            # Check if actual Software is chosen
+            if instance.text:
+                # Add Basic Information
+                label, description, source = add_basics(project = instance.project,
+                                                        text = instance.text,
+                                                        url_name = f'{BASE_URI}{questions["Method Software Name"]["uri"]}',
+                                                        url_description = f'{BASE_URI}{questions["Method Software Description"]["uri"]}',
+                                                        collection_index = instance.collection_index,
+                                                        set_index = instance.set_index,
+                                                        set_prefix = instance.set_prefix
+                                                        )
+                # If Data Set not defined by User
+                if source != 'user':
+                    add_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Software"]["uri"]}', 
+                                 question_id = f'{BASE_URI}{questions["Software ID"]["uri"]}', 
+                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                                 source = source, 
                                  prefix = "S")
+        # Implementing Instrument
+        elif instance.attribute.uri == f'{BASE_URI}{questions["Method Instrument ID"]["uri"]}':
+            # Check if actual Instrument is chosen
+            if instance.text:
+                # Add Basic Information
+                label, description, source = add_basics(project = instance.project,
+                                                        text = instance.text,
+                                                        url_name = f'{BASE_URI}{questions["Method Instrument Name"]["uri"]}',
+                                                        url_description = f'{BASE_URI}{questions["Method Instrument Description"]["uri"]}',
+                                                        collection_index = instance.collection_index,
+                                                        set_index = instance.set_index,
+                                                        set_prefix = instance.set_prefix
+                                                        )
+                # If Data Set not defined by User
+                if source != 'user':
+                    add_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Instrument"]["uri"]}', 
+                                 question_id = f'{BASE_URI}{questions["Instrument ID"]["uri"]}', 
+                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                                 source = source, 
+                                 prefix = "I")
+        
+        
     return
 
 @receiver(post_save, sender=Value)
@@ -419,6 +453,52 @@ def DataSetInformation(sender, **kwargs):
                             value_editor(instance.project, f'{BASE_URI}domain/data-set/to-archive', results[0]['endTime']['value'][:4], None, options[results[0]['Archiving']['value']], None, instance.set_index, None)
                         else:
                             value_editor(instance.project, f'{BASE_URI}domain/data-set/to-archive', None, None, options[results[0]['Archiving']['value']], None, instance.set_index, None)
+    return
+
+@receiver(post_save, sender=Value)
+def MethodInformation(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    # Check if Workflow Catalog is used
+    if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
+        # Get Questions of Workflow Section
+        questions = get_questionsWO()
+        if instance and instance.attribute.uri == f'{BASE_URI}{questions["Method ID"]["uri"]}':
+            if instance.text and instance.text != 'not found':
+                
+                # Add Basic Information to Questionnaire
+                add_basics(project = instance.project,
+                           text = instance.text,
+                           url_name = f'{BASE_URI}{questions["Method Name"]["uri"]}',
+                           url_description = f'{BASE_URI}{questions["Method Description"]["uri"]}',
+                           set_index = 0,
+                           set_prefix = instance.set_index
+                           )
+                
+                # Get source and ID of Item
+                source, Id = instance.external_id.split(':')
+
+                # Query source for further Information
+                results = query_sparql(queryInfo[source]['method'].format(Id), endpoint[source]['sparql'])
+
+                if results:
+                    # Structure Results
+                    data = Method.from_query(results)
+
+                    # Add Relations between Software and Method to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['M2S'], 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Method Software ID"]["uri"]}')
+
+                    # Add Relations between Instrument and Method to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['M2I'], 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Method Instrument ID"]["uri"]}')
+                    
+                
     return
 
 @receiver(post_save, sender=Value)

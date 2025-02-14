@@ -138,7 +138,58 @@ queryInfo = {
                                           OPTIONAL {{
                                                      ?step wdt:P226 ?msc.
                                                    }}
-                                  }}'''
+                                  }}''',
+
+                         'method':  '''PREFIX wdt:<https://portal.mardi4nfdi.de/prop/direct/>
+                                       PREFIX wd:<https://portal.mardi4nfdi.de/entity/>
+     
+                                       SELECT (GROUP_CONCAT(DISTINCT CONCAT(?impSoft, " | ", ?impSoftl, " | ", ?impSoftd); separator=" / ") AS ?implementedBySoftware)
+                                              (GROUP_CONCAT(DISTINCT CONCAT(?impInst, " | ", ?impInstl, " | ", ?impInstd); separator=" / ") AS ?implementedByInstrument)
+                                              
+                                       WHERE {{
+                                               VALUES ?method {{ wd:{0} }}
+                                               OPTIONAL {{
+                                                          ?method wdt:P ?impSoftraw.
+                                                          ?impSoftraw wdt:P31 wd:Q56614.
+
+                                                          BIND(replace( xsd:string(?impSoftraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?impSoft) 
+                                                          
+                                                          OPTIONAL {{
+                                                                     ?impSoftraw rdfs:label ?impSoftlraw
+                                                                     FILTER (lang(?impSoftlraw) = 'en')
+                                                                   }}
+                                                          
+                                                          BIND(COALESCE(?impSoftlraw, "No Label Provided!") AS ?impSoftl)
+                                                          
+                                                          OPTIONAL {{
+                                                                     ?impSoftraw schema:description ?impSoftdraw
+                                                                     FILTER (lang(?impSoftdraw) = 'en')
+                                                                   }}
+                                                          
+                                                          BIND(COALESCE(?impSoftdraw, "No Description Provided!") AS ?impSoftd)
+                                                        }}
+                                                        
+                                              OPTIONAL {{
+                                                          ?method wdt:P ?impInstraw.
+                                                          ?impInstraw wdt:P31 wd:Q77076.
+                                                          
+                                                          BIND(replace( xsd:string(?impInstraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?impInst) 
+                                                          
+                                                          OPTIONAL {{
+                                                                     ?impInstraw rdfs:label ?impInstlraw
+                                                                     FILTER (lang(?impInstlraw) = 'en')
+                                                                   }}
+                                                          
+                                                          BIND(COALESCE(?impInstlraw, "No Label Provided!") AS ?impInstl)
+                                                          
+                                                          OPTIONAL {{
+                                                                     ?impInstraw schema:description ?impInstdraw
+                                                                     FILTER (lang(?impInstdraw) = 'en')
+                                                                   }}
+                                                          
+                                                          BIND(COALESCE(?impInstdraw, "No Description Provided!") AS ?impInstd)
+                                                        }}
+                                            }}'''
                      },
             'wikidata': { 
                          'step':  '''SELECT (GROUP_CONCAT(DISTINCT(?msc); SEPARATOR=" / ") AS ?mscID)
@@ -287,8 +338,77 @@ queryInfo = {
                                                          ?step wdt:P3285 ?msc.
                                                        }}
 
-                                  }}'''
+                                  }}''',
+
+                           'method':  '''SELECT (GROUP_CONCAT(DISTINCT CONCAT(?impSoft, " | ", ?impSoftl, " | ", ?impSoftd); separator=" / ") AS ?implementedBySoftware)
+                                                (GROUP_CONCAT(DISTINCT CONCAT(?impInst, " | ", ?impInstl, " | ", ?impInstd); separator=" / ") AS ?implementedByInstrument)
+                                                
+                                         WHERE {{
+                                                 VALUES ?method {{ wd:{0} }}
+                                                 OPTIONAL {{
+                                                            ?method wdt:P ?impSoftraw.
+                                                            ?impSoftraw wdt:P31 wd:Q7397.
+  
+                                                            BIND(replace( xsd:string(?impSoftraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?impSoft) 
+                                                            
+                                                            OPTIONAL {{
+                                                                       ?impSoftraw rdfs:label ?impSoftlraw
+                                                                       FILTER (lang(?impSoftlraw) = 'en')
+                                                                     }}
+                                                            
+                                                            BIND(COALESCE(?impSoftlraw, "No Label Provided!") AS ?impSoftl)
+                                                            
+                                                            OPTIONAL {{
+                                                                       ?impSoftraw schema:description ?impSoftdraw
+                                                                       FILTER (lang(?impSoftdraw) = 'en')
+                                                                     }}
+                                                            
+                                                            BIND(COALESCE(?impSoftdraw, "No Description Provided!") AS ?impSoftd)
+                                                          }}
+                                                          
+                                                OPTIONAL {{
+                                                            ?method wdt:P ?impInstraw.
+                                                            ?impInstraw wdt:P31 wd:Q110994345.
+                                                            
+                                                            BIND(replace( xsd:string(?impInstraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?impInst) 
+                                                            
+                                                            OPTIONAL {{
+                                                                       ?impInstraw rdfs:label ?impInstlraw
+                                                                       FILTER (lang(?impInstlraw) = 'en')
+                                                                     }}
+                                                            
+                                                            BIND(COALESCE(?impInstlraw, "No Label Provided!") AS ?impInstl)
+                                                            
+                                                            OPTIONAL {{
+                                                                       ?impInstraw schema:description ?impInstdraw
+                                                                       FILTER (lang(?impInstdraw) = 'en')
+                                                                     }}
+                                                            
+                                                            BIND(COALESCE(?impInstdraw, "No Description Provided!") AS ?impInstd)
+                                                          }}
+                                               }}'''
+            },
+            'mathalgodb': {
+                           'method': '''PREFIX prop: <https://mardi4nfdi.de/mathalgodb/0.1#>
+                                        PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/algorithm#>
+                                        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>                          
+                                        
+                                        SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?imple, " | ", ?implel, " | ", ?impled); separator=" / ") AS ?implementedBySoftware)
+                                                        
+                                        WHERE {{
+                                                VALUES ?idraw {{ :{0} }}
+         
+                                                OPTIONAL {{
+                                                           ?idraw prop:implementedBy ?impleraw.
+                                                           BIND(CONCAT("mathalgodb:", STRAFTER(STR(?impleraw), "#")) AS ?imple)
+                                                           OPTIONAL {{ ?impleraw rdfs:label ?implelraw}}
+                                                           BIND(COALESCE(?implelraw, "No Label Provided!") AS ?implel)
+                                                           OPTIONAL {{ ?impleraw rdfs:comment ?impledraw}}
+                                                           BIND(COALESCE(?impledraw, "No Description Provided!") AS ?impled)
+                                                         }}
+                                              }}'''
             }
+
 }
 
 mardiProvider = {

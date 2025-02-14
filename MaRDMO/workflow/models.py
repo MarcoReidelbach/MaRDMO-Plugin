@@ -147,3 +147,27 @@ class ProcessStep:
             fieldOfWork = [Relatant.from_query(field) for field in data.get('fieldOfWork', {}).get('value', '').split(" / ") if field] if 'fieldOfWork' in data else [],
             mscID = [Relatant.from_msc(mscID, next((key for key, value in msc.items() if value['id'] == mscID), None), next((value['quote'] for key, value in msc.items() if value['id'] == mscID), None)) for mscID in data.get('mscID', {}).get('value', '').split(" / ") if mscID] if 'mscID' in data else [],
         )
+
+@dataclass
+class Method:
+    id: Optional[str]
+    label: Optional[str]
+    description: Optional[str]
+    implementedBySoftware: Optional[List[Relatant]] = field(default_factory=list)
+    implementedByInstrument: Optional[List[Relatant]] = field(default_factory=list)
+
+    @classmethod
+    def from_query(cls, raw_data: List) -> 'ProcessStep':
+
+        data = raw_data[0]
+        
+        return cls(
+            id = None,
+            label = None,
+            description = None,
+            implementedBySoftware = [Relatant.from_query(software) for software in data.get('implementedBySoftware', {}).get('value', '').split(" / ") if field] if 'implementedBySoftware' in data else [],
+            implementedByInstrument = [Relatant.from_query(software) for software in data.get('implementedByInstrument', {}).get('value', '').split(" / ") if field] if 'implementedByInstrument' in data else [] 
+        )
+
+
+

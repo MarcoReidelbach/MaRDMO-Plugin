@@ -6,5 +6,7 @@ PROPS = {
     'PS2PLS': ['platformSoftware'],
     'PS2PLI': ['platformInstrument'],
     'PS2F': ['fieldOfWork'],
-    'PS2MA': ['mscID']
+    'PS2MA': ['mscID'],
+    'M2S': ['implementedBySoftware'],
+    'M2I': ['implementedByInstrument']
 }
