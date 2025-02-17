@@ -57,6 +57,16 @@ def BasicInformation(sender, **kwargs):
                        set_index = instance.set_index,
                        set_prefix = instance.set_prefix
                        )
+        # Instrument Location
+        elif instance.attribute.uri == f'{BASE_URI}{questions["Instrument Location ID"]["uri"]}':
+            add_basics(project = instance.project,
+                       text = instance.text,
+                       url_name = f'{BASE_URI}{questions["Instrument Location Name"]["uri"]}',
+                       url_description = f'{BASE_URI}{questions["Instrument Location Description"]["uri"]}',
+                       collection_index = instance.collection_index,
+                       set_index = instance.set_index,
+                       set_prefix = instance.set_prefix
+                       )
         # Instrument Available Software
         elif instance.attribute.uri == f'{BASE_URI}{questions["Instrument Software ID"]["uri"]}':
             add_basics(project = instance.project,
@@ -394,8 +404,9 @@ def InstrumentInformation(sender, **kwargs):
     if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
         # Get Questions of Workflow Section
         questions = get_questionsWO()
-        if instance.attribute.uri == f'{BASE_URI}domain/instrument/id':
+        if instance.attribute.uri == f'{BASE_URI}{questions["Instrument ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
+
                 add_basics(project = instance.project,
                            text = instance.text,
                            url_name = f'{BASE_URI}{questions["Instrument Name"]["uri"]}',
@@ -403,9 +414,7 @@ def InstrumentInformation(sender, **kwargs):
                            set_index = 0,
                            set_prefix = instance.set_index
                            )
-                # Get source and ID of Item
-                source, Id = instance.external_id.split(':')
-                ### NEEDS ADDITIONS ###
+    
     return
 
 @receiver(post_save, sender=Value)

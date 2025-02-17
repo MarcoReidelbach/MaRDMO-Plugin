@@ -411,38 +411,38 @@
         "key1": "instrument",
         "key2": "Name",
         "uri": "domain/instrument/name",
-        "set_index": true
+        "set_prefix": true
     },
     "Instrument Description": {
         "key1": "instrument",
         "key2": "Description",
         "uri": "domain/instrument/description",
-        "set_index": true
+        "set_prefix": true
     },
     "Instrument Version": {
         "key1": "instrument",
         "key2": "Version",
         "uri": "domain/instrument/version",
-        "set_index": true
+        "set_prefix": true
     },
     "Instrment PartNumber": {
         "key1": "instrument",
         "key2": "PartNumber",
         "uri": "domain/instrument/part-number",
-        "set_index": true
+        "set_prefix": true
     },
     "Instrument SerialNumber": {
         "key1": "instrument",
         "key2": "SerialNumber",
         "uri": "domain/instrument/serial-number",
-        "set_index": true
+        "set_prefix": true
     },
     "Instrument Location ID": {
         "key1": "instrument",
         "key2": "location",
         "key3": "ID",
         "uri": "domain/instrument/location/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -451,7 +451,7 @@
         "key2": "location",
         "key3": "Name",
         "uri": "domain/instrument/location/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Instrument Location Description": {
@@ -459,7 +459,7 @@
         "key2": "location",
         "key3": "Description",
         "uri": "domain/instrument/location/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Instrument Software ID": {
@@ -467,7 +467,7 @@
         "key2": "software",
         "key3": "ID",
         "uri": "domain/instrument/software/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -476,7 +476,7 @@
         "key2": "software",
         "key3": "Name",
         "uri": "domain/instrument/software/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Instrument Software Description": {
@@ -484,7 +484,7 @@
         "key2": "software",
         "key3": "Description",
         "uri": "domain/instrument/software/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Data Set": {
