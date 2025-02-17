@@ -67,16 +67,6 @@ def BasicInformation(sender, **kwargs):
                        set_index = instance.set_index,
                        set_prefix = instance.set_prefix
                        )
-        # Instrument Available Software
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Instrument Software ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["Instrument Software Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["Instrument Software Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       )
         # Data Set Data Type
         elif instance.attribute.uri == f'{BASE_URI}{questions["Data Set Data Type ID"]["uri"]}':
             add_basics(project = instance.project,
@@ -272,6 +262,27 @@ def BasicInformationAndEntryAddition(sender, **kwargs):
                                  datas = [Relatant.from_relation(instance.external_id, label, description)], 
                                  source = source, 
                                  prefix = "I")
+        # Instrument Software
+        elif instance.attribute.uri == f'{BASE_URI}{questions["Instrument Software ID"]["uri"]}':
+            # Check if actual Software is chosen
+            if instance.text:
+                # Add Basic Information
+                label, description, source = add_basics(project = instance.project,
+                                                        text = instance.text,
+                                                        url_name = f'{BASE_URI}{questions["Instrument Software Name"]["uri"]}',
+                                                        url_description = f'{BASE_URI}{questions["Instrument Software Description"]["uri"]}',
+                                                        collection_index = instance.collection_index,
+                                                        set_index = instance.set_index,
+                                                        set_prefix = instance.set_prefix
+                                                        )
+                # If Data Set not defined by User
+                if source != 'user':
+                    add_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Software"]["uri"]}', 
+                                 question_id = f'{BASE_URI}{questions["Software ID"]["uri"]}', 
+                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                                 source = source, 
+                                 prefix = "S")
         
         
     return

@@ -292,7 +292,7 @@
                 </table>
         {% endif %}
 
-    <h3 id="algorithms">Methods</h3>
+    <h3 id="methods">Methods</h3>
     {% if answers.method.values %}
 
             <table border="1">
@@ -378,7 +378,7 @@
             </table>
     {% endif %}
 
-    <h3 id="software-used">Software</h3>
+    <h3 id="software">Software</h3>
     {% if answers.software.values %}
 
             <table border="1">
@@ -436,6 +436,8 @@
                                         <a href="{{ mardiURI }}{{ dependency.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ dependency.Name }}</a>
                                     {% elif 'wikidata' in dependency.ID %}
                                         <a href="{{ wikidataURI }}{{ dependency.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ dependency.Name }}</a>
+                                    {% else %}
+                                        {{ values.Name }}
                                     {% endif %}
                                     {% if not forloop.last %}, {% endif %}
                                 {% endfor %}
@@ -563,6 +565,8 @@
                                     <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
                                 {% elif 'wikidata' in values.ID %}
                                     <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% else %}
+                                    {{ values.Name }}
                                 {% endif %}
                             </td>
                             <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>
@@ -585,6 +589,8 @@
                                         <a href="{{ mardiURI }}{{ software.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
                                     {% elif 'wikidata' in software.ID %}
                                         <a href="{{ wikidataURI }}{{ software.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
+                                    {% else %}
+                                        {{ software.Name }}
                                     {% endif %}
                                     {% if not forloop.last %}, {% endif %}
                                 {% endfor %}
