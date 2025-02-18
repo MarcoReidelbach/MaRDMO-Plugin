@@ -26,12 +26,14 @@ def get_answer_workflow(project, val, uri, key1 = None, key2 = None, key3 = None
     for value in values:
 
         if value.option:
-            if not set_prefix and not set_index and not collection_index and not external_id and not option_text:
-                val[key1].update({key2:value.option_uri})
+            if set_prefix and not set_index and not collection_index and not external_id and not option_text:
+                prefix = value.set_prefix.split('|')
+                val[key1].setdefault(int(prefix[0]), {}).update({key2:value.option_uri})
             elif not set_prefix and set_index and not collection_index and not external_id and not option_text:
                 val[key1].setdefault(value.set_index, {}).update({key2:value.option_uri})
             elif set_prefix and not set_index and not collection_index and not external_id and option_text:
-                val[key1].setdefault(value.set_index, {}).update({key2:[value.option_uri, value.text]})
+                prefix = value.set_prefix.split('|')
+                val[key1].setdefault(int(prefix[0]), {}).update({key2:[value.option_uri, value.text]})
             elif not set_prefix and set_index and collection_index and not external_id and not option_text:
                 val[key1].setdefault(value.set_index, {}).setdefault(key2, {}).update({value.collection_index:[value.option_uri,value.text]})
         elif value.text:

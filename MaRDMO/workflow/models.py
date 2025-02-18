@@ -4,7 +4,7 @@ from typing import List, Optional
 from ..id import *
 from ..utils import get_data
 
-from .constants import reference_order_software
+from .constants import reference_order_software, order_to_publish
 
 @dataclass
 class ModelProperties:
@@ -219,6 +219,42 @@ class Hardware:
             nodes = data.get('nodes', {}).get('value', ''),
             cores = data.get('cores', {}).get('value', ''),
             CPU = [Relatant.from_query(cpu) for cpu in data.get('CPU', {}).get('value', '').split(" / ") if cpu] if 'CPU' in data else []
+        )
+
+@dataclass
+class DataSet:
+    id: Optional[str]
+    label: Optional[str]
+    description: Optional[str]
+    size: Optional[List]
+    fileFormat: Optional[str]
+    binaryOrText: Optional[str]
+    proprietary: Optional[str]
+    reference: Optional[List]
+    toArchive: Optional[List]
+    dataType: Optional[List[Relatant]] = field(default_factory=list)
+    representationFormat: Optional[List[Relatant]] = field(default_factory=list)
+    
+    @classmethod
+    def from_query(cls, raw_data: dict) -> 'DataSet':
+
+        # Load MSC Classification
+        options = get_data('data/options.json')
+
+        data = raw_data[0]
+
+        return cls(
+            id = None,
+            label = None,
+            description = None,
+            size = [] if '' in (temp := [options[data['sizeUnit']['value']] if data.get('sizeUnit', {}).get('value', '') else options['items'] if data.get('sizeRecord', {}).get('value', '') else '', data['sizeValue']['value'] if data.get('sizeValue', {}).get('value', '') else data['sizeRecord']['value'] if data.get('sizeRecord', {}).get('value', '') else '']) else temp,
+            fileFormat = data.get('fileFormat', {}).get('value'),
+            binaryOrText = options[data['binaryOrText']['value']] if data.get('binaryOrText', {}).get('value') else '',
+            proprietary = options[data['proprietary']['value']] if data.get('proprietary', {}).get('value') else '',
+            reference = ({order_to_publish[data['publish']['value']][0]: [order_to_publish[data['publish']['value']][1], '']} if data.get('publish', {}).get('value') else {}) | ({order_to_publish['doi'][0]: [order_to_publish['doi'][1], data['DOI']['value']]} if data.get('DOI', {}).get('value') else {}) | ({order_to_publish['url'][0]: [order_to_publish['url'][1], data['URL']['value']]} if data.get('URL', {}).get('value') else {}),
+            toArchive = (temp := [options[data['archive']['value']] if data.get('archive', {}).get('value') else '',data.get('endTime', {}).get('value', '')[:4] if data.get('endTime', {}).get('value') else '']) and temp if temp[0] != '' else [],
+            dataType = [Relatant.from_query(dtype) for dtype in data.get('dataType', {}).get('value', '').split(" / ") if dtype] if 'dataType' in data else [],
+            representationFormat = [Relatant.from_query(rformat) for rformat in data.get('representationFormat', {}).get('value', '').split(" / ") if rformat] if 'representationFormat' in data else [] 
         )
 
 

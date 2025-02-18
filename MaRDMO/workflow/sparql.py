@@ -319,7 +319,113 @@ queryInfo = {
                                                               }}
                                                    }}
                                               }}
-                                        GROUP BY ?nodes ?cores '''
+                                        GROUP BY ?nodes ?cores ''',
+
+                         'data-set':  '''PREFIX wdt:<https://portal.mardi4nfdi.de/prop/direct/>
+                                         PREFIX wd:<https://portal.mardi4nfdi.de/entity/>
+         
+                                         SELECT ?sizeValue ?sizeUnit ?sizeRecord ?fileFormat ?binaryOrText ?proprietary
+                                                ?DOI ?URL ?publish ?archive ?endTime
+                                                (GROUP_CONCAT(DISTINCT CONCAT(?datatype, " | ", ?datatypel, " | ", ?datatyped); separator=" / ") AS ?dataType)
+                                                (GROUP_CONCAT(DISTINCT CONCAT(?representationformat, " | ", ?representationformatl, " | ", ?representationformatd); separator=" / ") AS ?representationFormat)
+                
+                                         WHERE {{
+
+                                           VALUES ?dataset {{ wd:{0} }}
+         
+                                           # Get Size (bytes)
+                                           OPTIONAL {{
+                                                      ?dataset p:P1542 ?statementNode.          
+                                                      ?statementNode psv:P1542 ?valueNode.      
+                                                      ?valueNode wikibase:quantityAmount ?sizeValue; 
+                                                                 wikibase:quantityUnit ?unit.
+                                                      ?unit rdfs:label ?sizeUnit.
+                                                      FILTER (lang(?sizeUnit) = 'en')
+                                                    }}
+
+                                           # Get Size (number of items)
+                                           OPTIONAL {{
+                                                      ?dataset wdt:P139 ?sizeRecord
+                                                    }}
+         
+                                           # Data Type
+                                           OPTIONAL {{
+                                                      ?dataset p:P557 ?statement_dt.
+                                                      ?statement_dt ps:P557 ?datatyperaw. 
+                                                      ?statement_dt pq:P560 ?qualifier.
+                                                      FILTER (?qualifier = wd:Q78802)
+         
+                                                      BIND(replace( xsd:string(?datatyperaw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?datatype)
+                                                      
+                                                      OPTIONAL {{
+                                                                 ?datatyperaw rdfs:label ?datatypelraw
+                                                                 FILTER (lang(?datatypelraw) = 'en')
+                                                               }}
+                                                      
+                                                      BIND(COALESCE(?datatypelraw, "No Label Provided!") AS ?datatypel)
+                                                      
+                                                      OPTIONAL {{
+                                                                 ?datatyperaw schema:description ?datatypedraw
+                                                                 FILTER (lang(?datatypedraw) = 'en')
+                                                               }}
+                                                      
+                                                      BIND(COALESCE(?datatypedraw, "No Description Provided!") AS ?datatyped)
+                                                    }}  
+           
+                                           #Representation Format
+                                           OPTIONAL {{
+                                                      ?dataset p:P557 ?statement_dt2.
+                                                      ?statement_dt2 ps:P557 ?representationformatraw. 
+                                                      ?statement_dt2 pq:P560 ?qualifier2.
+                                                      FILTER (?qualifier2 = wd:Q6534222)
+         
+                                                      BIND(replace( xsd:string(?representationformatraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?representationformat)
+                                                      
+                                                      OPTIONAL {{
+                                                                 ?representationformatraw rdfs:label ?representationformatlraw
+                                                                 FILTER (lang(?representationformatlraw) = 'en')
+                                                               }}
+                                                      
+                                                      BIND(COALESCE(?representationformatlraw, "No Label Provided!") AS ?representationformatl)
+                                                      
+                                                      OPTIONAL {{
+                                                                 ?representationformatraw schema:description ?representationformatdraw
+                                                                 FILTER (lang(?representationformatdraw) = 'en')
+                                                               }}
+                                                      
+                                                      BIND(COALESCE(?representationformatdraw, "No Description Provided!") AS ?representationformatd)
+                                                    }}
+         
+                                           # Get file extension
+                                           OPTIONAL {{
+                                                      ?dataset wdt:P921 ?fileFormat
+                                                    }}
+                                               
+                                           # Binary or Text
+                                           BIND(IF(EXISTS {{ ?dataset wdt:P31 wd:Q6480276 }}, "binary", IF(EXISTS {{ ?dataset wdt:P31 wd:Q6534207 }}, "text", "" )) AS ?binaryOrText)
+         
+                                           # Proprietary
+                                           BIND(IF(EXISTS {{ ?dataset wdt:P31 wd:Q6480367 }}, "Yes", IF(EXISTS {{ ?dataset wdt:P31 wd:Q6480313 }}, "No", "" )) AS ?proprietary)
+                                           
+                                           # Bind DOI and URL if they exist
+                                           OPTIONAL {{ ?dataset wdt:P27 ?DOI. }}
+                                           OPTIONAL {{ ?dataset wdt:P188 ?URL. }}
+         
+                                           # Data Publishing
+                                           BIND(IF(EXISTS {{ ?dataset wdt:P1563 wd:Q6480291 }}, "Yes", "No") AS ?publish)
+         
+                                           # Data Archiving
+                                           BIND(IF(EXISTS {{ ?dataset wdt:P1563 wd:Q6480370 }}, "YesText", "NoText") AS ?archive)
+         
+                                           OPTIONAL {{
+                                                      ?dataset p:P1563 ?statementNode2.
+                                                      ?statementNode2 ps:P1563 wd:Q6480370.
+                                                      OPTIONAL {{
+                                                                  ?statementNode2 pq:P411 ?endTime.
+                                                               }}
+                                                    }}
+                                           }}    
+                                           GROUP BY ?sizeValue ?sizeUnit ?sizeRecord ?fileFormat ?binaryOrText ?proprietary ?DOI ?URL ?publish ?archive ?endTime'''
                      },
             'wikidata': { 
                          'step':  '''SELECT (GROUP_CONCAT(DISTINCT(?msc); SEPARATOR=" / ") AS ?mscID)
@@ -639,7 +745,109 @@ queryInfo = {
                                                                 }}
                                                      }}
                                                 }}
-                                                GROUP BY ?nodes ?cores '''
+                                                GROUP BY ?nodes ?cores ''',
+
+                           'data-set':'''SELECT ?sizeValue ?sizeUnit ?sizeRecord ?fileFormat ?binaryOrText ?proprietary
+                                                ?DOI ?URL ?publish ?archive ?endTime
+                                                (GROUP_CONCAT(DISTINCT CONCAT(?datatype, " | ", ?datatypel, " | ", ?datatyped); separator=" / ") AS ?dataType)
+                                                (GROUP_CONCAT(DISTINCT CONCAT(?representationformat, " | ", ?representationformatl, " | ", ?representationformatd); separator=" / ") AS ?representationFormat)
+       
+                                         WHERE {{
+
+                                           VALUES ?dataset {{ wd:{0} }}
+         
+                                           # Get Size (bytes)
+                                           OPTIONAL {{
+                                                      ?dataset p:P3575 ?statementNode.          
+                                                      ?statementNode psv:P3575 ?valueNode.      
+                                                      ?valueNode wikibase:quantityAmount ?sizeValue; 
+                                                                 wikibase:quantityUnit ?unit.
+                                                      ?unit rdfs:label ?sizeUnit.
+                                                      FILTER (lang(?sizeUnit) = 'en')
+                                                    }}
+
+                                           # Get Size (number of items)
+                                           OPTIONAL {{
+                                                      ?dataset wdt:P4876 ?sizeRecord
+                                                    }}
+         
+                                           # Data Type
+                                           OPTIONAL {{
+                                                      ?dataset p:P2283 ?statement_dt.
+                                                      ?statement_dt ps:P2283 ?datatyperaw. 
+                                                      ?statement_dt pq:P3831 ?qualifier.
+                                                      FILTER (?qualifier = wd:Q190087)
+         
+                                                      BIND(replace( xsd:string(?datatyperaw),'http://www.wikidata.org/entity/','wikidata:') as ?datatype)
+                                                      
+                                                      OPTIONAL {{
+                                                                 ?datatyperaw rdfs:label ?datatypelraw
+                                                                 FILTER (lang(?datatypelraw) = 'en')
+                                                               }}
+                                                      
+                                                      BIND(COALESCE(?datatypelraw, "No Label Provided!") AS ?datatypel)
+                                                      
+                                                      OPTIONAL {{
+                                                                 ?datatyperaw schema:description ?datatypedraw
+                                                                 FILTER (lang(?datatypedraw) = 'en')
+                                                               }}
+                                                      
+                                                      BIND(COALESCE(?datatypedraw, "No Description Provided!") AS ?datatyped)
+                                                    }}  
+           
+                                           #Representation Format
+                                           OPTIONAL {{
+                                                      ?dataset p:P2283 ?statement_dt2.
+                                                      ?statement_dt2 ps:P2283 ?representationformatraw. 
+                                                      ?statement_dt2 pq:P3831 ?qualifier2.
+                                                      FILTER (?qualifier2 = wd:)
+         
+                                                      BIND(replace( xsd:string(?representationformatraw),'http://www.wikidata.org/entity/','wikidata:') as ?representationformat)
+                                                      
+                                                      OPTIONAL {{
+                                                                 ?representationformatraw rdfs:label ?representationformatlraw
+                                                                 FILTER (lang(?representationformatlraw) = 'en')
+                                                               }}
+                                                      
+                                                      BIND(COALESCE(?representationformatlraw, "No Label Provided!") AS ?representationformatl)
+                                                      
+                                                      OPTIONAL {{
+                                                                 ?representationformatraw schema:description ?representationformatdraw
+                                                                 FILTER (lang(?representationformatdraw) = 'en')
+                                                               }}
+                                                      
+                                                      BIND(COALESCE(?representationformatdraw, "No Description Provided!") AS ?representationformatd)
+                                                    }}
+         
+                                           # Get file extension
+                                           OPTIONAL {{
+                                                      ?dataset wdt:P1195 ?fileFormat
+                                                    }}
+                                               
+                                           # Binary or Text
+                                           BIND(IF(EXISTS {{ ?dataset wdt:P31 wd:Q4913888 }}, "binary", IF(EXISTS {{ ?dataset wdt:P31 wd:Q60476328 }}, "text", "" )) AS ?binaryOrText)
+         
+                                           # Proprietary
+                                           BIND(IF(EXISTS {{ ?dataset wdt:P31 wd:Q123684347 }}, "Yes", IF(EXISTS {{ ?dataset wdt:P31 wd:Q309901 }}, "No", "" )) AS ?proprietary)
+                                           
+                                           # Bind DOI and URL if they exist
+                                           OPTIONAL {{ ?dataset wdt:P356 ?DOI. }}
+                                           OPTIONAL {{ ?dataset wdt:P2699 ?URL. }}
+         
+                                           # Data Publishing
+                                           BIND(IF(EXISTS {{ ?dataset wdt:P4424 wd:Q17051824 }}, "Yes", "No") AS ?publish)
+         
+                                           # Data Archiving
+                                           BIND(IF(EXISTS {{ ?dataset wdt:P4424 wd:Q17155735 }}, "YesText", "NoText") AS ?archive)
+         
+                                           OPTIONAL {{ ?dataset p:P4424 ?statementNode2.
+                                                       ?statementNode2 ps:P4424 wd:Q17155735.
+                                                       OPTIONAL {{
+                                                                   ?statementNode2 pq:P582 ?endTime.
+                                                                }}
+                                                    }}
+                                           }}    
+                                           GROUP BY ?sizeValue ?sizeUnit ?sizeRecord ?fileFormat ?binaryOrText ?proprietary ?DOI ?URL ?publish ?archive ?endTime'''
             },
             'mathalgodb': {
                            'method': '''PREFIX prop: <https://mardi4nfdi.de/mathalgodb/0.1#>

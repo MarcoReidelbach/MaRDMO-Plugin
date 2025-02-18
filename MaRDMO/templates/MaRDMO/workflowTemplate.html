@@ -638,6 +638,8 @@
                                 <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
                             {% elif 'wikidata' in values.ID %}
                                 <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                            {% else %}
+                                {{ values.Name }}
                             {% endif %}
                         </td>
                         <td style="text-align: center; vertical-align: middle;">{{ values.Description }}</td>
@@ -650,6 +652,8 @@
                                 {{ values.Size.1 }} gigabyte
                             {% elif values.Size.0 == option.terabyte %}  
                                 {{ values.Size.1 }} terabyte
+                            {% elif values.Size.0 == option.items %}  
+                                {{ values.Size.1 }} items
                             {% endif %}
                         </td>
                         <td style="text-align: center; vertical-align: middle;">
@@ -687,15 +691,14 @@
                             {% endif %}
                         </td>
                         <td style="text-align: center; vertical-align: middle;">
-                            {% if values.ToPublish.0 == option.YesText %}
-                                {% if values.ToPublish.1 %}
-                                    <a href="{{ values.ToPublish.1 }}"" style="color:dodgerblue;">Yes</a>
-                                    {{ values.ToPublish.1}}
-                                {% else %}
-                                    Yes
-                                {% endif %}
-                            {% elif values.ToPublish.0 == option.NoText %}
-                                    No
+                            {% if values.ToPublish.0 == option.Yes %}
+                                Yes
+                            {% elif values.ToPublish.0 == option.URL %}
+                                <a href="{{ values.ToPublish.1 }}" style="color:dodgerblue;">Yes</a>
+                            {% elif values.ToPublish.0 == option.DOI %}  
+                                <a href="{{ values.ToPublish.1 }}" style="color:dodgerblue;">Yes</a>
+                            {% elif values.ToPublish.0 == option.No %}  
+                                No
                             {% endif %}
                         </td>
                         <td style="text-align: center; vertical-align: middle;">

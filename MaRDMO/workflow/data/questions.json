@@ -501,19 +501,19 @@
         "key1": "dataset",
         "key2": "Name",
         "uri": "domain/data-set/name",
-        "set_index": true
+        "set_prefix": true
     },
     "Data Set Description": {
         "key1": "dataset",
         "key2": "Description",
         "uri": "domain/data-set/description",
-        "set_index": true
+        "set_prefix": true
     },
     "Data Set Size": {
         "key1": "dataset",
         "key2": "Size",
         "uri": "domain/data-set/size",
-        "set_index": true,
+        "set_prefix": true,
         "option_text": true
     },
     "Data Set Data Type ID": {
@@ -521,7 +521,7 @@
         "key2": "datatype",
         "key3": "ID",
         "uri": "domain/data-set/data-type/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -530,7 +530,7 @@
         "key2": "datatype",
         "key3": "Name",
         "uri": "domain/data-set/data-type/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Data Set Data Type Description": {
@@ -538,7 +538,7 @@
         "key2": "datatype",
         "key3": "Description",
         "uri": "domain/data-set/data-type/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Data Set Representation Format ID": {
@@ -546,7 +546,7 @@
         "key2": "representationformat",
         "key3": "ID",
         "uri": "domain/data-set/representation-format/id",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true,
         "external_id": true
     },
@@ -555,7 +555,7 @@
         "key2": "representationformat",
         "key3": "Name",
         "uri": "domain/data-set/representation-format/name",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Data Set Representation Format Description": {
@@ -563,39 +563,39 @@
         "key2": "representationformat",
         "key3": "Description",
         "uri": "domain/data-set/representation-format/description",
-        "set_index": true,
+        "set_prefix": true,
         "collection_index": true
     },
     "Data Set File Format": {
         "key1": "dataset",
         "key2": "FileFormat",
         "uri": "domain/data-set/file-format",
-        "set_index": true
+        "set_prefix": true
     },
     "Data Set Binary or Text": {
         "key1": "dataset",
         "key2": "BinaryText",
         "uri": "domain/data-set/binary-or-text",
-        "set_index": true
+        "set_prefix": true
     },
     "Data Set Proprietary": {
         "key1": "dataset",
         "key2": "Proprietary",
         "uri": "domain/data-set/proprietary",
-        "set_index": true
+        "set_prefix": true
     },
     "Data Set To Publish": {
         "key1": "dataset",
         "key2": "ToPublish",
         "uri": "domain/data-set/to-publish",
-        "set_index": true,
+        "set_prefix": true,
         "option_text": true
     },
     "Data Set To Archive": {
         "key1": "dataset",
         "key2": "ToArchive",
         "uri": "domain/data-set/to-archive",
-        "set_index": true,
+        "set_prefix": true,
         "option_text": true
     },
     "Method": {

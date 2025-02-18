@@ -15,7 +15,9 @@ PROPS = {
     'M2I': ['implementedByInstrument'],
     'S2PL': ['programmedIn'],
     'S2DP': ['dependsOnSoftware'],
-    'H2CPU': ['CPU']
+    'H2CPU': ['CPU'],
+    'DS2DT': ['dataType'],
+    'DS2RF': ['representationFormat']
 }
 
 # Order of References
@@ -23,4 +25,12 @@ reference_order_software = {
             'doi': (0, options['DOI']),
             'swmath': (1, options['SWMATH']),
             'url': (2, options['URL']),
+            }
+
+# Order of toPublish Answers
+order_to_publish = {
+            'Yes': (0, options['Yes']),
+            'doi': (1, options['DOI']),
+            'url': (2, options['URL']),
+            'No': (3, options['URL'])
             }

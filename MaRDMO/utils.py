@@ -73,7 +73,7 @@ def add_entities(project, question_set, question_id, datas, source, prefix):
     return
 
 def add_relations(project, data, props, set_prefix, relatant, mapping = None, relation = None, suffix = ''):
-    # Get Set Ids and IDs of Publications
+    # Get Set Ids and IDs of Entities
     set_ids = get_id(project, relatant, ['set_index'])
     collection_ids = get_id(project, relatant, ['collection_index'])
     value_ids = get_id(project, relatant, ['external_id'])

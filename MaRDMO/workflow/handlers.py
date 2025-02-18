@@ -8,7 +8,7 @@ from ..utils import add_basics, add_entities, add_references, add_relations, get
 
 #from .utils import add_basics #, add_entity
 from .sparql import mardiProvider, wikidataProvider, queryInfo
-from .models import Method, ProcessStep, Relatant, Software, Hardware
+from .models import Method, ProcessStep, Relatant, Software, Hardware, DataSet
 from .constants import PROPS
 
 @receiver(post_save, sender=Value)
@@ -318,7 +318,7 @@ def SoftwareInformation(sender, **kwargs):
                     # Structure Results and load options
                     data = Software.from_query(results)
                     options = get_data('data/options.json')
-
+                    
                     # Add References to Questionnaire
                     add_references(project = instance.project,
                                    data = data,
@@ -418,6 +418,7 @@ def InstrumentInformation(sender, **kwargs):
         if instance.attribute.uri == f'{BASE_URI}{questions["Instrument ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
 
+                # Add Basic Information
                 add_basics(project = instance.project,
                            text = instance.text,
                            url_name = f'{BASE_URI}{questions["Instrument Name"]["uri"]}',
@@ -435,8 +436,10 @@ def DataSetInformation(sender, **kwargs):
     if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
         # Get Questions of Workflow Section
         questions = get_questionsWO()
-        if instance.attribute.uri == f'{BASE_URI}domain/data-set/id':
+        if instance.attribute.uri == f'{BASE_URI}{questions["Data Set ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
+
+                # Add Basic Information
                 add_basics(project = instance.project,
                        text = instance.text,
                        url_name = f'{BASE_URI}{questions["Data Set Name"]["uri"]}',
@@ -444,59 +447,75 @@ def DataSetInformation(sender, **kwargs):
                        set_index = 0,
                        set_prefix = instance.set_index
                        )
+                
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
-                results = []
-                if source == 'mardi':
-                    results = query_sparql(mardiProvider['DataSet'].format(wdt, wd, f"wd:{Id}", P37, P38, P39, P4, Q16, Q17, Q18, Q19, P16, P24, P40, Q20, Q21, P41, P6, P45, Q22, Q23), mardi_endpoint)
-                elif source == 'wikidata':
-                    results = query_sparql(wikidataProvider['DataSet'].format(f"wd:{Id}"), wikidata_endpoint)
+
+                # Query source for further Information
+                results = query_sparql(queryInfo[source]['data-set'].format(Id), endpoint[source]['sparql'])
+
                 if results:
-                    # Load Options
-                    options = get_data('data/options.json')
+                    
+                    # Structure Results and load Pptions
+                    data = DataSet.from_query(results)
+                    
                     # Data Set Size
-                    if results[0].get('sizeValue', {}).get('value') and results[0].get('sizeUnit', {}).get('value'):
-                        if results[0]['sizeUnit']['value'] in ['kilobyte','megabyte','gigabyte','terabyte']:
-                            value_editor(instance.project, f'{BASE_URI}domain/data-set/size', results[0]['sizeValue']['value'], None, options['kilobyte'], None, instance.set_index, None)
-                    elif results[0].get('sizeRecord', {}).get('value'):
-                        value_editor(instance.project, f'{BASE_URI}domain/data-set/size', results[0]['sizeRecord']['value'], None, options['items'], None, instance.set_index, None)
-                    # Data Type
-                    idx = 0
-                    if results[0].get(f'DataType', {}).get('value'):
-                        for result in results[0]['DataType']['value'].split(' / '):
-                            ID, Label, Description = result.split(' | ')
-                            value_editor(instance.project, f'{BASE_URI}domain/data-set/data-type/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                            idx += 1
-                    # Representation Format
-                    idx = 0
-                    if results[0].get(f'RepresentationFormat', {}).get('value'):
-                        for result in results[0]['RepresentationFormat']['value'].split(' / '):
-                            ID, Label, Description = result.split(' | ')
-                            value_editor(instance.project, f'{BASE_URI}domain/data-set/representation-format/id', f"{Label} ({Description}) [{source}]", f'{source}:{ID}', None, idx, instance.set_index, None)
-                            idx += 1
+                    if data.size: 
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Data Set Size"]["uri"]}', 
+                                     text = data.size[1],
+                                     option = data.size[0],
+                                     set_prefix = instance.set_index)
+                        
+                    # Add Relations between Data Type and Data Set to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['DS2DT'], 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Data Set Data Type ID"]["uri"]}')
+                    
+                    # Add Relations between Representation Format and Data Set to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['DS2RF'], 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Data Set Representation Format ID"]["uri"]}')
+                        
                     # File Format
-                    if results[0].get('FileFormat', {}).get('value'):
-                        value_editor(instance.project, f'{BASE_URI}domain/data-set/file-format', results[0]['FileFormat']['value'], None, None, None, instance.set_index, None)
+                    if data.fileFormat:
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Data Set File Format"]["uri"]}', 
+                                     text = data.fileFormat, 
+                                     set_prefix = instance.set_index)
+                    
                     # Binary or Text
-                    if results[0].get('BinaryOrText', {}).get('value'):
-                        value_editor(instance.project, f'{BASE_URI}domain/data-set/binary-or-text', None, None, options[results[0]['BinaryOrText']['value']], None, instance.set_index, None)
+                    if data.binaryOrText:
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Data Set Binary or Text"]["uri"]}', 
+                                     option = data.binaryOrText, 
+                                     set_prefix = instance.set_index)
+                    
                     # Proprietary
-                    if results[0].get('Proprietary', {}).get('value'):
-                        value_editor(instance.project, f'{BASE_URI}domain/data-set/proprietary', None, None, options[results[0]['Proprietary']['value']], None, instance.set_index, None)
-                    # Publishing
-                    if results[0].get('Publishing', {}).get('value'):
-                        if results[0].get('DOI', {}).get('value'):
-                            value_editor(instance.project, f'{BASE_URI}domain/data-set/to-publish', f"doi:{results[0]['DOI']['value']}", None, options[results[0]['Publishing']['value']], None, instance.set_index, None)
-                        elif results[0].get('URL', {}).get('value'):
-                            value_editor(instance.project, f'{BASE_URI}domain/data-set/to-publish', f"url:{results[0]['URL']['value']}", None, options[results[0]['Publishing']['value']], None, instance.set_index, None)
-                        else:
-                            value_editor(instance.project, f'{BASE_URI}domain/data-set/to-publish', None, None, options[results[0]['Publishing']['value']], None, instance.set_index, None)             
+                    if data.proprietary:
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Data Set Proprietary"]["uri"]}', 
+                                     option = data.proprietary, 
+                                     set_prefix = instance.set_index)
+                        
+                    # References To Publish
+                    add_references(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Data Set To Publish"]["uri"]}',
+                                   set_prefix = instance.set_index)
+                    
                     # Archiving
-                    if results[0].get('Archiving', {}).get('value'):
-                        if results[0].get('endTime', {}).get('value'):
-                            value_editor(instance.project, f'{BASE_URI}domain/data-set/to-archive', results[0]['endTime']['value'][:4], None, options[results[0]['Archiving']['value']], None, instance.set_index, None)
-                        else:
-                            value_editor(instance.project, f'{BASE_URI}domain/data-set/to-archive', None, None, options[results[0]['Archiving']['value']], None, instance.set_index, None)
+                    if data.toArchive:
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Data Set To Archive"]["uri"]}', 
+                                     text = data.toArchive[1],
+                                     option = data.toArchive[0], 
+                                     set_prefix = instance.set_index)
+                    
     return
 
 @receiver(post_save, sender=Value)
