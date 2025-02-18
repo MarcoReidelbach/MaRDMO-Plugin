@@ -3,11 +3,10 @@ from django.db.models.signals import post_save
 from rdmo.projects.models import Value
 
 from ..id import *
-from ..config import BASE_URI, mardi_endpoint, wd, wdt, wikidata_endpoint, endpoint
+from ..config import BASE_URI, endpoint
 from ..utils import add_basics, add_entities, add_references, add_relations, get_data, get_questionsWO, value_editor, query_sparql
 
-#from .utils import add_basics #, add_entity
-from .sparql import mardiProvider, wikidataProvider, queryInfo
+from .sparql import queryInfo
 from .models import Method, ProcessStep, Relatant, Software, Hardware, DataSet
 from .constants import PROPS
 
