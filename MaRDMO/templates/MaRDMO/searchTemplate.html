@@ -114,6 +114,28 @@
         {% endif %}
         <h1 id="SPARQLQuery"> SPARQL Query </h1>
         <pre><code>{{ answers.query|safe }}</code></pre>
+        {% elif answers.search.options == option.Algorithm %}
+        <h1 id="Algorithm"> Search Algorithms </h1>
+        {% if answers.search.via_algorithmic_problem == option.Yes %}
+            <h2 id="AlgorithmicProblem"> Algorithmic Problem Keywords</h1>
+            {% for value in answers.search.algorithmic_problem.values %}
+                {{ value }}
+                {% if not forloop.last %}
+             , 
+          {% endif %} 
+            {% endfor %}
+        {% endif %}
+        {% if answers.search.via_software == option.Yes %}
+            <h2 id="Software"> Software </h1>
+            {% for value in answers.search.software.values %}
+                {{ value.Name }} ({{ value.ID }})
+                {% if not forloop.last %}
+             , 
+          {% endif %} 
+            {% endfor %}
+        {% endif %}
+        <h1 id="SPARQLQuery"> SPARQL Query </h1>
+        <pre><code>{{ answers.query|safe }}</code></pre>
     {% endif %}
    </body>
    

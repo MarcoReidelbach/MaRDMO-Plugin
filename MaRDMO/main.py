@@ -301,7 +301,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                     source = "MathAlgoDB KG"
 
                 return render(self.request,
-                              'MaRDMO/workflowSearch.html', 
+                              'MaRDMO/searchResults.html', 
                               {'datatype': datatype,
                                'source': source,   
                                'noResults': data[0]['no_results'],

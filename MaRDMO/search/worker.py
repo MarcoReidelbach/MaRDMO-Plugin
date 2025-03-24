@@ -2,7 +2,7 @@ import html
 
 from ..config import endpoint
 from ..utils import query_sparql
-from .sparql import quote_sparql, quantity_sparql, task_sparql, formulation_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql, query_base, query_base_model, problem_sparql, problem_filter_sparql, field_sparql
+from .sparql import algorithmic_problem_sparql, software_sparql, algorithmic_problem_filter_sparql, quote_sparql, quantity_sparql, task_sparql, formulation_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql, query_base, query_base_model, query_base_algorithm, problem_sparql, problem_filter_sparql, field_sparql
 
 def search(answers, options):
     
@@ -158,6 +158,57 @@ def search(answers, options):
         links=[]
         for result in results:
             links.append([result["label"]["value"], endpoint['mathmoddb']['uri'] + 'object/mathmoddb:' + result["qid"]["value"], ''])
+
+        answers['links'] = links
+
+    elif answers['search'].get('options') == options['Algorithm']:
+
+        # SPARQL via Algorithmic Problems
+
+        apr_str = ''
+        apr_fil_strs = ''
+        
+        # If SPARQL query via research objective desired
+        if answers['search'].get('via_algorithmic_problem') == options['Yes']:
+            apr_str = algorithmic_problem_sparql
+            # Separate key words for SPARQL query vie research objective
+            if answers['search'].get('algorithmic_problem'):
+                for alg_pro in answers['search']['algorithmic_problem'].values():
+                    # Define Filters for SPARQL queries
+                    apr_fil_strs += algorithmic_problem_filter_sparql.format(alg_pro.lower())
+
+        # SPARQL via Softwares
+        
+        sof_str = ''
+        
+        # If SPARQL query via software desired
+        if answers['search'].get('via_software') == options['Yes']:
+            # Separate key words for SPARQL query vie research objective
+            if answers['search'].get('software'):
+                for key in answers['search']['software'].keys():
+                    # Get ID and Name of Software
+                    ID, Name = answers['search']['software'][key]['selection'].split(' <|> ') 
+                    answers['search']['software'][key].update({'ID': ID})
+                    answers['search']['software'][key].update({'Name': Name})
+                    # Define Filters for SPARQL queries
+                    sof_str += software_sparql.format(f"software:{ID.split(':')[1]}")
+
+        # Set up entire SPARQL query
+        query = "\n".join(line for line in query_base_algorithm.format(apr_str, apr_fil_strs, sof_str).splitlines() if line.strip())
+        print(query)
+        # Add Query to answer dictionary
+        answers['query'] = html.escape(query).replace('\n', '<br>')
+
+        # Query MathAlgoDB
+        results = query_sparql(query, endpoint['mathalgodb']['sparql'])
+
+        # Number of Results
+        answers['no_results'] = str(len(results))
+
+        # Generate Links to Entry
+        links=[]
+        for result in results:
+            links.append([result["label"]["value"], endpoint['mathalgodb']['uri'] + 'object/al:' + result["qid"]["value"], ''])
 
         answers['links'] = links
 

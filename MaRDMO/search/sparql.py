@@ -59,3 +59,28 @@ quantity_sparql = """
 ?model (mathmoddb:containsFormulation | mathmoddb:containsAssumption | mathmoddb:containsBoundaryCondition | mathmoddb:containsConstraintCondition | mathmoddb:containsCouplingCondition | mathmoddb:containsInitialCondition | mathmoddb:containsFinalCondition | mathmoddb:appliedByTask) ?intermediate.
 ?intermediate (mathmoddb:containsQuantity | mathmoddb:containsInput | mathmoddb:containsOutput | mathmoddb:containsObjective | mathmoddb:containsParameter | mathmoddb:containsConstant) {}.
 """ 
+
+query_base_algorithm="""
+PREFIX mathalgodb: <https://mardi4nfdi.de/mathalgodb/0.1#>
+PREFIX algorithm: <https://mardi4nfdi.de/mathalgodb/0.1/algorithm#>
+PREFIX software: <https://mardi4nfdi.de/mathalgodb/0.1/software#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT DISTINCT ?label ?qid
+WHERE {{
+?algorithm a mathalgodb:algorithm;
+          rdfs:label ?label.
+{0}
+{1}
+{2}
+BIND(STRAFTER(STR(?algorithm),"#") AS ?qid).
+}}
+LIMIT 10"""
+
+algorithmic_problem_sparql = """
+?algorithm mathalgodb:solves ?problem.
+?problem rdfs:label ?problemlabel"""
+algorithmic_problem_filter_sparql = """
+FILTER(CONTAINS(lcase(str(?problemlabel)), '{}'))."""
+software_sparql = """
+?algorithm mathalgodb:implementedBy {}.
+"""

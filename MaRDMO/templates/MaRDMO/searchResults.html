@@ -1,0 +1,36 @@
+{% extends 'core/page.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block page %}
+
+    <h1>{{ title }}</h1>
+    <!DOCTYPE html>
+    <html>
+        <body>
+            <br><br><br>
+            <div align='center'>
+               <figure>
+                   <img src="{% static 'MaRDMO/images/MaRDMOLogo.png' %}" alt="Logo of MaRDMO Plugin">
+               </figure>
+               <br><br><br>
+	       <p style="color:Black;font-size:40px;font-weight:bold">{{ noResults }} {{ datatype }}</p>
+               <p style="color:Black;font-size:40px;font-weight:bold">in {{ source }}!</p>
+	       <br>
+	        {% for x,y,z in links%}
+                {% if z %}
+                    <p style="color:Black;font-size:25px;">{{ x }}  ( <a href="{{ y }}" style="color:black;">Wiki Page</a>&#x1F517; - <a href="{{ z }}" style="color:black;">Graph Entry</a>&#x1F517; )</p>
+                {% else %}
+                    <p style="color:Black;font-size:25px;">{{ x }}  ( <a href="{{ y }}" style="color:black;">Graph Entry</a>&#x1F517; )</p> 
+                {% endif %}
+            {% endfor %}
+            </div>
+	    <!-- Attribution Section -->
+            <div align='center' style="margin-top: 50px; font-size: 14px; color: grey;">
+            <p>MaRDMO Logo by <a href="https://www.mardi4nfdi.de/about/mission" target="_blank" style="color: grey;">MaRDI</a>, licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" style="color: grey;">CC BY-NC-ND 4.0</a>.</p>
+          </div>
+        </body>
+    </html> 
+
+{% endblock %}
+

@@ -87,5 +87,28 @@
         "uri": "domain/search/model-search/model-quantity",
         "collection_index": true,
         "external_id": true
+    },
+    "via_algorithmic_problem": {
+        "key1": "search",
+        "key2": "via_algorithmic_problem",
+        "uri": "domain/search/algorithm-search/via-algorithmic-problem"
+    },
+    "algorithmic_problem": {
+        "key1": "search",
+        "key2": "algorithmic_problem",
+        "uri": "domain/search/algorithm-search/algorithmic-problem",
+        "collection_index": true
+    },
+    "via_software": {
+        "key1": "search",
+        "key2": "via_software",
+        "uri": "domain/search/algorithm-search/via-software"
+    },
+    "software": {
+        "key1": "search",
+        "key2": "software",
+        "uri": "domain/search/algorithm-search/software",
+        "collection_index": true,
+        "external_id": true
     }
 }
