@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from ..id import *
 from ..utils import get_data
 
 from .constants import reference_order_software, order_to_publish

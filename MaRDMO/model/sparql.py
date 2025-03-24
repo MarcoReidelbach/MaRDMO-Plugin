@@ -15,6 +15,23 @@ queryModelDocumentation = {
     
 
 queryProviderMM = {
+                 'EN': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
+                          
+                          SELECT DISTINCT ?id ?label ?quote
+                          WHERE { 
+                                 VALUES ?class { :MathematicalFormulation :ComputationalTask :Quantity :QuantityKind }
+                                 ?idraw a ?class .
+                                 BIND(STRAFTER(STR(?idraw), "#") AS ?id)
+                                 OPTIONAL {?idraw rdfs:label ?labelraw .
+                                           FILTER(lang(?labelraw) = 'en')}
+                                 BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
+                                 OPTIONAL {?idraw rdfs:comment ?quoteraw.
+                                           FILTER(lang(?quoteraw) = 'en')}
+                                 BIND(COALESCE(?quoteraw, "No Description Provided!") AS ?quote)
+                                }
+                          GROUP BY ?id ?label ?quote''',
+
                  'RT': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                           PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 

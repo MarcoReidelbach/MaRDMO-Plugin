@@ -100,11 +100,29 @@
         "uri": "domain/publication/entry-type",
         "set_index": true
     },
-    "Publication Language": {
+    "Publication Language ID": {
         "key1": "publication",
         "key2": "language",
-        "uri": "domain/publication/language",
-        "set_index": true
+        "key3": "ID",
+        "uri": "domain/publication/language/id",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Language Name": {
+        "key1": "publication",
+        "key2": "language",
+        "key3": "Name",
+        "uri": "domain/publication/language/name",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Language Description": {
+        "key1": "publication",
+        "key2": "language",
+        "key3": "Description",
+        "uri": "domain/publication/language/description",
+        "set_index": true,
+        "collection_index": true
     },
     "Publication Date": {
         "key1": "publication",
@@ -172,7 +190,7 @@
         "key1": "publication",
         "key2": "author",
         "key3": "ID",
-        "uri": "domain/publication/author/ID",
+        "uri": "domain/publication/author/id",
         "set_index": true,
         "collection_index": true
     },

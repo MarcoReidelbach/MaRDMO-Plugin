@@ -251,7 +251,12 @@
                                         {% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                 </td>
-                                <td style="text-align: center; vertical-align: middle;">{{ values.parameter }}</td>
+                                <td style="text-align: center; vertical-align: middle;">
+                                    {% for parameter in values.parameter.values %}
+                                        {{ parameter }}
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
                                 <td style="text-align: center; vertical-align: middle;">
                                     {% for environment in values.environmentSoftware.values %}
                                         {% if 'mardi' in environment.ID %}
@@ -493,6 +498,7 @@
                         <th style="text-align: center; vertical-align: middle;">Compiler</th>
                         <th style="text-align: center; vertical-align: middle;">#Nodes</th>
                         <th style="text-align: center; vertical-align: middle;">#Cores</th>
+                        <th style="text-align: center; vertical-align: middle;">Software</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -503,6 +509,8 @@
                                     <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
                                 {% elif 'wikidata' in values.ID %}
                                     <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                                {% else %}
+                                    {{ values.Name }}
                                 {% endif %}
                             </td>
                             <td style="text-align: center; vertical-align: middle;">{{ values.Description }}
@@ -528,6 +536,18 @@
                             </td>
                             <td style="text-align: center; vertical-align: middle;">{{ values.Nodes }}</td>
                             <td style="text-align: center; vertical-align: middle;">{{ values.Cores }}</td>
+                            <td style="text-align: center; vertical-align: middle;">
+                                {% for software in values.software.values %}
+                                    {% if 'mardi' in software.ID %}
+                                        <a href="{{ mardiURI }}{{ software.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
+                                    {% elif 'wikidata' in software.ID %}
+                                        <a href="{{ wikidataURI }}{{ software.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
+                                    {% else %}
+                                        {{ software.Name }}
+                                    {% endif %}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+			                </td>
                     	</tr>
 		            {% endfor %}
                 </tbody>

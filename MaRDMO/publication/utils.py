@@ -3,13 +3,10 @@ import requests
 
 from multiprocessing.pool import ThreadPool
 
-from rdmo.options.models import Option
-
 from .models import Author, Journal, Publication
 from .sparql import queryPublication
 
-from ..id import *
-from ..config import BASE_URI, crossref_api, datacite_api, doi_api, mardi_endpoint, mathmoddb_endpoint, mathalgodb_endpoint, wikidata_endpoint, wd, wdt
+from ..config import endpoint
 from ..utils import query_sparql_pool
 
 def additional_queries(publication, choice, key, mardi_parameter, wikidata_parameter, function):
@@ -17,21 +14,23 @@ def additional_queries(publication, choice, key, mardi_parameter, wikidata_param
     mardi_query = queryPublication[key].format(*mardi_parameter)
     wikidata_query = queryPublication[key].format(*wikidata_parameter)
     # Get Journal Information from MaRDI Portal / Wikidata
-    results = query_sparql_pool({'wikidata':(wikidata_query, wikidata_endpoint), 'mardi':(mardi_query, mardi_endpoint)})
+    results = query_sparql_pool({'wikidata':(wikidata_query, endpoint['wikidata']['sparql']), 'mardi':(mardi_query, endpoint['mardi']['sparql'])})
     mardi_info = function(results['mardi'])
     wikidata_info = function(results['wikidata'])
     # Add (missing) MaRDI Portal / Wikidata IDs to authors
     assign_id(getattr(publication[choice],key), mardi_info, 'mardi')
     assign_id(getattr(publication[choice],key), wikidata_info, 'wikidata')
+    return
 
 def assign_id(entities, target, prefix):
     for entity in entities:
-        if not entity.id:
+        if not entity.id or entity.id == 'not found' or entity.id == 'no author found':
             for id_entity in target.values():
-                if entity.label == id_entity.label:
+                if entity.label.lower() == id_entity.label.lower():
                     entity.id = f"{prefix}:{id_entity.id}"
                     entity.label = id_entity.label
                     entity.description = id_entity.description
+    return
 
 def assign_orcid(publication, source, id='orcid'):
     for author in publication[source].authors:
@@ -39,6 +38,7 @@ def assign_orcid(publication, source, id='orcid'):
             for id_author in publication[id].values():
                 if author.label == id_author.label:
                     author.orcid_id = id_author.orcid_id
+    return
 
 def extract_authors(data):
     authors = {}
@@ -73,13 +73,16 @@ def get_citation(DOI):
         choice = None
 
         # Define MaRDI Portal / Wikidata / MathModDB / MathAlgoDB SPARQL Queries
-        mardi_query = queryPublication['All_MaRDI'].format(P16, DOI.upper(), P8, P22, P4, P12, P10, P7, P9, P11, P13, P14, P15, P2, P23, wdt, wd)
-        wikidata_query = queryPublication['All_Wikidata'].format('356', DOI.upper(), '50', '496', '31', '1433', '407', '1476', '2093', '577', '478', '433', '304', '', '1556')
+        mardi_query = queryPublication['All_MaRDI'].format(DOI.upper())
+        wikidata_query = queryPublication['All_Wikidata'].format(DOI.upper())
         mathmoddb_query = queryPublication['PublicationMathModDBDOI'].format(DOI)
         mathalgodb_query = queryPublication['PublicationMathAlgoDBDOI'].format(DOI)
         
         # Get Citation Data from MaRDI Portal / Wikidata / MathModDB / MathAlgoDB
-        results = query_sparql_pool({'wikidata':(wikidata_query, wikidata_endpoint), 'mardi':(mardi_query, mardi_endpoint), 'mathmoddb':(mathmoddb_query, mathmoddb_endpoint), 'mathalgodb':(mathalgodb_query, mathalgodb_endpoint)})
+        results = query_sparql_pool({'wikidata':(wikidata_query, endpoint['wikidata']['sparql']), 
+                                     'mardi':(mardi_query, endpoint['mardi']['sparql']), 
+                                     'mathmoddb':(mathmoddb_query, endpoint['mathmoddb']['sparql']), 
+                                     'mathalgodb':(mathalgodb_query, endpoint['mathalgodb']['sparql'])})
 
         # Structure Publication Information            
         publication = {}
@@ -95,7 +98,7 @@ def get_citation(DOI):
             pool = ThreadPool(processes=4)
             results = pool.map(lambda fn: fn(DOI), [get_crossref_data, get_datacite_data, get_doi_data, get_zbmath_data])
             
-            for idx, source in enumerate(['crossref', 'datacite', 'doi', 'zbmath']):
+            for idx, source in enumerate(['crossref', 'datacite', 'doi', 'zbmath']): 
                 try:
                     source_func_name = f"from_{source}"
                     source_func = getattr(Publication, source_func_name)
@@ -121,36 +124,36 @@ def get_citation(DOI):
                     break
             else:
                 choice = None
-
+            
             # Additional for chosen information source
             if choice:
                 # Check if Authors already in MaRDI Portal or Wikidata
                 orcid_id = ' '.join(f'"{author.orcid_id}"' if author.orcid_id else '""' for author in publication[choice].authors)
                 zbmath_id = ' '.join(f'"{author.zbmath_id}"' if author.zbmath_id else '""' for author in publication[choice].authors)
                 if orcid_id and zbmath_id:
-                    additional_queries(publication, choice, 'authors', [orcid_id, zbmath_id, P22, P23, P2], [orcid_id, zbmath_id, '496', '1556', ''], extract_authors)
+                    additional_queries(publication, choice, 'authors', [orcid_id, zbmath_id, '20', '676', '12'], [orcid_id, zbmath_id, '496', '1556', ''], extract_authors)
                 # Check if Journal already in MaRDI Portal or Wikidata
                 journal_id = publication[choice].journal[0].issn
                 if journal_id:
-                    additional_queries(publication, choice, 'journal', [journal_id, P33], [journal_id, '236'], extract_journals)
-    
+                    additional_queries(publication, choice, 'journal', [journal_id, '24'], [journal_id, '236'], extract_journals)
+        
     return publication
 
 def get_crossref_data(doi):
-    return requests.get(f'{crossref_api}{doi}')
+    return requests.get(f"{endpoint['crossref']['api']}{doi}")
 
 def get_datacite_data(doi):
-    return requests.get(f'{datacite_api}{doi}')
+    return requests.get(f"{endpoint['datacite']['api']}{doi}")
 
 def get_doi_data(doi):
-    return requests.get(f'{doi_api}{doi}', headers={"accept": "application/json"})
+    return requests.get(f"{endpoint['doi']['api']}{doi}", headers={"accept": "application/json"})
 
 def get_zbmath_data(doi):
-    return requests.get(f'https://api.zbmath.org/v1/document/_structured_search?page=0&results_per_page=100&external%20id={doi}')
+    return requests.get(f"{endpoint['zbmath']['api']}{doi}")
 
 def get_orcids(doi):
-    return requests.get(f'https://pub.orcid.org/v3.0/search/?q=doi-self:{doi}', headers={'Accept': 'application/json'})
+    return requests.get(f"{endpoint['orcid']['api']}/search/?q=doi-self:{doi}", headers={'Accept': 'application/json'})
 
 def get_author_by_orcid(orcid_id):
-    return requests.get(f'https://pub.orcid.org/v3.0/{orcid_id}/personal-details', headers={'Accept': 'application/json'})
+    return requests.get(f"{endpoint['orcid']['api']}/{orcid_id}/personal-details", headers={'Accept': 'application/json'})
 

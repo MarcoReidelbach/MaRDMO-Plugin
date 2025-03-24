@@ -4,9 +4,8 @@ from django.db.models.signals import post_save
 from rdmo.projects.models import Value
 from rdmo.options.models import Option
 
-from ..config import BASE_URI, mardi_endpoint, mathalgodb_endpoint, mathmoddb_endpoint, wikidata_endpoint, wdt, wd
+from ..config import BASE_URI, endpoint
 from ..utils import add_basics, add_references, add_relations, get_data, get_questionsPU, query_sparql, value_editor
-from ..id import *
 
 from .constants import INDEX_COUNTERS, PROPS, RELATANT_URIS, RELATION_URIS
 from .utils import generate_label
@@ -22,15 +21,13 @@ def PInformation(sender, **kwargs):
     if instance and instance.attribute.uri == f'{BASE_URI}{questions["Publication ID"]["uri"]}':
         # Check if actual Publication selected
         if instance.text and instance.text != 'not found':
-            # Get RDMO Options
-            options = get_data('data/options.json')
             # Get Source and ID of selected Publication 
             source, id = instance.external_id.split(':')
             # If Publication from MathModDB...
             if source == 'mathmoddb':
                 #...query Math MathModDB,...
                 query = queryPublication['PublicationMathModDB'].format(id)
-                results = query_sparql(query,mathmoddb_endpoint)
+                results = query_sparql(query, endpoint['mathmoddb']['sparql'])
                 if results:
                     #...structure the data,... 
                     data = Publication.from_query(results)
@@ -49,7 +46,7 @@ def PInformation(sender, **kwargs):
             elif source == 'mathalgodb':
                 #...query the MathAlgoDB,...
                 query = queryPublication['PublicationMathAlgoDB'].format(id)
-                results = query_sparql(query,mathalgodb_endpoint)
+                results = query_sparql(query, endpoint['mathalgodb']['sparql'])
                 if results:
                     #...structure the data...
                     data = Publication.from_query(results)
@@ -67,8 +64,8 @@ def PInformation(sender, **kwargs):
             # If Publication from MaRDI Portal...
             elif source == 'mardi':
                 #...query the MaRDI Portal,...
-                query = queryPublication['All_MaRDILabel'].format(P16, id, P8, P22, P4, P12, P10, P7, P9, P11, P13, P14, P15, P2, P23, wdt, wd)
-                results = query_sparql(query,mardi_endpoint)
+                query = queryPublication['All_MaRDILabel'].format(id.upper())
+                results = query_sparql(query, endpoint['mardi']['sparql'])
                 if results:
                     #...structure the data...
                     data = Publication.from_query(results)
@@ -94,8 +91,8 @@ def PInformation(sender, **kwargs):
             # If Publication from Wikidata...   
             elif source == 'wikidata':
                 #...query Wikidata,...
-                query = queryPublication['All_WikidataLabel'].format('356', id, '50', '496', '31', '1433', '407', '1476', '2093', '577', '478', '433', '304', '', '1556')
-                results = query_sparql(query,wikidata_endpoint)
+                query = queryPublication['All_WikidataLabel'].format(id.upper())
+                results = query_sparql(query, endpoint['wikidata']['sparql'])
                 if results:
                     #...structure the data...
                     data = Publication.from_query(results)

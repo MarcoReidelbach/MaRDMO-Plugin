@@ -1,4 +1,6 @@
 import logging
+import copy
+
 from urllib.parse import urlencode
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -7,6 +9,8 @@ from django.utils.translation import gettext_lazy as _
 
 import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder
+
+from .utils import replace_in_dict
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +60,7 @@ class OauthProviderMixin:
         # Replay the original request with the new access token
         try:
             method, *args = self.pop_from_session(request, 'request')
+            print(method)
             if method == 'get':
                 return self.perform_get(request, access_token, *args)
             elif method == 'post':
@@ -78,26 +83,50 @@ class OauthProviderMixin:
                 return self.render_error(request, _('Something went wrong'), _('Could not complete the GET request.'))
 
     def perform_post(self, request, access_token, url, jsons=None, files=None, multipart=None):
-        if multipart:
-            multipart_encoder = MultipartEncoder(fields=multipart)
-            headers = self.get_authorization_headers(access_token)
-            headers['Content-Type'] = multipart_encoder.content_type
-            response = requests.post(url, data=multipart_encoder, headers=headers)
-        elif files:
-            response = requests.post(url, files=files, headers=self.get_authorization_headers(access_token))
-        else:
-            for json in jsons:
-                response = requests.post(url, json=json, headers=self.get_authorization_headers(access_token))
-
-        if response.status_code == 401:
-            logger.warning('post forbidden: %s (%s)', response.content, response.status_code)
-        else:
-            try:
-                response.raise_for_status()
-                return self.post_success(request, response)
-            except requests.HTTPError:
-                logger.warning('post error: %s (%s)', response.content, response.status_code)
-                return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
+        
+        response = ''
+        init = copy.deepcopy(jsons)
+        for key in list(jsons.keys()):
+            if not jsons[key]['id']:
+                if key.startswith('RELATION'):
+                    checks = requests.get(f"{jsons[key]['url']}?property={jsons[key]['payload']['statement']['property']['id']}").json()
+                    for check in checks.get(jsons[key]['payload']['statement']['property']['id'], []):
+                        if check['value']['content'] == jsons[key]['payload']['statement']['value']['content']:
+                            break
+                    else:
+                        response = requests.post(jsons[key]['url'], json=jsons[key]['payload'], headers=self.get_authorization_headers(access_token))
+                        try:
+                            response.raise_for_status()
+                            jsons[key]['id'] = response.json()['id']
+                            jsons = replace_in_dict(jsons, key, response.json()['id'])
+                        except requests.HTTPError:
+                            logger.warning('post error: %s (%s)', response.content, response.status_code)
+                            return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
+                        #jsons = replace_in_dict(jsons, key, response.json()['id'])
+                else:
+                    response = requests.post(jsons[key]['url'], json=jsons[key]['payload'], headers=self.get_authorization_headers(access_token))
+                    try:
+                        response.raise_for_status()
+                        jsons[key]['id'] = response.json()['id']
+                        jsons = replace_in_dict(jsons, key, response.json()['id'])
+                    except requests.HTTPError:
+                        logger.warning('post error: %s (%s)', response.content, response.status_code)
+                        return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
+                    #jsons = replace_in_dict(jsons, key, response.json()['id'])
+            else:
+                jsons = replace_in_dict(jsons, key, jsons[key]['id'])
+        final = jsons
+        #if not response:
+        return self.post_success(request, init, final) #response)
+        #elif response.status_code == 401:
+        #    logger.warning('post forbidden: %s (%s)', response.content, response.status_code)
+        #else:
+        #    try:
+        #        response.raise_for_status()
+        #        return self.post_success(request, response)
+        #    except requests.HTTPError:
+        #        logger.warning('post error: %s (%s)', response.content, response.status_code)
+        #        return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
 
     def render_error(self, request, title, message):
         return render(request, 'core/error.html', {'title': title, 'errors': [message]}, status=200)
@@ -138,5 +167,5 @@ class OauthProviderMixin:
     def get_success(self, request, response):
         raise NotImplementedError
 
-    def post_success(self, request, response):
+    def post_success(self, request, init, final):
         raise NotImplementedError

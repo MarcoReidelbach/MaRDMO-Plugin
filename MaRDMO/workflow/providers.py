@@ -73,15 +73,18 @@ class WorkflowTask(Provider):
         '''Queries MathModDB for Task related to chosen Model'''
 
         options = []
+        model_id = ''
 
         values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/main-model/id'))        
         for value in values:
-            id = value.external_id
+            model_id = value.external_id
 
-        results = query_sparql(queryProvider['RT'].format(f':{id.split(":")[-1]}'))
-        if results:
-            for result in results:
-                options.append({'id': f'mathmoddb:{result.get("id", {}).get("value")}', 'text': f'{result.get("label", {}).get("value")} ({result.get("quote", {}).get("value")}) [mathmoddb]'})
+        if model_id:
+            _, id_value = model_id.split(':')
+            results = query_sparql(queryProvider['RT'].format(id_value))
+            if results:
+                for result in results:
+                    options.append({'id': f'mathmoddb:{result.get("id", {}).get("value")}', 'text': f'{result.get("label", {}).get("value")} ({result.get("quote", {}).get("value")}) [mathmoddb]'})
 
         return options
     

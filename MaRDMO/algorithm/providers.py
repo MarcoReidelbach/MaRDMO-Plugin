@@ -60,7 +60,7 @@ class RelatedAlgorithmicProblem(Provider):
         
         # Define the query parameter
         queryID = 'AP'
-        queryAttribute = 'algorithmic-problem'
+        queryAttribute = 'problem'
 
         return query_sources_with_user_additions(search, project, queryID, queryAttribute, ['mathalgodb'])
     

@@ -21,7 +21,7 @@ def get_answer_search(project, val, uri, key1 = None, key2 = None, key3 = None, 
                 val[key1].update({key2:value.option_uri})
         elif value.text:
             if not set_prefix and not set_index and collection_index and not external_id and not option_text:
-                val[key1].setdefault(value.collection_index, {}).update({key2:value.text})
+                val[key1].setdefault(key2, {}).update({value.collection_index:value.text})
             elif not set_prefix and not set_index and collection_index and external_id and not option_text:
                 label,_,_ = extract_parts(value.text)
                 val[key1].setdefault(key2, {}).update({value.collection_index:{'selection':f"{value.external_id} <|> {label}"}})

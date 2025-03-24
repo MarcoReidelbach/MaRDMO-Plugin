@@ -12,8 +12,7 @@ from rdmo.options.models import Option
 
 from multiprocessing.pool import ThreadPool
 
-from .config import BASE_URI, mardi_api, wikidata_api, mathalgodb_endpoint, mathmoddb_endpoint
-from .id import *
+from .config import BASE_URI, endpoint
 
 from .model.sparql import queryProviderMM
 from .algorithm.sparql import queryProviderAL
@@ -57,13 +56,19 @@ def add_basics(project, text, url_name, url_description, collection_index = None
     return label, description, source
 
 def add_entities(project, question_set, question_id, datas, source, prefix):
+    # Get Name and Description URL
+    question_name = f'{question_id.rsplit("/", 1)[0]}/name'
+    question_description = f'{question_id.rsplit("/", 1)[0]}/description'
     # Get Set Ids and IDs of Publications
     set_ids = get_id(project, question_set, ['set_index'])
     value_ids = get_id(project, question_id, ['external_id'])
+    texts = get_id(project, question_id, ['text'])
+    names = get_id(project, question_name, ['text'])
+    descriptions = get_id(project, question_description, ['text'])
     # Add Publication to Questionnaire
     idx = max(set_ids, default = -1) + 1
     for data in datas:
-        if data.id not in value_ids:
+        if data.id not in value_ids and not any(f'{data.label} ({data.description})' in text for text in texts) and not any(f'{data.label} ({data.description})' in f'{name} ({description})' for name, description in zip(names, descriptions)):
             # Set up Page
             value_editor(project, question_set, f"{prefix}{idx}", None, None, None, idx)
             # Add ID Values
@@ -72,47 +77,65 @@ def add_entities(project, question_set, question_id, datas, source, prefix):
             value_ids.append(data.id)
     return
 
-def add_relations(project, data, props, set_prefix, relatant, mapping = None, relation = None, suffix = ''):
+def add_relations(project, data, props, set_prefix, relatant, mapping=None, relation=None, suffix=''):
     # Get Set Ids and IDs of Entities
     set_ids = get_id(project, relatant, ['set_index'])
     collection_ids = get_id(project, relatant, ['collection_index'])
     value_ids = get_id(project, relatant, ['external_id'])
-    # Set initial Value of Counter
+    texts = get_id(project, relatant, ['text'])
     if relation:
-        idx = max(set_ids, default = -1) + 1
-    else:
-        idx = max(collection_ids, default = -1) + 1
-    #Add Relations and Relatants
+        rels = get_id(project, relation, ['option_uri'])
+    
+    # Set initial value of counter
+    idx = max(set_ids if relation else collection_ids, default=-1) + 1
+
+    # Add Relations and Relatants
     for prop in props:
         for value in getattr(data, f"{prop}{suffix}"):
-            if value.id not in value_ids:
-                # If Relation, add it
-                if relation:
-                    collection_index = None
-                    set_index = idx
-                    value_editor(project = project, 
-                                 uri = relation, 
-                                 option = Option.objects.get(uri=mapping[prop]), 
-                                 collection_index = collection_index,
-                                 set_index = set_index, 
-                                 set_prefix = set_prefix)
-                else:
-                    collection_index = idx
-                    set_index = 0
+            if relation:
+                if any(value.id == value_id and set_id == set_prefix and rel == mapping[prop] for value_id, set_id, rel in zip(value_ids, set_ids, rels)):
+                    continue  # Skip if value already exists
+            else:
+                if any(value.id == value_id and set_id == set_prefix for value_id, set_id in zip(value_ids, set_ids)):
+                    continue  # Skip if value already exists
 
-                # Get source of Relatant
-                source, _ = value.id.split(':')
-
-                # Add Relatant
+            # Determine indices
+            if relation:
+                collection_index, set_index = None, idx
                 value_editor(project = project, 
-                             uri = relatant, 
-                             text = f"{value.label} ({value.description}) [{source}]", 
-                             external_id = value.id, 
-                             collection_index = collection_index,
+                             uri = relation, 
+                             option = Option.objects.get(uri=mapping[prop]), 
+                             collection_index = collection_index, 
                              set_index = set_index, 
                              set_prefix = set_prefix)
-                idx +=1
-                value_ids.append(value.id)
+            else:
+                collection_index, set_index = idx, 0
+
+            # Get source of Relatant
+            source, _ = value.id.split(':')
+
+            text_entry = f"{value.label} ({value.description})"
+            existing_index = None
+            if not relation:
+                existing_index = next((IDX for IDX, (text, set_id) in enumerate(zip(texts, set_ids)) if set_id == set_prefix and text_entry in text), None)
+                collection_index = existing_index if existing_index is not None else idx
+
+            # Add Relatant
+            value_editor(
+                project=project, 
+                uri=relatant, 
+                text=f"{text_entry} [{source}]",
+                external_id=value.id, 
+                collection_index=collection_index,
+                set_index=set_index, 
+                set_prefix=set_prefix
+                )
+
+            if existing_index is None:
+                # Only increment if a new entry was added
+                idx += 1  
+
+            value_ids.append(value.id)
     return
 
 def add_properties(project, data, uri, set_prefix):
@@ -124,6 +147,7 @@ def add_properties(project, data, uri, set_prefix):
                      collection_index = key,
                      set_index = 0, 
                      set_prefix = set_prefix)
+    return
         
 def add_references(project, data, uri, set_index = 0, set_prefix = None):
 
@@ -135,6 +159,7 @@ def add_references(project, data, uri, set_index = 0, set_prefix = None):
                      collection_index = key,
                      set_index = set_index, 
                      set_prefix = set_prefix)
+    return
 
 def merge_dicts_with_unique_keys(answers, keys):
     
@@ -151,6 +176,7 @@ def get_new_ids(project, ids, query, endpoint, source):
     '''Request IDs for new MathModDB Items and add them to the Questionnaire'''
     new_ids ={}
     for key, id_value in ids.items():
+        print(key, id_value)
         # Identify Items missing a MathModDB ID
         if not id_value.startswith(('mathmoddb:','bm:','pr:','so:','al:','pb')):
             # Get MathModDB or MathAlgoDB ID
@@ -204,11 +230,14 @@ def extract_parts(string):
         a, b = main_part, ""
     return a, b, c
 
-def find_item(label, description, api=mardi_api, language="en"):
+def find_item(label, description, api = endpoint['mardi']['api']):
     '''API request returning an Item with matching label and description.'''
+    # Check description
+    description = description if description and description != 'No Description Provided!' else ''
+    # Get Data
     data = query_api(api,label)
     # Filter results based on description
-    matched_items = [item for item in data if item.get('description') == description]
+    matched_items = [item for item in data if item.get('description', '') == description]
     if matched_items:
         # Return the ID of the first matching item
         return matched_items[0]['id']
@@ -226,7 +255,6 @@ def query_api(api_url, search_term):
         'limit': 10,
         'search': search_term
     }, headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'})
-    
     if response.status_code == 200:
         try:
             result = response.json().get('search', [])
@@ -235,7 +263,7 @@ def query_api(api_url, search_term):
 
     return result
 
-def query_sparql(query, endpoint=mathmoddb_endpoint):
+def query_sparql(query, endpoint=endpoint['mathmoddb']['sparql']):
     '''SPARQL request returning all Items with matching properties.'''
     if not endpoint:
         logger.warning("SPARQL query attempted without a valid endpoint.")
@@ -332,8 +360,8 @@ def query_sources(search, queryID, sources, notFound=True):
         '''Helper function to query specified sources and process results.'''
         
         source_functions = {
-            'wikidata': lambda s: query_api(wikidata_api, s),
-            'mardi': lambda s: query_api(mardi_api, s),
+            'wikidata': lambda s: query_api(endpoint['wikidata']['api'], s),
+            'mardi': lambda s: query_api(endpoint['mardi']['api'], s),
             'mathmoddb': lambda s: MathDBProvider(s, queryProviderMM[queryID], 'mathmoddb'),
             'mathalgodb': lambda s: MathDBProvider(s, queryProviderAL[queryID], 'mathalgodb')
         }
@@ -376,7 +404,7 @@ def MathDBProvider(search, query, source):
         return []
 
     # Fetch results from the MathAlgoDB knowledge graph
-    results = query_sparql(query, mathalgodb_endpoint if source == 'mathalgodb' else mathmoddb_endpoint if source == 'mathmoddb' else '')
+    results = query_sparql(query, endpoint['mathalgodb']['sparql'] if source == 'mathalgodb' else endpoint['mathmoddb']['sparql'] if source == 'mathmoddb' else '')
     dic = {}
     options = []
     
@@ -426,7 +454,10 @@ def query_sources_with_user_additions(search, project, queryID, queryAttribute, 
                 label, description, source = extract_parts(value1.text)
                 _, id = value1.external_id.split(':')
         if source not in sources:
-            dic[f"{label} ({description}) [{source}]"] = {'id': f"{source}:{id}"}
+            if source == 'user':
+                dic[f"{label} ({description}) [{source}]"] = {'id': f"not found"}
+            else:
+                dic[f"{label} ({description}) [{source}]"] = {'id': f"{source}:{id}"}
             
     # Add the user-defined options to the list, filtered by search
     options.extend([{'id': f"{dic[key]['id']}", 'text': key} for key in dic if search.lower() in key.lower()])
@@ -474,3 +505,13 @@ def entityRelations(data, fromIDX, toIDX, relationOld, entityOld, relationNew, e
                         if [from_entry[relationOld][key], Id, Id] not in from_entry.get(relationNew, {}).values():
                             from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], Id, Id]})
     return
+
+def replace_in_dict(d, target, replacement):
+    if isinstance(d, dict):
+        return {k: replace_in_dict(v, target, replacement) for k, v in d.items()}
+    elif isinstance(d, list):
+        return [replace_in_dict(v, target, replacement) for v in d]
+    elif isinstance(d, str):
+        return d.replace(target, replacement)
+    else:
+        return d 

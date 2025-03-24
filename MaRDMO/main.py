@@ -13,7 +13,7 @@ from rdmo.services.providers import OauthProviderMixin
 
 from .oauth2 import OauthProviderMixin
 from .utils import get_data, get_new_ids, merge_dicts_with_unique_keys, query_sparql
-from .config import mathmoddb_endpoint, mathmoddb_update, mathalgodb_endpoint, mathalgodb_update, mardi_uri, mathalgodb_uri, mathmoddb_uri, wikidata_uri
+from .config import endpoint
 
 from .model.sparql import queryModelDocumentation
 from .model.worker import model_relations
@@ -24,8 +24,9 @@ from .algorithm.worker import algorithm_relations
 from .algorithm.utils import get_answer_algorithm, dict_to_triples_mathalgodb, generate_sparql_insert_with_new_ids_mathalgodb
 
 from .workflow.sparql import queryPreview
-from .workflow.utils import get_answer_workflow, get_discipline
+from .workflow.utils import compare_items, get_answer_workflow, get_discipline
 from .workflow.models import ModelProperties, Variables, Parameters
+from .workflow.worker import generate_payload
 
 from .search.worker import search
 from .search.utils import get_answer_search
@@ -34,26 +35,35 @@ from .publication.worker import PublicationRetriever
 
 logger = logging.getLogger(__name__)
 
-try:
-    # Get login credentials if available 
-    from config.settings import mathmoddb_username, mathmoddb_password
-except:
-    mathmoddb_username=''; mathmoddb_password=''
-
-
 class BaseMaRDMOExportProvider(OauthProviderMixin, Export):
 
     @property
-    def client_id(self):
-        return settings.MaRDMO_PROVIDER['client_id']
+    def oauth2_client_id(self):
+        return settings.MARDMO_PROVIDER['oauth2_client_id']
 
     @property
-    def client_secret(self):
-        return settings.MaRDMO_PROVIDER['client_secret']
+    def oauth2_client_secret(self):
+        return settings.MARDMO_PROVIDER['oauth2_client_secret']
+    
+    @property
+    def mathmoddb_id(self):
+        return settings.MARDMO_PROVIDER['mathmoddb_id']
+
+    @property
+    def mathmoddb_secret(self):
+        return settings.MARDMO_PROVIDER['mathmoddb_secret']
+    
+    @property
+    def mathalgodb_id(self):
+        return settings.MARDMO_PROVIDER['mathalgodb_id']
+
+    @property
+    def mathalgodb_secret(self):
+        return settings.MARDMO_PROVIDER['mathalgodb_secret']
 
     @property
     def wikibase_url(self):
-        return 'https://test.wikidata.org'
+        return 'https://staging.mardi4nfdi.org'
 
     @property
     def authorize_url(self):
@@ -69,19 +79,19 @@ class BaseMaRDMOExportProvider(OauthProviderMixin, Export):
 
     @property
     def redirect_path(self):
-        return reverse('oauth_callback', args=['zenodo'])
+        return reverse('oauth_callback', args=['wikibase'])
 
     def get_authorize_params(self, request, state):
         return {
             'response_type': 'code',
-            'client_id': self.client_id,
+            'client_id': self.oauth2_client_id,
             'state': state
         }
 
     def get_callback_data(self, request):
         return {
-            'client_id': self.client_id,
-            'client_secret': self.client_secret,
+            'client_id': self.oauth2_client_id,
+            'client_secret': self.oauth2_client_secret,
             'grant_type': 'authorization_code',
             'code': request.GET.get('code')
         }
@@ -112,10 +122,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                            status=200)
         
         # MaRDMO: Algorithm Documentation
-        if str(self.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
+        elif str(self.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
             
             data = self.get_post_data()
-            
+            print(data[0]['problem'])
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
@@ -170,11 +180,19 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                            'include_params': {'title': self.project.title},
                                               'answers': data[0],
                                               'option': data[1],
-                                              'mathmoddbURI': mathmoddb_uri,
-                                              'mathalgodbURI': mathalgodb_uri,
-                                              'mardiURI': mardi_uri,
-                                              'wikidataURI': wikidata_uri}, 
+                                              'mathmoddbURI': endpoint['mathmoddb']['uri'],
+                                              'mathalgodbURI': endpoint['mathalgodb']['uri'],
+                                              'mardiURI': endpoint['mardi']['uri'],
+                                              'wikidataURI': endpoint['wikidata']['uri']}, 
                            status=200)
+        
+        # Non-MaRDMO Catalog
+        else:
+
+            return render(self.request, 'core/error.html', {
+                'title': _('Catalog Error'),
+                'errors': [_('The catalog is not supported by the MaRDMO Plugin.')]
+            }, status=200)
 
 
     def submit(self):
@@ -183,6 +201,14 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         else:
             # MaRDMO: Mathematical Model Documentation
             if str(self.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
+
+                if not (self.mathmoddb_id and self.mathmoddb_secret):
+                    # Check for MathModDB Credentials
+                    return render(self.request, 
+                                  'core/error.html', 
+                                  {'title': _('Missing Credentials'),
+                                   'errors': [_('Credentials for MathModDB are missing!')]}, 
+                                  status=200)
                 
                 data = self.get_post_data()
                 
@@ -194,21 +220,21 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 query = generate_sparql_insert_with_new_ids_mathmoddb(triple_list)
                 
                 # Add Model Documentation to MathModDB
-                response = requests.post(mathmoddb_update, data=query, headers={
+                response = requests.post(endpoint['mathmoddb']['update'], data=query, headers={
                                         "Content-Type": "application/sparql-update",
                                         "Accept": "text/turtle"},
-                                        auth=(mathmoddb_username, mathmoddb_password),
+                                        auth=(self.mathmoddb_id, self.mathmoddb_secret),
                                         verify = False
                                     )
                 
                 if response.status_code == 204:
-                    ids = get_new_ids(self.project, ids, queryModelDocumentation['IDCheck'], mathmoddb_endpoint, 'mathmoddb')
+                    ids = get_new_ids(self.project, ids, queryModelDocumentation['IDCheck'], endpoint['mathmoddb']['sparql'], 'mathmoddb')
                     
                     # Links to newly created Entities
                     return render(self.request,
                                   'MaRDMO/modelExport.html', 
                                   {'ids': ids,
-                                   'mathmoddb_uri': mathmoddb_uri}, 
+                                   'mathmoddb_uri': endpoint['mathmoddb']['uri']}, 
                                   status=200)
                 else:
                     return render(self.request,
@@ -219,6 +245,14 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             # MaRDMO: Algorithm Documentation
             if str(self.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
 
+                if not (self.mathalgodb_id and self.mathalgodb_secret):
+                    # Check for MathAlgoDB Credentials
+                    return render(self.request, 
+                                  'core/error.html', 
+                                  {'title': _('Missing Credentials'),
+                                   'errors': [_('Credentials for MathAlgoDB are missing!')]}, 
+                                  status=200)
+
                 data = self.get_post_data()
                 
                 # Merge answers related to mathematical model
@@ -228,20 +262,20 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 # Generate query for MathModDB KG
                 query = generate_sparql_insert_with_new_ids_mathalgodb(triple_list)
                 
-                response = requests.post(mathalgodb_update, data=query, headers={
+                response = requests.post(endpoint['mathalgodb']['update'], data=query, headers={
                                         "Content-Type": "application/sparql-update",
                                         "Accept": "text/turtle"},
-                                        auth=(mathmoddb_username, mathmoddb_password),
+                                        auth=(self.mathalgodb_id, self.mathalgodb_secret),
                                         verify = False
                                     )
                 
                 if response.status_code == 204:
-                    ids = get_new_ids(self.project, ids, queryAlgorithmDocumentation['IDCheck'], mathalgodb_endpoint, 'mathalgodb')
+                    ids = get_new_ids(self.project, ids, queryAlgorithmDocumentation['IDCheck'], endpoint['mathalgodb']['sparql'], 'mathalgodb')
                     # Links to newly created Entities
                     return render(self.request,
                                   'MaRDMO/algorithmExport.html', 
                                   {'ids': ids,
-                                   'mathalgodb_uri': mathalgodb_uri}, 
+                                   'mathalgodb_uri': endpoint['mathalgodb']['uri']}, 
                                   status=200)
                 else:
                     return render(self.request,
@@ -249,69 +283,59 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   {'error': 'The mathematical model could not be integrated into the MathodDB!'}, 
                                   status=200)
 
-                return render(self.request,
-                              'MaRDMO/Export_soon.html',        
-                              status=200)
-
             # MaRDMO: Search Interdisciplinary Workflow, Mathematical Models or Algorithms    
             elif str(self.project.catalog).split('/')[-1] == 'mardmo-search-catalog':
 
                 data = self.get_post_data()
 
+                options = get_data('data/options.json')
+                
+                if data[0]['search']['options'] == options['InterdisciplinaryWorkflow']:
+                    datatype = "Workflow(s)"
+                    source = "MaRDI Portal"
+                elif data[0]['search']['options'] == options['MathematicalModel']:
+                    datatype = "Mathematical Model(s)"
+                    source = "MathModDB KG"
+                elif data[0]['search']['options'] == options['Algorithm']:
+                    datatype = "Algorithm(s)"
+                    source = "MathAlgoDB KG"
+
                 return render(self.request,
                               'MaRDMO/workflowSearch.html', 
-                              {'noResults': data[0]['no_results'],
+                              {'datatype': datatype,
+                               'source': source,   
+                               'noResults': data[0]['no_results'],
                                'links': data[0]['links']}, 
                               status=200)
             
             # MaRDMO: Interdisciplinary Workflow Documentation
             elif str(self.project.catalog).split('/')[-1] == 'mardmo-interdisciplinary-workflow-catalog':
 
-                #data = self.get_post_data()
-                
-                #url = self.get_post_url()
+                if not (self.oauth2_client_id and self.oauth2_client_secret):
+                    # Check for MaRDI Portal Credentials
+                    return render(self.request, 
+                                  'core/error.html', 
+                                  {'title': _('Missing Credentials'),
+                                   'errors': [_('Credentials for MaRDI Portal are missing!')]}, 
+                                  status=200)
 
-                #payload = [{
-                #           "item": {
-                #               "labels": {
-                #                   "en": "Item5"
-                #               },
-                #               "descriptions": {
-                #                   "en": "item6"
-                #               }
-                #           },
-                #           "comment": "Creating Item 5"
-                #       },
-                #       {
-                #           "item": {
-                #               "labels": {
-                #                   "en": "Item6"
-                #               },
-                #               "descriptions": {
-                #                   "en": "item6"
-                #               }
-                #           },
-                #           "comment": "Creating Item 6"
-                #       }]
-                
-                #return self.post(self.request, url, payload)
+                data = self.get_post_data()
+                payload = generate_payload(data[0], self.project.title)
+                url = self.get_post_url()
+                print(data[0])
+                #return
+                return self.post(self.request, url, payload)
 
+    def post_success(self, request, init, final):
 
-                return render(self.request,
-                              'MaRDMO/Export_soon.html', 
-                              status=200)
-                
+        ids = compare_items(init, final)
 
-
-    def post_success(self, request, response):
-        zenodo_url = ''#response.json().get('links', {}).get('self_html')
-        if zenodo_url:
-            return redirect(zenodo_url)
-        else:
-            return render(request, 'core/error.html', {
-                'title': _('ZENODO error'),
-                'errors': [_('The URL of the new dataset could not be retrieved.')]
-            }, status=200)
+        # Links to newly created Entities
+        return render(request,
+                      'MaRDMO/workflowExport.html', 
+                      {'ids': ids,
+                       'mardi_uri': endpoint['mardi']['uri']}, 
+                      status=200)
 
     def get_post_url(self):
         return self.deposit_url
@@ -335,8 +359,8 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             answers = model_relations(self.project, answers,mathmoddb)
 
             # Retrieve Publications related to Workflow
-            answers = PublicationRetriever.Model(self.project, answers, options)
-
+            answers = PublicationRetriever.Model(self.project, answers)
+            
             return answers, options, mathmoddb
         
         # MaRDMO: Algorithm Documentation
@@ -354,7 +378,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             answers = algorithm_relations(self.project, answers, mathalgodb)
 
             # Retrieve Publications related to Workflow
-            answers = PublicationRetriever.Algorithm(self.project, answers, options)
+            answers = PublicationRetriever.Algorithm(self.project, answers)
 
             return answers, options, mathalgodb
 

@@ -2,7 +2,6 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from rdmo.projects.models import Value
 
-from ..id import *
 from ..config import BASE_URI, endpoint
 from ..utils import add_basics, add_entities, add_references, add_relations, get_data, get_questionsWO, value_editor, query_sparql
 
@@ -270,6 +269,27 @@ def BasicInformationAndEntryAddition(sender, **kwargs):
                                                         text = instance.text,
                                                         url_name = f'{BASE_URI}{questions["Instrument Software Name"]["uri"]}',
                                                         url_description = f'{BASE_URI}{questions["Instrument Software Description"]["uri"]}',
+                                                        collection_index = instance.collection_index,
+                                                        set_index = instance.set_index,
+                                                        set_prefix = instance.set_prefix
+                                                        )
+                # If Data Set not defined by User
+                if source != 'user':
+                    add_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Software"]["uri"]}', 
+                                 question_id = f'{BASE_URI}{questions["Software ID"]["uri"]}', 
+                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                                 source = source, 
+                                 prefix = "S")
+        # Hardware Software
+        elif instance.attribute.uri == f'{BASE_URI}{questions["Hardware Software ID"]["uri"]}':
+            # Check if actual Software is chosen
+            if instance.text:
+                # Add Basic Information
+                label, description, source = add_basics(project = instance.project,
+                                                        text = instance.text,
+                                                        url_name = f'{BASE_URI}{questions["Hardware Software Name"]["uri"]}',
+                                                        url_description = f'{BASE_URI}{questions["Hardware Software Description"]["uri"]}',
                                                         collection_index = instance.collection_index,
                                                         set_index = instance.set_index,
                                                         set_prefix = instance.set_prefix

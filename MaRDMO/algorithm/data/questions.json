@@ -21,14 +21,14 @@
 "Algorithm A2P": {
     "key1": "algorithm",
     "key2": "A2P",
-    "uri": "domain/algorithm/algorithmic-problem-relation",
+    "uri": "domain/algorithm/problem-relation",
     "set_prefix": true,
     "collection_index": true
 },
 "Algorithm PRelatant": {
     "key1": "algorithm",
     "key2": "PRelatant",
-    "uri": "domain/algorithm/algorithmic-problem-relatant",
+    "uri": "domain/algorithm/problem-relatant",
     "set_prefix": true,
     "collection_index": true,
     "external_id": true
@@ -64,38 +64,38 @@
     "external_id": true
 },
 "Problem": {
-    "uri": "domain/algorithmic-problem"
+    "uri": "domain/problem"
 },
 "Problem ID": {
     "key1": "problem",
     "key2": "ID",
-    "uri": "domain/algorithmic-problem/id",
+    "uri": "domain/problem/id",
     "set_index": true,
     "external_id": true
 },
 "Problem Name": {
     "key1": "problem",
     "key2": "Name",
-    "uri": "domain/algorithmic-problem/name",
+    "uri": "domain/problem/name",
     "set_prefix": true
 },
 "Problem Description": {
     "key1": "problem",
     "key2": "Description",
-    "uri": "domain/algorithmic-problem/description",
+    "uri": "domain/problem/description",
     "set_prefix": true
 },
 "Problem P2B": {
     "key1": "problem",
     "key2": "P2B",
-    "uri": "domain/algorithmic-problem/benchmark-relation",
+    "uri": "domain/problem/benchmark-relation",
     "set_prefix": true,
     "collection_index": true
 },
 "Problem BRelatant": {
     "key1": "problem",
     "key2": "BRelatant",
-    "uri": "domain/algorithmic-problem/benchmark-relatant",
+    "uri": "domain/problem/benchmark-relatant",
     "set_prefix": true,
     "collection_index": true,
     "external_id": true
@@ -103,14 +103,14 @@
 "Problem IntraClassRelation": {
     "key1": "problem",
     "key2": "IntraClassRelation",
-    "uri": "domain/algorithmic-problem/algorithmic-problem-relation",
+    "uri": "domain/problem/problem-relation",
     "set_prefix": true,
     "set_index": true
 },
 "Problem IntraClassElement": {
     "key1": "problem",
     "key2": "IntraClassElement",
-    "uri": "domain/algorithmic-problem/algorithmic-problem-relatant",
+    "uri": "domain/problem/problem-relatant",
     "set_prefix": true,
     "set_index": true,
     "external_id": true

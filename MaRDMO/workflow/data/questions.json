@@ -1,20 +1,4 @@
 {   
-    "Creator Name": {
-        "key1": "Creator",
-        "key2": "Name",
-        "uri": "domain/creator/name"
-    },
-    "Creator IDs": {
-        "key1": "Creator",
-        "key2": "IDs",
-        "uri": "domain/creator/id",
-        "collection_index": true
-    },
-    "General Problem": {
-        "key1": "general",
-        "key2": "problem",
-        "uri": "domain/general/problem"
-    },
     "General Objective": {
         "key1": "general",
         "key2": "objective",
@@ -24,12 +8,6 @@
         "key1": "general",
         "key2": "procedure",
         "uri": "domain/general/procedure"
-    },
-    "General Streams": {
-        "key1": "general",
-        "key2": "streams",
-        "uri": "domain/general/data-streams",
-        "collection_index": true
     },
     "Model ID": {
         "key1": "model",
@@ -82,11 +60,29 @@
         "uri": "domain/publication/entry-type",
         "set_index": true
     },
-    "Publication Language": {
+    "Publication Language ID": {
         "key1": "publication",
         "key2": "language",
-        "uri": "domain/publication/language",
-        "set_index": true
+        "key3": "ID",
+        "uri": "domain/publication/language/id",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Language Name": {
+        "key1": "publication",
+        "key2": "language",
+        "key3": "Name",
+        "uri": "domain/publication/language/name",
+        "set_index": true,
+        "collection_index": true
+    },
+    "Publication Language Description": {
+        "key1": "publication",
+        "key2": "language",
+        "key3": "Description",
+        "uri": "domain/publication/language/description",
+        "set_index": true,
+        "collection_index": true
     },
     "Publication Date": {
         "key1": "publication",
@@ -154,7 +150,7 @@
         "key1": "publication",
         "key2": "author",
         "key3": "ID",
-        "uri": "domain/publication/author/ID",
+        "uri": "domain/publication/author/id",
         "set_index": true,
         "collection_index": true
     },
@@ -269,7 +265,8 @@
         "key1": "software",
         "key2": "Reference",
         "uri": "domain/software/reference",
-        "set_prefix": true
+        "set_prefix": true,
+        "collection_index": true
     },
     "Software Version": {
         "key1": "software",
@@ -396,6 +393,31 @@
         "key2": "Cores",
         "uri": "domain/hardware/cores",
         "set_prefix": true
+    },
+    "Hardware Software ID": {
+        "key1": "hardware",
+        "key2": "software",
+        "key3": "ID",
+        "uri": "domain/hardware/software/id",
+        "set_prefix": true,
+        "collection_index": true,
+        "external_id": true
+    },
+    "Hardware Software Name": {
+        "key1": "hardware",
+        "key2": "software",
+        "key3": "Name",
+        "uri": "domain/hardware/software/name",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "Hardware Software Description": {
+        "key1": "hardware",
+        "key2": "software",
+        "key3": "Description",
+        "uri": "domain/hardware/software/description",
+        "set_prefix": true,
+        "collection_index": true
     },
     "Instrument": {
         "uri": "domain/instrument"
@@ -589,7 +611,7 @@
         "key2": "ToPublish",
         "uri": "domain/data-set/to-publish",
         "set_prefix": true,
-        "option_text": true
+        "collection_index": true
     },
     "Data Set To Archive": {
         "key1": "dataset",
@@ -775,7 +797,8 @@
         "key1": "processstep",
         "key2": "parameter",
         "uri": "domain/process-step/parameter",
-        "set_prefix": true
+        "set_prefix": true,
+        "collection_index": true
     },
     "Process Step Environment-Software ID": {
         "key1": "processstep",

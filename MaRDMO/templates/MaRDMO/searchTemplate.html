@@ -63,6 +63,57 @@
             {% endif %}
             <h1 id="SPARQLQuery"> SPARQL Query </h1>
             <pre><code>{{ answers.query|safe }}</code></pre>
+        {% elif answers.search.options == option.MathematicalModel %}
+        <h1 id="MathematicalModel"> Search Mathematical Models </h1>
+        {% if answers.search.via_research_problem == option.Yes %}
+            <h2 id="ResearchProblem"> Research Problem Keywords</h1>
+            {% for value in answers.search.research_problem.values %}
+                {{ value }}
+                {% if not forloop.last %}
+             , 
+          {% endif %} 
+            {% endfor %}
         {% endif %}
+        {% if answers.search.via_research_field == option.Yes %}
+            <h2 id="ResearchField"> Research Fields </h1>
+            {% for value in answers.search.research_field.values %}
+                {{ value.Name }} ({{ value.ID }})
+                {% if not forloop.last %}
+             , 
+          {% endif %} 
+            {% endfor %}
+        {% endif %}
+        {% if answers.search.via_model_entity == option.Yes %}
+            <h2 id="ModelEntity"> Model Entities </h1>
+            <b>Mathematical Formulations</b>
+            <br>
+            {% for value in answers.search.model_formulation.values %}
+                {{ value.Name }} ({{ value.ID }})
+                {% if not forloop.last %}
+                    , 
+                {% endif %} 
+            {% endfor %}
+            <br><br>
+            <b>Computational Tasks</b>
+            <br>
+            {% for value in answers.search.model_task.values %}
+                {{ value.Name }} ({{ value.ID }})
+                {% if not forloop.last %}
+                    , 
+                {% endif %} 
+            {% endfor %}
+            <br><br>
+            <b>Quantities or Quantity Kinds</b>
+            <br>
+            {% for value in answers.search.model_quantity.values %}
+                {{ value.Name }} ({{ value.ID }})
+                {% if not forloop.last %}
+                    , 
+                {% endif %} 
+            {% endfor %}
+        {% endif %}
+        <h1 id="SPARQLQuery"> SPARQL Query </h1>
+        <pre><code>{{ answers.query|safe }}</code></pre>
+    {% endif %}
    </body>
    

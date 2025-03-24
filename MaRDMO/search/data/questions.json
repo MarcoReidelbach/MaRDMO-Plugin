@@ -38,5 +38,54 @@
         "uri": "domain/search/workflow-search/workflow-entity",
         "collection_index": true,
         "external_id": true
+    },
+    "via_research_problem": {
+        "key1": "search",
+        "key2": "via_research_problem",
+        "uri": "domain/search/model-search/via-research-problem"
+    },
+    "research_problem": {
+        "key1": "search",
+        "key2": "research_problem",
+        "uri": "domain/search/model-search/research-problem",
+        "collection_index": true
+    },
+    "via_research_field": {
+        "key1": "search",
+        "key2": "via_research_field",
+        "uri": "domain/search/model-search/via-research-field"
+    },
+    "research_field": {
+        "key1": "search",
+        "key2": "research_field",
+        "uri": "domain/search/model-search/research-field",
+        "collection_index": true,
+        "external_id": true
+    },
+    "via_model_entity": {
+        "key1": "search",
+        "key2": "via_model_entity",
+        "uri": "domain/search/model-search/via-model-entity"
+    },
+    "model_formulation": {
+        "key1": "search",
+        "key2": "model_formulation",
+        "uri": "domain/search/model-search/model-formulation",
+        "collection_index": true,
+        "external_id": true
+    },
+    "model_task": {
+        "key1": "search",
+        "key2": "model_task",
+        "uri": "domain/search/model-search/model-task",
+        "collection_index": true,
+        "external_id": true
+    },
+    "model_quantity": {
+        "key1": "search",
+        "key2": "model_quantity",
+        "uri": "domain/search/model-search/model-quantity",
+        "collection_index": true,
+        "external_id": true
     }
 }

@@ -891,7 +891,8 @@ queryProvider = {
 
                           SELECT DISTINCT ?id ?label ?quote
                           WHERE {{
-                                  {0} :appliedByTask ?idraw .
+                                  VALUES ?mm {{ :{0} }}
+                                  ?mm :appliedByTask ?idraw .
                                   BIND(STRAFTER(STR(?idraw), "#") AS ?id)
                                   OPTIONAL {{ ?idraw rdfs:label ?labelraw .
                                               FILTER (lang(?labelraw) = 'en') }}
