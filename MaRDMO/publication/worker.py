@@ -47,7 +47,6 @@ class PublicationRetriever:
                     if answers['publication'][key].get('reference', {}).get(0, ['',''])[1]:
                         #Get the Citation of several ressource.
                         data = get_citation(answers['publication'][key]['reference'][0][1])
-                        print(data)
                         #If Publication available at MaRDI Portal or Wikidata...
                         if data['mardi'] or data['wikidata']:
                             DATA = data['mardi'] or data['wikidata']
@@ -63,8 +62,7 @@ class PublicationRetriever:
                             answers['publication'][key]['Description'] = DATA.description
                         #If Publication available at Crossref, Datacite, zbMath or DOI...
                         elif data['crossref'] or data['datacite'] or data['zbmath'] or data['doi']:
-                            DATA = data['crossref'] or data['datacite'] or data['zbmath'] or data['doi']
-                            print(DATA)
+                            DATA = data['crossref'] or data['datacite'] or data['zbm]
                             #...add data to Questionnaire and...
                             for uri, data_key in PUBLICATIONS.items():
                                 value_editor(project = project, 

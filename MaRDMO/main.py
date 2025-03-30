@@ -125,7 +125,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         elif str(self.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
             
             data = self.get_post_data()
-            print(data[0]['problem'])
+            
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
@@ -322,8 +322,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 data = self.get_post_data()
                 payload = generate_payload(data[0], self.project.title)
                 url = self.get_post_url()
-                print(data[0])
-                #return
+                
                 return self.post(self.request, url, payload)
 
     def post_success(self, request, init, final):

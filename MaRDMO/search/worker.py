@@ -195,7 +195,7 @@ def search(answers, options):
 
         # Set up entire SPARQL query
         query = "\n".join(line for line in query_base_algorithm.format(apr_str, apr_fil_strs, sof_str).splitlines() if line.strip())
-        print(query)
+        
         # Add Query to answer dictionary
         answers['query'] = html.escape(query).replace('\n', '<br>')
 

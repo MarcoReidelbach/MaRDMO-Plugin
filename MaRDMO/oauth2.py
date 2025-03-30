@@ -60,7 +60,6 @@ class OauthProviderMixin:
         # Replay the original request with the new access token
         try:
             method, *args = self.pop_from_session(request, 'request')
-            print(method)
             if method == 'get':
                 return self.perform_get(request, access_token, *args)
             elif method == 'post':

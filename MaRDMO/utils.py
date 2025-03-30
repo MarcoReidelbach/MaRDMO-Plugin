@@ -176,7 +176,6 @@ def get_new_ids(project, ids, query, endpoint, source):
     '''Request IDs for new MathModDB Items and add them to the Questionnaire'''
     new_ids ={}
     for key, id_value in ids.items():
-        print(key, id_value)
         # Identify Items missing a MathModDB ID
         if not id_value.startswith(('mathmoddb:','bm:','pr:','so:','al:','pb')):
             # Get MathModDB or MathAlgoDB ID
