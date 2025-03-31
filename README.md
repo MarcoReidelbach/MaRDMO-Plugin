@@ -32,7 +32,6 @@ INSTALLED_APPS = ['MaRDMO'] + INSTALLED_APPS
 PROJECT_EXPORTS += [
         ('wikibase', _('MaRDMO Button'), 'MaRDMO.main.MaRDMOExportProvider'),
         ]
-
 OPTIONSET_PROVIDERS = [
     # Search
     ('MaRDISearch', _('Options for MaRDI Search'), 'MaRDMO.search.providers.MaRDISearch'),
