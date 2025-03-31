@@ -32,7 +32,7 @@ where = ["."]
 include = ["MaRDMO*"]
 
 [tool.setuptools.package-data]
-"MaRDMO" = ["templates/MaRDMO/*.html", "data/*.json", "static/MaRDMO/images/*.png", "algorithm/data/*.josn", "model/data/*.json", "publication/data/*.json", "search/data/*.json", "workflow/data/*.json"]
+"MaRDMO" = ["templates/MaRDMO/*.html", "data/*.json", "static/MaRDMO/images/*.png", "algorithm/data/*.json", "model/data/*.json", "publication/data/*.json", "search/data/*.json", "workflow/data/*.json"]
 
 [project.optional-dependencies]
 # Add optional dependencies here if needed
