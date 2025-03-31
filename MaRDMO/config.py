@@ -7,9 +7,9 @@ wdt = '<https://portal.mardi4nfdi.de/prop/direct/>'
 
 # Endpoints
 endpoint = {'mardi': {
-                      'api': 'https://staging.mardi4nfdi.org/w/api.php', #'https://portal.mardi4nfdi.de/w/api.php', #"http://localhost:8888/w/api.php"
-                      'sparql': 'https://query.staging.mardi4nfdi.org/proxy/wdqs/bigdata/namespace/wdq/sparql', #'https://query.portal.mardi4nfdi.de/proxy/wdqs/bigdata/namespace/wdq/sparql', #"http://localhost:8834/proxy/wdqs/bigdata/namespace/wdq/sparql"
-                      'uri': 'https://staging.mardi4nfdi.org/', #"https://portal.mardi4nfdi.de/wiki/Item:", "http://localhost:8888/wiki/Item:"
+                      'api': 'https://portal.mardi4nfdi.de/w/api.php',
+                      'sparql': 'https://query.portal.mardi4nfdi.de/proxy/wdqs/bigdata/namespace/wdq/sparql', 
+                      'uri': 'https://portal.mardi4nfdi.de/'
                      },
            'wikidata': {
                         'api': 'https://www.wikidata.org/w/api.php',
@@ -17,14 +17,14 @@ endpoint = {'mardi': {
                         'uri': 'https://www.wikidata.org/wiki/Item:'
                        },
            'mathalgodb': {
-                          'sparql': 'http://localhost:3030/mathalgodb/query', #'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/query'
-                          'update': 'http://localhost:3030/mathalgodb/update',
-                          'uri': 'http://localhost:8080/' #'https://mtsr2024.m1.mardi.ovh/'
+                          'sparql': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/query',
+                          'update': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/update',
+                          'uri': ''https://mtsr2024.m1.mardi.ovh/'
                          },
            'mathmoddb': {
-                          'sparql': 'http://localhost:3030/mathalgodb/query', #'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/query'
-                          'update': 'http://localhost:3030/mathalgodb/update',
-                          'uri': 'http://localhost:8080/' #https://mtsr2024.m1.mardi.ovh/
+                          'sparql': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/query',
+                          'update': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/update',
+                          'uri': ''https://mtsr2024.m1.mardi.ovh/'
                          },
            'crossref': {
                         'api': 'https://api.crossref.org/works/'
