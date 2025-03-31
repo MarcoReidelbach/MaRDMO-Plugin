@@ -19,12 +19,12 @@ endpoint = {'mardi': {
            'mathalgodb': {
                           'sparql': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/query',
                           'update': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/update',
-                          'uri': ''https://mtsr2024.m1.mardi.ovh/'
+                          'uri': 'https://mtsr2024.m1.mardi.ovh/'
                          },
            'mathmoddb': {
                           'sparql': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/query',
                           'update': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/update',
-                          'uri': ''https://mtsr2024.m1.mardi.ovh/'
+                          'uri': 'https://mtsr2024.m1.mardi.ovh/'
                          },
            'crossref': {
                         'api': 'https://api.crossref.org/works/'
