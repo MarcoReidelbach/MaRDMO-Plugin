@@ -62,7 +62,7 @@ class PublicationRetriever:
                             answers['publication'][key]['Description'] = DATA.description
                         #If Publication available at Crossref, Datacite, zbMath or DOI...
                         elif data['crossref'] or data['datacite'] or data['zbmath'] or data['doi']:
-                            DATA = data['crossref'] or data['datacite'] or data['zbm]
+                            DATA = data['crossref'] or data['datacite'] or data['zbmath'] or data['doi']
                             #...add data to Questionnaire and...
                             for uri, data_key in PUBLICATIONS.items():
                                 value_editor(project = project, 
