@@ -117,7 +117,5 @@ python manage.py import /path/to/MaRDMO-Questionnaire/catalog/mardmo-algorithm-c
 
 ## Usage of MaRDMO Plugin
 
-Once the MaRDMO Plugin is set up, the Questionnaire can be used to document and query interdisciplinary workflows and/or mathematical models. Therefore, select "Create New Project" in RDMO, choose a proper project name (project name will be used as wokflow name and label in the MaRDI portal), assign the "MaRDMO Catalog" and select "Create Project". The project is created. On the right hand side in the "Export" category the "MaRDI Export/Query" button is located to process the completed Questionnaire.     
-
-Choose "Answer Questions" to start the interview. The first questions define the operation modus of the MaRDMO Plugin. Following an identification, questions for the workflow and/or mathematical model documentation are provided. Once all questions are answered, return to the project overview page, choose 'MaRDI Export/Query' and your Workflow and/or Mathematical Model will be exported as selected during the interview.  
+Once the MaRDMO Plugin is set up, the Questionnaires can be used to document and query interdisciplinary workflows, mathematical models, and algorithms. Therefore, select "Create New Project" in RDMO, choose a proper project name (for interdisciplinary workflow the project name will the workflow name), assign one of the the MaRDMO Catalogs and select "Create Project". The project is created. On the right hand side in the "Export" category the "MaRDMO Button" button is located to process the completed Questionnaires. Choose "Answer Questions" to start the interview.     
 
