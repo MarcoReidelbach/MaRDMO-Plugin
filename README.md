@@ -83,18 +83,21 @@ OPTIONSET_PROVIDERS = [
 
 Thereby, the MaRDMO Plugin is installed and a "MaRDI Button" button is added in the project view.
 
-## MaRDI Portal and MathModDB Connection
+## MaRDI Portal, MathAlgoDB, and MathModDB Connection
 
-To add data to the MaRDI Portal an OAuth2 login procedure will be integrated soon. No export to the MaRDI Portal is possible until. Login via Bots is not supported anymore.
-
-To write to the MathModDB KG a login is required. Credentials might be obtained by contacting the MaRDI staff. Add them to `config/settigs/local.py`:
+Add the following lines to `config/settings/local.py` to connect MaRDMO with the individual databases.
 
 ```python
-mathmoddb_username = 'username'
-mathmoddb_password = 'password'
+MARDMO_PROVIDER = {
+    'oauth2_client_id': '',
+    'oauth2_client_secret': '',
+    'mathmoddb_id': '',
+    'mathmoddb_secret': '',
+    'mathalgodb_id': '',
+    'mathalgodb_secret': ''
+    }
 ``` 
-
-Local workflow and model documentations and workflow searches are possible without login credentials. Non-MaRDI users may contact the owner of the repository to facilitate the login for MaRDI portal and MathModDB publication.
+Contact the MaRDI consortium for the individual credentials.
 
 ## MaRDMO-Questionnaire        
 
