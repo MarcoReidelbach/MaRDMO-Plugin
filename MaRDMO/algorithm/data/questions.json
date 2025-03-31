@@ -1,0 +1,271 @@
+{
+"Algorithm ID": {
+    "key1": "algorithm",
+    "key2": "ID",
+    "uri": "domain/algorithm/id",
+    "set_index": true,
+    "external_id": true
+},
+"Algorithm Name": {
+    "key1": "algorithm",
+    "key2": "Name",
+    "uri": "domain/algorithm/name",
+    "set_prefix": true
+},
+"Algorithm Description": {
+    "key1": "algorithm",
+    "key2": "Description",
+    "uri": "domain/algorithm/description",
+    "set_prefix": true
+},
+"Algorithm A2P": {
+    "key1": "algorithm",
+    "key2": "A2P",
+    "uri": "domain/algorithm/problem-relation",
+    "set_prefix": true,
+    "collection_index": true
+},
+"Algorithm PRelatant": {
+    "key1": "algorithm",
+    "key2": "PRelatant",
+    "uri": "domain/algorithm/problem-relatant",
+    "set_prefix": true,
+    "collection_index": true,
+    "external_id": true
+},
+"Algorithm A2S": {
+    "key1": "algorithm",
+    "key2": "A2S",
+    "uri": "domain/algorithm/software-relation",
+    "set_prefix": true,
+    "collection_index": true
+},
+"Algorithm SRelatant": {
+    "key1": "algorithm",
+    "key2": "SRelatant",
+    "uri": "domain/algorithm/software-relatant",
+    "set_prefix": true,
+    "collection_index": true,
+    "external_id": true
+},
+"Algorithm IntraClassRelation": {
+    "key1": "algorithm",
+    "key2": "IntraClassRelation",
+    "uri": "domain/algorithm/algorithm-relation",
+    "set_prefix": true,
+    "set_index": true
+},
+"Algorithm IntraClassElement": {
+    "key1": "algorithm",
+    "key2": "IntraClassElement",
+    "uri": "domain/algorithm/algorithm-relatant",
+    "set_prefix": true,
+    "set_index": true,
+    "external_id": true
+},
+"Problem": {
+    "uri": "domain/problem"
+},
+"Problem ID": {
+    "key1": "problem",
+    "key2": "ID",
+    "uri": "domain/problem/id",
+    "set_index": true,
+    "external_id": true
+},
+"Problem Name": {
+    "key1": "problem",
+    "key2": "Name",
+    "uri": "domain/problem/name",
+    "set_prefix": true
+},
+"Problem Description": {
+    "key1": "problem",
+    "key2": "Description",
+    "uri": "domain/problem/description",
+    "set_prefix": true
+},
+"Problem P2B": {
+    "key1": "problem",
+    "key2": "P2B",
+    "uri": "domain/problem/benchmark-relation",
+    "set_prefix": true,
+    "collection_index": true
+},
+"Problem BRelatant": {
+    "key1": "problem",
+    "key2": "BRelatant",
+    "uri": "domain/problem/benchmark-relatant",
+    "set_prefix": true,
+    "collection_index": true,
+    "external_id": true
+},
+"Problem IntraClassRelation": {
+    "key1": "problem",
+    "key2": "IntraClassRelation",
+    "uri": "domain/problem/problem-relation",
+    "set_prefix": true,
+    "set_index": true
+},
+"Problem IntraClassElement": {
+    "key1": "problem",
+    "key2": "IntraClassElement",
+    "uri": "domain/problem/problem-relatant",
+    "set_prefix": true,
+    "set_index": true,
+    "external_id": true
+},
+"Software": {
+    "uri": "domain/software"
+},
+"Software ID": {
+    "key1": "software",
+    "key2": "ID",
+    "uri": "domain/software/id",
+    "set_index": true,
+    "external_id": true
+},
+"Software Name": {
+    "key1": "software",
+    "key2": "Name",
+    "uri": "domain/software/name",
+    "set_prefix": true
+},
+"Software Description": {
+    "key1": "software",
+    "key2": "Description",
+    "uri": "domain/software/description",
+    "set_prefix": true
+},
+"Software Reference": {
+    "key1": "software",
+    "key2": "reference",
+    "uri": "domain/software/reference",
+    "collection_index": true,
+    "set_prefix": true
+},
+"Software S2B": {
+    "key1": "software",
+    "key2": "S2B",
+    "uri": "domain/software/benchmark-relation",
+    "set_prefix": true,
+    "collection_index": true
+},
+"Software BRelatant": {
+    "key1": "software",
+    "key2": "BRelatant",
+    "uri": "domain/software/benchmark-relatant",
+    "set_prefix": true,
+    "collection_index": true,
+    "external_id": true
+},
+"Benchmark": {
+    "uri": "domain/benchmark"
+},
+"Benchmark ID": {
+    "key1": "benchmark",
+    "key2": "ID",
+    "uri": "domain/benchmark/id",
+    "set_index": true,
+    "external_id": true
+},
+"Benchmark Name": {
+    "key1": "benchmark",
+    "key2": "Name",
+    "uri": "domain/benchmark/name",
+    "set_prefix": true
+},
+"Benchmark Description": {
+    "key1": "benchmark",
+    "key2": "Description",
+    "uri": "domain/benchmark/description",
+    "set_prefix": true
+},
+"Benchmark Reference": {
+    "key1": "benchmark",
+    "key2": "reference",
+    "uri": "domain/benchmark/reference",
+    "collection_index": true,
+    "set_prefix": true
+},
+"Publication": {
+    "uri": "domain/publication"
+},
+"Publication ID": {
+    "key1": "publication",
+    "key2": "ID",
+    "uri": "domain/publication/id",
+    "set_index": true,
+    "external_id": true
+},
+"Publication Name": {
+    "key1": "publication",
+    "key2": "Name",
+    "uri": "domain/publication/name",
+    "set_index": true
+},
+"Publication Description": {
+    "key1": "publication",
+    "key2": "Description",
+    "uri": "domain/publication/description",
+    "set_index": true
+},
+"Publication Reference": {
+    "key1": "publication",
+    "key2": "reference",
+    "uri": "domain/publication/reference",
+    "set_index": true,
+    "collection_index": true
+},
+"Publication URL Citation": {
+    "key1": "publication",
+    "key2": "urlcitation",
+    "uri": "domain/publication/url-citation",
+    "set_index": true
+},
+"Publication P2A": {
+    "key1": "publication",
+    "key2": "P2A",
+    "uri": "domain/publication/algorithm-relation",
+    "set_prefix": true,
+    "set_index": true
+},
+"Publication ARelatant": {
+    "key1": "publication",
+    "key2": "ARelatant",
+    "uri": "domain/publication/algorithm-relatant",
+    "set_prefix": true,
+    "set_index": true,
+    "external_id": true
+},
+"Publication P2B": {
+    "key1": "publication",
+    "key2": "P2B",
+    "uri": "domain/publication/benchmark-relation",
+    "set_prefix": true,
+    "set_index": true
+},
+"Publication BRelatant": {
+    "key1": "publication",
+    "key2": "BRelatant",
+    "uri": "domain/publication/benchmark-relatant",
+    "set_prefix": true,
+    "set_index": true,
+    "external_id": true
+},
+"Publication P2S": {
+    "key1": "publication",
+    "key2": "P2S",
+    "uri": "domain/publication/software-relation",
+    "set_prefix": true,
+    "set_index": true
+},
+"Publication SRelatant": {
+    "key1": "publication",
+    "key2": "SRelatant",
+    "uri": "domain/publication/software-relatant",
+    "set_prefix": true,
+    "set_index": true,
+    "external_id": true
+}
+}

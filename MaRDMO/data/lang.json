@@ -1,277 +1,837 @@
 {
-    "af": [
-        "wikidata:Q14196",
-        "Afrikaans",
-        "West Germanic language, spoken in South Africa and Namibia"
-    ],
-    "ar": [
-        "wikidata:Q13955",
-        "Arabic",
-        "Semitic language and lingua franca of the Arab world"
-    ],
-    "bg": [
-        "wikidata:Q7918",
-        "Bulgarian",
-        "South Slavic language"
-    ],
-    "bn": [
-        "wikidata:Q9610",
-        "Bangla",
-        "Indo-Aryan language mostly spoken in Bangladesh and India"
-    ],
-    "ca": [
-        "wikidata:Q7026",
-        "Catalan",
-        "Western Romance language"
-    ],
-    "cs": [
-        "wikidata:Q9056",
-        "Czech",
-        "West Slavic language"
-    ],
-    "cy": [
-        "wikidata:Q9309",
-        "Welsh",
-        "Brythonic language spoken natively in Wales"
-    ],
-    "da": [
-        "wikidata:Q9035",
-        "Danish",
-        "North Germanic language spoken in Denmark"
-    ],
-    "de": [
-        "wikidata:Q188",
-        "German",
-        "West Germanic language spoken mainly in Central Europe"
-    ],
-    "el": [
-        "wikidata:Q9129",
-        "Greek",
-        "Indo-European language"
-    ],
-    "en": [
-        "wikidata:Q1860",
-        "English",
-        "West Germanic language"
-    ],
-    "es": [
-        "wikidata:Q1321",
-        "Spanish",
-        "Romanic language originating in the Iberian Peninsula"
-    ],
-    "et": [
-        "wikidata:Q9072",
-        "Estonian",
-        "Uralic language"
-    ],
-    "fa": [
-        "wikidata:Q9168",
-        "Persian",
-        "Southwestern Iranian dialect continuum spoken in the Caucasus, Central Asia, Iran, Kuwait, and Pakistan"
-    ],
-    "fi": [
-        "wikidata:Q1412",
-        "Finnish",
-        "Finno-Ugric language mostly spoken in Finland"
-    ],
-    "fr": [
-        "wikidata:Q150",
-        "French",
-        "Romance language"
-    ],
-    "gu": [
-        "wikidata:Q5137",
-        "Gujarati",
-        "Indo-Aryan language that is spoken on the state of Gujarat"
-    ],
-    "he": [
-        "wikidata:Q9288",
-        "Hebrew",
-        "Northwest Semitic language"
-    ],
-    "hi": [
-        "wikidata:Q1568",
-        "Hindi",
-        "Indo-Aryan language spoken in India"
-    ],
-    "hr": [
-        "wikidata:Q6654",
-        "Croatian",
-        "standardized variety of Serbo-Croatian language, used by Croats"
-    ],
-    "hu": [
-        "wikidata:Q9067",
-        "Hungarian",
-        "Urlaic language"
-    ],
-    "id": [
-        "wikidata:Q9240",
-        "Indonesian",
-        "official language of Indonesia"
-    ],
-    "it": [
-        "wikidata:Q652",
-        "Italian",
-        "Romance language"
-    ],
-    "ja": [
-        "wikidata:Q5287",
-        "Japanese",
-        "language spoken in East Asia"
-    ],
-    "kn": [
-        "wikidata:Q33673",
-        "Kannada",
-        "Dravidian language"
-    ],
-    "ko": [
-        "wikidata:Q9176",
-        "Korean",
-        "language spoken in Korean Peninsula and some part of North-eastern China"
-    ],
-    "lt": [
-        "wikidata:Q9083",
-        "Lithuanian",
-        "Baltic language spoken in Lithuania"
-    ],
-    "lv": [
-        "wikidata:Q9078",
-        "Latvian",
-        "Baltic language, official in Latvia and the European Union"
-    ],
-    "mk": [
-        "wikidata:Q9296",
-        "Macedonian",
-        "South Slavic language mostly spoken in North Macedonia and its neighbouring countries"
-    ],
-    "ml": [
-        "wikidata:Q36236",
-        "Malayalam",
-        "Dravidian language of India"
-    ],
-    "mr": [
-        "wikidata:Q1571",
-        "Marathi",
-        "Indo-Aryan language"
-    ],
-    "ne": [
-        "wikidata:Q33823",
-        "Nepali",
-        "official language of Nepal"
-    ],
-    "nl": [
-        "wikidata:Q7411",
-        "Dutch",
-        "West Germanic language"
-    ],
-    "no": [
-        "wikidata:Q9043",
-        "Norwegian",
-        "North Germanic language spoken in Norway"
-    ],
-    "pa": [
-        "wikidata:Q58635",
-        "Punjabi",
-        "Indo-Aryan language spoken in the Punjab region of Pakistan and India"
-    ],
-    "pl": [
-        "wikidata:Q809",
-        "Polish",
-        "West Slavic language"
-    ],
-    "pt": [
-        "wikidata:Q5146",
-        "Portuguese",
-        "Western Romance language of the Indo-European language family"
-    ],
-    "ro": [
-        "wikidata:Q7913",
-        "Romanian",
-        "Eastern Romance language, official of Romania"
-    ],
-    "ru": [
-        "wikidata:Q7737",
-        "Russian",
-        "East Slavic language"
-    ],
-    "sk": [
-        "wikidata:Q9058",
-        "Slovak",
-        "West Slavic language spoken in Slovakia"
-    ],
-    "sl": [
-        "wikidata:Q9063",
-        "Slovene",
-        "South Slavic language spoken primarily in Slovenia"
-    ],
-    "so": [
-        "wikidata:Q13275",
-        "Somali",
-        "Afroasiatic language belonging to the Cushitic branch"
-    ],
-    "sq": [
-        "wikidata:Q8748",
-        "Albanian",
-        "Indo-European language, spoken in Albania, Kosovo, North Macedonia and Montenegro as well as Italy, Croatia, Romania and Sebia"
-    ],
-    "sv": [
-        "wikidata:Q9027",
-        "Swedish",
-        "North Germanic language spoken in Sweden and Finland"
-    ],
-    "sw": [
-        "wikidata:Q7838",
-        "Swahili",
-        "Bantu language spoken mainly in East Africa"
-    ],
-    "ta": [
-        "wikidata:Q5885",
-        "Tamil",
-        "Dravidian language native to South India and Sri Lanka"
-    ],
-    "te": [
-        "wikidata:Q8097",
-        "Telugu",
-        "Dravidian language native to South India"
-    ],
-    "th": [
-        "wikidata:Q9217",
-        "Thai",
-        "Tai language"
-    ],
-    "tl": [
-        "wikidata:Q34057",
-        "Tagalog",
-        "Austronesian language and the national language of the Philippines"
-    ],
-    "tr": [
-        "wikidata:Q256",
-        "Turkish",
-        "Oghuz Turkic language of the Turkish people"
-    ],
-    "uk": [
-        "wikidata:Q8798",
-        "Ukrainian",
-        "East Slavic language"
-    ],
-    "ur": [
-        "wikidata:Q1617",
-        "Urdu",
-        "Indo-Aryan language spoken in South Asia"
-    ],
-    "vi": [
-        "wikidata:Q9199",
-        "Vietnamese",
-        "Austroasiatic language originating in Vietnam"
-    ],
-    "zh-cn": [
-        "wikidata:Q727694",
-        "Standard Mandarin",
-        "standard form of Chinese and the official language of China"
-    ],
-    "zh-tw": [
-        "wikidata:Q262828",
-        "Standard Taiwanese Mandarin",
-        "variety of Mandarin serving as the official language of the Republic of China (Taiwan)"
-    ]
+    "af": {
+        "ID": "wikidata:Q14196",
+        "Name": "Afrikaans",
+        "Description": "West Germanic language, spoken in South Africa and Namibia"
+    },
+    "afr": {
+        "ID": "wikidata:Q14196",
+        "Name": "Afrikaans",
+        "Description": "West Germanic language, spoken in South Africa and Namibia"
+    },
+    "afrikaans": {
+        "ID": "wikidata:Q14196",
+        "Name": "Afrikaans",
+        "Description": "West Germanic language, spoken in South Africa and Namibia"
+    },
+    "ar": {
+        "ID": "wikidata:Q13955",
+        "Name": "Arabic",
+        "Description": "Semitic language and lingua franca of the Arab world"
+    },
+    "ara": {
+        "ID": "wikidata:Q13955",
+        "Name": "Arabic",
+        "Description": "Semitic language and lingua franca of the Arab world"
+    },
+    "arabic": {
+        "ID": "wikidata:Q13955",
+        "Name": "Arabic",
+        "Description": "Semitic language and lingua franca of the Arab world"
+    },
+    "bg": {
+        "ID": "wikidata:Q7918",
+        "Name": "Bulgarian",
+        "Description": "South Slavic language"
+    },
+    "bul": {
+        "ID": "wikidata:Q7918",
+        "Name": "Bulgarian",
+        "Description": "South Slavic language"
+    },
+    "bulgarian": {
+        "ID": "wikidata:Q7918",
+        "Name": "Bulgarian",
+        "Description": "South Slavic language"
+    },
+    "bn": {
+        "ID": "wikidata:Q9610",
+        "Name": "Bangla",
+        "Description": "Indo-Aryan language mostly spoken in Bangladesh and India"
+    },
+    "ben": {
+        "ID": "wikidata:Q9610",
+        "Name": "Bangla",
+        "Description": "Indo-Aryan language mostly spoken in Bangladesh and India"
+    },
+    "bengali": {
+        "ID": "wikidata:Q9610",
+        "Name": "Bangla",
+        "Description": "Indo-Aryan language mostly spoken in Bangladesh and India"
+    },
+    "ca": {
+        "ID": "wikidata:Q7026",
+        "Name": "Catalan",
+        "Description": "Western Romance language"
+    },
+    "cat": {
+        "ID": "wikidata:Q7026",
+        "Name": "Catalan",
+        "Description": "Western Romance language"
+    },
+    "catalan": {
+        "ID": "wikidata:Q7026",
+        "Name": "Catalan",
+        "Description": "Western Romance language"
+    },
+    "cs": {
+        "ID": "wikidata:Q9056",
+        "Name": "Czech",
+        "Description": "West Slavic language"
+    },
+    "ces": {
+        "ID": "wikidata:Q9056",
+        "Name": "Czech",
+        "Description": "West Slavic language"
+    },
+    "czech": {
+        "ID": "wikidata:Q9056",
+        "Name": "Czech",
+        "Description": "West Slavic language"
+    },
+    "cy": {
+        "ID": "wikidata:Q9309",
+        "Name": "Welsh",
+        "Description": "Brythonic language spoken natively in Wales"
+    },
+    "cym": {
+        "ID": "wikidata:Q9309",
+        "Name": "Welsh",
+        "Description": "Brythonic language spoken natively in Wales"
+    },
+    "welsh": {
+        "ID": "wikidata:Q9309",
+        "Name": "Welsh",
+        "Description": "Brythonic language spoken natively in Wales"
+    },
+    "da": {
+        "ID": "wikidata:Q9035",
+        "Name": "Danish",
+        "Description": "North Germanic language spoken in Denmark"
+    },
+    "dan": {
+        "ID": "wikidata:Q9035",
+        "Name": "Danish",
+        "Description": "North Germanic language spoken in Denmark"
+    },
+    "danish": {
+        "ID": "wikidata:Q9035",
+        "Name": "Danish",
+        "Description": "North Germanic language spoken in Denmark"
+    },
+    "de": {
+        "ID": "wikidata:Q188",
+        "Name": "German",
+        "Description": "West Germanic language spoken mainly in Central Europe"
+    },
+    "deu": {
+        "ID": "wikidata:Q188",
+        "Name": "German",
+        "Description": "West Germanic language spoken mainly in Central Europe"
+    },
+    "german": {
+        "ID": "wikidata:Q188",
+        "Name": "German",
+        "Description": "West Germanic language spoken mainly in Central Europe"
+    },
+    "el": {
+        "ID": "wikidata:Q9129",
+        "Name": "Greek",
+        "Description": "Indo-European language"
+    },
+    "ell": {
+        "ID": "wikidata:Q9129",
+        "Name": "Greek",
+        "Description": "Indo-European language"
+    },
+    "gre": {
+        "ID": "wikidata:Q9129",
+        "Name": "Greek",
+        "Description": "Indo-European language"
+    },
+    "greek": {
+        "ID": "wikidata:Q9129",
+        "Name": "Greek",
+        "Description": "Indo-European language"
+    },
+    "en": {
+        "ID": "wikidata:Q1860",
+        "Name": "English",
+        "Description": "West Germanic language"
+    },
+    "eng": {
+        "ID": "wikidata:Q1860",
+        "Name": "English",
+        "Description": "West Germanic language"
+    },
+    "english": {
+        "ID": "wikidata:Q1860",
+        "Name": "English",
+        "Description": "West Germanic language"
+    },
+    "es": {
+        "ID": "wikidata:Q1321",
+        "Name": "Spanish",
+        "Description": "Romanic language originating in the Iberian Peninsula"
+    },
+    "spa": {
+        "ID": "wikidata:Q1321",
+        "Name": "Spanish",
+        "Description": "Romanic language originating in the Iberian Peninsula"
+    },
+    "spanish": {
+        "ID": "wikidata:Q1321",
+        "Name": "Spanish",
+        "Description": "Romanic language originating in the Iberian Peninsula"
+    },
+    "et": {
+        "ID": "wikidata:Q9072",
+        "Name": "Estonian",
+        "Description": "Uralic language"
+    },
+    "est": {
+        "ID": "wikidata:Q9072",
+        "Name": "Estonian",
+        "Description": "Uralic language"
+    },
+    "estonian": {
+        "ID": "wikidata:Q9072",
+        "Name": "Estonian",
+        "Description": "Uralic language"
+    },
+    "fa": {
+        "ID": "wikidata:Q9168",
+        "Name": "Persian",
+        "Description": "Southwestern Iranian dialect continuum spoken in the Caucasus, Central Asia, Iran, Kuwait, and Pakistan"
+    },
+    "fas": {
+        "ID": "wikidata:Q9168",
+        "Name": "Persian",
+        "Description": "Southwestern Iranian dialect continuum spoken in the Caucasus, Central Asia, Iran, Kuwait, and Pakistan"
+    },
+    "per": {
+        "ID": "wikidata:Q9168",
+        "Name": "Persian",
+        "Description": "Southwestern Iranian dialect continuum spoken in the Caucasus, Central Asia, Iran, Kuwait, and Pakistan"
+    },
+    "persian": {
+        "ID": "wikidata:Q9168",
+        "Name": "Persian",
+        "Description": "Southwestern Iranian dialect continuum spoken in the Caucasus, Central Asia, Iran, Kuwait, and Pakistan"
+    },
+    "fi": {
+        "ID": "wikidata:Q1412",
+        "Name": "Finnish",
+        "Description": "Finno-Ugric language mostly spoken in Finland"
+    },
+    "fin": {
+        "ID": "wikidata:Q1412",
+        "Name": "Finnish",
+        "Description": "Finno-Ugric language mostly spoken in Finland"
+    },
+    "finnish": {
+        "ID": "wikidata:Q1412",
+        "Name": "Finnish",
+        "Description": "Finno-Ugric language mostly spoken in Finland"
+    },
+    "fr": {
+        "ID": "wikidata:Q150",
+        "Name": "French",
+        "Description": "Romance language"
+    },
+    "fre": {
+        "ID": "wikidata:Q150",
+        "Name": "French",
+        "Description": "Romance language"
+    },
+    "french": {
+        "ID": "wikidata:Q150",
+        "Name": "French",
+        "Description": "Romance language"
+    },
+    "gu": {
+        "ID": "wikidata:Q5137",
+        "Name": "Gujarati",
+        "Description": "Indo-Aryan language that is spoken on the state of Gujarat"
+    },
+    "guj": {
+        "ID": "wikidata:Q5137",
+        "Name": "Gujarati",
+        "Description": "Indo-Aryan language that is spoken on the state of Gujarat"
+    },
+    "gujarati": {
+        "ID": "wikidata:Q5137",
+        "Name": "Gujarati",
+        "Description": "Indo-Aryan language that is spoken on the state of Gujarat"
+    },
+    "he": {
+        "ID": "wikidata:Q9288",
+        "Name": "Hebrew",
+        "Description": "Northwest Semitic language"
+    },
+    "heb": {
+        "ID": "wikidata:Q9288",
+        "Name": "Hebrew",
+        "Description": "Northwest Semitic language"
+    },
+    "hebrew": {
+        "ID": "wikidata:Q9288",
+        "Name": "Hebrew",
+        "Description": "Northwest Semitic language"
+    },
+    "hi": {
+        "ID": "wikidata:Q1568",
+        "Name": "Hindi",
+        "Description": "Indo-Aryan language spoken in India"
+    },
+    "hin": {
+        "ID": "wikidata:Q1568",
+        "Name": "Hindi",
+        "Description": "Indo-Aryan language spoken in India"
+    },
+    "hindi": {
+        "ID": "wikidata:Q1568",
+        "Name": "Hindi",
+        "Description": "Indo-Aryan language spoken in India"
+    },
+    "hr": {
+        "ID": "wikidata:Q6654",
+        "Name": "Croatian",
+        "Description": "standardized variety of Serbo-Croatian language, used by Croats"
+    },
+    "hrv": {
+        "ID": "wikidata:Q6654",
+        "Name": "Croatian",
+        "Description": "standardized variety of Serbo-Croatian language, used by Croats"
+    },
+    "croatian": {
+        "ID": "wikidata:Q6654",
+        "Name": "Croatian",
+        "Description": "standardized variety of Serbo-Croatian language, used by Croats"
+    },
+    "hu": {
+        "ID": "wikidata:Q9067",
+        "Name": "Hungarian",
+        "Description": "Urlaic language"
+    },
+    "hun": {
+        "ID": "wikidata:Q9067",
+        "Name": "Hungarian",
+        "Description": "Urlaic language"
+    },
+    "hungarian": {
+        "ID": "wikidata:Q9067",
+        "Name": "Hungarian",
+        "Description": "Urlaic language"
+    },
+    "id": {
+        "ID": "wikidata:Q9240",
+        "Name": "Indonesian",
+        "Description": "official language of Indonesia"
+    },
+    "ind": {
+        "ID": "wikidata:Q9240",
+        "Name": "Indonesian",
+        "Description": "official language of Indonesia"
+    },
+    "indonesian": {
+        "ID": "wikidata:Q9240",
+        "Name": "Indonesian",
+        "Description": "official language of Indonesia"
+    },
+    "it": {
+        "ID": "wikidata:Q652",
+        "Name": "Italian",
+        "Description": "Romance language"
+    },
+    "ita": {
+        "ID": "wikidata:Q652",
+        "Name": "Italian",
+        "Description": "Romance language"
+    },
+    "italian": {
+        "ID": "wikidata:Q652",
+        "Name": "Italian",
+        "Description": "Romance language"
+    },
+    "ja": {
+        "ID": "wikidata:Q5287",
+        "Name": "Japanese",
+        "Description": "language spoken in East Asia"
+    },
+    "jpn": {
+        "ID": "wikidata:Q5287",
+        "Name": "Japanese",
+        "Description": "language spoken in East Asia"
+    },
+    "japanese": {
+        "ID": "wikidata:Q5287",
+        "Name": "Japanese",
+        "Description": "language spoken in East Asia"
+    },
+    "kn": {
+        "ID": "wikidata:Q33673",
+        "Name": "Kannada",
+        "Description": "Dravidian language"
+    },
+    "kan": {
+        "ID": "wikidata:Q33673",
+        "Name": "Kannada",
+        "Description": "Dravidian language"
+    },
+    "kannada": {
+        "ID": "wikidata:Q33673",
+        "Name": "Kannada",
+        "Description": "Dravidian language"
+    },
+    "ko": {
+        "ID": "wikidata:Q9176",
+        "Name": "Korean",
+        "Description": "language spoken in Korean Peninsula and some part of North-eastern China"
+    },
+    "kor": {
+        "ID": "wikidata:Q9176",
+        "Name": "Korean",
+        "Description": "language spoken in Korean Peninsula and some part of North-eastern China"
+    },
+    "korean": {
+        "ID": "wikidata:Q9176",
+        "Name": "Korean",
+        "Description": "language spoken in Korean Peninsula and some part of North-eastern China"
+    },
+    "lt": {
+        "ID": "wikidata:Q9083",
+        "Name": "Lithuanian",
+        "Description": "Baltic language spoken in Lithuania"
+    },
+    "lit": {
+        "ID": "wikidata:Q9083",
+        "Name": "Lithuanian",
+        "Description": "Baltic language spoken in Lithuania"
+    },
+    "lithuanian": {
+        "ID": "wikidata:Q9083",
+        "Name": "Lithuanian",
+        "Description": "Baltic language spoken in Lithuania"
+    },
+    "lv": {
+        "ID": "wikidata:Q9078",
+        "Name": "Latvian",
+        "Description": "Baltic language, official in Latvia and the European Union"
+    },
+    "lav": {
+        "ID": "wikidata:Q9078",
+        "Name": "Latvian",
+        "Description": "Baltic language, official in Latvia and the European Union"
+    },
+    "latvian": {
+        "ID": "wikidata:Q9078",
+        "Name": "Latvian",
+        "Description": "Baltic language, official in Latvia and the European Union"
+    },
+    "mk": {
+        "ID": "wikidata:Q9296",
+        "Name": "Macedonian",
+        "Description": "South Slavic language mostly spoken in North Macedonia and its neighbouring countries"
+    },
+    "mac": {
+        "ID": "wikidata:Q9296",
+        "Name": "Macedonian",
+        "Description": "South Slavic language mostly spoken in North Macedonia and its neighbouring countries"
+    },
+    "macedonian": {
+        "ID": "wikidata:Q9296",
+        "Name": "Macedonian",
+        "Description": "South Slavic language mostly spoken in North Macedonia and its neighbouring countries"
+    },
+    "ml": {
+        "ID": "wikidata:Q36236",
+        "Name": "Malayalam",
+        "Description": "Dravidian language of India"
+    },
+    "mal": {
+        "ID": "wikidata:Q36236",
+        "Name": "Malayalam",
+        "Description": "Dravidian language of India"
+    },
+    "malayalam": {
+        "ID": "wikidata:Q36236",
+        "Name": "Malayalam",
+        "Description": "Dravidian language of India"
+    },
+    "mr": {
+        "ID": "wikidata:Q1571",
+        "Name": "Marathi",
+        "Description": "Indo-Aryan language"
+    },
+    "mar": {
+        "ID": "wikidata:Q1571",
+        "Name": "Marathi",
+        "Description": "Indo-Aryan language"
+    },
+    "marathi": {
+        "ID": "wikidata:Q1571",
+        "Name": "Marathi",
+        "Description": "Indo-Aryan language"
+    },
+    "ne": {
+        "ID": "wikidata:Q33823",
+        "Name": "Nepali",
+        "Description": "official language of Nepal"
+    },
+    "nep": {
+        "ID": "wikidata:Q33823",
+        "Name": "Nepali",
+        "Description": "official language of Nepal"
+    },
+    "nepali": {
+        "ID": "wikidata:Q33823",
+        "Name": "Nepali",
+        "Description": "official language of Nepal"
+    },
+    "nl": {
+        "ID": "wikidata:Q7411",
+        "Name": "Dutch",
+        "Description": "West Germanic language"
+    },
+    "dut": {
+        "ID": "wikidata:Q7411",
+        "Name": "Dutch",
+        "Description": "West Germanic language"
+    },
+    "nld": {
+        "ID": "wikidata:Q7411",
+        "Name": "Dutch",
+        "Description": "West Germanic language"
+    },
+    "dutch": {
+        "ID": "wikidata:Q7411",
+        "Name": "Dutch",
+        "Description": "West Germanic language"
+    },
+    "no": {
+        "ID": "wikidata:Q9043",
+        "Name": "Norwegian",
+        "Description": "North Germanic language spoken in Norway"
+    },
+    "nor": {
+        "ID": "wikidata:Q9043",
+        "Name": "Norwegian",
+        "Description": "North Germanic language spoken in Norway"
+    },
+    "norwegian": {
+        "ID": "wikidata:Q9043",
+        "Name": "Norwegian",
+        "Description": "North Germanic language spoken in Norway"
+    },
+    "pa": {
+        "ID": "wikidata:Q58635",
+        "Name": "Punjabi",
+        "Description": "Indo-Aryan language spoken in the Punjab region of Pakistan and India"
+    },
+    "pan": {
+        "ID": "wikidata:Q58635",
+        "Name": "Punjabi",
+        "Description": "Indo-Aryan language spoken in the Punjab region of Pakistan and India"
+    },
+    "punjabi": {
+        "ID": "wikidata:Q58635",
+        "Name": "Punjabi",
+        "Description": "Indo-Aryan language spoken in the Punjab region of Pakistan and India"
+    },
+    "pl": {
+        "ID": "wikidata:Q809",
+        "Name": "Polish",
+        "Description": "West Slavic language"
+    },
+    "pol": {
+        "ID": "wikidata:Q809",
+        "Name": "Polish",
+        "Description": "West Slavic language"
+    },
+    "polish": {
+        "ID": "wikidata:Q809",
+        "Name": "Polish",
+        "Description": "West Slavic language"
+    },
+    "pt": {
+        "ID": "wikidata:Q5146",
+        "Name": "Portuguese",
+        "Description": "Western Romance language of the Indo-European language family"
+    },
+    "por": {
+        "ID": "wikidata:Q5146",
+        "Name": "Portuguese",
+        "Description": "Western Romance language of the Indo-European language family"
+    },
+    "portuguese": {
+        "ID": "wikidata:Q5146",
+        "Name": "Portuguese",
+        "Description": "Western Romance language of the Indo-European language family"
+    },
+    "ro": {
+        "ID": "wikidata:Q7913",
+        "Name": "Romanian",
+        "Description": "Eastern Romance language, official of Romania"
+    },
+    "ron": {
+        "ID": "wikidata:Q7913",
+        "Name": "Romanian",
+        "Description": "Eastern Romance language, official of Romania"
+    },
+    "romanian": {
+        "ID": "wikidata:Q7913",
+        "Name": "Romanian",
+        "Description": "Eastern Romance language, official of Romania"
+    },
+    "ru": {
+        "ID": "wikidata:Q7737",
+        "Name": "Russian",
+        "Description": "East Slavic language"
+    },
+    "rus": {
+        "ID": "wikidata:Q7737",
+        "Name": "Russian",
+        "Description": "East Slavic language"
+    },
+    "russian": {
+        "ID": "wikidata:Q7737",
+        "Name": "Russian",
+        "Description": "East Slavic language"
+    },
+    "sk": {
+        "ID": "wikidata:Q9058",
+        "Name": "Slovak",
+        "Description": "West Slavic language spoken in Slovakia"
+    },
+    "slo": {
+        "ID": "wikidata:Q9058",
+        "Name": "Slovak",
+        "Description": "West Slavic language spoken in Slovakia"
+    },
+    "slovak": {
+        "ID": "wikidata:Q9058",
+        "Name": "Slovak",
+        "Description": "West Slavic language spoken in Slovakia"
+    },
+    "sl": {
+        "ID": "wikidata:Q9063",
+        "Name": "Slovene",
+        "Description": "South Slavic language spoken primarily in Slovenia"
+    },
+    "slv": {
+        "ID": "wikidata:Q9063",
+        "Name": "Slovene",
+        "Description": "South Slavic language spoken primarily in Slovenia"
+    },
+    "slovene": {
+        "ID": "wikidata:Q9063",
+        "Name": "Slovene",
+        "Description": "South Slavic language spoken primarily in Slovenia"
+    },
+    "so": {
+        "ID": "wikidata:Q13275",
+        "Name": "Somali",
+        "Description": "Afroasiatic language belonging to the Cushitic branch"
+    },
+    "som": {
+        "ID": "wikidata:Q13275",
+        "Name": "Somali",
+        "Description": "Afroasiatic language belonging to the Cushitic branch"
+    },
+    "somali": {
+        "ID": "wikidata:Q13275",
+        "Name": "Somali",
+        "Description": "Afroasiatic language belonging to the Cushitic branch"
+    },
+    "sq": {
+        "ID": "wikidata:Q8748",
+        "Name": "Albanian",
+        "Description": "Indo-European language, spoken in Albania, Kosovo, North Macedonia and Montenegro as well as Italy, Croatia, Romania and Sebia"
+    },
+    "sqi": {
+        "ID": "wikidata:Q8748",
+        "Name": "Albanian",
+        "Description": "Indo-European language, spoken in Albania, Kosovo, North Macedonia and Montenegro as well as Italy, Croatia, Romania and Sebia"
+    },
+    "alb": {
+        "ID": "wikidata:Q8748",
+        "Name": "Albanian",
+        "Description": "Indo-European language, spoken in Albania, Kosovo, North Macedonia and Montenegro as well as Italy, Croatia, Romania and Sebia"
+    },
+    "albanian": {
+        "ID": "wikidata:Q8748",
+        "Name": "Albanian",
+        "Description": "Indo-European language, spoken in Albania, Kosovo, North Macedonia and Montenegro as well as Italy, Croatia, Romania and Sebia"
+    },
+    "sv": {
+        "ID": "wikidata:Q9027",
+        "Name": "Swedish",
+        "Description": "North Germanic language spoken in Sweden and Finland"
+    },
+    "swe": {
+        "ID": "wikidata:Q9027",
+        "Name": "Swedish",
+        "Description": "North Germanic language spoken in Sweden and Finland"
+    },
+    "swedish": {
+        "ID": "wikidata:Q9027",
+        "Name": "Swedish",
+        "Description": "North Germanic language spoken in Sweden and Finland"
+    },
+    "sw": {
+        "ID": "wikidata:Q7838",
+        "Name": "Swahili",
+        "Description": "Bantu language spoken mainly in East Africa"
+    },
+    "swa": {
+        "ID": "wikidata:Q7838",
+        "Name": "Swahili",
+        "Description": "Bantu language spoken mainly in East Africa"
+    },
+    "swahili": {
+        "ID": "wikidata:Q7838",
+        "Name": "Swahili",
+        "Description": "Bantu language spoken mainly in East Africa"
+    },
+    "ta": {
+        "ID": "wikidata:Q5885",
+        "Name": "Tamil",
+        "Description": "Dravidian language native to South India and Sri Lanka"
+    },
+    "tam": {
+        "ID": "wikidata:Q5885",
+        "Name": "Tamil",
+        "Description": "Dravidian language native to South India and Sri Lanka"
+    },
+    "tamil": {
+        "ID": "wikidata:Q5885",
+        "Name": "Tamil",
+        "Description": "Dravidian language native to South India and Sri Lanka"
+    },
+    "te": {
+        "ID": "wikidata:Q8097",
+        "Name": "Telugu",
+        "Description": "Dravidian language native to South India"
+    },
+    "tel": {
+        "ID": "wikidata:Q8097",
+        "Name": "Telugu",
+        "Description": "Dravidian language native to South India"
+    },
+    "telugu": {
+        "ID": "wikidata:Q8097",
+        "Name": "Telugu",
+        "Description": "Dravidian language native to South India"
+    },
+    "th": {
+        "ID": "wikidata:Q9217",
+        "Name": "Thai",
+        "Description": "Tai language"
+    },
+    "tha": {
+        "ID": "wikidata:Q9217",
+        "Name": "Thai",
+        "Description": "Tai language"
+    },
+    "thai": {
+        "ID": "wikidata:Q9217",
+        "Name": "Thai",
+        "Description": "Tai language"
+    },
+    "tl": {
+        "ID": "wikidata:Q34057",
+        "Name": "Tagalog",
+        "Description": "Austronesian language and the national language of the Philippines"
+    },
+    "tgl": {
+        "ID": "wikidata:Q34057",
+        "Name": "Tagalog",
+        "Description": "Austronesian language and the national language of the Philippines"
+    },
+    "tagalog": {
+        "ID": "wikidata:Q34057",
+        "Name": "Tagalog",
+        "Description": "Austronesian language and the national language of the Philippines"
+    },
+    "tr": {
+        "ID": "wikidata:Q256",
+        "Name": "Turkish",
+        "Description": "Oghuz Turkic language of the Turkish people"
+    },
+    "tur": {
+        "ID": "wikidata:Q256",
+        "Name": "Turkish",
+        "Description": "Oghuz Turkic language of the Turkish people"
+    },
+    "turkish": {
+        "ID": "wikidata:Q256",
+        "Name": "Turkish",
+        "Description": "Oghuz Turkic language of the Turkish people"
+    },
+    "uk": {
+        "ID": "wikidata:Q8798",
+        "Name": "Ukrainian",
+        "Description": "East Slavic language"
+    },
+    "ukr": {
+        "ID": "wikidata:Q8798",
+        "Name": "Ukrainian",
+        "Description": "East Slavic language"
+    },
+    "ukrainian": {
+        "ID": "wikidata:Q8798",
+        "Name": "Ukrainian",
+        "Description": "East Slavic language"
+    },
+    "ur": {
+        "ID": "wikidata:Q1617",
+        "Name": "Urdu",
+        "Description": "Indo-Aryan language spoken in South Asia"
+    },
+    "urd": {
+        "ID": "wikidata:Q1617",
+        "Name": "Urdu",
+        "Description": "Indo-Aryan language spoken in South Asia"
+    },
+    "urdu": {
+        "ID": "wikidata:Q1617",
+        "Name": "Urdu",
+        "Description": "Indo-Aryan language spoken in South Asia"
+    },
+    "vi": {
+        "ID": "wikidata:Q9199",
+        "Name": "Vietnamese",
+        "Description": "Austroasiatic language originating in Vietnam"
+    },
+    "vie": {
+        "ID": "wikidata:Q9199",
+        "Name": "Vietnamese",
+        "Description": "Austroasiatic language originating in Vietnam"
+    },
+    "vietnamese": {
+        "ID": "wikidata:Q9199",
+        "Name": "Vietnamese",
+        "Description": "Austroasiatic language originating in Vietnam"
+    },
+    "zh-cn": {
+        "ID": "wikidata:Q727694",
+        "Name": "Standard Mandarin",
+        "Description": "standard form of Chinese and the official language of China"
+    },
+    "zho": {
+        "ID": "wikidata:Q727694",
+        "Name": "Standard Mandarin",
+        "Description": "standard form of Chinese and the official language of China"
+    },
+    "zh-tw": {
+        "ID": "wikidata:Q262828",
+        "Name": "Standard Taiwanese Mandarin",
+        "Description": "variety of Mandarin serving as the official language of the Republic of China (Taiwan)"
+    },
+    "chinese": {
+        "ID": "wikidata:Q262828",
+        "Name": "Standard Taiwanese Mandarin",
+        "Description": "variety of Mandarin serving as the official language of the Republic of China (Taiwan)"
+    }
 }
