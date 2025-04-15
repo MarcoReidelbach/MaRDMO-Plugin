@@ -101,7 +101,6 @@ class OauthProviderMixin:
                         except requests.HTTPError:
                             logger.warning('post error: %s (%s)', response.content, response.status_code)
                             return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
-                        #jsons = replace_in_dict(jsons, key, response.json()['id'])
                 else:
                     response = requests.post(jsons[key]['url'], json=jsons[key]['payload'], headers=self.get_authorization_headers(access_token))
                     try:
@@ -111,21 +110,11 @@ class OauthProviderMixin:
                     except requests.HTTPError:
                         logger.warning('post error: %s (%s)', response.content, response.status_code)
                         return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
-                    #jsons = replace_in_dict(jsons, key, response.json()['id'])
             else:
                 jsons = replace_in_dict(jsons, key, jsons[key]['id'])
         final = jsons
-        #if not response:
+        
         return self.post_success(request, init, final) #response)
-        #elif response.status_code == 401:
-        #    logger.warning('post forbidden: %s (%s)', response.content, response.status_code)
-        #else:
-        #    try:
-        #        response.raise_for_status()
-        #        return self.post_success(request, response)
-        #    except requests.HTTPError:
-        #        logger.warning('post error: %s (%s)', response.content, response.status_code)
-        #        return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
 
     def render_error(self, request, title, message):
         return render(request, 'core/error.html', {'title': title, 'errors': [message]}, status=200)

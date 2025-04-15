@@ -17,13 +17,13 @@
                     <br>
                     <p style="color:Black;font-size:20px;;font-weight:bold">Links to Entities:</p>
                 {% endif %}
-	            <p style="color:grey;font-size:20px;;font-weight:bold"><a href="{{mardi_uri}}wiki/Item:{{value}}" style="color:dodgerblue;">{{key}}</a>&#x1F517;
+	            <p style="color:grey;font-size:20px;;font-weight:bold"><a href="{{mardi_uri}}{{value}}" style="color:dodgerblue;">{{key}}</a>&#x1F517;
             {% endfor %}
         {% else %}
         <p style="color:Black;font-size:40px;;font-weight:bold">No new Entities added to MaRDI Portal!</p>
         <p style="color:Black;font-size:20px;;font-weight:bold">(If you defined new Relations, they were added successfully.)</p>
         <br>
-        <p style="color:Black;font-size:20px;;font-weight:bold">Checkout <a href="{{mardi_uri}}" style="color:dodgerblue;">MaRDI Portal</a>&#x1F517;</p>
+        <p style="color:Black;font-size:20px;;font-weight:bold">Checkout <a href="{{mardi_uri|cut:"wiki/Item:"}}" style="color:dodgerblue;">MaRDI Portal</a>&#x1F517;</p>
         {% endif %}
     </p>
     </div>
