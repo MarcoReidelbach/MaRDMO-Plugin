@@ -322,7 +322,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 data = self.get_post_data()
                 payload = generate_payload(data[0], self.project.title)
                 url = self.get_post_url()
-
+                
                 return self.post(self.request, url, payload)
 
     def post_success(self, request, init, final):
