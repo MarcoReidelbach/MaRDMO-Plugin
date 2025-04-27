@@ -167,7 +167,6 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 if variables:
                     for idx, variable in enumerate(variables):
                         data[0].setdefault('variables', {}).update({idx: asdict(Variables.from_query(variable))})
-                        
                 parameters = query_sparql(queryPreview['parameters'].format(' '.join(value.get('ID', '') for _, value in data[0]['specifictask'].items())))
                 if parameters:
                     for idx, parameter in enumerate(parameters):
@@ -320,7 +319,16 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   status=200)
 
                 data = self.get_post_data()
-                payload = generate_payload(data[0], self.project.title)
+                try:
+                    payload = generate_payload(data[0], self.project.title)
+                except Exception as err:
+                    return render(self.request, 
+                                  'core/error.html', 
+                                  {'title': _('Value Error'),
+                                   'errors': [err]}, 
+                                  status=200)
+
+
                 url = self.get_post_url()
                 
                 return self.post(self.request, url, payload)

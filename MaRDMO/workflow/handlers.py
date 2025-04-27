@@ -94,6 +94,16 @@ def BasicInformation(sender, **kwargs):
                        collection_index = instance.collection_index,
                        set_index = instance.set_index,
                        set_prefix = instance.set_prefix
+                       )
+        # Mathematical Model Task
+        elif instance.attribute.uri == f'{BASE_URI}{questions["SpecificTask ID"]["uri"]}':
+            add_basics(project = instance.project,
+                       text = instance.text,
+                       url_name = f'{BASE_URI}{questions["SpecificTask Name"]["uri"]}',
+                       url_description = f'{BASE_URI}{questions["SpecificTask Description"]["uri"]}',
+                       collection_index = instance.collection_index,
+                       set_index = instance.set_index,
+                       set_prefix = instance.set_prefix
                        ) 
         # Discipline
         elif instance.attribute.uri == f'{BASE_URI}{questions["Process Step Discipline ID"]["uri"]}':

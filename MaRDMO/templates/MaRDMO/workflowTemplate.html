@@ -712,13 +712,13 @@
                             {% endif %}
                         </td>
                         <td style="text-align: center; vertical-align: middle;">
-                            {% if values.ToPublish.0 == option.Yes %}
+                            {% if values.ToPublish.1 %}
+                                <a href="{{ values.ToPublish.1.1 }}" style="color:dodgerblue;">Yes</a>
+                            {% elif values.ToPublish.2 %}
+                                <a href="{{ values.ToPublish.2.1 }}" style="color:dodgerblue;">Yes</a>
+                            {% elif values.ToPublish.0 %}
                                 Yes
-                            {% elif values.ToPublish.0 == option.URL %}
-                                <a href="{{ values.ToPublish.1 }}" style="color:dodgerblue;">Yes</a>
-                            {% elif values.ToPublish.0 == option.DOI %}  
-                                <a href="{{ values.ToPublish.1 }}" style="color:dodgerblue;">Yes</a>
-                            {% elif values.ToPublish.0 == option.No %}  
+                            {% elif values.ToPublish.3 %}
                                 No
                             {% endif %}
                         </td>

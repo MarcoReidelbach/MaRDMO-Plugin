@@ -1,3 +1,5 @@
+from .utils import add_item_relation, add_qualifier, add_static_or_non_item_relation, find_key_by_values, get_item_key, items_payload, items_uri, unique_items 
+
 from ..utils import find_item, get_data
 
 
@@ -81,28 +83,26 @@ def generate_payload(data, title):
                             payload, rel_idx = add_static_or_non_item_relation(payload, key, rel_idx, 'P369', value['zbmath'], 'external-id')
 
     ### Add additional Algorithms / Methods Information
-    for value in data.get('method').values():
+    for value in data.get('method', {}).values():
         # Continue if no ID exists
         if not value.get('ID'):
             continue
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        # Get Item Key and add to Payload
-        item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+        # Get Item Key
+        item = get_item_key(value, items, old_new)
+        # Add to Payload
         if 'mathalgodb' in value['ID']:
             payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q4629')
         else:
             payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q2822')
 
     ### Add additional Software Information
-    for value in data.get('software').values():
+    for value in data.get('software', {}).values():
         # Continue if no ID exists
         if not value.get('ID'):
             continue
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        # Get Item Key and add to Payload
-        item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+        # Get Item Key
+        item = get_item_key(value, items, old_new)
+        # Add to Payload
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q420')
         
         # Add References of the Software
@@ -141,14 +141,13 @@ def generate_payload(data, title):
             payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P56', value['Documented'][1], 'url')
             
     ### Add additional Hardware Information
-    for value in data.get('hardware').values():
+    for value in data.get('hardware', {}).values():
         # Continue if no ID exists
         if not value.get('ID'):
             continue
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        # Get Item Key and add to Payload
-        item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+        # Get Item Key
+        item = get_item_key(value, items, old_new)
+        # Add to Payload
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q387')
         
         # Add CPU
@@ -169,25 +168,23 @@ def generate_payload(data, title):
             payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P588', {"amount":f"+{value['Cores']}","unit":"1"}, 'quantity')
             
     ### Add additional Instrument Information
-    for value in data.get('instrument').values():
+    for value in data.get('instrument', {}).values():
         # Continue if no ID exists
         if not value.get('ID'):
             continue
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        # Get Item Key and add to Payload
-        item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+        # Get Item Key
+        item = get_item_key(value, items, old_new)
+        # Add to Payload
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q4682')
         
     ### Add additional Data Set Information
-    for value in data.get('dataset').values():
+    for value in data.get('dataset', {}).values():
         # Continue if no ID exists
         if not value.get('ID'):
             continue
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        # Get Item Key and add to Payload
-        item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+        # Get Item Key
+        item = get_item_key(value, items, old_new)
+        # Add to Payload
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q381')
         
         # Size of the data set
@@ -211,7 +208,7 @@ def generate_payload(data, title):
                                              item = item, 
                                              idx = rel_idx, 
                                              property = 'P7',
-                                             qualifier = [{"property": {"id": "P293"},"value": {"type": "value","content": "Q1917"}}])
+                                             qualifier = add_qualifier("P293", "Q1917"))
         
         # Representation Format of the data set
         payload, rel_idx = add_item_relation(payload = payload, 
@@ -221,7 +218,7 @@ def generate_payload(data, title):
                                              item = item, 
                                              idx = rel_idx, 
                                              property = 'P7',
-                                             qualifier = [{"property": {"id": "P293"},"value": {"type": "value","content": "Q13149"}}])
+                                             qualifier = add_qualifier("P293", "Q13149"))
         
         # File Format of the Data Set
         if value.get('FileFormat'):
@@ -255,19 +252,17 @@ def generate_payload(data, title):
             if value['ToArchive'][0] == options['YesText']:
                 qualifier = []
                 if value['ToArchive'][1]:
-                    qualifier = [{"property":{"id":"P791", 'data_type': 'time'},"value":{"type":"value","content":{"time":f"+{value['ToArchive'][1]}-00-00T00:00:00Z","precision":9,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"}}}]
+                    qualifier = add_qualifier("P791", {"time":f"+{value['ToArchive'][1]}-00-00T00:00:00Z","precision":9,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"}, 'time')
                 payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P794', 'Q3748', 'wikibase-item', qualifier)
                 
     ### Add additional Process Step Information
-    for value in data.get('processstep').values():
+    for value in data.get('processstep', {}).values():
         # Continue if no ID exists
         if not value.get('ID'):
             continue
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        # Get Item Key and add to Payload
-        item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
-        # Add the class of the Process Step
+        # Get Item Key
+        item = get_item_key(value, items, old_new)
+        # Add to Payload
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q13152')
         
         # Add Input Data Sets
@@ -293,13 +288,13 @@ def generate_payload(data, title):
             # Continue if no ID exists
             if not entry.get('ID'):
                 continue
-            # Use new ID if present
-            entry['ID'] = old_new.get((entry['ID'], entry['Name'], entry['Description']), [''])[0] or entry['ID']
-            # Get Item Key and add to Payload
-            entry_item = find_key_by_values(items, entry['ID'], entry['Name'], entry['Description'])
+            # Get Entry Key
+            entry_item = get_item_key(entry, items, old_new)
+            # Get Qualifier
             qualifier = []
-            for parameter in entry.get('Parameter').values():
-                qualifier.extend([{"property": {"id": "P1092"},"value": {"type": "value","content": parameter}}])
+            for parameter in entry.get('Parameter', {}).values():
+                qualifier.extend(add_qualifier("P1092", parameter, 'string'))
+            # Add to Payload
             payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P7', entry_item, 'wikibase-item', qualifier)
             
         # Add Software Environment
@@ -329,21 +324,18 @@ def generate_payload(data, title):
                 _, id = discipline['ID'].split(':')
                 payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P349', id, 'external-id')
             else:
-                # Use new ID if exists
-                discipline['ID'] = old_new.get((discipline['ID'], discipline['Name'], discipline['Description']), [''])[0] or discipline['ID']
-                # Get Item Key
-                discipline_item = find_key_by_values(items, discipline['ID'], discipline['Name'], discipline['Description'])
+                # Get Discipline Key
+                discipline_item = get_item_key(discipline, items, old_new)
+                # Add to Payload
                 payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P19', discipline_item)
                 
     # Add additional Paper Information
-    for value in data.get('publication').values():
+    for value in data.get('publication', {}).values():
         # Continue if no ID exists
         if not value.get('ID'):
             continue
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        # Get Item Key and add to Payload
-        item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+        # Get Item Key
+        item = get_item_key(value, items, old_new)
         
         if value.get('workflow') == options['Yes']:
             if 'mardi' not in value['ID'] and 'wikidata' not in value['ID']:
@@ -390,10 +382,9 @@ def generate_payload(data, title):
                     # Continue if no ID exists
                     if not entry.get('ID'):
                         continue
-                    # Use new ID if present
-                    entry['ID'] = old_new.get((entry['ID'], entry['Name'], entry['Description']), [''])[0] or entry['ID']
-                    # Get Item Key and add to Payload
-                    entry_item = find_key_by_values(items, entry['ID'], entry['Name'], entry['Description'])
+                    # Get Item Key
+                    entry_item = get_item_key(entry, items, old_new)
+                    # Add to Payload
                     if entry_item in payload.keys():
                         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P20', entry_item)
                     else:
@@ -418,243 +409,161 @@ def generate_payload(data, title):
     if data.get('reproducibility', {}).get('mathematical') == options['Yes']:
         qualifier = []
         if data['reproducibility'].get('mathematicalcondition'):
-            qualifier.extend([{"property": {"id": "P1092"},"value": {"type": "value","content": data['reproducibility']['mathematicalcondition']}}])
+            qualifier.extend(add_qualifier("P1092", data['reproducibility']['mathematicalcondition'], 'string'))
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q13160', 'wikibase-item', qualifier)
         
     if data.get('reproducibility', {}).get('runtime') == options['Yes']:
         qualifier = []
         if data['reproducibility'].get('runtimecondition'):
-            qualifier.extend([{"property": {"id": "P1092"},"value": {"type": "value","content": data['reproducibility']['runtimecondition']}}])
+            qualifier.extend(add_qualifier("P1092", data['reproducibility']['runtimecondition'], 'string'))
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q13162', 'wikibase-item', qualifier)
 
     if data.get('reproducibility', {}).get('result') == options['Yes']:
         qualifier = []
         if data['reproducibility'].get('resultcondition'):
-            qualifier.extend([{"property": {"id": "P1092"},"value": {"type": "value","content": data['reproducibility']['resultcondition']}}])
+            qualifier.extend(add_qualifier("P1092", data['reproducibility']['resultcondition'], 'string'))
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q13163', 'wikibase-item', qualifier)
         
     if data.get('reproducibility', {}).get('originalplatform') == options['Yes']:
         qualifier = []
         if data['reproducibility'].get('originalplatformcondition'):
-            qualifier.extend([{"property": {"id": "P1092"},"value": {"type": "value","content": data['reproducibility']['originalplatformcondition']}}])
+            qualifier.extend(add_qualifier("P1092", data['reproducibility']['originalplatformcondition'], 'string'))
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q13164', 'wikibase-item', qualifier)
         
     if data.get('reproducibility', {}).get('otherplatform') == options['Yes']:
         qualifier = []
         if data['reproducibility'].get('otherplatformcondition'):
-            qualifier.extend([{"property": {"id": "P1092"},"value": {"type": "value","content": data['reproducibility']['otherplatformcondition']}}])
+            qualifier.extend(add_qualifier("P1092", data['reproducibility']['otherplatformcondition'], 'string'))
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q13165', 'wikibase-item', qualifier)
         
     if data.get('reproducibility', {}).get('transferability'):
         qualifier = []
         for value in data['reproducibility']['transferability'].values():
-            qualifier.extend([{"property": {"id": "P1092"},"value": {"type": "value","content": value}}])
+            qualifier.extend(add_qualifier("P1092", value, 'string'))
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P3', 'Q13166', 'wikibase-item', qualifier)
-        
-    # Add methods the workflow uses
-    for value in data.get('method').values():
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        # Get Method Key
-        method_item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
 
-        qualifier_strings = []
-        for parameter in value.get('Parameter').values():
-            qualifier_strings.append(parameter)
+    # Add data sets the workflow uses
+    if data.get('model', {}).get('ID'):
         
-        qualifier_items = []
-        for software in value.get('software', {}).values():
-            # Use new ID if present
-            software['ID'] = old_new.get((software['ID'], software['Name'], software['Description']), [''])[0] or software['ID']
-            # Get Software Keys and add to Qualifier
-            qualifier_items.append(find_key_by_values(items, software['ID'], software['Name'], software['Description']))
-        
-        for instrument in value.get('instrument', {}).values():
-            # Use new ID if present
-            instrument['ID'] = old_new.get((instrument['ID'], instrument['Name'], instrument['Description']), [''])[0] or instrument['ID']
-            # Get Instrument Key and add to Qualifier
-            qualifier_items.append(find_key_by_values(items, instrument['ID'], instrument['Name'], instrument['Description']))
-        
+        value = data['model']
+        model_item = get_item_key(value, items, old_new)
+
         qualifier = []
-        for qualifier_item in qualifier_items:
-            qualifier.extend([{"property": {"id": "P1089"},"value": {"type": "value","content": qualifier_item}}])
+        for task in data.get('specifictask', {}).values():
+            qualifier.extend(add_qualifier("P348", get_item_key(task, items, old_new)))
 
-        for qualifier_string in qualifier_strings:
-            qualifier.extend([{"property": {"id": "P1092"},"value": {"type": "value","content": qualifier_string}}])
+        payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P7', model_item, 'wikibase-item', qualifier)
 
+    # Add methods the workflow uses
+    for value in data.get('method', {}).values():
+        # Continue if no ID exists
+        if not value.get('ID'):
+            continue
+        # Get Item Key
+        method_item = get_item_key(value, items, old_new)
+
+        qualifier = []
+        for parameter in value.get('Parameter', {}).values():
+            qualifier.extend(add_qualifier("P1092", parameter, 'string'))
+        
+        for software in value.get('software', {}).values():
+            qualifier.extend(add_qualifier("P1089", get_item_key(software, items, old_new)))
+            
+        for instrument in value.get('instrument', {}).values():
+            qualifier.extend(add_qualifier("P1089", get_item_key(instrument, items, old_new)))
+        
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P7', method_item, 'wikibase-item', qualifier)
         
     # Add software the workflow uses
-    for value in data.get('software').values():
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        # Get Software Key
-        software_item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+    for value in data.get('software', {}).values():
+        # Continue if no ID exists
+        if not value.get('ID'):
+            continue
+        # Get Item Key
+        software_item = get_item_key(value, items, old_new)
 
         qualifier = []
-        for hardware in data.get('hardware').values():
-            for software in hardware.get('software').values():
+        for hardware in data.get('hardware', {}).values():
+            for software in hardware.get('software', {}).values():
                 if software.get('ID') == value['ID'] and software.get('Name') == value['Name'] and software.get('Description') == value['Description']:
                     hardware_item = find_key_by_values(items, hardware['ID'], hardware['Name'], hardware['Description'])
-                    qualifier.extend([{"property": {"id": "P402"},"value": {"type": "value","content": hardware_item}}])
+                    qualifier.extend(add_qualifier("P402", hardware_item))
         
         if value.get('Version'):
-            qualifier = [{"property": {"id": "P472"},"value": {"type": "value","content": value['Version']}}]
+            qualifier = add_qualifier("P472", value['Version'], 'string')
             
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P7', software_item, 'wikibase-item', qualifier)
         
     # Add hardware the workflow uses
-    for value in data.get('hardware').values():
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        if value.get('ID'):
-            hardware_item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
-
-            qualifier_items = []
-            for compiler in value.get('compiler', {}).values():
-                # Use new ID if present
-                compiler['ID'] = old_new.get((compiler['ID'], compiler['Name'], compiler['Description']), [''])[0] or compiler['ID']
-                # Get Compiler Key and add to qualifier
-                qualifier_items.append(find_key_by_values(items, compiler['ID'], compiler['Name'], compiler['Description']))
-
-            qualifier = []
-            for qualifier_item in qualifier_items:
-                qualifier.extend([{"property": {"id": "P7"},"value": {"type": "value","content": qualifier_item}}])
-
-            payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P7', hardware_item, 'wikibase-item', qualifier)
+    for value in data.get('hardware', {}).values():
+        # Continue if no ID exists
+        if not value.get('ID'):
+            continue
+        # Get Item Key
+        hardware_item = get_item_key(value, items, old_new)
+        
+        qualifier = []
+        for compiler in value.get('compiler', {}).values():
+            qualifier.extend(add_qualifier("P7", get_item_key(compiler, items, old_new)))
+        
+        payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P7', hardware_item, 'wikibase-item', qualifier)
             
     # Add instruments the workflow uses
-    for value in data.get('instrument').values():
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        instrument_item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+    for value in data.get('instrument', {}).values():
+        # Continue if no ID exists
+        if not value.get('ID'):
+            continue
+        # Get Item Key
+        instrument_item = get_item_key(value, items, old_new)
 
         qualifier = []
         if value.get('Version'):
-            qualifier.extend([{"property": {"id": "P568"},"value": {"type": "value","content": value['Version']}}])
+            qualifier.extend(add_qualifier("P568", value["Version"], "string")) 
 
         if value.get('SerialNumber'):
-            qualifier.extend([{"property": {"id": "P587"},"value": {"type": "value","content": value['SerialNumber']}}])
+            qualifier.extend(add_qualifier("P587", value["SerialNumber"], "string")) 
 
-        qualifier_locations = []
         for location in value.get('location', {}).values():
-            # Use new ID if present
-            location['ID'] = old_new.get((location['ID'], location['Name'], location['Description']), [''])[0] or location['ID']
-            # Get Location Key and ad to Qualifier
-            qualifier_locations.append(find_key_by_values(items, location['ID'], location['Name'], location['Description']))
+            qualifier.extend(add_qualifier("P377", get_item_key(location, items, old_new))) 
 
-        for qualifier_location in qualifier_locations:
-            qualifier.extend([{"property": {"id": "P377"},"value": {"type": "value","content": qualifier_location}}])
-
-        qualifier_softwares = []
         for software in value.get('software', {}).values():
-            # Use new ID if present
-            software['ID'] = old_new.get((software['ID'], software['Name'], software['Description']), [''])[0] or software['ID']
-            # Get Software Key and ad to Qualifier
-            qualifier_softwares.append(find_key_by_values(items, software['ID'], software['Name'], software['Description']))
-
-        for qualifier_software in qualifier_softwares:
-            qualifier.extend([{"property": {"id": "P7"},"value": {"type": "value","content": qualifier_software}}])
+            qualifier.extend(add_qualifier("P7", get_item_key(software, items, old_new))) 
 
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P7', instrument_item, 'wikibase-item', qualifier)
         
     # Add data sets the workflow uses
-    for value in data.get('dataset').values():
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        dataset_item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+    for value in data.get('dataset', {}).values():
+        # Continue if no ID exists
+        if not value.get('ID'):
+            continue
+        # Get Item Key
+        dataset_item = get_item_key(value, items, old_new)
 
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P7', dataset_item)
         
     # Add Process Steps the workflow uses
-    for value in data.get('processstep').values():
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        processstep_item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+    for value in data.get('processstep', {}).values():
+        # Continue if no ID exists
+        if not value.get('ID'):
+            continue
+        # Get Item Key
+        processstep_item = get_item_key(value, items, old_new)
 
         qualifier = []
-        for parameter in value.get('parameter').values():
-            qualifier.extend([{"property": {"id": "P1092"},"value": {"type": "value","content": parameter}}])
+        for parameter in value.get('parameter', {}).values():
+            qualifier.extend(add_qualifier("P1092", parameter, 'string')) 
 
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P7', processstep_item, 'wikibase-item', qualifier)
         
     # Add Publication about the Workflow
-    for value in data.get('publication').values():
-        # Use new ID if present
-        value['ID'] = old_new.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        publication_item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+    for value in data.get('publication', {}).values():
+        # Continue if no ID exists
+        if not value.get('ID'):
+            continue
+        # Get Item Key
+        publication_item = get_item_key(value, items, old_new)
 
         payload, rel_idx = add_static_or_non_item_relation(payload, item, rel_idx, 'P18', publication_item)
         
     return payload
-
-
-    
-    
-    
-    
-def items_uri():
-    return 'https://staging.mardi4nfdi.org/w/rest.php/wikibase/v1/entities/items'
-
-def items_payload(name, description):
-    if description and description != 'No Description Provided!':
-        return {"item": {"labels": {"en": name}, "descriptions": {"en": description}}} 
-    else:
-        return {"item": {"labels": {"en": name}}}
-
-def statements_uri(item):
-    return f'https://staging.mardi4nfdi.org/w/rest.php/wikibase/v1/entities/items/{item}/statements'
-
-def statements_payload(id, content, data_type = "wikibase-item", qualifiers = []):
-    return {"statement": {"property": {"id": id, "data_type": data_type}, "value": {"type": "value", "content": content}, "qualifiers": qualifiers}}
-
-def unique_items(data, title):
-    # Set up Item Dict and track seen Items
-    items = {}
-    seen_items = set() 
-    # Add Workflow Item
-    triple = ('not found', title, data.get('general', {}).get('objective', ''))
-    items[f'Item{str(0).zfill(10)}'] = {'ID': 'not found', 'Name': title, 'Description': data.get('general', {}).get('objective', '')}
-    seen_items.add(triple)
-    # Add Workflow Component Items
-    def search(subdict):
-        if isinstance(subdict, dict) and 'ID' in subdict:
-            triple = (subdict.get('ID', ''), subdict.get('Name', ''), subdict.get('Description', ''))
-            if triple not in seen_items:
-                item_key = f'Item{str(len(items)).zfill(10)}'  # Create unique key
-                items[item_key] = {'ID': triple[0], 'Name': triple[1], 'Description': triple[2]}
-                seen_items.add(triple)
-        if isinstance(subdict, dict):
-            for value in subdict.values():
-                if isinstance(value, dict):
-                    search(value)
-    search(data)
-    return items
-
-def find_key_by_values(extracted_dict, id_value, name_value, description_value):
-    for key, values in extracted_dict.items():
-        if (values['ID'] == id_value and 
-            values['Name'] == name_value and 
-            values['Description'] == description_value):
-            return key
-    return None
-
-def add_item_relation(payload, values, lookup, items, item, idx, property, qualifier = [], datatype = 'wikibase-item'):
-    for value in values:
-        # Continue if no ID exists
-        if not value.get('ID'):
-            continue
-        # Use new ID if present
-        value['ID'] = lookup.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        # Get Entry Key
-        entry = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
-        # Add to Payload
-        payload.update({f"RELATION{idx}":{'id': '', 'url': statements_uri(item), 'payload': statements_payload(property, entry, datatype, qualifier)}}) 
-        idx += 1
-    return payload, idx
-
-def add_static_or_non_item_relation(payload, item, idx, property, content, datatype = 'wikibase-item', qualifier = []):
-    payload.update({f"RELATION{idx}":{'id': '', 'url': statements_uri(item), 'payload': statements_payload(property, content, datatype, qualifier)}}) 
-    idx += 1
-    return payload, idx
 

@@ -2,12 +2,42 @@ from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI
 
+def add_item_relation(payload, values, lookup, items, item, idx, property, qualifier = [], datatype = 'wikibase-item'):
+    for value in values:
+        # Continue if no ID exists
+        if not value.get('ID'):
+            continue
+        # Use new ID if present
+        value['ID'] = lookup.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
+        # Get Entry Key
+        entry = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+        # Add to Payload
+        payload.update({f"RELATION{idx}":{'id': '', 'url': statements_uri(item), 'payload': statements_payload(property, entry, datatype, qualifier)}}) 
+        idx += 1
+    return payload, idx
+
+def add_static_or_non_item_relation(payload, item, idx, property, content, datatype = 'wikibase-item', qualifier = []):
+    payload.update({f"RELATION{idx}":{'id': '', 'url': statements_uri(item), 'payload': statements_payload(property, content, datatype, qualifier)}}) 
+    idx += 1
+    return payload, idx
+
+def add_qualifier(id, content, data_type = 'wikibase-item'):
+    return [{"property": {"id": id, "data_type": data_type},"value": {"type": "value","content": content}}]
+
 def compare_items(old, new):
     ids = {}
     for key, value in old.items():
         if key.startswith('Item') and not value['id']:
             ids.update({new[key]['payload']['item']['labels']['en']: new[key]['id']})
     return ids
+
+def find_key_by_values(extracted_dict, id_value, name_value, description_value):
+    for key, values in extracted_dict.items():
+        if (values['ID'] == id_value and 
+            values['Name'] == name_value and 
+            values['Description'] == description_value):
+            return key
+    return None
 
 def get_answer_workflow(project, val, uri, key1 = None, key2 = None, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
     '''Function to get user answers into dictionary.'''
@@ -44,7 +74,7 @@ def get_answer_workflow(project, val, uri, key1 = None, key2 = None, key3 = None
             if not set_prefix and not set_index and not collection_index and not external_id and not option_text:
                 val[key1].update({key2:value.text})
             elif not set_prefix and not set_index and collection_index and not external_id and not option_text:
-                val[key1].setdefault(key2, {}).update({value.collection_index:value.text})
+                val[key1].setdefault(value.collection_index, {}).update({key2:value.text})
             elif not set_prefix and not set_index and not collection_index and external_id and not option_text:
                 val[key1].update({key2:value.external_id})
             elif not set_prefix and not set_index and collection_index and external_id and not option_text:
@@ -93,4 +123,56 @@ def get_discipline(answers):
                     md += 1
                     ids.append(answers['processstep'][key]['discipline'][key2]['ID'])
     return answers
+
+def get_item_key(value, items, lookup):
+    # Check if Item has Name and Description
+    if not value.get('Name'):
+        raise ValueError('All Items need to have a Name!')
+    if not value.get('Description'):
+        raise ValueError('All Items need to have a Description!')
+    # Check if Item has new ID
+    value['ID'] = lookup.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
+    # Get Item Key
+    item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
+    return item
+
+def items_payload(name, description):
+    if description and description != 'No Description Provided!':
+        return {"item": {"labels": {"en": name}, "descriptions": {"en": description}}} 
+    else:
+        return {"item": {"labels": {"en": name}}}
+    
+def items_uri():
+    return 'https://staging.mardi4nfdi.org/w/rest.php/wikibase/v1/entities/items'
+    
+def statements_payload(id, content, data_type = "wikibase-item", qualifiers = []):
+    return {"statement": {"property": {"id": id, "data_type": data_type}, "value": {"type": "value", "content": content}, "qualifiers": qualifiers}}
+
+def statements_uri(item):
+    return f'https://staging.mardi4nfdi.org/w/rest.php/wikibase/v1/entities/items/{item}/statements'
+
+def unique_items(data, title):
+    # Set up Item Dict and track seen Items
+    items = {}
+    seen_items = set() 
+    # Add Workflow Item
+    triple = ('not found', title, data.get('general', {}).get('objective', ''))
+    items[f'Item{str(0).zfill(10)}'] = {'ID': 'not found', 'Name': title, 'Description': data.get('general', {}).get('objective', '')}
+    seen_items.add(triple)
+    # Add Workflow Component Items
+    def search(subdict):
+        if isinstance(subdict, dict) and 'ID' in subdict:
+            triple = (subdict.get('ID', ''), subdict.get('Name', ''), subdict.get('Description', ''))
+            if triple not in seen_items:
+                item_key = f'Item{str(len(items)).zfill(10)}'  # Create unique key
+                items[item_key] = {'ID': triple[0], 'Name': triple[1], 'Description': triple[2]}
+                seen_items.add(triple)
+        if isinstance(subdict, dict):
+            for value in subdict.values():
+                if isinstance(value, dict):
+                    search(value)
+    search(data)
+    return items
+    
+
 

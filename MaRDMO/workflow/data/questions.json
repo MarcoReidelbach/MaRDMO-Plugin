@@ -35,6 +35,18 @@
         "collection_index": true,
         "external_id": true
     },
+    "SpecificTask Name": {
+        "key1": "specifictask",
+        "key2": "Name",
+        "uri": "domain/main-model/workflow-relevant-task/name",
+        "collection_index": true
+    },
+    "SpecificTask Description": {
+        "key1": "specifictask",
+        "key2": "Description",
+        "uri": "domain/main-model/workflow-relevant-task/description",
+        "collection_index": true
+    },
     "Publication ID": {
         "key1": "publication",
         "key2": "ID",

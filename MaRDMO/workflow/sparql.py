@@ -982,7 +982,7 @@ queryPreview = {
                             }}
                             ORDER BY ?taskLabel ?itemLabel''',
 
-                'parameters': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                'parameters': '''PREFIX mathmoddb: <https://mardi4nfdi.de/mathmoddb#>
                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                                  
                                  SELECT ?ID ?Name ?Unit ?Symbol ?label
@@ -996,7 +996,7 @@ queryPreview = {
                                  BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
  
                                  # Parameter
-                                 ?task :containsParameter ?idraw .
+                                 ?task mathmoddb:containsParameter ?idraw .
                                  BIND(STRAFTER(STR(?idraw), "#") AS ?ID)
                                  OPTIONAL {{ ?idraw rdfs:label ?Nameraw .
                                              FILTER (lang(?Nameraw) = 'en') }}
@@ -1004,8 +1004,8 @@ queryPreview = {
                                  
                                  # Filter results to only show defining statements that match the current quantity label
                                  OPTIONAL {{
-                                     ?task :containsFormulation ?formulation .
-                                     ?formulation :inDefiningFormulation ?definingStatement .
+                                     ?task mathmoddb:containsFormulation ?formulation .
+                                     ?formulation mathmoddb:inDefiningFormulation ?definingStatement .
  
                                      # Convert definingStatement to a plain string to strip off datatype markup
                                      BIND(STR(?definingStatement) AS ?plainStatement)
