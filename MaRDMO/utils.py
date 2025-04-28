@@ -243,24 +243,33 @@ def find_item(label, description, api = endpoint['mardi']['api']):
     else:
         # No matching item found
         return None
-    
-def query_api(api_url, search_term):
-    '''API requests returning all Items with matching label'''
-    response = requests.get(api_url, params={
-        'action': 'wbsearchentities',
-        'format': 'json',
-        'language': 'en',
-        'type': 'item',
-        'limit': 10,
-        'search': search_term
-    }, headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'})
-    if response.status_code == 200:
-        try:
-            result = response.json().get('search', [])
-        except:
-            result = []
 
-    return result
+def query_api(api_url, search_term, timeout=1):
+    """API requests returning all Items with matching label."""
+    try:
+        response = requests.get(
+            api_url,
+            params={
+                'action': 'wbsearchentities',
+                'format': 'json',
+                'language': 'en',
+                'type': 'item',
+                'limit': 10,
+                'search': search_term
+            },
+            headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'},
+            timeout=timeout
+        )
+        response.raise_for_status()  # Raise an error on bad HTTP status codes
+        try:
+            return response.json().get('search', [])
+        except ValueError:
+            # Malformed JSON
+            logger.error("Failed to parse JSON.")
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request failed due to {e}")
+
+    return []
 
 def query_sparql(query, endpoint=endpoint['mathmoddb']['sparql']):
     '''SPARQL request returning all Items with matching properties.'''
@@ -286,10 +295,10 @@ def query_sparql(query, endpoint=endpoint['mathmoddb']['sparql']):
 
     except requests.exceptions.ConnectionError:
         logger.error(f"SPARQL query failed: Unable to connect to the {endpoint}.")
-        return []
     except requests.exceptions.RequestException as e:
         logger.exception(f"SPARQL request failed: {e}")
-        return []
+    
+    return []
 
 def query_sparql_pool(input):
     '''Pooled SPARQL request returning all items with matching properties from different endpoints'''
