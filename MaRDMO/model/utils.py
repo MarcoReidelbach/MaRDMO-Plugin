@@ -167,11 +167,11 @@ def dict_to_triples_mathmoddb(data):
                 formulas = item['Formula'].values()
                 for formula in formulas:
                     formula = formula.replace('\\', '\\\\')
-                    triples.append((subject, 'mathmoddb:definingFormulation', f'"{formula[1:-1]}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
-                if item.get('Element'):
-                    elements = item['Element'].values()
+                    triples.append((subject, 'mathmoddb:definingFormulation', f'"{formula}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
+                if item.get('element'):
+                    elements = item['element'].values()
                     for element in elements:
-                        symbol = element['Symbol'].replace('\\', '\\\\')
+                        symbol = element['symbol'].replace('\\', '\\\\')
                         quantity = element['quantity'].split(' <|> ')
                         if len(quantity) == 1:
                             referred_name = quantity[0]
@@ -184,7 +184,7 @@ def dict_to_triples_mathmoddb(data):
                                 referred_name = quantity[1]
                                 object_value = ids.get(referred_name)
                         if object_value:
-                            triples.append((subject, 'mathmoddb:inDefiningFormulation', f'"{symbol[1:-1]}, {referred_name}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
+                            triples.append((subject, 'mathmoddb:inDefiningFormulation', f'"{symbol}, {referred_name}"^^<https://mardi4nfdi.de/mathmoddb#LaTeX>'))
                             triples.append((subject, 'mathmoddb:containsQuantity', object_value))
                             triples.append((object_value, 'mathmoddb:containedInFormulation', subject))
         

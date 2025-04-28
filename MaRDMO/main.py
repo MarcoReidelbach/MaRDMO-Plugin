@@ -213,8 +213,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 
                 # Merge answers related to mathematical model
                 merged_dict = merge_dicts_with_unique_keys(data[0], ['field','problem','model','formulation','quantity','task','publication'])         
+                
                 # Generate list of triples
-                triple_list, ids = dict_to_triples_mathmoddb(merged_dict) 
+                triple_list, ids = dict_to_triples_mathmoddb(merged_dict)
+                
                 # Generate query for MathModDB KG
                 query = generate_sparql_insert_with_new_ids_mathmoddb(triple_list)
                 
