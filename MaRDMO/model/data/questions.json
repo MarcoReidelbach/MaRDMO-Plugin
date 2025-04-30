@@ -132,6 +132,36 @@
         "collection_index": true,
         "external_id": true
     },
+    "Mathematical Model MM2MF": {
+        "key1": "model",
+        "key2": "MM2MF",
+        "uri": "domain/model/formulation-relation",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Mathematical Model MFRelatant": {
+        "key1": "model",
+        "key2": "MFRelatant",
+        "uri": "domain/model/formulation-relatant",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
+    },
+    "Mathematical Model MM2T": {
+        "key1": "model",
+        "key2": "MM2T",
+        "uri": "domain/model/task-relation",
+        "set_prefix": true,
+        "collection_index": true
+    },
+    "Mathematical Model TRelatant": {
+        "key1": "model",
+        "key2": "TRelatant",
+        "uri": "domain/model/task-relatant",
+        "set_prefix": true,
+        "collection_index": true,
+        "external_id": true
+    },
     "Mathematical Model IntraClassRelation": {
         "key1": "model",
         "key2": "IntraClassRelation",
@@ -145,6 +175,15 @@
         "uri": "domain/model/model-relatant",
         "set_prefix": true,
         "set_index": true,
+        "external_id": true
+    },
+    "Mathematical Model Assumption": {
+        "key1": "model",
+        "key2": "assumption",
+        "uri": "domain/model/model-assumption",
+        "set_prefix": true,
+        "set_index": true,
+        "collection_index": true,
         "external_id": true
     },
     "Mathematical Formulation": {

@@ -76,6 +76,10 @@ def get_answer_model(project, val, uri, key1 = None, key2 = None, key3 = None, s
                 prefix = value.set_prefix.split('|')
                 label,_,_ = extract_parts(value.text)
                 val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:f"{value.external_id} <|> {label}"})
+            elif set_prefix and set_index and collection_index and external_id and not option_text:
+                prefix = value.set_prefix.split('|')
+                label,_,_ = extract_parts(value.text)
+                val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).setdefault(value.set_index, {}).update({value.collection_index:f"{value.external_id} <|> {label}"})
                 
     return val
 

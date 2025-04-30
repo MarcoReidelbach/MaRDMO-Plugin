@@ -1,6 +1,10 @@
 from rdmo.options.providers import Provider
 
-from ..utils import query_sources, query_sources_with_user_additions
+from .sparql import queryPortalProvider
+
+from ..config import endpoint
+from ..utils import query_sources, query_sources_with_user_additions, query_sparql
+
 
 class ResearchField(Provider):
 
@@ -43,13 +47,13 @@ class ResearchProblem(Provider):
         if not search or len(search) < 3:
             return []
 
-        # Define the sources to query
+        # Define the query parameter
         queryID = 'RP'
         sources = ['mathmoddb', 'mardi', 'wikidata']
 
         return query_sources(search, queryID, sources)
 
-class RelatedResearchProblem(Provider):
+class RelatedResearchProblemWithCreation(Provider):
 
     search = True
 
@@ -60,9 +64,26 @@ class RelatedResearchProblem(Provider):
         
         # Define the query parameter
         queryID = 'RP'
+        sources = ['mardi','wikidata']
         queryAttribute = 'problem'
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, True)
+    
+class RelatedResearchProblemWithoutCreation(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'RP'
+        sources = ['mardi','wikidata']
+        queryAttribute = 'problem'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
     
 class MathematicalModel(Provider):
 
@@ -76,11 +97,11 @@ class MathematicalModel(Provider):
 
         # Define the sources to query
         queryID = 'MM'
-        sources = ['mathmoddb','mardi','wikidata']
+        sources = ['mardi','wikidata']
 
         return query_sources(search, queryID, sources)
 
-class RelatedMathematicalModel(Provider):
+class RelatedMathematicalModelWithoutCreation(Provider):
 
     search = True
 
@@ -91,9 +112,10 @@ class RelatedMathematicalModel(Provider):
         
         # Define the query parameter
         queryID = 'MM'
+        sources = ['mardi','wikidata']
         queryAttribute = 'model'
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
     
 class QuantityOrQuantityKind(Provider):
 
@@ -168,11 +190,11 @@ class MathematicalFormulation(Provider):
 
         # Define the sources to query
         queryID = 'MF'
-        sources = ['mathmoddb','mardi','wikidata']
+        sources = ['mardi','wikidata']
 
         return query_sources(search, queryID, sources)
     
-class RelatedMathematicalFormulation(Provider):
+class RelatedMathematicalFormulationWithCreation(Provider):
 
     search = True
 
@@ -183,10 +205,27 @@ class RelatedMathematicalFormulation(Provider):
         
         # Define the query parameter
         queryID = 'MF'
+        sources = ['mardi','wikidata']
         queryAttribute = 'formulation'
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, True)
     
+class RelatedMathematicalFormulationWithoutCreation(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'MF'
+        sources = ['mardi','wikidata']
+        queryAttribute = 'formulation'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
+
 class Task(Provider):
 
     search = True
@@ -199,11 +238,11 @@ class Task(Provider):
 
         # Define the sources to query
         queryID = 'T'
-        sources = ['mathmoddb','mardi','wikidata']
+        sources = ['mardi','wikidata']
 
         return query_sources(search, queryID, sources)
 
-class RelatedTask(Provider):
+class RelatedTaskWithCreation(Provider):
 
     search = True
 
@@ -214,6 +253,23 @@ class RelatedTask(Provider):
         
         # Define the query parameter
         queryID = 'T'
+        sources = ['mardi','wikidata']
         queryAttribute = 'task'
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, True)
+    
+class RelatedTaskWithoutCreation(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'T'
+        sources = ['mardi','wikidata']
+        queryAttribute = 'task'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)

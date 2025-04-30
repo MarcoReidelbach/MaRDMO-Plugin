@@ -14,7 +14,7 @@ from multiprocessing.pool import ThreadPool
 
 from .config import BASE_URI, endpoint
 
-from .model.sparql import queryProviderMM
+from .model.sparql import queryProviderMM, queryPortalProvider
 from .algorithm.sparql import queryProviderAL
 
 logger = logging.getLogger(__name__)  # Get Django's logger for the current module
@@ -37,16 +37,22 @@ def get_questionsPU():
 
 def get_id(project, uri, keys):
     values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
+    print(values)
     ids = []
     if len(keys) == 1:
         for value in values:
-            ids.append(getattr(value, keys[0]))
+            id = getattr(value, keys[0])
+            if isinstance(id, str) and '|' in id:
+                print(id)
+                id = id.split('|')[0]
+            ids.append(id)
     else:
         for value in values:
             id = []
             for key in keys:
                 id.append(getattr(value, key))
             ids.append(id)
+    print(ids)
     return ids 
 
 def add_basics(project, text, url_name, url_description, collection_index = None, set_index = None, set_prefix = None):
@@ -77,29 +83,59 @@ def add_entities(project, question_set, question_id, datas, source, prefix):
             value_ids.append(data.id)
     return
 
-def add_relations(project, data, props, set_prefix, relatant, mapping=None, relation=None, suffix=''):
+def add_new_entities(project, question_set, question_id, datas, source, prefix):
+    # Get Name and Description URL
+    question_name = f'{question_id.rsplit("/", 1)[0]}/name'
+    question_description = f'{question_id.rsplit("/", 1)[0]}/description'
+    # Get Set Ids and IDs of Publications
+    set_ids = get_id(project, question_set, ['set_index'])
+    names = get_id(project, question_name, ['text'])
+    descriptions = get_id(project, question_description, ['text'])
+    print('ZZZ', names, descriptions)
+    # Add Publication to Questionnaire
+    idx = max(set_ids, default = -1) + 1
+    for data in datas:
+        if not any(f'{data.label} ({data.description})' in f'{name} ({description})' for name, description in zip(names, descriptions)):
+            # Set up Page
+            value_editor(project, question_set, f"{prefix}{idx}", None, None, None, idx)
+            # Add ID Values
+            value_editor(project, question_id, 'not found', 'not found', None, None, idx)
+            # Add Name Values
+            value_editor(project, question_name, data.label, None, None, None, None, idx)
+            # Add Description Values
+            value_editor(project, question_description, data.description, None, None, None, None, idx)
+            idx += 1
+    return
+
+def add_relations(project, data, props, set_prefix, relatant, mapping=None, relation=None, suffix='', assumption=None):
     # Get Set Ids and IDs of Entities
-    set_ids = get_id(project, relatant, ['set_index'])
+    set_ids = get_id(project, relatant, ['set_prefix'])
+    set_ids2 = get_id(project, relatant, ['set_index'])
+    #set_ids2 = get_id(project, relatant, ['set_index'])
     collection_ids = get_id(project, relatant, ['collection_index'])
     value_ids = get_id(project, relatant, ['external_id'])
     texts = get_id(project, relatant, ['text'])
     if relation:
         rels = get_id(project, relation, ['option_uri'])
     
+    # Reduce Set Prefix
+    set_prefix_reduced = set_prefix if isinstance(set_prefix, int) else int(set_prefix.split('|')[0])
+    ids = [set_id2 for set_id2, set_id in zip(set_ids2, set_ids) if set_id == set_prefix_reduced]
+
     # Set initial value of counter
-    idx = max(set_ids if relation else collection_ids, default=-1) + 1
+    idx = int(max(ids if relation else collection_ids, default=-1)) + 1
 
     # Add Relations and Relatants
     for prop in props:
         for value in getattr(data, f"{prop}{suffix}"):
             if relation:
-                if any(value.id == value_id and set_id == set_prefix and rel == mapping[prop] for value_id, set_id, rel in zip(value_ids, set_ids, rels)):
-                    continue  # Skip if value already exists
+                if any(value.id == value_id and int(set_id) == set_prefix_reduced and rel == mapping[prop] for value_id, set_id, rel in zip(value_ids, set_ids, rels)):
+                    continue  
             else:
-                if any(value.id == value_id and set_id == set_prefix for value_id, set_id in zip(value_ids, set_ids)):
-                    continue  # Skip if value already exists
+                if any(value.id == value_id and int(set_id) == set_prefix_reduced for value_id, set_id in zip(value_ids, set_ids)):
+                    continue  
 
-            # Determine indices
+            # Determine Indices and add relation
             if relation:
                 collection_index, set_index = None, idx
                 value_editor(project = project, 
@@ -130,12 +166,35 @@ def add_relations(project, data, props, set_prefix, relatant, mapping=None, rela
                 set_index=set_index, 
                 set_prefix=set_prefix
                 )
-
+            
+            # Add Assumption
+            if assumption:
+                for assumption_idx, ivalue in enumerate(value.qualifier.split(' <|> ')):
+                    
+                    assumption_id, assumption_label, assumption_description = ivalue.split(' | ')
+                    
+                    assumption_source, _ = assumption_id.split(':')
+                    assumption_text = f"{assumption_label} ({assumption_description})"
+                    
+                    value_editor(
+                        project=project, 
+                        uri=assumption, 
+                        text=f"{assumption_text} [{assumption_source}]",
+                        external_id=assumption_id, 
+                        collection_index=assumption_idx,
+                        set_index=set_index, 
+                        set_prefix=set_prefix
+                        )
+                    
             if existing_index is None:
                 # Only increment if a new entry was added
                 idx += 1  
 
             value_ids.append(value.id)
+            set_ids.append(set_prefix_reduced)
+            texts.append(f"{text_entry} [{source}]")
+            if relation:
+                rels.append(mapping[prop])
     return
 
 def add_properties(project, data, uri, set_prefix):
@@ -381,7 +440,7 @@ def query_sources(search, queryID, sources, notFound=True):
         pool = ThreadPool(processes=len(queries))
 
         results = pool.map(lambda func: func(search), queries)
-
+        
         # Unpack results based on available sources
         results_dict = dict(zip(sources, results))
 
@@ -406,7 +465,7 @@ def query_sources(search, queryID, sources, notFound=True):
 
 def MathDBProvider(search, query, source):
     """
-    Dynamic query of MathAlgoDB, results as options for Provider.
+    Dynamic query of MathModDB and MathAlgoDB, results as options for Provider.
     """
     if not search:
         return []
@@ -432,7 +491,7 @@ def process_result(result, location):
          'text': f"{result['display']['label']['value']} ({result['display'].get('description', {}).get('value', 'No Description Provided!')}) [{location}]"
     }
 
-def query_sources_with_user_additions(search, project, queryID, queryAttribute, sources = ['mathmoddb']):
+def query_sources_with_user_additions(search, project, queryID, queryAttribute, sources = ['mathmoddb'], user = False):
     '''Fetch options from MathModDB, user-defined fields, and other sources.'''
 
     # Query sources and get the results directly in options
@@ -470,6 +529,9 @@ def query_sources_with_user_additions(search, project, queryID, queryAttribute, 
     # Add the user-defined options to the list, filtered by search
     options.extend([{'id': f"{dic[key]['id']}", 'text': key} for key in dic if search.lower() in key.lower()])
     
+    if user:
+        options = [{'id': 'not found', 'text': f"{search} [user]"}] + options
+
     # Return combined, sorted options
     return sorted(options, key=lambda option: option['text'])
 
