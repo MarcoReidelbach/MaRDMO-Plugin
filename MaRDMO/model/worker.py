@@ -1,4 +1,4 @@
-from ..utils import entityRelations, get_data
+from ..utils import entityRelations, get_data, mapEntity
 
 def model_relations(instance, answers,mathmoddb):
     '''Function to establish relations between Model Documentation Data'''
@@ -18,11 +18,20 @@ def model_relations(instance, answers,mathmoddb):
     # Research Problem to Research Problem Relations
     entityRelations(answers,'problem','problem','IntraClassRelation','IntraClassElement','RelationRP1','RP')
     
-    # Convert Research Problems in additional Models
+    # Mathematical Model to Research Problem Relations
     entityRelations(answers,'model','problem','MM2RP','RPRelatant','RelationRP1','RP')
     
-    # Add Mathematical Model to Mathematical Model Relations
+    # Mathematical Model to Mathematical Formulation Relations
+    entityRelations(answers,'model','formulation','MM2MF','MFRelatant','RelationMF1','MF')
+
+    # Mathematical Model to Task Relations
+    entityRelations(answers,'model','task','MM2T','TRelatant','RelationT','T')
+    
+    # Mathematical Model to Mathematical Model Relations
     entityRelations(answers,'model','model','IntraClassRelation','IntraClassElement','RelationMM1','MM')
+
+    # Mathematical Model Assumptions for specializes / specialized by Relations
+    mapEntity(answers, 'model', 'formulation', 'assumption', 'assumptionMapped', 'MF')
 
     # Add Mathematical Formulation to Mathematical Formulation Relations 1
     entityRelations(answers,'formulation','formulation','MF2MF','MFRelatant','RelationMF1','MF')
@@ -31,7 +40,7 @@ def model_relations(instance, answers,mathmoddb):
     entityRelations(answers,'formulation','formulation','IntraClassRelation','IntraClassElement','RelationMF2','MF')
     
     # Add Mathematical Model to Mathematical Formulation Relations 1
-    entityRelations(answers,'formulation','model','MF2MM','MMRelatant','RelationMM1','MM', 3)
+    #entityRelations(answers,'formulation','model','MF2MM','MMRelatant','RelationMM1','MM', 3)
 
     for _, task in answers['task'].items():
         # Extract MFRelatant from the task

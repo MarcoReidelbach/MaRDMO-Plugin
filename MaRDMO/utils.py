@@ -37,13 +37,11 @@ def get_questionsPU():
 
 def get_id(project, uri, keys):
     values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
-    print(values)
     ids = []
     if len(keys) == 1:
         for value in values:
             id = getattr(value, keys[0])
             if isinstance(id, str) and '|' in id:
-                print(id)
                 id = id.split('|')[0]
             ids.append(id)
     else:
@@ -52,7 +50,6 @@ def get_id(project, uri, keys):
             for key in keys:
                 id.append(getattr(value, key))
             ids.append(id)
-    print(ids)
     return ids 
 
 def add_basics(project, text, url_name, url_description, collection_index = None, set_index = None, set_prefix = None):
@@ -91,7 +88,6 @@ def add_new_entities(project, question_set, question_id, datas, source, prefix):
     set_ids = get_id(project, question_set, ['set_index'])
     names = get_id(project, question_name, ['text'])
     descriptions = get_id(project, question_description, ['text'])
-    print('ZZZ', names, descriptions)
     # Add Publication to Questionnaire
     idx = max(set_ids, default = -1) + 1
     for data in datas:
@@ -535,45 +531,69 @@ def query_sources_with_user_additions(search, project, queryID, queryAttribute, 
     # Return combined, sorted options
     return sorted(options, key=lambda option: option['text'])
 
+def checkList(LIST):
+    if not isinstance(LIST, list):
+        LIST = [LIST]
+    return LIST
+
+def labelIndexMap(data, type):
+    label_to_index_maps = []
+    for toIDX_entry in type:
+        label_to_index_maps.append({data[toIDX_entry][k].get('Name'): idx for idx, k in enumerate(data.get(toIDX_entry, {}))})
+    return label_to_index_maps
+
 def entityRelations(data, fromIDX, toIDX, relationOld, entityOld, relationNew, enc, no=2):
 
     # Ensure toIDX and enc are lists
-    if not isinstance(toIDX, list):
-        toIDX = [toIDX]
-    if not isinstance(enc, list):
-        enc = [enc]
-
+    toIDX = checkList(toIDX)
+    enc = checkList(enc)
+    
     # Create mappings for all toIDX lists
-    label_to_index_maps = []
-    for toIDX_entry in toIDX:
-        label_to_index_maps.append({data[toIDX_entry][k].get('Name'): idx for idx, k in enumerate(data.get(toIDX_entry, {}))})
+    label_to_index_maps = labelIndexMap(data, toIDX)
 
     # Use Template or Ressource Label
     for from_entry in data.get(fromIDX, {}).values():
         for key in from_entry.get(relationOld, {}):
             if from_entry[entityOld].get(key):
                 Id, label = from_entry[entityOld][key].split(' <|> ')[:2]
-                
                 match_found = False
                 for enc_entry, label_to_index in zip(enc, label_to_index_maps):
                     if label in label_to_index:
                         idx = label_to_index[label]
                         match_found = True
-                        if no == 2:
-                            if [from_entry[relationOld][key], f'{enc_entry}{idx+1}'] not in from_entry.get(relationNew, {}).values():
-                                from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], f'{enc_entry}{idx+1}']})
-                        else:
-                            if [from_entry[relationOld][key], idx+1, f'{enc_entry}{idx+1}'] not in from_entry.get(relationNew, {}).values():
-                                from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], idx+1, f'{enc_entry}{idx+1}']})
+                        if [from_entry[relationOld][key], f'{enc_entry}{idx+1}'] not in from_entry.get(relationNew, {}).values():
+                            from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], f'{enc_entry}{idx+1}']})
                         break
                 
                 if not match_found:
-                    if no == 2:
-                        if [from_entry[relationOld][key], Id] not in from_entry.get(relationNew, {}).values():
-                            from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], Id]})
-                    else:
-                        if [from_entry[relationOld][key], Id, Id] not in from_entry.get(relationNew, {}).values():
-                            from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], Id, Id]})
+                    if [from_entry[relationOld][key], Id] not in from_entry.get(relationNew, {}).values():
+                        from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], Id]})
+    return
+
+def mapEntity(data, fromIDX, toIDX, entityOld, entityNew, enc):
+    
+    # Ensure toIDX and enc are lists
+    toIDX = checkList(toIDX)
+    enc = checkList(enc)
+    
+    # Create mappings for all toIDX lists
+    label_to_index_maps = labelIndexMap(data, toIDX)
+    
+    # Use Template or Ressource Label
+    for from_entry in data.get(fromIDX, {}).values():
+        for outerKey, relation in from_entry.get(entityOld, {}).items():
+            for innerKey, entity in relation.items():
+                Id, label = entity.split(' <|> ')[:2]
+                match_found = False
+                for enc_entry, label_to_index in zip(enc, label_to_index_maps):
+                    if label in label_to_index:
+                        idx = label_to_index[label]
+                        match_found = True
+                        from_entry.setdefault(entityNew, {}).setdefault(outerKey, {}).update({innerKey: f'{enc_entry}{idx+1}'})
+                        break
+
+                if not match_found:
+                    from_entry.setdefault(entityNew, {}).setdefault(outerKey, {}).update({innerKey: Id})
     return
 
 def replace_in_dict(d, target, replacement):

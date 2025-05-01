@@ -61,7 +61,6 @@ def RPInformation(sender, **kwargs):
         # Get Questions of Model Catalog
         questions = get_questionsMO()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Research Problem ID"]["uri"]}':
-            print('XXX',instance.text)
             if instance.text and instance.text != 'not found':
                 # Get Label and Description of Item and add to questionnaire
                 add_basics(project = instance.project,
@@ -72,7 +71,6 @@ def RPInformation(sender, **kwargs):
                            set_prefix = instance.set_index
                            )
                 # Get source and ID of Item
-                print('YYY',instance.external_id)
                 source, Id = instance.external_id.split(':')
                 if source== 'mathmoddb':
                     # If Item from MathModDB, query relations and load MathModDB Vocabulary
@@ -421,14 +419,11 @@ def MMInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
                 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                print(queryHandler['mathematicalModelInformation'].format(Id))
                 results = query_sparql(queryHandler['mathematicalModelInformation'].format(Id), endpoint['mardi']['sparql'])
                 mathmoddb = get_data('model/data/mapping.json')
-                print(results)
                 if results:
                     # Structure Results
                     data = MathematicalModel.from_query(results)
-                    print(data)
                     # Add the Mathematical Model Properties to the Questionnaire
                     add_properties(project = instance.project,
                                    data = data,
