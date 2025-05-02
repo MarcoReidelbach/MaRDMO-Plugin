@@ -538,6 +538,8 @@ queryHandler = {
                                                                    ?id wdt:P1674 ?assraw.
                                                                    BIND(replace( xsd:string(?assraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ass)
 
+                                                                   ?assraw wdt:P31 wd:Q6481152.
+
                                                                    OPTIONAL {{
                                                                               ?assraw rdfs:label ?asslraw.
                                                                               FILTER (lang(?asslraw) = 'en')
@@ -598,91 +600,121 @@ queryHandler = {
                                                                   BIND(COALESCE(?tadraw, "No Description Provided!") AS ?tad)
                                                                }}
 
-                                                    OPTIONAL {{   {{
-                                                                   SELECT ?statement2 (GROUP_CONCAT(DISTINCT CONCAT(REPLACE(STR(?qua2raw), "https://portal.mardi4nfdi.de/entity/", "mardi:")," | ",COALESCE(?sbmqlraw, "No Label Provided!")," | ",COALESCE(?sbmqdraw, "No Description Provided!")); separator=" <|> ") AS ?sbmq)
-                                                                   WHERE {{
-                                                                     ?statement2 pq:P1674 ?qua2raw.
-                                                                     
-                                                                     OPTIONAL {{
-                                                                       ?qua2raw rdfs:label ?sbmqlraw.
-                                                                       FILTER (lang(?sbmqlraw) = "en")
-                                                                     }}
-                                                                     OPTIONAL {{
-                                                                       ?qua2raw schema:description ?sbmqdraw.
-                                                                       FILTER (lang(?sbmqdraw) = "en")
-                                                                     }}
-                                                                   }}
-                                                                   GROUP BY ?statement2
+                                                    OPTIONAL {{   
+                                                    
+                                                        OPTIONAL {{
+                                                          
+                                                          {{
+                                                            SELECT ?statement2 (GROUP_CONCAT(DISTINCT ?sbmq_entry; separator=" <|> ") AS ?sbmq)
+                                                            WHERE {{
+                                                     
+                                                              ?id p:P1684 ?statement2.
+                                                              
+                                                              OPTIONAL {{
+                                                     
+                                                                 ?statement2 pq:P1674 ?qua2raw.
+                                                                 BIND(REPLACE(STR(?qua2raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua2)
+ 
+                                                                 OPTIONAL {{
+                                                                   ?qua2raw rdfs:label ?sbmqlraw.
+                                                                   FILTER (lang(?sbmqlraw) = "en")
                                                                  }}
-
-                                                                  ?id p:P1684 ?statement2.
-                                                                  ?statement2 ps:P1684 ?sbmraw.
-                                                                  
-                                                                  BIND(REPLACE(STR(?sbmraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?sbm)
-                                                                
-                                                                  OPTIONAL {{
-                                                                    ?sbmraw rdfs:label ?sbmlraw
-                                                                    FILTER (lang(?sbmlraw) = 'en')
-                                                                  }}
-                                                                  BIND(COALESCE(?sbmlraw, "No Label Provided!") AS ?sbml)
-                                                                
-                                                                  OPTIONAL {{
-                                                                    ?sbmraw schema:description ?sbmdraw
-                                                                    FILTER (lang(?sbmdraw) = 'en')
-                                                                  }}
-                                                                  BIND(COALESCE(?sbmdraw, "No Description Provided!") AS ?sbmd)
-                                                                
-                                                                  # Join pre-grouped qualifiers by statement2
-                                                                  OPTIONAL {{
-                                                                    ?statement2 pq:P1674 ?any .  # dummy triple to trigger join
-                                                                    BIND(COALESCE(?sbmq, "") AS ?sbmq_grouped)
-                                                                  }}
-                                                                
-                                                                  BIND(CONCAT(?sbm, " | ", ?sbml, " | ", ?sbmd, " | ", ?sbmq_grouped) AS ?sbm_entry)
-                                                              }}
-
-                                                    OPTIONAL {{   {{
-                                                                   SELECT ?statement3 (GROUP_CONCAT(DISTINCT CONCAT(REPLACE(STR(?qua3raw), "https://portal.mardi4nfdi.de/entity/", "mardi:")," | ",COALESCE(?smqlraw, "No Label Provided!")," | ",COALESCE(?smqdraw, "No Description Provided!")); separator=" <|> ") AS ?smq)
-                                                                   WHERE {{
-                                                                     ?statement3 pq:P1674 ?qua3raw.
-                                                                     
-                                                                     OPTIONAL {{
-                                                                       ?qua3raw rdfs:label ?smqlraw.
-                                                                       FILTER (lang(?smqlraw) = "en")
-                                                                     }}
-                                                                     OPTIONAL {{
-                                                                       ?qua3raw schema:description ?smqdraw.
-                                                                       FILTER (lang(?smqdraw) = "en")
-                                                                     }}
-                                                                   }}
-                                                                   GROUP BY ?statement3
+                                                                 BIND(COALESCE(?sbmqlraw, "No Label Provided!") AS ?sbmql)
+ 
+                                                                 OPTIONAL {{
+                                                                   ?qua2raw schema:description ?sbmqdraw.
+                                                                   FILTER (lang(?sbmqdraw) = "en")
                                                                  }}
-
-                                                                  ?smraw p:P1684 ?statement3.
-                                                                  ?statement3 ps:P1684 ?id.
-                                                                  
-                                                                  BIND(REPLACE(STR(?smraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?sm)
-                                                                
-                                                                  OPTIONAL {{
-                                                                    ?smraw rdfs:label ?smlraw
-                                                                    FILTER (lang(?smlraw) = 'en')
-                                                                  }}
-                                                                  BIND(COALESCE(?smlraw, "No Label Provided!") AS ?sml)
-                                                                
-                                                                  OPTIONAL {{
-                                                                    ?smraw schema:description ?smdraw
-                                                                    FILTER (lang(?smdraw) = 'en')
-                                                                  }}
-                                                                  BIND(COALESCE(?smdraw, "No Description Provided!") AS ?smd)
-                                                                
-                                                                  # Join pre-grouped qualifiers by statement3
-                                                                  OPTIONAL {{
-                                                                    ?statement3 pq:P1674 ?any2 .  # dummy triple to trigger join
-                                                                    BIND(COALESCE(?smq, "") AS ?smq_grouped)
-                                                                  }}
-                                                                
-                                                                  BIND(CONCAT(?sm, " | ", ?sml, " | ", ?smd, " | ", ?smq_grouped) AS ?sm_entry)
+                                                                 BIND(COALESCE(?sbmqdraw, "No Description Provided!") AS ?sbmqd)
+                                                               
                                                               }}
+                                                              BIND(COALESCE(?qua2, "") AS ?qua2_final)
+                                                              BIND(COALESCE(?sbmql, "") AS ?sbmql_final)
+                                                              BIND(COALESCE(?sbmqd, "") AS ?sbmqd_final)
+                                                              
+                                                              BIND(IF((?qua2_final = "" && ?sbmql_final = "" && ?sbmqd_final = ""),"",CONCAT(?qua2_final, " | ", ?sbmql_final, " | ", ?sbmqd_final)) AS ?sbmq_entry)
+                                                                 
+                                                            }}
+                                                            GROUP BY ?statement2
+                                                          }}
+                                                          }}
+                                                        
+                                                          ?id p:P1684 ?statement2.
+                                                          ?statement2 ps:P1684 ?sbmraw.
+                                                          
+                                                          BIND(REPLACE(STR(?sbmraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?sbm)
+                                                        
+                                                          OPTIONAL {{
+                                                            ?sbmraw rdfs:label ?sbmlraw
+                                                            FILTER (lang(?sbmlraw) = 'en')
+                                                          }}
+                                                          BIND(COALESCE(?sbmlraw, "No Label Provided!") AS ?sbml)
+                                                        
+                                                          OPTIONAL {{
+                                                            ?sbmraw schema:description ?sbmdraw
+                                                            FILTER (lang(?sbmdraw) = 'en')
+                                                          }}
+                                                          BIND(COALESCE(?sbmdraw, "No Description Provided!") AS ?sbmd)
+                                                  
+                                                          }}
+
+                                                    OPTIONAL {{   
+                                                    
+                                                        OPTIONAL {{
+                                                          
+                                                          {{
+                                                            SELECT ?statement3 (GROUP_CONCAT(DISTINCT ?smq_entry; separator=" <|> ") AS ?smq)
+                                                            WHERE {{
+                                                     
+                                                              ?smraw p:P1684 ?statement3.
+                                                              
+                                                              OPTIONAL {{
+                                                     
+                                                                 ?statement3 pq:P1674 ?qua3raw.
+                                                                 BIND(REPLACE(STR(?qua3raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua3)
+ 
+                                                                 OPTIONAL {{
+                                                                   ?qua3raw rdfs:label ?smqlraw.
+                                                                   FILTER (lang(?smqlraw) = "en")
+                                                                 }}
+                                                                 BIND(COALESCE(?smqlraw, "No Label Provided!") AS ?smql)
+ 
+                                                                 OPTIONAL {{
+                                                                   ?qua3raw schema:description ?smqdraw.
+                                                                   FILTER (lang(?smqdraw) = "en")
+                                                                 }}
+                                                                 BIND(COALESCE(?smqdraw, "No Description Provided!") AS ?smqd)
+                                                               
+                                                              }}
+                                                              BIND(COALESCE(?qua3, "") AS ?qua3_final)
+                                                              BIND(COALESCE(?smql, "") AS ?smql_final)
+                                                              BIND(COALESCE(?smqd, "") AS ?smqd_final)
+                                                              
+                                                              BIND(IF((?qua3_final = "" && ?smql_final = "" && ?smqd_final = ""),"",CONCAT(?qua3_final, " | ", ?smql_final, " | ", ?smqd_final)) AS ?smq_entry)
+                                                                 
+                                                            }}
+                                                            GROUP BY ?statement3
+                                                          }}
+                                                          }}
+                                                        
+                                                          ?smraw p:P1684 ?statement3.
+                                                          ?statement3 ps:P1684 ?id.
+                                                          
+                                                          BIND(REPLACE(STR(?smraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?sm)
+                                                        
+                                                          OPTIONAL {{
+                                                            ?smraw rdfs:label ?smlraw
+                                                            FILTER (lang(?smlraw) = 'en')
+                                                          }}
+                                                          BIND(COALESCE(?smlraw, "No Label Provided!") AS ?sml)
+                                                        
+                                                          OPTIONAL {{
+                                                            ?smraw schema:description ?smdraw
+                                                            FILTER (lang(?smdraw) = 'en')
+                                                          }}
+                                                          BIND(COALESCE(?smdraw, "No Description Provided!") AS ?smd)
+                                                  
+                                                          }}
                                                     
                                                     OPTIONAL {{
                                                                    ?id wdt:P1655 ?abmraw.
@@ -1907,8 +1939,418 @@ queryHandler = {
                                                      }}
                                                      GROUP BY ?isLinear ?isNotLinear ?isConvex ?isNotConvex ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
                                                               ?isDimensional ?isTimeContinuous ?isTimeDiscrete ?isTimeIndependent ?isSpaceContinuous ?isSpaceDiscrete ?isSpaceIndependent''',
+                              
+                              'taskInformation': '''SELECT DISTINCT ?isLinear ?isNotLinear
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); separator=" / ") AS ?assumes)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?containsFormulation)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?quan, " | ", ?quanl, " | ", ?quand, " | ", ?quanq); separator=" / ") AS ?containsQuantity)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?sbt, " | ", ?sbtl, " | ", ?sbtd, " | ", ?sbtq); separator=" / ") AS ?specializedBy)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?st, " | ", ?stl, " | ", ?std, " | ", ?stq); separator=" / ") AS ?specializes)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?abt, " | ", ?abtl, " | ", ?abtd); separator=" / ") AS ?approximatedBy)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?at, " | ", ?atl, " | ", ?atd); separator=" / ") AS ?approximates)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?cont, " | ", ?contl, " | ", ?contd); separator=" / ") AS ?containsModel)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?conit, " | ", ?conitl, " | ", ?conitd); separator=" / ") AS ?containedInModel)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?dbt, " | ", ?dbtl, " | ", ?dbtd); separator=" / ") AS ?discretizedBy)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?dt, " | ", ?dtl, " | ", ?dtd); separator=" / ") AS ?discretizes)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?lbt, " | ", ?lbtl, " | ", ?lbtd); separator=" / ") AS ?linearizedBy)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?lt, " | ", ?ltl, " | ", ?ltd); separator=" / ") AS ?linearizes)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?stt, " | ", ?sttl, " | ", ?sttd); separator=" / ") AS ?similarTo)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publications)
+                        
+                                                    WHERE {{
 
-                              'taskInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
+                                                        VALUES ?id {{wd:{0}}}
+
+                                                        BIND(IF(EXISTS {{ ?id wdt:P31 wd:Q6672085 }}, "True", "False" ) AS ?isLinear)
+                                                        BIND(IF(EXISTS {{ ?id wdt:P31 wd:Q6672087 }}, "True", "False" ) AS ?isNotLinear)
+
+                                                        OPTIONAL {{
+                                                                   ?id wdt:P1674 ?assraw.
+                                                                   BIND(replace( xsd:string(?assraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ass)
+
+                                                                   ?assraw wdt:P31 wd:Q6481152.
+
+                                                                   OPTIONAL {{
+                                                                              ?assraw rdfs:label ?asslraw.
+                                                                              FILTER (lang(?asslraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?asslraw, "No Label Provided!") AS ?assl)
+
+                                                                  OPTIONAL {{
+                                                                             ?assraw schema:description ?assdraw
+                                                                             FILTER (lang(?assdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?assdraw, "No Description Provided!") AS ?assd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?id p:P1560 ?statement.
+                                                                   ?statement ps:P1560 ?confraw.
+
+                                                                   ?confraw wdt:P31 wd:Q6481152.
+
+                                                                   BIND(replace( xsd:string(?confraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?conf)
+
+                                                                   OPTIONAL {{
+                                                                              ?confraw rdfs:label ?conflraw.
+                                                                              FILTER (lang(?conflraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?conflraw, "No Label Provided!") AS ?confl)
+
+                                                                  OPTIONAL {{
+                                                                             ?confraw schema:description ?confdraw
+                                                                             FILTER (lang(?confdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?confdraw, "No Description Provided!") AS ?confd)
+
+                                                                  OPTIONAL {{
+                                                                             ?statement pq:P560 ?quaraw.
+                                                                             BIND(REPLACE(STR(?quaraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua)
+                                                                           }}
+                                                                  BIND(COALESCE(?qua, "") AS ?confq)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?id p:P1560 ?statement2.
+                                                                   ?statement2 ps:P1560 ?quanraw.
+
+                                                                   {{
+                                                                      ?quanraw wdt:P31 wd:Q6534237.
+                                                                   }}
+                                                                      UNION
+                                                                   {{
+                                                                      ?quanraw wdt:P31 wd:Q6534245.
+                                                                   }}
+
+                                                                   BIND(replace( xsd:string(?quanraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?quan)
+
+                                                                   OPTIONAL {{
+                                                                              ?quanraw rdfs:label ?quanlraw.
+                                                                              FILTER (lang(?quanlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?quanlraw, "No Label Provided!") AS ?quanl)
+
+                                                                  OPTIONAL {{
+                                                                             ?quanraw schema:description ?quandraw
+                                                                             FILTER (lang(?quandraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?quandraw, "No Description Provided!") AS ?quand)
+
+                                                                  OPTIONAL {{
+                                                                             ?statement2 pq:P560 ?qua2raw.
+                                                                             BIND(REPLACE(STR(?qua2raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua2)
+                                                                           }}
+                                                                  BIND(COALESCE(?qua2, "") AS ?quanq)
+                                                               }}
+
+                                                    OPTIONAL {{   
+                                                    
+                                                        OPTIONAL {{
+                                                          
+                                                          {{
+                                                            SELECT ?statement3 (GROUP_CONCAT(DISTINCT ?sbtq_entry; separator=" <|> ") AS ?sbtq)
+                                                            WHERE {{
+                                                     
+                                                              ?id p:P1684 ?statement3.
+                                                              
+                                                              OPTIONAL {{
+                                                     
+                                                                 ?statement3 pq:P1674 ?qua3raw.
+                                                                 BIND(REPLACE(STR(?qua3raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua3)
+ 
+                                                                 OPTIONAL {{
+                                                                   ?qua3raw rdfs:label ?sbtqlraw.
+                                                                   FILTER (lang(?sbtqlraw) = "en")
+                                                                 }}
+                                                                 BIND(COALESCE(?sbtqlraw, "No Label Provided!") AS ?sbtql)
+ 
+                                                                 OPTIONAL {{
+                                                                   ?qua3raw schema:description ?sbtqdraw.
+                                                                   FILTER (lang(?sbtqdraw) = "en")
+                                                                 }}
+                                                                 BIND(COALESCE(?sbtqdraw, "No Description Provided!") AS ?sbtqd)
+                                                               
+                                                              }}
+                                                              BIND(COALESCE(?qua3, "") AS ?qua2_final)
+                                                              BIND(COALESCE(?sbtql, "") AS ?sbmql_final)
+                                                              BIND(COALESCE(?sbtqd, "") AS ?sbmqd_final)
+                                                              
+                                                              BIND(IF((?qua3_final = "" && ?sbtql_final = "" && ?sbtqd_final = ""),"",CONCAT(?quat_final, " | ", ?sbtql_final, " | ", ?sbtqd_final)) AS ?sbtq_entry)
+                                                                 
+                                                            }}
+                                                            GROUP BY ?statement3
+                                                          }}
+                                                          }}
+                                                        
+                                                          ?id p:P1684 ?statement3.
+                                                          ?statement3 ps:P1684 ?sbtraw.
+                                                          
+                                                          BIND(REPLACE(STR(?sbtraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?sbt)
+                                                        
+                                                          OPTIONAL {{
+                                                            ?sbtraw rdfs:label ?sbtlraw
+                                                            FILTER (lang(?sbtlraw) = 'en')
+                                                          }}
+                                                          BIND(COALESCE(?sbtlraw, "No Label Provided!") AS ?sbtl)
+                                                        
+                                                          OPTIONAL {{
+                                                            ?sbtraw schema:description ?sbtdraw
+                                                            FILTER (lang(?sbtdraw) = 'en')
+                                                          }}
+                                                          BIND(COALESCE(?sbtdraw, "No Description Provided!") AS ?sbtd)
+                                                  
+                                                          }}
+
+                                                    OPTIONAL {{   
+                                                    
+                                                        OPTIONAL {{
+                                                          
+                                                          {{
+                                                            SELECT ?statement4 (GROUP_CONCAT(DISTINCT ?stq_entry; separator=" <|> ") AS ?stq)
+                                                            WHERE {{
+                                                     
+                                                              ?straw p:P1684 ?statement4.
+                                                              
+                                                              OPTIONAL {{
+                                                     
+                                                                 ?statement4 pq:P1674 ?qua4raw.
+                                                                 BIND(REPLACE(STR(?qua4raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua4)
+ 
+                                                                 OPTIONAL {{
+                                                                   ?qua4raw rdfs:label ?stqlraw.
+                                                                   FILTER (lang(?stqlraw) = "en")
+                                                                 }}
+                                                                 BIND(COALESCE(?stqlraw, "No Label Provided!") AS ?stql)
+ 
+                                                                 OPTIONAL {{
+                                                                   ?qua4raw schema:description ?stqdraw.
+                                                                   FILTER (lang(?stqdraw) = "en")
+                                                                 }}
+                                                                 BIND(COALESCE(?stqdraw, "No Description Provided!") AS ?stqd)
+                                                               
+                                                              }}
+                                                              BIND(COALESCE(?qua4, "") AS ?qua4_final)
+                                                              BIND(COALESCE(?stql, "") AS ?stql_final)
+                                                              BIND(COALESCE(?stqd, "") AS ?stqd_final)
+                                                              
+                                                              BIND(IF((?qua4_final = "" && ?stql_final = "" && ?stqd_final = ""),"",CONCAT(?qua4_final, " | ", ?stql_final, " | ", ?stqd_final)) AS ?stq_entry)
+                                                                 
+                                                            }}
+                                                            GROUP BY ?statement4
+                                                          }}
+                                                          }}
+                                                        
+                                                          ?straw p:P1684 ?statement4.
+                                                          ?statement4 ps:P1684 ?id.
+                                                          
+                                                          BIND(REPLACE(STR(?straw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?st)
+                                                        
+                                                          OPTIONAL {{
+                                                            ?straw rdfs:label ?stlraw
+                                                            FILTER (lang(?stlraw) = 'en')
+                                                          }}
+                                                          BIND(COALESCE(?stlraw, "No Label Provided!") AS ?stl)
+                                                        
+                                                          OPTIONAL {{
+                                                            ?straw schema:description ?stdraw
+                                                            FILTER (lang(?stdraw) = 'en')
+                                                          }}
+                                                          BIND(COALESCE(?stdraw, "No Description Provided!") AS ?std)
+                                                  
+                                                          }}
+                                                    
+                                                    OPTIONAL {{
+                                                                   ?id wdt:P1655 ?abtraw.
+                                                                   BIND(replace( xsd:string(?abtraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?abt)
+
+                                                                   OPTIONAL {{
+                                                                              ?abtraw rdfs:label ?abtlraw.
+                                                                              FILTER (lang(?abtlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?abtlraw, "No Label Provided!") AS ?abtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?abtraw schema:description ?abtdraw
+                                                                             FILTER (lang(?abtdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?abtdraw, "No Description Provided!") AS ?abtd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?atraw wdt:P1655 ?id.
+                                                                   BIND(replace( xsd:string(?atraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?at)
+
+                                                                   OPTIONAL {{
+                                                                              ?atraw rdfs:label ?atlraw.
+                                                                              FILTER (lang(?atlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?atlraw, "No Label Provided!") AS ?atl)
+
+                                                                  OPTIONAL {{
+                                                                             ?atraw schema:description ?atdraw
+                                                                             FILTER (lang(?atdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?atdraw, "No Description Provided!") AS ?atd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?id wdt:P1560 ?contraw.
+                                                                   BIND(replace( xsd:string(?contraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?cont)
+
+                                                                   ?contraw wdt:P31 wd:Q68663.
+
+                                                                   OPTIONAL {{
+                                                                              ?contraw rdfs:label ?contlraw.
+                                                                              FILTER (lang(?contlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?contlraw, "No Label Provided!") AS ?contl)
+
+                                                                  OPTIONAL {{
+                                                                             ?contraw schema:description ?contdraw
+                                                                             FILTER (lang(?contdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?contdraw, "No Description Provided!") AS ?contd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?conitraw wdt:P1560 ?id.
+                                                                   BIND(replace( xsd:string(?conitraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?conit)
+
+                                                                   ?conitraw wdt:P31 wd:Q68663.
+
+                                                                   OPTIONAL {{
+                                                                              ?conitraw rdfs:label ?conitlraw.
+                                                                              FILTER (lang(?conitlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?conitlraw, "No Label Provided!") AS ?conitl)
+
+                                                                  OPTIONAL {{
+                                                                             ?conitraw schema:description ?conitdraw
+                                                                             FILTER (lang(?conitdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?conitdraw, "No Description Provided!") AS ?conitd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?id wdt:P1656 ?dbtraw.
+                                                                   BIND(replace( xsd:string(?dbtraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?dbt)
+
+                                                                   OPTIONAL {{
+                                                                              ?dbtraw rdfs:label ?dbtlraw.
+                                                                              FILTER (lang(?dbtlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?dbtlraw, "No Label Provided!") AS ?dbtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?dbtraw schema:description ?dbtdraw
+                                                                             FILTER (lang(?dbtdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?dbtdraw, "No Description Provided!") AS ?dbtd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?dtraw wdt:P1656 ?id.
+                                                                   BIND(replace( xsd:string(?dtraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?dt)
+
+                                                                   OPTIONAL {{
+                                                                              ?dtraw rdfs:label ?dtlraw.
+                                                                              FILTER (lang(?dtlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?dtlraw, "No Label Provided!") AS ?dtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?dtraw schema:description ?dtdraw
+                                                                             FILTER (lang(?dtdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?dtdraw, "No Description Provided!") AS ?dtd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?id wdt:P1657 ?lbtraw.
+                                                                   BIND(replace( xsd:string(?lbtraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?lbt)
+
+                                                                   OPTIONAL {{
+                                                                              ?lbtraw rdfs:label ?lbtlraw.
+                                                                              FILTER (lang(?lbtlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?lbtlraw, "No Label Provided!") AS ?lbtl)
+
+                                                                  OPTIONAL {{
+                                                                             ?lbtraw schema:description ?lbtdraw
+                                                                             FILTER (lang(?lbtdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?lbtdraw, "No Description Provided!") AS ?lbtd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?ltraw wdt:P1657 ?id.
+                                                                   BIND(replace( xsd:string(?ltraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?lt)
+
+                                                                   OPTIONAL {{
+                                                                              ?ltraw rdfs:label ?ltlraw.
+                                                                              FILTER (lang(?ltlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?ltlraw, "No Label Provided!") AS ?ltl)
+
+                                                                  OPTIONAL {{
+                                                                             ?ltraw schema:description ?ltdraw
+                                                                             FILTER (lang(?ltdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?ltdraw, "No Description Provided!") AS ?ltd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?sttraw wdt: ?id.
+                                                                   BIND(replace( xsd:string(?sttraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?stt)
+
+                                                                   OPTIONAL {{
+                                                                              ?sttraw rdfs:label ?sttlraw.
+                                                                              FILTER (lang(?sttlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?sttlraw, "No Label Provided!") AS ?sttl)
+
+                                                                  OPTIONAL {{
+                                                                             ?sttraw schema:description ?sttdraw
+                                                                             FILTER (lang(?sttdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?sttdraw, "No Description Provided!") AS ?sttd)
+                                                               }}
+                                                      
+                                                    OPTIONAL {{
+                                                                   ?id wdt:P286 ?pubraw.
+                                                                   BIND(replace( xsd:string(?pubraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?pub)
+
+                                                                   OPTIONAL {{
+                                                                              ?pubraw rdfs:label ?publraw.
+                                                                              FILTER (lang(?publraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
+
+                                                                  OPTIONAL {{
+                                                                             ?pubraw schema:description ?pubdraw
+                                                                             FILTER (lang(?pubdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+                                                               }}
+
+                                                        }}
+                                                        GROUP BY ?isLinear ?isNotLinear''',
+
+
+                              'taskInformation2': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
                                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
                               
                                                SELECT DISTINCT ?class ?isLinear ?isNotLinear

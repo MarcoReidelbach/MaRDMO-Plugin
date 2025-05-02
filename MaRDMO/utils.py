@@ -164,7 +164,7 @@ def add_relations(project, data, props, set_prefix, relatant, mapping=None, rela
                 )
             
             # Add Assumption
-            if assumption:
+            if assumption and hasattr(value, 'qualifier') and value.qualifier:
                 for assumption_idx, ivalue in enumerate(value.qualifier.split(' <|> ')):
                     
                     assumption_id, assumption_label, assumption_description = ivalue.split(' | ')

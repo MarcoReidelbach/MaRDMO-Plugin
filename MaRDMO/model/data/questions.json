@@ -435,12 +435,6 @@
         "set_prefix": true,
         "collection_index": true
     },
-    "Task Subclass": {
-        "key1": "task",
-        "key2": "TaskClass",
-        "uri": "domain/task/category",
-        "set_prefix": true
-    },
     "Task T2MF": {
         "key1": "task",
         "key2": "T2MF",
@@ -471,21 +465,6 @@
         "set_index": true,
         "external_id": true
     },
-    "Task T2MM": {
-        "key1": "task",
-        "key2": "T2MM",
-        "uri": "domain/task/model-relation",
-        "set_prefix": true,
-        "set_index": true
-    },
-    "Task MMRelatant": {
-        "key1": "task",
-        "key2": "MMRelatant",
-        "uri": "domain/task/model-relatant",
-        "set_prefix": true,
-        "set_index": true,
-        "external_id": true
-    },
     "Task IntraClassRelation": {
         "key1": "task",
         "key2": "IntraClassRelation",
@@ -499,6 +478,15 @@
         "uri": "domain/task/task-relatant",
         "set_prefix": true,
         "set_index": true,
+        "external_id": true
+    },
+    "Task Assumption": {
+        "key1": "task",
+        "key2": "assumption",
+        "uri": "domain/task/task-assumption",
+        "set_prefix": true,
+        "set_index": true,
+        "collection_index": true,
         "external_id": true
     },
     "Publication": {

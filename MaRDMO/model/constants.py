@@ -11,7 +11,7 @@ PROPS = {
     'Field': ["generalizedByField", "generalizesField", "similarToField"],
     'Problem': ["generalizedByProblem", "generalizesProblem", "similarToProblem"],
     'Model': ['specializedBy','specializes','discretizedBy','discretizes','containedInModel','containsModel','approximatedBy','approximates','linearizedBy','linearizes','similarTo'],
-    'Task': ['generalizedByTask','generalizesTask','discretizedByTask','discretizesTask','containedInTask','containsTask','approximatedByTask','approximatesTask','linearizedByTask','linearizesTask','similarToTask'],
+    'Task': ['specializedBy','specializes','discretizedBy','discretizes','containedInTask','containsTask','approximatedBy','approximates','linearizedBy','linearizes','similarTo'],
     'Formulation': ['generalizedByFormulation','generalizesFormulation','discretizedByFormulation','discretizesFormulation','approximatedByFormulation','approximatesFormulation','linearizedByFormulation','linearizesFormulation','nondimensionalizedByFormulation','nondimensionalizesFormulation','similarToFormulation'],
     'Quantity': ["generalizedByQuantity", "generalizesQuantity", "approximatedByQuantity", "approximatesQuantity", "linearizedByQuantity", "linearizesQuantity", "nondimensionalizedByQuantity", "nondimensionalizesQuantity", "similarToQuantity"],
 }

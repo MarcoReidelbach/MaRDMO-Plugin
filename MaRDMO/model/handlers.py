@@ -332,70 +332,54 @@ def TInformation(sender, **kwargs):
                            )
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
-                if source== 'mathmoddb':
-                    # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                    results = query_sparql(queryHandler['taskInformation'].format(Id))
-                    mathmoddb = get_data('model/data/mapping.json')
-                    if results:
-                        #Structure Results
-                        data = Task.from_query(results)
-
-                        # Add roperties to the Questionnaire
-                        add_properties(project = instance.project,
-                                       data = data,
-                                       uri = f'{BASE_URI}{questions["Task Properties"]["uri"]}',
-                                       set_prefix = instance.set_index)
-
-                        # Add the Category to the Questionnaire
-                        if data.subclass:
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Task Subclass"]["uri"]}', 
-                                         option = Option.objects.get(uri=mathmoddb[data.subclass]), 
-                                         set_index =  0, 
-                                         set_prefix = instance.set_index)
-
-                        # Add applied Models to Questionnaire
-                        add_relations(project = instance.project, 
-                                      data = data, 
-                                      props = PROPS['T2MM'], 
-                                      mapping = mathmoddb, 
-                                      set_prefix = instance.set_index,
-                                      relatant = f'{BASE_URI}{questions["Task MMRelatant"]["uri"]}')
-
-                        # Add Formulations contained in Task
-                        add_relations(project = instance.project, 
-                                      data = data, 
-                                      props = PROPS['T2MF'], 
-                                      mapping = mathmoddb, 
-                                      set_prefix = f"{instance.set_index}|0",
-                                      relatant = f'{BASE_URI}{questions["Task MFRelatant"]["uri"]}', 
-                                      relation = f'{BASE_URI}{questions["Task T2MF"]["uri"]}')
-
-                        # Add Quantity contained in Task
-                        add_relations(project = instance.project, 
-                                      data = data, 
-                                      props = PROPS['T2Q'], 
-                                      mapping = mathmoddb, 
-                                      set_prefix = f"{instance.set_index}|0",
-                                      relatant = f'{BASE_URI}{questions["Task QRelatant"]["uri"]}', 
-                                      relation = f'{BASE_URI}{questions["Task T2Q"]["uri"]}')
-
-                        # Add related Task to questionnaire
-                        add_relations(project = instance.project, 
-                                      data = data, 
-                                      props = PROPS['Task'], 
-                                      mapping = mathmoddb, 
-                                      set_prefix = instance.set_index,
-                                      relatant = f'{BASE_URI}{questions["Task IntraClassElement"]["uri"]}', 
-                                      relation = f'{BASE_URI}{questions["Task IntraClassRelation"]["uri"]}')
-
-                        # Add Publications to Questionnaire
-                        add_entities(project = instance.project, 
-                                     question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
-                                     question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
-                                     datas = data.publications, 
-                                     source = source,
-                                     prefix = 'P')
+                
+                # Stop if Item not found in KG
+                if source== 'not found':
+                    return
+                
+                # If Item from MathModDB, query relations and load MathModDB Vocabulary
+                results = query_sparql(queryHandler['taskInformation'].format(Id), endpoint[source]['sparql'])
+                mathmoddb = get_data('model/data/mapping.json')
+                
+                if results:
+                    #Structure Results
+                    data = Task.from_query(results)
+                    # Add roperties to the Questionnaire
+                    add_properties(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Task Properties"]["uri"]}',
+                                   set_prefix = instance.set_index)
+                    # Add Formulations contained in Task
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['T2MF'], 
+                                  mapping = mathmoddb, 
+                                  set_prefix = f"{instance.set_index}|0",
+                                  relatant = f'{BASE_URI}{questions["Task MFRelatant"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Task T2MF"]["uri"]}')
+                    # Add Quantity contained in Task
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['T2Q'], 
+                                  mapping = mathmoddb, 
+                                  set_prefix = f"{instance.set_index}|0",
+                                  relatant = f'{BASE_URI}{questions["Task QRelatant"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Task T2Q"]["uri"]}')
+                    # Add related Task to questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['Task'], 
+                                  mapping = mathmoddb, 
+                                  set_prefix = instance.set_index,
+                                  relatant = f'{BASE_URI}{questions["Task IntraClassElement"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Task IntraClassRelation"]["uri"]}')
+                    # Add Publications to Questionnaire
+                    add_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
+                                 question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
+                                 datas = data.publications, 
+                                 source = source,
+                                 prefix = 'P')
     return                    
 
 @receiver(post_save, sender=Value)
@@ -417,10 +401,15 @@ def MMInformation(sender, **kwargs):
                            )
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
+
+                # Stop if Item not found in KG
+                if source == 'not found':
+                    return
                 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                results = query_sparql(queryHandler['mathematicalModelInformation'].format(Id), endpoint['mardi']['sparql'])
+                results = query_sparql(queryHandler['mathematicalModelInformation'].format(Id), endpoint[source]['sparql'])
                 mathmoddb = get_data('model/data/mapping.json')
+                
                 if results:
                     # Structure Results
                     data = MathematicalModel.from_query(results)
@@ -454,7 +443,6 @@ def MMInformation(sender, **kwargs):
                                   mapping = mathmoddb, 
                                   set_prefix = instance.set_index, 
                                   relatant = f'{BASE_URI}{questions["Mathematical Model TRelatant"]["uri"]}')
-#
                     
                     # Add related Models to questionnaire
                     add_relations(project = instance.project, 
@@ -503,17 +491,6 @@ def RelationHandler(sender, **kwargs):
                                  datas = [Relatant.from_relation(instance.external_id, label, description)], 
                                  source = source, 
                                  prefix = "RF")
-        # Task - Mathematical Model Relation
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Task MMRelatant"]["uri"]}':
-            # Load MathModDB Vocabulary
-            mathmoddb = get_data('model/data/mapping.json')
-            # Add Model Relation to questionnaire
-            value_editor(project = instance.project, 
-                         uri = f'{BASE_URI}{questions["Task T2MM"]["uri"]}', 
-                         text = mathmoddb['appliesModel'], 
-                         collection_index = instance.collection_index, 
-                         set_index = 0, 
-                         set_prefix = instance.set_prefix)
         # Task - Quantity Relation
         elif instance.attribute.uri == f'{BASE_URI}{questions["Task QRelatant"]["uri"]}':
             label, description, source =  extract_parts(instance.text)
@@ -524,6 +501,13 @@ def RelationHandler(sender, **kwargs):
                              datas = [Relatant.from_relation(instance.external_id, label, description)], 
                              source = source, 
                              prefix = "QQK")
+            elif instance.external_id == 'not found':
+                add_new_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
+                                 question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
+                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                                 source = source, 
+                                 prefix = "QQK")
         # Task - Mathematical Formulation Relation
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task MFRelatant"]["uri"]}':
             label, description, source =  extract_parts(instance.text)
@@ -534,6 +518,13 @@ def RelationHandler(sender, **kwargs):
                              datas = [Relatant.from_relation(instance.external_id, label, description)], 
                              source = source, 
                              prefix = "MF")
+            elif instance.external_id == 'not found':
+                add_new_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
+                                 question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
+                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                                 source = source, 
+                                 prefix = "MF")
         # Mathematical Formulation Element
         elif instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Formulation Element Quantity"]["uri"]}':
             label, description, source =  extract_parts(instance.text)
@@ -563,6 +554,23 @@ def RelationHandler(sender, **kwargs):
                                  prefix = "MF")
         # Mathematical Model - Mathematical Formulation (Assumption) Relation
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Model Assumption"]["uri"]}':
+            label, description, source =  extract_parts(instance.text)
+            if source != 'user':
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "MF")
+            elif instance.external_id == 'not found':
+                    add_new_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
+                                 question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
+                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                                 source = source, 
+                                 prefix = "MF")
+        # Task - Mathematical Formulation (Assumption) Relation
+        if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task Assumption"]["uri"]}':
             label, description, source =  extract_parts(instance.text)
             if source != 'user':
                 add_entities(project = instance.project, 

@@ -8,16 +8,7 @@ def model_relations(instance, answers,mathmoddb):
     # Flag all Tasks as unwanted by User in Workflow Documentation
     for key in answers['task']:
         answers['task'][key].update({'Include':False})
- 
-    # Research Field to Research Field Relations
-    entityRelations(answers,'field','field','IntraClassRelation','IntraClassElement','RelationRF1','RF')
-    
-    # Research Field to Research Problem Relations
-    entityRelations(answers,'problem','field','RP2RF','RFRelatant','RelationRF1','RF')
 
-    # Research Problem to Research Problem Relations
-    entityRelations(answers,'problem','problem','IntraClassRelation','IntraClassElement','RelationRP1','RP')
-    
     # Mathematical Model to Research Problem Relations
     entityRelations(answers,'model','problem','MM2RP','RPRelatant','RelationRP1','RP')
     
@@ -33,6 +24,36 @@ def model_relations(instance, answers,mathmoddb):
     # Mathematical Model Assumptions for specializes / specialized by Relations
     mapEntity(answers, 'model', 'formulation', 'assumption', 'assumptionMapped', 'MF')
 
+    # Task to Formulation Relations
+    entityRelations(answers,'task','formulation','T2MF','MFRelatant','RelationMF','MF')
+
+    # Task to Quantity / Quantity KInd Relations
+    entityRelations(answers,'task','quantity','T2Q','QRelatant','RelationQQK','QQK')
+    
+    # Task to Task Relations
+    entityRelations(answers,'task','task','IntraClassRelation','IntraClassElement','RelationT','T')
+
+    # Task Assumptions for specializes / specialized by Relations
+    mapEntity(answers, 'task', 'formulation', 'assumption', 'assumptionMapped', 'MF')
+
+
+
+
+
+
+
+ 
+    # Research Field to Research Field Relations
+    entityRelations(answers,'field','field','IntraClassRelation','IntraClassElement','RelationRF1','RF')
+    
+    # Research Field to Research Problem Relations
+    entityRelations(answers,'problem','field','RP2RF','RFRelatant','RelationRF1','RF')
+
+    # Research Problem to Research Problem Relations
+    entityRelations(answers,'problem','problem','IntraClassRelation','IntraClassElement','RelationRP1','RP')
+    
+    
+
     # Add Mathematical Formulation to Mathematical Formulation Relations 1
     entityRelations(answers,'formulation','formulation','MF2MF','MFRelatant','RelationMF1','MF')
 
@@ -42,29 +63,29 @@ def model_relations(instance, answers,mathmoddb):
     # Add Mathematical Model to Mathematical Formulation Relations 1
     #entityRelations(answers,'formulation','model','MF2MM','MMRelatant','RelationMM1','MM', 3)
 
-    for _, task in answers['task'].items():
-        # Extract MFRelatant from the task
-        mf_relations = task.get('T2MF', {})
-        mf_relatants = task.get('MFRelatant', {})
-        for mf_relation, mf_relatant in zip(mf_relations.values(),mf_relatants.values()):
-            # Parse the ID and Name from the MFRelatant string
-            mf_id, mf_name = mf_relatant.split(' <|> ')
-            # Check if the ID already exists in the formulation dict
-            existing_entry = next((key for key, value in answers['formulation'].items() if value.get('ID') == mf_id), None)
-            if existing_entry is not None:
-                # Update the existing entry with the task details
-                new_key = max(answers['formulation'][existing_entry].get('MF2T',{}).keys(), default=-1) + 1
-                answers['formulation'][existing_entry].setdefault('MF2T',{}).update({new_key:inversePropertyMapping[mf_relation]})
-                answers['formulation'][existing_entry].setdefault('TRelatant',{}).update({new_key:f"{task['ID']} <|> {task['Name']}"})
-            else:
-                # Create a new entry for the formulation
-                new_key = max(answers['formulation'].keys(), default=-1) + 1
-                answers['formulation'][new_key] = {
-                    'ID': mf_id,
-                    'Name': mf_name,
-                    'MF2T': {0: inversePropertyMapping[mf_relation]},
-                    'TRelatant': {0: f"{task['ID']} <|> {task['Name']}"}
-                }
+    #for _, task in answers['task'].items():
+    #    # Extract MFRelatant from the task
+    #    mf_relations = task.get('T2MF', {})
+    #    mf_relatants = task.get('MFRelatant', {})
+    #    for mf_relation, mf_relatant in zip(mf_relations.values(),mf_relatants.values()):
+    #        # Parse the ID and Name from the MFRelatant string
+    #        mf_id, mf_name = mf_relatant.split(' <|> ')
+    #        # Check if the ID already exists in the formulation dict
+    #        existing_entry = next((key for key, value in answers['formulation'].items() if value.get('ID') == mf_id), None)
+    #        if existing_entry is not None:
+    #            # Update the existing entry with the task details
+    #            new_key = max(answers['formulation'][existing_entry].get('MF2T',{}).keys(), default=-1) + 1
+    #            answers['formulation'][existing_entry].setdefault('MF2T',{}).update({new_key:inversePropertyMapping[mf_relation]})
+    #            answers['formulation'][existing_entry].setdefault('TRelatant',{}).update({new_key:f"{task['ID']} <|> {task['Name']}"})
+    #        else:
+    #            # Create a new entry for the formulation
+    #            new_key = max(answers['formulation'].keys(), default=-1) + 1
+    #            answers['formulation'][new_key] = {
+    #                'ID': mf_id,
+    #                'Name': mf_name,
+    #                'MF2T': {0: inversePropertyMapping[mf_relation]},
+    #                'TRelatant': {0: f"{task['ID']} <|> {task['Name']}"}
+    #            }
 
     # Add Task to Mathematical Formulation Relations 1
     entityRelations(answers,'formulation','task','MF2T','TRelatant','RelationT1','T', 3)
@@ -129,15 +150,8 @@ def model_relations(instance, answers,mathmoddb):
                 if label == answers['quantity'][key]['Name']:
                     answers['quantity'][key].update({'MDef':answers['formulation'][key2]})
 
-    # Add Mathematical Model to Task Relations
-    entityRelations(answers,'task','model','T2MM','MMRelatant','RelationMM','MM')
-        
-    # Add Quantity / Quantity Kind to Task Relations
-    entityRelations(answers,'task','quantity','T2Q','QRelatant','RelationQQK','QQK')
     
-    # Add Task to Task Relations
-    entityRelations(answers,'task','task','IntraClassRelation','IntraClassElement','RelationT','T')
-
+    
     # Add Publication to Entity Relations
     entityRelations(answers,'publication',['field', 'problem', 'model', 'formulation', 'quantity', 'task'],'P2E','EntityRelatant','RelationP',['RF', 'RP', 'MM', 'MF', 'QQK', 'T'])
     

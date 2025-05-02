@@ -163,7 +163,7 @@ class RelatedQuantityKind(Provider):
 
         return query_sources_with_user_additions(search, project, queryID, queryAttribute)
     
-class RelatedQuantityOrQuantityKind(Provider):
+class RelatedQuantityOrQuantityKindWithCreation(Provider):
 
     search = True
 
@@ -174,9 +174,10 @@ class RelatedQuantityOrQuantityKind(Provider):
         
         # Define the query parameter
         queryID = 'QQK'
+        sources = ['mardi','wikidata']
         queryAttribute = 'quantity'
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, True)
     
 class MathematicalFormulation(Provider):
 
