@@ -129,7 +129,7 @@ class QuantityOrQuantityKind(Provider):
 
         # Define the sources to query
         queryID = 'QQK'
-        sources = ['mathmoddb', 'mardi', 'wikidata']
+        sources = ['mardi', 'wikidata']
 
         return query_sources(search, queryID, sources)
 
@@ -198,6 +198,7 @@ class MathematicalFormulation(Provider):
 class RelatedMathematicalFormulationWithCreation(Provider):
 
     search = True
+    refresh = True
 
     def get_options(self, project, search=None, user=None, site=None):
 

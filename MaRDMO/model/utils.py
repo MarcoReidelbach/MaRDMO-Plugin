@@ -308,6 +308,27 @@ def generate_sparql_insert_with_new_ids_mathmoddb(triples):
 
     return insert_query
 
+import re
+
+def mathmlToLatex(mathml):
+    # Get via annotation tag
+    match = re.search(r'<annotation[^>]*encoding="application/x-tex"[^>]*>\s*(.*?)\s*</annotation>', mathml, re.DOTALL)
+    if not match:
+        # Fall back to alttext attribute
+        match = re.search(r'alttext="(.*?)"', mathml)
+        if not match:
+            # Extract from error message
+            match = re.search(r'<strong class="error texerror">.*?:\s*(\{\\displaystyle\s+.*?\})</strong>', mathml, re.DOTALL)
+    if match:
+        # Get Group
+        latex = match.group(1).strip()
+        # Remove \displaystyle and associated braces
+        latex = re.sub(r'^\{?\\displaystyle\s*', '', latex)
+        latex = re.sub(r'\}$', '', latex)
+        return latex
+    return None
+
+
 
 
                     

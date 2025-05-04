@@ -15,8 +15,9 @@
     "containedInModel": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/contained-in",
     "containsTask": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/contains",
     "containedInTask": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/contained-in",
-
-
+    "nondimensionalizedBy": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/nondimensionalized-by",
+    "nondimensionalizes": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/nondimensionalizes",
+    
     "assumes": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/assumes",
     "containsFormulation": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/contains",
     "containsBoundaryCondition": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/contains-boundary-condition",
@@ -43,6 +44,11 @@
     "isTimeContinuous": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-time-continuous",
     "isTimeDiscrete": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-time-discrete",
     
+    "Quantity": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/quantity",
+    "QuantityKind": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/quantitykind",
+
+
+    
 
 
     "generalizesField": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/generalizesField",
@@ -66,8 +72,6 @@
     "discretizesFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/discretizesFormulation",
     "generalizedByFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/generalizedByFormulation",
     "generalizesFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/generalizesFormulation",
-    "nondimensionalizedByFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/nondimensionalizedByFormulation",
-    "nondimensionalizesFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/nondimensionalizesFormulation",
     "linearizedByFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/linearizedByFormulation",
     "linearizesFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/linearizesFormulation",
     "similarToFormulation": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/similarToFormulation",    
@@ -87,8 +91,6 @@
     
     
     "ComputationalTask": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/ComputationalTask",
-    "Quantity": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/Quantity",
-    "QuantityKind": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/QuantityKind",
     "documentedIn": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/documentedIn",
     "inventedIn": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/inventedIn",
     "studiedIn": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/studiedIn",

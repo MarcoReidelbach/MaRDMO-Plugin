@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 
+from .utils import mathmlToLatex
+
 from ..utils import get_data
 
 @dataclass
@@ -241,41 +243,27 @@ class MathematicalFormulation:
     description: Optional[str]
     properties: Optional[Dict[int, str]] = field(default_factory=dict)
     formulas: Optional[List] = field(default_factory=list)
-    terms: Optional[List] = field(default_factory=list)
-    defines: Optional[List[Relatant]] = field(default_factory=list)
+    symbols: Optional[List] = field(default_factory=list)
     containsQuantity: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsFormulationInMM: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsAssumptionInMM: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsBoundaryConditionInMM: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsFinalConditionInMM: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsInitialConditionInMM: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsConstraintConditionInMM: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsCouplingConditionInMM: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsFormulationInMF: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsAssumptionInMF: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsBoundaryConditionInMF: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsFinalConditionInMF: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsInitialConditionInMF: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsConstraintConditionInMF: Optional[List[Relatant]] = field(default_factory=list)
-    containedAsCouplingConditionInMF: Optional[List[Relatant]] = field(default_factory=list)
-    containsFormulationMF: Optional[List[Relatant]] = field(default_factory=list)
-    containsAssumptionMF: Optional[List[Relatant]] = field(default_factory=list)
-    containsBoundaryConditionMF: Optional[List[Relatant]] = field(default_factory=list)
-    containsFinalConditionMF: Optional[List[Relatant]] = field(default_factory=list)
-    containsInitialConditionMF: Optional[List[Relatant]] = field(default_factory=list)
-    containsConstraintConditionMF: Optional[List[Relatant]] = field(default_factory=list)
-    containsCouplingConditionMF: Optional[List[Relatant]] = field(default_factory=list)
-    generalizedByFormulation: Optional[List[Relatant]] = field(default_factory=list)
-    generalizesFormulation: Optional[List[Relatant]] = field(default_factory=list)
-    discretizedByFormulation: Optional[List[Relatant]] = field(default_factory=list)
-    discretizesFormulation: Optional[List[Relatant]] = field(default_factory=list)
-    approximatedByFormulation: Optional[List[Relatant]] = field(default_factory=list)
-    approximatesFormulation: Optional[List[Relatant]] = field(default_factory=list)
-    linearizedByFormulation: Optional[List[Relatant]] = field(default_factory=list)
-    linearizesFormulation: Optional[List[Relatant]] = field(default_factory=list)
-    nondimensionalizedByFormulation: Optional[List[Relatant]] = field(default_factory=list)
-    nondimensionalizesFormulation: Optional[List[Relatant]] = field(default_factory=list)
-    similarToFormulation: Optional[List[Relatant]] = field(default_factory=list)
+    assumes: Optional[List[Relatant]] = field(default_factory=list)
+    containsFormulation: Optional[List[Relatant]] = field(default_factory=list)
+    containsAssumption: Optional[List[Relatant]] = field(default_factory=list)
+    containsBoundaryCondition: Optional[List[Relatant]] = field(default_factory=list)
+    containsFinalCondition: Optional[List[Relatant]] = field(default_factory=list)
+    containsInitialCondition: Optional[List[Relatant]] = field(default_factory=list)
+    containsConstraintCondition: Optional[List[Relatant]] = field(default_factory=list)
+    containsCouplingCondition: Optional[List[Relatant]] = field(default_factory=list)
+    specializedBy: Optional[List[Relatant]] = field(default_factory=list)
+    specializes: Optional[List[Relatant]] = field(default_factory=list)
+    discretizedBy: Optional[List[Relatant]] = field(default_factory=list)
+    discretizes: Optional[List[Relatant]] = field(default_factory=list)
+    approximatedBy: Optional[List[Relatant]] = field(default_factory=list)
+    approximates: Optional[List[Relatant]] = field(default_factory=list)
+    linearizedBy: Optional[List[Relatant]] = field(default_factory=list)
+    linearizes: Optional[List[Relatant]] = field(default_factory=list)
+    nondimensionalizedBy: Optional[List[Relatant]] = field(default_factory=list)
+    nondimensionalizes: Optional[List[Relatant]] = field(default_factory=list)
+    similarTo: Optional[List[Relatant]] = field(default_factory=list)
     publications: Optional[List[Relatant]] = field(default_factory=list)
     
 
@@ -290,43 +278,28 @@ class MathematicalFormulation:
             id = None,
             label = None,
             description = None,
-            properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']) if data.get(prop, {}).get('value') == 'true'},
-            formulas = [formula for formula in data.get('formulas', {}).get('value', '').split(" / ") if formula] if 'formulas' in data else [],
-            terms = [term for term in data.get('terms', {}).get('value', '').split(" / ") if term] if 'terms' in data else [],   
-            defines = [Relatant.from_query(quantity) for quantity in data.get('defines', {}).get('value', '').split(" / ") if quantity] if 'defines' in data else [],
+            properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isSpaceContinuous','isSpaceDiscrete']) if data.get(prop, {}).get('value') == 'True'},
+            formulas = [mathmlToLatex(formula) for formula in data.get('formulas', {}).get('value', '').split(" / ") if formula] if 'formulas' in data else [],
+            symbols = [mathmlToLatex(symbol) for symbol in data.get('symbols', {}).get('value', '').split(" / ") if symbol] if 'symbols' in data else [],   
             containsQuantity = [Relatant.from_query(quantity) for quantity in data.get('containsQuantity', {}).get('value', '').split(" / ") if quantity] if 'containsQuantity' in data else [],
-            containedAsFormulationInMM = [Relatant.from_query(model) for model in data.get('containedAsFormulationInMM', {}).get('value', '').split(" / ") if model] if 'containedAsFormulationInMM' in data else [],
-            containedAsAssumptionInMM = [Relatant.from_query(model) for model in data.get('containedAsAssumptionInMM', {}).get('value', '').split(" / ") if model] if 'containedAsAssumptionInMM' in data else [],
-            containedAsBoundaryConditionInMM = [Relatant.from_query(model) for model in data.get('containedAsBoundaryConditionInMM', {}).get('value', '').split(" / ") if model] if 'containedAsBoundaryConditionInMM' in data else [],
-            containedAsFinalConditionInMM = [Relatant.from_query(model) for model in data.get('containedAsFinalConditionInMM', {}).get('value', '').split(" / ") if model] if 'containedAsFinalConditionInMM' in data else [],
-            containedAsInitialConditionInMM = [Relatant.from_query(model) for model in data.get('containedAsInitialConditionInMM', {}).get('value', '').split(" / ") if model] if 'containedAsInitialConditionInMM' in data else [],
-            containedAsConstraintConditionInMM = [Relatant.from_query(model) for model in data.get('containedAsConstraintConditionInMM', {}).get('value', '').split(" / ") if model] if 'containedAsConstraintConditionInMM' in data else [],
-            containedAsCouplingConditionInMM = [Relatant.from_query(model) for model in data.get('containedAsCouplingConditionInMM', {}).get('value', '').split(" / ") if model] if 'containedAsCouplingConditionInMM' in data else [],
-            containedAsFormulationInMF = [Relatant.from_query(formulation) for formulation in data.get('containedAsFormulationInMF', {}).get('value', '').split(" / ") if formulation] if 'containedAsFormulationInMF' in data else [],
-            containedAsAssumptionInMF = [Relatant.from_query(formulation) for formulation in data.get('containedAsAssumptionInMF', {}).get('value', '').split(" / ") if formulation] if 'containedAsAssumptionInMF' in data else [],
-            containedAsBoundaryConditionInMF = [Relatant.from_query(formulation) for formulation in data.get('containedAsBoundaryConditionInMF', {}).get('value', '').split(" / ") if formulation] if 'containedAsBoundaryConditionInMF' in data else [],
-            containedAsFinalConditionInMF = [Relatant.from_query(formulation) for formulation in data.get('containedAsFinalConditionInMF', {}).get('value', '').split(" / ") if formulation] if 'containedAsFinalConditionInMF' in data else [],
-            containedAsInitialConditionInMF = [Relatant.from_query(formulation) for formulation in data.get('containedAsInitialConditionInMF', {}).get('value', '').split(" / ") if formulation] if 'containedAsInitialConditionInMF' in data else [],
-            containedAsConstraintConditionInMF = [Relatant.from_query(formulation) for formulation in data.get('containedAsConstraintConditionInMF', {}).get('value', '').split(" / ") if formulation] if 'containedAsConstraintConditionInMF' in data else [],
-            containedAsCouplingConditionInMF = [Relatant.from_query(formulation) for formulation in data.get('containedAsCouplingConditionInMF', {}).get('value', '').split(" / ") if formulation] if 'containedAsCouplingConditionInMF' in data else [],
-            containsFormulationMF = [Relatant.from_query(formulation) for formulation in data.get('containsFormulationMF', {}).get('value', '').split(" / ") if formulation] if 'containsFormulationMF' in data else [],
-            containsAssumptionMF = [Relatant.from_query(formulation) for formulation in data.get('containsAssumptionMF', {}).get('value', '').split(" / ") if formulation] if 'containsAssumptionMF' in data else [],
-            containsBoundaryConditionMF = [Relatant.from_query(formulation) for formulation in data.get('containsBoundaryConditionMF', {}).get('value', '').split(" / ") if formulation] if 'containsBoundaryConditionMF' in data else [], 
-            containsFinalConditionMF = [Relatant.from_query(formulation) for formulation in data.get('containsFinalConditionMF', {}).get('value', '').split(" / ") if formulation] if 'containsFinalConditionMF' in data else [],
-            containsInitialConditionMF = [Relatant.from_query(formulation) for formulation in data.get('containsInitialConditionMF', {}).get('value', '').split(" / ") if formulation] if 'containsInitialConditionMF' in data else [],
-            containsConstraintConditionMF = [Relatant.from_query(formulation) for formulation in data.get('containsConstraintConditionMF', {}).get('value', '').split(" / ") if formulation] if 'containsConstraintConditionMF' in data else [],
-            containsCouplingConditionMF = [Relatant.from_query(formulation) for formulation in data.get('containsCouplingConditionMF', {}).get('value', '').split(" / ") if formulation] if 'containsCouplingConditionMF' in data else [],
-            generalizedByFormulation = [Relatant.from_query(formulation) for formulation in data.get('generalizedByFormulation', {}).get('value', '').split(" / ") if formulation] if 'generalizedByFormulation' in data else [],            
-            generalizesFormulation = [Relatant.from_query(formulation) for formulation in data.get('generalizesFormulation', {}).get('value', '').split(" / ") if formulation] if 'generalizesFormulation' in data else [],
-            discretizedByFormulation = [Relatant.from_query(formulation) for formulation in data.get('discretizedByFormulation', {}).get('value', '').split(" / ") if formulation] if 'discretizedByFormulation' in data else [],            
-            discretizesFormulation = [Relatant.from_query(formulation) for formulation in data.get('discretizesFormulation', {}).get('value', '').split(" / ") if formulation] if 'discretizesFormulation' in data else [],
-            approximatedByFormulation = [Relatant.from_query(formulation) for formulation in data.get('approximatedByFormulation', {}).get('value', '').split(" / ") if formulation] if 'approximatedByFormulation' in data else [],            
-            approximatesFormulation = [Relatant.from_query(formulation) for formulation in data.get('approximatesFormulation', {}).get('value', '').split(" / ") if formulation] if 'approximatesFormulation' in data else [],
-            linearizedByFormulation = [Relatant.from_query(formulation) for formulation in data.get('linearizedByFormulation', {}).get('value', '').split(" / ") if formulation] if 'linearizedByFormulation' in data else [],            
-            linearizesFormulation = [Relatant.from_query(formulation) for formulation in data.get('linearizesFormulation', {}).get('value', '').split(" / ") if formulation] if 'linearizesFormulation' in data else [],
-            nondimensionalizedByFormulation = [Relatant.from_query(formulation) for formulation in data.get('nondimensionalizedByFormulation', {}).get('value', '').split(" / ") if formulation] if 'nondimensionalizedByFormulation' in data else [],            
-            nondimensionalizesFormulation = [Relatant.from_query(formulation) for formulation in data.get('nondimensionalizesFormulation', {}).get('value', '').split(" / ") if formulation] if 'nondimensionalizesFormulation' in data else [],
-            similarToFormulation = [Relatant.from_query(formulation) for formulation in data.get('similarToFormulation', {}).get('value', '').split(" / ") if formulation] if 'similarToFormulation' in data else [],
+            assumes = [Relatant.from_query(formulation) for formulation in data.get('assumes', {}).get('value', '').split(" / ") if formulation] if 'assumes' in data else [],
+            containsFormulation = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == ''] if 'containsFormulation' in data else [],            
+            containsBoundaryCondition = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == 'mardi:Q6534259'] if 'containsFormulation' in data else [],
+            containsConstraintCondition = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == 'mardi:Q6534262'] if 'containsFormulation' in data else [],
+            containsCouplingCondition = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == 'mardi:Q6534266'] if 'containsFormulation' in data else [],
+            containsInitialCondition = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == 'mardi:Q6534264'] if 'containsFormulation' in data else [],
+            containsFinalCondition = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == 'mardi:Q6534267'] if 'containsFormulation' in data else [],
+            specializedBy = [RelatantWithQualifier.from_query(formulation) for formulation in data.get('specializedBy', {}).get('value', '').split(" / ") if formulation] if 'specializedBy' in data else [],            
+            specializes = [RelatantWithQualifier.from_query(formulation) for formulation in data.get('specializes', {}).get('value', '').split(" / ") if formulation] if 'specializes' in data else [],
+            discretizedBy = [Relatant.from_query(formulation) for formulation in data.get('discretizedBy', {}).get('value', '').split(" / ") if formulation] if 'discretizedBy' in data else [],            
+            discretizes = [Relatant.from_query(formulation) for formulation in data.get('discretizes', {}).get('value', '').split(" / ") if formulation] if 'discretizes' in data else [],
+            approximatedBy = [Relatant.from_query(formulation) for formulation in data.get('approximatedBy', {}).get('value', '').split(" / ") if formulation] if 'approximatedBy' in data else [],            
+            approximates = [Relatant.from_query(formulation) for formulation in data.get('approximates', {}).get('value', '').split(" / ") if formulation] if 'approximates' in data else [],
+            linearizedBy = [Relatant.from_query(formulation) for formulation in data.get('linearizedBy', {}).get('value', '').split(" / ") if formulation] if 'linearizedBy' in data else [],            
+            linearizes = [Relatant.from_query(formulation) for formulation in data.get('linearizes', {}).get('value', '').split(" / ") if formulation] if 'linearizes' in data else [],
+            nondimensionalizedBy = [Relatant.from_query(formulation) for formulation in data.get('nondimensionalizedBy', {}).get('value', '').split(" / ") if formulation] if 'nondimensionalizedBy' in data else [],            
+            nondimensionalizes = [Relatant.from_query(formulation) for formulation in data.get('nondimensionalizes', {}).get('value', '').split(" / ") if formulation] if 'nondimensionalizes' in data else [],
+            similarTo = [Relatant.from_query(formulation) for formulation in data.get('similarTo', {}).get('value', '').split(" / ") if formulation] if 'similarTo' in data else [],
             publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
         )
     
@@ -338,7 +311,6 @@ class Task:
     properties: Optional[Dict[int, str]] = field(default_factory=dict)
     assumes: Optional[List[Relatant]] = field(default_factory=list)
     containsFormulation: Optional[List[Relatant]] = field(default_factory=list)
-    containsAssumption: Optional[List[Relatant]] = field(default_factory=list)
     containsBoundaryCondition: Optional[List[Relatant]] = field(default_factory=list)
     containsFinalCondition: Optional[List[Relatant]] = field(default_factory=list)
     containsInitialCondition: Optional[List[Relatant]] = field(default_factory=list)

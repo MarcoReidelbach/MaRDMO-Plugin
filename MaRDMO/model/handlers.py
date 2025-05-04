@@ -214,103 +214,71 @@ def MFInformation(sender, **kwargs):
                            set_prefix = instance.set_index
                            )# Get source and ID of Item
                 source, Id = instance.external_id.split(':')
-                if source== 'mathmoddb':
-                    # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                    results = query_sparql(queryHandler['mathematicalFormulationInformation'].format(Id))
-                    mathmoddb = get_data('model/data/mapping.json')
-                    options = get_data('data/options.json')
-                    if results:
-                        # Structure Results
-                        data = MathematicalFormulation.from_query(results)
 
-                        # Add Properties to the Questionnaire
-                        add_properties(project = instance.project,
-                                       data = data,
-                                       uri = f'{BASE_URI}{questions["Mathematical Formulation Properties"]["uri"]}',
-                                       set_prefix = instance.set_index)
-
-                        # Add the defined Quantity
-                        if data.defines:
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Mathematical Formulation Definition"]["uri"]}', 
-                                         option = Option.objects.get(uri=options['Yes']), 
-                                         set_index = 0, 
-                                         set_prefix =instance.set_index)
-                            add_relations(project = instance.project, 
-                                          data = data, 
-                                          props = PROPS['Q2MF'], 
-                                          mapping = mathmoddb, 
-                                          set_prefix = instance.set_index, 
-                                          relatant = f'{BASE_URI}{questions["Mathematical Formulation Defined Quantity"]["uri"]}')
-                        else:
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Mathematical Formulation Definition"]["uri"]}', 
-                                         option = Option.objects.get(uri=options['No']), 
-                                         set_index = 0, 
-                                         set_prefix = instance.set_index)
-
-                        # Add the Formula to the Questionnaire
-                        for idx, formula in enumerate(data.formulas):
-                                value_editor(project = instance.project, 
-                                             uri = f'{BASE_URI}{questions["Mathematical Formulation Formula"]["uri"]}', 
-                                             text = formula, 
-                                             collection_index = idx, 
-                                             set_index = 0, 
-                                             set_prefix =instance.set_index)
-
-                        # Add the Formula Elements to the Questionnaire
-                        for idx, term in enumerate(data.terms):
-                            symbol, quantityLabel = splitVariableText(term)
-                            for quantity in data.containsQuantity:
-                                if quantityLabel == quantity.label:
-                                    value_editor(project = instance.project, 
-                                                 uri = f'{BASE_URI}{questions["Mathematical Formulation Element Symbol"]["uri"]}', 
-                                                 text = symbol, 
-                                                 set_index = idx, 
-                                                 set_prefix = f"{instance.set_index}|0")
-                                    value_editor(project = instance.project, 
-                                                 uri = f'{BASE_URI}{questions["Mathematical Formulation Element Quantity"]["uri"]}', 
-                                                 text = f"{quantity.label} ({quantity.description}) [{source}]", 
-                                                 external_id = quantity.id, 
-                                                 set_index = idx, 
-                                                 set_prefix = f"{instance.set_index}|0")
-
-                        # Add Relations between Formulations and Models
-                        add_relations(project = instance.project, 
-                                      data = data, 
-                                      props = PROPS['MF2MM'], 
-                                      mapping = mathmoddb, 
-                                      set_prefix = f"{instance.set_index}|0",
-                                      suffix = 'MM', 
-                                      relatant = f'{BASE_URI}{questions["Mathematical Formulation MMRelatant"]["uri"]}', 
-                                      relation = f'{BASE_URI}{questions["Mathematical Formulation MF2MM"]["uri"]}')
-
-                        # Add Relations between Formulations I
-                        add_relations(project = instance.project, 
-                                      data = data, 
-                                      props = PROPS['MF2MF'], 
-                                      mapping = mathmoddb, 
-                                      set_prefix = f"{instance.set_index}|0",
-                                      suffix = 'MF', 
-                                      relatant = f'{BASE_URI}{questions["Mathematical Formulation MFRelatant"]["uri"]}', 
-                                      relation = f'{BASE_URI}{questions["Mathematical Formulation MF2MF"]["uri"]}')
-
-                        # Add Relations between Formulations II to Questionnaire
-                        add_relations(project = instance.project, 
-                                      data = data, 
-                                      props = PROPS['Formulation'], 
-                                      mapping = mathmoddb, 
-                                      set_prefix = instance.set_index, 
-                                      relatant = f'{BASE_URI}{questions["Mathematical Formulation IntraClassElement"]["uri"]}', 
-                                      relation = f'{BASE_URI}{questions["Mathematical Formulation IntraClassRelation"]["uri"]}')
-
-                        # Add Publications to Questionnaire
-                        add_entities(project = instance.project, 
-                                     question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
-                                     question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
-                                     datas = data.publications, 
-                                     source = source,
-                                     prefix = 'P')                
+                # Stop if Item not found in KG
+                if source == 'not found':
+                    return
+                
+                # If Item from MathModDB, query relations and load MathModDB Vocabulary
+                results = query_sparql(queryHandler['mathematicalFormulationInformation'].format(Id), endpoint[source]['sparql'])
+                mathmoddb = get_data('model/data/mapping.json')
+                
+                if results:
+                    # Structure Results
+                    data = MathematicalFormulation.from_query(results)
+                    # Add Properties to the Questionnaire
+                    add_properties(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Mathematical Formulation Properties"]["uri"]}',
+                                   set_prefix = instance.set_index)
+                    # Add the Formula to the Questionnaire
+                    for idx, formula in enumerate(data.formulas):
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Mathematical Formulation Formula"]["uri"]}', 
+                                     text = formula, 
+                                     collection_index = idx, 
+                                     set_index = 0, 
+                                     set_prefix =instance.set_index)
+                    # Add the Symbols to the Questionnaire
+                    for idx, symbol in enumerate(data.symbols):
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Mathematical Formulation Element Symbol"]["uri"]}', 
+                                     text = symbol, 
+                                     set_index = idx, 
+                                     set_prefix = f"{instance.set_index}|0")
+                    # Add the Quantities to the Questionnaire
+                    for idx, quantity in enumerate(data.containsQuantity):
+                        source, _ = quantity.id.split(':')
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Mathematical Formulation Element Quantity"]["uri"]}', 
+                                     text = f"{quantity.label} ({quantity.description}) [{source}]", 
+                                     external_id = quantity.id, 
+                                     set_index = idx, 
+                                     set_prefix = f"{instance.set_index}|0")
+                    # Add Relations between Formulations I
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['MF2MF'], 
+                                  mapping = mathmoddb, 
+                                  set_prefix = f"{instance.set_index}|0",
+                                  relatant = f'{BASE_URI}{questions["Mathematical Formulation MFRelatant"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Mathematical Formulation MF2MF"]["uri"]}')
+                    # Add Relations between Formulations II to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['Formulation'], 
+                                  mapping = mathmoddb, 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Mathematical Formulation IntraClassElement"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Mathematical Formulation IntraClassRelation"]["uri"]}',
+                                  assumption = f'{BASE_URI}{questions["Mathematical Formulation Assumption"]["uri"]}')
+                    # Add Publications to Questionnaire
+                    add_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
+                                 question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
+                                 datas = data.publications, 
+                                 source = source,
+                                 prefix = 'P')                
     return
 
 @receiver(post_save, sender=Value)
@@ -372,7 +340,8 @@ def TInformation(sender, **kwargs):
                                   mapping = mathmoddb, 
                                   set_prefix = instance.set_index,
                                   relatant = f'{BASE_URI}{questions["Task IntraClassElement"]["uri"]}', 
-                                  relation = f'{BASE_URI}{questions["Task IntraClassRelation"]["uri"]}')
+                                  relation = f'{BASE_URI}{questions["Task IntraClassRelation"]["uri"]}',
+                                  assumption = f'{BASE_URI}{questions["Task Assumption"]["uri"]}')
                     # Add Publications to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
@@ -535,6 +504,13 @@ def RelationHandler(sender, **kwargs):
                              datas = [Relatant.from_relation(instance.external_id, label, description)], 
                              source = source, 
                              prefix = "QQK")
+            elif instance.external_id == 'not found':
+                add_new_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
+                                 question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
+                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                                 source = source, 
+                                 prefix = "QQK")
         # Mathematical Model - Mathematical Formulation Relation
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Model MFRelatant"]["uri"]}':
             label, description, source =  extract_parts(instance.text)
@@ -571,6 +547,23 @@ def RelationHandler(sender, **kwargs):
                                  prefix = "MF")
         # Task - Mathematical Formulation (Assumption) Relation
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task Assumption"]["uri"]}':
+            label, description, source =  extract_parts(instance.text)
+            if source != 'user':
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "MF")
+            elif instance.external_id == 'not found':
+                    add_new_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
+                                 question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
+                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                                 source = source, 
+                                 prefix = "MF")
+        # Mathematical Formulation - Mathematical Formulation (Assumption) Relation
+        if instance and instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Formulation Assumption"]["uri"]}':
             label, description, source =  extract_parts(instance.text)
             if source != 'user':
                 add_entities(project = instance.project, 
@@ -642,5 +635,22 @@ def RelationHandler(sender, **kwargs):
                                  datas = [Relatant.from_relation(instance.external_id, label, description)], 
                                  source = source, 
                                  prefix = "T")
+        # Mathematical Formulation - Mathematical Formulation Relation I
+        elif instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Formulation MFRelatant"]["uri"]}':
+            label, description, source =  extract_parts(instance.text)
+            if source != 'user':
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "MF")
+            elif instance.external_id == 'not found':
+                add_new_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "MF")
 
     return

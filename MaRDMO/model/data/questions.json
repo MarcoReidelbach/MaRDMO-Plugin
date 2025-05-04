@@ -297,6 +297,15 @@
         "set_index": true,
         "external_id": true
     },
+    "Mathematical Formulation Assumption": {
+        "key1": "formulation",
+        "key2": "assumption",
+        "uri": "domain/formulation/formulation-assumption",
+        "set_prefix": true,
+        "set_index": true,
+        "collection_index": true,
+        "external_id": true
+    },
     "Quantity": {
         "uri": "domain/quantity"
     },
