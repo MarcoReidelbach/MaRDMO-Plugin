@@ -72,35 +72,40 @@ def RPInformation(sender, **kwargs):
                            )
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
-                if source== 'mathmoddb':
-                    # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                    results = query_sparql(queryHandler['researchProblemInformation'].format(Id))
-                    mathmoddb = get_data('model/data/mapping.json')
-                    if results:
-                        # Structure Results
-                        data = ResearchProblem.from_query(results)
-                        # Add Relations between Research Problem and Research Fields to Questionnaire
-                        add_relations(project = instance.project, 
-                                      data = data, 
-                                      props = PROPS['RP2RF'], 
-                                      mapping = mathmoddb, 
-                                      set_prefix = instance.set_index, 
-                                      relatant = f'{BASE_URI}{questions["Research Problem RFRelatant"]["uri"]}')
-                        # Add Relations between Research Problems to Questionnaire
-                        add_relations(project = instance.project, 
-                                      data = data, 
-                                      props = PROPS['Problem'], 
-                                      mapping = mathmoddb, 
-                                      set_prefix = instance.set_index, 
-                                      relatant = f'{BASE_URI}{questions["Research Problem IntraClassElement"]["uri"]}', 
-                                      relation = f'{BASE_URI}{questions["Research Problem IntraClassRelation"]["uri"]}')
-                        # Add Publications to Questionnaire
-                        add_entities(project = instance.project, 
-                                     question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
-                                     question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
-                                     datas = data.publications, 
-                                     source = source,
-                                     prefix = 'P')                
+
+                # Stop if Item not found in KG
+                if source == 'not found':
+                    return
+
+                # If Item from MathModDB, query relations and load MathModDB Vocabulary
+                results = query_sparql(queryHandler['researchProblemInformation'].format(Id), endpoint[source]['sparql'])
+                mathmoddb = get_data('model/data/mapping.json')
+                
+                if results:
+                    # Structure Results
+                    data = ResearchProblem.from_query(results)
+                    # Add Relations between Research Problem and Research Fields to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['RP2RF'], 
+                                  mapping = mathmoddb, 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Research Problem RFRelatant"]["uri"]}')
+                    # Add Relations between Research Problems to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['Problem'], 
+                                  mapping = mathmoddb, 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Research Problem IntraClassElement"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Research Problem IntraClassRelation"]["uri"]}')
+                    # Add Publications to Questionnaire
+                    add_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
+                                 question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
+                                 datas = data.publications, 
+                                 source = source,
+                                 prefix = 'P')                
     return
 
 @receiver(post_save, sender=Value)
@@ -122,78 +127,87 @@ def QQKInformation(sender, **kwargs):
                            )
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
-                if source== 'mathmoddb':
-                    # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                    results = query_sparql(queryHandler['quantityOrQuantityKindInformation'].format(Id))
-                    mathmoddb = get_data('model/data/mapping.json')
-                    if results:
-                        # Structure Results
-                        data = QuantityOrQuantityKind.from_query(results)
-                        # Add Type of Quantity
-                        if data.qclass:
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions["Quantity QorQK"]["uri"]}', 
-                                         option = Option.objects.get(uri=mathmoddb[results[0]['class']['value']]),
-                                         set_index = 0, 
-                                         set_prefix = instance.set_index)
+                
+                # Stop if Item not found in KG
+                if source == 'not found':
+                    return
 
-                        # Add the Quantity or QuantityKind Properties to the Questionnaire
-                        if data.qclass == 'Quantity':
-                            add_properties(project = instance.project,
-                                           data = data,
-                                           uri = f'{BASE_URI}{questions["Quantity QProperties"]["uri"]}',
-                                           set_prefix = instance.set_index)
-                        elif data.qclass == 'QuantityKind':
-                            add_properties(project = instance.project,
-                                           data = data,
-                                           uri = f'{BASE_URI}{questions["Quantity QKProperties"]["uri"]}',
-                                           set_prefix = instance.set_index)
-
-                        # Add References to the Questionnaire
-                        add_references(project = instance.project,
-                                       data = data,
-                                       uri = f'{BASE_URI}{questions["Quantity Reference"]["uri"]}',
-                                       set_prefix = instance.set_index)
-
-                        # Add Relations between Quantities and Quantity Kinds to Questionnaire
-                        for prop in PROPS['Quantity']:
-                            for value in getattr(data, prop):
-                                qclass_pair = (data.qclass, value.qclass)
-
-                                value_editor(
-                                    project=instance.project,
-                                    uri=f"{BASE_URI}{questions[RELATION_URIS[qclass_pair]]['uri']}",
-                                    option=Option.objects.get(uri=mathmoddb[prop]),
-                                    set_index=INDEX_COUNTERS[qclass_pair],
-                                    set_prefix=f"{instance.set_index}|0"
-                                )
-
-                                value_editor(
-                                    project=instance.project,
-                                    uri=f"{BASE_URI}{questions[RELATANT_URIS[qclass_pair]]['uri']}",
-                                    text=f"{value.label} ({value.description}) [{source}]",
-                                    external_id=value.id,
-                                    set_index=INDEX_COUNTERS[qclass_pair],
-                                    set_prefix=f"{instance.set_index}|0"
-                                )
-
-                                INDEX_COUNTERS[qclass_pair] += 1
-
-                        # Add Formulations to Questionnaire
-                        add_entities(project = instance.project, 
-                                     question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
-                                     question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
-                                     datas = data.definedBy, 
-                                     source = source,
-                                     prefix = 'MF')            
-
-                        # Add Publications to Questionnaire
-                        add_entities(project = instance.project, 
-                                     question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
-                                     question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
-                                     datas = data.publications, 
-                                     source = source,
-                                     prefix = 'P')   
+                # If Item from MathModDB, query relations and load MathModDB Vocabulary
+                results = query_sparql(queryHandler['quantityOrQuantityKindInformation'].format(Id), endpoint[source]['sparql'])
+                mathmoddb = get_data('model/data/mapping.json')
+                
+                if results:
+                    # Structure Results
+                    data = QuantityOrQuantityKind.from_query(results)
+                    # Add Type of Quantity
+                    if data.qclass:
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Quantity QorQK"]["uri"]}', 
+                                     option = Option.objects.get(uri=mathmoddb[results[0]['class']['value']]),
+                                     set_index = 0, 
+                                     set_prefix = instance.set_index)
+                    # Properties to the Questionnaire
+                    add_properties(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Quantity Properties"]["uri"]}',
+                                   set_prefix = instance.set_index)
+                    # Add References to the Questionnaire
+                    add_references(project = instance.project,
+                                   data = data,
+                                   uri = f'{BASE_URI}{questions["Quantity Reference"]["uri"]}',
+                                   set_prefix = instance.set_index)
+                    # Add the Formula to the Questionnaire
+                    for idx, formula in enumerate(data.formulas):
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Quantity Formula"]["uri"]}', 
+                                     text = formula, 
+                                     collection_index = idx, 
+                                     set_index = 0, 
+                                     set_prefix =instance.set_index)
+                    # Add the Symbols to the Questionnaire
+                    for idx, symbol in enumerate(data.symbols):
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Quantity Element Symbol"]["uri"]}', 
+                                     text = symbol, 
+                                     set_index = idx, 
+                                     set_prefix = f"{instance.set_index}|0")
+                    # Add the Quantities to the Questionnaire
+                    for idx, quantity in enumerate(data.containsQuantity):
+                        source, _ = quantity.id.split(':')
+                        value_editor(project = instance.project, 
+                                     uri = f'{BASE_URI}{questions["Quantity Element Quantity"]["uri"]}', 
+                                     text = f"{quantity.label} ({quantity.description}) [{source}]", 
+                                     external_id = quantity.id, 
+                                     set_index = idx, 
+                                     set_prefix = f"{instance.set_index}|0")
+                    # Add Relations between Quantities and Quantity Kinds to Questionnaire
+                    for prop in PROPS['Quantity']:
+                        for value in getattr(data, prop):
+                            qclass_pair = (data.qclass, value.qclass)
+                            value_editor(
+                                project=instance.project,
+                                uri=f"{BASE_URI}{questions[RELATION_URIS[qclass_pair]]['uri']}",
+                                option=Option.objects.get(uri=mathmoddb[prop]),
+                                set_index=INDEX_COUNTERS[qclass_pair],
+                                set_prefix=f"{instance.set_index}"
+                            )
+                            value_editor(
+                                project=instance.project,
+                                uri=f"{BASE_URI}{questions[RELATANT_URIS[qclass_pair]]['uri']}",
+                                text=f"{value.label} ({value.description}) [{source}]",
+                                external_id=value.id,
+                                set_index=INDEX_COUNTERS[qclass_pair],
+                                set_prefix=f"{instance.set_index}"
+                            )
+                            INDEX_COUNTERS[qclass_pair] += 1
+                    
+                    # Add Publications to Questionnaire
+                    add_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
+                                 question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
+                                 datas = data.publications, 
+                                 source = source,
+                                 prefix = 'P')   
     return
 
 @receiver(post_save, sender=Value)
@@ -496,6 +510,23 @@ def RelationHandler(sender, **kwargs):
                                  prefix = "MF")
         # Mathematical Formulation Element
         elif instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Formulation Element Quantity"]["uri"]}':
+            label, description, source =  extract_parts(instance.text)
+            if source != 'user':
+                add_entities(project = instance.project, 
+                             question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
+                             question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
+                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                             source = source, 
+                             prefix = "QQK")
+            elif instance.external_id == 'not found':
+                add_new_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
+                                 question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
+                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                                 source = source, 
+                                 prefix = "QQK")
+        # Mathematical Formulation Element II
+        elif instance.attribute.uri == f'{BASE_URI}{questions["Quantity Element Quantity"]["uri"]}':
             label, description, source =  extract_parts(instance.text)
             if source != 'user':
                 add_entities(project = instance.project, 

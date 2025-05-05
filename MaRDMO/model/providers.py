@@ -22,7 +22,7 @@ class ResearchField(Provider):
 
         return query_sources(search, queryID, sources)
 
-class RelatedResearchField(Provider):
+class RelatedResearchFieldWithCreation(Provider):
 
     search = True
 
@@ -33,9 +33,26 @@ class RelatedResearchField(Provider):
         
         # Define the query parameter
         queryID = 'RF'
+        sources = ['mardi','wikidata']
         queryAttribute = 'field'
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, True)
+    
+class RelatedResearchFieldWithoutCreation(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryID = 'RF'
+        sources = ['mardi','wikidata']
+        queryAttribute = 'field'
+
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
     
 class ResearchProblem(Provider):
 
@@ -133,7 +150,7 @@ class QuantityOrQuantityKind(Provider):
 
         return query_sources(search, queryID, sources)
 
-class RelatedQuantity(Provider):
+class RelatedQuantityWithoutCreation(Provider):
 
     search = True
 
@@ -144,11 +161,12 @@ class RelatedQuantity(Provider):
         
         # Define the query parameter
         queryID = 'Q'
+        sources = ['mardi', 'wikidata']
         queryAttribute = 'quantity'
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
 
-class RelatedQuantityKind(Provider):
+class RelatedQuantityKindWithoutCreation(Provider):
 
     search = True
 
@@ -159,13 +177,15 @@ class RelatedQuantityKind(Provider):
         
         # Define the query parameter
         queryID = 'QK'
+        sources = ['mardi', 'wikidata']
         queryAttribute = 'quantity'
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute)
+        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
     
 class RelatedQuantityOrQuantityKindWithCreation(Provider):
 
     search = True
+    refresh = True
 
     def get_options(self, project, search=None, user=None, site=None):
 

@@ -341,19 +341,36 @@
         "uri": "domain/quantity/is-quantity-or-quantity-kind",
         "set_prefix": true
     },
-    "Quantity QProperties": {
+    "Quantity Properties": {
         "key1": "quantity",
         "key2": "Properties",
-        "uri": "domain/quantity/quantity-properties",
+        "uri": "domain/quantity/properties",
         "set_prefix": true,
         "collection_index": true
     },
-    "Quantity QKProperties": {
+    "Quantity Formula": {
         "key1": "quantity",
-        "key2": "Properties",
-        "uri": "domain/quantity/quantity-kind-properties",
+        "key2": "Formula",
+        "uri": "domain/quantity/formula",
         "set_prefix": true,
         "collection_index": true
+    },
+    "Quantity Element Symbol": {
+        "key1": "quantity",
+        "key2": "element",
+        "key3": "symbol",
+        "uri": "domain/quantity/element/symbol",
+        "set_prefix": true,
+        "set_index": true
+    },
+    "Quantity Element Quantity": {
+        "key1": "quantity",
+        "key2": "element",
+        "key3": "quantity",
+        "uri": "domain/quantity/element/quantity",
+        "set_prefix": true,
+        "set_index": true,
+        "external_id": true
     },
     "Quantity Q2Q": {
         "key1": "quantity",

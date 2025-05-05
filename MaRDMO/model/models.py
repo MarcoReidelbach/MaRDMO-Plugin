@@ -195,16 +195,18 @@ class QuantityOrQuantityKind:
     reference: Optional[str]
     qclass: Optional[str]
     properties: Optional[Dict[int, str]] = field(default_factory=dict)
-    definedBy: Optional[List[Relatant]] = field(default_factory=list)
-    generalizedByQuantity: Optional[List[Relatant]] = field(default_factory=list)
-    generalizesQuantity: Optional[List[Relatant]] = field(default_factory=list)
-    approximatedByQuantity: Optional[List[Relatant]] = field(default_factory=list)
-    approximatesQuantity: Optional[List[Relatant]] = field(default_factory=list)
-    linearizedByQuantity: Optional[List[Relatant]] = field(default_factory=list)
-    linearizesQuantity: Optional[List[Relatant]] = field(default_factory=list)
-    nondimensionalizedByQuantity: Optional[List[Relatant]] = field(default_factory=list)
-    nondimensionalizesQuantity: Optional[List[Relatant]] = field(default_factory=list)
-    similarToQuantity: Optional[List[Relatant]] = field(default_factory=list)
+    formulas: Optional[List] = field(default_factory=list)
+    symbols: Optional[List] = field(default_factory=list)
+    containsQuantity: Optional[List[Relatant]] = field(default_factory=list)
+    specializedBy: Optional[List[Relatant]] = field(default_factory=list)
+    specializes: Optional[List[Relatant]] = field(default_factory=list)    
+    approximatedBy: Optional[List[Relatant]] = field(default_factory=list)
+    approximates: Optional[List[Relatant]] = field(default_factory=list)
+    linearizedBy: Optional[List[Relatant]] = field(default_factory=list)
+    linearizes: Optional[List[Relatant]] = field(default_factory=list)
+    nondimensionalizedBy: Optional[List[Relatant]] = field(default_factory=list)
+    nondimensionalizes: Optional[List[Relatant]] = field(default_factory=list)
+    similarTo: Optional[List[Relatant]] = field(default_factory=list)
     publications: Optional[List[Relatant]] = field(default_factory=list)
     
 
@@ -222,17 +224,19 @@ class QuantityOrQuantityKind:
             description = None,
             reference = {idx: [options['QUDT'], data[prop]['value'].removeprefix('https://qudt.org/vocab/')] for idx, prop in enumerate(['reference']) if data.get(prop, {}).get('value')},
             qclass = data.get('class', {}).get('value'),
-            properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isConvex','isNotConvex','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isTimeIndependent','isSpaceContinuous','isSpaceDiscrete','isSpaceIndependent']) if data.get(prop, {}).get('value') == 'true'},
-            definedBy = [Relatant.from_query(formulation) for formulation in data.get('definedBy', {}).get('value', '').split(" / ") if formulation] if 'definedBy' in data else [],
-            generalizedByQuantity = [QRelatant.from_query(quantity) for quantity in data.get('generalizedByQuantity', {}).get('value', '').split(" / ") if quantity] if 'generalizedByQuantity' in data else [],            
-            generalizesQuantity = [QRelatant.from_query(quantity) for quantity in data.get('generalizesQuantity', {}).get('value', '').split(" / ") if quantity] if 'generalizesQuantity' in data else [],
-            approximatedByQuantity = [QRelatant.from_query(quantity) for quantity in data.get('approximatedByQuantity', {}).get('value', '').split(" / ") if quantity] if 'approximatedByQuantity' in data else [],            
-            approximatesQuantity = [QRelatant.from_query(quantity) for quantity in data.get('approximatesQuantity', {}).get('value', '').split(" / ") if quantity] if 'approximatesQuantity' in data else [],
-            linearizedByQuantity = [QRelatant.from_query(quantity) for quantity in data.get('linearizedByQuantity', {}).get('value', '').split(" / ") if quantity] if 'linearizedByQuantity' in data else [],            
-            linearizesQuantity = [QRelatant.from_query(quantity) for quantity in data.get('linearizesQuantity', {}).get('value', '').split(" / ") if quantity] if 'linearizesQuantity' in data else [],
-            nondimensionalizedByQuantity = [QRelatant.from_query(quantity) for quantity in data.get('nondimensionalizedByQuantity', {}).get('value', '').split(" / ") if quantity] if 'nondimensionalizedByQuantity' in data else [],            
-            nondimensionalizesQuantity = [QRelatant.from_query(quantity) for quantity in data.get('nondimensionalizesQuantity', {}).get('value', '').split(" / ") if quantity] if 'nondimensionalizesQuantity' in data else [],
-            similarToQuantity = [QRelatant.from_query(quantity) for quantity in data.get('similarToQuantity', {}).get('value', '').split(" / ") if quantity] if 'similarToQuantity' in data else [],
+            properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isChemicalConstant','isMathematicalConstant','isPhysicalConstant','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isSpaceContinuous','isSpaceDiscrete']) if data.get(prop, {}).get('value') == 'True'},
+            formulas = [mathmlToLatex(formula) for formula in data.get('formulas', {}).get('value', '').split(" / ") if formula] if 'formulas' in data else [],
+            symbols = [mathmlToLatex(symbol) for symbol in data.get('symbols', {}).get('value', '').split(" / ") if symbol] if 'symbols' in data else [],   
+            containsQuantity = [Relatant.from_query(quantity) for quantity in data.get('containsQuantity', {}).get('value', '').split(" / ") if quantity] if 'containsQuantity' in data else [],
+            specializedBy = [QRelatant.from_query(quantity) for quantity in data.get('specializedBy', {}).get('value', '').split(" / ") if quantity] if 'specializedBy' in data else [],            
+            specializes = [QRelatant.from_query(quantity) for quantity in data.get('specializes', {}).get('value', '').split(" / ") if quantity] if 'specializes' in data else [],
+            approximatedBy = [QRelatant.from_query(quantity) for quantity in data.get('approximatedBy', {}).get('value', '').split(" / ") if quantity] if 'approximatedBy' in data else [],            
+            approximates = [QRelatant.from_query(quantity) for quantity in data.get('approximates', {}).get('value', '').split(" / ") if quantity] if 'approximates' in data else [],
+            linearizedBy = [QRelatant.from_query(quantity) for quantity in data.get('linearizedBy', {}).get('value', '').split(" / ") if quantity] if 'linearizedBy' in data else [],            
+            linearizes = [QRelatant.from_query(quantity) for quantity in data.get('linearizes', {}).get('value', '').split(" / ") if quantity] if 'linearizes' in data else [],
+            nondimensionalizedBy = [QRelatant.from_query(quantity) for quantity in data.get('nondimensionalizedBy', {}).get('value', '').split(" / ") if quantity] if 'nondimensionalizedBy' in data else [],            
+            nondimensionalizes = [QRelatant.from_query(quantity) for quantity in data.get('nondimensionalizes', {}).get('value', '').split(" / ") if quantity] if 'nondimensionalizes' in data else [],
+            similarTo = [QRelatant.from_query(quantity) for quantity in data.get('similarTo', {}).get('value', '').split(" / ") if quantity] if 'similarTo' in data else [],
             publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
         )
     
@@ -346,7 +350,7 @@ class Task:
             id = None,
             label = None,
             description = None,
-            properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isSpaceContinuous','isSpaceDiscrete']) if data.get(prop, {}).get('value') == 'True'},
+            properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isTimeContinuous','isTimeDiscrete','isSpaceContinuous','isSpaceDiscrete']) if data.get(prop, {}).get('value') == 'True'},
             assumes = [Relatant.from_query(formulation) for formulation in data.get('assumes', {}).get('value', '').split(" / ") if formulation] if 'assumes' in data else [],
             containsFormulation = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == ''] if 'containsFormulation' in data else [],            
             containsBoundaryCondition = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == 'mardi:Q6534259'] if 'containsFormulation' in data else [],

@@ -308,8 +308,6 @@ def generate_sparql_insert_with_new_ids_mathmoddb(triples):
 
     return insert_query
 
-import re
-
 def mathmlToLatex(mathml):
     # Get via annotation tag
     match = re.search(r'<annotation[^>]*encoding="application/x-tex"[^>]*>\s*(.*?)\s*</annotation>', mathml, re.DOTALL)
@@ -327,6 +325,31 @@ def mathmlToLatex(mathml):
         latex = re.sub(r'\}$', '', latex)
         return latex
     return None
+
+def mapEntryQuantity(data, type, mapping):
+    for key in data[type]:
+        for key2 in data[type][key].get('element',{}):
+            _, label = data[type][key]['element'][key2][type].split(' <|> ')
+            for k in data[type]:
+                if label.lower() == data[type][k]['Name'].lower():
+                    if data[type][k]['QorQK'] == mapping['Quantity']:
+                        data[type][key]['element'][key2].update(
+                            {'Info': 
+                                {'Name':data[type][k].get('Name',''),
+                                 'Description':data[type][k].get('Description',''),
+                                 'QID':data[type][k].get('ID','') if data[type][k].get('ID','') and data[type][k].get('ID','') != 'not found' else data[type][k].get('Reference','') if data[type][k].get('Reference','') else '', 
+                                 'QKName':data[type][k].get('QKName',''),
+                                 'QKID':data[type][k].get('QKID','')}
+                            })
+                    elif data[type][k]['QorQK'] == mapping['QuantityKind']:
+                        data[type][key]['element'][key2].update(
+                            {'Info':
+                                {'QKName':data[type][k].get('Name',''),
+                                 'Description':data[type][k].get('Description',''),
+                                 'QKID':data[type][k].get('ID','') if data[type][k].get('ID','') and data[type][k].get('ID','') != 'not found' else ''}
+                            })
+    return
+
 
 
 

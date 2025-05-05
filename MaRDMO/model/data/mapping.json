@@ -43,12 +43,15 @@
     "isSpaceDiscrete": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-space-discrete",
     "isTimeContinuous": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-time-continuous",
     "isTimeDiscrete": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-time-discrete",
+    "isChemicalConstant": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-chemical-constant",
+    "isMathematicalConstant": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-mathematical-constant",
+    "isPhysicalConstant": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-physical-constant",
     
     "Quantity": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/quantity",
-    "QuantityKind": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/quantitykind",
+    "QuantityKind": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/quantity-kind",
 
 
-    
+
 
 
     "generalizesField": "https://rdmo.mardi4nfdi.de/terms/options/MathModDB/generalizesField",

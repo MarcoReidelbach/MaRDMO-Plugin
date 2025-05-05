@@ -1,6 +1,6 @@
 # Dictionary with list of property names
 PROPS = {
-    'T2MF': ['containsAssumption','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalCondition'],
+    'T2MF': ['assumes','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalCondition'],
     'T2Q': ['containsInput','containsOutput','containsObjective','containsParameter','containsConstant'],
     'Q2MF': ['defines'],
     'RP2RF': ['containedInField'],
@@ -13,7 +13,7 @@ PROPS = {
     'Model': ['specializedBy','specializes','discretizedBy','discretizes','containedInModel','containsModel','approximatedBy','approximates','linearizedBy','linearizes','similarTo'],
     'Task': ['specializedBy','specializes','discretizedBy','discretizes','containedInTask','containsTask','approximatedBy','approximates','linearizedBy','linearizes','similarTo'],
     'Formulation': ['specializedBy','specializes','discretizedBy','discretizes','approximatedBy','approximates','linearizedBy','linearizes','nondimensionalizedBy','nondimensionalizes','similarTo'],
-    'Quantity': ["generalizedByQuantity", "generalizesQuantity", "approximatedByQuantity", "approximatesQuantity", "linearizedByQuantity", "linearizesQuantity", "nondimensionalizedByQuantity", "nondimensionalizesQuantity", "similarToQuantity"],
+    'Quantity': ["specializedBy", "specializes", "approximatedBy", "approximates", "linearizedBy", "linearizes", "nondimensionalizedBy", "nondimensionalizes", "similarTo"],
 }
 
 # Index counters for different qclass combinations
