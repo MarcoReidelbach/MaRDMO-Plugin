@@ -290,86 +290,94 @@ queryHandler = {
                                        }}
                                  GROUP BY ?MathModDBID ?DOI ?MaRDIPortalID ?WikidataID''',
 
-    'researchFieldInformation': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
-                              
-                                               SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?gbf, " | ", ?gbfl, " | ", ?gbfd); separator=" / ") AS ?generalizedByField)
-                                                               (GROUP_CONCAT(DISTINCT CONCAT(?gf, " | ", ?gfl, " | ", ?gfd); separator=" / ") AS ?generalizesField)
-                                                               (GROUP_CONCAT(DISTINCT CONCAT(?sf, " | ", ?sfl, " | ", ?sfd); separator=" / ") AS ?similarToField)
-                                                               (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
-                                                               
-                                               WHERE {{ 
-                                                       VALUES ?id {{ :{0} }} 
+    'researchFieldInformation': '''SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?sbrf, " | ", ?sbrfl, " | ", ?sbrfd); separator=" / ") AS ?specializedBy)
+                                                   (GROUP_CONCAT(DISTINCT CONCAT(?srf, " | ", ?srfl, " | ", ?srfd); separator=" / ") AS ?specializes)
+                                                   (GROUP_CONCAT(DISTINCT CONCAT(?strf, " | ", ?strfl, " | ", ?strfd); separator=" / ") AS ?similarTo)
+                                                   (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
 
-                                                        OPTIONAL {{
-                                                                   ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
-                                                                   BIND(CONCAT("mathmoddb:", STRAFTER(STR(?pubraw), "#")) AS ?pub)
-                                                                   OPTIONAL {{ ?pubraw rdfs:label ?publraw
-                                                                               FILTER (lang(?publraw) = 'en') }}
-                                                                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
-                                                                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw
-                                                                               FILTER (lang(?pubdraw) = 'en') }}
-                                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
-                                                                 }}
-                                                      
-                                                        OPTIONAL {{
-                                                                  ?id :generalizedByField ?gbfraw.
-                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gbfraw), "#")) AS ?gbf)
+                                     WHERE {{
+                                                   
+                                                    VALUES ?id {{wd:{0}}}
 
-                                                                  OPTIONAL {{
-                                                                             ?gbfraw rdfs:label ?gbflraw
-                                                                             FILTER (lang(?gbflraw) = 'en')
-                                                                           }}
-                                                                  
-                                                                  BIND(COALESCE(?gbflraw, "No Label Provided!") AS ?gbfl)
+                                                    OPTIONAL {{
+                                                                   ?id wdt:P1684 ?sbrfraw.
+                                                                   BIND(replace( xsd:string(?sbrfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?sbrf)
 
-                                                                  OPTIONAL {{
-                                                                             ?gbfraw rdfs:comment ?gbfdraw
-                                                                             FILTER (lang(?gbfdraw) = 'en')
+                                                                   ?sbrfraw wdt:P31 wd:Q60231.
+                                                                   
+                                                                   OPTIONAL {{
+                                                                              ?sbrfraw rdfs:label ?sbrflraw.
+                                                                              FILTER (lang(?sbrflraw) = 'en')
                                                                            }}
 
-                                                                  BIND(COALESCE(?gbfdraw, "No Description Provided!") AS ?gbfd)
-                                                                }}
-                                                        
-                                                        OPTIONAL {{
-                                                                  ?id :generalizesField ?gfraw.
-                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gfraw), "#")) AS ?gf)
+                                                                  BIND(COALESCE(?sbrflraw, "No Label Provided!") AS ?sbrfl)
 
                                                                   OPTIONAL {{
-                                                                             ?gfraw rdfs:label ?gflraw
-                                                                             FILTER (lang(?gflraw) = 'en')
+                                                                             ?sbrfraw schema:description ?sbrfdraw
+                                                                             FILTER (lang(?sbrfdraw) = 'en')
                                                                            }}
-                                                                  
-                                                                  BIND(COALESCE(?gflraw, "No Label Provided!") AS ?gfl)
+                                                                  BIND(COALESCE(?sbrfdraw, "No Description Provided!") AS ?sbrfd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?srfraw wdt:P1684 ?id.
+                                                                   BIND(replace( xsd:string(?srfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?srf)
+
+                                                                   ?srfraw wdt:P31 wd:Q60231.
+                                                                   
+                                                                   OPTIONAL {{
+                                                                              ?srfraw rdfs:label ?srflraw.
+                                                                              FILTER (lang(?srflraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?srflraw, "No Label Provided!") AS ?srfl)
 
                                                                   OPTIONAL {{
-                                                                             ?gfraw rdfs:comment ?gfdraw
-                                                                             FILTER (lang(?gfdraw) = 'en')
+                                                                             ?srfraw schema:description ?srfdraw
+                                                                             FILTER (lang(?srfdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?srfdraw, "No Description Provided!") AS ?srfd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?strfraw wdt: ?id.
+                                                                   BIND(replace( xsd:string(?strfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?strf)
+
+                                                                   ?strfraw wdt:P31 wd:Q60231.
+                                                                   
+                                                                   OPTIONAL {{
+                                                                              ?strfraw rdfs:label ?strflraw.
+                                                                              FILTER (lang(?strflraw) = 'en')
                                                                            }}
 
-                                                                  BIND(COALESCE(?gfdraw, "No Description Provided!") AS ?gfd)
-                                                                }}
-
-                                                       OPTIONAL {{
-                                                                  ?id :similarToField ?sfraw.
-                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?sfraw), "#")) AS ?sf)
+                                                                  BIND(COALESCE(?strflraw, "No Label Provided!") AS ?strfl)
 
                                                                   OPTIONAL {{
-                                                                             ?sfraw rdfs:label ?sflraw
-                                                                             FILTER (lang(?sflraw) = 'en')
+                                                                             ?strfraw schema:description ?strfdraw
+                                                                             FILTER (lang(?strfdraw) = 'en')
                                                                            }}
-                                                                  
-                                                                  BIND(COALESCE(?sflraw, "No Label Provided!") AS ?sfl)
+                                                                  BIND(COALESCE(?strfdraw, "No Description Provided!") AS ?strfd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?id wdt:P286 ?pubraw.
+                                                                   BIND(replace( xsd:string(?pubraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?pub)
+
+                                                                   OPTIONAL {{
+                                                                              ?pubraw rdfs:label ?publraw.
+                                                                              FILTER (lang(?publraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
 
                                                                   OPTIONAL {{
-                                                                             ?sfraw rdfs:comment ?sfdraw
-                                                                             FILTER (lang(?sfdraw) = 'en')
+                                                                             ?pubraw schema:description ?pubdraw
+                                                                             FILTER (lang(?pubdraw) = 'en')
                                                                            }}
+                                                                  BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+                                                               }}
 
-                                                                  BIND(COALESCE(?sfdraw, "No Description Provided!") AS ?sfd)
-                                                                }}
- 
-                                                       }}''',
+                                          }}''',
 
     'researchProblemInformation': '''SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?rf, " | ", ?rfl, " | ", ?rfd); separator=" / ") AS ?containedInField)
                                                      (GROUP_CONCAT(DISTINCT CONCAT(?sbrp, " | ", ?sbrpl, " | ", ?sbrpd); separator=" / ") AS ?specializedBy)
@@ -440,7 +448,7 @@ queryHandler = {
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?strpraw wdt:P1684 ?id.
+                                                                   ?strpraw wdt: ?id.
                                                                    BIND(replace( xsd:string(?strpraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?strp)
 
                                                                    ?strpraw wdt:P31 wd:Q6032837.
@@ -479,107 +487,7 @@ queryHandler = {
 
                                           }}''',
 
-    'researchProblemInformation2': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                               PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>  
-                              
-                                               SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?rf, " | ", ?rfl, " | ", ?rfd); separator=" / ") AS ?containedInField)
-                                                               (GROUP_CONCAT(DISTINCT CONCAT(?gbp, " | ", ?gbpl, " | ", ?gbpd); separator=" / ") AS ?generalizedByProblem)
-                                                               (GROUP_CONCAT(DISTINCT CONCAT(?gp, " | ", ?gpl, " | ", ?gpd); separator=" / ") AS ?generalizesProblem)
-                                                               (GROUP_CONCAT(DISTINCT CONCAT(?sp, " | ", ?spl, " | ", ?spd); separator=" / ") AS ?similarToProblem)
-                                                               (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
-
-                                               WHERE {{ 
-                                                       VALUES ?id {{ :{0} }} 
-
-                                                        OPTIONAL {{
-                                                                   ?id (:documentedIn | :inventedIn | :studiedIn | :surveyedIn | :usedIn) ?pubraw.
-                                                                   BIND(CONCAT("mathmoddb:", STRAFTER(STR(?pubraw), "#")) AS ?pub)
-                                                                   OPTIONAL {{ ?pubraw rdfs:label ?publraw
-                                                                               FILTER (lang(?publraw) = 'en') }}
-                                                                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
-                                                                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw
-                                                                               FILTER (lang(?pubdraw) = 'en') }}
-                                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
-                                                                 }}
-                                                       
-                                                        OPTIONAL {{
-                                                                   ?id :containedInField ?rfraw.
-                                                                   BIND(CONCAT("mathmoddb:", STRAFTER(STR(?rfraw), "#")) AS ?rf)
-
-                                                                   OPTIONAL {{
-                                                                              ?rfraw rdfs:label ?rflraw.
-                                                                              FILTER (lang(?rflraw) = 'en')
-                                                                           }}
-
-                                                                  BIND(COALESCE(?rflraw, "No Label Provided!") AS ?rfl)
-
-                                                                  OPTIONAL {{
-                                                                             ?rfraw rdfs:comment ?rfdraw
-                                                                             FILTER (lang(?rfdraw) = 'en')
-                                                                           }}
-                                                                  BIND(COALESCE(?rfdraw, "No Description Provided!") AS ?rfd)
-                                                               }}
-
-                                                        OPTIONAL {{
-                                                                  ?id :generalizedByProblem ?gbpraw.
-                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gbpraw), "#")) AS ?gbp)
-
-                                                                  OPTIONAL {{
-                                                                             ?gbpraw rdfs:label ?gbplraw
-                                                                             FILTER (lang(?gbplraw) = 'en')
-                                                                           }}
-                                                                  
-                                                                  BIND(COALESCE(?gbplraw, "No Label Provided!") AS ?gbpl)
-
-                                                                  OPTIONAL {{
-                                                                             ?gbpraw rdfs:comment ?gbpdraw
-                                                                             FILTER (lang(?gbpdraw) = 'en')
-                                                                           }}
-
-                                                                  BIND(COALESCE(?gbpdraw, "No Description Provided!") AS ?gbpd)
-                                                                }}
-
-                                                       OPTIONAL {{
-                                                                  ?id :generalizesProblem ?gpraw.
-                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?gpraw), "#")) AS ?gp)
-
-                                                                  OPTIONAL {{
-                                                                             ?gpraw rdfs:label ?gplraw
-                                                                             FILTER (lang(?gplraw) = 'en')
-                                                                           }}
-                                                                  
-                                                                  BIND(COALESCE(?gplraw, "No Label Provided!") AS ?gpl)
-
-                                                                  OPTIONAL {{
-                                                                             ?gpraw rdfs:comment ?gpdraw
-                                                                             FILTER (lang(?gpdraw) = 'en')
-                                                                           }}
-
-                                                                  BIND(COALESCE(?gpdraw, "No Description Provided!") AS ?gpd)
-                                                                }}
-
-                                                       OPTIONAL {{
-                                                                  ?id :similarToProblem ?spraw.
-                                                                  BIND(CONCAT("mathmoddb:", STRAFTER(STR(?spraw), "#")) AS ?sp)
-
-                                                                  OPTIONAL {{
-                                                                             ?spraw rdfs:label ?splraw
-                                                                             FILTER (lang(?splraw) = 'en')
-                                                                           }}
-                                                                  
-                                                                  BIND(COALESCE(?splraw, "No Label Provided!") AS ?spl)
-
-                                                                  OPTIONAL {{
-                                                                             ?spraw rdfs:comment ?spdraw
-                                                                             FILTER (lang(?spdraw) = 'en')
-                                                                           }}
-
-                                                                  BIND(COALESCE(?spdraw, "No Description Provided!") AS ?spd)
-                                                                }}
- 
-                                                       }}''',
-
-              'mathematicalModelInformation': '''SELECT DISTINCT ?isLinear ?isNotLinear
+    'mathematicalModelInformation': '''SELECT DISTINCT ?isLinear ?isNotLinear
                                                                  ?isDynamic ?isStatic
                                                                  ?isDeterministic ?isStochastic
                                                                  ?isDimensionless ?isDimensional

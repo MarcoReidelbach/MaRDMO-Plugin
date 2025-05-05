@@ -74,9 +74,9 @@ class ResearchField:
     id: Optional[str]
     label: Optional[str]
     description: Optional[str]
-    generalizedByField: Optional[List[Relatant]] = field(default_factory=list)
-    generalizesField: Optional[List[Relatant]] = field(default_factory=list)
-    similarToField: Optional[List[Relatant]] = field(default_factory=list)
+    specializedBy: Optional[List[Relatant]] = field(default_factory=list)
+    specializes: Optional[List[Relatant]] = field(default_factory=list)
+    similarTo: Optional[List[Relatant]] = field(default_factory=list)
     publications: Optional[List[Relatant]] = field(default_factory=list)
     
 
@@ -89,9 +89,9 @@ class ResearchField:
             id = None,
             label = None,
             description = None,
-            generalizedByField = [Relatant.from_query(field) for field in data.get('generalizedByField', {}).get('value', '').split(" / ") if field] if 'generalizedByField' in data else [],
-            generalizesField = [Relatant.from_query(field) for field in data.get('generalizesField', {}).get('value', '').split(" / ") if field] if 'generalizesField' in data else [],
-            similarToField = [Relatant.from_query(field) for field in data.get('similarToField', {}).get('value', '').split(" / ") if field] if 'similarToField' in data else [],            
+            specializedBy = [Relatant.from_query(field) for field in data.get('specializedBy', {}).get('value', '').split(" / ") if field] if 'specializedBy' in data else [],
+            specializes = [Relatant.from_query(field) for field in data.get('specializes', {}).get('value', '').split(" / ") if field] if 'specializes' in data else [],
+            similarTo = [Relatant.from_query(field) for field in data.get('similarTo', {}).get('value', '').split(" / ") if field] if 'similarTo' in data else [],            
             publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
         )
     

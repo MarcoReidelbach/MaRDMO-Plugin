@@ -29,28 +29,33 @@ def RFInformation(sender, **kwargs):
                            )
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
-                if source== 'mathmoddb':
-                    # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                    results = query_sparql(queryHandler['researchFieldInformation'].format(Id))
-                    mathmoddb = get_data('model/data/mapping.json')
-                    if results:
-                        # Structure Results
-                        data = ResearchField.from_query(results)
-                        # Add Relations between Research Fields to Questionnaire
-                        add_relations(project = instance.project, 
-                                      data = data, 
-                                      props = PROPS['Field'], 
-                                      mapping = mathmoddb, 
-                                      set_prefix = instance.set_index, 
-                                      relatant = f'{BASE_URI}{questions["Research Field IntraClassElement"]["uri"]}', 
-                                      relation = f'{BASE_URI}{questions["Research Field IntraClassRelation"]["uri"]}')
-                        # Add Publications to Questionnaire
-                        add_entities(project = instance.project, 
-                                     question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
-                                     question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
-                                     datas = data.publications, 
-                                     source = source,
-                                     prefix = 'P')
+
+                # Stop if Item not found in KG
+                if source == 'not found':
+                    return
+
+                # If Item from MathModDB, query relations and load MathModDB Vocabulary
+                results = query_sparql(queryHandler['researchFieldInformation'].format(Id), endpoint[source]['sparql'])
+                mathmoddb = get_data('model/data/mapping.json')
+                
+                if results:
+                    # Structure Results
+                    data = ResearchField.from_query(results)
+                    # Add Relations between Research Fields to Questionnaire
+                    add_relations(project = instance.project, 
+                                  data = data, 
+                                  props = PROPS['Field'], 
+                                  mapping = mathmoddb, 
+                                  set_prefix = instance.set_index, 
+                                  relatant = f'{BASE_URI}{questions["Research Field IntraClassElement"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Research Field IntraClassRelation"]["uri"]}')
+                    # Add Publications to Questionnaire
+                    add_entities(project = instance.project, 
+                                 question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
+                                 question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
+                                 datas = data.publications, 
+                                 source = source,
+                                 prefix = 'P')
     return
 
 @receiver(post_save, sender=Value)
