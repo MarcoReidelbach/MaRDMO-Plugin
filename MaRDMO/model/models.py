@@ -101,9 +101,9 @@ class ResearchProblem:
     label: Optional[str]
     description: Optional[str]
     containedInField: Optional[List[Relatant]] = field(default_factory=list)
-    generalizedByProblem: Optional[List[Relatant]] = field(default_factory=list)
-    generalizesProblem: Optional[List[Relatant]] = field(default_factory=list)
-    similarToProblem: Optional[List[Relatant]] = field(default_factory=list)
+    specializedBy: Optional[List[Relatant]] = field(default_factory=list)
+    specializes: Optional[List[Relatant]] = field(default_factory=list)
+    similarTo: Optional[List[Relatant]] = field(default_factory=list)
     publications: Optional[List[Relatant]] = field(default_factory=list)
     
 
@@ -117,9 +117,9 @@ class ResearchProblem:
             label = None,
             description = None,
             containedInField = [Relatant.from_query(field) for field in data.get('containedInField', {}).get('value', '').split(" / ") if field] if 'containedInField' in data else [],
-            generalizedByProblem = [Relatant.from_query(problem) for problem in data.get('generalizedByProblem', {}).get('value', '').split(" / ") if problem] if 'generalizedByProblem' in data else [],
-            generalizesProblem = [Relatant.from_query(problem) for problem in data.get('generalizesProblem', {}).get('value', '').split(" / ") if problem] if 'generalizesProblem' in data else [],
-            similarToProblem = [Relatant.from_query(problem) for problem in data.get('similarToProblem', {}).get('value', '').split(" / ") if problem] if 'similarToProblem' in data else [],            
+            specializedBy = [Relatant.from_query(problem) for problem in data.get('specializedBy', {}).get('value', '').split(" / ") if problem] if 'specializedBy' in data else [],
+            specializes = [Relatant.from_query(problem) for problem in data.get('specializes', {}).get('value', '').split(" / ") if problem] if 'specializes' in data else [],
+            similarTo = [Relatant.from_query(problem) for problem in data.get('similarTo', {}).get('value', '').split(" / ") if problem] if 'similarTo' in data else [],            
             publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
         )
     

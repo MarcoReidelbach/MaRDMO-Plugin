@@ -505,8 +505,6 @@
         {% endif %}
         {% if 'not found' in values.ID %} 
             <b>ID</b>: - 
-        {% elif 'mathmoddb' in values.ID %} 
-            <b>MathModDB ID</b>: {{ values.ID|cut:"mathmoddb:"}}
         {% elif 'mardi' in values.ID %} 
             <b>MaRDI Portal ID</b>: {{ values.ID|cut:"mardi:"}} 
         {% elif 'wikidata' in values.ID %} 
@@ -526,12 +524,12 @@
         {% if forloop.counter == 1 %}
             <h3 id="RelationsToOtherResearchProblems"> Relations to other Research Problems </h3>
         {% endif %}
-        {% if relation.0 == option.generalizedByProblem %} 
-	    generalized by Problem: {{relation.1 }} <br>
-        {% elif relation.0 == option.generalizesProblem %} 
-	    generalizes Problem: {{relation.1 }} <br>
-        {% elif relation.0 == option.similarToProblem %} 
-	    similar to Problem: {{relation.1 }} <br>
+        {% if relation.0 == option.specializedBy %} 
+	    specialized by: {{relation.1 }} <br>
+        {% elif relation.0 == option.specializes %} 
+	    specializes: {{relation.1 }} <br>
+        {% elif relation.0 == option.similarTo %} 
+	    similar to: {{relation.1 }} <br>
         {% endif %}
     {% endfor %}
 {% endfor %}

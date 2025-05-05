@@ -474,6 +474,13 @@ def RelationHandler(sender, **kwargs):
                                  datas = [Relatant.from_relation(instance.external_id, label, description)], 
                                  source = source, 
                                  prefix = "RF")
+                elif instance.external_id == 'not found':
+                    add_new_entities(project = instance.project, 
+                                     question_set = f'{BASE_URI}{questions["Research Field"]["uri"]}', 
+                                     question_id = f'{BASE_URI}{questions["Research Field ID"]["uri"]}', 
+                                     datas = [Relatant.from_relation(instance.external_id, label, description)], 
+                                     source = source, 
+                                     prefix = "RF")
         # Task - Quantity Relation
         elif instance.attribute.uri == f'{BASE_URI}{questions["Task QRelatant"]["uri"]}':
             label, description, source =  extract_parts(instance.text)
