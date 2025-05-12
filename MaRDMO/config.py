@@ -7,13 +7,14 @@ wdt = '<https://portal.mardi4nfdi.de/prop/direct/>'
 
 # Endpoints
 endpoint = {'mardi': {
-                      'api': 'https://portal.mardi4nfdi.de/w/api.php',
-                      'sparql': 'https://query.portal.mardi4nfdi.de/proxy/wdqs/bigdata/namespace/wdq/sparql', 
-                      'uri': 'https://staging.mardi4nfdi.org/wiki/Item:'
+                      'api': 'https://test.wikidata.org/w/api.php', 
+                      'sparql': '', 
+                      'uri': 'https://test.wikidata.org/wiki/Item:'
                      },
            'wikidata': {
                         'api': 'https://www.wikidata.org/w/api.php',
-                        'sparql': 'https://query.wikidata.org/sparql',
+                        'sparql': 'https://query-main.wikidata.org/sparql',
+                        'sparql-scholarly': 'https://query-scholarly.wikidata.org/sparql',
                         'uri': 'https://www.wikidata.org/wiki/Item:'
                        },
            'mathalgodb': {

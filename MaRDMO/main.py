@@ -321,7 +321,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
         # Links to newly created Entities
         return render(request,
-                      'MaRDMO/workflowExport.html', 
+                      'MaRDMO/portalExport.html', 
                       {'ids': ids,
                        'mardi_uri': endpoint['mardi']['uri']}, 
                       status=200)
