@@ -73,20 +73,18 @@ def get_citation(DOI):
         choice = None
 
         # Define MaRDI Portal / Wikidata / MathModDB / MathAlgoDB SPARQL Queries
-        mardi_query = queryPublication['All_MaRDI'].format(DOI.upper())
-        wikidata_query = queryPublication['All_Wikidata'].format(DOI.upper())
-        mathmoddb_query = queryPublication['PublicationMathModDBDOI'].format(DOI)
+        mardi_query = queryPublication['All_MaRDI'].format(DOI)#.upper())
+        wikidata_query = queryPublication['All_Wikidata'].format(DOI)#.upper())
         mathalgodb_query = queryPublication['PublicationMathAlgoDBDOI'].format(DOI)
         
-        # Get Citation Data from MaRDI Portal / Wikidata / MathModDB / MathAlgoDB
-        results = query_sparql_pool({'wikidata':(wikidata_query, endpoint['wikidata']['sparql']), 
-                                     'mardi':(mardi_query, endpoint['mardi']['sparql']), 
-                                     'mathmoddb':(mathmoddb_query, endpoint['mathmoddb']['sparql']), 
+        # Get Citation Data from MaRDI Portal / Wikidata / MathAlgoDB
+        results = query_sparql_pool({'wikidata':(wikidata_query, endpoint['wikidata']['sparql-scholarly']), 
+                                     'mardi':(mardi_query, endpoint['mardi']['sparql']),  
                                      'mathalgodb':(mathalgodb_query, endpoint['mathalgodb']['sparql'])})
 
         # Structure Publication Information            
         publication = {}
-        for key in ['mardi', 'wikidata', 'mathmoddb', 'mathalgodb']:
+        for key in ['mardi', 'wikidata', 'mathalgodb']:
             try:
                 publication[key] = Publication.from_query(results.get(key))
             except:

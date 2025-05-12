@@ -53,20 +53,24 @@ OPTIONSET_PROVIDERS = [
     ('Discipline', _('Options for Disciplines'), 'MaRDMO.workflow.providers.Discipline'),
     # Model
     ('ResearchField', _('Options for Research Fields'), 'MaRDMO.model.providers.ResearchField'),
-    ('RelatedResearchField', _('Options for Related Research Fields'), 'MaRDMO.model.providers.RelatedResearchField'),
+    ('RelatedResearchFieldWithCreation', _('Options for related Research Fields with Creation'), 'MaRDMO.model.providers.RelatedResearchFieldWithCreation'),
+    ('RelatedResearchFieldWithoutCreation', _('Options for related Research Fields without Creation'), 'MaRDMO.model.providers.RelatedResearchFieldWithoutCreation'),
     ('ResearchProblem', _('Options for Research Problems'), 'MaRDMO.model.providers.ResearchProblem'),
-    ('RelatedResearchProblem', _('Options for Related Research Problems'), 'MaRDMO.model.providers.RelatedResearchProblem'),
+    ('RelatedResearchProblemWithCreation', _('Options for related Research Problems with Creation'), 'MaRDMO.model.providers.RelatedResearchProblemWithCreation'),
+    ('RelatedResearchProblemWithoutCreation', _('Options for related Research Problems without Creation'), 'MaRDMO.model.providers.RelatedResearchProblemWithoutCreation'),
     ('MathematicalModel', _('Options for Mathematical Model'), 'MaRDMO.model.providers.MathematicalModel'),
-    ('RelatedMathematicalModel', _('Options for related Mathematical Model'), 'MaRDMO.model.providers.RelatedMathematicalModel'),
+    ('RelatedMathematicalModelWithoutCreation', _('Options for related Mathematical Model without Creation'), 'MaRDMO.model.providers.RelatedMathematicalModelWithoutCreation'),
     ('QuantityOrQuantityKind', _('Options for Quantities and Quantity Kinds'), 'MaRDMO.model.providers.QuantityOrQuantityKind'),
-    ('RelatedQuantity', _('Options for related Quantities'), 'MaRDMO.model.providers.RelatedQuantity'),
-    ('RelatedQuantityKind', _('Options for related Quantity Kinds'), 'MaRDMO.model.providers.RelatedQuantityKind'),
-    ('RelatedQuantityOrQuantityKind', _('Options for related Quantites or Quantity Kinds'), 'MaRDMO.model.providers.RelatedQuantityOrQuantityKind'),
+    ('RelatedQuantityWithoutCreation', _('Options for related Quantities without Creation'), 'MaRDMO.model.providers.RelatedQuantityWithoutCreation'),
+    ('RelatedQuantityKindWithoutCreation', _('Options for related Quantity Kinds without Creation'), 'MaRDMO.model.providers.RelatedQuantityKindWithoutCreation'),
+    ('RelatedQuantityOrQuantityKindWithCreation', _('Options for related Quantites or Quantity Kinds with Creation'), 'MaRDMO.model.providers.RelatedQuantityOrQuantityKindWithCreation'),
     ('MathematicalFormulation', _('Options for Mathematical Formulation'), 'MaRDMO.model.providers.MathematicalFormulation'),
-    ('RelatedMathematicalFormulation', _('Options for related Mathematical Formulations'), 'MaRDMO.model.providers.RelatedMathematicalFormulation'),
+    ('RelatedMathematicalFormulationWithCreation', _('Options for related Mathematical Formulations with Creation'), 'MaRDMO.model.providers.RelatedMathematicalFormulationWithCreation'),
+    ('RelatedMathematicalFormulationWithoutCreation', _('Options for related Mathematical Formulations without Creation'), 'MaRDMO.model.providers.RelatedMathematicalFormulationWithoutCreation'),
     ('AllEntities', _('Options for All Entities'), 'MaRDMO.model.providers.AllEntities'),
     ('Task', _('Options for Task'), 'MaRDMO.model.providers.Task'),
-    ('RelatedTask', _('Options for related Tasks'), 'MaRDMO.model.providers.RelatedTask'),
+    ('RelatedTaskWithCreation', _('Options for related Tasks with Creation'), 'MaRDMO.model.providers.RelatedTaskWithCreation'),
+    ('RelatedTaskWithoutCreation', _('Options for related Tasks without Creation'), 'MaRDMO.model.providers.RelatedTaskWithoutCreation'),
     # Publication
     ('Publication', _('Options for Publication'), 'MaRDMO.publication.providers.Publication'),
     # Algorithm
@@ -79,6 +83,7 @@ OPTIONSET_PROVIDERS = [
     ('Benchmark', _('Options for Benchmarks'), 'MaRDMO.algorithm.providers.Benchmark'),
     ('RelatedBenchmark', _('Options for related Benchmarks'), 'MaRDMO.algorithm.providers.RelatedBenchmark'),
     ]
+
 ```
 
 Thereby, the MaRDMO Plugin is installed and a "MaRDI Button" button is added in the project view.

@@ -13,6 +13,6 @@ class Publication(Provider):
 
         # Define the query parameter
         queryID = 'PU'
-        sources = ['mathalgodb', 'mathmoddb', 'mardi', 'wikidata']
+        sources = ['mathalgodb', 'mardi', 'wikidata']
 
         return query_sources(search, queryID, sources)

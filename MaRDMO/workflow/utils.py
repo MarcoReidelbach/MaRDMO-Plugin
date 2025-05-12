@@ -2,7 +2,7 @@ from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI
 
-def add_item_relation(payload, values, lookup, items, item, idx, property, qualifier = [], datatype = 'wikibase-item'):
+def add_item_relation(payload, values, lookup, items, item, idx, property, qualifier = [], datatype = 'wikibase-item', reverse = False):
     for value in values:
         # Continue if no ID exists
         if not value.get('ID'):
@@ -12,7 +12,10 @@ def add_item_relation(payload, values, lookup, items, item, idx, property, quali
         # Get Entry Key
         entry = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
         # Add to Payload
-        payload.update({f"RELATION{idx}":{'id': '', 'url': statements_uri(item), 'payload': statements_payload(property, entry, datatype, qualifier)}}) 
+        if reverse:
+            payload.update({f"RELATION{idx}":{'id': '', 'url': statements_uri(entry), 'payload': statements_payload(property, item, datatype, qualifier)}})
+        else:
+            payload.update({f"RELATION{idx}":{'id': '', 'url': statements_uri(item), 'payload': statements_payload(property, entry, datatype, qualifier)}}) 
         idx += 1
     return payload, idx
 
@@ -143,36 +146,15 @@ def items_payload(name, description):
         return {"item": {"labels": {"en": name}}}
     
 def items_uri():
-    return 'https://staging.mardi4nfdi.org/w/rest.php/wikibase/v1/entities/items'
+    return 'https://test.wikidata.org/w/rest.php/wikibase/v1/entities/items'
+    #return 'https://staging.mardi4nfdi.org/w/rest.php/wikibase/v1/entities/items'
     
 def statements_payload(id, content, data_type = "wikibase-item", qualifiers = []):
     return {"statement": {"property": {"id": id, "data_type": data_type}, "value": {"type": "value", "content": content}, "qualifiers": qualifiers}}
 
 def statements_uri(item):
-    return f'https://staging.mardi4nfdi.org/w/rest.php/wikibase/v1/entities/items/{item}/statements'
-
-def unique_items(data, title):
-    # Set up Item Dict and track seen Items
-    items = {}
-    seen_items = set() 
-    # Add Workflow Item
-    triple = ('not found', title, data.get('general', {}).get('objective', ''))
-    items[f'Item{str(0).zfill(10)}'] = {'ID': 'not found', 'Name': title, 'Description': data.get('general', {}).get('objective', '')}
-    seen_items.add(triple)
-    # Add Workflow Component Items
-    def search(subdict):
-        if isinstance(subdict, dict) and 'ID' in subdict:
-            triple = (subdict.get('ID', ''), subdict.get('Name', ''), subdict.get('Description', ''))
-            if triple not in seen_items:
-                item_key = f'Item{str(len(items)).zfill(10)}'  # Create unique key
-                items[item_key] = {'ID': triple[0], 'Name': triple[1], 'Description': triple[2]}
-                seen_items.add(triple)
-        if isinstance(subdict, dict):
-            for value in subdict.values():
-                if isinstance(value, dict):
-                    search(value)
-    search(data)
-    return items
+    return f'https://test.wikidata.org/w/rest.php/wikibase/v1/entities/items/{item}/statements'
+    #return f'https://staging.mardi4nfdi.org/w/rest.php/wikibase/v1/entities/items/{item}/statements'
     
 
 

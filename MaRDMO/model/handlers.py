@@ -7,7 +7,8 @@ from .constants import PROPS, RELATANT_URIS, RELATION_URIS, INDEX_COUNTERS
 from .sparql import queryHandler
 from .models import ResearchField, ResearchProblem, MathematicalModel, QuantityOrQuantityKind, MathematicalFormulation, Task, Relatant
 
-from ..utils import add_basics, add_entities, add_new_entities, add_properties, add_relations, add_references, extract_parts, get_data, get_questionsMO, query_sparql, splitVariableText, value_editor
+from ..id import ITEMS, PROPERTIES
+from ..utils import add_basics, add_entities, add_new_entities, add_properties, add_relations, add_references, extract_parts, get_data, get_questionsMO, query_sparql, value_editor
 from ..config import BASE_URI, endpoint
 
 
@@ -35,7 +36,8 @@ def RFInformation(sender, **kwargs):
                     return
 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                results = query_sparql(queryHandler['researchFieldInformation'].format(Id), endpoint[source]['sparql'])
+                query = queryHandler['researchFieldInformation'].format(Id, **ITEMS, **PROPERTIES)
+                results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_data('model/data/mapping.json')
                 
                 if results:
@@ -83,7 +85,8 @@ def RPInformation(sender, **kwargs):
                     return
 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                results = query_sparql(queryHandler['researchProblemInformation'].format(Id), endpoint[source]['sparql'])
+                query = queryHandler['researchProblemInformation'].format(Id, **ITEMS, **PROPERTIES)
+                results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_data('model/data/mapping.json')
                 
                 if results:
@@ -138,7 +141,8 @@ def QQKInformation(sender, **kwargs):
                     return
 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                results = query_sparql(queryHandler['quantityOrQuantityKindInformation'].format(Id), endpoint[source]['sparql'])
+                query = queryHandler['quantityOrQuantityKindInformation'].format(Id, **ITEMS, **PROPERTIES)
+                results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_data('model/data/mapping.json')
                 
                 if results:
@@ -239,7 +243,8 @@ def MFInformation(sender, **kwargs):
                     return
                 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                results = query_sparql(queryHandler['mathematicalFormulationInformation'].format(Id), endpoint[source]['sparql'])
+                query = queryHandler['mathematicalFormulationInformation'].format(Id, **ITEMS, **PROPERTIES)
+                results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_data('model/data/mapping.json')
                 
                 if results:
@@ -325,7 +330,8 @@ def TInformation(sender, **kwargs):
                     return
                 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                results = query_sparql(queryHandler['taskInformation'].format(Id), endpoint[source]['sparql'])
+                query = queryHandler['taskInformation'].format(Id, **ITEMS, **PROPERTIES)
+                results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_data('model/data/mapping.json')
                 
                 if results:
@@ -395,7 +401,8 @@ def MMInformation(sender, **kwargs):
                     return
                 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                results = query_sparql(queryHandler['mathematicalModelInformation'].format(Id), endpoint[source]['sparql'])
+                query = queryHandler['mathematicalModelInformation'].format(Id, **ITEMS, **PROPERTIES)
+                results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_data('model/data/mapping.json')
                 
                 if results:

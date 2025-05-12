@@ -1,9 +1,9 @@
-from .utils import add_item_relation, add_qualifier, add_static_or_non_item_relation, find_key_by_values, get_item_key, items_payload, items_uri, unique_items 
+from .utils import add_item_relation, add_qualifier, add_static_or_non_item_relation, find_key_by_values, get_item_key, items_payload, items_uri
 
-from ..utils import find_item, get_data
+from ..utils import find_item, get_data, unique_items
 
 
-def generate_payload(data, title):
+def prepareWorkflowExport(data, title):
 
     # Load Options
     options = get_data('data/options.json')

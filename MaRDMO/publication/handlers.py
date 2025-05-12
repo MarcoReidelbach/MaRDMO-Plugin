@@ -23,27 +23,8 @@ def PInformation(sender, **kwargs):
         if instance.text and instance.text != 'not found':
             # Get Source and ID of selected Publication 
             source, id = instance.external_id.split(':')
-            # If Publication from MathModDB...
-            if source == 'mathmoddb':
-                #...query Math MathModDB,...
-                query = queryPublication['PublicationMathModDB'].format(id)
-                results = query_sparql(query, endpoint['mathmoddb']['sparql'])
-                if results:
-                    #...structure the data,... 
-                    data = Publication.from_query(results)
-                    #...and add the Information to the Questionnaire.
-                    add_basics(project = instance.project,
-                               text = instance.text,
-                               url_name = f'{BASE_URI}{questions["Publication Name"]["uri"]}',
-                               url_description = f'{BASE_URI}{questions["Publication Description"]["uri"]}',
-                               set_index = instance.set_index
-                               )
-                    add_references(project = instance.project,
-                                   data = data,
-                                   uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}',
-                                   set_index = instance.set_index)
             # If Publication from MathAlgoDB...
-            elif source == 'mathalgodb':
+            if source == 'mathalgodb':
                 #...query the MathAlgoDB,...
                 query = queryPublication['PublicationMathAlgoDB'].format(id)
                 results = query_sparql(query, endpoint['mathalgodb']['sparql'])
@@ -70,7 +51,7 @@ def PInformation(sender, **kwargs):
                     #...structure the data...
                     data = Publication.from_query(results)
                     #...and add the Information to the Questionnaire.
-                    if str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog' or str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
+                    if str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
                         value_editor(project = instance.project, 
                                      uri = f'{BASE_URI}{questions["Publication Name"]["uri"]}', 
                                      text = generate_label(data), 
@@ -92,12 +73,12 @@ def PInformation(sender, **kwargs):
             elif source == 'wikidata':
                 #...query Wikidata,...
                 query = queryPublication['All_WikidataLabel'].format(id.upper())
-                results = query_sparql(query, endpoint['wikidata']['sparql'])
+                results = query_sparql(query, endpoint['wikidata']['sparql-scholarly'])
                 if results:
                     #...structure the data...
                     data = Publication.from_query(results)
                     #and add the Information to the Questionnaire.
-                    if str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog' or str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
+                    if str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
                         value_editor(project = instance.project, 
                                      uri = f'{BASE_URI}{questions["Publication Name"]["uri"]}', 
                                      text = generate_label(data), 
@@ -117,7 +98,7 @@ def PInformation(sender, **kwargs):
                                    set_index = instance.set_index)
             # For Models add Relations          
             if str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
-                if source == 'mathmoddb':
+                if source == 'mardi':
                     mathmoddb = get_data('model/data/mapping.json')
                     add_relations(project = instance.project, 
                                   data = data, 

@@ -1,9 +1,6 @@
 from rdmo.options.providers import Provider
 
-from .sparql import queryPortalProvider
-
-from ..config import endpoint
-from ..utils import query_sources, query_sources_with_user_additions, query_sparql
+from ..utils import query_sources, query_sources_with_user_additions
 
 
 class ResearchField(Provider):
@@ -18,7 +15,7 @@ class ResearchField(Provider):
 
         # Define the query parameter
         queryID = 'RF'
-        sources = ['mathmoddb', 'mardi', 'wikidata']
+        sources = ['mardi', 'wikidata']
 
         return query_sources(search, queryID, sources)
 
@@ -66,7 +63,7 @@ class ResearchProblem(Provider):
 
         # Define the query parameter
         queryID = 'RP'
-        sources = ['mathmoddb', 'mardi', 'wikidata']
+        sources = ['mardi', 'wikidata']
 
         return query_sources(search, queryID, sources)
 

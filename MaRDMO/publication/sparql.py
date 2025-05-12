@@ -23,11 +23,99 @@ queryPublication = {
                             PREFIX wd:<https://portal.mardi4nfdi.de/entity/>
                         
                             SELECT ?label ?description ?doi         
-                            (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" | ") AS ?authorInfos)                                                        
+                            (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" | ") AS ?authorInfos) 
+                            (GROUP_CONCAT(DISTINCT CONCAT(?inv, " | ", ?invl, " | ", ?invd); separator=" / ") AS ?invents)    
+                            (GROUP_CONCAT(DISTINCT CONCAT(?doc, " | ", ?docl, " | ", ?docd); separator=" / ") AS ?documents)
+                            (GROUP_CONCAT(DISTINCT CONCAT(?rev, " | ", ?revl, " | ", ?revd); separator=" / ") AS ?surveys)
+                            (GROUP_CONCAT(DISTINCT CONCAT(?use, " | ", ?usel, " | ", ?used); separator=" / ") AS ?uses)                                                   
                             ?entrytypelabel ?journalInfo ?languagelabel                               
                             ?title ?date ?volume ?issue ?page          
 
-                 WHERE {{ VALUES ?publication {{ wd:{0} }}
+                 WHERE {{ VALUES ?publication {{ wd:{} }}
+
+                        OPTIONAL {{
+                                       ?invraw p:P286 ?statement1.
+                                       ?statement1 ps:P286 ?publication.
+
+                                       BIND(replace( xsd:string(?invraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?inv)
+                                       
+                                       OPTIONAL {{
+                                                  ?invraw rdfs:label ?invlraw.
+                                                  FILTER (lang(?invlraw) = 'en')
+                                               }}
+                                      BIND(COALESCE(?invlraw, "No Label Provided!") AS ?invl)
+                                      
+                                      OPTIONAL {{
+                                                 ?invraw schema:description ?invdraw
+                                                 FILTER (lang(?invdraw) = 'en')
+                                               }}
+                                      BIND(COALESCE(?invdraw, "No Description Provided!") AS ?invd)
+                                      
+                                      ?statement1 pq:P560 wd:Q6672344.
+                                   }}
+
+                        OPTIONAL {{
+                                       ?docraw p:P286 ?statement2.
+                                       ?statement2 ps:P286 ?publication.
+
+                                       BIND(replace( xsd:string(?docraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?doc)
+                                       
+                                       OPTIONAL {{
+                                                  ?docraw rdfs:label ?doclraw.
+                                                  FILTER (lang(?doclraw) = 'en')
+                                               }}
+                                      BIND(COALESCE(?doclraw, "No Label Provided!") AS ?docl)
+                                      
+                                      OPTIONAL {{
+                                                 ?docraw schema:description ?docdraw
+                                                 FILTER (lang(?docdraw) = 'en')
+                                               }}
+                                      BIND(COALESCE(?docdraw, "No Description Provided!") AS ?docd)
+                                      
+                                      ?statement2 pq:P560 wd:Q6672349.
+                                   }}
+
+                        OPTIONAL {{
+                                       ?revraw p:P286 ?statement3.
+                                       ?statement3 ps:P286 ?publication.
+
+                                       BIND(replace( xsd:string(?revraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?rev)
+                                       
+                                       OPTIONAL {{
+                                                  ?revraw rdfs:label ?revlraw.
+                                                  FILTER (lang(?revlraw) = 'en')
+                                               }}
+                                      BIND(COALESCE(?revlraw, "No Label Provided!") AS ?revl)
+                                      
+                                      OPTIONAL {{
+                                                 ?revraw schema:description ?revdraw
+                                                 FILTER (lang(?revdraw) = 'en')
+                                               }}
+                                      BIND(COALESCE(?revdraw, "No Description Provided!") AS ?revd)
+                                      
+                                      ?statement3 pq:P560 wd:Q6672366.
+                                   }}
+
+                        OPTIONAL {{
+                                       ?useraw p:P286 ?statement4.
+                                       ?statement4 ps:P286 ?publication.
+
+                                       BIND(replace( xsd:string(?useraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?use)
+                                       
+                                       OPTIONAL {{
+                                                  ?useraw rdfs:label ?uselraw.
+                                                  FILTER (lang(?uselraw) = 'en')
+                                               }}
+                                      BIND(COALESCE(?uselraw, "No Label Provided!") AS ?usel)
+                                      
+                                      OPTIONAL {{
+                                                 ?useraw schema:description ?usedraw
+                                                 FILTER (lang(?usedraw) = 'en')
+                                               }}
+                                      BIND(COALESCE(?usedraw, "No Description Provided!") AS ?used)
+                                      
+                                      ?statement4 pq:P560 wd:Q6480405.
+                                   }}
                  
                         OPTIONAL {{ ?publication wdt:P27 ?doi. }}
                         
@@ -431,139 +519,7 @@ queryPublication = {
  
                              }}''',
 
-       'PublicationMathModDBLabel': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-                                       SELECT ?label ?description ?doi
-
-                                       WHERE {{
-                                               OPTIONAL {{{0} rdfs:label ?labelraw.
-                                                     FILTER (lang(?labelraw) = 'en')}}
-                                               BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
-
-                                               OPTIONAL {{?idraw rdfs:comment ?descriptionraw.
-                                                     FILTER (lang(?descriptionraw) = 'en')}}
-                                          BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
-
-                                               OPTIONAL {{ {0} :doiID ?doiraw.
-                                                           BIND(REPLACE(STR(?doiraw), "https://doi.org/", "") AS ?doi)}}
-                                             }}''',
-
-       'PublicationMathModDB': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-                                  SELECT DISTINCT ?id ?label ?description ?doi
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?documentsentity, " | ", ?documentsentitylabel, " | ", ?documentsentitydescription)); SEPARATOR=" / ") AS ?documents)
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?inventsentity, " | ", ?inventsentitylabel, " | ", ?inventsentitydescription)); SEPARATOR=" / ") AS ?invents)
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?studiesentity, " | ", ?studiesentitylabel, " | ", ?studiesentitydescription)); SEPARATOR=" / ") AS ?studies)
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?surveysentity, " | ", ?surveysentitylabel, " | ", ?surveysentitydescription)); SEPARATOR=" / ") AS ?surveys)
-                                                  (GROUP_CONCAT(DISTINCT(CONCAT(?usesentity, " | ", ?usesentitylabel, " | ", ?usesentitydescription)); SEPARATOR=" / ") AS ?uses)
-                                                                                    
-                                  WHERE {{
-                                          VALUES ?idraw {{ :{0} }}
-
-                                          ?idraw a :Publication.
-                                          BIND(CONCAT("mathmoddb:", STRAFTER(STR(?idraw), "#")) AS ?id)
-    
-                                          OPTIONAL {{?idraw :doiID ?doiraw
-                                                     BIND(REPLACE(STR(?doiraw), "https://doi.org/", "") AS ?doi)}}
-
-                                          OPTIONAL {{?idraw rdfs:label ?labelraw.
-                                                     FILTER (lang(?labelraw) = 'en')}}
-                                          BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
-
-                                          OPTIONAL {{?idraw rdfs:comment ?descriptionraw.
-                                                     FILTER (lang(?descriptionraw) = 'en')}}
-                                          BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
-
-                                          OPTIONAL {{?idraw :documents ?docuemntsentityraw.
-                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?documentsentityraw), "#")) AS ?documentsentity)
-
-                                                     OPTIONAL {{?docuemntsentityraw rdfs:label ?documentsentitylabelraw.
-                                                                FILTER (lang(?documentsentitylabelraw) = 'en')}}
-                                                     BIND(COALESCE(?documentsentitylabelraw, "No Label Provided!") As ?documentsentitylabel)
-
-                                                     OPTIONAL {{?docuemntsentityraw rdfs:comment ?docuemntsentitydescriptionraw.
-                                                                FILTER (lang(?docuemntsentitydescriptionraw) = 'en')}}
-                                                     BIND(COALESCE(?docuemntsentitydescriptionraw, "No Description Provided!") As ?docuemntsentitydescription)
-                                                   }}
-
-                                          OPTIONAL {{?idraw :invents ?inventsentityraw.
-                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?inventsentityraw), "#")) AS ?inventsentity)
-
-                                                     OPTIONAL {{?inventsentityraw rdfs:label ?inventsentitylabelraw.
-                                                                FILTER (lang(?inventsentitylabelraw) = 'en')}}
-                                                     BIND(COALESCE(?inventsentitylabelraw, "No Label Provided!") As ?inventsentitylabel)
-
-                                                     OPTIONAL {{?inventsentityraw rdfs:comment ?inventsentitydescriptionraw.
-                                                                FILTER (lang(?inventsentitydescriptionraw) = 'en')}}
-                                                     BIND(COALESCE(?inventsentitydescriptionraw, "No Description Provided!") As ?inventsentitydescription)
-                                                   }}
-
-                                          OPTIONAL {{?idraw :studies ?studiesentityraw.
-                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?studiesentityraw), "#")) AS ?studiesentity)
-
-                                                     OPTIONAL {{?studiesentityraw rdfs:label ?studiesentitylabelraw.
-                                                                FILTER (lang(?studiesentitylabelraw) = 'en')}}
-                                                     BIND(COALESCE(?studiesentitylabelraw, "No Label Provided!") As ?studiesentitylabel)
-
-                                                     OPTIONAL {{?studiesentityraw rdfs:comment ?studiesentitydescriptionraw.
-                                                                FILTER (lang(?studiesentitydescriptionraw) = 'en')}}
-                                                     BIND(COALESCE(?studiesentitydescriptionraw, "No Description Provided!") As ?studiesentitydescription)
-                                                   }}
-
-                                          OPTIONAL {{?idraw :surveys ?surveysentityraw.
-                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?surveysentityraw), "#")) AS ?surveysentity)
-
-                                                     OPTIONAL {{?surveysentityraw rdfs:label ?surveysentitylabelraw.
-                                                                FILTER (lang(?surveysentitylabelraw) = 'en')}}
-                                                     BIND(COALESCE(?surveysentitylabelraw, "No Label Provided!") As ?surveysentitylabel)
-
-                                                     OPTIONAL {{?surveysentityraw rdfs:comment ?surveysentitydescriptionraw.
-                                                                FILTER (lang(?surveysentitydescriptionraw) = 'en')}}
-                                                     BIND(COALESCE(?surveysentitydescriptionraw, "No Description Provided!") As ?surveysentitydescription)
-                                                   }}
-
-                                          OPTIONAL {{?idraw :uses ?usesentityraw.
-                                                     BIND(CONCAT("mathmoddb:", STRAFTER(STR(?usesentityraw), "#")) AS ?usesentity)
-
-                                                     OPTIONAL {{?usesentityraw rdfs:label ?usesentitylabelraw.
-                                                                FILTER (lang(?usesentitylabelraw) = 'en')}}
-                                                     BIND(COALESCE(?usesentitylabelraw, "No Label Provided!") As ?usesentitylabel)
-
-                                                     OPTIONAL {{?usesentityraw rdfs:comment ?usesentitydescriptionraw.
-                                                                FILTER (lang(?usesentitydescriptionraw) = 'en')}}
-                                                     BIND(COALESCE(?usesentitydescriptionraw, "No Description Provided!") As ?usesentitydescription)
-                                                   }}
-
-                                          
-
-                                        }}
-                                  GROUP BY ?id ?label ?description ?doi''',
-
-        'PublicationMathModDBDOI': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-                                  SELECT DISTINCT ?id ?label ?description
-                                                                                    
-                                  WHERE {{
-                                          ?idraw a :Publication.
-                                          ?idraw :doiID ?doi .
-                                          FILTER(LCASE(STR(?doi)) = LCASE("https://doi.org/{0}"))
-
-                                          BIND(CONCAT("mathmoddb:", STRAFTER(STR(?idraw), "#")) AS ?id)
-                                          
-                                          OPTIONAL {{?idraw rdfs:label ?labelraw.
-                                                     FILTER (lang(?labelraw) = 'en')}}
-                                          BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
-
-                                          OPTIONAL {{?idraw rdfs:comment ?descriptionraw.
-                                                     FILTER (lang(?descriptionraw) = 'en')}}
-                                          BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
-                                        }}
-                                  GROUP BY ?id ?label ?description''',
-
-       'PublicationMathAlgoDBLabel': '''PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/publication#>
+      'PublicationMathAlgoDBLabel': '''PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/publication#>
                                    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                                    PREFIX dc: <http://purl.org/spar/datacite/>
                                    

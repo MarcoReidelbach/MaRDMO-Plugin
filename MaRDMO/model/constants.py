@@ -1,3 +1,7 @@
+from ..utils import get_data
+
+mathmoddb = get_data('model/data/mapping.json')
+
 # Dictionary with list of property names
 PROPS = {
     'T2MF': ['assumes','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalCondition'],
@@ -39,3 +43,33 @@ RELATANT_URIS = {
     ("Quantity", "QuantityKind"): "Quantity QKRelatant",
     ("QuantityKind", "Quantity"): "QuantityKind QRelatant",
 }
+
+# Reverse Properties
+REVERSE = {
+    "specializes": "specialized by",
+    "approximates": "approximated by",
+    "discretizes": "discretized by",
+    "linearizes": "linearized by",
+    "nondimensionalizes": "nondimensionalized by",
+    "contained in": "contains"
+}
+
+# Relation Map
+RELATION_MAP = {
+        mathmoddb['specializedBy']:         'specialized by',
+        mathmoddb['specializes']:           'specializes',
+        mathmoddb['approximatedBy']:        'approximated by',
+        mathmoddb['approximates']:          'approximates',
+        mathmoddb['discretizedBy']:         'discretized by',
+        mathmoddb['discretizes']:           'discretizes',
+        mathmoddb['linearizedBy']:          'linearized by',
+        mathmoddb['linearizes']:            'linearizes',
+        mathmoddb['nondimensionalizedBy']:  'nondimensionalized by',
+        mathmoddb['nondimensionalizes']:    'nondimensionalizes',
+        mathmoddb['contains']:              'contains',
+        mathmoddb['containedIn']:           'contained in',
+        mathmoddb['similarTo']:             'similar to'
+    }
+
+
+

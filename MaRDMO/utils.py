@@ -14,7 +14,6 @@ from multiprocessing.pool import ThreadPool
 
 from .config import BASE_URI, endpoint
 
-from .model.sparql import queryProviderMM, queryPortalProvider
 from .algorithm.sparql import queryProviderAL
 
 logger = logging.getLogger(__name__)  # Get Django's logger for the current module
@@ -299,7 +298,7 @@ def find_item(label, description, api = endpoint['mardi']['api']):
         # No matching item found
         return None
 
-def query_api(api_url, search_term, timeout=1):
+def query_api(api_url, search_term, timeout=5):
     """API requests returning all Items with matching label."""
     try:
         response = requests.get(
@@ -326,7 +325,7 @@ def query_api(api_url, search_term, timeout=1):
 
     return []
 
-def query_sparql(query, endpoint=endpoint['mathmoddb']['sparql']):
+def query_sparql(query, endpoint):
     '''SPARQL request returning all Items with matching properties.'''
     if not endpoint:
         logger.warning("SPARQL query attempted without a valid endpoint.")
@@ -425,7 +424,6 @@ def query_sources(search, queryID, sources, notFound=True):
         source_functions = {
             'wikidata': lambda s: query_api(endpoint['wikidata']['api'], s),
             'mardi': lambda s: query_api(endpoint['mardi']['api'], s),
-            'mathmoddb': lambda s: MathDBProvider(s, queryProviderMM[queryID], 'mathmoddb'),
             'mathalgodb': lambda s: MathDBProvider(s, queryProviderAL[queryID], 'mathalgodb')
         }
 
@@ -443,17 +441,14 @@ def query_sources(search, queryID, sources, notFound=True):
         # Process results to fit RDMO Provider Output Requirements
         options = []
         
-        if 'mathmoddb' in results_dict:
-            options += results_dict['mathmoddb'][:10]
-
         if 'mathalgodb' in results_dict:
-            options += results_dict['mathalgodb'][:10]
+            options += results_dict['mathalgodb'][:15]
 
         if 'mardi' in results_dict:
-            options += [process_result(result, 'mardi') for result in results_dict['mardi'][:10]]
+            options += [process_result(result, 'mardi') for result in results_dict['mardi'][:15]]
 
         if 'wikidata' in results_dict:
-            options += [process_result(result, 'wikidata') for result in results_dict['wikidata'][:10]]
+            options += [process_result(result, 'wikidata') for result in results_dict['wikidata'][:15]]
 
         if notFound:
             options = [{'id': 'not found', 'text': 'not found'}] + options
@@ -555,19 +550,19 @@ def entityRelations(data, fromIDX, toIDX, relationOld, entityOld, relationNew, e
     for from_entry in data.get(fromIDX, {}).values():
         for key in from_entry.get(relationOld, {}):
             if from_entry[entityOld].get(key):
-                Id, label = from_entry[entityOld][key].split(' <|> ')[:2]
+                #Id, label = from_entry[entityOld][key].split(' <|> ')[:2]
                 match_found = False
                 for enc_entry, label_to_index in zip(enc, label_to_index_maps):
-                    if label in label_to_index:
-                        idx = label_to_index[label]
+                    if from_entry[entityOld][key]['Name'] in label_to_index:
+                        idx = label_to_index[from_entry[entityOld][key]['Name']]
                         match_found = True
                         if [from_entry[relationOld][key], f'{enc_entry}{idx+1}'] not in from_entry.get(relationNew, {}).values():
                             from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], f'{enc_entry}{idx+1}']})
                         break
                 
                 if not match_found:
-                    if [from_entry[relationOld][key], Id] not in from_entry.get(relationNew, {}).values():
-                        from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], Id]})
+                    if [from_entry[relationOld][key], from_entry[entityOld][key]['ID']] not in from_entry.get(relationNew, {}).values():
+                        from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], from_entry[entityOld][key]['ID']]})
     return
 
 def mapEntity(data, fromIDX, toIDX, entityOld, entityNew, enc):
@@ -583,17 +578,17 @@ def mapEntity(data, fromIDX, toIDX, entityOld, entityNew, enc):
     for from_entry in data.get(fromIDX, {}).values():
         for outerKey, relation in from_entry.get(entityOld, {}).items():
             for innerKey, entity in relation.items():
-                Id, label = entity.split(' <|> ')[:2]
+                #Id, label = entity.split(' <|> ')[:2]
                 match_found = False
                 for enc_entry, label_to_index in zip(enc, label_to_index_maps):
-                    if label in label_to_index:
-                        idx = label_to_index[label]
+                    if entity['Name'] in label_to_index:
+                        idx = label_to_index[entity['Name']]
                         match_found = True
                         from_entry.setdefault(entityNew, {}).setdefault(outerKey, {}).update({innerKey: f'{enc_entry}{idx+1}'})
                         break
 
                 if not match_found:
-                    from_entry.setdefault(entityNew, {}).setdefault(outerKey, {}).update({innerKey: Id})
+                    from_entry.setdefault(entityNew, {}).setdefault(outerKey, {}).update({innerKey: entity['ID']})
     return
 
 def replace_in_dict(d, target, replacement):
@@ -605,3 +600,27 @@ def replace_in_dict(d, target, replacement):
         return d.replace(target, replacement)
     else:
         return d 
+    
+def unique_items(data, title = None):
+    # Set up Item Dict and track seen Items
+    items = {}
+    seen_items = set() 
+    # Add Workflow Item
+    if title:
+        triple = ('not found', title, data.get('general', {}).get('objective', ''))
+        items[f'Item{str(0).zfill(10)}'] = {'ID': 'not found', 'Name': title, 'Description': data.get('general', {}).get('objective', '')}
+        seen_items.add(triple)
+    # Add Workflow Component Items
+    def search(subdict):
+        if isinstance(subdict, dict) and 'ID' in subdict:
+            triple = (subdict.get('ID', ''), subdict.get('Name', ''), subdict.get('Description', ''))
+            if triple not in seen_items:
+                item_key = f'Item{str(len(items)).zfill(10)}'  # Create unique key
+                items[item_key] = {'ID': triple[0], 'Name': triple[1], 'Description': triple[2]}
+                seen_items.add(triple)
+        if isinstance(subdict, dict):
+            for value in subdict.values():
+                if isinstance(value, dict):
+                    search(value)
+    search(data)
+    return items
