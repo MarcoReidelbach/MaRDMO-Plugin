@@ -72,6 +72,42 @@ RELATION_MAP = {
         mathmoddb['similarTo']:             'similar to'
     }
 
+# Parameter for Entity relations
+PREVIEW_RELATIONS = [
+    # fromIDX, toIDX, relationOld, entityOld, entityNew, enc
+    ('model', 'problem', None, 'RPRelatant', 'RelationRP', 'RP'),
+    ('model', 'formulation', 'MM2MF', 'MFRelatant', 'RelationMF1', 'MF'),
+    ('model', 'task', None, 'TRelatant', 'RelationT', 'T'),
+    ('model', 'model', 'IntraClassRelation', 'IntraClassElement', 'RelationMM1', 'MM'),
+    ('task', 'formulation', 'T2MF', 'MFRelatant', 'RelationMF', 'MF'),
+    ('task', 'quantity', 'T2Q', 'QRelatant', 'RelationQQK', 'QQK'),
+    ('task', 'task', 'IntraClassRelation', 'IntraClassElement', 'RelationT', 'T'),
+    ('formulation', 'formulation', 'MF2MF', 'MFRelatant', 'RelationMF1', 'MF'),
+    ('formulation', 'formulation', 'IntraClassRelation', 'IntraClassElement', 'RelationMF2', 'MF'),
+    ('quantity', 'quantity', 'Q2Q', 'QRelatant', 'RelationQQ', 'QQK'),
+    ('quantity', 'quantity', 'QK2QK', 'QKRelatant', 'RelationQKQK', 'QQK'),
+    ('quantity', 'quantity', 'Q2QK', 'QKRelatant', 'RelationQQK', 'QQK'),
+    ('quantity', 'quantity', 'QK2Q', 'QRelatant', 'RelationQKQ', 'QQK'),
+    ('field', 'field', 'IntraClassRelation', 'IntraClassElement', 'RelationRF1', 'RF'),
+    ('problem', 'field', None, 'RFRelatant', 'RelationRF', 'RF'),
+    ('problem', 'problem', 'IntraClassRelation', 'IntraClassElement', 'RelationRP1', 'RP'),
+    ('publication', ['field', 'problem', 'model', 'formulation', 'quantity', 'task'],
+     'P2E', 'EntityRelatant', 'RelationP', ['RF', 'RP', 'MM', 'MF', 'QQK', 'T']),
+]
+
+PREVIEW_MAP_GENERAL = [
+    # fromIDX, toIDX, entityOld, entityNew, enc
+    ('model', 'formulation', 'assumption', 'assumptionMapped', 'MF'),
+    ('task', 'formulation', 'assumption', 'assumptionMapped', 'MF'),
+    ('formulation', 'formulation', 'assumption', 'assumptionMapped', 'MF'),
+]
+
+PREVIEW_MAP_QUANTITY = [
+    # type
+    ('formulation'),
+    ('quantity'),
+]
+
 # URI PREFIX Map (I)
 def get_URI_PREFIX_MAP():
     questions = get_questionsMO()

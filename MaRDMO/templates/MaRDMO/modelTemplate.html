@@ -125,7 +125,7 @@
         {% if forloop.counter == 1 %}
             <h3 id="RelationsToTasks"> Relations to Tasks </h3>
         {% endif %}
-	    used by: {{ task.1 }} <br>
+	    used by: {{ task }} <br>
     {% endfor %}
 
     {% for key, relation in values.RelationMM1.items %}

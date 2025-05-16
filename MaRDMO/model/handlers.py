@@ -31,10 +31,6 @@ def RFInformation(sender, **kwargs):
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
 
-                # Stop if Item not found in KG
-                if source == 'not found':
-                    return
-
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['researchFieldInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
@@ -79,10 +75,6 @@ def RPInformation(sender, **kwargs):
                            )
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
-
-                # Stop if Item not found in KG
-                if source == 'not found':
-                    return
 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['researchProblemInformation'].format(Id, **ITEMS, **PROPERTIES)
@@ -136,10 +128,6 @@ def QQKInformation(sender, **kwargs):
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
                 
-                # Stop if Item not found in KG
-                if source == 'not found':
-                    return
-
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['quantityOrQuantityKindInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
@@ -238,10 +226,6 @@ def MFInformation(sender, **kwargs):
                            )# Get source and ID of Item
                 source, Id = instance.external_id.split(':')
 
-                # Stop if Item not found in KG
-                if source == 'not found':
-                    return
-                
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['mathematicalFormulationInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
@@ -325,10 +309,6 @@ def TInformation(sender, **kwargs):
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
                 
-                # Stop if Item not found in KG
-                if source== 'not found':
-                    return
-                
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['taskInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
@@ -396,10 +376,6 @@ def MMInformation(sender, **kwargs):
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
 
-                # Stop if Item not found in KG
-                if source == 'not found':
-                    return
-                
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['mathematicalModelInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])

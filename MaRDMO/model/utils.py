@@ -104,7 +104,7 @@ def mathmlToLatex(mathml):
         return latex
     return None
 
-def mapEntryQuantity(data, type, mapping):
+def mapEntityQuantity(data, type, mapping):
     for key in data[type]:
         for key2 in data[type][key].get('element',{}):
             #_, label = data[type][key]['element'][key2]['quantity'].split(' <|> ')

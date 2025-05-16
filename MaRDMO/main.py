@@ -15,7 +15,7 @@ from .oauth2 import OauthProviderMixin
 from .utils import get_data, get_new_ids, get_questionsAL, get_questionsMO, get_questionsPU, get_questionsSE, get_questionsWO, merge_dicts_with_unique_keys, query_sparql
 from .config import endpoint
 
-from .model.worker import prepareModelExport, prepareModelPreview
+from .model.worker import prepareModel
 from .model.utils import get_answer_model
 
 from .algorithm.sparql import queryAlgorithmDocumentation
@@ -203,7 +203,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 data = self.get_post_data()
                 
                 try:
-                    payload = prepareModelExport(data[0], self.wikibase_url)
+                    payload = prepareModel.export(data[0], self.wikibase_url)
                 except Exception as err:
                     return render(self.request, 
                                   'core/error.html', 
@@ -337,7 +337,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 answers = get_answer_model(self.project, answers, **info)
             
             # Prepare Mathematical Model Preview
-            answers = prepareModelPreview(answers, mathmoddb)
+            answers = prepareModel.preview(answers, mathmoddb)
 
             # Retrieve Publications related to Workflow
             answers = PublicationRetriever.WorkflowOrModel(self.project, answers, options)
