@@ -96,8 +96,6 @@ Add the following lines to `config/settings/local.py` to connect MaRDMO with the
 MARDMO_PROVIDER = {
     'oauth2_client_id': '',
     'oauth2_client_secret': '',
-    'mathmoddb_id': '',
-    'mathmoddb_secret': '',
     'mathalgodb_id': '',
     'mathalgodb_secret': ''
     }

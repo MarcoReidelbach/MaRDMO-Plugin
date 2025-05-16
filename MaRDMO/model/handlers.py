@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from rdmo.projects.models import Value
 from rdmo.options.models import Option
 
-from .constants import PROPS, RELATANT_URIS, RELATION_URIS, INDEX_COUNTERS
+from .constants import PROPS, RELATANT_URIS, RELATION_URIS, INDEX_COUNTERS, get_URI_PREFIX_MAP
 from .sparql import queryHandler
 from .models import ResearchField, ResearchProblem, MathematicalModel, QuantityOrQuantityKind, MathematicalFormulation, Task, Relatant
 
@@ -460,247 +460,43 @@ def MMInformation(sender, **kwargs):
 
 @receiver(post_save, sender=Value)
 def RelationHandler(sender, **kwargs):
+    
+    #Get Instance
     instance = kwargs.get("instance", None)
-    # Get Questions of Algorithm Catalog
-    questions = get_questionsMO()
+    
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
-        # Research Problem - Research Field Relation
-        if instance and instance.attribute.uri == f'{BASE_URI}{questions["Research Problem RFRelatant"]["uri"]}':
-            # Check if actual Research Field chosen
-            if instance.text:
-                # Load MathModDB Vocabulary
-                mathmoddb = get_data('model/data/mapping.json')
-                label, description, source =  extract_parts(instance.text)
-                # Add Research Field Relation to questionnaire
-                value_editor(project = instance.project, 
-                             uri = f'{BASE_URI}{questions["Research Problem RP2RF"]["uri"]}', 
-                             text = mathmoddb['containedInField'],
-                             collection_index = instance.collection_index, 
-                             set_index = 0, 
-                             set_prefix = instance.set_prefix)
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Research Field"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Research Field ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "RF")
-                elif instance.external_id == 'not found':
-                    add_new_entities(project = instance.project, 
-                                     question_set = f'{BASE_URI}{questions["Research Field"]["uri"]}', 
-                                     question_id = f'{BASE_URI}{questions["Research Field ID"]["uri"]}', 
-                                     datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                     source = source, 
-                                     prefix = "RF")
-        # Task - Quantity Relation
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Task QRelatant"]["uri"]}':
-            label, description, source =  extract_parts(instance.text)
+
+        # Get config map
+        config_map = get_URI_PREFIX_MAP()
+
+        if instance.attribute.uri in config_map and instance.text:
+
+            # Get item, config and data information
+            label, description, source = extract_parts(instance.text)
+            config = config_map[instance.attribute.uri]
+            datas = [Relatant.from_relation(instance.external_id, label, description)]
+
+            # Add items from specific source
             if source != 'user':
-                add_entities(project = instance.project, 
-                             question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
-                             question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
-                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                             source = source, 
-                             prefix = "QQK")
+                add_entities(
+                    project=instance.project,
+                    question_set=config["question_set"],
+                    question_id=config["question_id"],
+                    datas=datas,
+                    source=source,
+                    prefix=config["prefix"]
+                )
+            
+            # Add items from user
             elif instance.external_id == 'not found':
-                add_new_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "QQK")
-        # Task - Mathematical Formulation Relation
-        if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task MFRelatant"]["uri"]}':
-            label, description, source =  extract_parts(instance.text)
-            if source != 'user':
-                add_entities(project = instance.project, 
-                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                             source = source, 
-                             prefix = "MF")
-            elif instance.external_id == 'not found':
-                add_new_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "MF")
-        # Mathematical Formulation Element
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Formulation Element Quantity"]["uri"]}':
-            label, description, source =  extract_parts(instance.text)
-            if source != 'user':
-                add_entities(project = instance.project, 
-                             question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
-                             question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
-                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                             source = source, 
-                             prefix = "QQK")
-            elif instance.external_id == 'not found':
-                add_new_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "QQK")
-        # Mathematical Formulation Element II
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Quantity Element Quantity"]["uri"]}':
-            label, description, source =  extract_parts(instance.text)
-            if source != 'user':
-                add_entities(project = instance.project, 
-                             question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
-                             question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
-                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                             source = source, 
-                             prefix = "QQK")
-            elif instance.external_id == 'not found':
-                add_new_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Quantity"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Quantity ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "QQK")
-        # Mathematical Model - Mathematical Formulation Relation
-        if instance and instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Model MFRelatant"]["uri"]}':
-            label, description, source =  extract_parts(instance.text)
-            if source != 'user':
-                add_entities(project = instance.project, 
-                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                             source = source, 
-                             prefix = "MF")
-            elif instance.external_id == 'not found':
-                    add_new_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "MF")
-        # Mathematical Model - Mathematical Formulation (Assumption) Relation
-        if instance and instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Model Assumption"]["uri"]}':
-            label, description, source =  extract_parts(instance.text)
-            if source != 'user':
-                add_entities(project = instance.project, 
-                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                             source = source, 
-                             prefix = "MF")
-            elif instance.external_id == 'not found':
-                    add_new_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "MF")
-        # Task - Mathematical Formulation (Assumption) Relation
-        if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task Assumption"]["uri"]}':
-            label, description, source =  extract_parts(instance.text)
-            if source != 'user':
-                add_entities(project = instance.project, 
-                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                             source = source, 
-                             prefix = "MF")
-            elif instance.external_id == 'not found':
-                    add_new_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "MF")
-        # Mathematical Formulation - Mathematical Formulation (Assumption) Relation
-        if instance and instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Formulation Assumption"]["uri"]}':
-            label, description, source =  extract_parts(instance.text)
-            if source != 'user':
-                add_entities(project = instance.project, 
-                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                             source = source, 
-                             prefix = "MF")
-            elif instance.external_id == 'not found':
-                    add_new_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "MF")
-        # Mathematical Model - Research Problem Relation
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Model RPRelatant"]["uri"]}':
-            # Check if actual Research Problem chosen
-            if instance.text:
-                # Load MathModDB Vocabulary
-                mathmoddb = get_data('model/data/mapping.json')
-                label, description, source =  extract_parts(instance.text)
-                # Add Research Problem Relation to questionnaire
-                value_editor(project = instance.project, 
-                             uri = f'{BASE_URI}{questions["Mathematical Model MM2RP"]["uri"]}', 
-                             text = mathmoddb['models'],
-                             collection_index = instance.collection_index, 
-                             set_index = 0, 
-                             set_prefix = instance.set_prefix)
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Research Problem"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Research Problem ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "RP")
-                elif instance.external_id == 'not found':
-                    add_new_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Research Problem"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Research Problem ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "RP")
-        # Mathematical Model - Task Relation
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Model TRelatant"]["uri"]}':
-            # Check if actual Task chosen
-            if instance.text:
-                # Load MathModDB Vocabulary
-                mathmoddb = get_data('model/data/mapping.json')
-                label, description, source =  extract_parts(instance.text)
-                # Add Task Relation to questionnaire
-                value_editor(project = instance.project, 
-                             uri = f'{BASE_URI}{questions["Mathematical Model MM2T"]["uri"]}', 
-                             text = mathmoddb['usedBy'],
-                             collection_index = instance.collection_index, 
-                             set_index = 0, 
-                             set_prefix = instance.set_prefix)
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Task"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Task ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "T")
-                elif instance.external_id == 'not found':
-                    add_new_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Task"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Task ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "T")
-        # Mathematical Formulation - Mathematical Formulation Relation I
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Formulation MFRelatant"]["uri"]}':
-            label, description, source =  extract_parts(instance.text)
-            if source != 'user':
-                add_entities(project = instance.project, 
-                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                             source = source, 
-                             prefix = "MF")
-            elif instance.external_id == 'not found':
-                add_new_entities(project = instance.project, 
-                             question_set = f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}', 
-                             question_id = f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}', 
-                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                             source = source, 
-                             prefix = "MF")
+                add_new_entities(
+                    project=instance.project,
+                    question_set=config["question_set"],
+                    question_id=config["question_id"],
+                    datas=datas,
+                    source=source,
+                    prefix=config["prefix"]
+                )
 
     return

@@ -12,7 +12,7 @@ from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
 from .oauth2 import OauthProviderMixin
-from .utils import get_data, get_new_ids, get_questionsAL, get_questionsMO, get_questionsPU, get_questionsWO, merge_dicts_with_unique_keys, query_sparql
+from .utils import get_data, get_new_ids, get_questionsAL, get_questionsMO, get_questionsPU, get_questionsSE, get_questionsWO, merge_dicts_with_unique_keys, query_sparql
 from .config import endpoint
 
 from .model.worker import prepareModelExport, prepareModelPreview
@@ -43,14 +43,6 @@ class BaseMaRDMOExportProvider(OauthProviderMixin, Export):
     @property
     def oauth2_client_secret(self):
         return settings.MARDMO_PROVIDER['oauth2_client_secret']
-    
-    @property
-    def mathmoddb_id(self):
-        return settings.MARDMO_PROVIDER['mathmoddb_id']
-
-    @property
-    def mathmoddb_secret(self):
-        return settings.MARDMO_PROVIDER['mathmoddb_secret']
     
     @property
     def mathalgodb_id(self):
@@ -211,7 +203,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 data = self.get_post_data()
                 
                 try:
-                    payload = prepareModelExport(data[0])
+                    payload = prepareModelExport(data[0], self.wikibase_url)
                 except Exception as err:
                     return render(self.request, 
                                   'core/error.html', 
@@ -261,7 +253,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 else:
                     return render(self.request,
                                   'MaRDMO/workflowError.html', 
-                                  {'error': 'The mathematical model could not be integrated into the MathodDB!'}, 
+                                  {'error': 'The algorithm could not be integrated into the MathAlgoDB!'}, 
                                   status=200)
 
             # MaRDMO: Search Interdisciplinary Workflow, Mathematical Models or Algorithms    
@@ -302,7 +294,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
                 data = self.get_post_data()
                 try:
-                    payload = prepareWorkflowExport(data[0], self.project.title)
+                    payload = prepareWorkflowExport(data[0], self.project.title, self.wikibase_url)
                 except Exception as err:
                     return render(self.request, 
                                   'core/error.html', 
@@ -345,7 +337,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 answers = get_answer_model(self.project, answers, **info)
             
             # Prepare Mathematical Model Preview
-            answers = prepareModelPreview(self.project, answers, mathmoddb)
+            answers = prepareModelPreview(answers, mathmoddb)
 
             # Retrieve Publications related to Workflow
             answers = PublicationRetriever.WorkflowOrModel(self.project, answers, options)
@@ -356,7 +348,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
 
             # Load Data for Mathematical Model Documentation
-            questions = get_questionsAL | get_questionsPU()
+            questions = get_questionsAL() | get_questionsPU()
             mathalgodb = get_data('algorithm/data/mapping.json')
 
             answers ={}
@@ -375,7 +367,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         elif str(self.project.catalog).split('/')[-1] == 'mardmo-search-catalog':
 
             # Load Data for Interdisciplinary Workflow, Mathematical Model or Algorithm Search
-            questions = get_data('search/data/questions.json')
+            questions = get_questionsSE()
             
             answers ={}
             for _, info in questions.items():

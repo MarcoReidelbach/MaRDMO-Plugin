@@ -1,14 +1,12 @@
 import logging
 import copy
+import requests
 
 from urllib.parse import urlencode
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
-
-import requests
-from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from .utils import replace_in_dict
 
@@ -83,7 +81,6 @@ class OauthProviderMixin:
 
     def perform_post(self, request, access_token, url, jsons=None, files=None, multipart=None):
         
-        response = ''
         init = copy.deepcopy(jsons)
         for key in list(jsons.keys()):
             if not jsons[key]['id']:
@@ -108,13 +105,22 @@ class OauthProviderMixin:
                         jsons[key]['id'] = response.json()['id']
                         jsons = replace_in_dict(jsons, key, response.json()['id'])
                     except requests.HTTPError:
-                        logger.warning('post error: %s (%s)', response.content, response.status_code)
-                        return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
+                        if response.status_code == 422:
+                            error_json = response.json()
+                            if error_json.get("code") == "data-policy-violation" and error_json.get("context", {}).get('violation') == 'item-label-description-duplicate':
+                                conflict_id = error_json.get("context", {}).get("violation_context", {}).get("conflicting_item_id")
+                                if conflict_id:
+                                    jsons[key]['id'] = conflict_id
+                                    jsons = replace_in_dict(jsons, key, conflict_id)
+                        else:
+                            logger.warning('post error: %s (%s)', response.content, response.status_code)    
+                            return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
             else:
                 jsons = replace_in_dict(jsons, key, jsons[key]['id'])
+        
         final = jsons
         
-        return self.post_success(request, init, final) #response)
+        return self.post_success(request, init, final)
 
     def render_error(self, request, title, message):
         return render(request, 'core/error.html', {'title': title, 'errors': [message]}, status=200)

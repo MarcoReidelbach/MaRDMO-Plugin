@@ -2,7 +2,7 @@ from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI
 
-def add_item_relation(payload, values, lookup, items, item, idx, property, qualifier = [], datatype = 'wikibase-item', reverse = False):
+def add_item_relation(url, payload, values, lookup, items, item, idx, property, qualifier = [], datatype = 'wikibase-item', reverse = False):
     for value in values:
         # Continue if no ID exists
         if not value.get('ID'):
@@ -13,14 +13,14 @@ def add_item_relation(payload, values, lookup, items, item, idx, property, quali
         entry = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
         # Add to Payload
         if reverse:
-            payload.update({f"RELATION{idx}":{'id': '', 'url': statements_uri(entry), 'payload': statements_payload(property, item, datatype, qualifier)}})
+            payload.update({f"RELATION{idx}":{'id': '', 'url': statements_url(url, entry), 'payload': statements_payload(property, item, datatype, qualifier)}})
         else:
-            payload.update({f"RELATION{idx}":{'id': '', 'url': statements_uri(item), 'payload': statements_payload(property, entry, datatype, qualifier)}}) 
+            payload.update({f"RELATION{idx}":{'id': '', 'url': statements_url(url, item), 'payload': statements_payload(property, entry, datatype, qualifier)}}) 
         idx += 1
     return payload, idx
 
-def add_static_or_non_item_relation(payload, item, idx, property, content, datatype = 'wikibase-item', qualifier = []):
-    payload.update({f"RELATION{idx}":{'id': '', 'url': statements_uri(item), 'payload': statements_payload(property, content, datatype, qualifier)}}) 
+def add_static_or_non_item_relation(url, payload, item, idx, property, content, datatype = 'wikibase-item', qualifier = []):
+    payload.update({f"RELATION{idx}":{'id': '', 'url': statements_url(url, item), 'payload': statements_payload(property, content, datatype, qualifier)}}) 
     idx += 1
     return payload, idx
 
@@ -145,16 +145,14 @@ def items_payload(name, description):
     else:
         return {"item": {"labels": {"en": name}}}
     
-def items_uri():
-    return 'https://test.wikidata.org/w/rest.php/wikibase/v1/entities/items'
-    #return 'https://staging.mardi4nfdi.org/w/rest.php/wikibase/v1/entities/items'
+def items_url(url):
+    return f'{url}/w/rest.php/wikibase/v1/entities/items'
     
 def statements_payload(id, content, data_type = "wikibase-item", qualifiers = []):
     return {"statement": {"property": {"id": id, "data_type": data_type}, "value": {"type": "value", "content": content}, "qualifiers": qualifiers}}
 
-def statements_uri(item):
-    return f'https://test.wikidata.org/w/rest.php/wikibase/v1/entities/items/{item}/statements'
-    #return f'https://staging.mardi4nfdi.org/w/rest.php/wikibase/v1/entities/items/{item}/statements'
+def statements_url(url, item):
+    return f'{url}/w/rest.php/wikibase/v1/entities/items/{item}/statements'
     
 
 

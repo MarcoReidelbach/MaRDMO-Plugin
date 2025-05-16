@@ -58,13 +58,6 @@
         "uri": "domain/problem/description",
         "set_prefix": true
     },
-    "Research Problem RP2RF": {
-        "key1": "problem",
-        "key2": "RP2RF",
-        "uri": "domain/problem/field-relation",
-        "set_prefix": true,
-        "collection_index": true
-    },
     "Research Problem RFRelatant": {
         "key1": "problem",
         "key2": "RFRelatant",
@@ -117,13 +110,6 @@
         "set_prefix": true,
         "collection_index": true
     },
-    "Mathematical Model MM2RP": {
-        "key1": "model",
-        "key2": "MM2RP",
-        "uri": "domain/model/problem-relation",
-        "set_prefix": true,
-        "collection_index": true
-    },
     "Mathematical Model RPRelatant": {
         "key1": "model",
         "key2": "RPRelatant",
@@ -146,13 +132,6 @@
         "set_prefix": true,
         "set_index": true,
         "external_id": true
-    },
-    "Mathematical Model MM2T": {
-        "key1": "model",
-        "key2": "MM2T",
-        "uri": "domain/model/task-relation",
-        "set_prefix": true,
-        "collection_index": true
     },
     "Mathematical Model TRelatant": {
         "key1": "model",

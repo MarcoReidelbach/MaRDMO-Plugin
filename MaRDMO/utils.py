@@ -34,6 +34,10 @@ def get_questionsPU():
     """Retrieve the questions dictionary from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").questionsPU
 
+def get_questionsSE():
+    """Retrieve the questions dictionary from MaRDMOConfig."""
+    return apps.get_app_config("MaRDMO").questionsSE
+
 def get_id(project, uri, keys):
     values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
     ids = []
@@ -537,32 +541,43 @@ def labelIndexMap(data, type):
         label_to_index_maps.append({data[toIDX_entry][k].get('Name'): idx for idx, k in enumerate(data.get(toIDX_entry, {}))})
     return label_to_index_maps
 
-def entityRelations(data, fromIDX, toIDX, relationOld, entityOld, relationNew, enc, no=2):
-
-    # Ensure toIDX and enc are lists
+def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', entityNew='', enc=[]):
     toIDX = checkList(toIDX)
     enc = checkList(enc)
-    
-    # Create mappings for all toIDX lists
     label_to_index_maps = labelIndexMap(data, toIDX)
 
-    # Use Template or Ressource Label
+    def resolve_target(name, id_, entity_enc, label_map):
+        """Try to resolve name to index in label_map; fallback to id_."""
+        if name in label_map:
+            idx = label_map[name]
+            return f"{entity_enc}{idx + 1}"
+        return id_
+
     for from_entry in data.get(fromIDX, {}).values():
-        for key in from_entry.get(relationOld, {}):
-            if from_entry[entityOld].get(key):
-                #Id, label = from_entry[entityOld][key].split(' <|> ')[:2]
-                match_found = False
-                for enc_entry, label_to_index in zip(enc, label_to_index_maps):
-                    if from_entry[entityOld][key]['Name'] in label_to_index:
-                        idx = label_to_index[from_entry[entityOld][key]['Name']]
-                        match_found = True
-                        if [from_entry[relationOld][key], f'{enc_entry}{idx+1}'] not in from_entry.get(relationNew, {}).values():
-                            from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], f'{enc_entry}{idx+1}']})
-                        break
-                
-                if not match_found:
-                    if [from_entry[relationOld][key], from_entry[entityOld][key]['ID']] not in from_entry.get(relationNew, {}).values():
-                        from_entry.setdefault(relationNew, {}).update({key: [from_entry[relationOld][key], from_entry[entityOld][key]['ID']]})
+        entries = from_entry.get(entityOld, {})
+        for key, value in entries.items():
+            name = value.get("Name")
+            id_ = value.get("ID")
+            entity_values = from_entry.setdefault(entityNew, {})
+
+            resolved = None
+            for enc_entry, label_map in zip(enc, label_to_index_maps):
+                resolved = resolve_target(name, id_, enc_entry, label_map)
+                if resolved != id_:
+                    break  # match found
+
+            if relationOld:
+                if from_entry.get(relationOld, {}).get(key):
+                    relation_value = from_entry[relationOld][key]
+                else:
+                    relation_value = 'MISSING RELATION TYPE'
+                new_value = [relation_value, resolved]
+            else:
+                new_value = resolved
+
+            if key not in entity_values.values() and entity_values.get(key) != new_value:
+                entity_values[key] = new_value
+
     return
 
 def mapEntity(data, fromIDX, toIDX, entityOld, entityNew, enc):
