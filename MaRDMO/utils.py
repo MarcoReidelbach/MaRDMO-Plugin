@@ -18,6 +18,10 @@ from .algorithm.sparql import queryProviderAL
 
 logger = logging.getLogger(__name__)  # Get Django's logger for the current module
 
+def get_mathmoddb():
+    """Retrieve the mathmoddb ontology from MaRDMOConfig."""
+    return apps.get_app_config("MaRDMO").mathmoddb
+
 def get_questionsWO():
     """Retrieve the questions dictionary from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").questionsWO
@@ -422,7 +426,7 @@ def get_data(file_name):
         data = json.load(json_file)
     return data
 
-def query_sources(search, queryID, sources, notFound=True):
+def query_sources(search, queryID = '', sources = ['mardi', 'wikidata'], notFound=True):
         '''Helper function to query specified sources and process results.'''
         
         source_functions = {
@@ -486,7 +490,7 @@ def process_result(result, location):
          'text': f"{result['display']['label']['value']} ({result['display'].get('description', {}).get('value', 'No Description Provided!')}) [{location}]"
     }
 
-def query_sources_with_user_additions(search, project, queryID, queryAttribute, sources = ['mathmoddb'], user = False):
+def query_sources_with_user_additions(search, project, queryAttributes, user = False, queryID = '', sources = ['mardi', 'wikidata']):
     '''Fetch options from MathModDB, user-defined fields, and other sources.'''
 
     # Query sources and get the results directly in options
@@ -495,31 +499,34 @@ def query_sources_with_user_additions(search, project, queryID, queryAttribute, 
     except:
         options = []
 
-    # Fetch user-defined research fields from the project
-    values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{queryAttribute}/id'))
-    values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{queryAttribute}/name'))
-    values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{queryAttribute}/description'))
-    
-    # Process user-defined research fields
+    # Dictionary for User Answers
     dic = {}
-    for idx, (value1, value2, value3) in enumerate(zip(values1, values2, values3)):
-        source = label = description = None
-        if value1.text:
-            if value1.text == 'not found':
-                # User-Defined Cases
-                label = value2.text or "No Label Provided!"
-                description = value3.text or "No Description Provided!"
-                id = idx
-                source = 'user'
-            else:
-                # ID Cases
-                label, description, source = extract_parts(value1.text)
-                _, id = value1.external_id.split(':')
-        if source not in sources:
-            if source == 'user':
-                dic[f"{label} ({description}) [{source}]"] = {'id': f"not found"}
-            else:
-                dic[f"{label} ({description}) [{source}]"] = {'id': f"{source}:{id}"}
+
+    for queryAttribute in queryAttributes:
+        # Fetch user-defined research fields from the project
+        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{queryAttribute}/id'))
+        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{queryAttribute}/name'))
+        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{queryAttribute}/description'))
+
+        # Process user-defined answers
+        for idx, (value1, value2, value3) in enumerate(zip(values1, values2, values3)):
+            source = label = description = None
+            if value1.text:
+                if value1.text == 'not found':
+                    # User-Defined Cases
+                    label = value2.text or "No Label Provided!"
+                    description = value3.text or "No Description Provided!"
+                    id = idx
+                    source = 'user'
+                else:
+                    # ID Cases
+                    label, description, source = extract_parts(value1.text)
+                    _, id = value1.external_id.split(':')
+            if source not in sources:
+                if source == 'user':
+                    dic[f"{label} ({description}) [{source}]"] = {'id': f"not found"}
+                else:
+                    dic[f"{label} ({description}) [{source}]"] = {'id': f"{source}:{id}"}
             
     # Add the user-defined options to the list, filtered by search
     options.extend([{'id': f"{dic[key]['id']}", 'text': key} for key in dic if search.lower() in key.lower()])
@@ -593,7 +600,6 @@ def mapEntity(data, fromIDX, toIDX, entityOld, entityNew, enc):
     for from_entry in data.get(fromIDX, {}).values():
         for outerKey, relation in from_entry.get(entityOld, {}).items():
             for innerKey, entity in relation.items():
-                #Id, label = entity.split(' <|> ')[:2]
                 match_found = False
                 for enc_entry, label_to_index in zip(enc, label_to_index_maps):
                     if entity['Name'] in label_to_index:

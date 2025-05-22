@@ -3,7 +3,7 @@ import re
 from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI
-from ..utils import extract_parts, get_data
+from ..utils import extract_parts, get_mathmoddb
 
 
 def get_answer_model(project, val, uri, key1 = None, key2 = None, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
@@ -107,30 +107,31 @@ def mathmlToLatex(mathml):
 def mapEntityQuantity(data, type, mapping):
     for key in data[type]:
         for key2 in data[type][key].get('element',{}):
-            #_, label = data[type][key]['element'][key2]['quantity'].split(' <|> ')
             for k in data['quantity']:
-                if data[type][key]['element'][key2]['quantity']['Name'].lower() == data['quantity'][k]['Name'].lower():
+                if data[type][key]['element'][key2].get('quantity', {}).get('Name', '').lower() == data['quantity'][k]['Name'].lower():
                     if data['quantity'][k]['QorQK'] == mapping['Quantity']:
                         data[type][key]['element'][key2].update(
                             {'Info': 
-                                {'Name':data['quantity'][k].get('Name',''),
+                                {'Type': mapping['Quantity'],
+                                 'Name':data['quantity'][k].get('Name',''),
                                  'Description':data['quantity'][k].get('Description',''),
-                                 'QID':data['quantity'][k].get('ID','') if data['quantity'][k].get('ID','') and data['quantity'][k].get('ID','') != 'not found' else data['quantity'][k].get('Reference','') if data['quantity'][k].get('Reference','') else '', 
+                                 'ID':data['quantity'][k].get('ID','') if data['quantity'][k].get('ID','') and data['quantity'][k].get('ID','') != 'not found' else data['quantity'][k].get('Reference','') if data['quantity'][k].get('Reference','') else '', 
                                  'QKName':data['quantity'][k].get('QKRelatant', {}).get(0, {}).get('Name', ''),
                                  'QKID':data['quantity'][k].get('QKRelatant', {}).get(0, {}).get('ID', '')}
                             })
                     elif data['quantity'][k]['QorQK'] == mapping['QuantityKind']:
                         data[type][key]['element'][key2].update(
                             {'Info':
-                                {'QKName':data['quantity'][k].get('Name',''),
+                                {'Type': mapping['QuantityKind'],
+                                 'Name':data['quantity'][k].get('Name',''),
                                  'Description':data['quantity'][k].get('Description',''),
-                                 'QKID':data['quantity'][k].get('ID','') if data['quantity'][k].get('ID','') and data['quantity'][k].get('ID','') != 'not found' else ''}
+                                 'ID':data['quantity'][k].get('ID','') if data['quantity'][k].get('ID','') and data['quantity'][k].get('ID','') != 'not found' else ''}
                             })
     return
 
 def restructureIntracClass(data, type = ''):
     
-    mathmoddb = get_data('model/data/mapping.json')
+    mathmoddb = get_mathmoddb()
 
     relation_map = {
         mathmoddb['specializedBy']:         'specialized by',

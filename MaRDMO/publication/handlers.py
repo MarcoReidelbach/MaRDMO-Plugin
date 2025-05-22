@@ -5,7 +5,7 @@ from rdmo.projects.models import Value
 from rdmo.options.models import Option
 
 from ..config import BASE_URI, endpoint
-from ..utils import add_basics, add_references, add_relations, get_data, get_questionsPU, query_sparql, value_editor
+from ..utils import add_basics, add_references, add_relations, get_data, get_mathmoddb, get_questionsPU, query_sparql, value_editor
 
 from .constants import INDEX_COUNTERS, PROPS, RELATANT_URIS, RELATION_URIS
 from .utils import generate_label
@@ -99,7 +99,7 @@ def PInformation(sender, **kwargs):
             # For Models add Relations          
             if str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
                 if source == 'mardi':
-                    mathmoddb = get_data('model/data/mapping.json')
+                    mathmoddb = get_mathmoddb()
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['P2E'], 

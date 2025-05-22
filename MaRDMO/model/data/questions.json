@@ -21,6 +21,13 @@
         "uri": "domain/field/description",
         "set_prefix": true
     },
+    "Research Field Long Description": {
+        "key1": "field",
+        "key2": "descriptionLong",
+        "uri": "domain/field/long-description",
+        "set_prefix": true,
+        "collection_index": true
+    },
     "Research Field IntraClassRelation": {
         "key1": "field",
         "key2": "IntraClassRelation",
@@ -57,6 +64,13 @@
         "key2": "Description",
         "uri": "domain/problem/description",
         "set_prefix": true
+    },
+    "Research Problem Long Description": {
+        "key1": "problem",
+        "key2": "descriptionLong",
+        "uri": "domain/problem/long-description",
+        "set_prefix": true,
+        "collection_index": true
     },
     "Research Problem RFRelatant": {
         "key1": "problem",
@@ -102,6 +116,13 @@
         "key2": "Description",
         "uri": "domain/model/description",
         "set_prefix": true
+    },
+    "Mathematical Model Long Description": {
+        "key1": "model",
+        "key2": "descriptionLong",
+        "uri": "domain/model/long-description",
+        "set_prefix": true,
+        "collection_index": true
     },
     "Mathematical Model Properties": {
         "key1": "model",
@@ -186,6 +207,13 @@
         "key2": "Description",
         "uri": "domain/formulation/description",
         "set_prefix": true
+    },
+    "Mathematical Formulation Long Description": {
+        "key1": "formulation",
+        "key2": "descriptionLong",
+        "uri": "domain/formulation/long-description",
+        "set_prefix": true,
+        "collection_index": true
     },
     "Mathematical Formulation Properties": {
         "key1": "formulation",
@@ -306,6 +334,13 @@
         "key2": "Description",
         "uri": "domain/quantity/description",
         "set_prefix": true
+    },
+    "Quantity Long Description": {
+        "key1": "quantity",
+        "key2": "descriptionLong",
+        "uri": "domain/quantity/long-description",
+        "set_prefix": true,
+        "collection_index": true
     },
     "Quantity Reference": {
         "key1": "quantity",
@@ -433,6 +468,13 @@
         "uri": "domain/task/description",
         "set_prefix": true
     },
+    "Task Long Description": {
+        "key1": "task",
+        "key2": "descriptionLong",
+        "uri": "domain/task/long-description",
+        "set_prefix": true,
+        "collection_index": true
+    },
     "Task Properties": {
         "key1": "task",
         "key2": "Properties",
@@ -494,54 +536,11 @@
         "collection_index": true,
         "external_id": true
     },
-    "Publication": {
-        "uri": "domain/publication"
-    },
-    "Publication ID": {
-        "key1": "publication",
-        "key2": "ID",
-        "uri": "domain/publication/id",
-        "set_index": true,
-        "external_id": true
-    },
-    "Publication Name": {
-        "key1": "publication",
-        "key2": "Name",
-        "uri": "domain/publication/name",
-        "set_index": true
-    },
-    "Publication Description": {
-        "key1": "publication",
-        "key2": "Description",
-        "uri": "domain/publication/description",
-        "set_index": true
-    },
-    "Publication Reference": {
-        "key1": "publication",
-        "key2": "reference",
-        "uri": "domain/publication/reference",
-        "set_index": true,
-        "collection_index": true
-    },
-    "Publication URL Citation": {
-        "key1": "publication",
-        "key2": "urlcitation",
-        "uri": "domain/publication/url-citation",
-        "set_index": true
-    },
-    "Publication P2E": {
-        "key1": "publication",
-        "key2": "P2E",
-        "uri": "domain/publication/entity-relation",
+    "Task Order Number": {
+        "key1": "task",
+        "key2": "order-number",
+        "uri": "domain/task/task-order-number",
         "set_prefix": true,
         "set_index": true
-    },
-    "Publication EntityRelatant": {
-        "key1": "publication",
-        "key2": "EntityRelatant",
-        "uri": "domain/publication/entity-relatant",
-        "set_prefix": true,
-        "set_index": true,
-        "external_id": true
     }
 }

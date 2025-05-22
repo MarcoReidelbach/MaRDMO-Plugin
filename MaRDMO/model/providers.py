@@ -6,18 +6,14 @@ from ..utils import query_sources, query_sources_with_user_additions
 class ResearchField(Provider):
 
     search = True
-    refresh = True
+    #refreh =True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''
         if not search or len(search) < 3:
             return []
 
-        # Define the query parameter
-        queryID = 'RF'
-        sources = ['mardi', 'wikidata']
-
-        return query_sources(search, queryID, sources)
+        return query_sources(search)
 
 class RelatedResearchFieldWithCreation(Provider):
 
@@ -28,12 +24,10 @@ class RelatedResearchFieldWithCreation(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'RF'
-        sources = ['mardi','wikidata']
-        queryAttribute = 'field'
+        # Define the queryAttributes
+        queryAttributes = ['field']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, True)
+        return query_sources_with_user_additions(search, project, queryAttributes, True)
     
 class RelatedResearchFieldWithoutCreation(Provider):
 
@@ -44,28 +38,22 @@ class RelatedResearchFieldWithoutCreation(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'RF'
-        sources = ['mardi','wikidata']
-        queryAttribute = 'field'
+        # Define the queryAttributes
+        queryAttributes = ['field']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
+        return query_sources_with_user_additions(search, project, queryAttributes)
     
 class ResearchProblem(Provider):
 
     search = True
-    refresh = True
+    #refreh =True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''
         if not search or len(search) < 3:
             return []
 
-        # Define the query parameter
-        queryID = 'RP'
-        sources = ['mardi', 'wikidata']
-
-        return query_sources(search, queryID, sources)
+        return query_sources(search)
 
 class RelatedResearchProblemWithCreation(Provider):
 
@@ -76,12 +64,10 @@ class RelatedResearchProblemWithCreation(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'RP'
-        sources = ['mardi','wikidata']
-        queryAttribute = 'problem'
+        # Define the queryAttributes
+        queryAttributes = ['problem']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, True)
+        return query_sources_with_user_additions(search, project, queryAttributes, True)
     
 class RelatedResearchProblemWithoutCreation(Provider):
 
@@ -92,28 +78,22 @@ class RelatedResearchProblemWithoutCreation(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'RP'
-        sources = ['mardi','wikidata']
-        queryAttribute = 'problem'
+        # Define the queryAttributes
+        queryAttributes = ['problem']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
+        return query_sources_with_user_additions(search, project, queryAttributes)
     
 class MathematicalModel(Provider):
 
     search = True
-    refresh = True
+    #refreh = True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''
         if not search or len(search) < 3:
             return []
-
-        # Define the sources to query
-        queryID = 'MM'
-        sources = ['mardi','wikidata']
-
-        return query_sources(search, queryID, sources)
+        
+        return query_sources(search)
 
 class RelatedMathematicalModelWithoutCreation(Provider):
 
@@ -124,28 +104,22 @@ class RelatedMathematicalModelWithoutCreation(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'MM'
-        sources = ['mardi','wikidata']
-        queryAttribute = 'model'
+        # Define the queryAttributes
+        queryAttributes = ['model']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
+        return query_sources_with_user_additions(search, project, queryAttributes)
     
 class QuantityOrQuantityKind(Provider):
 
     search = True
-    refresh = True
+    #refreh =True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''
         if not search or len(search) < 3:
             return []
 
-        # Define the sources to query
-        queryID = 'QQK'
-        sources = ['mardi', 'wikidata']
-
-        return query_sources(search, queryID, sources)
+        return query_sources(search)
 
 class RelatedQuantityWithoutCreation(Provider):
 
@@ -156,12 +130,10 @@ class RelatedQuantityWithoutCreation(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'Q'
-        sources = ['mardi', 'wikidata']
-        queryAttribute = 'quantity'
+        # Define the queryAttributes
+        queryAttributes = ['quantity']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
+        return query_sources_with_user_additions(search, project, queryAttributes)
 
 class RelatedQuantityKindWithoutCreation(Provider):
 
@@ -172,62 +144,52 @@ class RelatedQuantityKindWithoutCreation(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'QK'
-        sources = ['mardi', 'wikidata']
-        queryAttribute = 'quantity'
+        # Define the queryAttributes
+        queryAttributes = ['quantity']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
+        return query_sources_with_user_additions(search, project, queryAttributes)
     
 class RelatedQuantityOrQuantityKindWithCreation(Provider):
 
     search = True
-    refresh = True
+    #refreh =True
 
     def get_options(self, project, search=None, user=None, site=None):
 
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'QQK'
-        sources = ['mardi','wikidata']
-        queryAttribute = 'quantity'
+        # Define the queryAttributes
+        queryAttributes = ['quantity']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, True)
+        return query_sources_with_user_additions(search, project, queryAttributes, True)
     
 class MathematicalFormulation(Provider):
 
     search = True
-    refresh = True
+    #refreh =True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''
         if not search or len(search) < 3:
             return []
 
-        # Define the sources to query
-        queryID = 'MF'
-        sources = ['mardi','wikidata']
-
-        return query_sources(search, queryID, sources)
+        return query_sources(search)
     
 class RelatedMathematicalFormulationWithCreation(Provider):
 
     search = True
-    refresh = True
+    #refreh =True
 
     def get_options(self, project, search=None, user=None, site=None):
 
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'MF'
-        sources = ['mardi','wikidata']
-        queryAttribute = 'formulation'
+        # Define the queryAttributes
+        queryAttributes = ['formulation']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, True)
+        return query_sources_with_user_additions(search, project, queryAttributes, True)
     
 class RelatedMathematicalFormulationWithoutCreation(Provider):
 
@@ -238,28 +200,22 @@ class RelatedMathematicalFormulationWithoutCreation(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'MF'
-        sources = ['mardi','wikidata']
-        queryAttribute = 'formulation'
+        # Define the queryAttributes
+        queryAttributes = ['formulation']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
+        return query_sources_with_user_additions(search, project, queryAttributes)
 
 class Task(Provider):
 
     search = True
-    refresh = True
+    #refreh =True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''
         if not search or len(search) < 3:
             return []
 
-        # Define the sources to query
-        queryID = 'T'
-        sources = ['mardi','wikidata']
-
-        return query_sources(search, queryID, sources)
+        return query_sources(search)
 
 class RelatedTaskWithCreation(Provider):
 
@@ -270,12 +226,10 @@ class RelatedTaskWithCreation(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'T'
-        sources = ['mardi','wikidata']
-        queryAttribute = 'task'
+        # Define the queryAttributes
+        queryAttributes = ['task']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, True)
+        return query_sources_with_user_additions(search, project, queryAttributes, True)
     
 class RelatedTaskWithoutCreation(Provider):
 
@@ -286,9 +240,21 @@ class RelatedTaskWithoutCreation(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'T'
-        sources = ['mardi','wikidata']
-        queryAttribute = 'task'
+        # Define the queryAttributes
+        queryAttributes = ['task']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources, False)
+        return query_sources_with_user_additions(search, project, queryAttributes)
+    
+class RelatedModelEntityWithoutCreation(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search:
+            return []
+        
+        # Define the query parameter
+        queryAttributes = ['field', 'problem', 'model', 'quantity', 'formulation', 'task']
+
+        return query_sources_with_user_additions(search, project, queryAttributes)

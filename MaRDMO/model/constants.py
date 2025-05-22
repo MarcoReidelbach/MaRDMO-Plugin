@@ -1,7 +1,5 @@
 from ..config import BASE_URI
-from ..utils import get_data, get_questionsMO
-
-mathmoddb = get_data('model/data/mapping.json')
+from ..utils import get_mathmoddb, get_questionsMO
 
 # Dictionary with list of property names
 PROPS = {
@@ -56,21 +54,24 @@ REVERSE = {
 }
 
 # Relation Map
-RELATION_MAP = {
-        mathmoddb['specializedBy']:         'specialized by',
-        mathmoddb['specializes']:           'specializes',
-        mathmoddb['approximatedBy']:        'approximated by',
-        mathmoddb['approximates']:          'approximates',
-        mathmoddb['discretizedBy']:         'discretized by',
-        mathmoddb['discretizes']:           'discretizes',
-        mathmoddb['linearizedBy']:          'linearized by',
-        mathmoddb['linearizes']:            'linearizes',
-        mathmoddb['nondimensionalizedBy']:  'nondimensionalized by',
-        mathmoddb['nondimensionalizes']:    'nondimensionalizes',
-        mathmoddb['contains']:              'contains',
-        mathmoddb['containedIn']:           'contained in',
-        mathmoddb['similarTo']:             'similar to'
-    }
+def get_RELATION_MAP():
+    mathmoddb = get_mathmoddb()
+    RELATION_MAP = {
+            mathmoddb['specializedBy']:         'specialized by',
+            mathmoddb['specializes']:           'specializes',
+            mathmoddb['approximatedBy']:        'approximated by',
+            mathmoddb['approximates']:          'approximates',
+            mathmoddb['discretizedBy']:         'discretized by',
+            mathmoddb['discretizes']:           'discretizes',
+            mathmoddb['linearizedBy']:          'linearized by',
+            mathmoddb['linearizes']:            'linearizes',
+            mathmoddb['nondimensionalizedBy']:  'nondimensionalized by',
+            mathmoddb['nondimensionalizes']:    'nondimensionalizes',
+            mathmoddb['contains']:              'contains',
+            mathmoddb['containedIn']:           'contained in',
+            mathmoddb['similarTo']:             'similar to'
+        }
+    return RELATION_MAP
 
 # Parameter for Entity relations
 PREVIEW_RELATIONS = [
@@ -135,32 +136,32 @@ def get_URI_PREFIX_MAP():
         f'{BASE_URI}{questions["Mathematical Model MFRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
             "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
-            "prefix": "MF"
+            "prefix": "ME"
         },
         f'{BASE_URI}{questions["Mathematical Model Assumption"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
             "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
-            "prefix": "MF"
+            "prefix": "ME"
         },
         f'{BASE_URI}{questions["Task Assumption"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
             "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
-            "prefix": "MF"
+            "prefix": "ME"
         },
         f'{BASE_URI}{questions["Mathematical Formulation Assumption"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
             "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
-            "prefix": "MF"
+            "prefix": "ME"
         },
         f'{BASE_URI}{questions["Mathematical Formulation MFRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
             "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
-            "prefix": "MF"
+            "prefix": "ME"
         },
         f'{BASE_URI}{questions["Research Problem RFRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Research Field"]["uri"]}',
             "question_id": f'{BASE_URI}{questions["Research Field ID"]["uri"]}',
-            "prefix": "RF"
+            "prefix": "AD"
         },
         f'{BASE_URI}{questions["Mathematical Model RPRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Research Problem"]["uri"]}',

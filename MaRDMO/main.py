@@ -12,7 +12,7 @@ from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
 from .oauth2 import OauthProviderMixin
-from .utils import get_data, get_new_ids, get_questionsAL, get_questionsMO, get_questionsPU, get_questionsSE, get_questionsWO, merge_dicts_with_unique_keys, query_sparql
+from .utils import get_mathmoddb, get_data, get_new_ids, get_questionsAL, get_questionsMO, get_questionsPU, get_questionsSE, get_questionsWO, merge_dicts_with_unique_keys, query_sparql
 from .config import endpoint
 
 from .model.worker import prepareModel
@@ -102,7 +102,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
             
             data = self.get_post_data()
-            
+ 
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
@@ -212,7 +212,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   status=200)
                 
                 url = self.get_post_url()
-                
+                           
                 return self.post(self.request, url, payload)
 
             # MaRDMO: Algorithm Documentation
@@ -330,14 +330,14 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
             # Load Data for Model & Publication Documentation
             questions = get_questionsMO() | get_questionsPU()
-            mathmoddb = get_data('model/data/mapping.json')
+            mathmoddb = get_mathmoddb()
 
             answers ={}
             for _, info in questions.items():
                 answers = get_answer_model(self.project, answers, **info)
             
             # Prepare Mathematical Model Preview
-            answers = prepareModel.preview(answers, mathmoddb)
+            answers = prepareModel.preview(answers)
 
             # Retrieve Publications related to Workflow
             answers = PublicationRetriever.WorkflowOrModel(self.project, answers, options)

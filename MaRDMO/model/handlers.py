@@ -7,8 +7,8 @@ from .constants import PROPS, RELATANT_URIS, RELATION_URIS, INDEX_COUNTERS, get_
 from .sparql import queryHandler
 from .models import ResearchField, ResearchProblem, MathematicalModel, QuantityOrQuantityKind, MathematicalFormulation, Task, Relatant
 
-from ..id import ITEMS, PROPERTIES
-from ..utils import add_basics, add_entities, add_new_entities, add_properties, add_relations, add_references, extract_parts, get_data, get_questionsMO, query_sparql, value_editor
+from ..id_testwiki import ITEMS, PROPERTIES
+from ..utils import add_basics, add_entities, add_new_entities, add_properties, add_relations, add_references, extract_parts, get_mathmoddb, get_questionsMO, get_questionsPU, query_sparql, value_editor
 from ..config import BASE_URI, endpoint
 
 
@@ -18,7 +18,7 @@ def RFInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO()
+        questions = get_questionsMO() | get_questionsPU()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Research Field ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 add_basics(project = instance.project,
@@ -34,11 +34,19 @@ def RFInformation(sender, **kwargs):
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['researchFieldInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
-                mathmoddb = get_data('model/data/mapping.json')
+                mathmoddb = get_mathmoddb()
                 
                 if results:
                     # Structure Results
                     data = ResearchField.from_query(results)
+                    # Add Optional Long Descriptions
+                    for idx, descriptionLong in enumerate(data.descriptionLong):
+                        value_editor(project = instance.project, 
+                                         uri = f'{BASE_URI}{questions["Research Field Long Description"]["uri"]}', 
+                                         text = descriptionLong, 
+                                         collectionn_index = idx,
+                                         set_index = 0, 
+                                         set_prefix =instance.set_index)
                     # Add Relations between Research Fields to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
@@ -62,7 +70,7 @@ def RPInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO()
+        questions = get_questionsMO() | get_questionsPU()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Research Problem ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 # Get Label and Description of Item and add to questionnaire
@@ -79,11 +87,19 @@ def RPInformation(sender, **kwargs):
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['researchProblemInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
-                mathmoddb = get_data('model/data/mapping.json')
+                mathmoddb = get_mathmoddb()
                 
                 if results:
                     # Structure Results
                     data = ResearchProblem.from_query(results)
+                    # Add Optional Long Description
+                    for idx, descriptionLong in enumerate(data.descriptionLong):
+                        value_editor(project = instance.project, 
+                                         uri = f'{BASE_URI}{questions["Research Problem Long Description"]["uri"]}', 
+                                         text = descriptionLong,
+                                         collection_index = idx, 
+                                         set_index = 0, 
+                                         set_prefix =instance.set_index)
                     # Add Relations between Research Problem and Research Fields to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
@@ -114,7 +130,7 @@ def QQKInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO()
+        questions = get_questionsMO() | get_questionsPU()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Quantity ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 # Get Label and Description of Item and add to questionnaire
@@ -131,11 +147,19 @@ def QQKInformation(sender, **kwargs):
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['quantityOrQuantityKindInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
-                mathmoddb = get_data('model/data/mapping.json')
+                mathmoddb = get_mathmoddb()
                 
                 if results:
                     # Structure Results
                     data = QuantityOrQuantityKind.from_query(results)
+                    # Add Optional Long Description
+                    for idx, descriptionLong in enumerate(data.descriptionLong):
+                        value_editor(project = instance.project, 
+                                         uri = f'{BASE_URI}{questions["Quantity Long Description"]["uri"]}', 
+                                         text = descriptionLong,
+                                         collection_index = idx, 
+                                         set_index = 0, 
+                                         set_prefix =instance.set_index)
                     # Add Type of Quantity
                     if data.qclass:
                         value_editor(project = instance.project, 
@@ -213,7 +237,7 @@ def MFInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO()
+        questions = get_questionsMO() | get_questionsPU()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 # Get Label and Description of Item and add to questionnaire
@@ -229,11 +253,19 @@ def MFInformation(sender, **kwargs):
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['mathematicalFormulationInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
-                mathmoddb = get_data('model/data/mapping.json')
+                mathmoddb = get_mathmoddb()
                 
                 if results:
                     # Structure Results
                     data = MathematicalFormulation.from_query(results)
+                    # Add Optional Long Description
+                    for idx, descriptionLong in enumerate(data.descriptionLong):
+                        value_editor(project = instance.project, 
+                                         uri = f'{BASE_URI}{questions["Mathematical Formulation Long Description"]["uri"]}', 
+                                         text = descriptionLong,
+                                         collection_index = idx, 
+                                         set_index = 0, 
+                                         set_prefix =instance.set_index)
                     # Add Properties to the Questionnaire
                     add_properties(project = instance.project,
                                    data = data,
@@ -295,7 +327,7 @@ def TInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO()
+        questions = get_questionsMO() | get_questionsPU()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 # Get Label and Description of Item and add to questionnaire
@@ -312,11 +344,20 @@ def TInformation(sender, **kwargs):
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['taskInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
-                mathmoddb = get_data('model/data/mapping.json')
+                mathmoddb = get_mathmoddb()
                 
                 if results:
                     #Structure Results
                     data = Task.from_query(results)
+                    
+                    # Add Optional Long Description
+                    for idx, descriptionLong in enumerate(data.descriptionLong):
+                        value_editor(project = instance.project, 
+                                         uri = f'{BASE_URI}{questions["Task Long Description"]["uri"]}', 
+                                         text = descriptionLong, 
+                                         collection_index = idx,
+                                         set_index = 0, 
+                                         set_prefix =instance.set_index)
                     # Add roperties to the Questionnaire
                     add_properties(project = instance.project,
                                    data = data,
@@ -362,7 +403,7 @@ def MMInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO()
+        questions = get_questionsMO() | get_questionsPU()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Model ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 # Get Label and Description of Item and add to questionnaire
@@ -379,11 +420,19 @@ def MMInformation(sender, **kwargs):
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['mathematicalModelInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
-                mathmoddb = get_data('model/data/mapping.json')
+                mathmoddb = get_mathmoddb()
                 
                 if results:
                     # Structure Results
                     data = MathematicalModel.from_query(results)
+                    # Add Optional Long Description
+                    for idx, descriptionLong in enumerate(data.descriptionLong):
+                        value_editor(project = instance.project, 
+                                         uri = f'{BASE_URI}{questions["Mathematical Model Long Description"]["uri"]}', 
+                                         text = descriptionLong,
+                                         collection_index = idx, 
+                                         set_index = 0, 
+                                         set_prefix =instance.set_index)
                     # Add the Mathematical Model Properties to the Questionnaire
                     add_properties(project = instance.project,
                                    data = data,

@@ -71,6 +71,7 @@ OPTIONSET_PROVIDERS = [
     ('Task', _('Options for Task'), 'MaRDMO.model.providers.Task'),
     ('RelatedTaskWithCreation', _('Options for related Tasks with Creation'), 'MaRDMO.model.providers.RelatedTaskWithCreation'),
     ('RelatedTaskWithoutCreation', _('Options for related Tasks without Creation'), 'MaRDMO.model.providers.RelatedTaskWithoutCreation'),
+    ('RelatedModelEntityWithoutCreation', _('Options for related Model Entities without Creation'), 'MaRDMO.model.providers.RelatedModelEntityWithoutCreation'),
     # Publication
     ('Publication', _('Options for Publication'), 'MaRDMO.publication.providers.Publication'),
     # Algorithm

@@ -1,6 +1,7 @@
 queryHandler = {
     
-    'researchFieldInformation': '''SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?sbrf, " | ", ?sbrfl, " | ", ?sbrfd); separator=" / ") AS ?specializedBy)
+    'researchFieldInformation': '''SELECT DISTINCT ?descriptionLong
+                                                   (GROUP_CONCAT(DISTINCT CONCAT(?sbrf, " | ", ?sbrfl, " | ", ?sbrfd); separator=" / ") AS ?specializedBy)
                                                    (GROUP_CONCAT(DISTINCT CONCAT(?srf, " | ", ?srfl, " | ", ?srfd); separator=" / ") AS ?specializes)
                                                    (GROUP_CONCAT(DISTINCT CONCAT(?strf, " | ", ?strfl, " | ", ?strfd); separator=" / ") AS ?similarTo)
                                                    (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
@@ -8,6 +9,8 @@ queryHandler = {
                                      WHERE {{
                                                    
                                                     VALUES ?id {{wd:{0}}}
+
+                                                    OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{specialized by} ?sbrfraw.
@@ -87,9 +90,11 @@ queryHandler = {
                                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
                                                                }}
 
-                                          }}''',
+                                          }} 
+                                          GROUP BY ?descriptionLong''',
 
-    'researchProblemInformation': '''SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?rf, " | ", ?rfl, " | ", ?rfd); separator=" / ") AS ?containedInField)
+    'researchProblemInformation': '''SELECT DISTINCT ?descriptionLong
+                                                     (GROUP_CONCAT(DISTINCT CONCAT(?rf, " | ", ?rfl, " | ", ?rfd); separator=" / ") AS ?containedInField)
                                                      (GROUP_CONCAT(DISTINCT CONCAT(?sbrp, " | ", ?sbrpl, " | ", ?sbrpd); separator=" / ") AS ?specializedBy)
                                                      (GROUP_CONCAT(DISTINCT CONCAT(?srp, " | ", ?srpl, " | ", ?srpd); separator=" / ") AS ?specializes)
                                                      (GROUP_CONCAT(DISTINCT CONCAT(?strp, " | ", ?strpl, " | ", ?strpd); separator=" / ") AS ?similarTo)
@@ -98,6 +103,8 @@ queryHandler = {
                                      WHERE {{
                                                    
                                                     VALUES ?id {{wd:{0}}}
+
+                                                    OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
                                                    
                                                     OPTIONAL {{
                                                                    ?rfraw wdt:{contains} ?id.
@@ -197,34 +204,38 @@ queryHandler = {
                                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
                                                                }}
 
-                                          }}''',
+                                          }}
+                                          GROUP BY ?descriptionLong''',
 
-    'mathematicalModelInformation': '''SELECT DISTINCT ?isLinear ?isNotLinear
-                                                                 ?isDynamic ?isStatic
-                                                                 ?isDeterministic ?isStochastic
-                                                                 ?isDimensionless ?isDimensional
-                                                                 ?isSpaceContinuous ?isSpaceDiscrete
-                                                                 ?isTimeContinuous ?isTimeDiscrete
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?rp, " | ", ?rpl, " | ", ?rpd); separator=" / ") AS ?models)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); separator=" / ") AS ?assumes)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?containsFormulation)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); separator=" / ") AS ?usedBy)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?sbm, " | ", ?sbml, " | ", ?sbmd, " | ", ?sbmq); separator=" / ") AS ?specializedBy)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?sm, " | ", ?sml, " | ", ?smd, " | ", ?smq); separator=" / ") AS ?specializes)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?abm, " | ", ?abml, " | ", ?abmd); separator=" / ") AS ?approximatedBy)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?am, " | ", ?aml, " | ", ?amd); separator=" / ") AS ?approximates)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?conm, " | ", ?conml, " | ", ?conmd); separator=" / ") AS ?containsModel)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?conim, " | ", ?coniml, " | ", ?conimd); separator=" / ") AS ?containedInModel)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?dbm, " | ", ?dbml, " | ", ?dbmd); separator=" / ") AS ?discretizedBy)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?dm, " | ", ?dml, " | ", ?dmd); separator=" / ") AS ?discretizes)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?lbm, " | ", ?lbml, " | ", ?lbmd); separator=" / ") AS ?linearizedBy)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?lm, " | ", ?lml, " | ", ?lmd); separator=" / ") AS ?linearizes)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?stm, " | ", ?stml, " | ", ?stmd); separator=" / ") AS ?similarTo)
-                                                                 (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+    'mathematicalModelInformation': '''SELECT DISTINCT ?descriptionLong
+                                                       ?isLinear ?isNotLinear
+                                                       ?isDynamic ?isStatic
+                                                       ?isDeterministic ?isStochastic
+                                                       ?isDimensionless ?isDimensional
+                                                       ?isSpaceContinuous ?isSpaceDiscrete
+                                                       ?isTimeContinuous ?isTimeDiscrete
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?rp, " | ", ?rpl, " | ", ?rpd); separator=" / ") AS ?models)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); separator=" / ") AS ?assumes)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?containsFormulation)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); separator=" / ") AS ?usedBy)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?sbm, " | ", ?sbml, " | ", ?sbmd, " | ", ?sbmq); separator=" / ") AS ?specializedBy)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?sm, " | ", ?sml, " | ", ?smd, " | ", ?smq); separator=" / ") AS ?specializes)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?abm, " | ", ?abml, " | ", ?abmd); separator=" / ") AS ?approximatedBy)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?am, " | ", ?aml, " | ", ?amd); separator=" / ") AS ?approximates)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conm, " | ", ?conml, " | ", ?conmd); separator=" / ") AS ?containsModel)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conim, " | ", ?coniml, " | ", ?conimd); separator=" / ") AS ?containedInModel)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?dbm, " | ", ?dbml, " | ", ?dbmd); separator=" / ") AS ?discretizedBy)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?dm, " | ", ?dml, " | ", ?dmd); separator=" / ") AS ?discretizes)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?lbm, " | ", ?lbml, " | ", ?lbmd); separator=" / ") AS ?linearizedBy)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?lm, " | ", ?lml, " | ", ?lmd); separator=" / ") AS ?linearizes)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?stm, " | ", ?stml, " | ", ?stmd); separator=" / ") AS ?similarTo)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
                                                                  
                                                  WHERE {{
                                                    
                                                     VALUES ?id {{wd:{0}}}
+
+                                                    OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
                                                    
                                                     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear model} }}, "True", "False" ) AS ?isLinear)
                                                     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear model} }}, "True", "False" ) AS ?isNotLinear)
@@ -651,10 +662,11 @@ queryHandler = {
                                                                }}
           
                                                    }}
-                                                   GROUP BY ?isLinear ?isNotLinear ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
+                                                   GROUP BY ?descriptionLong ?isLinear ?isNotLinear ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
                                                             ?isDimensional ?isSpaceContinuous ?isSpaceDiscrete ?isTimeContinuous ?isTimeDiscrete''',
 
-              'quantityOrQuantityKindInformation': '''SELECT DISTINCT ?isDynamic ?isStatic
+              'quantityOrQuantityKindInformation': '''SELECT DISTINCT ?descriptionLong
+                                                                      ?isDynamic ?isStatic
                                                                       ?isDeterministic ?isStochastic
                                                                       ?isDimensionless ?isDimensional
                                                                       ?isSpaceContinuous ?isSpaceDiscrete
@@ -662,8 +674,7 @@ queryHandler = {
                                                                       ?isChemicalConstant ?isMathematicalConstant ?isPhysicalConstant
                                                                       ?class ?reference
                                                                       (GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" / ") AS ?formulas)
-                                                                      (GROUP_CONCAT(DISTINCT(?symbol); SEPARATOR=" / ") AS ?symbols)
-                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?cq, " | ", ?cql, " | ", ?cqd); separator=" / ") AS ?containsQuantity)
+                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?symbol, " | ", ?cq, " | ", ?cql, " | ", ?cqd); separator=" / ") AS ?containsQuantity)
                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?sbq, " | ", ?sbql, " | ", ?sbqd, " | ", ?sbqc); separator=" / ") AS ?specializedBy)
                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?sq, " | ", ?sql, " | ", ?sqd, " | ", ?sqc); separator=" / ") AS ?specializes)
                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?abq, " | ", ?abql, " | ", ?abqd, " | ", ?abqc); separator=" / ") AS ?approximatedBy)
@@ -678,6 +689,8 @@ queryHandler = {
                                                       WHERE {{
                                                    
                                                         VALUES ?id {{wd:{0}}}
+
+                                                        OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
 
                                                         BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dynamic quantity} }}, "True", "False" ) AS ?isDynamic)
                                                         BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{static quantity} }}, "True", "False" ) AS ?isStatic)
@@ -1010,36 +1023,38 @@ queryHandler = {
                                                                }}
 
                                                       }}
-                                                      GROUP BY ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
+                                                      GROUP BY ?descriptionLong ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
                                                                ?isDimensional ?isSpaceContinuous ?isSpaceDiscrete ?isTimeContinuous ?isTimeDiscrete
                                                                ?isChemicalConstant ?isMathematicalConstant ?isPhysicalConstant ?class ?reference''',
 
-              'mathematicalFormulationInformation': '''SELECT DISTINCT ?isLinear ?isNotLinear
-                                                                               ?isDynamic ?isStatic
-                                                                               ?isDeterministic ?isStochastic
-                                                                               ?isDimensionless ?isDimensional
-                                                                               ?isTimeContinuous ?isTimeDiscrete
-                                                                               ?isSpaceContinuous ?isSpaceDiscrete
-                                                                               (GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" / ") AS ?formulas)
-                                                                               (GROUP_CONCAT(DISTINCT(?symbol); SEPARATOR=" / ") AS ?symbols)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?cq, " | ", ?cql, " | ", ?cqd); separator=" / ") AS ?containsQuantity)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); separator=" / ") AS ?assumes)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?containsFormulation)    
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?sbf, " | ", ?sbfl, " | ", ?sbfd, " | ", ?sbfq); separator=" / ") AS ?specializedBy)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?sf, " | ", ?sfl, " | ", ?sfd, " | ", ?sfq); separator=" / ") AS ?specializes)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?abf, " | ", ?abfl, " | ", ?abfd); separator=" / ") AS ?approximatedBy)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?af, " | ", ?afl, " | ", ?afd); separator=" / ") AS ?approximates)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?nbf, " | ", ?nbfl, " | ", ?nbfd); separator=" / ") AS ?nondimensionalizedBy)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?nf, " | ", ?nfl, " | ", ?nfd); separator=" / ") AS ?nondimensionalizes)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?dbf, " | ", ?dbfl, " | ", ?dbfd); separator=" / ") AS ?discretizedBy)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?df, " | ", ?dfl, " | ", ?dfd); separator=" / ") AS ?discretizes)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?lbf, " | ", ?lbfl, " | ", ?lbfd); separator=" / ") AS ?linearizedBy)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?lf, " | ", ?lfl, " | ", ?lfd); separator=" / ") AS ?linearizes)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?stf, " | ", ?stfl, " | ", ?stfd); separator=" / ") AS ?similarTo)
-                                                                               (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publications)
+              'mathematicalFormulationInformation': '''SELECT DISTINCT ?descriptionLong
+                                                                       ?isLinear ?isNotLinear
+                                                                       ?isDynamic ?isStatic
+                                                                       ?isDeterministic ?isStochastic
+                                                                       ?isDimensionless ?isDimensional
+                                                                       ?isTimeContinuous ?isTimeDiscrete
+                                                                       ?isSpaceContinuous ?isSpaceDiscrete
+                                                                       (GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" / ") AS ?formulas)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?symbol, " | ", ?cq, " | ", ?cql, " | ", ?cqd); separator=" / ") AS ?containsQuantity)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); separator=" / ") AS ?assumes)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?containsFormulation)    
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?sbf, " | ", ?sbfl, " | ", ?sbfd, " | ", ?sbfq); separator=" / ") AS ?specializedBy)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?sf, " | ", ?sfl, " | ", ?sfd, " | ", ?sfq); separator=" / ") AS ?specializes)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?abf, " | ", ?abfl, " | ", ?abfd); separator=" / ") AS ?approximatedBy)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?af, " | ", ?afl, " | ", ?afd); separator=" / ") AS ?approximates)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?nbf, " | ", ?nbfl, " | ", ?nbfd); separator=" / ") AS ?nondimensionalizedBy)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?nf, " | ", ?nfl, " | ", ?nfd); separator=" / ") AS ?nondimensionalizes)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?dbf, " | ", ?dbfl, " | ", ?dbfd); separator=" / ") AS ?discretizedBy)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?df, " | ", ?dfl, " | ", ?dfd); separator=" / ") AS ?discretizes)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?lbf, " | ", ?lbfl, " | ", ?lbfd); separator=" / ") AS ?linearizedBy)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?lf, " | ", ?lfl, " | ", ?lfd); separator=" / ") AS ?linearizes)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?stf, " | ", ?stfl, " | ", ?stfd); separator=" / ") AS ?similarTo)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publications)
                                                                                
                                                                WHERE {{ 
                                                                        VALUES ?id {{wd:{0}}}
+
+                                                                       OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
 
                                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear equation} }}, "True", "False" ) AS ?isLinear)
                                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear equation} }}, "True", "False" ) AS ?isNotLinear)
@@ -1452,12 +1467,14 @@ queryHandler = {
                                                                }}
 
                                                                      }}
-                                                                     GROUP BY ?isLinear ?isNotLinear ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
+                                                                     GROUP BY ?descriptionLong ?isLinear ?isNotLinear ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
                                                                               ?isDimensional ?isSpaceContinuous ?isSpaceDiscrete ?isTimeContinuous ?isTimeDiscrete''',
                                                                                              
-                              'taskInformation': '''SELECT DISTINCT ?isLinear ?isNotLinear
+                              'taskInformation': '''SELECT DISTINCT ?descriptionLong
+                                                                    ?isLinear ?isNotLinear
                                                                     ?isSpaceContinuous ?isSpaceDiscrete
                                                                     ?isTimeContinuous ?isTimeDiscrete
+                                                                    (GROUP_CONCAT(DISTINCT ?descriptionLong; separator=" / ") AS ?description)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); separator=" / ") AS ?assumes)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?containsFormulation)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?quan, " | ", ?quanl, " | ", ?quand, " | ", ?quanq); separator=" / ") AS ?containsQuantity)
@@ -1477,6 +1494,8 @@ queryHandler = {
                                                     WHERE {{
 
                                                         VALUES ?id {{wd:{0}}}
+
+                                                        OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
 
                                                         BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear task} }}, "True", "False" ) AS ?isLinear)
                                                         BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear task} }}, "True", "False" ) AS ?isNotLinear)
@@ -1889,5 +1908,5 @@ queryHandler = {
                                                                }}
 
                                                         }}
-                                                        GROUP BY ?isLinear ?isNotLinear ?isSpaceContinuous ?isSpaceDiscrete ?isTimeContinuous ?isTimeDiscrete''',        
+                                                        GROUP BY ?descriptionLong ?isLinear ?isNotLinear ?isSpaceContinuous ?isSpaceDiscrete ?isTimeContinuous ?isTimeDiscrete''',        
                                                       }

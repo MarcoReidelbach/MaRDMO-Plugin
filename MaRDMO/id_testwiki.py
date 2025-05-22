@@ -7,6 +7,7 @@ PROPERTIES = {
     'contains':                         'P95822',
     'defining formula':                 'P99032',
     'described by source':              'P85183',
+    'description':                      'P96124',
     'discretized by':                   'P99025',
     'DOI':                              'P89784',
     'in defining formula':              'P99033',

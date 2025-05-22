@@ -1,16 +1,18 @@
 from .utils import mapEntityQuantity, restructureIntracClass
-from .constants import PREVIEW_RELATIONS, PREVIEW_MAP_GENERAL, PREVIEW_MAP_QUANTITY, REVERSE, RELATION_MAP
+from .constants import PREVIEW_RELATIONS, PREVIEW_MAP_GENERAL, PREVIEW_MAP_QUANTITY, REVERSE, get_RELATION_MAP
 
-from ..utils import entityRelations, get_data, find_item, mapEntity, unique_items
+from ..utils import entityRelations, get_mathmoddb, find_item, mapEntity, unique_items
 from ..id_testwiki import PROPERTIES, ITEMS
 
 from ..workflow.utils import add_item_relation, add_static_or_non_item_relation, add_qualifier, find_key_by_values, get_item_key, items_url, items_payload
 
 class prepareModel:
 
-    def preview(answers, mathmoddb):
-        '''Function to establish relations between Model Documentation Data'''
+    mathmoddb = get_mathmoddb()
 
+    def preview(answers):
+        '''Function to establish relations between Model Documentation Data'''
+        
         # Flag all Tasks as unwanted by User in Workflow Documentation
         for key in answers['task']:
             answers['task'][key].update({'Include':False})
@@ -43,14 +45,14 @@ class prepareModel:
             mapEntityQuantity(
                 data= answers, 
                 type = mapping, 
-                mapping = mathmoddb)
+                mapping = prepareModel.mathmoddb)
 
         return answers
 
     def export(data, url):
-
-        # Load MathModDB Ontology Mapping
-        mathmoddb = get_data('model/data/mapping.json')
+        
+        # relation map
+        RELATION_MAP = get_RELATION_MAP()
 
         # Create an empty Payload Dictionary
         payload = {}
@@ -59,7 +61,7 @@ class prepareModel:
 
         items = unique_items(data)
 
-        # Add / Retrieve Components of Interdisciplinary Workflow Item
+        # Add / Retrieve Components of Model Item
 
         for key, value in items.items():
             if value.get('ID'):
@@ -114,7 +116,7 @@ class prepareModel:
                                 payload, rel_idx = add_static_or_non_item_relation(url, payload, key, rel_idx, PROPERTIES['ORCID iD'], value['orcid'], 'external-id')
                             if value.get('zbmath'):
                                 payload, rel_idx = add_static_or_non_item_relation(url, payload, key, rel_idx, PROPERTIES['zbMATH author ID'], value['zbmath'], 'external-id')
-
+        
         for field in data.get('field', {}).values():
 
             # Continue if no ID exists
@@ -123,6 +125,10 @@ class prepareModel:
             
             # Get Item Key
             field_item = get_item_key(field, items, old_new)
+
+            # Add long description to Research Field
+            for descriptionLong in field.get('descriptionLong', {}).values():
+                payload, rel_idx = add_static_or_non_item_relation(url, payload, field_item, rel_idx, PROPERTIES['description'], descriptionLong, 'string')
 
             # Add instance and MathModDB community to MAIN Academic Discipline
             payload, rel_idx = add_static_or_non_item_relation(url, payload, field_item, rel_idx, PROPERTIES['instance of'], ITEMS['academic discipline'])
@@ -180,6 +186,10 @@ class prepareModel:
             # Get Item Key
             problem_item = get_item_key(problem, items, old_new)
 
+            # Add long description to Research Problem
+            for descriptionLong in problem.get('descriptionLong', {}).values():
+                payload, rel_idx = add_static_or_non_item_relation(url, payload, problem_item, rel_idx, PROPERTIES['description'], descriptionLong, 'string')
+
             # Add instance and MathModDB community to MAIN Research Problem
             payload, rel_idx = add_static_or_non_item_relation(url, payload, problem_item, rel_idx, PROPERTIES['instance of'], ITEMS['research problem'])
             payload, rel_idx = add_static_or_non_item_relation(url, payload, problem_item, rel_idx, PROPERTIES['community'], ITEMS['MathModDB'])
@@ -236,6 +246,10 @@ class prepareModel:
             # Get Item Key
             model_item = get_item_key(model, items, old_new)
 
+            # Add long description to Model
+            for descriptionLong in model.get('descriptionLong', {}).values():
+                payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['description'], descriptionLong, 'string')
+
             # Add instance and MathModDB community to MAIN Mathematical Model
             payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['mathematical model'])
             payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['community'], ITEMS['MathModDB'])
@@ -248,29 +262,29 @@ class prepareModel:
 
             # Add Properties to Mathematical Model
             for prop in model.get('Properties', {}).values():
-                if prop == mathmoddb['isDeterministic']:
+                if prop == prepareModel.mathmoddb['isDeterministic']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['deterministic model'])
-                elif prop == mathmoddb['isStochastic']:
+                elif prop == prepareModel.mathmoddb['isStochastic']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['probabilistic model'])
-                elif prop == mathmoddb['isDimensionless']:
+                elif prop == prepareModel.mathmoddb['isDimensionless']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['dimensionless model'])
-                elif prop == mathmoddb['isDimensional']:
+                elif prop == prepareModel.mathmoddb['isDimensional']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['dimensional model'])
-                elif prop == mathmoddb['isDynamic']:
+                elif prop == prepareModel.mathmoddb['isDynamic']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['dynamic model'])
-                elif prop == mathmoddb['isStatic']:
+                elif prop == prepareModel.mathmoddb['isStatic']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['static model'])
-                elif prop == mathmoddb['isLinear']:
+                elif prop == prepareModel.mathmoddb['isLinear']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['linear model'])
-                elif prop == mathmoddb['isNotLinear']:
+                elif prop == prepareModel.mathmoddb['isNotLinear']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['nonlinear model'])
-                elif prop == mathmoddb['isSpaceContinuous']:
+                elif prop == prepareModel.mathmoddb['isSpaceContinuous']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['continuous-space model'])
-                elif prop == mathmoddb['isSpaceDiscrete']:
+                elif prop == prepareModel.mathmoddb['isSpaceDiscrete']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['discrete-space model'])
-                elif prop == mathmoddb['isTimeContinuous']:
+                elif prop == prepareModel.mathmoddb['isTimeContinuous']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['continuous-time model'])
-                elif prop == mathmoddb['isTimeDiscrete']:
+                elif prop == prepareModel.mathmoddb['isTimeDiscrete']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['instance of'], ITEMS['discrete-time model'])
 
             # Add related Mathematical Formulations
@@ -278,23 +292,23 @@ class prepareModel:
                 formulation_id, formulation_name, formulation_description = old_new.get((model.get('MFRelatant',{}).get(key,{}).get('ID'), model.get('MFRelatant',{}).get(key,{}).get('Name'), model.get('MFRelatant',{}).get(key,{}).get('Description'))) or (model.get('MFRelatant',{}).get(key,{}).get('ID'), model.get('MFRelatant',{}).get(key,{}).get('Name'), model.get('MFRelatant',{}).get(key,{}).get('Description'))
                 formulation_item = find_key_by_values(items, formulation_id, formulation_name, formulation_description)    
                 qualifier = []
-                if prop == mathmoddb['assumes']:
+                if prop == prepareModel.mathmoddb['assumes']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['assumes'], formulation_item)
-                elif prop == mathmoddb['contains']:
+                elif prop == prepareModel.mathmoddb['contains']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['contains'], formulation_item)
-                elif prop == mathmoddb['containsBoundaryCondition']:
+                elif prop == prepareModel.mathmoddb['containsBoundaryCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['boundary condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsConstraintCondition']:
+                elif prop == prepareModel.mathmoddb['containsConstraintCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['constraint']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsCouplingCondition']:
+                elif prop == prepareModel.mathmoddb['containsCouplingCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['coupling condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsInitialCondition']:
+                elif prop == prepareModel.mathmoddb['containsInitialCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['initial condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsFinalCondition']:
+                elif prop == prepareModel.mathmoddb['containsFinalCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['final condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
 
@@ -332,7 +346,7 @@ class prepareModel:
 
             ### Add Forward Relations (specialized by)
             for key, value in model.get('IntraClassRelation', {}).items():
-                if value == mathmoddb['specializedBy']:
+                if value == prepareModel.mathmoddb['specializedBy']:
                     # Use new ID if present
                     model['IntraClassElement'][key]['ID'] = old_new.get((model['IntraClassElement'][key]['ID'], model['IntraClassElement'][key]['Name'], model['IntraClassElement'][key]['Description']), [''])[0] or model['IntraClassElement'][key]['ID']
                     # Get Entry Key
@@ -350,7 +364,7 @@ class prepareModel:
 
             ### Add Forward Relations (specialized by)
             for key, value in model.get('IntraClassRelation', {}).items():
-                if value == mathmoddb['specializes']:
+                if value == prepareModel.mathmoddb['specializes']:
                     # Use new ID if present
                     model['IntraClassElement'][key]['ID'] = old_new.get((model['IntraClassElement'][key]['ID'], model['IntraClassElement'][key]['Name'], model['IntraClassElement'][key]['Description']), [''])[0] or model['IntraClassElement'][key]['ID']
                     # Get Entry Key
@@ -375,6 +389,10 @@ class prepareModel:
             # Get Item Key
             task_item = get_item_key(task, items, old_new)
 
+            # Add long description to Research Field
+            for descriptionLong in task.get('descriptionLong', {}).values():
+                payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['description'], descriptionLong, 'string')
+
             # Add instance and MathModDB community to MAIN Computational Task
             payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['instance of'], ITEMS['computational task'])
             payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['community'], ITEMS['MathModDB'])
@@ -387,17 +405,17 @@ class prepareModel:
 
             # Add Properties to Computational Task
             for prop in task.get('Properties', {}).values():
-                if prop == mathmoddb['isLinear']:
+                if prop == prepareModel.mathmoddb['isLinear']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['instance of'], ITEMS['linear task'])
-                elif prop == mathmoddb['isNotLinear']:
+                elif prop == prepareModel.mathmoddb['isNotLinear']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['instance of'], ITEMS['nonlinear task'])
-                elif prop == mathmoddb['isSpaceContinuous']:
+                elif prop == prepareModel.mathmoddb['isSpaceContinuous']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['instance of'], ITEMS['continuous-space task'])
-                elif prop == mathmoddb['isSpaceDiscrete']:
+                elif prop == prepareModel.mathmoddb['isSpaceDiscrete']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['instance of'], ITEMS['discrete-space task'])
-                elif prop == mathmoddb['isTimeContinuous']:
+                elif prop == prepareModel.mathmoddb['isTimeContinuous']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['instance of'], ITEMS['continuous-time task'])
-                elif prop == mathmoddb['isTimeDiscrete']:
+                elif prop == prepareModel.mathmoddb['isTimeDiscrete']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['instance of'], ITEMS['discrete-time task'])
 
             # Add related Mathematical Formulations
@@ -405,23 +423,23 @@ class prepareModel:
                 formulation_id, formulation_name, formulation_description = old_new.get((task.get('MFRelatant',{}).get(key,{}).get('ID'), task.get('MFRelatant',{}).get(key,{}).get('Name'), task.get('MFRelatant',{}).get(key,{}).get('Description'))) or (task.get('MFRelatant',{}).get(key,{}).get('ID'), task.get('MFRelatant',{}).get(key,{}).get('Name'), task.get('MFRelatant',{}).get(key,{}).get('Description'))
                 formulation_item = find_key_by_values(items, formulation_id, formulation_name, formulation_description)    
                 qualifier = []
-                if prop == mathmoddb['assumes']:
+                if prop == prepareModel.mathmoddb['assumes']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['assumes'], formulation_item)
-                elif prop == mathmoddb['contains']:
+                elif prop == prepareModel.mathmoddb['contains']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], formulation_item)
-                elif prop == mathmoddb['containsBoundaryCondition']:
+                elif prop == prepareModel.mathmoddb['containsBoundaryCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['boundary condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsConstraintCondition']:
+                elif prop == prepareModel.mathmoddb['containsConstraintCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['constraint']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsCouplingCondition']:
+                elif prop == prepareModel.mathmoddb['containsCouplingCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['coupling condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsInitialCondition']:
+                elif prop == prepareModel.mathmoddb['containsInitialCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['initial condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsFinalCondition']:
+                elif prop == prepareModel.mathmoddb['containsFinalCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['final condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
 
@@ -430,19 +448,19 @@ class prepareModel:
                 quantity_id, quantity_name, quantity_description = old_new.get((task.get('QRelatant',{}).get(key,{}).get('ID'), task.get('QRelatant',{}).get(key,{}).get('Name'), task.get('QRelatant',{}).get(key,{}).get('Description'))) or (task.get('QRelatant',{}).get(key,{}).get('ID'), task.get('QRelatant',{}).get(key,{}).get('Name'), task.get('QRelatant',{}).get(key,{}).get('Description'))
                 quantity_item = find_key_by_values(items, quantity_id, quantity_name, quantity_description)    
                 qualifier = []
-                if prop == mathmoddb['containsInput']:
+                if prop == prepareModel.mathmoddb['containsInput']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['input']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], quantity_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsConstant']:
+                elif prop == prepareModel.mathmoddb['containsConstant']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['constant']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], quantity_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsObjective']:
+                elif prop == prepareModel.mathmoddb['containsObjective']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['objective function']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], quantity_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsOutput']:
+                elif prop == prepareModel.mathmoddb['containsOutput']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['output']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], quantity_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsParameter']:
+                elif prop == prepareModel.mathmoddb['containsParameter']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['parameter']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], quantity_item, 'wikibase-item', qualifier)
 
@@ -474,7 +492,7 @@ class prepareModel:
 
             ### Add Forward Relations (specialized by)
             for key, value in task.get('IntraClassRelation', {}).items():
-                if value == mathmoddb['specializedBy']:
+                if value == prepareModel.mathmoddb['specializedBy']:
                     # Use new ID if present
                     task['IntraClassElement'][key]['ID'] = old_new.get((task['IntraClassElement'][key]['ID'], task['IntraClassElement'][key]['Name'], task['IntraClassElement'][key]['Description']), [''])[0] or task['IntraClassElement'][key]['ID']
                     # Get Entry Key
@@ -492,7 +510,7 @@ class prepareModel:
 
             ### Add Forward Relations (specialized by)
             for key, value in task.get('IntraClassRelation', {}).items():
-                if value == mathmoddb['specializes']:
+                if value == prepareModel.mathmoddb['specializes']:
                     # Use new ID if present
                     task['IntraClassElement'][key]['ID'] = old_new.get((task['IntraClassElement'][key]['ID'], task['IntraClassElement'][key]['Name'], task['IntraClassElement'][key]['Description']), [''])[0] or task['IntraClassElement'][key]['ID']
                     # Get Entry Key
@@ -517,6 +535,10 @@ class prepareModel:
             # Get Item Key
             formulation_item = get_item_key(formulation, items, old_new)
 
+            # Add long description to Research Field
+            for descriptionLong in formulation.get('descriptionLong', {}).values():
+                payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['description'], descriptionLong, 'string')
+
             # Add instance and MathModDB community to MAIN Mathematical Formulation
             payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['mathematical expression'])
             payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['community'], ITEMS['MathModDB'])
@@ -529,29 +551,29 @@ class prepareModel:
 
             # Add Properties to Mathematical Formulation
             for prop in formulation.get('Properties', {}).values():
-                if prop == mathmoddb['isDeterministic']:
+                if prop == prepareModel.mathmoddb['isDeterministic']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['deterministic equation'])
-                elif prop == mathmoddb['isStochastic']:
+                elif prop == prepareModel.mathmoddb['isStochastic']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['probabilistic equation'])
-                elif prop == mathmoddb['isDimensionless']:
+                elif prop == prepareModel.mathmoddb['isDimensionless']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['dimensionless equation'])
-                elif prop == mathmoddb['isDimensional']:
+                elif prop == prepareModel.mathmoddb['isDimensional']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['dimensional equation'])
-                elif prop == mathmoddb['isDynamic']:
+                elif prop == prepareModel.mathmoddb['isDynamic']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['dynamic equation'])
-                elif prop == mathmoddb['isStatic']:
+                elif prop == prepareModel.mathmoddb['isStatic']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['static equation'])
-                elif prop == mathmoddb['isLinear']:
+                elif prop == prepareModel.mathmoddb['isLinear']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['linear equation'])
-                elif prop == mathmoddb['isNotLinear']:
+                elif prop == prepareModel.mathmoddb['isNotLinear']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['nonlinear equation'])
-                elif prop == mathmoddb['isSpaceContinuous']:
+                elif prop == prepareModel.mathmoddb['isSpaceContinuous']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['continuous-space equation'])
-                elif prop == mathmoddb['isSpaceDiscrete']:
+                elif prop == prepareModel.mathmoddb['isSpaceDiscrete']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['discrete-space equation'])
-                elif prop == mathmoddb['isTimeContinuous']:
+                elif prop == prepareModel.mathmoddb['isTimeContinuous']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['continuous-time equation'])
-                elif prop == mathmoddb['isTimeDiscrete']:
+                elif prop == prepareModel.mathmoddb['isTimeDiscrete']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['instance of'], ITEMS['discrete-time equation'])
 
             # Add defining Formulas to Mathematical Formulation
@@ -570,23 +592,23 @@ class prepareModel:
                 formulation_id, formulation_name, formulation_description = old_new.get((formulation.get('MFRelatant',{}).get(key,{}).get('ID'), formulation.get('MFRelatant',{}).get(key,{}).get('Name'), formulation.get('MFRelatant',{}).get(key,{}).get('Description'))) or (formulation.get('MFRelatant',{}).get(key,{}).get('ID'), formulation.get('MFRelatant',{}).get(key,{}).get('Name'), formulation.get('MFRelatant',{}).get(key,{}).get('Description'))
                 rel_formulation_item = find_key_by_values(items, formulation_id, formulation_name, formulation_description)    
                 qualifier = []
-                if prop == mathmoddb['assumes']:
+                if prop == prepareModel.mathmoddb['assumes']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['assumes'], rel_formulation_item)
-                elif prop == mathmoddb['contains']:
+                elif prop == prepareModel.mathmoddb['contains']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['contains'], rel_formulation_item)
-                elif prop == mathmoddb['containsBoundaryCondition']:
+                elif prop == prepareModel.mathmoddb['containsBoundaryCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['boundary condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['contains'], rel_formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsConstraintCondition']:
+                elif prop == prepareModel.mathmoddb['containsConstraintCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['constraint']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['contains'], rel_formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsCouplingCondition']:
+                elif prop == prepareModel.mathmoddb['containsCouplingCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['coupling condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['contains'], rel_formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsInitialCondition']:
+                elif prop == prepareModel.mathmoddb['containsInitialCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['initial condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['contains'], rel_formulation_item, 'wikibase-item', qualifier)
-                elif prop == mathmoddb['containsFinalCondition']:
+                elif prop == prepareModel.mathmoddb['containsFinalCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['final condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, formulation_item, rel_idx, PROPERTIES['contains'], rel_formulation_item, 'wikibase-item', qualifier)
 
@@ -618,7 +640,7 @@ class prepareModel:
 
             ### Add Forward Relations (specialized by)
             for key, value in formulation.get('IntraClassRelation', {}).items():
-                if value == mathmoddb['specializedBy']:
+                if value == prepareModel.mathmoddb['specializedBy']:
                     # Use new ID if present
                     formulation['IntraClassElement'][key]['ID'] = old_new.get((formulation['IntraClassElement'][key]['ID'], formulation['IntraClassElement'][key]['Name'], formulation['IntraClassElement'][key]['Description']), [''])[0] or formulation['IntraClassElement'][key]['ID']
                     # Get Entry Key
@@ -636,7 +658,7 @@ class prepareModel:
 
             ### Add Forward Relations (specialized by)
             for key, value in formulation.get('IntraClassRelation', {}).items():
-                if value == mathmoddb['specializes']:
+                if value == prepareModel.mathmoddb['specializes']:
                     # Use new ID if present
                     formulation['IntraClassElement'][key]['ID'] = old_new.get((formulation['IntraClassElement'][key]['ID'], formulation['IntraClassElement'][key]['Name'], formulation['IntraClassElement'][key]['Description']), [''])[0] or formulation['IntraClassElement'][key]['ID']
                     # Get Entry Key
@@ -661,10 +683,14 @@ class prepareModel:
             # Get Item Key
             quantity_item = get_item_key(quantity, items, old_new)
 
+            # Add long description to Research Field
+            for descriptionLong in quantity.get('descriptionLong', {}).values():
+                payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['description'], descriptionLong, 'string')
+
             # Add instance and MathModDB community to MAIN Quantity / Quantity Kind
-            if quantity.get('QorQK') == mathmoddb['Quantity']:
+            if quantity.get('QorQK') == prepareModel.mathmoddb['Quantity']:
                 payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['quantity'])
-            elif quantity.get('QorQK') == mathmoddb['QuantityKind']:
+            elif quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind']:
                 payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['kind of quantity'])
             payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['community'], ITEMS['MathModDB'])
 
@@ -675,65 +701,65 @@ class prepareModel:
 
             # Add Properties to Quantity / Quantity Kind
             for prop in quantity.get('Properties', {}).values():
-                if prop == mathmoddb['isChemicalConstant']:
+                if prop == prepareModel.mathmoddb['isChemicalConstant']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['chemical constant'])
-                elif prop == mathmoddb['isMathematicalConstant']:
+                elif prop == prepareModel.mathmoddb['isMathematicalConstant']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['mathematical constant'])
-                elif prop == mathmoddb['isPhysicalConstant']:
+                elif prop == prepareModel.mathmoddb['isPhysicalConstant']:
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['physical constant'])
-                elif prop == mathmoddb['isDeterministic']:
-                    if quantity.get('QorQK') == mathmoddb['Quantity']:
+                elif prop == prepareModel.mathmoddb['isDeterministic']:
+                    if quantity.get('QorQK') == prepareModel.mathmoddb['Quantity']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['deterministic quantity'])
-                    elif quantity.get('QorQK') == mathmoddb['QuantityKind']:
+                    elif quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['deterministic quantity kind'])
-                elif prop == mathmoddb['isStochastic']:
-                    if quantity.get('QorQK') == mathmoddb['Quantity']:
+                elif prop == prepareModel.mathmoddb['isStochastic']:
+                    if quantity.get('QorQK') == prepareModel.mathmoddb['Quantity']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['probabilistic quantity'])
-                    elif quantity.get('QorQK') == mathmoddb['QuantityKind']:
+                    elif quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['probabilistic quantity kind'])
-                elif prop == mathmoddb['isDimensionless']:
-                    if quantity.get('QorQK') == mathmoddb['Quantity']:
+                elif prop == prepareModel.mathmoddb['isDimensionless']:
+                    if quantity.get('QorQK') == prepareModel.mathmoddb['Quantity']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['dimensionless quantity'])
-                    elif quantity.get('QorQK') == mathmoddb['QuantityKind']:
+                    elif quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['dimensionless quantity kind'])
-                elif prop == mathmoddb['isDimensional']:
-                    if quantity.get('QorQK') == mathmoddb['Quantity']:
+                elif prop == prepareModel.mathmoddb['isDimensional']:
+                    if quantity.get('QorQK') == prepareModel.mathmoddb['Quantity']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['dimensional quantity'])
-                    elif quantity.get('QorQK') == mathmoddb['QuantityKind']:
+                    elif quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['dimensional quantity kind'])
-                elif prop == mathmoddb['isDynamic']:
-                    if quantity.get('QorQK') == mathmoddb['Quantity']:
+                elif prop == prepareModel.mathmoddb['isDynamic']:
+                    if quantity.get('QorQK') == prepareModel.mathmoddb['Quantity']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['dynamic quantity'])
-                    elif quantity.get('QorQK') == mathmoddb['QuantityKind']:
+                    elif quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['dynamic quantity kind'])
-                elif prop == mathmoddb['isStatic']:
-                    if quantity.get('QorQK') == mathmoddb['Quantity']:
+                elif prop == prepareModel.mathmoddb['isStatic']:
+                    if quantity.get('QorQK') == prepareModel.mathmoddb['Quantity']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['static quantity'])
-                    elif quantity.get('QorQK') == mathmoddb['QuantityKind']:
+                    elif quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['static quantity kind'])
-                elif prop == mathmoddb['isSpaceContinuous']:
-                    if quantity.get('QorQK') == mathmoddb['Quantity']:
+                elif prop == prepareModel.mathmoddb['isSpaceContinuous']:
+                    if quantity.get('QorQK') == prepareModel.mathmoddb['Quantity']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['continuous-space quantity'])
-                    elif quantity.get('QorQK') == mathmoddb['QuantityKind']:
+                    elif quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['continuous-space quantity kind'])
-                elif prop == mathmoddb['isSpaceDiscrete']:
-                    if quantity.get('QorQK') == mathmoddb['Quantity']:
+                elif prop == prepareModel.mathmoddb['isSpaceDiscrete']:
+                    if quantity.get('QorQK') == prepareModel.mathmoddb['Quantity']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['discrete-space quantity'])
-                    elif quantity.get('QorQK') == mathmoddb['QuantityKind']:
+                    elif quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['discrete-space quantity kind'])
-                elif prop == mathmoddb['isTimeContinuous']:
-                    if quantity.get('QorQK') == mathmoddb['Quantity']:
+                elif prop == prepareModel.mathmoddb['isTimeContinuous']:
+                    if quantity.get('QorQK') == prepareModel.mathmoddb['Quantity']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['continuous-time quantity'])
-                    elif quantity.get('QorQK') == mathmoddb['QuantityKind']:
+                    elif quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['continuous-time quantity kind'])
-                elif prop == mathmoddb['isTimeDiscrete']:
-                    if quantity.get('QorQK') == mathmoddb['Quantity']:
+                elif prop == prepareModel.mathmoddb['isTimeDiscrete']:
+                    if quantity.get('QorQK') == prepareModel.mathmoddb['Quantity']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['discrete-time quantity'])
-                    elif quantity.get('QorQK') == mathmoddb['QuantityKind']:
+                    elif quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind']:
                         payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['instance of'], ITEMS['discrete-time quantity kind'])
 
             # Add QUDT ID for Quantity Kind
-            if quantity.get('QorQK') == mathmoddb['QuantityKind'] and quantity.get('reference'):
+            if quantity.get('QorQK') == prepareModel.mathmoddb['QuantityKind'] and quantity.get('reference'):
                 payload, rel_idx = add_static_or_non_item_relation(url, payload, quantity_item, rel_idx, PROPERTIES['QUDT quantity kind ID'], quantity['reference'][0][1])
 
             # Add defining Formulas to Quantity or Quantity Kind
@@ -749,7 +775,7 @@ class prepareModel:
 
             ### Add Forward Relations (Q2Q)
             for key, value in quantity.get('Q2Q', {}).items():
-                if value == mathmoddb['approximatedBy'] or value == mathmoddb['discretizedBy'] or value == mathmoddb['nondimensionalizedBy'] or value == mathmoddb['similarTo'] or value == mathmoddb['specializedBy']:
+                if value == prepareModel.mathmoddb['approximatedBy'] or value == prepareModel.mathmoddb['discretizedBy'] or value == prepareModel.mathmoddb['nondimensionalizedBy'] or value == prepareModel.mathmoddb['similarTo'] or value == prepareModel.mathmoddb['specializedBy']:
                     # Use new ID if present
                     quantity['QRelatant'][key]['ID'] = old_new.get((quantity['QRelatant'][key]['ID'], quantity['QRelatant'][key]['Name'], quantity['QRelatant'][key]['Description']), [''])[0] or quantity['QRelatant'][key]['ID']
                     # Get Entry Key
@@ -758,7 +784,7 @@ class prepareModel:
 
             ### Add Forward Relations (Q2Q)
             for key, value in quantity.get('Q2Q', {}).items():
-                if value == mathmoddb['approximates'] or value == mathmoddb['discretizes'] or value == mathmoddb['nondimensionalizes'] or value == mathmoddb['specializes']:
+                if value == prepareModel.mathmoddb['approximates'] or value == prepareModel.mathmoddb['discretizes'] or value == prepareModel.mathmoddb['nondimensionalizes'] or value == prepareModel.mathmoddb['specializes']:
                     # Use new ID if present
                     quantity['QRelatant'][key]['ID'] = old_new.get((quantity['QRelatant'][key]['ID'], quantity['QRelatant'][key]['Name'], quantity['QRelatant'][key]['Description']), [''])[0] or quantity['QRelatant'][key]['ID']
                     # Get Entry Key
@@ -767,7 +793,7 @@ class prepareModel:
 
             ### Add Forward Relations (Q2QK)
             for key, value in quantity.get('Q2QK', {}).items():
-                if value == mathmoddb['specializedBy']:
+                if value == prepareModel.mathmoddb['specializedBy']:
                     # Use new ID if present
                     quantity['QKRelatant'][key]['ID'] = old_new.get((quantity['QKRelatant'][key]['ID'], quantity['QKRelatant'][key]['Name'], quantity['QKRelatant'][key]['Description']), [''])[0] or quantity['QKRelatant'][key]['ID']
                     # Get Entry Key
@@ -776,7 +802,7 @@ class prepareModel:
 
             ### Add Forward Relations (Q2QK)
             for key, value in quantity.get('Q2QK', {}).items():
-                if value == mathmoddb['specializes']:
+                if value == prepareModel.mathmoddb['specializes']:
                     # Use new ID if present
                     quantity['QKRelatant'][key]['ID'] = old_new.get((quantity['QKRelatant'][key]['ID'], quantity['QKRelatant'][key]['Name'], quantity['QKRelatant'][key]['Description']), [''])[0] or quantity['QKRelatant'][key]['ID']
                     # Get Entry Key
@@ -785,7 +811,7 @@ class prepareModel:
 
             ### Add Forward Relations (QK2QK)
             for key, value in quantity.get('QK2QK', {}).items():
-                if value == mathmoddb['discretizedBy'] or value == mathmoddb['nondimensionalizedBy'] or value == mathmoddb['similarTo']:
+                if value == prepareModel.mathmoddb['discretizedBy'] or value == prepareModel.mathmoddb['nondimensionalizedBy'] or value == prepareModel.mathmoddb['similarTo']:
                     # Use new ID if present
                     quantity['QKRelatant'][key]['ID'] = old_new.get((quantity['QKRelatant'][key]['ID'], quantity['QKRelatant'][key]['Name'], quantity['QKRelatant'][key]['Description']), [''])[0] or quantity['QKRelatant'][key]['ID']
                     # Get Entry Key
@@ -794,7 +820,7 @@ class prepareModel:
 
             ### Add Forward Relations (QK2QK)
             for key, value in quantity.get('QK2QK', {}).items():
-                if value == mathmoddb['discretizes'] or value == mathmoddb['nondimensionalizes']:
+                if value == prepareModel.mathmoddb['discretizes'] or value == prepareModel.mathmoddb['nondimensionalizes']:
                     # Use new ID if present
                     quantity['QKRelatant'][key]['ID'] = old_new.get((quantity['QKRelatant'][key]['ID'], quantity['QKRelatant'][key]['Name'], quantity['QKRelatant'][key]['Description']), [''])[0] or quantity['QKRelatant'][key]['ID']
                     # Get Entry Key
@@ -803,7 +829,7 @@ class prepareModel:
 
             ### Add Forward Relations (QK2Q)
             for key, value in quantity.get('QK2Q', {}).items():
-                if value == mathmoddb['specializedBy']:
+                if value == prepareModel.mathmoddb['specializedBy']:
                     # Use new ID if present
                     quantity['QRelatant'][key]['ID'] = old_new.get((quantity['QRelatant'][key]['ID'], quantity['QRelatant'][key]['Name'], quantity['QRelatant'][key]['Description']), [''])[0] or quantity['QRelatant'][key]['ID']
                     # Get Entry Key
@@ -812,7 +838,7 @@ class prepareModel:
 
             ### Add Forward Relations (QK2Q)
             for key, value in quantity.get('QK2Q', {}).items():
-                if value == mathmoddb['specializes']:
+                if value == prepareModel.mathmoddb['specializes']:
                     # Use new ID if present
                     quantity['QRelatant'][key]['ID'] = old_new.get((quantity['QRelatant'][key]['ID'], quantity['QRelatant'][key]['Name'], quantity['QRelatant'][key]['Description']), [''])[0] or quantity['QRelatant'][key]['ID']
                     # Get Entry Key
@@ -886,15 +912,15 @@ class prepareModel:
             for key, value in publication.get('P2E', {}).items():
 
                 qualifier = []
-                if value == mathmoddb['documents']:
+                if value == prepareModel.mathmoddb['documents']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['documentation']))
-                elif value == mathmoddb['invents']:
+                elif value == prepareModel.mathmoddb['invents']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['invention']))
-                elif value == mathmoddb['studies']:
+                elif value == prepareModel.mathmoddb['studies']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['study']))
-                elif value == mathmoddb['surveys']:
+                elif value == prepareModel.mathmoddb['surveys']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['review']))
-                elif value == mathmoddb['uses']:
+                elif value == prepareModel.mathmoddb['uses']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['use']))
 
                 # Use new ID if present

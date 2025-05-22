@@ -3,7 +3,7 @@ from typing import List, Dict, Optional
 
 from .utils import mathmlToLatex
 
-from ..utils import get_data
+from ..utils import get_data, get_mathmoddb
 from ..id_testwiki import ITEMS
 
 @dataclass
@@ -75,6 +75,7 @@ class ResearchField:
     id: Optional[str]
     label: Optional[str]
     description: Optional[str]
+    descriptionLong: Optional[str]
     specializedBy: Optional[List[Relatant]] = field(default_factory=list)
     specializes: Optional[List[Relatant]] = field(default_factory=list)
     similarTo: Optional[List[Relatant]] = field(default_factory=list)
@@ -90,6 +91,7 @@ class ResearchField:
             id = None,
             label = None,
             description = None,
+            descriptionLong = [description for description in data.get('description', {}).get('value', '').split(" / ")] if 'description' in data else [],
             specializedBy = [Relatant.from_query(field) for field in data.get('specializedBy', {}).get('value', '').split(" / ") if field] if 'specializedBy' in data else [],
             specializes = [Relatant.from_query(field) for field in data.get('specializes', {}).get('value', '').split(" / ") if field] if 'specializes' in data else [],
             similarTo = [Relatant.from_query(field) for field in data.get('similarTo', {}).get('value', '').split(" / ") if field] if 'similarTo' in data else [],            
@@ -101,6 +103,7 @@ class ResearchProblem:
     id: Optional[str]
     label: Optional[str]
     description: Optional[str]
+    descriptionLong: Optional[str]
     containedInField: Optional[List[Relatant]] = field(default_factory=list)
     specializedBy: Optional[List[Relatant]] = field(default_factory=list)
     specializes: Optional[List[Relatant]] = field(default_factory=list)
@@ -117,6 +120,7 @@ class ResearchProblem:
             id = None,
             label = None,
             description = None,
+            descriptionLong = [description for description in data.get('description', {}).get('value', '').split(" / ")] if 'description' in data else [],
             containedInField = [Relatant.from_query(field) for field in data.get('containedInField', {}).get('value', '').split(" / ") if field] if 'containedInField' in data else [],
             specializedBy = [Relatant.from_query(problem) for problem in data.get('specializedBy', {}).get('value', '').split(" / ") if problem] if 'specializedBy' in data else [],
             specializes = [Relatant.from_query(problem) for problem in data.get('specializes', {}).get('value', '').split(" / ") if problem] if 'specializes' in data else [],
@@ -129,6 +133,7 @@ class MathematicalModel:
     id: Optional[str]
     label: Optional[str]
     description: Optional[str]
+    descriptionLong: Optional[str]
     properties: Optional[Dict[int, str]] = field(default_factory=dict)
     models: Optional[List[Relatant]] = field(default_factory=list)
     assumes: Optional[List[Relatant]] = field(default_factory=list)
@@ -156,7 +161,7 @@ class MathematicalModel:
     @classmethod
     def from_query(cls, raw_data: dict) -> 'MathematicalModel':
 
-        mathmoddb = get_data('model/data/mapping.json')
+        mathmoddb = get_mathmoddb()
 
         data = raw_data[0]
         
@@ -164,6 +169,7 @@ class MathematicalModel:
             id = None,
             label = None,
             description = None,
+            descriptionLong = [description for description in data.get('description', {}).get('value', '').split(" / ")] if 'description' in data else [],
             properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isSpaceContinuous','isSpaceDiscrete']) if data.get(prop, {}).get('value') == 'True'},
             models = [Relatant.from_query(problem) for problem in data.get('models', {}).get('value', '').split(" / ") if problem] if 'models' in data else [],
             assumes = [Relatant.from_query(formulation) for formulation in data.get('assumes', {}).get('value', '').split(" / ") if formulation] if 'assumes' in data else [],
@@ -193,6 +199,7 @@ class QuantityOrQuantityKind:
     id: Optional[str]
     label: Optional[str]
     description: Optional[str]
+    descriptionLong: Optional[str]
     reference: Optional[str]
     qclass: Optional[str]
     properties: Optional[Dict[int, str]] = field(default_factory=dict)
@@ -214,7 +221,7 @@ class QuantityOrQuantityKind:
     @classmethod
     def from_query(cls, raw_data: dict) -> 'QuantityOrQuantityKind':
 
-        mathmoddb = get_data('model/data/mapping.json')
+        mathmoddb = get_mathmoddb()
         options = get_data('data/options.json')
 
         data = raw_data[0]
@@ -223,12 +230,13 @@ class QuantityOrQuantityKind:
             id = None,
             label = None,
             description = None,
+            descriptionLong = [description for description in data.get('description', {}).get('value', '').split(" / ")] if 'description' in data else [],
             reference = {idx: [options['QUDT'], data[prop]['value'].removeprefix('https://qudt.org/vocab/')] for idx, prop in enumerate(['reference']) if data.get(prop, {}).get('value')},
             qclass = data.get('class', {}).get('value'),
             properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isChemicalConstant','isMathematicalConstant','isPhysicalConstant','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isSpaceContinuous','isSpaceDiscrete']) if data.get(prop, {}).get('value') == 'True'},
             formulas = [mathmlToLatex(formula) for formula in data.get('formulas', {}).get('value', '').split(" / ") if formula] if 'formulas' in data else [],
-            symbols = [mathmlToLatex(symbol) for symbol in data.get('symbols', {}).get('value', '').split(" / ") if symbol] if 'symbols' in data else [],   
-            containsQuantity = [Relatant.from_query(quantity) for quantity in data.get('containsQuantity', {}).get('value', '').split(" / ") if quantity] if 'containsQuantity' in data else [],
+            symbols = [mathmlToLatex(symbol.split(' | ', 1)[0]) for symbol in data.get('containsQuantity', {}).get('value', '').split(" / ") if symbol] if 'containsQuantity' in data else [],   
+            containsQuantity = [Relatant.from_query(quantity.split(' | ', 1)[1]) for quantity in data.get('containsQuantity', {}).get('value', '').split(" / ") if quantity] if 'containsQuantity' in data else [],
             specializedBy = [QRelatant.from_query(quantity) for quantity in data.get('specializedBy', {}).get('value', '').split(" / ") if quantity] if 'specializedBy' in data else [],            
             specializes = [QRelatant.from_query(quantity) for quantity in data.get('specializes', {}).get('value', '').split(" / ") if quantity] if 'specializes' in data else [],
             approximatedBy = [QRelatant.from_query(quantity) for quantity in data.get('approximatedBy', {}).get('value', '').split(" / ") if quantity] if 'approximatedBy' in data else [],            
@@ -246,6 +254,7 @@ class MathematicalFormulation:
     id: Optional[str]
     label: Optional[str]
     description: Optional[str]
+    descriptionLong: Optional[str]
     properties: Optional[Dict[int, str]] = field(default_factory=dict)
     formulas: Optional[List] = field(default_factory=list)
     symbols: Optional[List] = field(default_factory=list)
@@ -275,7 +284,7 @@ class MathematicalFormulation:
     @classmethod
     def from_query(cls, raw_data: dict) -> 'MathematicalFormulation':
 
-        mathmoddb = get_data('model/data/mapping.json')
+        mathmoddb = get_mathmoddb()
 
         data = raw_data[0]
 
@@ -283,10 +292,11 @@ class MathematicalFormulation:
             id = None,
             label = None,
             description = None,
+            descriptionLong = [description for description in data.get('description', {}).get('value', '').split(" / ")] if 'description' in data else [],
             properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isSpaceContinuous','isSpaceDiscrete']) if data.get(prop, {}).get('value') == 'True'},
             formulas = [mathmlToLatex(formula) for formula in data.get('formulas', {}).get('value', '').split(" / ") if formula] if 'formulas' in data else [],
-            symbols = [mathmlToLatex(symbol) for symbol in data.get('symbols', {}).get('value', '').split(" / ") if symbol] if 'symbols' in data else [],   
-            containsQuantity = [Relatant.from_query(quantity) for quantity in data.get('containsQuantity', {}).get('value', '').split(" / ") if quantity] if 'containsQuantity' in data else [],
+            symbols = [mathmlToLatex(symbol.split(' | ', 1)[0]) for symbol in data.get('containsQuantity', {}).get('value', '').split(" / ") if symbol] if 'containsQuantity' in data else [],   
+            containsQuantity = [Relatant.from_query(quantity.split(' | ', 1)[1]) for quantity in data.get('containsQuantity', {}).get('value', '').split(" / ") if quantity] if 'containsQuantity' in data else [],
             assumes = [Relatant.from_query(formulation) for formulation in data.get('assumes', {}).get('value', '').split(" / ") if formulation] if 'assumes' in data else [],
             containsFormulation = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == ''] if 'containsFormulation' in data else [],            
             containsBoundaryCondition = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == f'mardi:{ITEMS["boundary condition"]}'] if 'containsFormulation' in data else [],
@@ -313,6 +323,7 @@ class Task:
     id: Optional[str]
     label: Optional[str]
     description: Optional[str]
+    descriptionLong: Optional[str]
     properties: Optional[Dict[int, str]] = field(default_factory=dict)
     assumes: Optional[List[Relatant]] = field(default_factory=list)
     containsFormulation: Optional[List[Relatant]] = field(default_factory=list)
@@ -343,7 +354,7 @@ class Task:
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Task':
 
-        mathmoddb = get_data('model/data/mapping.json')
+        mathmoddb = get_mathmoddb()
 
         data = raw_data[0]
 
@@ -351,6 +362,7 @@ class Task:
             id = None,
             label = None,
             description = None,
+            descriptionLong = [description for description in data.get('description', {}).get('value', '').split(" / ")] if 'description' in data else [],
             properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isTimeContinuous','isTimeDiscrete','isSpaceContinuous','isSpaceDiscrete']) if data.get(prop, {}).get('value') == 'True'},
             assumes = [Relatant.from_query(formulation) for formulation in data.get('assumes', {}).get('value', '').split(" / ") if formulation] if 'assumes' in data else [],
             containsFormulation = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == ''] if 'containsFormulation' in data else [],            
