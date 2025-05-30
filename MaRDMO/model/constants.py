@@ -1,6 +1,17 @@
 from ..config import BASE_URI
 from ..utils import get_mathmoddb, get_questionsMO
 
+# Dictionary for internal / external section names
+SECTION_MAP = {
+    'model': 'Mathematical Model',
+    'task': 'Computational Task',
+    'formulation': 'Mathematical Expression',
+    'quantity': 'Quantity / Quantity Kind',
+    'problem': 'Research Problem',
+    'field': 'Academic Discipline',
+    'publication': 'Publication'
+}
+
 # Dictionary with list of property names
 PROPS = {
     'T2MF': ['assumes','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalCondition'],
@@ -76,31 +87,31 @@ def get_RELATION_MAP():
 # Parameter for Entity relations
 PREVIEW_RELATIONS = [
     # fromIDX, toIDX, relationOld, entityOld, entityNew, enc
-    ('model', 'problem', None, 'RPRelatant', 'RelationRP', 'RP'),
-    ('model', 'formulation', 'MM2MF', 'MFRelatant', 'RelationMF1', 'MF'),
-    ('model', 'task', None, 'TRelatant', 'RelationT', 'T'),
-    ('model', 'model', 'IntraClassRelation', 'IntraClassElement', 'RelationMM1', 'MM'),
-    ('task', 'formulation', 'T2MF', 'MFRelatant', 'RelationMF', 'MF'),
-    ('task', 'quantity', 'T2Q', 'QRelatant', 'RelationQQK', 'QQK'),
-    ('task', 'task', 'IntraClassRelation', 'IntraClassElement', 'RelationT', 'T'),
-    ('formulation', 'formulation', 'MF2MF', 'MFRelatant', 'RelationMF1', 'MF'),
-    ('formulation', 'formulation', 'IntraClassRelation', 'IntraClassElement', 'RelationMF2', 'MF'),
-    ('quantity', 'quantity', 'Q2Q', 'QRelatant', 'RelationQQ', 'QQK'),
-    ('quantity', 'quantity', 'QK2QK', 'QKRelatant', 'RelationQKQK', 'QQK'),
-    ('quantity', 'quantity', 'Q2QK', 'QKRelatant', 'RelationQQK', 'QQK'),
-    ('quantity', 'quantity', 'QK2Q', 'QRelatant', 'RelationQKQ', 'QQK'),
-    ('field', 'field', 'IntraClassRelation', 'IntraClassElement', 'RelationRF1', 'RF'),
-    ('problem', 'field', None, 'RFRelatant', 'RelationRF', 'RF'),
-    ('problem', 'problem', 'IntraClassRelation', 'IntraClassElement', 'RelationRP1', 'RP'),
+    ('model', 'problem', None, 'RPRelatant', 'RelationRP', 'RP', False),
+    ('model', 'formulation', 'MM2MF', 'MFRelatant', 'RelationMF', 'ME', True),
+    ('model', 'task', None, 'TRelatant', 'RelationT', 'T', False),
+    ('model', 'model', 'IntraClassRelation', 'IntraClassElement', 'RelationMM', 'MM', False),
+    ('task', 'formulation', 'T2MF', 'MFRelatant', 'RelationMF', 'ME', False),
+    ('task', 'quantity', 'T2Q', 'QRelatant', 'RelationQQK', 'QQK', False),
+    ('task', 'task', 'IntraClassRelation', 'IntraClassElement', 'RelationT', 'T', False),
+    ('formulation', 'formulation', 'MF2MF', 'MFRelatant', 'RelationMF1', 'ME', False),
+    ('formulation', 'formulation', 'IntraClassRelation', 'IntraClassElement', 'RelationMF2', 'ME', False),
+    ('quantity', 'quantity', 'Q2Q', 'QRelatant', 'RelationQQ', 'QQK', False),
+    ('quantity', 'quantity', 'QK2QK', 'QKRelatant', 'RelationQKQK', 'QQK', False),
+    ('quantity', 'quantity', 'Q2QK', 'QKRelatant', 'RelationQQK', 'QQK', False),
+    ('quantity', 'quantity', 'QK2Q', 'QRelatant', 'RelationQKQ', 'QQK', False),
+    ('field', 'field', 'IntraClassRelation', 'IntraClassElement', 'RelationRF', 'RF', False),
+    ('problem', 'field', None, 'RFRelatant', 'RelationRF', 'RF', False),
+    ('problem', 'problem', 'IntraClassRelation', 'IntraClassElement', 'RelationRP', 'RP', False),
     ('publication', ['field', 'problem', 'model', 'formulation', 'quantity', 'task'],
-     'P2E', 'EntityRelatant', 'RelationP', ['RF', 'RP', 'MM', 'MF', 'QQK', 'T']),
+     'P2E', 'EntityRelatant', 'RelationP', ['RF', 'RP', 'MM', 'ME', 'QQK', 'T'], False),
 ]
 
 PREVIEW_MAP_GENERAL = [
     # fromIDX, toIDX, entityOld, entityNew, enc
-    ('model', 'formulation', 'assumption', 'assumptionMapped', 'MF'),
-    ('task', 'formulation', 'assumption', 'assumptionMapped', 'MF'),
-    ('formulation', 'formulation', 'assumption', 'assumptionMapped', 'MF'),
+    ('model', 'formulation', 'assumption', 'assumptionMapped', 'ME'),
+    ('task', 'formulation', 'assumption', 'assumptionMapped', 'ME'),
+    ('formulation', 'formulation', 'assumption', 'assumptionMapped', 'ME'),
 ]
 
 PREVIEW_MAP_QUANTITY = [
@@ -121,7 +132,7 @@ def get_URI_PREFIX_MAP():
         f'{BASE_URI}{questions["Task MFRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
             "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
-            "prefix": "MF"
+            "prefix": "ME"
         },
         f'{BASE_URI}{questions["Mathematical Formulation Element Quantity"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Quantity"]["uri"]}',

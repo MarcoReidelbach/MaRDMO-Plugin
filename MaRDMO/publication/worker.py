@@ -24,7 +24,7 @@ class PublicationRetriever:
             #If User selected Publication from Wikidata...
             if answers['publication'][key]['ID'].startswith('wikidata'):
                 #...use the DOI to query MaRDI Portal. 
-                query = queryPublication['MaRDIDOI'].format(answers['publication'][key]['reference'][0][1])
+                query = queryPublication['MaRDIDOI'].format(answers['publication'][key].get('reference', {}).get(0, ['',''])[1])
                 results = query_sparql(query, endpoint['mardi']['sparql'])
                 if results:
                     #If Publication found in MaRDI Portal...
@@ -50,7 +50,7 @@ class PublicationRetriever:
                     #Get the Citation of several ressource.
                     data = get_citation(answers['publication'][key]['reference'][0][1])
                     #If Publication available at MaRDI Portal or Wikidata...
-                    if data['mardi'] or data['wikidata']:
+                    if data.get('mardi') or data.get('wikidata'):
                         DATA = data['mardi'] or data['wikidata']
                         #...add data to Questionnaire and...
                         value_editor(project = project, 
@@ -63,7 +63,7 @@ class PublicationRetriever:
                         answers['publication'][key]['Name'] = DATA.label
                         answers['publication'][key]['Description'] = DATA.description
                     #If Publication available at Crossref, Datacite, zbMath or DOI...
-                    elif data['crossref'] or data['datacite'] or data['zbmath'] or data['doi']:
+                    elif data.get('crossref') or data.get('datacite') or data.get('zbmath') or data.get('doi'):
                         DATA = data['crossref'] or data['datacite'] or data['zbmath'] or data['doi']
                         #...add data to Questionnaire and...
                         for uri, data_key in PUBLICATIONS.items():

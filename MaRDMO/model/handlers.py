@@ -7,7 +7,7 @@ from .constants import PROPS, RELATANT_URIS, RELATION_URIS, INDEX_COUNTERS, get_
 from .sparql import queryHandler
 from .models import ResearchField, ResearchProblem, MathematicalModel, QuantityOrQuantityKind, MathematicalFormulation, Task, Relatant
 
-from ..id_testwiki import ITEMS, PROPERTIES
+from ..id import ITEMS, PROPERTIES
 from ..utils import add_basics, add_entities, add_new_entities, add_properties, add_relations, add_references, extract_parts, get_mathmoddb, get_questionsMO, get_questionsPU, query_sparql, value_editor
 from ..config import BASE_URI, endpoint
 
@@ -358,7 +358,7 @@ def TInformation(sender, **kwargs):
                                          collection_index = idx,
                                          set_index = 0, 
                                          set_prefix =instance.set_index)
-                    # Add roperties to the Questionnaire
+                    # Add properties to the Questionnaire
                     add_properties(project = instance.project,
                                    data = data,
                                    uri = f'{BASE_URI}{questions["Task Properties"]["uri"]}',
@@ -387,7 +387,8 @@ def TInformation(sender, **kwargs):
                                   set_prefix = instance.set_index,
                                   relatant = f'{BASE_URI}{questions["Task IntraClassElement"]["uri"]}', 
                                   relation = f'{BASE_URI}{questions["Task IntraClassRelation"]["uri"]}',
-                                  assumption = f'{BASE_URI}{questions["Task Assumption"]["uri"]}')
+                                  assumption = f'{BASE_URI}{questions["Task Assumption"]["uri"]}',
+                                  order = f'{BASE_URI}{questions["Task Order Number"]["uri"]}')
                     # Add Publications to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
@@ -425,6 +426,7 @@ def MMInformation(sender, **kwargs):
                 if results:
                     # Structure Results
                     data = MathematicalModel.from_query(results)
+                    
                     # Add Optional Long Description
                     for idx, descriptionLong in enumerate(data.descriptionLong):
                         value_editor(project = instance.project, 
@@ -454,7 +456,8 @@ def MMInformation(sender, **kwargs):
                                   mapping = mathmoddb, 
                                   set_prefix = f"{instance.set_index}|0",
                                   relatant = f'{BASE_URI}{questions["Mathematical Model MFRelatant"]["uri"]}', 
-                                  relation = f'{BASE_URI}{questions["Mathematical Model MM2MF"]["uri"]}')
+                                  relation = f'{BASE_URI}{questions["Mathematical Model MM2MF"]["uri"]}',
+                                  order = f'{BASE_URI}{questions["Mathematical Model Order Number"]["uri"]}')
                     
                     # Add Relations between Mathematical Models and Tasks to Questionnaire
                     add_relations(project = instance.project, 

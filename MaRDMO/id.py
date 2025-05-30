@@ -24,6 +24,7 @@ PROPERTIES = {
     'publication date':                 'P28',
     'published in':                     'P200',
     'QUDT quantity kind ID':            'P1654',
+    'series ordinal':                   'P146',
     'similar to':                       '',
     'specialized by':                   'P1684',
     'symbol represents':                'P984',

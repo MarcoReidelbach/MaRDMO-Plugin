@@ -109,7 +109,7 @@ def mapEntityQuantity(data, type, mapping):
         for key2 in data[type][key].get('element',{}):
             for k in data['quantity']:
                 if data[type][key]['element'][key2].get('quantity', {}).get('Name', '').lower() == data['quantity'][k]['Name'].lower():
-                    if data['quantity'][k]['QorQK'] == mapping['Quantity']:
+                    if data['quantity'][k].get('QorQK') == mapping['Quantity']:
                         data[type][key]['element'][key2].update(
                             {'Info': 
                                 {'Type': mapping['Quantity'],
@@ -119,7 +119,7 @@ def mapEntityQuantity(data, type, mapping):
                                  'QKName':data['quantity'][k].get('QKRelatant', {}).get(0, {}).get('Name', ''),
                                  'QKID':data['quantity'][k].get('QKRelatant', {}).get(0, {}).get('ID', '')}
                             })
-                    elif data['quantity'][k]['QorQK'] == mapping['QuantityKind']:
+                    elif data['quantity'][k].get('QorQK') == mapping['QuantityKind']:
                         data[type][key]['element'][key2].update(
                             {'Info':
                                 {'Type': mapping['QuantityKind'],

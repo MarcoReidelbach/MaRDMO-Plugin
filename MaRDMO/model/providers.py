@@ -6,7 +6,7 @@ from ..utils import query_sources, query_sources_with_user_additions
 class ResearchField(Provider):
 
     search = True
-    #refreh =True
+    refresh =True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''
@@ -46,7 +46,7 @@ class RelatedResearchFieldWithoutCreation(Provider):
 class ResearchProblem(Provider):
 
     search = True
-    #refreh =True
+    refresh =True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''
@@ -86,7 +86,7 @@ class RelatedResearchProblemWithoutCreation(Provider):
 class MathematicalModel(Provider):
 
     search = True
-    #refreh = True
+    refresh = True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''
@@ -112,7 +112,7 @@ class RelatedMathematicalModelWithoutCreation(Provider):
 class QuantityOrQuantityKind(Provider):
 
     search = True
-    #refreh =True
+    refresh =True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''
@@ -152,7 +152,7 @@ class RelatedQuantityKindWithoutCreation(Provider):
 class RelatedQuantityOrQuantityKindWithCreation(Provider):
 
     search = True
-    #refreh =True
+    refresh =True
 
     def get_options(self, project, search=None, user=None, site=None):
 
@@ -167,7 +167,7 @@ class RelatedQuantityOrQuantityKindWithCreation(Provider):
 class MathematicalFormulation(Provider):
 
     search = True
-    #refreh =True
+    refresh =True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''
@@ -179,7 +179,7 @@ class MathematicalFormulation(Provider):
 class RelatedMathematicalFormulationWithCreation(Provider):
 
     search = True
-    #refreh =True
+    refresh =True
 
     def get_options(self, project, search=None, user=None, site=None):
 
@@ -208,7 +208,7 @@ class RelatedMathematicalFormulationWithoutCreation(Provider):
 class Task(Provider):
 
     search = True
-    #refreh =True
+    refresh =True
 
     def get_options(self, project, search, user=None, site=None):
         '''Queries MathModDB for user input'''

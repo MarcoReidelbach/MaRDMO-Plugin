@@ -2,7 +2,7 @@ from .utils import mapEntityQuantity, restructureIntracClass
 from .constants import PREVIEW_RELATIONS, PREVIEW_MAP_GENERAL, PREVIEW_MAP_QUANTITY, REVERSE, get_RELATION_MAP
 
 from ..utils import entityRelations, get_mathmoddb, find_item, mapEntity, unique_items
-from ..id_testwiki import PROPERTIES, ITEMS
+from ..id import PROPERTIES, ITEMS
 
 from ..workflow.utils import add_item_relation, add_static_or_non_item_relation, add_qualifier, find_key_by_values, get_item_key, items_url, items_payload
 
@@ -26,7 +26,8 @@ class prepareModel:
                 relationOld = relation[2],
                 entityOld = relation[3],
                 entityNew = relation[4],
-                enc = relation[5]
+                enc = relation[5],
+                order = relation[6]
             )
 
         # Prepare General Mappings
@@ -291,11 +292,14 @@ class prepareModel:
             for key, prop in model.get('MM2MF', {}).items():
                 formulation_id, formulation_name, formulation_description = old_new.get((model.get('MFRelatant',{}).get(key,{}).get('ID'), model.get('MFRelatant',{}).get(key,{}).get('Name'), model.get('MFRelatant',{}).get(key,{}).get('Description'))) or (model.get('MFRelatant',{}).get(key,{}).get('ID'), model.get('MFRelatant',{}).get(key,{}).get('Name'), model.get('MFRelatant',{}).get(key,{}).get('Description'))
                 formulation_item = find_key_by_values(items, formulation_id, formulation_name, formulation_description)    
-                qualifier = []
+                if model.get('number'):
+                    qualifier = add_qualifier(PROPERTIES['series ordinal'], model['number'][key], 'string')
+                else:
+                    qualifier = []
                 if prop == prepareModel.mathmoddb['assumes']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['assumes'], formulation_item)
+                    payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['assumes'], formulation_item, 'wikibase-item', qualifier)
                 elif prop == prepareModel.mathmoddb['contains']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['contains'], formulation_item)
+                    payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
                 elif prop == prepareModel.mathmoddb['containsBoundaryCondition']:
                     qualifier.extend(add_qualifier(PROPERTIES['object has role'], ITEMS['boundary condition']))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, model_item, rel_idx, PROPERTIES['contains'], formulation_item, 'wikibase-item', qualifier)
@@ -398,7 +402,7 @@ class prepareModel:
             payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['community'], ITEMS['MathModDB'])
 
             # Add instance and MathModDB community to RELATED Mathematical Models
-            for rel_task in model.get('IntraClassElement', {}).values():
+            for rel_task in task.get('IntraClassElement', {}).values():
                 rel_task_item = get_item_key(rel_task, items, old_new)
                 payload, rel_idx = add_static_or_non_item_relation(url, payload, rel_task_item, rel_idx, PROPERTIES['instance of'], ITEMS['computational task'])
                 payload, rel_idx = add_static_or_non_item_relation(url, payload, rel_task_item, rel_idx, PROPERTIES['community'], ITEMS['MathModDB'])
@@ -468,7 +472,7 @@ class prepareModel:
             restructureIntracClass(task)
 
             # Add Forward Relations to Item (without specialized by)
-            for relation in ['approximated by', 'contains', 'discretized by', 'linearized by', 'similar to']:
+            for relation in ['approximated by', 'discretized by', 'linearized by', 'similar to']:
                 payload, rel_idx = add_item_relation(url = url,
                                                      payload = payload, 
                                                      values = task.get(relation, {}).values(), 
@@ -479,7 +483,7 @@ class prepareModel:
                                                      property = PROPERTIES[relation])
 
             ## Add Backward Relations to Item (without specializes)
-            for relation in ['approximates', 'contained in', 'discretizes', 'linearizes']:
+            for relation in ['approximates', 'discretizes', 'linearizes']:
                 payload, rel_idx = add_item_relation(url = url,
                                                      payload = payload, 
                                                      values = task.get(relation, {}).values(),
@@ -525,6 +529,30 @@ class prepareModel:
                             # Add to qualifier
                             qualifier.extend(add_qualifier(PROPERTIES['assumes'], assumption_entry))
                     payload, rel_idx = add_static_or_non_item_relation(url, payload, entry, rel_idx, PROPERTIES['specialized by'], task_item, 'wikibase-item', qualifier)
+
+            ### Add Forward Relations (contains)
+            for key, value in task.get('IntraClassRelation', {}).items():
+                if value == prepareModel.mathmoddb['contains']:
+                    # Use new ID if present
+                    task['IntraClassElement'][key]['ID'] = old_new.get((task['IntraClassElement'][key]['ID'], task['IntraClassElement'][key]['Name'], task['IntraClassElement'][key]['Description']), [''])[0] or task['IntraClassElement'][key]['ID']
+                    # Get Entry Key
+                    entry = find_key_by_values(items, task['IntraClassElement'][key]['ID'], task['IntraClassElement'][key]['Name'], task['IntraClassElement'][key]['Description'])                
+                    qualifier = []
+                    if task.get('number', {}).get(key):
+                        qualifier.extend(add_qualifier(PROPERTIES['series ordinal'], task['number'][key], 'string'))
+                    payload, rel_idx = add_static_or_non_item_relation(url, payload, task_item, rel_idx, PROPERTIES['contains'], entry, 'wikibase-item', qualifier)
+
+            ### Add Forward Relations (contains)
+            for key, value in task.get('IntraClassRelation', {}).items():
+                if value == prepareModel.mathmoddb['containedIn']:
+                    # Use new ID if present
+                    task['IntraClassElement'][key]['ID'] = old_new.get((task['IntraClassElement'][key]['ID'], task['IntraClassElement'][key]['Name'], task['IntraClassElement'][key]['Description']), [''])[0] or task['IntraClassElement'][key]['ID']
+                    # Get Entry Key
+                    entry = find_key_by_values(items, task['IntraClassElement'][key]['ID'], task['IntraClassElement'][key]['Name'], task['IntraClassElement'][key]['Description'])                
+                    qualifier = []
+                    if task.get('number', {}).get(key):
+                        qualifier.extend(add_qualifier(PROPERTIES['series ordinal'], task['number'][key], 'string'))
+                    payload, rel_idx = add_static_or_non_item_relation(url, payload, entry, rel_idx, PROPERTIES['contains'], task_item, 'wikibase-item', qualifier)
 
         for formulation in data.get('formulation', {}).values():
 

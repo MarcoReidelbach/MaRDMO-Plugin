@@ -216,7 +216,7 @@ queryHandler = {
                                                        ?isTimeContinuous ?isTimeDiscrete
                                                        (GROUP_CONCAT(DISTINCT CONCAT(?rp, " | ", ?rpl, " | ", ?rpd); separator=" / ") AS ?models)
                                                        (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); separator=" / ") AS ?assumes)
-                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?containsFormulation)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq, " >|< ", ?confq2); separator=" / ") AS ?containsFormulation)
                                                        (GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); separator=" / ") AS ?usedBy)
                                                        (GROUP_CONCAT(DISTINCT CONCAT(?sbm, " | ", ?sbml, " | ", ?sbmd, " | ", ?sbmq); separator=" / ") AS ?specializedBy)
                                                        (GROUP_CONCAT(DISTINCT CONCAT(?sm, " | ", ?sml, " | ", ?smd, " | ", ?smq); separator=" / ") AS ?specializes)
@@ -321,6 +321,11 @@ queryHandler = {
                                                                              BIND(REPLACE(STR(?quaraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua)
                                                                            }}
                                                                   BIND(COALESCE(?qua, "") AS ?confq)
+
+                                                                  OPTIONAL {{
+                                                                             ?statement pq:{series ordinal} ?qua2raw.
+                                                                           }}
+                                                                  BIND(COALESCE(?qua2raw, "") AS ?confq2)
                                                                }}
 
                                                     OPTIONAL {{
@@ -1482,8 +1487,8 @@ queryHandler = {
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?st, " | ", ?stl, " | ", ?std, " | ", ?stq); separator=" / ") AS ?specializes)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?abt, " | ", ?abtl, " | ", ?abtd); separator=" / ") AS ?approximatedBy)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?at, " | ", ?atl, " | ", ?atd); separator=" / ") AS ?approximates)
-                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?cont, " | ", ?contl, " | ", ?contd); separator=" / ") AS ?containsModel)
-                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?conit, " | ", ?conitl, " | ", ?conitd); separator=" / ") AS ?containedInModel)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?cont, " | ", ?contl, " | ", ?contd, " | ", " >|< ", ?corder); separator=" / ") AS ?containsTask)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?conit, " | ", ?conitl, " | ", ?conitd, " | ", " >|< ", ?ciorder); separator=" / ") AS ?containedInTask)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?dbt, " | ", ?dbtl, " | ", ?dbtd); separator=" / ") AS ?discretizedBy)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?dt, " | ", ?dtl, " | ", ?dtd); separator=" / ") AS ?discretizes)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?lbt, " | ", ?lbtl, " | ", ?lbtd); separator=" / ") AS ?linearizedBy)
@@ -1750,7 +1755,9 @@ queryHandler = {
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?id wdt:{contains} ?contraw.
+                                                                   ?id p:{contains} ?statement5.
+                                                                   ?statement5 ps:{contains} ?contraw.
+
                                                                    BIND(replace( xsd:string(?contraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?cont)
 
                                                                    ?contraw wdt:{instance of} wd:{computational task}.
@@ -1767,10 +1774,17 @@ queryHandler = {
                                                                              FILTER (lang(?contdraw) = 'en')
                                                                            }}
                                                                   BIND(COALESCE(?contdraw, "No Description Provided!") AS ?contd)
+
+                                                                  OPTIONAL {{
+                                                                             ?statement5 pq:{series ordinal} ?corder_raw.
+                                                                           }}
+                                                                  BIND(COALESCE(?corder_raw, "") AS ?corder)
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?conitraw wdt:{contains} ?id.
+                                                                   ?conitraw p:{contains} ?statement6.
+                                                                   ?statement6 ps:{contains} ?conitraw.
+
                                                                    BIND(replace( xsd:string(?conitraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?conit)
 
                                                                    ?conitraw wdt:{instance of} wd:{computational task}.
@@ -1787,6 +1801,11 @@ queryHandler = {
                                                                              FILTER (lang(?conitdraw) = 'en')
                                                                            }}
                                                                   BIND(COALESCE(?conitdraw, "No Description Provided!") AS ?conitd)
+
+                                                                  OPTIONAL {{
+                                                                             ?statement6 pq:{series ordinal} ?ciorder_raw.
+                                                                           }}
+                                                                  BIND(COALESCE(?ciorder_raw, "") AS ?ciorder)
                                                                }}
 
                                                     OPTIONAL {{

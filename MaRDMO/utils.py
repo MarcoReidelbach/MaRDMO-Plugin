@@ -110,7 +110,7 @@ def add_new_entities(project, question_set, question_id, datas, source, prefix):
             idx += 1
     return
 
-def add_relations(project, data, props, set_prefix, relatant, mapping=None, relation=None, suffix='', assumption=None):
+def add_relations(project, data, props, set_prefix, relatant, mapping=None, relation=None, suffix='', assumption=None, order=None):
     # Get Set Ids and IDs of Entities
     set_ids = get_id(project, relatant, ['set_prefix'])
     set_ids2 = get_id(project, relatant, ['set_index'])
@@ -185,6 +185,17 @@ def add_relations(project, data, props, set_prefix, relatant, mapping=None, rela
                         text=f"{assumption_text} [{assumption_source}]",
                         external_id=assumption_id, 
                         collection_index=assumption_idx,
+                        set_index=set_index, 
+                        set_prefix=set_prefix
+                        )
+                    
+            # Add Assumption
+            if order and hasattr(value, 'order') and value.order:
+                
+                    value_editor(
+                        project=project, 
+                        uri=order, 
+                        text=value.order,
                         set_index=set_index, 
                         set_prefix=set_prefix
                         )
@@ -548,7 +559,7 @@ def labelIndexMap(data, type):
         label_to_index_maps.append({data[toIDX_entry][k].get('Name'): idx for idx, k in enumerate(data.get(toIDX_entry, {}))})
     return label_to_index_maps
 
-def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', entityNew='', enc=[]):
+def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', entityNew='', enc=[], order=False):
     toIDX = checkList(toIDX)
     enc = checkList(enc)
     label_to_index_maps = labelIndexMap(data, toIDX)
@@ -578,7 +589,10 @@ def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', en
                     relation_value = from_entry[relationOld][key]
                 else:
                     relation_value = 'MISSING RELATION TYPE'
-                new_value = [relation_value, resolved]
+                if order == False:
+                    new_value = [relation_value, resolved]
+                else:
+                    new_value = [relation_value, resolved, from_entry.get('number',{}).get(key)]
             else:
                 new_value = resolved
 

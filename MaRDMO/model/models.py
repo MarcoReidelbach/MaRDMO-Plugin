@@ -4,7 +4,7 @@ from typing import List, Dict, Optional
 from .utils import mathmlToLatex
 
 from ..utils import get_data, get_mathmoddb
-from ..id_testwiki import ITEMS
+from ..id import ITEMS
 
 @dataclass
 class Relatant:
@@ -38,9 +38,15 @@ class RelatantWithQualifier:
     label: Optional[str]
     description: Optional[str]
     qualifier: Optional[str]
+    order: Optional[str]
     
     @classmethod
     def from_query(cls, raw: str) -> 'RelatantWithQualifier':
+
+        if ">|<" in raw:
+            raw, order = raw.split(" >|< ")
+        else:
+            order = None
 
         id, label, description, qualifier = raw.split(" | ", 3)
     
@@ -48,7 +54,8 @@ class RelatantWithQualifier:
             id = id,
             label = label,
             description = description,
-            qualifier = qualifier
+            qualifier = qualifier,
+            order = order
         )
     
 @dataclass
@@ -380,8 +387,8 @@ class Task:
             specializedBy = [RelatantWithQualifier.from_query(model) for model in data.get('specializedBy', {}).get('value', '').split(" / ") if model] if 'specializedBy' in data else [],
             approximates = [Relatant.from_query(model) for model in data.get('approximates', {}).get('value', '').split(" / ") if model] if 'approximates' in data else [],
             approximatedBy = [Relatant.from_query(model) for model in data.get('approximatedBy', {}).get('value', '').split(" / ") if model] if 'approximatedBy' in data else [],
-            containsTask = [Relatant.from_query(model) for model in data.get('containsTask', {}).get('value', '').split(" / ") if model] if 'containsTask' in data else [],
-            containedInTask = [Relatant.from_query(model) for model in data.get('containedInTask', {}).get('value', '').split(" / ") if model] if 'containedInTask' in data else [],
+            containsTask = [RelatantWithQualifier.from_query(model) for model in data.get('containsTask', {}).get('value', '').split(" / ") if model] if 'containsTask' in data else [],
+            containedInTask = [RelatantWithQualifier.from_query(model) for model in data.get('containedInTask', {}).get('value', '').split(" / ") if model] if 'containedInTask' in data else [],
             discretizedBy = [Relatant.from_query(model) for model in data.get('discretizedBy', {}).get('value', '').split(" / ") if model] if 'discretizedBy' in data else [],            
             discretizes = [Relatant.from_query(model) for model in data.get('discretizes', {}).get('value', '').split(" / ") if model] if 'discretizes' in data else [],
             linearizedBy = [Relatant.from_query(model) for model in data.get('linearizedBy', {}).get('value', '').split(" / ") if model] if 'linearizedBy' in data else [],            

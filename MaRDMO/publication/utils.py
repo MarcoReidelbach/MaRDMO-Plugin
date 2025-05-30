@@ -68,6 +68,7 @@ def generate_label(data):
 
 def get_citation(DOI):
 
+    publication = {}
     if re.match(r'10.\d{4,9}/[-._;()/:a-z0-9A-Z]+', DOI):
         
         choice = None
@@ -83,7 +84,6 @@ def get_citation(DOI):
                                      'mathalgodb':(mathalgodb_query, endpoint['mathalgodb']['sparql'])})
 
         # Structure Publication Information            
-        publication = {}
         for key in ['mardi', 'wikidata', 'mathalgodb']:
             try:
                 publication[key] = Publication.from_query(results.get(key))

@@ -23,6 +23,8 @@ def PInformation(sender, **kwargs):
         if instance.text and instance.text != 'not found':
             # Get Source and ID of selected Publication 
             source, id = instance.external_id.split(':')
+            # Empty Data as Fallback
+            data = {}
             # If Publication from MathAlgoDB...
             if source == 'mathalgodb':
                 #...query the MathAlgoDB,...
@@ -96,42 +98,43 @@ def PInformation(sender, **kwargs):
                                    data = data,
                                    uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}',
                                    set_index = instance.set_index)
-            # For Models add Relations          
-            if str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
-                if source == 'mardi':
-                    mathmoddb = get_mathmoddb()
-                    add_relations(project = instance.project, 
-                                  data = data, 
-                                  props = PROPS['P2E'], 
-                                  mapping = mathmoddb, 
-                                  set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Publication EntityRelatant"]["uri"]}', 
-                                  relation = f'{BASE_URI}{questions["Publication P2E"]["uri"]}')
-                    
-            # For Algorithms add Relations
-            if str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
-                if source == 'mathalgodb':
-                    mathalgodb = get_data('algorithm/data/mapping.json')
-                    add_relations(project = instance.project, 
-                                  data = data, 
-                                  props = PROPS['P2A'], 
-                                  mapping = mathalgodb, 
-                                  set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Publication ARelatant"]["uri"]}', 
-                                  relation = f'{BASE_URI}{questions["Publication P2A"]["uri"]}')
-                    
-                    for prop in PROPS['P2BS']:
-                        for value in getattr(data, prop):
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions[RELATION_URIS[value.bsclass]]["uri"]}', 
-                                         option = Option.objects.get(uri=mathalgodb[prop]), 
-                                         set_index = INDEX_COUNTERS[value.bsclass], 
-                                         set_prefix = instance.set_index)
-                            value_editor(project = instance.project, 
-                                         uri = f'{BASE_URI}{questions[RELATANT_URIS[value.bsclass]]["uri"]}', 
-                                         text = f"{value.label} ({value.description}) [mathalgodb]", 
-                                         external_id = value.id, 
-                                         set_index = INDEX_COUNTERS[value.bsclass], 
-                                         set_prefix = instance.set_index)
-                            INDEX_COUNTERS[value.bsclass] += 1
+            if data:
+                # For Models add Relations          
+                if str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
+                    if source == 'mardi':
+                        mathmoddb = get_mathmoddb()
+                        add_relations(project = instance.project, 
+                                      data = data, 
+                                      props = PROPS['P2E'], 
+                                      mapping = mathmoddb, 
+                                      set_prefix = instance.set_index, 
+                                      relatant = f'{BASE_URI}{questions["Publication EntityRelatant"]["uri"]}', 
+                                      relation = f'{BASE_URI}{questions["Publication P2E"]["uri"]}')
+
+                # For Algorithms add Relations
+                if str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
+                    if source == 'mathalgodb':
+                        mathalgodb = get_data('algorithm/data/mapping.json')
+                        add_relations(project = instance.project, 
+                                      data = data, 
+                                      props = PROPS['P2A'], 
+                                      mapping = mathalgodb, 
+                                      set_prefix = instance.set_index, 
+                                      relatant = f'{BASE_URI}{questions["Publication ARelatant"]["uri"]}', 
+                                      relation = f'{BASE_URI}{questions["Publication P2A"]["uri"]}')
+
+                        for prop in PROPS['P2BS']:
+                            for value in getattr(data, prop):
+                                value_editor(project = instance.project, 
+                                             uri = f'{BASE_URI}{questions[RELATION_URIS[value.bsclass]]["uri"]}', 
+                                             option = Option.objects.get(uri=mathalgodb[prop]), 
+                                             set_index = INDEX_COUNTERS[value.bsclass], 
+                                             set_prefix = instance.set_index)
+                                value_editor(project = instance.project, 
+                                             uri = f'{BASE_URI}{questions[RELATANT_URIS[value.bsclass]]["uri"]}', 
+                                             text = f"{value.label} ({value.description}) [mathalgodb]", 
+                                             external_id = value.id, 
+                                             set_index = INDEX_COUNTERS[value.bsclass], 
+                                             set_prefix = instance.set_index)
+                                INDEX_COUNTERS[value.bsclass] += 1
     return

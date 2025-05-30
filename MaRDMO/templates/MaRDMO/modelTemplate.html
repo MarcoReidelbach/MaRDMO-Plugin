@@ -45,13 +45,21 @@
     <p>
         <b>Short Description</b>:
         {% if values.Description %}
-             {{ values.Description }} <br>
+            {% if values.Description|length > 250 %}
+                <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% else %}
+                {{ values.Description }} <br>
+            {% endif %}
         {% else %}
              <strong style="color:red;">MISSING MODEL SHORT DESCRIPTION</strong> <br>
         {% endif %}
         {% if values.descriptionLong %}
-             <b>Detailed Description</b>:
-             {{ values.descriptionLong }} <br>
+            <b>Detailed Description</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for description in values.descriptionLong.values %}
+                    <li style="margin-bottom: 0.5em;">{{ description }}</li>
+                {% endfor %}
+            </ol>
         {% endif %}
         {% if 'not found' in values.ID %} 
             <b>ID</b>: - 
@@ -152,23 +160,23 @@
     {% endfor %}
 
     <h3 id="RelationsToMathematicalFormulations"> Relations to Mathematical Expressions </h3>
-    {% for relation in values.RelationMF1.values %}
+    {% for key, relation in values.RelationMF.items %}
         {% if relation.0 == option.assumes %} 
-	        assumes: {{relation.1 }} <br>
+	        assumes: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsFormulation %}
-            contains: {{relation.1 }} <br>
+            contains: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsBoundaryCondition %}
-            contains Boundary Condition: {{relation.1 }} <br>
+            contains Boundary Condition: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsConstraintCondition %}
-            contains Constraint Condition: {{relation.1 }} <br>
+            contains Constraint Condition: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsCouplingCondition %}
-            contains Coupling Condition: {{relation.1 }} <br>
+            contains Coupling Condition: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsInitialCondition %}
-            contains Initial Condition: {{relation.1 }} <br>
+            contains Initial Condition: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsFinalCondition %}
-            contains Final Condition: {{relation.1 }} <br>
-        {% elif value.0 == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+            contains Final Condition: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
+        {% elif relation.0 == 'MISSING RELATION TYPE' %}
+            <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
         {% endif %}
     {% empty %}
         <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION</strong>
@@ -181,12 +189,14 @@
         <strong style="color:red;">MISSING COMPUTATIONAL TASK</strong>
     {% endfor %}
 
-    <h3 id="RelationsToMathematicalModels"> Relations to Mathematical Models </h3>
-    {% for key, relation in values.RelationMM1.items %}
+    {% for key, relation in values.RelationMM.items %}
+    	{% if forloop.first %}
+            <h3 id="RelationsToMathematicalModels"> Relations to Mathematical Models </h3>
+        {% endif %}
         {% if relation.0 == option.specializedBy %} 
-	        specialized by: {{relation.1 }} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions: {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} <br>
+	        specialized by: {{relation.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %} <br>
         {% elif relation.0 == option.specializes %} 
-	        specializes: {{relation.1 }} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - reverse assumptions: {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} <br>
+	        specializes: {{relation.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %}<br>
         {% elif relation.0 == option.discretizedBy %} 
 	        discretized by: {{relation.1 }} <br>
         {% elif relation.0 == option.discretizes %} 
@@ -205,8 +215,8 @@
 	        linearizes: {{relation.1 }} <br>
         {% elif relation.0 == option.similarTo %} 
 	        similar to: {{relation.1 }} <br>
-        {% elif value.0 == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+        {% elif relation.0 == 'MISSING RELATION TYPE' %}
+            <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
         {% endif %}
     {% endfor %}
 {% empty %}
@@ -223,15 +233,23 @@
     {% endif %}
 
     <p>
-        <b>Description</b>:
+        <b>Short Description</b>:
         {% if values.Description %}
-             {{ values.Description }} <br>
+            {% if values.Description|length > 250 %}
+                <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% else %}
+                {{ values.Description }} <br>
+            {% endif %}
         {% else %}
-             <strong style="color:red;">MISSING COMPUTATIONAL TASK DESCRIPTION</strong> <br>
+             <strong style="color:red;">MISSING MODEL SHORT DESCRIPTION</strong> <br>
         {% endif %}
         {% if values.descriptionLong %}
-             <b>Detailed Description</b>:
-             {{ values.descriptionLong }} <br>
+            <b>Detailed Description</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for description in values.descriptionLong.values %}
+                    <li style="margin-bottom: 0.5em;">{{ description }}</li>
+                {% endfor %}
+            </ol>
         {% endif %}
         {% if 'not found' in values.ID %} 
             <b>ID</b>: - 
@@ -281,8 +299,8 @@
             contains Initial Condition: {{relation.1 }} <br>
         {% elif relation.0 == option.containsFinalCondition %}
             contains Final Condition: {{relation.1 }} <br>
-        {% elif value.0 == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+        {% elif relation.0 == 'MISSING RELATION TYPE' %}
+            <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
         {% endif %}
     {% empty %}
         <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION</strong>
@@ -312,17 +330,17 @@
             <h3 id="RelationsToTasks"> Relations to Computational Tasks </h3>
         {% endif %}
         {% if value.0 == option.specializedBy %} 
-            specialized by: {{ value.1 }} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions: {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} <br>
+            specialized by: {{ value.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %} <br>
         {% elif value.0 == option.specializes %} 
-            specializes: {{ value.1 }} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - reverse assumptions: {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} <br>
+            specializes: {{ value.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %}<br>
         {% elif value.0 == option.discretizedBy %} 
             discretized by: {{ value.1 }} <br>
         {% elif value.0 == option.discretizes %} 
             discretizes: {{ value.1 }} <br>
         {% elif value.0 == option.containedInTask %} 
-            contained in: {{ value.1 }} <br>
+            contained in: {{ value.1 }} {% if values.number %} {% for key2, val in values.number.items %} {% if key == key2 %} - order number: {{ val }} {% endif %} {% endfor %} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
         {% elif value.0 == option.containsTask %} 
-            contains: {{ value.1 }} <br>
+            contains: {{ value.1 }} {% if values.number %} {% for key2, val in values.number.items %} {% if key == key2 %} - order number: {{ val }} {% endif %} {% endfor %} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
         {% elif value.0 == option.approximatedBy %} 
             approximated by: {{ value.1 }} <br>
         {% elif value.0 == option.approximates %} 
@@ -351,15 +369,23 @@
     {% endif %}
 
     <p>
-        <b>Description</b>:
+        <b>Short Description</b>:
         {% if values.Description %}
-             {{ values.Description }} <br>
+            {% if values.Description|length > 250 %}
+                <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% else %}
+                {{ values.Description }} <br>
+            {% endif %}
         {% else %}
-             <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION DESCRIPTION</strong> <br>
+             <strong style="color:red;">MISSING MODEL SHORT DESCRIPTION</strong> <br>
         {% endif %}
         {% if values.descriptionLong %}
-             <b>Detailed Description</b>:
-             {{ values.descriptionLong }} <br>
+            <b>Detailed Description</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for description in values.descriptionLong.values %}
+                    <li style="margin-bottom: 0.5em;">{{ description }}</li>
+                {% endfor %}
+            </ol>
         {% endif %}
         {% if 'not found' in values.ID %} 
             <b>ID</b>: - 
@@ -453,76 +479,74 @@
         <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION PROPERTIES</strong>
     {% endfor %}
         
-    <p>
-        <b>Defining formulations</b>: 
-        {% for value in values.Formula.values %} 
-            \( {{ value|cut:"$" }} \) 
-            {% if not forloop.last %}
-                , 
-            {% endif %} 
-        {% empty %}
-            <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION FORMULA</strong>
-        {% endfor %}
-        
+    <p> 
+        <b>Defining formulations</b>:
+        <ol style="margin-left: 1.5em;">
+            {% for value in values.Formula.values %}
+                <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; \( {{ value }} \)</li>
+            {% empty %}
+                <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION FORMULA</strong>
+            {% endfor %}
+        </ol>
     </p>
     <br>
-    <table border="1">
-        <colgroup>
-            <col style="width: 10%" />
-            <col style="width: 15%" />
-            <col style="width: 15%" />
-            <col style="width: 15%" />
-            <col style="width: 15%" />
-            <col style="width: 30%" />
-        </colgroup>
-        <thead>
-            <tr class="header">
-                <th style="text-align: center; vertical-align: middle;">Symbol</th>
-                <th style="text-align: center; vertical-align: middle;">Quantity</th>
-                <th style="text-align: center; vertical-align: middle;">Quantity ID</th>
-                <th style="text-align: center; vertical-align: middle;">Quantity Kind</th>
-                <th style="text-align: center; vertical-align: middle;">Quantity Kind ID</th>
-                <th style="text-align: center; vertical-align: middle;">Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for value in values.element.values %}
-                {% if value.Info.Type == option.Quantity %}
-                    <tr>
-                        <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
-                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.Name }} {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %} </td>
-                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.ID }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKName }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKID }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }} {% if value.Info.Description %} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
-                    </tr>
-                {% elif value.Info.Type == option.QuantityKind %}
-                    <tr>
-                        <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
-                        <td style="text-align: center; vertical-align: middle;"></td>
-                        <td style="text-align: center; vertical-align: middle;"></td>
-                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.Name }} {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.ID }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }} {% if value.Info.Description %} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
-                        <td colspan="5" style="text-align: center; vertical-align: middle;"> <strong style="color:red;">MISSING Quantity or Quantity Kind</strong> </td>
-                    </tr>
-                {% endif %}
-            {% empty %}
-                <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION ELEMENT INFORMATION</strong>
-            {% endfor %}
-        </tbody>
-    </table>
-    <br>
+    {% if values.element.values %}
+        <table border="1">
+            <colgroup>
+                <col style="width: 10%" />
+                <col style="width: 15%" />
+                <col style="width: 15%" />
+                <col style="width: 15%" />
+                <col style="width: 15%" />
+                <col style="width: 30%" />
+            </colgroup>
+            <thead>
+                <tr class="header">
+                    <th style="text-align: center; vertical-align: middle;">Symbol</th>
+                    <th style="text-align: center; vertical-align: middle;">Quantity</th>
+                    <th style="text-align: center; vertical-align: middle;">Quantity ID</th>
+                    <th style="text-align: center; vertical-align: middle;">Quantity Kind</th>
+                    <th style="text-align: center; vertical-align: middle;">Quantity Kind ID</th>
+                    <th style="text-align: center; vertical-align: middle;">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for value in values.element.values %}
+                    {% if value.Info.Type == option.Quantity %}
+                        <tr>
+                            <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.Name }} {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %} </td>
+                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.ID }}</td>
+                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKName }}</td>
+                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKID }}</td>
+                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }} {% if value.Info.Description %} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
+                        </tr>
+                    {% elif value.Info.Type == option.QuantityKind %}
+                        <tr>
+                            <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                            <td style="text-align: center; vertical-align: middle;"></td>
+                            <td style="text-align: center; vertical-align: middle;"></td>
+                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.Name }} {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %}</td>
+                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.ID }}</td>
+                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }} {% if value.Info.Description %} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                            <td colspan="5" style="text-align: center; vertical-align: middle;"> <strong style="color:red;">MISSING QUANTITY OR QUANTITY KIND</strong> </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION ELEMENT INFORMATION</strong>
+    {% endif %}
 
     {% for values in values.RelationMF1.values %}
-        {% if forloop.counter == 1 %}
+        {% if forloop.first %}
             <h3 id="RelationsToOtherMathematicalFormulationsI1"> Relations to other Mathematical Expressions I </h3>
         {% endif %}
-
         {% if values.0 == option.assumes %} 
 	        assumes: {{ values.1 }} <br>
         {% elif values.0 == option.containsFormulation %} 
@@ -537,40 +561,39 @@
 	        contains Initial Condition: {{ values.1 }} <br>
         {% elif values.0 == option.containsFinalCondition %} 
 	        contains Final Condition: {{ values.1 }} <br>
-        {% elif value.0 == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+        {% elif values.0 == 'MISSING RELATION TYPE' %}
+            <strong style="color:red;">{{ values.0 }}</strong>: {{ values.1 }} <br>
         {% endif %}
     {% endfor %}
 
-    {% for key, value in values.RelationMF2.items %}
-        {% if forloop.counter == 1 %}
+    {% for key, values in values.RelationMF2.items %}
+        {% if forloop.first %}
             <h3 id="RelationsToOtherMathematicalFormulationsII1"> Relations to other Mathematical Expressions II </h3>
         {% endif %}
-
-        {% if value.0 == option.approximatedBy %} 
+        {% if values.0 == option.approximatedBy %} 
 	        approximated by: {{ values.1 }} <br>
-        {% elif value.0 == option.approximates %} 
+        {% elif values.0 == option.approximates %} 
 	        approximates: {{ values.1 }} <br>
-        {% elif value.0 == option.discretizedBy %} 
+        {% elif values.0 == option.discretizedBy %} 
 	        discretized by: {{ values.1 }} <br>
-        {% elif value.0 == option.discretizes %} 
+        {% elif values.0 == option.discretizes %} 
 	        discretizes: {{ values.1 }} <br>
-        {% elif value.0 == option.specializedBy %} 
-	        specialized by: {{ values.1 }} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions: {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} <br>
-        {% elif value.0 == option.specializes %} 
-	        specializes: {{ values.1 }} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - reverse assumptions: {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} <br>
-        {% elif value.0 == option.nondimensionalizedBy %} 
+        {% elif values.0 == option.specializedBy %} 
+	        specialized by: {{ values.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %} <br>
+        {% elif values.0 == option.specializes %} 
+	        specializes: {{ values.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %}<br>
+        {% elif values.0 == option.nondimensionalizedBy %} 
 	        nondimensionalized by: {{ values.1 }} <br>
-        {% elif value.0 == option.nondimensionalzes %} 
+        {% elif values.0 == option.nondimensionalzes %} 
 	        nondimensionalizes: {{ values.1 }} <br>
-        {% elif value.0 == option.linearizedBy %} 
+        {% elif values.0 == option.linearizedBy %} 
 	        linearized by: {{ values.1 }} <br>
-        {% elif value.0 == option.linearizes %} 
+        {% elif values.0 == option.linearizes %} 
 	        linearizes: {{ values.1 }} <br>
-        {% elif value.0 == option.similarTo %} 
+        {% elif values.0 == option.similarTo %} 
 	        similar to: {{ values.1 }} <br>
-        {% elif value.0 == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+        {% elif values.0 == 'MISSING RELATION TYPE' %}
+            <strong style="color:red;">{{ values.0 }}</strong>: {{ values.1 }} <br>
         {% endif %}  
     {% endfor %}
 {% empty %}
@@ -601,6 +624,10 @@
             {% if reference.0 == option.URL %}
                 <b>URL</b>: {{ reference.1 }} <br>
 	        {% endif %}
+        {% empty %}
+            {% if 'not found' in values.ID %}
+                <strong style="color:red;">MISSING PUBLICATION DOI OR URL</strong>
+            {% endif %}
         {% endfor %}
     </p>
 
@@ -618,8 +645,8 @@
 	        surveys: {{ values.1 }} <br>
         {% elif values.0 == option.uses %} 
 	        uses: {{ values.1 }} <br>
-        {% elif value.0 == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+        {% elif values.0 == 'MISSING RELATION TYPE' %}
+            <strong style="color:red;">{{ values.0 }}</strong>: {{ values.1 }} <br>
         {% endif %}
     {% empty %}
         <strong style="color:red;">MISSING MATHEMATICAL MODEL ENTITY</strong>
@@ -638,11 +665,15 @@
     {% endif %}
 
     <p>
-        <b>Description</b>:
+        <b>Short Description</b>:
         {% if values.Description %}
-             {{ values.Description }} <br>
+            {% if values.Description|length > 250 %}
+                <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% else %}
+                {{ values.Description }} <br>
+            {% endif %}
         {% else %}
-             <strong style="color:red;">MISSING ACADEMIC DISCIPLINE DESCRIPTION</strong> <br>
+             <strong style="color:red;">MISSING MODEL SHORT DESCRIPTION</strong> <br>
         {% endif %}
         {% if values.descriptionLong %}
             <b>Detailed Description</b>:
@@ -662,7 +693,7 @@
         <br>
     </p>
 
-    {% for relation in values.RelationRF1.values %}
+    {% for relation in values.RelationRF.values %}
         {% if forloop.first %}
             <h3 id="RelationsToOtherResearchFields"> Relations to other Academic Disciplines </h3>
 	    {% endif %}
@@ -672,8 +703,8 @@
             specializes: {{relation.1 }} <br>
         {% elif relation.0 == option.similarTo %} 
             similar to: {{relation.1 }} <br>
-        {% elif value.0 == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+        {% elif relation.0 == 'MISSING RELATION TYPE' %}
+            <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
         {% endif %}
     {% endfor %}
 {% empty %}
@@ -690,15 +721,23 @@
     {% endif %}
 
     <p>
-        <b>Description</b>:
+        <b>Short Description</b>:
         {% if values.Description %}
-             {{ values.Description }} <br>
+            {% if values.Description|length > 250 %}
+                <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% else %}
+                {{ values.Description }} <br>
+            {% endif %}
         {% else %}
-             <strong style="color:red;">MISSING RESEARCH PROBLEM DESCRIPTION</strong> <br>
+             <strong style="color:red;">MISSING MODEL SHORT DESCRIPTION</strong> <br>
         {% endif %}
         {% if values.descriptionLong %}
-             <b>Detailed Description</b>:
-             {{ values.descriptionLong }} <br>
+            <b>Detailed Description</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for description in values.descriptionLong.values %}
+                    <li style="margin-bottom: 0.5em;">{{ description }}</li>
+                {% endfor %}
+            </ol>
         {% endif %}
         {% if 'not found' in values.ID %} 
             <b>ID</b>: - 
@@ -717,7 +756,7 @@
         <strong style="color:red;">MISSING ACADEMIC DISCIPLINE</strong>
     {% endfor %}
 
-    {% for relation in values.RelationRP1.values %}
+    {% for relation in values.RelationRP.values %}
         {% if forloop.first %}
             <h3 id="RelationsToOtherResearchProblems"> Relations to other Research Problems </h3>
         {% endif %}
@@ -727,8 +766,8 @@
 	        specializes: {{relation.1 }} <br>
         {% elif relation.0 == option.similarTo %} 
 	        similar to: {{relation.1 }} <br>
-        {% elif value.0 == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+        {% elif relation.0 == 'MISSING RELATION TYPE' %}
+            <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
         {% endif %}
     {% endfor %}
 {% empty %}
@@ -745,15 +784,23 @@
     {% endif %}
 
     <p>
-        <b>Description</b>:
+        <b>Short Description</b>:
         {% if values.Description %}
-             {{ values.Description }} <br>
+            {% if values.Description|length > 250 %}
+                <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% else %}
+                {{ values.Description }} <br>
+            {% endif %}
         {% else %}
-             <strong style="color:red;">MISSING QUANTITY / QUANTITY KIND DESCRIPTION</strong> <br>
+             <strong style="color:red;">MISSING MODEL SHORT DESCRIPTION</strong> <br>
         {% endif %}
         {% if values.descriptionLong %}
-             <b>Detailed Description</b>:
-             {{ values.descriptionLong }} <br>
+            <b>Detailed Description</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for description in values.descriptionLong.values %}
+                    <li style="margin-bottom: 0.5em;">{{ description }}</li>
+                {% endfor %}
+            </ol>
         {% endif %}
         <b>Class</b>: 
         {% if values.QorQK == option.Quantity %}
@@ -870,6 +917,77 @@
         <strong style="color:red;">MISSING QUANTITY / QUANTITY KIND PROPERTIES</strong>
     {% endfor %}
 
+    {% if values.Formula %}
+        <h3 id="QuantityOrQuantityKindDefinition"> Definition of {% if values.QorQK == option.Quantity %} Quantity {% elif values.QorQK == option.QuantityKind %} Quantity Kind {% endif %} </h3>
+        <p>
+            <b>Defining formulations</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for value in values.Formula.values %}
+                    {% if "\equiv" in value %}
+                        <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; \( {{ value }} \)</li>
+                    {% else %}
+                        <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; \( {{ value }} \) <strong style="color:red;">&nbsp;&nbsp;&nbsp;&nbsp;Inconsistent Quantity / Quantity Kind Definition (missing \equiv)</strong></li>
+                    {% endif %}
+                {% empty %}
+                    <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION FORMULA</strong>
+                {% endfor %}
+            </ol>
+        </p>
+        <br>
+        {% if values.element.values %}
+            <table border="1">
+                <colgroup>
+                    <col style="width: 10%" />
+                    <col style="width: 15%" />
+                    <col style="width: 15%" />
+                    <col style="width: 15%" />
+                    <col style="width: 15%" />
+                    <col style="width: 30%" />
+                </colgroup>
+                <thead>
+                    <tr class="header">
+                        <th style="text-align: center; vertical-align: middle;">Symbol</th>
+                        <th style="text-align: center; vertical-align: middle;">Quantity</th>
+                        <th style="text-align: center; vertical-align: middle;">Quantity ID</th>
+                        <th style="text-align: center; vertical-align: middle;">Quantity Kind</th>
+                        <th style="text-align: center; vertical-align: middle;">Quantity Kind ID</th>
+                        <th style="text-align: center; vertical-align: middle;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for value in values.element.values %}
+                        {% if value.Info.Type == option.Quantity %}
+                            <tr>
+                                <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.Name }} {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %} </td>
+                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.ID }}</td>
+                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKName }}</td>
+                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKID }}</td>
+                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }} {% if value.Info.Description %} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
+                            </tr>
+                        {% elif value.Info.Type == option.QuantityKind %}
+                            <tr>
+                                <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                                <td style="text-align: center; vertical-align: middle;"></td>
+                                <td style="text-align: center; vertical-align: middle;"></td>
+                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.Name }} {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %}</td>
+                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.ID }}</td>
+                                <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }} {% if value.Info.Description %} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                                <td colspan="5" style="text-align: center; vertical-align: middle;"> <strong style="color:red;">MISSING QUANTITY OR QUANTITY KIND</strong> </td> 
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION ELEMENT INFORMATION</strong>
+        {% endif %}
+    {% endif %}
+
     {% if values.QorQK == option.Quantity %}
         {% for values in values.RelationQQ.values %}
             {% if forloop.counter == 1 %}
@@ -893,8 +1011,8 @@
 	            nondimensionalizes: {{ values.1 }} <br>
             {% elif values.0 == option.similarTo %} 
 	            similar to: {{ values.1 }} <br>
-            {% elif value.0 == 'MISSING RELATION TYPE' %}
-                <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+            {% elif values.0 == 'MISSING RELATION TYPE' %}
+                <strong style="color:red;">{{ values.0 }}</strong>: {{ values.1 }} <br>
             {% endif %}
         {% endfor %}
         {% for values in values.RelationQQK.values %}
@@ -903,8 +1021,8 @@
             {% endif %}
             {% if values.0 == option.specializes %} 
 	            specializes: {{ values.1 }} <br>
-            {% elif value.0 == 'MISSING RELATION TYPE' %}
-                <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+            {% elif values.0 == 'MISSING RELATION TYPE' %}
+                <strong style="color:red;">{{ values.0 }}</strong>: {{ values.1 }} <br>
             {% endif %}
         {% endfor %}
     {% elif values.QorQK == option.QuantityKind %}
@@ -918,8 +1036,8 @@
                 nondimensionalizes: {{ values.1 }} <br>
             {% elif values.0 == option.similarTo %} 
                 similar to: {{ values.1 }} <br>
-            {% elif value.0 == 'MISSING RELATION TYPE' %}
-                <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+            {% elif values.0 == 'MISSING RELATION TYPE' %}
+                <strong style="color:red;">{{ values.0 }}</strong>: {{ values.1 }} <br>
             {% endif %}
         {% endfor %}
         {% for values in values.RelationQKQ.values %}
@@ -928,75 +1046,10 @@
             {% endif %}
             {% if values.0 == option.specializedBy %} 
                 specialized by: {{ values.1 }} <br>
-            {% elif value.0 == 'MISSING RELATION TYPE' %}
-                <strong style="color:red;">{{ value.0 }}</strong>: {{ value.1 }} <br>
+            {% elif values.0 == 'MISSING RELATION TYPE' %}
+                <strong style="color:red;">{{ values.0 }}</strong>: {{ values.1 }} <br>
             {% endif %}
         {% endfor %}
-    {% endif %}
-
-    {% if values.Formula %}
-        <h3 id="QuantityOrQuantityKindDefinition"> Definition of {% if values.QorQK == option.Quantity %} Quantity {% elif values.QorQK == option.QuantityKind %} Quantity Kind {% endif %} </h3>
-        <p>
-            <b>Defining formulations</b>: 
-            {%for value in values.Formula.values %} 
-                \( {{ value|cut:"$" }} \) 
-                {% if not forloop.last %}
-                    , 
-                {% endif %} 
-            {% endfor %}
-        </p>
-        <br>
-        <table border="1">
-            <colgroup>
-                <col style="width: 10%" />
-                <col style="width: 15%" />
-                <col style="width: 15%" />
-                <col style="width: 15%" />
-                <col style="width: 15%" />
-                <col style="width: 30%" />
-            </colgroup>
-            <thead>
-                <tr class="header">
-                    <th style="text-align: center; vertical-align: middle;">Symbol</th>
-                    <th style="text-align: center; vertical-align: middle;">Quantity</th>
-                    <th style="text-align: center; vertical-align: middle;">Quantity ID</th>
-                    <th style="text-align: center; vertical-align: middle;">Quantity Kind</th>
-                    <th style="text-align: center; vertical-align: middle;">Quantity Kind ID</th>
-                    <th style="text-align: center; vertical-align: middle;">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for value in values.element.values %}
-                    {% if value.Info.Type == option.Quantity %}
-                        <tr>
-                            <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
-                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.Name }} {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %} </td>
-                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.ID }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKName }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKID }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }} {% if value.Info.Description %} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
-                        </tr>
-                    {% elif value.Info.Type == option.QuantityKind %}
-                        <tr>
-                            <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
-                            <td style="text-align: center; vertical-align: middle;"></td>
-                            <td style="text-align: center; vertical-align: middle;"></td>
-                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.Name }} {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.ID }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }} {% if value.Info.Description %} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
-                            <td colspan="5" style="text-align: center; vertical-align: middle;"> <strong style="color:red;">MISSING Quantity or Quantity Kind</strong> </td> 
-                        </tr>
-                    {% endif %}
-                {% empty %}
-                    <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION ELEMENT INFORMATION</strong>
-                {% endfor %}
-            </tbody>
-        </table>
-        <br>
     {% endif %}
 {% empty %}
     <strong style="color:red;">MISSING QUANTITY / QUANTITY KIND</strong>

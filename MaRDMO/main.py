@@ -17,6 +17,7 @@ from .config import endpoint
 
 from .model.worker import prepareModel
 from .model.utils import get_answer_model
+from .model.checks import checks
 
 from .algorithm.sparql import queryAlgorithmDocumentation
 from .algorithm.worker import algorithm_relations
@@ -102,7 +103,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
             
             data = self.get_post_data()
- 
+            
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
@@ -201,7 +202,15 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   status=200)
                 
                 data = self.get_post_data()
-                
+                checker = checks()
+                err = checker.run(self.project, data[0])
+                if err:
+                    # Stop export if documentation incomplete / inconsitent
+                    return render(self.request, 
+                                  'core/error.html', 
+                                  {'title': _("Incomplete or Inconsistent Documentation"),
+                                   'errors': err}, 
+                                  status=200)
                 try:
                     payload = prepareModel.export(data[0], self.wikibase_url)
                 except Exception as err:
@@ -212,7 +221,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   status=200)
                 
                 url = self.get_post_url()
-                           
+                     
                 return self.post(self.request, url, payload)
 
             # MaRDMO: Algorithm Documentation
