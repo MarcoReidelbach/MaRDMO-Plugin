@@ -7,7 +7,7 @@ from .constants import PROPS, RELATANT_URIS, RELATION_URIS, INDEX_COUNTERS, get_
 from .sparql import queryHandler
 from .models import ResearchField, ResearchProblem, MathematicalModel, QuantityOrQuantityKind, MathematicalFormulation, Task, Relatant
 
-from ..id import ITEMS, PROPERTIES
+from ..id_testwiki import ITEMS, PROPERTIES
 from ..utils import add_basics, add_entities, add_new_entities, add_properties, add_relations, add_references, extract_parts, get_mathmoddb, get_questionsMO, get_questionsPU, query_sparql, value_editor
 from ..config import BASE_URI, endpoint
 

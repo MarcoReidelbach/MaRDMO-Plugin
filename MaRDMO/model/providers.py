@@ -27,7 +27,10 @@ class RelatedResearchFieldWithCreation(Provider):
         # Define the queryAttributes
         queryAttributes = ['field']
 
-        return query_sources_with_user_additions(search, project, queryAttributes, True)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes, 
+                                                 creation = True)
     
 class RelatedResearchFieldWithoutCreation(Provider):
 
@@ -41,7 +44,10 @@ class RelatedResearchFieldWithoutCreation(Provider):
         # Define the queryAttributes
         queryAttributes = ['field']
 
-        return query_sources_with_user_additions(search, project, queryAttributes)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mardi'])
     
 class ResearchProblem(Provider):
 
@@ -66,8 +72,11 @@ class RelatedResearchProblemWithCreation(Provider):
         
         # Define the queryAttributes
         queryAttributes = ['problem']
-
-        return query_sources_with_user_additions(search, project, queryAttributes, True)
+        
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes, 
+                                                 creation = True)
     
 class RelatedResearchProblemWithoutCreation(Provider):
 
@@ -81,7 +90,10 @@ class RelatedResearchProblemWithoutCreation(Provider):
         # Define the queryAttributes
         queryAttributes = ['problem']
 
-        return query_sources_with_user_additions(search, project, queryAttributes)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mardi'])
     
 class MathematicalModel(Provider):
 
@@ -107,7 +119,10 @@ class RelatedMathematicalModelWithoutCreation(Provider):
         # Define the queryAttributes
         queryAttributes = ['model']
 
-        return query_sources_with_user_additions(search, project, queryAttributes)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mardi'])
     
 class QuantityOrQuantityKind(Provider):
 
@@ -133,7 +148,10 @@ class RelatedQuantityWithoutCreation(Provider):
         # Define the queryAttributes
         queryAttributes = ['quantity']
 
-        return query_sources_with_user_additions(search, project, queryAttributes)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mardi'])
 
 class RelatedQuantityKindWithoutCreation(Provider):
 
@@ -147,7 +165,10 @@ class RelatedQuantityKindWithoutCreation(Provider):
         # Define the queryAttributes
         queryAttributes = ['quantity']
 
-        return query_sources_with_user_additions(search, project, queryAttributes)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mardi'])
     
 class RelatedQuantityOrQuantityKindWithCreation(Provider):
 
@@ -162,7 +183,10 @@ class RelatedQuantityOrQuantityKindWithCreation(Provider):
         # Define the queryAttributes
         queryAttributes = ['quantity']
 
-        return query_sources_with_user_additions(search, project, queryAttributes, True)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes, 
+                                                 creation = True)
     
 class MathematicalFormulation(Provider):
 
@@ -189,7 +213,10 @@ class RelatedMathematicalFormulationWithCreation(Provider):
         # Define the queryAttributes
         queryAttributes = ['formulation']
 
-        return query_sources_with_user_additions(search, project, queryAttributes, True)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes, 
+                                                 creation = True)
     
 class RelatedMathematicalFormulationWithoutCreation(Provider):
 
@@ -203,7 +230,10 @@ class RelatedMathematicalFormulationWithoutCreation(Provider):
         # Define the queryAttributes
         queryAttributes = ['formulation']
 
-        return query_sources_with_user_additions(search, project, queryAttributes)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mardi'])
 
 class Task(Provider):
 
@@ -229,7 +259,10 @@ class RelatedTaskWithCreation(Provider):
         # Define the queryAttributes
         queryAttributes = ['task']
 
-        return query_sources_with_user_additions(search, project, queryAttributes, True)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes, 
+                                                 creation = True)
     
 class RelatedTaskWithoutCreation(Provider):
 
@@ -243,7 +276,10 @@ class RelatedTaskWithoutCreation(Provider):
         # Define the queryAttributes
         queryAttributes = ['task']
 
-        return query_sources_with_user_additions(search, project, queryAttributes)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mardi'])
     
 class RelatedModelEntityWithoutCreation(Provider):
 
@@ -257,4 +293,7 @@ class RelatedModelEntityWithoutCreation(Provider):
         # Define the query parameter
         queryAttributes = ['field', 'problem', 'model', 'quantity', 'formulation', 'task']
 
-        return query_sources_with_user_additions(search, project, queryAttributes)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mardi'])

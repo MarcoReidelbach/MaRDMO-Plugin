@@ -1,7 +1,7 @@
 import html
 
 from ..config import endpoint
-from ..utils import query_sparql
+from ..utils import query_sparql, get_general_item_url
 from .sparql import algorithmic_problem_sparql, software_sparql, algorithmic_problem_filter_sparql, quote_sparql, quantity_sparql, task_sparql, formulation_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql, query_base, query_base_model, query_base_algorithm, problem_sparql, problem_filter_sparql, field_sparql
 
 def search(answers, options):
@@ -69,7 +69,7 @@ def search(answers, options):
         # Generate Links to Wikipage and Knowledge Graoh Entry of Results
         links=[]
         for result in results:
-            links.append([result["label"]["value"], endpoint['mardi']['uri'] + 'wiki/workflow:' + result["qid"]["value"][1:], endpoint['mardi']['uri'] + 'wiki/Item:' + result["qid"]["value"]])
+            links.append([result["label"]["value"], f"{endpoint['mardi']['uri']}/wiki/workflow:{result['qid']['value'][1:]}", f"{get_general_item_url()}{result['qid']['value']}"])
 
         answers['links'] = links
 

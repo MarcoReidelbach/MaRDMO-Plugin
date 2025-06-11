@@ -1,6 +1,8 @@
 import logging
 import copy
 import requests
+import re
+import json
 
 from urllib.parse import urlencode
 from django.http import HttpResponseRedirect
@@ -82,41 +84,46 @@ class OauthProviderMixin:
     def perform_post(self, request, access_token, url, jsons=None, files=None, multipart=None):
         
         init = copy.deepcopy(jsons)
-        for key in list(jsons.keys()):
-            if not jsons[key]['id']:
-                if key.startswith('RELATION'):
-                    checks = requests.get(f"{jsons[key]['url']}?property={jsons[key]['payload']['statement']['property']['id']}").json()
-                    for check in checks.get(jsons[key]['payload']['statement']['property']['id'], []):
-                        if check['value']['content'] == jsons[key]['payload']['statement']['value']['content']:
-                            break
-                    else:
-                        response = requests.post(jsons[key]['url'], json=jsons[key]['payload'], headers=self.get_authorization_headers(access_token))
-                        try:
-                            response.raise_for_status()
-                            jsons[key]['id'] = response.json()['id']
-                            jsons = replace_in_dict(jsons, key, response.json()['id'])
-                        except requests.HTTPError:
-                            logger.warning('post error: %s (%s)', response.content, response.status_code)
-                            return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
-                else:
-                    response = requests.post(jsons[key]['url'], json=jsons[key]['payload'], headers=self.get_authorization_headers(access_token))
-                    try:
-                        response.raise_for_status()
-                        jsons[key]['id'] = response.json()['id']
-                        jsons = replace_in_dict(jsons, key, response.json()['id'])
-                    except requests.HTTPError:
-                        if response.status_code == 422:
-                            error_json = response.json()
-                            if error_json.get("code") == "data-policy-violation" and error_json.get("context", {}).get('violation') == 'item-label-description-duplicate':
-                                conflict_id = error_json.get("context", {}).get("violation_context", {}).get("conflicting_item_id")
-                                if conflict_id:
-                                    jsons[key]['id'] = conflict_id
-                                    jsons = replace_in_dict(jsons, key, conflict_id)
+        keys = list(jsons.keys())
+        while keys:
+            for key in list(jsons.keys()):
+                if key in keys and not re.search(r"Item\d{10}", json.dumps(jsons[key].get('payload'))):
+                    if not jsons[key]['id']:
+                        if key.startswith('RELATION'):
+                            checks = requests.get(f"{jsons[key]['url']}?property={jsons[key]['payload']['statement']['property']['id']}").json()
+                            for check in checks.get(jsons[key]['payload']['statement']['property']['id'], []):
+                                if check['value']['content'] == jsons[key]['payload']['statement']['value']['content']:
+                                    if check['qualifiers'] == jsons[key]['payload']['statement']['qualifiers']:
+                                        break
+                            else:
+                                response = requests.post(jsons[key]['url'], json=jsons[key]['payload'], headers=self.get_authorization_headers(access_token))
+                                try:
+                                    response.raise_for_status()
+                                    jsons[key]['id'] = response.json()['id']
+                                    jsons = replace_in_dict(jsons, key, response.json()['id'])
+                                except requests.HTTPError:
+                                    logger.warning('post error: %s (%s)', response.content, response.status_code)
+                                    return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
                         else:
-                            logger.warning('post error: %s (%s)', response.content, response.status_code)    
-                            return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
-            else:
-                jsons = replace_in_dict(jsons, key, jsons[key]['id'])
+                            response = requests.post(jsons[key]['url'], json=jsons[key]['payload'], headers=self.get_authorization_headers(access_token))
+                            try:
+                                response.raise_for_status()
+                                jsons[key]['id'] = response.json()['id']
+                                jsons = replace_in_dict(jsons, key, response.json()['id'])
+                            except requests.HTTPError:
+                                if response.status_code == 422:
+                                    error_json = response.json()
+                                    if error_json.get("code") == "data-policy-violation" and error_json.get("context", {}).get('violation') == 'item-label-description-duplicate':
+                                        conflict_id = error_json.get("context", {}).get("violation_context", {}).get("conflicting_item_id")
+                                        if conflict_id:
+                                            jsons[key]['id'] = conflict_id
+                                            jsons = replace_in_dict(jsons, key, conflict_id)
+                                else:
+                                    logger.warning('post error: %s (%s)', response.content, response.status_code)    
+                                    return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
+                    else:
+                        jsons = replace_in_dict(jsons, key, jsons[key]['id'])
+                    keys.remove(key)
         
         final = jsons
         

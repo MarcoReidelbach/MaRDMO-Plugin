@@ -24,7 +24,7 @@ def add_static_or_non_item_relation(url, payload, item, idx, property, content, 
     idx += 1
     return payload, idx
 
-def add_qualifier(id, content, data_type = 'wikibase-item'):
+def add_qualifier(id, data_type, content):
     return [{"property": {"id": id, "data_type": data_type},"value": {"type": "value","content": content}}]
 
 def compare_items(old, new):
@@ -139,11 +139,52 @@ def get_item_key(value, items, lookup):
     item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
     return item
 
-def items_payload(name, description):
+def item_payload(data):
+    for item_id, item_data in data.items():
+        # Check if Item in Payload
+        if not item_id.startswith('Item'):
+            continue
+        # Extract Information
+        label = item_data.get("label", "")
+        description = item_data.get("description", "")
+        statements_input = item_data.get("statements", [])
+        # Grouped statements by PID
+        statements = {}
+        for s in statements_input:
+            PID, dtype, obj = s[0], s[1], s[2]
+            qualifier = None
+            if len(s) == 4:
+            #    PIDq, dtypeq, objq = s[3], s[4], s[5]
+                qualifier = s[3]
+            #        "property": {"id": PIDq, "data_type": dtypeq},
+            #        "value": {"type": "value", "content": objq}
+            #    }
+            statement = {
+                "property": {"id": PID, "data_type": dtype},
+                "value": {"type": "value", "content": obj}
+            }
+            if qualifier:
+                statement["qualifiers"] = qualifier
+
+            statements.setdefault(PID, []).append(statement)
+        # Build payload
+        payload = {
+            "item": {
+                "labels": {"en": label},
+                "statements": statements
+            }
+        }
+        if description:
+            payload["item"]["descriptions"] = {"en": description}
+        # Attach to original dict
+        item_data["payload"] = payload
+        return data
+
+def items_payload(label, description, statements):
     if description and description != 'No Description Provided!':
-        return {"item": {"labels": {"en": name}, "descriptions": {"en": description}}} 
+        return {"item": {"labels": {"en": label}, "descriptions": {"en": description}}} 
     else:
-        return {"item": {"labels": {"en": name}}}
+        return {"item": {"labels": {"en": label}}}
     
 def items_url(url):
     return f'{url}/w/rest.php/wikibase/v1/entities/items'

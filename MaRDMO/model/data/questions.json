@@ -188,7 +188,7 @@
     },
     "Mathematical Model Order Number": {
         "key1": "model",
-        "key2": "number",
+        "key2": "formulation_number",
         "uri": "domain/model/formulation-order-number",
         "set_prefix": true,
         "set_index": true
@@ -545,7 +545,7 @@
     },
     "Task Order Number": {
         "key1": "task",
-        "key2": "number",
+        "key2": "task_number",
         "uri": "domain/task/task-order-number",
         "set_prefix": true,
         "set_index": true

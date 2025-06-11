@@ -12,7 +12,7 @@ from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
 from .oauth2 import OauthProviderMixin
-from .utils import get_mathmoddb, get_data, get_new_ids, get_questionsAL, get_questionsMO, get_questionsPU, get_questionsSE, get_questionsWO, merge_dicts_with_unique_keys, query_sparql
+from .utils import get_general_item_url, get_mathmoddb, get_data, get_new_ids, get_questionsAL, get_questionsMO, get_questionsPU, get_questionsSE, get_questionsWO, merge_dicts_with_unique_keys, query_sparql
 from .config import endpoint
 
 from .model.worker import prepareModel
@@ -24,7 +24,7 @@ from .algorithm.worker import algorithm_relations
 from .algorithm.utils import get_answer_algorithm, dict_to_triples_mathalgodb, generate_sparql_insert_with_new_ids_mathalgodb
 
 from .workflow.sparql import queryPreview
-from .workflow.utils import compare_items, get_answer_workflow, get_discipline
+from .workflow.utils import compare_items, get_answer_workflow, get_discipline, item_payload
 from .workflow.models import ModelProperties, Variables, Parameters
 from .workflow.worker import prepareWorkflowExport
 
@@ -55,7 +55,7 @@ class BaseMaRDMOExportProvider(OauthProviderMixin, Export):
 
     @property
     def wikibase_url(self):
-        return 'https://test.wikidata.org' #'https://staging.mardi4nfdi.org'
+        return endpoint['mardi']['uri']
 
     @property
     def authorize_url(self):
@@ -173,7 +173,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                               'option': data[1],
                                               'mathmoddbURI': endpoint['mathmoddb']['uri'],
                                               'mathalgodbURI': endpoint['mathalgodb']['uri'],
-                                              'mardiURI': endpoint['mardi']['uri'],
+                                              'mardiURI': get_general_item_url(),
                                               'wikidataURI': endpoint['wikidata']['uri']}, 
                            status=200)
         
@@ -219,9 +219,11 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   {'title': _('Value Error'),
                                    'errors': [err]}, 
                                   status=200)
+    
+                payload = item_payload(payload)
                 
                 url = self.get_post_url()
-                     
+                
                 return self.post(self.request, url, payload)
 
             # MaRDMO: Algorithm Documentation
@@ -324,7 +326,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         return render(request,
                       'MaRDMO/portalExport.html', 
                       {'ids': ids,
-                       'mardi_uri': endpoint['mardi']['uri']}, 
+                       'mardi_uri': get_general_item_url}, 
                       status=200)
 
     def get_post_url(self):

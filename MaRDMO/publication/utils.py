@@ -103,6 +103,7 @@ def get_citation(DOI):
                     publication[source] = source_func(results[idx])
                 except:
                     publication[source] = None      
+            
             # Get Authors assigned to publication from ORCID
             publication['orcid'] = {}
             response = get_orcids(DOI)

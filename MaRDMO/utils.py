@@ -13,6 +13,7 @@ from rdmo.options.models import Option
 from multiprocessing.pool import ThreadPool
 
 from .config import BASE_URI, endpoint
+from .id_testwiki import PROPERTIES
 
 from .algorithm.sparql import queryProviderAL
 
@@ -41,6 +42,10 @@ def get_questionsPU():
 def get_questionsSE():
     """Retrieve the questions dictionary from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").questionsSE
+
+def get_general_item_url():
+    """Get general Wikibase Item URL from Wikibase URL"""
+    return f"{endpoint['mardi']['uri']}/wiki/Item:"
 
 def get_id(project, uri, keys):
     values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
@@ -501,9 +506,8 @@ def process_result(result, location):
          'text': f"{result['display']['label']['value']} ({result['display'].get('description', {}).get('value', 'No Description Provided!')}) [{location}]"
     }
 
-def query_sources_with_user_additions(search, project, queryAttributes, user = False, queryID = '', sources = ['mardi', 'wikidata']):
+def query_sources_with_user_additions(search, project, queryAttributes, creation = False, queryID = '', sources = ['mardi', 'wikidata']):
     '''Fetch options from MathModDB, user-defined fields, and other sources.'''
-
     # Query sources and get the results directly in options
     try:
         options = query_sources(search, queryID, sources, False)
@@ -542,7 +546,7 @@ def query_sources_with_user_additions(search, project, queryAttributes, user = F
     # Add the user-defined options to the list, filtered by search
     options.extend([{'id': f"{dic[key]['id']}", 'text': key} for key in dic if search.lower() in key.lower()])
     
-    if user:
+    if creation:
         options = [{'id': 'not found', 'text': f"{search} [user]"}] + options
 
     # Return combined, sorted options
@@ -559,7 +563,7 @@ def labelIndexMap(data, type):
         label_to_index_maps.append({data[toIDX_entry][k].get('Name'): idx for idx, k in enumerate(data.get(toIDX_entry, {}))})
     return label_to_index_maps
 
-def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', entityNew='', enc=[], order=False):
+def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', entityNew='', enc=[], forder=False, torder=False):
     toIDX = checkList(toIDX)
     enc = checkList(enc)
     label_to_index_maps = labelIndexMap(data, toIDX)
@@ -589,10 +593,14 @@ def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', en
                     relation_value = from_entry[relationOld][key]
                 else:
                     relation_value = 'MISSING RELATION TYPE'
-                if order == False:
+                if forder == False and torder == False:
                     new_value = [relation_value, resolved]
+                elif forder == True:
+                    new_value = [relation_value, resolved, from_entry.get('formulation_number',{}).get(key)]
+                elif torder == True:
+                    new_value = [relation_value, resolved, from_entry.get('task_number',{}).get(key)]
                 else:
-                    new_value = [relation_value, resolved, from_entry.get('number',{}).get(key)]
+                    new_value = resolved
             else:
                 new_value = resolved
 
@@ -635,7 +643,7 @@ def replace_in_dict(d, target, replacement):
         return d.replace(target, replacement)
     else:
         return d 
-    
+        
 def unique_items(data, title = None):
     # Set up Item Dict and track seen Items
     items = {}
@@ -659,3 +667,169 @@ def unique_items(data, title = None):
                     search(value)
     search(data)
     return items
+
+class GeneratePayload:
+    
+    def __init__(self, url, items, RELATIONS, DATA_PROPERTIES):
+        self.counter = 0
+        self.dictionary = {}
+        self.lookup = {}
+        self.url = url
+        self.items = items
+        self.subject = None
+        self.subject_item = None
+        self.RELATIONS = RELATIONS
+        self.DATA_PROPERTIES = DATA_PROPERTIES
+
+    def items_url(self):
+        return f'{self.url}/w/rest.php/wikibase/v1/entities/items'
+
+    def statement_url(self, item):
+        return f'{self.url}/w/rest.php/wikibase/v1/entities/items/{item}/statements'
+    
+    def build_item(self, id, label, description, statements = None):
+        if statements is None:
+            statements = []
+        return {'id': id, 'url': self.items_url(), 'label': label, 'description':  description, 'statements': statements}
+        
+    def build_statement(self, id, content, data_type = "wikibase-item", qualifiers = []):
+        return {"statement": {"property": {"id": id, "data_type": data_type}, "value": {"type": "value", "content": content}, "qualifiers": qualifiers}}
+    
+    def update_items(self, key, value):
+        self.items[key]['ID'] = value 
+
+    def find_key_by_values(self, id_value, name_value, description_value):
+        for key, values in self.items.items():
+            if (values['ID'] == id_value and 
+                values['Name'] == name_value and 
+                values['Description'] == description_value):
+                return key
+        return None
+
+    def get_dictionary(self, dictionary):
+        # Get Target Dictionary
+        target_dictionary = getattr(self, dictionary, None)
+        return target_dictionary
+    
+    def get_item_key(self, value, role = 'subject'):
+        # Check if Item has Name and Description
+        if not value.get('Name') or not value.get('Description'):
+            raise ValueError('All Items need to have a \'Name\' and \'Description\'!')
+        # Check if Item has new ID
+        value['ID'] = self.lookup.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
+        # Get Item Key
+        if role == 'subject':
+            self.subject = value
+            self.subject_item = self.find_key_by_values(value['ID'], value['Name'], value['Description'])
+        else:
+            return self.find_key_by_values(value['ID'], value['Name'], value['Description'])
+
+    def add_qualifier(self, id, data_type, content):
+        return [{"property": {"id": id, "data_type": data_type},"value": {"type": "value","content": content}}]
+
+    def add_data_properties(self, subDict_item_class):
+        DATA_PROPERTIES = self.DATA_PROPERTIES(subDict_item_class)
+        for prop in self.subject.get('Properties', {}).values():
+            self.add_answer(PROPERTIES['instance of'], DATA_PROPERTIES[prop])
+
+    def add_answer(self, predicate, object, object_type = 'wikibase-item', qualifier = None, subject = None):
+        if subject is None:
+            subject = self.subject_item
+        if qualifier is None:
+            qualifier = []
+        if self.dictionary[self.subject_item]['id']:
+            self.add_relation(subject, predicate, object, object_type, qualifier)
+        else:
+            self.add_to_item_statement(subject, predicate, object_type, object, qualifier)
+
+    def add_answers(self, mardmo_property, wikibase_property):
+        for entry in self.subject.get(mardmo_property, {}).values():
+            self.add_answer(PROPERTIES[wikibase_property], entry, 'string')
+
+    def add_backward_relation(self, data, relation, relatants):
+        for entry in data:
+            for relatant in entry.get(relatants, {}).values():
+                relatant_item = self.get_item_key(relatant, 'object')
+                if self.subject_item == relatant_item:
+                    entry_item = self.get_item_key(entry, 'object')
+                    self.add_answer(relation, entry_item)
+
+    def add_forward_relation_single(self, relation, relatant, alt_relation = None, prop = None):
+        for entry in self.subject.get(relatant, {}).values():
+            # Get Item Key
+            entry_item = self.get_item_key(entry, 'object')
+            if entry_item in self.dictionary.keys():
+                # Add Payload
+                self.add_answer(relation, entry_item)
+            else:
+                # Add Payload
+                self.add_answer(alt_relation, entry.get(prop), 'string')
+                
+    def add_forward_relation_multiple(self, relation, relatant, reverse = False):
+        for key, prop in self.subject.get(relation, {}).items():
+            # Get Item Key
+            relatant_item = self.get_item_key(self.subject.get(relatant,{}).get(key,{}), 'object')  
+            # Get (optional) Order Number
+            qualifier = []
+            if self.subject.get('formulation_number'):
+                qualifier = self.add_qualifier(PROPERTIES['series ordinal'], 'string', self.subject['formulation_number'][key])
+            # Get potential Qualifier
+            if len(self.RELATIONS()[prop]) == 2 and self.RELATIONS()[prop][1] != 'forward' and self.RELATIONS()[prop][1] != 'backward':
+                qualifier.extend(self.add_qualifier(PROPERTIES['object has role'], 'wikibase-item', self.RELATIONS()[prop][1]))
+            # Add Payload
+            if not reverse:
+                self.add_answer(self.RELATIONS()[prop][0], relatant_item, 'wikibase-item', qualifier)
+            else:
+                self.add_answer(self.RELATIONS()[prop][0], self.subject_item, 'wikibase-item', qualifier, relatant_item)
+            
+    def add_in_defining_formula(self):
+        for element in self.subject.get('element', {}).values():
+            # Get Item Key
+            quantity_item = self.get_item_key(element.get('quantity', {}), 'object') 
+            # Add Quantity Qualifier
+            qualifier = self.add_qualifier(PROPERTIES['symbol represents'], 'wikibase-item', quantity_item)
+            # Add Symbol to Payload
+            if self.subject_item == quantity_item:
+                self.add_relation(self.subject_item, PROPERTIES['in defining formula'], element.get('symbol', ''), 'string', qualifier)
+            else:
+                self.add_answer(PROPERTIES['in defining formula'], element.get('symbol', ''), 'string', qualifier)
+            
+    def add_entry(self, dictionary, key, value):
+        target_dictionary = getattr(self, dictionary, None)
+        target_dictionary[key] = value
+        
+    def add_to_item_statement(self, item_key, property_id, datatype, value, qualifier=None):
+        if qualifier is None:
+            qualifier = []
+        self.dictionary[item_key]['statements'].append([property_id, datatype, value, qualifier])
+
+    def add_relation(self, item, property, content, datatype='wikibase-item', qualifier=None):
+        if qualifier is None:
+            qualifier = []
+        key = f"RELATION{self.counter}"
+        self.dictionary[key] = {
+            'id': '',
+            'url': self.statement_url(item),
+            'payload': self.build_statement(property, content, datatype, qualifier)
+        }
+        self.counter += 1
+
+    def add_intra_class_relation(self, relation, relatant):
+        for key, prop in self.subject.get(relation, {}).items():
+            # Get Item Key
+            subDict_relatant_item = self.get_item_key(self.subject.get(relatant, {}).get(key), 'object')
+            # Add potential Qualifier
+            qualifier = []
+            if self.subject.get('assumption', {}).get(key):
+                for assumption in self.subject['assumption'][key].values():
+                    assumption_item = self.get_item_key(assumption, 'object')
+                    qualifier.extend(self.add_qualifier(PROPERTIES['assumes'], 'wikibase-item', assumption_item))
+            if self.subject.get('task_number', {}).get(key):
+                qualifier.extend(self.add_qualifier(PROPERTIES['series ordinal'], self.subject['task_number'][key], 'string'))
+            # Add Forward or Backward Relation
+            if self.RELATIONS()[prop][1] == 'forward':
+                self.add_answer(self.RELATIONS()[prop][0], subDict_relatant_item, 'wikibase-item', qualifier)
+            elif self.RELATIONS()[prop][1] == 'backward':
+                self.add_answer(self.RELATIONS()[prop][0], self.subject_item, 'wikibase-item', qualifier, subDict_relatant_item)
+
+

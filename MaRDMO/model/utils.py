@@ -3,8 +3,7 @@ import re
 from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI
-from ..utils import extract_parts, get_mathmoddb
-
+from ..utils import extract_parts
 
 def get_answer_model(project, val, uri, key1 = None, key2 = None, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
     '''Function to get user answers into dictionary.'''
@@ -129,44 +128,6 @@ def mapEntityQuantity(data, type, mapping):
                             })
     return
 
-def restructureIntracClass(data, type = ''):
-    
-    mathmoddb = get_mathmoddb()
-
-    relation_map = {
-        mathmoddb['specializedBy']:         'specialized by',
-        mathmoddb['specializes']:           'specializes',
-        mathmoddb['approximatedBy']:        'approximated by',
-        mathmoddb['approximates']:          'approximates',
-        mathmoddb['discretizedBy']:         'discretized by',
-        mathmoddb['discretizes']:           'discretizes',
-        mathmoddb['linearizedBy']:          'linearized by',
-        mathmoddb['linearizes']:            'linearizes',
-        mathmoddb['nondimensionalizedBy']:  'nondimensionalized by',
-        mathmoddb['nondimensionalizes']:    'nondimensionalizes',
-        mathmoddb['contains']:              'contains',
-        mathmoddb['containedIn']:           'contained in',
-        mathmoddb['similarTo']:             'similar to'
-    }
-
-    grouped = {'specialized by': {}, 'specializes': {}, 'approximated by': {}, 'approximates': {}, 'discretized by': {}, 'discretizes': {}, 'linearized by': {}, 'linearizes': {}, 'nondimensionalized by': {}, 'nondimensionalizes': {}, 'contains': {}, 'contained in': {}, 'similar to': {}}
-    counters = {'specialized by': 0, 'specializes': 0, 'approximated by': 0, 'approximates': 0, 'discretized by': 0, 'discretizes': 0, 'linearized by': 0, 'linearizes': 0, 'nondimensionalized by': 0, 'nondimensionalizes': 0, 'contains': 0, 'contained in': 0,'similar to': 0}
-
-    for i, relation_url in data.get('IntraClassRelation', {}).items():
-        element = data.get('IntraClassElement', {}).get(i, {})
-        if all(k in element for k in ('ID', 'Name', 'Description')):
-            relation_label = relation_map.get(relation_url)
-            if relation_label:
-                index = counters[relation_label]
-                grouped[relation_label][index] = element
-                counters[relation_label] += 1
-
-    # Add non-empty groups to data
-    for key, entries in grouped.items():
-        if entries:
-            data[key] = entries
-
-    return 
 
 
 

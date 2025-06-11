@@ -162,19 +162,19 @@
     <h3 id="RelationsToMathematicalFormulations"> Relations to Mathematical Expressions </h3>
     {% for key, relation in values.RelationMF.items %}
         {% if relation.0 == option.assumes %} 
-	        assumes: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
+	        assumes: {{relation.1 }} {% if values.formulation_number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsFormulation %}
-            contains: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
+            contains: {{relation.1 }} {% if values.formulation_number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsBoundaryCondition %}
-            contains Boundary Condition: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
+            contains Boundary Condition: {{relation.1 }} {% if values.formulation_number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsConstraintCondition %}
-            contains Constraint Condition: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
+            contains Constraint Condition: {{relation.1 }} {% if values.formulation_number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsCouplingCondition %}
-            contains Coupling Condition: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
+            contains Coupling Condition: {{relation.1 }} {% if values.formulation_number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsInitialCondition %}
-            contains Initial Condition: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
+            contains Initial Condition: {{relation.1 }} {% if values.formulation_number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == option.containsFinalCondition %}
-            contains Final Condition: {{relation.1 }} {% if values.number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
+            contains Final Condition: {{relation.1 }} {% if values.formulation_number %} {% if relation.2 %} - order number: {{ relation.2 }} {% else %} - order number: <strong style="color:red;">MISSING ORDER NUMBER</strong><br> {% endif %} {% endif %} <br>
         {% elif relation.0 == 'MISSING RELATION TYPE' %}
             <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
         {% endif %}
@@ -338,9 +338,9 @@
         {% elif value.0 == option.discretizes %} 
             discretizes: {{ value.1 }} <br>
         {% elif value.0 == option.containedInTask %} 
-            contained in: {{ value.1 }} {% if values.number %} {% for key2, val in values.number.items %} {% if key == key2 %} - order number: {{ val }} {% endif %} {% endfor %} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
+            contained in: {{ value.1 }} {% if values.task_number %} {% for key2, val in values.task_number.items %} {% if key == key2 %} - order number: {{ val }} {% endif %} {% endfor %} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
         {% elif value.0 == option.containsTask %} 
-            contains: {{ value.1 }} {% if values.number %} {% for key2, val in values.number.items %} {% if key == key2 %} - order number: {{ val }} {% endif %} {% endfor %} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
+            contains: {{ value.1 }} {% if values.task_number %} {% for key2, val in values.task_number.items %} {% if key == key2 %} - order number: {{ val }} {% endif %} {% endfor %} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
         {% elif value.0 == option.approximatedBy %} 
             approximated by: {{ value.1 }} <br>
         {% elif value.0 == option.approximates %} 
@@ -514,7 +514,7 @@
                 {% for value in values.element.values %}
                     {% if value.Info.Type == option.Quantity %}
                         <tr>
-                            <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                            <td style="text-align: center; vertical-align: middle;">{{ value.symbol }} {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
                             <td style="text-align: center; vertical-align: middle;">{{ value.Info.Name }} {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %} </td>
                             <td style="text-align: center; vertical-align: middle;">{{ value.Info.ID }}</td>
                             <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKName }}</td>
