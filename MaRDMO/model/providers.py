@@ -21,7 +21,7 @@ class RelatedResearchFieldWithCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -38,7 +38,7 @@ class RelatedResearchFieldWithoutCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -67,7 +67,7 @@ class RelatedResearchProblemWithCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -84,7 +84,7 @@ class RelatedResearchProblemWithoutCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -113,7 +113,7 @@ class RelatedMathematicalModelWithoutCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -142,7 +142,7 @@ class RelatedQuantityWithoutCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -159,7 +159,7 @@ class RelatedQuantityKindWithoutCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -177,7 +177,7 @@ class RelatedQuantityOrQuantityKindWithCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -207,7 +207,7 @@ class RelatedMathematicalFormulationWithCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -224,7 +224,7 @@ class RelatedMathematicalFormulationWithoutCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -253,7 +253,7 @@ class RelatedTaskWithCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -270,7 +270,7 @@ class RelatedTaskWithoutCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the queryAttributes
@@ -287,7 +287,7 @@ class RelatedModelEntityWithoutCreation(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the query parameter

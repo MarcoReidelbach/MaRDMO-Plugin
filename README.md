@@ -76,13 +76,14 @@ OPTIONSET_PROVIDERS = [
     ('Publication', _('Options for Publication'), 'MaRDMO.publication.providers.Publication'),
     # Algorithm
     ('Algorithm', _('Options for Algorithms'), 'MaRDMO.algorithm.providers.Algorithm'),
-    ('RelatedAlgorithm', _('Options for related Algorithms'), 'MaRDMO.algorithm.providers.RelatedAlgorithm'),
+    ('RelatedAlgorithmWithoutCreation', _('Options for related Algorithms without Creation'), 'MaRDMO.algorithm.providers.RelatedAlgorithmWithoutCreation'),
     ('AlgorithmicProblem', _('Options for Algorithmic Problems'), 'MaRDMO.algorithm.providers.AlgorithmicProblem'),
-    ('RelatedAlgorithmicProblem', _('Options for related Algorithmic Problems'), 'MaRDMO.algorithm.providers.RelatedAlgorithmicProblem'),
+    ('RelatedAlgorithmicProblemWithCreation', _('Options for related Algorithmic Problems with Creation'), 'MaRDMO.algorithm.providers.RelatedAlgorithmicProblemWithCreation'),
+    ('RelatedAlgorithmicProblemWithoutCreation', _('Options for related Algorithmic Problems without Creation'), 'MaRDMO.algorithm.providers.RelatedAlgorithmicProblemWithoutCreation'),
     ('SoftwareAL', _('Options for Software (Algorithm)'), 'MaRDMO.algorithm.providers.Software'),
-    ('RelatedSoftwareAL', _('Options for related Software (Algorithm)'), 'MaRDMO.algorithm.providers.RelatedSoftware'),
+    ('RelatedSoftwareALWithCreation', _('Options for related Software (Algorithm) with Creation'), 'MaRDMO.algorithm.providers.RelatedSoftwareWithCreation'),
     ('Benchmark', _('Options for Benchmarks'), 'MaRDMO.algorithm.providers.Benchmark'),
-    ('RelatedBenchmark', _('Options for related Benchmarks'), 'MaRDMO.algorithm.providers.RelatedBenchmark'),
+    ('RelatedBenchmarkWithCreation', _('Options for related Benchmarks with Creation'), 'MaRDMO.algorithm.providers.RelatedBenchmarkWithCreation')
     ]
 
 ```

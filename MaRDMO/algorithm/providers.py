@@ -18,20 +18,24 @@ class Algorithm(Provider):
 
         return query_sources(search, queryID, sources)
     
-class RelatedAlgorithm(Provider):
+class RelatedAlgorithmWithoutCreation(Provider):
 
     search = True
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the query parameter
         queryID = 'AL'
-        queryAttribute = 'algorithm'
+        queryAttributes = ['algorithm']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, ['mathalgodb'])
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryID = queryID,
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mathalgodb'])
     
 class AlgorithmicProblem(Provider):
 
@@ -49,20 +53,44 @@ class AlgorithmicProblem(Provider):
 
         return query_sources(search, queryID, sources)
     
-class RelatedAlgorithmicProblem(Provider):
+class RelatedAlgorithmicProblemWithCreation(Provider):
 
     search = True
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the query parameter
         queryID = 'AP'
-        queryAttribute = 'problem'
+        queryAttributes = ['problem']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, ['mathalgodb'])
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project,
+                                                 queryID = queryID, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mathalgodb','mardi','wikidata'],
+                                                 creation = True)
+    
+class RelatedAlgorithmicProblemWithoutCreation(Provider):
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+
+        if not search or len(search) < 3:
+            return []
+        
+        # Define the query parameter
+        queryID = 'AP'
+        queryAttributes = ['problem']
+
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project,
+                                                 queryID = queryID, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mathalgodb'])
     
 class Software(Provider):
 
@@ -80,21 +108,26 @@ class Software(Provider):
 
         return query_sources(search, queryID, sources)
     
-class RelatedSoftware(Provider):
+class RelatedSoftwareWithCreation(Provider):
 
     search = True
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the query parameter
         queryID = 'SO'
-        queryAttribute = 'software'
+        queryAttributes = ['software']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, ['mathalgodb'])
-    
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project,
+                                                 queryID = queryID, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mathalgodb','mardi','wikidata'],
+                                                 creation = True)
+        
 class Benchmark(Provider):
 
     search = True
@@ -111,18 +144,23 @@ class Benchmark(Provider):
 
         return query_sources(search, queryID, sources)
     
-class RelatedBenchmark(Provider):
+class RelatedBenchmarkWithCreation(Provider):
 
     search = True
 
     def get_options(self, project, search=None, user=None, site=None):
 
-        if not search:
+        if not search or len(search) < 3:
             return []
         
         # Define the query parameter
         queryID = 'BE'
-        queryAttribute = 'benchmark'
+        queryAttributes = ['benchmark']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, ['mathalgodb'])
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project,
+                                                 queryID = queryID, 
+                                                 queryAttributes = queryAttributes,
+                                                 sources = ['mathalgodb','mardi','wikidata'],
+                                                 creation = True)
     

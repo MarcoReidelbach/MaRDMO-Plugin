@@ -41,12 +41,12 @@ def get_answer_algorithm(project, val, uri, key1 = None, key2 = None, key3 = Non
                 val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:value.text})    
             elif set_prefix and not set_index and collection_index and external_id and not option_text:
                 prefix = value.set_prefix.split('|')
-                label,_,_ = extract_parts(value.text)
-                val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:f"{value.external_id} <|> {label}"})
+                label,description,_ = extract_parts(value.text)
+                val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:{'ID': value.external_id, 'Name': label, 'Description': description}})
             elif set_prefix and set_index and not collection_index and external_id and not option_text:
                 prefix = value.set_prefix.split('|')
-                label,_,_ = extract_parts(value.text)
-                val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.set_index:f"{value.external_id} <|> {label}"})    
+                label,description,_ = extract_parts(value.text)
+                val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.set_index:{'ID': value.external_id, 'Name': label, 'Description': description}})    
     return val
 
 def dict_to_triples_mathalgodb(data):
@@ -127,9 +127,9 @@ def dict_to_triples_mathalgodb(data):
             for key in relation_dict:
                 if relatant_dict.get(key):
                     relation_uri = relation_dict[key]
-                    relatant_value = relatant_dict[key].split(' <|> ')
-                    if relatant_value[0].startswith('mathalgodb:'):
-                        _, mathalgodb_id = relatant_value[0].split(':')
+                    relatant_value = relatant_dict[key]
+                    if relatant_value['ID'].startswith('mathalgodb:'):
+                        _, mathalgodb_id = relatant_value['ID'].split(':')
                         if relation == 'IntraClassRelation':
                             if 'algorithm' in idx:    
                                 object_value = f"al:{mathalgodb_id}"
@@ -156,7 +156,7 @@ def dict_to_triples_mathalgodb(data):
                         elif relation == 'P2S':
                             object_value = f"so:{mathalgodb_id}"
                     else:
-                        referred_name = relatant_value[1]
+                        referred_name = relatant_value['Name']
                         object_value = ids.get(referred_name)
                     triples.append((subject, f"mathalgodb:{relation_uri.split('/')[-1]}", object_value))
                     triples.append((object_value, f"mathalgodb:{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
