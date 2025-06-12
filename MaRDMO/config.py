@@ -18,14 +18,9 @@ endpoint = {'mardi': {
                         'uri': 'https://www.wikidata.org/wiki/Item:'
                        },
            'mathalgodb': {
-                          'sparql': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/query',
-                          'update': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/update',
-                          'uri': 'https://mtsr2024.m1.mardi.ovh/'
-                         },
-           'mathmoddb': {
-                          'sparql': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/query',
-                          'update': 'https://sparql.mtsr2024.m1.mardi.ovh/mathalgodb/update',
-                          'uri': 'https://mtsr2024.m1.mardi.ovh/'
+                          'sparql': 'https://sparql.cordi2025.m1.mardi.ovh/mathalgodb/query',
+                          'update': 'https://sparql.cordi2025.m1.mardi.ovh/mathalgodb/update',
+                          'uri': 'https://cordi2025.m1.mardi.ovh/'
                          },
            'crossref': {
                         'api': 'https://api.crossref.org/works/'
