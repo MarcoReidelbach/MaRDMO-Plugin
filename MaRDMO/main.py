@@ -12,7 +12,7 @@ from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
 from .oauth2 import OauthProviderMixin
-from .utils import get_general_item_url, get_mathmoddb, get_data, get_new_ids, get_questionsAL, get_questionsMO, get_questionsPU, get_questionsSE, get_questionsWO, merge_dicts_with_unique_keys, query_sparql
+from .utils import get_general_item_url, get_mathmoddb, get_mathalgodb, get_data, get_new_ids, get_questionsAL, get_questionsMO, get_questionsPU, get_questionsSE, get_questionsWO, merge_dicts_with_unique_keys, query_sparql
 from .config import endpoint
 
 from .model.worker import prepareModel
@@ -361,7 +361,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
             # Load Data for Mathematical Model Documentation
             questions = get_questionsAL() | get_questionsPU()
-            mathalgodb = get_data('algorithm/data/mapping.json')
+            mathalgodb = get_mathalgodb()
 
             answers ={}
             for _, info in questions.items():
