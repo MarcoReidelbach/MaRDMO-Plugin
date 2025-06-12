@@ -3,7 +3,7 @@ import re
 from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI
-from ..utils import extract_parts, get_data
+from ..utils import extract_parts, get_data, get_mathalgodb
 
 
 def get_answer_algorithm(project, val, uri, key1 = None, key2 = None, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
@@ -51,11 +51,12 @@ def get_answer_algorithm(project, val, uri, key1 = None, key2 = None, key3 = Non
 
 def dict_to_triples_mathalgodb(data):
 
+    mathalgodb = get_mathalgodb()
     inversePropertyMapping = get_data('algorithm/data/inversePropertyMapping.json')
     options = get_data('data/options.json')
 
-    relations = ['IntraClassRelation', 'A2P', 'A2S', 'P2B', 'S2B', 'P2A', 'P2B', 'P2S']
-    relatants = ['IntraClassElement', 'PRelatant', 'SRelatant', 'BRelatant', 'BRelatant', 'ARelatant', 'BRelatant', 'SRelatant']
+    relations = ['IntraClassRelation', 'P2A', 'P2B', 'P2S']
+    relatants = ['IntraClassElement', 'ARelatant', 'BRelatant', 'SRelatant']
     
     triples = []
     ids = {} 
@@ -119,8 +120,66 @@ def dict_to_triples_mathalgodb(data):
                 if reference[0] == options['URL']:
                     url_value = reference[1]
                     triples.append((subject, "dc:hasIdentifier", f'"{url_value}"'))
-        
-        # Assign Individual Properties
+
+        # Assign Individual Relations
+        if 'algorithm' in idx:
+            for relatant in ['PRelatant', 'SRelatant']:
+                relatant_dict = item.get(relatant, {})
+                for key in relatant_dict:
+                    if relatant == 'PRelatant':
+                        relation_uri = mathalgodb['solves']
+                    elif relatant == 'SRelatant':
+                        relation_uri = mathalgodb['implementedBy']
+                    relatant_value = relatant_dict[key]
+                    if relatant_value['ID'].startswith('mathalgodb:'):
+                        _, mathalgodb_id = relatant_value['ID'].split(':')
+                        if relatant == 'PRelatant':
+                            object_value = f"pr:{mathalgodb_id}"
+                        elif relation == 'SRelatant':
+                            object_value = f"so:{mathalgodb_id}"
+                    else:
+                        referred_name = relatant_value['Name']
+                        object_value = ids.get(referred_name)
+                    triples.append((subject, f"mathalgodb:{relation_uri.split('/')[-1]}", object_value))
+                    triples.append((object_value, f"mathalgodb:{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
+
+        # Assign Individual Relations
+        if 'problem' in idx:
+            for relatant in ['BRelatant']:
+                relatant_dict = item.get(relatant, {})
+                for key in relatant_dict:
+                    if relatant == 'BRelatant':
+                        relation_uri = mathalgodb['instantiates']
+                    relatant_value = relatant_dict[key]
+                    if relatant_value['ID'].startswith('mathalgodb:'):
+                        _, mathalgodb_id = relatant_value['ID'].split(':')
+                        if relatant == 'BRelatant':
+                            object_value = f"bm:{mathalgodb_id}"
+                    else:
+                        referred_name = relatant_value['Name']
+                        object_value = ids.get(referred_name)
+                    triples.append((subject, f"mathalgodb:{relation_uri.split('/')[-1]}", object_value))
+                    triples.append((object_value, f"mathalgodb:{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
+
+        # Assign Individual Relations
+        if 'software' in idx:
+            for relatant in ['BRelatant']:
+                relatant_dict = item.get(relatant, {})
+                for key in relatant_dict:
+                    if relatant == 'BRelatant':
+                        relation_uri = mathalgodb['tests']
+                    relatant_value = relatant_dict[key]
+                    if relatant_value['ID'].startswith('mathalgodb:'):
+                        _, mathalgodb_id = relatant_value['ID'].split(':')
+                        if relatant == 'BRelatant':
+                            object_value = f"bm:{mathalgodb_id}"
+                    else:
+                        referred_name = relatant_value['Name']
+                        object_value = ids.get(referred_name)
+                    triples.append((subject, f"mathalgodb:{relation_uri.split('/')[-1]}", object_value))
+                    triples.append((object_value, f"mathalgodb:{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
+
+        # Assign Further Relations
         for relation, relatant in zip(relations,relatants):
             relation_dict = item.get(relation, {})
             relatant_dict = item.get(relatant, {})

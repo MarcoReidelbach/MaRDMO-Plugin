@@ -2,12 +2,12 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from rdmo.projects.models import Value
 
-from .constants import PROPS
+from .constants import PROPS, get_URI_PREFIX_MAP
 from .sparql import queryHandlerAL
 from .models import Benchmark, Software, Problem, Algorithm, Relatant
 
 from ..config import BASE_URI, endpoint
-from ..utils import add_basics, add_entities, add_relations, add_references, extract_parts, get_mathalgodb, get_questionsAL, get_questionsPU, query_sparql, value_editor
+from ..utils import add_basics, add_entities, add_new_entities, add_relations, add_references, extract_parts, get_mathalgodb, get_questionsAL, get_questionsPU, query_sparql, value_editor
 
 @receiver(post_save, sender=Value)
 def BenchmarkInformation(sender, **kwargs):
@@ -76,11 +76,11 @@ def SoftwareInformation(sender, **kwargs):
                 
                 query = queryHandlerAL['softwareInformation'].format(Id)
                 results = query_sparql(query, endpoint[source['sparql']])
+                mathalgodb = get_mathalgodb()
                 
                 if results:
                     # Structure Results and load MathAlgoDB
                     data = Software.from_query(results)
-                    mathalgodb = get_mathalgodb()
                     # Add References to Questionnaire
                     add_references(project = instance.project,
                                    data = data,
@@ -126,11 +126,11 @@ def ProblemInformation(sender, **kwargs):
                 
                 query = queryHandlerAL['softwareInformation'].format(Id)
                 results = query_sparql(query, endpoint[source]['sparql'])
+                mathalgodb = get_mathalgodb()
                 
                 if results:
                     # Structure Data and load MathAlgoDB
                     data = Problem.from_query(results)
-                    mathalgodb = get_mathalgodb()
                     # Add Benchmarks to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
@@ -173,11 +173,11 @@ def AlgorithmInformation(sender, **kwargs):
                 
                 query = queryHandlerAL['algorithmInformation'].format(Id)
                 results = query_sparql(query, endpoint[source]['sparql'])
+                mathalgodb = get_mathalgodb()
                 
                 if results:
                     # Structure Data and load MathAlgoDB
                     data = Algorithm.from_query(results)
-                    mathalgodb = get_mathalgodb()
                     # Add Algorithmic Problems to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
@@ -211,93 +211,43 @@ def AlgorithmInformation(sender, **kwargs):
 
 @receiver(post_save, sender=Value)
 def RelationHandler(sender, **kwargs):
-    instance = kwargs.get("instance", None)
-    # Get Questions of Algorithm Catalog
-    questions = get_questionsAL() | get_questionsPU()
-    if instance and str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
-        # Benchmark - Problem Relation
-        if instance.attribute.uri == f'{BASE_URI}{questions["Problem BRelatant"]["uri"]}':
-            # Check if actual Benchmark chosen
-            if instance.text:
-                mathalgodb = get_mathalgodb()
-                label, description, source =  extract_parts(instance.text)
-                # Add Benchmark Relation to questionnaire
-                value_editor(project = instance.project, 
-                             uri = f'{BASE_URI}{questions["Problem P2B"]["uri"]}', 
-                             text = mathalgodb['instantiates'],
-                             collection_index = instance.collection_index, 
-                             set_index = 0, 
-                             set_prefix = instance.set_prefix)
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Benchmark"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Benchmark ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "B")
-        # Benchmark - Software Relation
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Software BRelatant"]["uri"]}':
-            # Check if actual Benchmark chosen
-            if instance.text:
-                mathalgodb = get_mathalgodb()
-                label, description, source =  extract_parts(instance.text)
-                # Add Benchmark Relation to questionnaire
-                value_editor(project = instance.project, 
-                             uri = f'{BASE_URI}{questions["Software S2B"]["uri"]}', 
-                             text = mathalgodb['tests'], 
-                             collection_index = instance.collection_index, 
-                             set_index = 0, 
-                             set_prefix = instance.set_prefix)
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Benchmark"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Benchmark ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "B")
-        # Algorithm - Problem Relation
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Algorithm PRelatant"]["uri"]}':
-            # Check if actual Problem chosen
-            if instance.text:
-                mathalgodb = get_mathalgodb()
-                label, description, source =  extract_parts(instance.text)
-                # Add Problem Relation to questionnaire
-                value_editor(project = instance.project, 
-                             uri = f'{BASE_URI}{questions["Algorithm A2P"]["uri"]}', 
-                             text = mathalgodb['solves'], 
-                             collection_index = instance.collection_index, 
-                             set_index = 0, 
-                             set_prefix = instance.set_prefix)
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Problem"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Problem ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "AP")
-        # Algorithm - Software Relation
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Algorithm SRelatant"]["uri"]}':
-            # Check if actual Software chosen
-            if instance.text:
-                mathalgodb = get_mathalgodb()
-                label, description, source =  extract_parts(instance.text)
-                # Add Problem Relation to questionnaire
-                value_editor(project = instance.project, 
-                             uri = f'{BASE_URI}{questions["Algorithm A2S"]["uri"]}', 
-                             text = mathalgodb['implementedBy'], 
-                             collection_index = instance.collection_index, 
-                             set_index = 0, 
-                             set_prefix = instance.set_prefix)
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                             question_set = f'{BASE_URI}{questions["Software"]["uri"]}', 
-                             question_id = f'{BASE_URI}{questions["Software ID"]["uri"]}', 
-                             datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                             source = source, 
-                             prefix = "S")
-    return
-                    
 
-                
-                
-                
+    #Get Instance
+    instance = kwargs.get("instance", None)
+
+    # Check if Algorithm Catalog is used
+    if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
+
+        # Get config map
+        config_map = get_URI_PREFIX_MAP()
+
+        if instance.attribute.uri in config_map and instance.text:
+
+            # Get item, config and data information
+            label, description, source = extract_parts(instance.text)
+            config = config_map[instance.attribute.uri]
+            datas = [Relatant.from_relation(instance.external_id, label, description)]
+
+            # Add items from specific source
+            if source != 'user':
+                add_entities(
+                    project=instance.project,
+                    question_set=config["question_set"],
+                    question_id=config["question_id"],
+                    datas=datas,
+                    source=source,
+                    prefix=config["prefix"]
+                )
+            
+            # Add items from user
+            elif instance.external_id == 'not found':
+                add_new_entities(
+                    project=instance.project,
+                    question_set=config["question_set"],
+                    question_id=config["question_id"],
+                    datas=datas,
+                    source=source,
+                    prefix=config["prefix"]
+                )
+
+    return

@@ -18,13 +18,6 @@
     "uri": "domain/algorithm/description",
     "set_prefix": true
 },
-"Algorithm A2P": {
-    "key1": "algorithm",
-    "key2": "A2P",
-    "uri": "domain/algorithm/problem-relation",
-    "set_prefix": true,
-    "collection_index": true
-},
 "Algorithm PRelatant": {
     "key1": "algorithm",
     "key2": "PRelatant",
@@ -32,13 +25,6 @@
     "set_prefix": true,
     "collection_index": true,
     "external_id": true
-},
-"Algorithm A2S": {
-    "key1": "algorithm",
-    "key2": "A2S",
-    "uri": "domain/algorithm/software-relation",
-    "set_prefix": true,
-    "collection_index": true
 },
 "Algorithm SRelatant": {
     "key1": "algorithm",
@@ -84,13 +70,6 @@
     "key2": "Description",
     "uri": "domain/problem/description",
     "set_prefix": true
-},
-"Problem P2B": {
-    "key1": "problem",
-    "key2": "P2B",
-    "uri": "domain/problem/benchmark-relation",
-    "set_prefix": true,
-    "collection_index": true
 },
 "Problem BRelatant": {
     "key1": "problem",
@@ -143,13 +122,6 @@
     "uri": "domain/software/reference",
     "collection_index": true,
     "set_prefix": true
-},
-"Software S2B": {
-    "key1": "software",
-    "key2": "S2B",
-    "uri": "domain/software/benchmark-relation",
-    "set_prefix": true,
-    "collection_index": true
 },
 "Software BRelatant": {
     "key1": "software",
