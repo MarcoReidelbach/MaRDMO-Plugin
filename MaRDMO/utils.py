@@ -23,6 +23,10 @@ def get_mathmoddb():
     """Retrieve the mathmoddb ontology from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").mathmoddb
 
+def get_mathalgodb():
+    """Retrieve the mathmoddb ontology from MaRDMOConfig."""
+    return apps.get_app_config("MaRDMO").mathalgodb
+
 def get_questionsWO():
     """Retrieve the questions dictionary from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").questionsWO

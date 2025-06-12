@@ -7,7 +7,7 @@ from .sparql import queryHandlerAL
 from .models import Benchmark, Software, Problem, Algorithm, Relatant
 
 from ..config import BASE_URI, endpoint
-from ..utils import add_basics, add_entities, add_relations, add_references, extract_parts, get_data, get_questionsAL, get_questionsPU, query_sparql, value_editor
+from ..utils import add_basics, add_entities, add_relations, add_references, extract_parts, get_mathalgodb, get_questionsAL, get_questionsPU, query_sparql, value_editor
 
 @receiver(post_save, sender=Value)
 def BenchmarkInformation(sender, **kwargs):
@@ -80,7 +80,7 @@ def SoftwareInformation(sender, **kwargs):
                 if results:
                     # Structure Results and load MathAlgoDB
                     data = Software.from_query(results)
-                    mathalgodb = get_data('algorithm/data/mapping.json')
+                    mathalgodb = get_mathalgodb()
                     # Add References to Questionnaire
                     add_references(project = instance.project,
                                    data = data,
@@ -130,7 +130,7 @@ def ProblemInformation(sender, **kwargs):
                 if results:
                     # Structure Data and load MathAlgoDB
                     data = Problem.from_query(results)
-                    mathalgodb = get_data('algorithm/data/mapping.json')
+                    mathalgodb = get_mathalgodb()
                     # Add Benchmarks to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
@@ -177,7 +177,7 @@ def AlgorithmInformation(sender, **kwargs):
                 if results:
                     # Structure Data and load MathAlgoDB
                     data = Algorithm.from_query(results)
-                    mathalgodb = get_data('algorithm/data/mapping.json')
+                    mathalgodb = get_mathalgodb()
                     # Add Algorithmic Problems to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
@@ -219,7 +219,7 @@ def RelationHandler(sender, **kwargs):
         if instance.attribute.uri == f'{BASE_URI}{questions["Problem BRelatant"]["uri"]}':
             # Check if actual Benchmark chosen
             if instance.text:
-                mathalgodb = get_data('algorithm/data/mapping.json')
+                mathalgodb = get_mathalgodb()
                 label, description, source =  extract_parts(instance.text)
                 # Add Benchmark Relation to questionnaire
                 value_editor(project = instance.project, 
@@ -239,7 +239,7 @@ def RelationHandler(sender, **kwargs):
         elif instance.attribute.uri == f'{BASE_URI}{questions["Software BRelatant"]["uri"]}':
             # Check if actual Benchmark chosen
             if instance.text:
-                mathalgodb = get_data('algorithm/data/mapping.json')
+                mathalgodb = get_mathalgodb()
                 label, description, source =  extract_parts(instance.text)
                 # Add Benchmark Relation to questionnaire
                 value_editor(project = instance.project, 
@@ -259,7 +259,7 @@ def RelationHandler(sender, **kwargs):
         elif instance.attribute.uri == f'{BASE_URI}{questions["Algorithm PRelatant"]["uri"]}':
             # Check if actual Problem chosen
             if instance.text:
-                mathalgodb = get_data('algorithm/data/mapping.json')
+                mathalgodb = get_mathalgodb()
                 label, description, source =  extract_parts(instance.text)
                 # Add Problem Relation to questionnaire
                 value_editor(project = instance.project, 
@@ -279,7 +279,7 @@ def RelationHandler(sender, **kwargs):
         elif instance.attribute.uri == f'{BASE_URI}{questions["Algorithm SRelatant"]["uri"]}':
             # Check if actual Software chosen
             if instance.text:
-                mathalgodb = get_data('algorithm/data/mapping.json')
+                mathalgodb = get_mathalgodb()
                 label, description, source =  extract_parts(instance.text)
                 # Add Problem Relation to questionnaire
                 value_editor(project = instance.project, 

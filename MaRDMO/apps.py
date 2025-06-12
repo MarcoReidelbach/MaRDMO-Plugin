@@ -18,5 +18,6 @@ class MaRDMOConfig(AppConfig):
         self.questionsWO = get_data('workflow/data/questions.json')
         self.questionsSE = get_data('search/data/questions.json')
         self.mathmoddb = get_data('model/data/mapping.json')
+        self.mathalgodb = get_data('algorithm/data/mapping.json')
         
 
