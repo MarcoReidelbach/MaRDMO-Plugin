@@ -3,6 +3,7 @@ import requests
 import os
 import json
 import logging
+import time
 
 from django.apps import apps
 
@@ -460,9 +461,7 @@ def query_sources(search, queryID = '', sources = ['mardi', 'wikidata'], notFoun
 
         # Use ThreadPool to make concurrent API requests
         pool = ThreadPool(processes=len(queries))
-
         results = pool.map(lambda func: func(search), queries)
-        
         # Unpack results based on available sources
         results_dict = dict(zip(sources, results))
 

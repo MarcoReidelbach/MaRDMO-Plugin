@@ -886,48 +886,51 @@ queryInfo = {
 }
 
 queryProvider = {
-                 'RT': '''PREFIX : <https://mardi4nfdi.de/mathmoddb#>
-                          PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                 'RT': '''SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); separator=" / ") AS ?usedBy)
+                                                       
+                                       WHERE {{
+                                         
+                                          VALUES ?id {{wd:{0}}}
 
-                          SELECT DISTINCT ?id ?label ?quote
-                          WHERE {{
-                                  VALUES ?mm {{ :{0} }}
-                                  ?mm :appliedByTask ?idraw .
-                                  BIND(STRAFTER(STR(?idraw), "#") AS ?id)
-                                  OPTIONAL {{ ?idraw rdfs:label ?labelraw .
-                                              FILTER (lang(?labelraw) = 'en') }}
-                                  BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
-                                  OPTIONAL {{ ?idraw rdfs:comment ?quoteraw.
-                                              FILTER (lang(?quoteraw) = 'en') }}
-                                  BIND(COALESCE(?quoteraw, "No Description Provided!") AS ?quote)
-                                }}
-                          GROUP BY ?id ?label ?quote'''
+                                          OPTIONAL {{
+                                                         ?id wdt:{used by} ?taraw.
+                                                         BIND(replace( xsd:string(?taraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ta)
+
+                                                         ?taraw wdt:{instance of} wd:{computational task}.
+
+                                                         OPTIONAL {{
+                                                                    ?taraw rdfs:label ?talraw.
+                                                                    FILTER (lang(?talraw) = 'en')
+                                                                 }}
+
+                                                        BIND(COALESCE(?talraw, "No Label Provided!") AS ?tal)
+
+                                                        OPTIONAL {{
+                                                                   ?taraw schema:description ?tadraw
+                                                                   FILTER (lang(?tadraw) = 'en')
+                                                                 }}
+                                                        BIND(COALESCE(?tadraw, "No Description Provided!") AS ?tad)
+                                                     }}
+                                            }}'''
 }
 
-queryPreview = {
-                'basic': '''PREFIX mathmoddb: <https://mardi4nfdi.de/mathmoddb#>
-                            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                          
-                            SELECT DISTINCT ?time ?space
+queryPreview = {'basic': '''SELECT DISTINCT ?isSpaceContinuous ?isSpaceDiscrete
+                                            ?isTimeContinuous ?isTimeDiscrete
+                                                                 
                             WHERE {{
-                                    OPTIONAL {{ {0} mathmoddb:isTimeContinuous ?isTimeContinuous.}}
-                                    BIND(
-                                         IF(BOUND(?isTimeContinuous),
-                                         IF(?isTimeContinuous = true, "continuous", "discrete"),
-                                            "independent") AS ?time )
-                            
-                                    OPTIONAL {{ {0} mathmoddb:isSpaceContinuous ?isSpaceContinuous.}}
-                                    BIND(
-                                         IF(BOUND(?isSpaceContinuous),
-                                         IF(?isSpaceContinuous = true, "continuous", "discrete"),
-                                            "independent") AS ?space )
-                                  }}
-                            GROUP BY ?time ?space''',
+                              
+                               VALUES ?id {{wd:{0}}}
+                               
+                               BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-space model} }}, "True", "False" ) AS ?isSpaceContinuous)
+                               BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-space model} }}, "True", "False" ) AS ?isSpaceDiscrete)
+                               
+                               BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time model} }}, "True", "False" ) AS ?isTimeContinuous)
+                               BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time model} }}, "True", "False" ) AS ?isTimeDiscrete)
                 
-                'variables': '''PREFIX mathmoddb: <https://mardi4nfdi.de/mathmoddb#>
-                                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                                
-                                SELECT ?ID ?Name ?Unit ?Symbol ?label ?Type
+                            }}
+                            GROUP BY ?isSpaceContinuous ?isTimeContinuous ?isSpaceDiscrete ?isTimeDiscrete''',
+                
+                'variables': '''SELECT ?ID ?Name ?Unit ?Symbol ?label ?Type
 
                                 WHERE {{ 
 
@@ -939,8 +942,11 @@ queryPreview = {
 
                                 # Define type based on connection type (Input or Output)
                                 {{
-                                    ?task mathmoddb:containsInput ?idraw .
-                                    BIND(STRAFTER(STR(?idraw), "#") AS ?ID)
+                                    ?task p:{contains} ?statement.
+                                    ?statement ps:{contains} ?idraw.
+                                    ?statement pq:{object has role} ?role.
+                                    FILTER (?role = wd:{input})
+                                    BIND(replace( xsd:string(?idraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ID)
                                     OPTIONAL {{ ?idraw rdfs:label ?Nameraw .
                                                 FILTER (lang(?Nameraw) = 'en') }}
                                     BIND(COALESCE(?Nameraw, "No Label Provided!") AS ?Name)
@@ -948,8 +954,11 @@ queryPreview = {
                                 }}
                                 UNION
                                 {{
-                                    ?task mathmoddb:containsOutput ?idraw .
-                                    BIND(STRAFTER(STR(?idraw), "#") AS ?ID)
+                                    ?task p:{contains} ?statement.
+                                    ?statement ps:{contains} ?idraw.
+                                    ?statement pq:{object has role} ?role.
+                                    FILTER (?role = wd:{output})
+                                    BIND(replace( xsd:string(?idraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ID)
                                     OPTIONAL {{ ?idraw rdfs:label ?Nameraw .
                                                 FILTER (lang(?Nameraw) = 'en') }}
                                     BIND(COALESCE(?Nameraw, "No Label Provided!") AS ?Name)
@@ -958,73 +967,57 @@ queryPreview = {
 
                                 # Filter results to only show defining statements that match the current quantity label
                                 OPTIONAL {{
-                                    ?task mathmoddb:containsFormulation ?formulation .
-                                    ?formulation mathmoddb:inDefiningFormulation ?definingStatement .
-
-                                    # Convert definingStatement to a plain string to strip off datatype markup
-                                    BIND(STR(?definingStatement) AS ?plainStatement)
-
-                                    # Clean up spaces around commas, making the format consistent
-                                    BIND(REPLACE(?plainStatement, "\\\s*,\\\s*", ",") AS ?cleanedStatement)
-
-                                    # Extract symbol and quantity label
-                                    BIND(STRBEFORE(?cleanedStatement, ",") AS ?Symbolraw)
-                                    BIND(STRAFTER(?cleanedStatement, ",") AS ?quantityLabel)
-
-                                    BIND(REPLACE(?Symbolraw, "\\\$", "") AS ?Symbol)
-
+                                    ?task wdt:{contains} ?formulation.
+                                    ?formulation wdt:{instance of} wd:{mathematical expression}.
+                                    ?formulation p:{in defining formula} ?statement2.
+                                    ?statement2 ps:{in defining formula} ?Symbol.
+                                    ?statement2 pq:{symbol represents} ?quantityraw.
+                                    BIND(replace( xsd:string(?quantityraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?quantity)
                                 }}
-                                BIND(STR(?Name) AS ?plainItemLabel)
-                                FILTER(?quantityLabel = ?plainItemLabel)       
+                                
+                                FILTER(?ID = ?quantity)       
 
                             # Initialize the Unit variable as empty
                             BIND("" AS ?Unit)
                             }}
-                            ORDER BY ?taskLabel ?itemLabel''',
+                            ORDER BY ?label ?Type''',
 
-                'parameters': '''PREFIX mathmoddb: <https://mardi4nfdi.de/mathmoddb#>
-                                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                                 
-                                 SELECT ?ID ?Name ?Unit ?Symbol ?label
- 
-                                 WHERE {{ 
- 
-                                 VALUES ?task {{{0}}}
- 
-                                 OPTIONAL {{ ?task rdfs:label ?labelraw .
-                                             FILTER (lang(?labelraw) = 'en') }}
-                                 BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
- 
-                                 # Parameter
-                                 ?task mathmoddb:containsParameter ?idraw .
-                                 BIND(STRAFTER(STR(?idraw), "#") AS ?ID)
-                                 OPTIONAL {{ ?idraw rdfs:label ?Nameraw .
-                                             FILTER (lang(?Nameraw) = 'en') }}
-                                 BIND(COALESCE(?Nameraw, "No Label Provided!") AS ?Name)
-                                 
-                                 # Filter results to only show defining statements that match the current quantity label
-                                 OPTIONAL {{
-                                     ?task mathmoddb:containsFormulation ?formulation .
-                                     ?formulation mathmoddb:inDefiningFormulation ?definingStatement .
- 
-                                     # Convert definingStatement to a plain string to strip off datatype markup
-                                     BIND(STR(?definingStatement) AS ?plainStatement)
- 
-                                     # Clean up spaces around commas, making the format consistent
-                                     BIND(REPLACE(?plainStatement, "\\\s*,\\\s*", ",") AS ?cleanedStatement)
- 
-                                     # Extract symbol and quantity label
-                                     BIND(STRBEFORE(?cleanedStatement, ",") AS ?Symbolraw)
-                                     BIND(STRAFTER(?cleanedStatement, ",") AS ?quantityLabel)
- 
-                                     BIND(REPLACE(?Symbolraw, "\\\$", "") AS ?Symbol)
- 
-                                 }}
-                                 BIND(STR(?Name) AS ?plainItemLabel)
-                                 FILTER(?quantityLabel = ?plainItemLabel)       
- 
-                             # Initialize the Unit variable as empty
-                             BIND("" AS ?Unit)
-                             }}
-                             ORDER BY ?taskLabel ?itemLabel'''
+                'parameters': '''SELECT ?Name ?Unit ?Symbol ?label
+
+                                WHERE {{ 
+
+                                VALUES ?task {{{0}}}
+
+                                OPTIONAL {{ ?task rdfs:label ?labelraw .
+                                            FILTER (lang(?labelraw) = 'en') }}
+                                BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
+
+                                # Define type based on connection type (Input or Output)
+                                
+                                    ?task p:{contains} ?statement.
+                                    ?statement ps:{contains} ?idraw.
+                                    ?statement pq:{object has role} ?role.
+                                    FILTER (?role = wd:{parameter})
+                                    BIND(replace( xsd:string(?idraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ID)
+                                    OPTIONAL {{ ?idraw rdfs:label ?Nameraw .
+                                                FILTER (lang(?Nameraw) = 'en') }}
+                                    BIND(COALESCE(?Nameraw, "No Label Provided!") AS ?Name)
+                                
+                                
+                                # Filter results to only show defining statements that match the current quantity label
+                                OPTIONAL {{
+                                    ?task wdt:{contains} ?formulation.
+                                    ?formulation wdt:{instance of} wd:{mathematical expression}.
+                                    ?formulation p:{in defining formula} ?statement2.
+                                    ?statement2 ps:{in defining formula} ?Symbol.
+                                    ?statement2 pq:{symbol represents} ?quantityraw.
+                                    BIND(replace( xsd:string(?quantityraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?quantity)
+                                }}
+                                
+                                FILTER(?ID = ?quantity)       
+
+                            # Initialize the Unit variable as empty
+                            BIND("" AS ?Unit)
+                            }}
+                            ORDER BY ?label'''
 }

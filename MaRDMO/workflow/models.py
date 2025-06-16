@@ -1,7 +1,9 @@
+import re
 from dataclasses import dataclass, field
 from typing import List, Optional
 
 from ..utils import get_data
+from ..model.utils import mathmlToLatex
 
 from .constants import reference_order_software, order_to_publish
 
@@ -15,9 +17,21 @@ class ModelProperties:
 
         data = raw_data[0]
 
+        Time = ''
+        if data.get('isTimeContinuous', {}).get('value') == 'True':
+            Time = 'continuous'
+        elif data.get('isTimeDiscrete', {}).get('value') == 'True':
+            Time = 'discrete'
+
+        Space = ''
+        if data.get('isSpaceContinuous', {}).get('value') == 'True':
+            Space = 'continuous'
+        elif data.get('isSpaceDiscrete', {}).get('value') == 'True':
+            Space = 'discrete'
+
         return cls(
-            Time = data.get('time', {}).get('value'),
-            Space = data.get('space', {}).get('value'),
+            Time = Time,
+            Space = Space,
         )
     
 @dataclass
@@ -32,11 +46,17 @@ class Variables:
     @classmethod
     def from_query(cls, data: List) -> 'Variables':
 
+        latex = mathmlToLatex(data.get('Symbol', {}).get('value'))
+        if latex:
+            Symbol = f"$${latex}$$"
+        else:
+            Symbol = re.sub(r'(<math\b(?![^>]*\bdisplay=)[^>]*)(>)', r'\1 display="inline"\2', data.get('Symbol', {}).get('value'))
+
         return cls(
-            ID = f"mathmoddb:{data.get('ID', {}).get('value')}",
+            ID = data.get('ID', {}).get('value'),
             Name = data.get('Name', {}).get('value'),
             Unit = data.get('Unit', {}).get('value'),
-            Symbol = f"$${data.get('Symbol', {}).get('value')}$$",
+            Symbol = Symbol,
             Task = data.get('label', {}).get('value'),
             Type = data.get('Type', {}).get('value')
         )
@@ -51,10 +71,16 @@ class Parameters:
     @classmethod
     def from_query(cls, data: List) -> 'Parameters':
 
+        latex = mathmlToLatex(data.get('Symbol', {}).get('value'))
+        if latex:
+            Symbol = f"$${latex}$$"
+        else:
+            Symbol = data.get('Symbol', {}).get('value')
+
         return cls(
             Name = data.get('Name', {}).get('value'),
             Unit = data.get('Unit', {}).get('value'),
-            Symbol = f"$${data.get('Symbol', {}).get('value')}$$",
+            Symbol = Symbol,
             Task = data.get('label', {}).get('value')
         )
     

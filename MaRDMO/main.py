@@ -1,8 +1,6 @@
 import logging
 import requests
 
-from dataclasses import asdict
-
 from django import forms
 from django.conf import settings
 from django.shortcuts import redirect, render, reverse
@@ -23,10 +21,8 @@ from .algorithm.sparql import queryAlgorithmDocumentation
 from .algorithm.worker import algorithm_relations
 from .algorithm.utils import get_answer_algorithm, dict_to_triples_mathalgodb, generate_sparql_insert_with_new_ids_mathalgodb
 
-from .workflow.sparql import queryPreview
 from .workflow.utils import compare_items, get_answer_workflow, get_discipline, item_payload
-from .workflow.models import ModelProperties, Variables, Parameters
-from .workflow.worker import prepareWorkflowExport
+from .workflow.worker import prepareWorkflow
 
 from .search.worker import search
 from .search.utils import get_answer_search
@@ -146,23 +142,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         elif str(self.project.catalog).split('/')[-1] == 'mardmo-interdisciplinary-workflow-catalog':
 
             data = self.get_post_data()
-            
-            # Update Model Properties via MathModDB
-            if data[0].get('model',{}).get('ID'):
-                basic = query_sparql(queryPreview['basic'].format(data[0]['model']['ID']))
-                if basic:
-                    data[0].get('model', {}).update(asdict(ModelProperties.from_query(basic)))
-            
-            # Update Model Variables and Parameters via MathModDB
-            if data[0].get('specifictask'):
-                variables = query_sparql(queryPreview['variables'].format(' '.join(value.get('ID', '') for _, value in data[0]['specifictask'].items())))
-                if variables:
-                    for idx, variable in enumerate(variables):
-                        data[0].setdefault('variables', {}).update({idx: asdict(Variables.from_query(variable))})
-                parameters = query_sparql(queryPreview['parameters'].format(' '.join(value.get('ID', '') for _, value in data[0]['specifictask'].items())))
-                if parameters:
-                    for idx, parameter in enumerate(parameters):
-                        data[0].setdefault('parameters', {}).update({idx: asdict(Parameters.from_query(parameter))})
+
+            # Get Model Data
+            data = prepareWorkflow.preview(data)
             
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
@@ -171,7 +153,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                            'include_params': {'title': self.project.title},
                                               'answers': data[0],
                                               'option': data[1],
-                                              'mathmoddbURI': endpoint['mathmoddb']['uri'],
+                                              'mathmoddbURI': endpoint['mardi']['uri'],
                                               'mathalgodbURI': endpoint['mathalgodb']['uri'],
                                               'mardiURI': get_general_item_url(),
                                               'wikidataURI': endpoint['wikidata']['uri']}, 
@@ -305,14 +287,13 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
                 data = self.get_post_data()
                 try:
-                    payload = prepareWorkflowExport(data[0], self.project.title, self.wikibase_url)
+                    payload = prepareWorkflow.export(data[0], self.project.title, self.wikibase_url)
                 except Exception as err:
                     return render(self.request, 
                                   'core/error.html', 
                                   {'title': _('Value Error'),
                                    'errors': [err]}, 
                                   status=200)
-
 
                 url = self.get_post_url()
                 

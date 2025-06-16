@@ -180,7 +180,7 @@ def item_payload(data):
         item_data["payload"] = payload
         return data
 
-def items_payload(label, description, statements):
+def items_payload(label, description):
     if description and description != 'No Description Provided!':
         return {"item": {"labels": {"en": label}, "descriptions": {"en": description}}} 
     else:

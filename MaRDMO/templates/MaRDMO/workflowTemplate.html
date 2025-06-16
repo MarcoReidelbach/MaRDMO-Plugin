@@ -132,7 +132,7 @@
                             <a href="{{ mathmoddbURI }}{{ values.ID|cut:"mathmoddb:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
                         </td>
                         <td style="text-align: center; vertical-align: middle;">{{ values.Unit }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Symbol }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.Symbol|safe }}</td>
                         <td style="text-align: center; vertical-align: middle;">{{ values.Task }}</td>
                         <td style="text-align: center; vertical-align: middle;">{{ values.Type }}</td>
                     </tr>
@@ -166,7 +166,7 @@
                             <a href="{{ mathmoddbURI }}{{ values.ID|cut:"mathmoddb:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
                         </td>
                         <td style="text-align: center; vertical-align: middle;">{{ values.Unit }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Symbol }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.Symbol|safe }}</td>
                         <td style="text-align: center; vertical-align: middle;">{{ values.Task }}</td>
                     </tr>
                 {% endfor %}
