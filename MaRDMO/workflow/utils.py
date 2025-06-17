@@ -1,5 +1,5 @@
 from rdmo.domain.models import Attribute
-
+from ..utils import extract_parts
 from ..config import BASE_URI
 
 def add_item_relation(url, payload, values, lookup, items, item, idx, property, qualifier = [], datatype = 'wikibase-item', reverse = False):
@@ -79,9 +79,11 @@ def get_answer_workflow(project, val, uri, key1 = None, key2 = None, key3 = None
             elif not set_prefix and not set_index and collection_index and not external_id and not option_text:
                 val[key1].setdefault(value.collection_index, {}).update({key2:value.text})
             elif not set_prefix and not set_index and not collection_index and external_id and not option_text:
-                val[key1].update({key2:value.external_id})
+                label, description, _ = extract_parts(value.text)
+                val[key1].setdefault(value.collection_index, {}).update({'ID': value.external_id, 'Name': label, 'Description': description})
             elif not set_prefix and not set_index and collection_index and external_id and not option_text:
-                val[key1].setdefault(value.collection_index, {}).update({key2:value.external_id})
+                label, description, _ = extract_parts(value.text)
+                val[key1].setdefault(value.collection_index, {}).update({'ID': value.external_id, 'Name': label, 'Description': description})
             elif not set_prefix and set_index and not collection_index and not external_id and not option_text:
                 val[key1].setdefault(value.set_index, {}).update({key2:value.text})
             elif not set_prefix and set_index and not collection_index and external_id and not option_text:
@@ -98,9 +100,10 @@ def get_answer_workflow(project, val, uri, key1 = None, key2 = None, key3 = None
                 else:
                     val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:value.text})
             elif set_prefix and not set_index and collection_index and external_id and not option_text:
+                label, description, _ = extract_parts(value.text)
                 prefix = value.set_prefix.split('|')
                 if key3:
-                    val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).setdefault(value.collection_index, {}).update({key3:value.external_id})
+                    val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:{'ID': value.external_id, 'Name': label, 'Description': description}})
                 else:
                     val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:value.external_id})    
             elif set_prefix and not set_index and not collection_index and not external_id and not option_text:
@@ -154,11 +157,7 @@ def item_payload(data):
             PID, dtype, obj = s[0], s[1], s[2]
             qualifier = None
             if len(s) == 4:
-            #    PIDq, dtypeq, objq = s[3], s[4], s[5]
                 qualifier = s[3]
-            #        "property": {"id": PIDq, "data_type": dtypeq},
-            #        "value": {"type": "value", "content": objq}
-            #    }
             statement = {
                 "property": {"id": PID, "data_type": dtype},
                 "value": {"type": "value", "content": obj}

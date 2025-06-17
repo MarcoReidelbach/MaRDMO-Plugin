@@ -3,7 +3,6 @@ import requests
 import os
 import json
 import logging
-import time
 
 from django.apps import apps
 

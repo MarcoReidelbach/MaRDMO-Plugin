@@ -3,317 +3,54 @@ from django.db.models.signals import post_save
 from rdmo.projects.models import Value
 
 from ..config import BASE_URI, endpoint
-from ..utils import add_basics, add_entities, add_references, add_relations, get_data, get_questionsWO, value_editor, query_sparql
+from ..utils import add_basics, add_entities, add_new_entities, add_references, add_relations, get_data, get_questionsWO, value_editor, query_sparql
 
+from .utils import extract_parts
 from .sparql import queryInfo
 from .models import Method, ProcessStep, Relatant, Software, Hardware, DataSet
-from .constants import PROPS
+from .constants import PROPS, get_URI_PREFIX_MAP
 
 @receiver(post_save, sender=Value)
-def BasicInformation(sender, **kwargs):
+def RelationHandler(sender, **kwargs):
+    
+    #Get Instance
     instance = kwargs.get("instance", None)
-    # Get Questions of Workflow Catalog
-    questions = get_questionsWO()
-    if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
-        # Software Programming Language
-        if instance.attribute.uri == f'{BASE_URI}{questions["Software Programming Language ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["Software Programming Language Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["Software Programming Language Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       )
-        # Software Dependency
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Software Dependency ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["Software Dependency Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["Software Dependency Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       )
-        # Hardware CPU
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Hardware CPU ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["Hardware CPU Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["Hardware CPU Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       )
-        # Instrument Location
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Hardware Compiler ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["Hardware Compiler Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["Hardware Compiler Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       )
-        # Instrument Location
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Instrument Location ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["Instrument Location Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["Instrument Location Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       )
-        # Data Set Data Type
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Data Set Data Type ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["Data Set Data Type Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["Data Set Data Type Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       )
-        # Data Set Representation Format
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Data Set Representation Format ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["Data Set Representation Format Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["Data Set Representation Format Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       )
-        # Mathematical Model
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Model ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["Model Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["Model Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       )
-        # Mathematical Model Task
-        elif instance.attribute.uri == f'{BASE_URI}{questions["SpecificTask ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["SpecificTask Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["SpecificTask Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       ) 
-        # Discipline
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Process Step Discipline ID"]["uri"]}':
-            add_basics(project = instance.project,
-                       text = instance.text,
-                       url_name = f'{BASE_URI}{questions["Process Step Discipline Name"]["uri"]}',
-                       url_description = f'{BASE_URI}{questions["Process Step Discipline Description"]["uri"]}',
-                       collection_index = instance.collection_index,
-                       set_index = instance.set_index,
-                       set_prefix = instance.set_prefix
-                       )
-    return
-        
-@receiver(post_save, sender=Value)
-def BasicInformationAndEntryAddition(sender, **kwargs):
-    instance = kwargs.get("instance", None)
-    # Get Questions of Workflow Catalog
-    questions = get_questionsWO()
-    if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
-        # Input Data Set
-        if instance.attribute.uri == f'{BASE_URI}{questions["Process Step Input ID"]["uri"]}':
-            # Check if actual Input Data Set is chosen
-            if instance.text:
-                # Add Basic Information
-                label, description, source = add_basics(project = instance.project,
-                                                        text = instance.text,
-                                                        url_name = f'{BASE_URI}{questions["Process Step Input Name"]["uri"]}',
-                                                        url_description = f'{BASE_URI}{questions["Process Step Input Description"]["uri"]}',
-                                                        collection_index = instance.collection_index,
-                                                        set_index = instance.set_index,
-                                                        set_prefix = instance.set_prefix
-                                                        )
-                # If Data Set not defined by User
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Data Set"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Data Set ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "DS")
-        # Output Data Set
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Process Step Output ID"]["uri"]}':
-            # Check if actual Output Data Set is chosen
-            if instance.text:
-                # Add Basic Information
-                label, description, source = add_basics(project = instance.project,
-                                                        text = instance.text,
-                                                        url_name = f'{BASE_URI}{questions["Process Step Output Name"]["uri"]}',
-                                                        url_description = f'{BASE_URI}{questions["Process Step Output Description"]["uri"]}',
-                                                        collection_index = instance.collection_index,
-                                                        set_index = instance.set_index,
-                                                        set_prefix = instance.set_prefix
-                                                        )
-                # If Data Set not defined by User
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Data Set"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Data Set ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "DS")
-        # Method
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Process Step Method ID"]["uri"]}':
-            # Check if actual Method is chosen
-            if instance.text:
-                # Add Basic Information
-                label, description, source = add_basics(project = instance.project,
-                                                        text = instance.text,
-                                                        url_name = f'{BASE_URI}{questions["Process Step Method Name"]["uri"]}',
-                                                        url_description = f'{BASE_URI}{questions["Process Step Method Description"]["uri"]}',
-                                                        collection_index = instance.collection_index,
-                                                        set_index = instance.set_index,
-                                                        set_prefix = instance.set_prefix
-                                                        )
-                # If Data Set not defined by User
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Method"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Method ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "M")
-        # Environment Software
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Process Step Environment-Software ID"]["uri"]}':
-            # Check if actual Environment Software is chosen
-            if instance.text:
-                # Add Basic Information
-                label, description, source = add_basics(project = instance.project,
-                                                        text = instance.text,
-                                                        url_name = f'{BASE_URI}{questions["Process Step Environment-Software Name"]["uri"]}',
-                                                        url_description = f'{BASE_URI}{questions["Process Step Environment-Software Description"]["uri"]}',
-                                                        collection_index = instance.collection_index,
-                                                        set_index = instance.set_index,
-                                                        set_prefix = instance.set_prefix
-                                                        )
-                # If Data Set not defined by User
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Software"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Software ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "S")
-        # Environemnt Instrument
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Process Step Environment-Instrument ID"]["uri"]}':
-            # Check if actual Input Data Set is chosen
-            if instance.text:
-                # Add Basic Information
-                label, description, source = add_basics(project = instance.project,
-                                                        text = instance.text,
-                                                        url_name = f'{BASE_URI}{questions["Process Step Environment-Instrument Name"]["uri"]}',
-                                                        url_description = f'{BASE_URI}{questions["Process Step Environment-Instrument Description"]["uri"]}',
-                                                        collection_index = instance.collection_index,
-                                                        set_index = instance.set_index,
-                                                        set_prefix = instance.set_prefix
-                                                        )
-                # If Data Set not defined by User
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Instrument"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Instrument ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "I")
-        # Implementing Software
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Method Software ID"]["uri"]}':
-            # Check if actual Software is chosen
-            if instance.text:
-                # Add Basic Information
-                label, description, source = add_basics(project = instance.project,
-                                                        text = instance.text,
-                                                        url_name = f'{BASE_URI}{questions["Method Software Name"]["uri"]}',
-                                                        url_description = f'{BASE_URI}{questions["Method Software Description"]["uri"]}',
-                                                        collection_index = instance.collection_index,
-                                                        set_index = instance.set_index,
-                                                        set_prefix = instance.set_prefix
-                                                        )
-                # If Data Set not defined by User
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Software"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Software ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "S")
-        # Implementing Instrument
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Method Instrument ID"]["uri"]}':
-            # Check if actual Instrument is chosen
-            if instance.text:
-                # Add Basic Information
-                label, description, source = add_basics(project = instance.project,
-                                                        text = instance.text,
-                                                        url_name = f'{BASE_URI}{questions["Method Instrument Name"]["uri"]}',
-                                                        url_description = f'{BASE_URI}{questions["Method Instrument Description"]["uri"]}',
-                                                        collection_index = instance.collection_index,
-                                                        set_index = instance.set_index,
-                                                        set_prefix = instance.set_prefix
-                                                        )
-                # If Data Set not defined by User
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Instrument"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Instrument ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "I")
-        # Instrument Software
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Instrument Software ID"]["uri"]}':
-            # Check if actual Software is chosen
-            if instance.text:
-                # Add Basic Information
-                label, description, source = add_basics(project = instance.project,
-                                                        text = instance.text,
-                                                        url_name = f'{BASE_URI}{questions["Instrument Software Name"]["uri"]}',
-                                                        url_description = f'{BASE_URI}{questions["Instrument Software Description"]["uri"]}',
-                                                        collection_index = instance.collection_index,
-                                                        set_index = instance.set_index,
-                                                        set_prefix = instance.set_prefix
-                                                        )
-                # If Data Set not defined by User
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Software"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Software ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "S")
-        # Hardware Software
-        elif instance.attribute.uri == f'{BASE_URI}{questions["Hardware Software ID"]["uri"]}':
-            # Check if actual Software is chosen
-            if instance.text:
-                # Add Basic Information
-                label, description, source = add_basics(project = instance.project,
-                                                        text = instance.text,
-                                                        url_name = f'{BASE_URI}{questions["Hardware Software Name"]["uri"]}',
-                                                        url_description = f'{BASE_URI}{questions["Hardware Software Description"]["uri"]}',
-                                                        collection_index = instance.collection_index,
-                                                        set_index = instance.set_index,
-                                                        set_prefix = instance.set_prefix
-                                                        )
-                # If Data Set not defined by User
-                if source != 'user':
-                    add_entities(project = instance.project, 
-                                 question_set = f'{BASE_URI}{questions["Software"]["uri"]}', 
-                                 question_id = f'{BASE_URI}{questions["Software ID"]["uri"]}', 
-                                 datas = [Relatant.from_relation(instance.external_id, label, description)], 
-                                 source = source, 
-                                 prefix = "S")
-        
-        
+    
+    # Check if Model Catalog is used
+    if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-interdisciplinary-workflow-catalog':
+
+        # Get config map
+        config_map = get_URI_PREFIX_MAP()
+
+        if instance.attribute.uri in config_map and instance.text:
+
+            # Get item, config and data information
+            label, description, source = extract_parts(instance.text)
+            config = config_map[instance.attribute.uri]
+            datas = [Relatant.from_relation(instance.external_id, label, description)]
+
+            # Add items from specific source
+            if source != 'user':
+                add_entities(
+                    project=instance.project,
+                    question_set=config["question_set"],
+                    question_id=config["question_id"],
+                    datas=datas,
+                    source=source,
+                    prefix=config["prefix"]
+                )
+            
+            # Add items from user
+            elif instance.external_id == 'not found':
+                add_new_entities(
+                    project=instance.project,
+                    question_set=config["question_set"],
+                    question_id=config["question_id"],
+                    datas=datas,
+                    source=source,
+                    prefix=config["prefix"]
+                )
+
     return
 
 @receiver(post_save, sender=Value)
@@ -359,14 +96,14 @@ def SoftwareInformation(sender, **kwargs):
                                   data = data, 
                                   props = PROPS['S2PL'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Software Programming Language ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Software Programming Language"]["uri"]}')
                     
                     # Add Relations between Programming Language and Method to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['S2DP'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Software Dependency ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Software Dependency"]["uri"]}')
                     
                     # Software Source Code Published?
                     if data.sourceCodeRepository:
@@ -420,7 +157,7 @@ def HardwareInformation(sender, **kwargs):
                                   data = data, 
                                   props = PROPS['H2CPU'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Hardware CPU ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Hardware CPU"]["uri"]}')
                     
                     # Number of Nodes
                     if data.nodes:
@@ -501,14 +238,14 @@ def DataSetInformation(sender, **kwargs):
                                   data = data, 
                                   props = PROPS['DS2DT'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Data Set Data Type ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Data Set Data Type"]["uri"]}')
                     
                     # Add Relations between Representation Format and Data Set to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['DS2RF'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Data Set Representation Format ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Data Set Representation Format"]["uri"]}')
                         
                     # File Format
                     if data.fileFormat:
@@ -581,14 +318,14 @@ def MethodInformation(sender, **kwargs):
                                   data = data, 
                                   props = PROPS['M2S'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Method Software ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Method Software"]["uri"]}')
 
                     # Add Relations between Instrument and Method to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['M2I'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Method Instrument ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Method Instrument"]["uri"]}')
                     
                 
     return
@@ -627,48 +364,48 @@ def ProcessStepInformation(sender, **kwargs):
                                   data = data, 
                                   props = PROPS['PS2IDS'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Process Step Input ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Process Step Input"]["uri"]}')
 
                     # Add Relations between Output Data Set and Process Step to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['PS2ODS'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Process Step Output ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Process Step Output"]["uri"]}')
 
                     # Add Relations between Method and Process Step to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['PS2M'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Process Step Method ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Process Step Method"]["uri"]}')
 
                     # Add Relations between Software Platform and Process Step to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['PS2PLS'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Process Step Environment-Software ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Process Step Environment-Software"]["uri"]}')
 
                     # Add Relations between Instrument Platform and Process Step to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['PS2PLI'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Process Step Environment-Instrument ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Process Step Environment-Instrument"]["uri"]}')
 
                     # Add Relations between Fields and Process Step to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['PS2F'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Process Step Discipline ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Process Step Discipline"]["uri"]}')
 
                     # Add Relations between Math Areas and Process Step to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['PS2MA'], 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Process Step Discipline ID"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Process Step Discipline"]["uri"]}')
     return
 

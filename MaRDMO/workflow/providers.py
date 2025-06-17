@@ -151,12 +151,12 @@ class RelatedMethod(Provider):
 class WorkflowTask(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
-        '''Queries MathModDB for Task related to chosen Model'''
+        '''Queries MaRDI Portak for Task related to chosen Model'''
 
         options = []
         model_id = ''
 
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/main-model/id'))        
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/main-model'))        
         for value in values:
             model_id = value.external_id
 

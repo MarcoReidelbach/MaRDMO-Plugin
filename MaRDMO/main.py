@@ -294,9 +294,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   {'title': _('Value Error'),
                                    'errors': [err]}, 
                                   status=200)
-
-                url = self.get_post_url()
                 
+                url = self.get_post_url()
+            
                 return self.post(self.request, url, payload)
 
     def post_success(self, request, init, final):
