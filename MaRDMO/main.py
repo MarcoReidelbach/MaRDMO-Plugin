@@ -21,7 +21,7 @@ from .algorithm.sparql import queryAlgorithmDocumentation
 from .algorithm.worker import algorithm_relations
 from .algorithm.utils import get_answer_algorithm, dict_to_triples_mathalgodb, generate_sparql_insert_with_new_ids_mathalgodb
 
-from .workflow.utils import compare_items, get_answer_workflow, get_discipline, item_payload
+from .workflow.utils import compare_items, get_answer_workflow, get_discipline
 from .workflow.worker import prepareWorkflow
 
 from .search.worker import search
@@ -202,8 +202,6 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                    'errors': [err]}, 
                                   status=200)
     
-                payload = item_payload(payload)
-                
                 url = self.get_post_url()
                 
                 return self.post(self.request, url, payload)
@@ -294,9 +292,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   {'title': _('Value Error'),
                                    'errors': [err]}, 
                                   status=200)
-                
+     
                 url = self.get_post_url()
-            
+                
                 return self.post(self.request, url, payload)
 
     def post_success(self, request, init, final):

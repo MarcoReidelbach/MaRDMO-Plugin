@@ -144,9 +144,15 @@ class RelatedMethod(Provider):
         
         # Define the query parameter
         queryID = 'AL'
-        queryAttribute = 'method'
+        sources = ['mathalgodb', 'mardi', 'wikidata']
+        queryAttributes = ['method']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, ['mathalgodb', 'mardi', 'wikidata'])
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes, 
+                                                 queryID = queryID,
+                                                 creation = True,
+                                                 sources = sources)
     
 class WorkflowTask(Provider):
 
@@ -200,9 +206,14 @@ class RelatedSoftware(Provider):
         # Define the query parameter
         queryID = 'SO'
         sources = ['mathalgodb', 'mardi', 'wikidata']
-        queryAttribute = 'software'
+        queryAttributes = ['software']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes, 
+                                                 queryID = queryID,
+                                                 creation = True,
+                                                 sources = sources)
 
 class Hardware(Provider):
 
@@ -262,11 +273,12 @@ class RelatedInstrument(Provider):
             return []
         
         # Define the query parameter
-        queryID = ''
-        sources = ['mardi', 'wikidata']
-        queryAttribute = 'instrument'
+        queryAttributes = ['instrument']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes,
+                                                 creation = True)
     
 class RelatedDataSet(Provider):
 
@@ -278,11 +290,12 @@ class RelatedDataSet(Provider):
             return []
         
         # Define the query parameter
-        queryID = ''
-        sources = ['mardi', 'wikidata']
-        queryAttribute = 'data-set'
+        queryAttributes = ['data-set']
 
-        return query_sources_with_user_additions(search, project, queryID, queryAttribute, sources)
+        return query_sources_with_user_additions(search = search, 
+                                                 project = project, 
+                                                 queryAttributes = queryAttributes, 
+                                                 creation = True)
             
 class ProcessStep(Provider):
 

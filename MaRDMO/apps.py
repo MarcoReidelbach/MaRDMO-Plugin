@@ -7,11 +7,12 @@ class MaRDMOConfig(AppConfig):
 
     def ready(self):
         from .utils import get_data
+        from .id_staging import ITEMS, PROPERTIES
         from .algorithm import handlers
         from .model import handlers
         from .workflow import handlers
         from .publication import handlers
-        
+
         self.questionsAL = get_data('algorithm/data/questions.json')
         self.questionsMO = get_data('model/data/questions.json')
         self.questionsPU = get_data('publication/data/questions.json')
@@ -19,5 +20,6 @@ class MaRDMOConfig(AppConfig):
         self.questionsSE = get_data('search/data/questions.json')
         self.mathmoddb = get_data('model/data/mapping.json')
         self.mathalgodb = get_data('algorithm/data/mapping.json')
+        
         
 

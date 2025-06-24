@@ -13,7 +13,7 @@ from rdmo.options.models import Option
 from multiprocessing.pool import ThreadPool
 
 from .config import BASE_URI, endpoint
-from .id_testwiki import PROPERTIES
+from .id import PROPERTIES
 
 from .algorithm.sparql import queryProviderAL
 
@@ -372,7 +372,7 @@ def query_sparql(query, endpoint):
         if response.status_code == 200:
             return response.json().get('results', {}).get('bindings', [])
         else:
-            logger.error(f"SPARQL request failed with status {response.status_code}: {response.text}")
+            logger.error(f"SPARQL request to {endpoint} failed with status {response.status_code}: {response.text}")
             return []
 
     except requests.exceptions.ConnectionError:
@@ -672,7 +672,7 @@ def unique_items(data, title = None):
 
 class GeneratePayload:
     
-    def __init__(self, url, items, RELATIONS, DATA_PROPERTIES):
+    def __init__(self, url, items, RELATIONS = None, DATA_PROPERTIES = None):
         self.counter = 0
         self.dictionary = {}
         self.lookup = {}
@@ -756,16 +756,16 @@ class GeneratePayload:
                     entry_item = self.get_item_key(entry, 'object')
                     self.add_answer(relation, entry_item)
 
-    def add_forward_relation_single(self, relation, relatant, alt_relation = None, prop = None):
+    def add_forward_relation_single(self, relation, relatant, alt_relation = None, prop = None, qualifier = []):
         for entry in self.subject.get(relatant, {}).values():
             # Get Item Key
             entry_item = self.get_item_key(entry, 'object')
             if entry_item in self.dictionary.keys():
                 # Add Payload
-                self.add_answer(relation, entry_item)
+                self.add_answer(relation, entry_item, 'wikibase-item', qualifier)
             else:
                 # Add Payload
-                self.add_answer(alt_relation, entry.get(prop), 'string')
+                self.add_answer(alt_relation, entry.get(prop), 'string', qualifier)
                 
     def add_forward_relation_multiple(self, relation, relatant, reverse = False):
         for key, prop in self.subject.get(relation, {}).items():
@@ -833,5 +833,42 @@ class GeneratePayload:
                 self.add_answer(self.RELATIONS()[prop][0], subDict_relatant_item, 'wikibase-item', qualifier)
             elif self.RELATIONS()[prop][1] == 'backward':
                 self.add_answer(self.RELATIONS()[prop][0], self.subject_item, 'wikibase-item', qualifier, subDict_relatant_item)
+
+    def add_item_payload(self):
+        for item_id, item_data in self.dictionary.items():
+            # Check if Item in Payload
+            if not item_id.startswith('Item'):
+                continue
+            # Extract Information
+            label = item_data.get("label", "")
+            description = item_data.get("description", "")
+            statements_input = item_data.get("statements", [])
+            # Grouped statements by PID
+            statements = {}
+            for s in statements_input:
+                PID, dtype, obj = s[0], s[1], s[2]
+                qualifier = None
+                if len(s) == 4:
+                    qualifier = s[3]
+                statement = {
+                    "property": {"id": PID, "data_type": dtype},
+                    "value": {"type": "value", "content": obj}
+                }
+                if qualifier:
+                    statement["qualifiers"] = qualifier
+
+                statements.setdefault(PID, []).append(statement)
+            # Build payload
+            payload = {
+                "item": {
+                    "labels": {"en": label},
+                    "statements": statements
+                }
+            }
+            if description:
+                payload["item"]["descriptions"] = {"en": description}
+            # Attach to original dict
+            item_data["payload"] = payload
+        
 
 

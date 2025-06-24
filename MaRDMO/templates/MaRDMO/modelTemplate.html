@@ -514,7 +514,7 @@
                 {% for value in values.element.values %}
                     {% if value.Info.Type == option.Quantity %}
                         <tr>
-                            <td style="text-align: center; vertical-align: middle;">{{ value.symbol }} {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                            <td style="text-align: center; vertical-align: middle;">\( {{ value.symbol|safe }} \) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
                             <td style="text-align: center; vertical-align: middle;">{{ value.Info.Name }} {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %} </td>
                             <td style="text-align: center; vertical-align: middle;">{{ value.Info.ID }}</td>
                             <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKName }}</td>
@@ -523,7 +523,7 @@
                         </tr>
                     {% elif value.Info.Type == option.QuantityKind %}
                         <tr>
-                            <td style="text-align: center; vertical-align: middle;">\({{ value.symbol }}\) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                            <td style="text-align: center; vertical-align: middle;">\( {{ value.symbol|safe }} \) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
                             <td style="text-align: center; vertical-align: middle;"></td>
                             <td style="text-align: center; vertical-align: middle;"></td>
                             <td style="text-align: center; vertical-align: middle;">{{ value.Info.Name }} {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %}</td>

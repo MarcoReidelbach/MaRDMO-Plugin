@@ -2,45 +2,12 @@ from rdmo.domain.models import Attribute
 from ..utils import extract_parts
 from ..config import BASE_URI
 
-def add_item_relation(url, payload, values, lookup, items, item, idx, property, qualifier = [], datatype = 'wikibase-item', reverse = False):
-    for value in values:
-        # Continue if no ID exists
-        if not value.get('ID'):
-            continue
-        # Use new ID if present
-        value['ID'] = lookup.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-        # Get Entry Key
-        entry = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
-        # Add to Payload
-        if reverse:
-            payload.update({f"RELATION{idx}":{'id': '', 'url': statements_url(url, entry), 'payload': statements_payload(property, item, datatype, qualifier)}})
-        else:
-            payload.update({f"RELATION{idx}":{'id': '', 'url': statements_url(url, item), 'payload': statements_payload(property, entry, datatype, qualifier)}}) 
-        idx += 1
-    return payload, idx
-
-def add_static_or_non_item_relation(url, payload, item, idx, property, content, datatype = 'wikibase-item', qualifier = []):
-    payload.update({f"RELATION{idx}":{'id': '', 'url': statements_url(url, item), 'payload': statements_payload(property, content, datatype, qualifier)}}) 
-    idx += 1
-    return payload, idx
-
-def add_qualifier(id, data_type, content):
-    return [{"property": {"id": id, "data_type": data_type},"value": {"type": "value","content": content}}]
-
 def compare_items(old, new):
     ids = {}
     for key, value in old.items():
         if key.startswith('Item') and not value['id']:
             ids.update({new[key]['payload']['item']['labels']['en']: new[key]['id']})
     return ids
-
-def find_key_by_values(extracted_dict, id_value, name_value, description_value):
-    for key, values in extracted_dict.items():
-        if (values['ID'] == id_value and 
-            values['Name'] == name_value and 
-            values['Description'] == description_value):
-            return key
-    return None
 
 def get_answer_workflow(project, val, uri, key1 = None, key2 = None, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
     '''Function to get user answers into dictionary.'''
@@ -129,70 +96,5 @@ def get_discipline(answers):
                     md += 1
                     ids.append(answers['processstep'][key]['discipline'][key2]['ID'])
     return answers
-
-def get_item_key(value, items, lookup):
-    # Check if Item has Name and Description
-    if not value.get('Name'):
-        raise ValueError('All Items need to have a Name!')
-    if not value.get('Description'):
-        raise ValueError('All Items need to have a Description!')
-    # Check if Item has new ID
-    value['ID'] = lookup.get((value['ID'], value['Name'], value['Description']), [''])[0] or value['ID']
-    # Get Item Key
-    item = find_key_by_values(items, value['ID'], value['Name'], value['Description'])
-    return item
-
-def item_payload(data):
-    for item_id, item_data in data.items():
-        # Check if Item in Payload
-        if not item_id.startswith('Item'):
-            continue
-        # Extract Information
-        label = item_data.get("label", "")
-        description = item_data.get("description", "")
-        statements_input = item_data.get("statements", [])
-        # Grouped statements by PID
-        statements = {}
-        for s in statements_input:
-            PID, dtype, obj = s[0], s[1], s[2]
-            qualifier = None
-            if len(s) == 4:
-                qualifier = s[3]
-            statement = {
-                "property": {"id": PID, "data_type": dtype},
-                "value": {"type": "value", "content": obj}
-            }
-            if qualifier:
-                statement["qualifiers"] = qualifier
-
-            statements.setdefault(PID, []).append(statement)
-        # Build payload
-        payload = {
-            "item": {
-                "labels": {"en": label},
-                "statements": statements
-            }
-        }
-        if description:
-            payload["item"]["descriptions"] = {"en": description}
-        # Attach to original dict
-        item_data["payload"] = payload
-        return data
-
-def items_payload(label, description):
-    if description and description != 'No Description Provided!':
-        return {"item": {"labels": {"en": label}, "descriptions": {"en": description}}} 
-    else:
-        return {"item": {"labels": {"en": label}}}
-    
-def items_url(url):
-    return f'{url}/w/rest.php/wikibase/v1/entities/items'
-    
-def statements_payload(id, content, data_type = "wikibase-item", qualifiers = []):
-    return {"statement": {"property": {"id": id, "data_type": data_type}, "value": {"type": "value", "content": content}, "qualifiers": qualifiers}}
-
-def statements_url(url, item):
-    return f'{url}/w/rest.php/wikibase/v1/entities/items/{item}/statements'
-    
 
 

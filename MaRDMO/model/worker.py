@@ -2,9 +2,8 @@ from .utils import mapEntityQuantity
 from .constants import PREVIEW_RELATIONS, PREVIEW_MAP_GENERAL, PREVIEW_MAP_QUANTITY, get_Relations, get_DATA_PROPERTIES
 
 from ..utils import GeneratePayload, entityRelations, get_mathmoddb, find_item, mapEntity, unique_items
-from ..id_testwiki import PROPERTIES, ITEMS
+from ..id import PROPERTIES, ITEMS
 
-from ..workflow.utils import items_url
 
 class prepareModel:
 
@@ -58,13 +57,12 @@ class prepareModel:
         payload = GeneratePayload(url, items, get_Relations, get_DATA_PROPERTIES)
 
         # Add / Retrieve Components of Model Item
-
         for key, value in items.items():
             if value.get('ID'):
                 # Item from MaRDI Portal
                 if 'mardi:' in value['ID']:
                     _, id = value['ID'].split(':')
-                    payload.add_entry('dictionary', key, {'id': id, 'url': items_url(url), 'label': value['Name'], 'description':  value['Description']})
+                    payload.add_entry('dictionary', key, payload.build_item(id, value['Name'], value['Description']))
                 # Item from Wikidata
                 elif 'wikidata:' in value['ID']:
                     _, id = value['ID'].split(':')
@@ -124,8 +122,8 @@ class prepareModel:
             payload.get_item_key(field)
 
             # Add Class and Community
-            payload.add_answer(payload.subDict_item, PROPERTIES['instance of'], ITEMS['academic discipline'])
-            payload.add_answer(payload.subDict_item, PROPERTIES['community'], ITEMS['MathModDB'])
+            payload.add_answer(PROPERTIES['instance of'], ITEMS['academic discipline'])
+            payload.add_answer(PROPERTIES['community'], ITEMS['MathModDB'])
             
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
@@ -348,5 +346,8 @@ class prepareModel:
                 
             # Add relations to Entities of Mathematical Model
             payload.add_forward_relation_multiple('P2E', 'EntityRelatant', True)
+
+        # Construct Item Payloads
+        payload.add_item_payload()            
             
         return payload.get_dictionary('dictionary')

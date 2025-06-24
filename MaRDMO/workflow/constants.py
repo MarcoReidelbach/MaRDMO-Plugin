@@ -88,3 +88,13 @@ order_to_publish = {
             'url': (2, options['URL']),
             'No': (3, options['URL'])
             }
+
+#Dictionary For Reproducibility
+REPRODUCIBILITY = {
+    'mathematical': 'mathematically reproducible research workflow',
+    'runtime': 'runtime reproducible research workflow',
+    'result': 'result reproducible research workflow',
+    'originalplatform': 'original platform reproducible research workflow',
+    'otherplatform': 'cross-platform reproducible research workflow'
+    }
+

@@ -101,7 +101,8 @@ def mathmlToLatex(mathml):
         latex = re.sub(r'^\{?\\displaystyle\s*', '', latex)
         latex = re.sub(r'\}$', '', latex)
         return latex
-    return None
+    else:
+        return 
 
 def mapEntityQuantity(data, type, mapping):
     for key in data[type]:

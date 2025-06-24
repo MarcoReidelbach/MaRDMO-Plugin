@@ -1,10 +1,10 @@
 from dataclasses import asdict
 
-from .utils import add_item_relation, add_qualifier, add_static_or_non_item_relation, find_key_by_values, get_item_key, items_payload, items_url
 from .sparql import queryPreview
 from .models import ModelProperties, Variables, Parameters
+from .constants import REPRODUCIBILITY
 
-from ..utils import find_item, get_data, unique_items, query_sparql
+from ..utils import find_item, get_data, unique_items, query_sparql, GeneratePayload
 from ..id import ITEMS, PROPERTIES
 from ..config import endpoint
 
@@ -37,576 +37,481 @@ class prepareWorkflow:
 
     def export(data, title, url):
 
+        items = unique_items(data, title)
+        
+        payload = GeneratePayload(url, items)
+
         # Load Options
         options = get_data('data/options.json')
 
-        # Create an empty Payload Dictionary
-        payload = {}
-        old_new = {}
-        rel_idx = 0
-
-        items = unique_items(data, title)
-
         # Add / Retrieve Components of Interdisciplinary Workflow Item
-
         for key, value in items.items():
             if value.get('ID'):
                 # Item from MaRDI Portal
                 if 'mardi:' in value['ID']:
                     _, id = value['ID'].split(':')
-                    payload.update({key:{'id': id, 'url': items_url(url), 'payload': ''}})
+                    payload.add_entry('dictionary', key, payload.build_item(id, value['Name'], value['Description']))
                 # Item from Wikidata
                 elif 'wikidata:' in value['ID']:
                     _, id = value['ID'].split(':')
                     mardiID = find_item(value['Name'], value['Description'])
                     if mardiID:
-                        old_new.update({(value['ID'], value['Name'], value['Description']): (f"mardi:{mardiID}", value['Name'], value['Description'])})
-                        value['ID'] = f"mardi:{mardiID}"
-                        payload.update({key:{'id': mardiID, 'url': items_url(url), 'payload': ''}})
+                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
+                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
+                        payload.update_items(key, f"mardi:{mardiID}")
                     else:
-                        payload.update({key:{'id': '', 'url': items_url(url), 'payload': items_payload(value['Name'], value['Description'])}})
-                        payload, rel_idx = add_static_or_non_item_relation(url, payload, key, rel_idx, 'P2', id, 'external-id')
-                # Item from MathModDB KG
-                elif 'mathmoddb:' in value['ID']:
-                    _, id = value['ID'].split(':')
-                    mardiID = find_item(value['Name'], value['Description'])
-                    if mardiID:
-                        old_new.update({(value['ID'], value['Name'], value['Description']): (f"mardi:{mardiID}", value['Name'], value['Description'])})
-                        value['ID'] = f"mardi:{mardiID}"
-                        payload.update({key:{'id': mardiID, 'url': items_url(url), 'payload': ''}})
-                    else:
-                        payload.update({key:{'id': '', 'url': items_url(url), 'payload': items_payload(value['Name'], value['Description'])}})
-                        # No MathModDB ID Property in Portal yet
+                        payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description'], [[PROPERTIES['Wikidata QID'], 'external-id', id]]))
                 # Item from MathAlgoDB KG
                 elif 'mathalgodb' in value['ID']:
                     _, id = value['ID'].split(':')
                     mardiID = find_item(value['Name'], value['Description'])
                     if mardiID:
-                        old_new.update({(value['ID'], value['Name'], value['Description']): (f"mardi:{mardiID}", value['Name'], value['Description'])})
-                        value['ID'] = f"mardi:{mardiID}"
-                        payload.update({key:{'id': mardiID, 'url': items_url(url), 'payload': ''}})
+                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
+                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
+                        payload.update_items(key, f"mardi:{mardiID}")
                     else:
-                        payload.update({key:{'id': '', 'url': items_url(url), 'payload': items_payload(value['Name'], value['Description'])}})
+                        payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description']))
                         # No MathAlgoDB ID Property in Portal yet
                 # Item defined by User (I)
                 elif 'not found' in value['ID']:
                     mardiID = find_item(value['Name'], value['Description'])
                     if mardiID:
-                        old_new.update({(value['ID'], value['Name'], value['Description']): (f"mardi:{mardiID}", value['Name'], value['Description'])})
-                        value['ID'] = f"mardi:{mardiID}"
-                        payload.update({key:{'id': mardiID, 'url': items_url(url), 'payload': ''}})
+                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
+                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
+                        payload.update_items(key, f"mardi:{mardiID}")
                     else:
-                        payload.update({key:{'id': '', 'url': items_url(url), 'payload': items_payload(value['Name'], value['Description'])}})
+                        statement = []
                         if value.get('ISSN'):
-                            payload, rel_idx = add_static_or_non_item_relation(url, payload, key, rel_idx, 'P915', value['ISSN'], 'external-id')
+                            statement = statement.extend([[PROPERTIES['ISSN'], 'external-id', value['ISSN']]])
+                        payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description'], statement))
                 # Item defined by User (II)
                 elif 'no author found' in value['ID']:
                     mardiID = find_item(value['Name'], value['Description'])
                     if mardiID:
-                        old_new.update({(value['ID'], value['Name'], value['Description']): (f"mardi:{mardiID}", value['Name'], value['Description'])})
-                        value['ID'] = f"mardi:{mardiID}"
-                        payload.update({key:{'id': mardiID, 'url': items_url(url), 'payload': ''}})
+                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
+                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
+                        payload.update_items(key, f"mardi:{mardiID}")
                     else:
-                        if value.get('orcid') or value.get('zbmath'):
-                            payload.update({key:{'id': '', 'url': items_url(url), 'payload': items_payload(value['Name'], value['Description'])}})
-                            if value.get('orcid'):
-                                payload, rel_idx = add_static_or_non_item_relation(url, payload, key, rel_idx, 'P33', value['orcid'], 'external-id')
-                            if value.get('zbmath'):
-                                payload, rel_idx = add_static_or_non_item_relation(url, payload, key, rel_idx, 'P369', value['zbmath'], 'external-id')
+                        statement = []
+                        if value.get('orcid'):
+                            statement = statement.extend([[PROPERTIES['ORCID iD'], 'external-id', value['orcid']]])
+                        if value.get('zbmath'):
+                            statement = statement.extend([[PROPERTIES['zbMATH author ID'], 'external-id', value['zbmath']]])
+                        if statement:
+                            payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description'], statement))
 
+        
         ### Add additional Algorithms / Methods Information
-        for value in data.get('method', {}).values():
-            # Continue if no ID exists
-            if not value.get('ID'):
-                continue
-            # Get Item Key
-            item = get_item_key(value, items, old_new)
-            # Add to Payload
-            if 'mathalgodb' in value['ID']:
-                payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q4629')
-            else:
-                payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q2822')
+        for method in data.get('method', {}).values():
 
-        ### Add additional Software Information
-        for value in data.get('software', {}).values():
             # Continue if no ID exists
-            if not value.get('ID'):
+            if not method.get('ID'):
                 continue
+            
             # Get Item Key
-            item = get_item_key(value, items, old_new)
-            # Add to Payload
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q420')
+            payload.get_item_key(method)
+
+            # Add Class
+            if 'mathalgodb' in method['ID']:
+                payload.add_answer(PROPERTIES['instance of'], ITEMS['algorithm'])
+            else:
+                payload.add_answer(PROPERTIES['instance of'], ITEMS['method'])
+        
+        ### Add additional Software Information
+        for software in data.get('software', {}).values():
+
+            # Continue if no ID exists
+            if not software.get('ID'):
+                continue
+            
+            # Get Item Key
+            payload.get_item_key(software)
+
+            # Add Class
+            payload.add_answer(PROPERTIES['instance of'], ITEMS['software'])
 
             # Add References of the Software
-            for reference in value.get('Reference', {}).values():
+            for reference in software.get('Reference', {}).values():
                 if reference[0] == options['DOI']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P27', reference[1], 'external-id')
+                    payload.add_answer(PROPERTIES['DOI'], reference[1], 'external-id')
                 elif reference[0] == options['SWMATH']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P31', reference[1], 'external-id')
+                    payload.add_answer(PROPERTIES['swMath work ID'], reference[1], 'external-id')
                 elif reference[0] == options['URL']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P107', reference[1], 'url')
+                    payload.add_answer(PROPERTIES['URL'], reference[1], 'url')
 
             # Add Programming Languages
-            payload, rel_idx = add_item_relation(url = url,
-                                                 payload = payload, 
-                                                 values = value.get('programminglanguage', {}).values(), 
-                                                 lookup = old_new, 
-                                                 items = items, 
-                                                 item = item, 
-                                                 idx = rel_idx, 
-                                                 property = 'P30')
+            payload.add_forward_relation_single(PROPERTIES['programmed in'], 'programminglanguage')
 
             # Add Dependencies
-            payload, rel_idx = add_item_relation(url = url,
-                                                 payload = payload, 
-                                                 values = value.get('dependency', {}).values(), 
-                                                 lookup = old_new, 
-                                                 items = items, 
-                                                 item = item, 
-                                                 idx = rel_idx, 
-                                                 property = 'P474')
+            payload.add_forward_relation_single(PROPERTIES['depends on software'], 'dependency')
 
             # Add Source Code Repository
-            if value.get('Published', [''])[0] == options['YesText']:
-                payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P69', value['Published'][1], 'url')
-
+            if software.get('Published', [''])[0] == options['YesText']:
+                payload.add_answer(PROPERTIES['source code repository URL'], software['Published'][1], 'url')
+                
             # Add Documentation / Manual
-            if value.get('Documented', [''])[0] == options['YesText']:
-                payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P56', value['Documented'][1], 'url')
+            if software.get('Documented', [''])[0] == options['YesText']:
+                payload.add_answer(PROPERTIES['user manual URL'], software['Documented'][1], 'url')
 
         ### Add additional Hardware Information
-        for value in data.get('hardware', {}).values():
+        for hardware in data.get('hardware', {}).values():
+
             # Continue if no ID exists
-            if not value.get('ID'):
+            if not hardware.get('ID'):
                 continue
+            
             # Get Item Key
-            item = get_item_key(value, items, old_new)
-            # Add to Payload
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q387')
+            payload.get_item_key(hardware)
+
+            # Add Class
+            payload.add_answer(PROPERTIES['instance of'], ITEMS['computer hardware'])
 
             # Add CPU
-            payload, rel_idx = add_item_relation(url = url,
-                                                 payload = payload, 
-                                                 values = value.get('cpu', {}).values(), 
-                                                 lookup = old_new, 
-                                                 items = items, 
-                                                 item = item, 
-                                                 idx = rel_idx, 
-                                                 property = 'P585')
+            payload.add_forward_relation_single(PROPERTIES['CPU'], 'cpu')
 
-            # Add Number of Nodes (Computing Nodes)
-            if value.get('Nodes'):
-                payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P124', 'Q13129', 'wikibase-item', [{"property":{"id":"P302"},"value":{"type":"value","content":{"amount":f"+{value['Nodes']}","unit":"1"}}}])
+            # Add Number of Computing Nodes
+            if hardware['Nodes']:
+                payload.add_answer(predicate = PROPERTIES['has part(s)'], 
+                                   object = ITEMS['compute node'],
+                                   qualifier = [{"property":{"id":PROPERTIES['quantity_property']},"value":{"type":"value","content":{"amount":f"+{hardware['Nodes']}","unit":"1"}}}]
+                                   )
 
-            # Add Number of Cores (Processor Cores)
-            if value.get('Cores'):
-                payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P588', {"amount":f"+{value['Cores']}","unit":"1"}, 'quantity')
+            # Add Number of Processor Cores
+            if hardware['Cores']:
+                payload.add_answer(predicate = PROPERTIES['number of processor cores'], 
+                                   object = {"amount":f"+{hardware['Cores']}","unit":"1"},
+                                   object_type = 'quantity'
+                                   ) 
 
         ### Add additional Instrument Information
-        for value in data.get('instrument', {}).values():
-            # Continue if no ID exists
-            if not value.get('ID'):
-                continue
-            # Get Item Key
-            item = get_item_key(value, items, old_new)
-            # Add to Payload
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q4682')
+        for instrument in data.get('instrument', {}).values():
 
-        ### Add additional Data Set Information
-        for value in data.get('dataset', {}).values():
             # Continue if no ID exists
-            if not value.get('ID'):
+            if not instrument.get('ID'):
                 continue
+            
             # Get Item Key
-            item = get_item_key(value, items, old_new)
-            # Add to Payload
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q381')
+            payload.get_item_key(instrument)
+
+            # Add Class
+            payload.add_answer(PROPERTIES['instance of'], ITEMS['research tool'])
+
+            ### MORE INSTRUMENT INFORMATION TO ADD ###
+
+        ### Add additional Dataset Information
+        for dataset in data.get('dataset', {}).values():
+
+            # Continue if no ID exists
+            if not dataset.get('ID'):
+                continue
+            
+            # Get Item Key
+            payload.get_item_key(dataset)
+
+            # Add Class
+            payload.add_answer(PROPERTIES['instance of'], ITEMS['data set'])
 
             # Size of the data set
-            if value.get('Size'):
-                if value['Size'][0] == options['kilobyte']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P790', {"amount":f"+{value['Size'][1]}","unit":"https://staging.mardi4nfdi.org/entity/Q13145"}, 'quantity')
-                elif value['Size'][0] == options['megabyte']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P790', {"amount":f"+{value['Size'][1]}","unit":"https://staging.mardi4nfdi.org/entity/Q13146"}, 'quantity')
-                elif value['Size'][0] == options['gigabyte']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P790', {"amount":f"+{value['Size'][1]}","unit":"https://staging.mardi4nfdi.org/entity/Q13147"}, 'quantity')
-                elif value['Size'][0] == options['terabyte']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P790', {"amount":f"+{value['Size'][1]}","unit":"https://staging.mardi4nfdi.org/entity/Q13148"}, 'quantity')
-                elif value['Size'][0] == options['items']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P328', {"amount":f"+{value['Size'][1]}","unit":"1"}, 'quantity')
+            if dataset.get('Size'):
+                if dataset['Size'][0] == options['kilobyte']:
+                    predicate = PROPERTIES['data size']
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{ITEMS['kilobyte']}"}
+                elif dataset['Size'][0] == options['megabyte']:
+                    predicate = PROPERTIES['data size']
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{ITEMS['megabyte']}"}
+                elif dataset['Size'][0] == options['gigabyte']:
+                    predicate = PROPERTIES['data size']
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{ITEMS['gigabyte']}"}
+                elif dataset['Size'][0] == options['terabyte']:
+                    predicate = PROPERTIES['data size']
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{ITEMS['terabyte']}"}
+                elif dataset['Size'][0] == options['items']:
+                    predicate = PROPERTIES['number of records']
+                    object = {"amount":f"+{dataset['Size'][1]}","unit":"1"}
+                payload.add_answer(predicate, object, 'quantity')
+                
+            # Add Data Type 
+            payload.add_forward_relation_single(relation = PROPERTIES['uses'], 
+                                                relatant = 'datatype', 
+                                                qualifier = payload.add_qualifier(PROPERTIES['object has role'], 'wikibase-item', ITEMS['data type']))
 
-            # Data Type of the data set
-            payload, rel_idx = add_item_relation(url = url,
-                                                 payload = payload, 
-                                                 values = value.get('datatype', {}).values(), 
-                                                 lookup = old_new, 
-                                                 items = items, 
-                                                 item = item, 
-                                                 idx = rel_idx, 
-                                                 property = 'P7',
-                                                 qualifier = add_qualifier("P293", "Q1917"))
+            # Add Representation Format 
+            payload.add_forward_relation_single(relation = PROPERTIES['uses'], 
+                                                relatant = 'representationformat', 
+                                                qualifier = payload.add_qualifier(PROPERTIES['object has role'], 'wikibase-item', ITEMS['representation format']))            
 
-            # Representation Format of the data set
-            payload, rel_idx = add_item_relation(url = url,
-                                                 payload = payload, 
-                                                 values = value.get('representationformat', {}).values(), 
-                                                 lookup = old_new, 
-                                                 items = items, 
-                                                 item = item, 
-                                                 idx = rel_idx, 
-                                                 property = 'P7',
-                                                 qualifier = add_qualifier("P293", "Q13149"))
+            # Add File Format
+            if dataset.get('FileFormat'):
+                payload.add_answer(PROPERTIES['file extension'], dataset['FileFormat'], 'string') 
 
-            # File Format of the Data Set
-            if value.get('FileFormat'):
-                payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P792', value['FileFormat'], 'string')
-
-            # Data Set binary or text
-            if value.get('BinaryText'):
-                if value['BinaryText'] == options['binary']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q3742')
-                elif value['BinaryText'] == options['text']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q13150')
+            # Add binary or text data
+            if dataset.get('BinaryText'):
+                if dataset['BinaryText'] == options['binary']:
+                    payload.add_answer(PROPERTIES['instance of'], ITEMS['binary data'])
+                elif dataset['BinaryText'] == options['text']:
+                    payload.add_answer(PROPERTIES['instance of'], ITEMS['text data'])
 
             # Data Set Proprietary
-            if value.get('Proprietary'):
-                if value['Proprietary'] == options['Yes']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q3747')
-                elif value['Proprietary'] == options['No']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q3745')
+            if dataset.get('Proprietary'):
+                if dataset['Proprietary'] == options['Yes']:
+                    payload.add_answer(PROPERTIES['instance of'], ITEMS['proprietary information'])
+                elif dataset['Proprietary'] == options['No']:
+                    payload.add_answer(PROPERTIES['instance of'], ITEMS['open data'])
 
-            # Data Set To Publish
-            if value.get('ToPublish'):
-                if value['ToPublish'].get(0, ['',''])[0] == options['Yes']:
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P794', 'Q3743')
-                    if value['ToPublish'].get(1, ['',''])[0] == options['DOI']:
-                        payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P27', value['ToPublish'][1][1], 'external-id')
-                    if value['ToPublish'].get(2, ['',''])[0] == options['URL']:
-                        payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P107', value['ToPublish'][2][1], 'url')
-
+            # Data Set to Publish
+            if dataset.get('ToPublish'):
+                if dataset['ToPublish'].get(0, ['',''])[0] == options['Yes']:
+                    payload.add_answer(PROPERTIES['mandates'], ITEMS['data publishing'])
+                    if dataset['ToPublish'].get(1, ['',''])[0] == options['DOI']:
+                        payload.add_answer(PROPERTIES['DOI'], dataset['ToPublish'][1][1], 'external-id')
+                    if dataset['ToPublish'].get(2, ['',''])[0] == options['URL']:
+                        payload.add_answer(PROPERTIES['URL'], dataset['ToPublish'][2][1], 'url')
+                        
             # Data Set To Archive
-            if value.get('ToArchive'):
-                if value['ToArchive'][0] == options['YesText']:
+            if dataset.get('ToArchive'):
+                if dataset['ToArchive'][0] == options['YesText']:
                     qualifier = []
-                    if value['ToArchive'][1]:
-                        qualifier = add_qualifier("P791", {"time":f"+{value['ToArchive'][1]}-00-00T00:00:00Z","precision":9,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"}, 'time')
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P794', 'Q3748', 'wikibase-item', qualifier)
+                    if dataset['ToArchive'][1]:
+                        qualifier = payload.add_qualifier(PROPERTIES['end time'], 'time', {"time":f"+{dataset['ToArchive'][1]}-00-00T00:00:00Z","precision":9,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"})
+                    payload.add_answer(PROPERTIES['mandates'], ITEMS['research data archiving'], 'wikibase-item', qualifier)
+                    
+        ### Add Process Step Information
+        for processstep in data.get('processstep', {}).values():
 
-        ### Add additional Process Step Information
-        for value in data.get('processstep', {}).values():
             # Continue if no ID exists
-            if not value.get('ID'):
+            if not processstep.get('ID'):
                 continue
+            
             # Get Item Key
-            item = get_item_key(value, items, old_new)
-            # Add to Payload
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q13152')
+            payload.get_item_key(processstep)
+
+            # Add Class
+            payload.add_answer(PROPERTIES['instance of'], ITEMS['process step'])
 
             # Add Input Data Sets
-            payload, rel_idx = add_item_relation(url = url,
-                                                 payload = payload, 
-                                                 values = value.get('input', {}).values(), 
-                                                 lookup = old_new, 
-                                                 items = items, 
-                                                 item = item, 
-                                                 idx = rel_idx, 
-                                                 property = 'P1093')
+            payload.add_forward_relation_single(PROPERTIES['input data set'], 'input')
 
             # Add Output Data Sets
-            payload, rel_idx = add_item_relation(url = url,
-                                                 payload = payload, 
-                                                 values = value.get('output', {}).values(), 
-                                                 lookup = old_new, 
-                                                 items = items, 
-                                                 item = item, 
-                                                 idx = rel_idx, 
-                                                 property = 'P1094')
+            payload.add_forward_relation_single(PROPERTIES['output data set'], 'output')
 
             # Add applied Methods
-            for entry in value.get('method', {}).values():
+            for method in processstep.get('method', {}).values():
                 # Continue if no ID exists
-                if not entry.get('ID'):
+                if not method.get('ID'):
                     continue
                 # Get Entry Key
-                entry_item = get_item_key(entry, items, old_new)
+                method_item = payload.get_item_key(method, 'object')
                 # Get Qualifier
                 qualifier = []
-                for parameter in entry.get('Parameter', {}).values():
-                    qualifier.extend(add_qualifier("P1092", parameter, 'string'))
+                for parameter in method.get('Parameter', {}).values():
+                    qualifier.extend(payload.add_qualifier(PROPERTIES['comment'], 'string', parameter))
                 # Add to Payload
-                payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P7', entry_item, 'wikibase-item', qualifier)
+                payload.add_answer(PROPERTIES['uses'], method_item, 'wikibase-item', qualifier)
 
             # Add Software Environment
-            payload, rel_idx = add_item_relation(url = url,
-                                                 payload = payload, 
-                                                 values = value.get('environmentSoftware', {}).values(), 
-                                                 lookup = old_new, 
-                                                 items = items, 
-                                                 item = item, 
-                                                 idx = rel_idx, 
-                                                 property = 'P402',
-                                                 qualifier = [{"property": {"id": "P293"},"value": {"type": "value","content": "Q420"}}])
-
+            payload.add_forward_relation_single(relation = PROPERTIES['platform'], 
+                                                relatant = 'environmentSoftware',
+                                                qualifier = payload.add_qualifier(PROPERTIES['object has role'], 'wikibase-item', ITEMS['software']))
+            
             # Add Instrument Environment
-            payload, rel_idx = add_item_relation(url = url,
-                                                 payload = payload, 
-                                                 values = value.get('environmentInstrument', {}).values(), 
-                                                 lookup = old_new, 
-                                                 items = items, 
-                                                 item = item, 
-                                                 idx = rel_idx, 
-                                                 property = 'P402',
-                                                 qualifier = [{"property": {"id": "P293"},"value": {"type": "value","content": "Q4682"}}])
-
+            payload.add_forward_relation_single(relation = PROPERTIES['platform'], 
+                                                relatant = 'environmentInstrument',
+                                                qualifier = payload.add_qualifier(PROPERTIES['object has role'], 'wikibase-item', ITEMS['research tool']))
+            
             # Add Disciplines (math and non-math)
-            for discipline in value.get('discipline', {}).values():
+            for discipline in processstep.get('discipline', {}).values():
                 # Check if new ID exists
                 if 'msc:' in discipline.get('ID'):
                     _, id = discipline['ID'].split(':')
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P349', id, 'external-id')
+                    payload.add_answer(PROPERTIES['MSC ID'], id, 'external-id')
                 else:
                     # Get Discipline Key
-                    discipline_item = get_item_key(discipline, items, old_new)
+                    discipline_item = payload.get_item_key(discipline, 'object')
                     # Add to Payload
-                    payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P19', discipline_item)
+                    payload.add_answer(PROPERTIES['field of work'], discipline_item)
 
-        # Add additional Paper Information
-        for value in data.get('publication', {}).values():
+        # Add Publication Information
+        for publication in data.get('publication', {}).values():
+
             # Continue if no ID exists
-            if not value.get('ID'):
+            if not publication.get('ID'):
                 continue
+
             # Get Item Key
-            item = get_item_key(value, items, old_new)
+            payload.get_item_key(publication)
 
-            if value.get('workflow') == options['Yes']:
-                if 'mardi' not in value['ID'] and 'wikidata' not in value['ID']:
-                    # Add the class of the Publication
-                    if value.get('entrytype'):
-                        payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q259' if value['entrytype'] == 'scholarly article' else 'Q428')
-                    # Add the Title of the Publication
-                    if value.get('title'):
-                        payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P15', {"text": value['title'], "language": "en"}, 'monolingualtext')
-                    # Add the Volume of the Publication
-                    if value.get('volume'):
-                        payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P24', value['volume'], 'string')
-                    # Add the Issue of the Publication
-                    if value.get('issue'):
-                        payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P25', value['issue'], 'string')
-                    # Add the Page(s) of the Publication
-                    if value.get('page'):
-                        payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P26', value['page'], 'string')
-                    # Add the Date of the Publication
-                    if value.get('date'):
-                        payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P22', {"time":f"+{value['date']}T00:00:00Z","precision":11,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"}, 'time')
-                    # Add the DOI of the Publication
-                    if value.get('reference', {}).get(0):
-                        payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P27', value['reference'][0][1], 'external-id')
-
-                    # Add the Language of the Publication
-                    payload, rel_idx = add_item_relation(url = url,
-                                                         payload = payload, 
-                                                         values = value.get('language', {}).values(), 
-                                                         lookup = old_new, 
-                                                         items = items, 
-                                                         item = item, 
-                                                         idx = rel_idx, 
-                                                         property = 'P6')
-                    # Add the Journal of the Publication
-                    payload, rel_idx = add_item_relation(url = url,
-                                                         payload = payload, 
-                                                         values = value.get('journal', {}).values(), 
-                                                         lookup = old_new, 
-                                                         items = items, 
-                                                         item = item, 
-                                                         idx = rel_idx, 
-                                                         property = 'P23')
-                    # Add the Authors of the Publication
-                    for entry in value.get('author', {}).values():
-                        # Continue if no ID exists
-                        if not entry.get('ID'):
-                            continue
-                        # Get Item Key
-                        entry_item = get_item_key(entry, items, old_new)
-                        # Add to Payload
-                        if entry_item in payload.keys():
-                            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P20', entry_item)
-                        else:
-                            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P21', entry['Name'], 'string')
-
+            if 'mardi' not in publication['ID'] and 'wikidata' not in publication['ID']:
+                # Add the class of the Publication
+                if publication.get('entrytype'):
+                    payload.add_answer(PROPERTIES['instance of'], ITEMS['scholarly article'] if publication['entrytype'] == 'scholarly article' else ITEMS['publication'])
+                # Add the Title of the Publication
+                if publication.get('title'):
+                    payload.add_answer(PROPERTIES['title'], {"text": publication['title'], "language": "en"}, 'monolingualtext')
+                # Add the Volume of the Publication
+                if publication.get('volume'):
+                    payload.add_answer(PROPERTIES['volume'], publication['volume'], 'string')
+                # Add the Issue of the Publication
+                if publication.get('issue'):
+                    payload.add_answer(PROPERTIES['issue'], publication['issue'], 'string')
+                # Add the Page(s) of the Publication
+                if publication.get('page'):
+                    payload.add_answer(PROPERTIES['page(s)'], publication['page'], 'string')
+                # Add the Date of the Publication
+                if publication.get('date'):
+                    payload.add_answer(PROPERTIES['publication date'], {"time":f"+{publication['date']}T00:00:00Z","precision":11,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"}, 'time')
+                # Add the DOI of the Publication
+                if publication.get('reference', {}).get(0):
+                    payload.add_answer(PROPERTIES['DOI'], publication['reference'][0][1], 'external-id')
+                
+                # Add the Language of the Publication
+                payload.add_forward_relation_single(PROPERTIES['language of work or name'], 'language')
+                # Add the Journal of the Publication
+                payload.add_forward_relation_single(PROPERTIES['published in'], 'journal')
+                # Add the Authors of the Publication
+                payload.add_forward_relation_single(PROPERTIES['author'], 'author', PROPERTIES['author name string'], 'Name')
+        
         # Add Interdisciplinary Workflow Information
-        if ('not found', title, data.get('general', {}).get('objective')) in old_new.keys():
-            workflow_id = old_new[('not found', title, data.get('general', {}).get('objective'))][0]
-        else:
-            workflow_id = 'not found'
+        workflow = {'ID': 'not found', 'Name': title, 'Description': data.get('general', {}).get('objective')}
+        
+        # Get Item Key
+        payload.get_item_key(workflow)
 
-        item = find_key_by_values(items, workflow_id, title, data.get('general', {}).get('objective'))
+        # Add Class
+        payload.add_answer(PROPERTIES['instance of'], ITEMS['research workflow'])
 
-        # Add instance of research workflow
-        payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q18')
-
-        # Add description to the Workflow
+        # Procedure Description to Workflow
         if data.get('general', {}).get('procedure'):
-           payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P896', data['general']['procedure'])
+           payload.add_answer(PROPERTIES['description'], data['general']['procedure'], 'string')
 
         # Add Reproducibility Aspects
-        if data.get('reproducibility', {}).get('mathematical') == options['Yes']:
-            qualifier = []
-            if data['reproducibility'].get('mathematicalcondition'):
-                qualifier.extend(add_qualifier("P1092", data['reproducibility']['mathematicalcondition'], 'string'))
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q13160', 'wikibase-item', qualifier)
-
-        if data.get('reproducibility', {}).get('runtime') == options['Yes']:
-            qualifier = []
-            if data['reproducibility'].get('runtimecondition'):
-                qualifier.extend(add_qualifier("P1092", data['reproducibility']['runtimecondition'], 'string'))
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q13162', 'wikibase-item', qualifier)
-
-        if data.get('reproducibility', {}).get('result') == options['Yes']:
-            qualifier = []
-            if data['reproducibility'].get('resultcondition'):
-                qualifier.extend(add_qualifier("P1092", data['reproducibility']['resultcondition'], 'string'))
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q13163', 'wikibase-item', qualifier)
-
-        if data.get('reproducibility', {}).get('originalplatform') == options['Yes']:
-            qualifier = []
-            if data['reproducibility'].get('originalplatformcondition'):
-                qualifier.extend(add_qualifier("P1092", data['reproducibility']['originalplatformcondition'], 'string'))
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q13164', 'wikibase-item', qualifier)
-
-        if data.get('reproducibility', {}).get('otherplatform') == options['Yes']:
-            qualifier = []
-            if data['reproducibility'].get('otherplatformcondition'):
-                qualifier.extend(add_qualifier("P1092", data['reproducibility']['otherplatformcondition'], 'string'))
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q13165', 'wikibase-item', qualifier)
-
+        for key, value in REPRODUCIBILITY.items():
+            if data.get('reproducibility', {}).get(key) == options['Yes']:
+                qualifier = []
+                if data['reproducibility'].get(f'{key}condition'):
+                    qualifier.extend(payload.add_qualifier(PROPERTIES['comment'], 'string', data['reproducibility'][f'{key}condition']))
+                payload.add_answer(PROPERTIES['instance of'], ITEMS[value], 'wikibase-item', qualifier)
+        
+        # Add Transferability Aspects
         if data.get('reproducibility', {}).get('transferability'):
             qualifier = []
             for value in data['reproducibility']['transferability'].values():
-                qualifier.extend(add_qualifier("P1092", value, 'string'))
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P3', 'Q13166', 'wikibase-item', qualifier)
-
-        # Add data sets the workflow uses
-        if data.get('model', {}).get('ID'):
-
-            value = data['model']
-            model_item = get_item_key(value, items, old_new)
-
+                qualifier.extend(payload.add_qualifier(PROPERTIES['comment'], 'string', value))
+            payload.add_answer(PROPERTIES['instance of'], ITEMS['transferable research workflow'], 'wikibase-item', qualifier)
+        
+        # Add Model and Task the Workflow Uses
+        for value in data.get('model', {}).values():
+            #Continue if no ID exists
+            if not value.get('ID'):
+                continue
+            # Get Item Key
+            model_item = payload.get_item_key(value, 'object')
+            # Add Statement with Qualifier
             qualifier = []
             for task in data.get('specifictask', {}).values():
-                qualifier.extend(add_qualifier("P348", 'wikibase-item', get_item_key(task, items, old_new)))
+                qualifier.extend(payload.add_qualifier(PROPERTIES['used by'], 'wikibase-item', payload.get_item_key(task, 'object')))
+            payload.add_answer(PROPERTIES['uses'], model_item, 'wikibase-item', qualifier)
 
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P7', model_item, 'wikibase-item', qualifier)
-
-        # Add methods the workflow uses
+        # Add Methods the Workflow Uses
         for value in data.get('method', {}).values():
             # Continue if no ID exists
             if not value.get('ID'):
                 continue
             # Get Item Key
-            method_item = get_item_key(value, items, old_new)
-
+            method_item = payload.get_item_key(value, 'object')
+            # Add Statement with Qualifier
             qualifier = []
             for parameter in value.get('Parameter', {}).values():
-                qualifier.extend(add_qualifier("P1092", parameter, 'string'))
-
+                qualifier.extend(payload.add_qualifier(PROPERTIES['comment'], 'string', parameter))
             for software in value.get('software', {}).values():
-                qualifier.extend(add_qualifier("P1089", get_item_key(software, items, old_new)))
-
+                qualifier.extend(payload.add_qualifier(PROPERTIES['implemented by'], payload.get_item_key(software, 'object')))
             for instrument in value.get('instrument', {}).values():
-                qualifier.extend(add_qualifier("P1089", get_item_key(instrument, items, old_new)))
+                qualifier.extend(payload.add_qualifier(PROPERTIES['implemented by'], payload.get_item_key(instrument, 'object')))
+            payload.add_answer(PROPERTIES['uses'], method_item, 'wikibase-item', qualifier)
 
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P7', method_item, 'wikibase-item', qualifier)
-
-        # Add software the workflow uses
+        # Add Software the Workflow uses
         for value in data.get('software', {}).values():
             # Continue if no ID exists
             if not value.get('ID'):
                 continue
             # Get Item Key
-            software_item = get_item_key(value, items, old_new)
-
+            software_item = payload.get_item_key(value, 'object')
+            # Add Statement with Qualifier
             qualifier = []
             for hardware in data.get('hardware', {}).values():
                 for software in hardware.get('software', {}).values():
-                    if software.get('ID') == value['ID'] and software.get('Name') == value['Name'] and software.get('Description') == value['Description']:
-                        hardware_item = find_key_by_values(items, hardware['ID'], hardware['Name'], hardware['Description'])
-                        qualifier.extend(add_qualifier("P402", hardware_item))
-
+                    if (software.get('ID'), software.get('Name'), software.get('Description')) == (value['ID'], value['Name'], value['Description']):
+                        hardware_item = payload.get_item_key(hardware, 'object')
+                        qualifier.extend(payload.add_qualifier(PROPERTIES['platform'], 'wikibase-item', hardware_item))
             if value.get('Version'):
-                qualifier = add_qualifier("P472", value['Version'], 'string')
-
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P7', software_item, 'wikibase-item', qualifier)
-
-        # Add hardware the workflow uses
+                qualifier = payload.add_qualifier(PROPERTIES['software version identifier'], 'string', value['Version'])
+            payload.add_answer(PROPERTIES['uses'], software_item, 'wikibase-item', qualifier)
+            
+        # Add Hardware the Workflow Uses
         for value in data.get('hardware', {}).values():
             # Continue if no ID exists
             if not value.get('ID'):
                 continue
             # Get Item Key
-            hardware_item = get_item_key(value, items, old_new)
-
+            hardware_item = payload.get_item_key(value, 'object')
+            # Add Satement with Qualifier
             qualifier = []
             for compiler in value.get('compiler', {}).values():
-                qualifier.extend(add_qualifier("P7", get_item_key(compiler, items, old_new)))
-
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P7', hardware_item, 'wikibase-item', qualifier)
-
-        # Add instruments the workflow uses
+                qualifier.extend(payload.add_qualifier(PROPERTIES['uses'], 'wikibase-item', payload.get_item_key(compiler, 'object')))
+            payload.add_answer(PROPERTIES['uses'], hardware_item, 'wikibase-item', qualifier)
+            
+        # Add instruments the workflow Uses
         for value in data.get('instrument', {}).values():
             # Continue if no ID exists
             if not value.get('ID'):
                 continue
             # Get Item Key
-            instrument_item = get_item_key(value, items, old_new)
-
+            instrument_item = payload.get_item_key(value, 'object')
+            # Add Statement with Qualifer
             qualifier = []
             if value.get('Version'):
-                qualifier.extend(add_qualifier("P568", value["Version"], "string")) 
-
+                qualifier.extend(payload.add_qualifier(PROPERTIES['edition number'], 'string', value['Version'])) 
             if value.get('SerialNumber'):
-                qualifier.extend(add_qualifier("P587", value["SerialNumber"], "string")) 
-
+                qualifier.extend(payload.add_qualifier(PROPERTIES['serial number'], 'string', value['SerialNumber'])) 
             for location in value.get('location', {}).values():
-                qualifier.extend(add_qualifier("P377", get_item_key(location, items, old_new))) 
-
+                qualifier.extend(payload.add_qualifier(PROPERTIES['location'], 'wikibase-item', payload.get_item_key(location, 'object'))) 
             for software in value.get('software', {}).values():
-                qualifier.extend(add_qualifier("P7", get_item_key(software, items, old_new))) 
-
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P7', instrument_item, 'wikibase-item', qualifier)
-
-        # Add data sets the workflow uses
+                qualifier.extend(payload.add_qualifier(PROPERTIES['uses'], 'wikibase-item', payload.get_item_key(software, 'object'))) 
+            payload.add_answer(PROPERTIES['uses'], instrument_item, 'wikibase-item', qualifier)
+            
+        # Add Data Sets the Workflow Uses
         for value in data.get('dataset', {}).values():
             # Continue if no ID exists
             if not value.get('ID'):
                 continue
             # Get Item Key
-            dataset_item = get_item_key(value, items, old_new)
+            dataset_item = payload.get_item_key(value, 'object')
+            # Add Statement
+            payload.add_answer(PROPERTIES['uses'], dataset_item)
 
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P7', dataset_item)
-
-        # Add Process Steps the workflow uses
+        # Add Process Steps the Workflow Uses
         for value in data.get('processstep', {}).values():
             # Continue if no ID exists
             if not value.get('ID'):
                 continue
             # Get Item Key
-            processstep_item = get_item_key(value, items, old_new)
-
+            processstep_item = payload.get_item_key(value, 'object')
+            # Add Statement with Qualifier
             qualifier = []
             for parameter in value.get('parameter', {}).values():
-                qualifier.extend(add_qualifier("P1092", parameter, 'string')) 
+                qualifier.extend(payload.add_qualifier(PROPERTIES['comment'], 'string', parameter)) 
+            payload.add_answer(PROPERTIES['uses'], processstep_item, 'wikibase-item', qualifier)
 
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P7', processstep_item, 'wikibase-item', qualifier)
-
-        # Add Publication about the Workflow
+        # Add Publications related to the Workflow
         for value in data.get('publication', {}).values():
             # Continue if no ID exists
             if not value.get('ID'):
                 continue
             # Get Item Key
-            publication_item = get_item_key(value, items, old_new)
+            publication_item = payload.get_item_key(value, 'object')
+            # Add Statement
+            payload.add_answer(PROPERTIES['cites work'], publication_item)
 
-            payload, rel_idx = add_static_or_non_item_relation(url, payload, item, rel_idx, 'P18', publication_item)
-
-        return payload
-
+        # Construct Item Payloads
+        payload.add_item_payload()
+            
+        return payload.get_dictionary('dictionary')

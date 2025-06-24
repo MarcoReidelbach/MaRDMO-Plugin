@@ -1,6 +1,6 @@
 from ..config import BASE_URI
 from ..utils import get_mathmoddb, get_questionsMO
-from ..id_testwiki import ITEMS, PROPERTIES
+from ..id import ITEMS, PROPERTIES
 
 # Dictionary for internal / external section names
 SECTION_MAP = {
