@@ -15,7 +15,7 @@ queryInfo = {
                                           VALUES ?step {{ wd:{0} }}
                                           OPTIONAL {{
                                                      ?step wdt:P1605 ?inputraw
-                                                     BIND(replace( xsd:string(?inputraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?input) 
+                                                     BIND(CONCAT("mardi:", STRAFTER(STR(?inputraw), STR(wd:))) AS ?input)
                                                      
                                                      OPTIONAL {{
                                                                 ?inputraw rdfs:label ?inputlraw
@@ -33,7 +33,7 @@ queryInfo = {
                                                    }}
                                           OPTIONAL {{
                                                      ?step wdt:P1606 ?outputraw
-                                                     BIND(replace( xsd:string(?outputraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?output) 
+                                                     BIND(CONCAT("mardi:", STRAFTER(STR(?outputraw), STR(wd:))) AS ?output)
                                                      
                                                      OPTIONAL {{
                                                                 ?outputraw rdfs:label ?outputlraw
@@ -51,7 +51,7 @@ queryInfo = {
                                                    }}
                                           OPTIONAL {{
                                                      ?step wdt:P557 ?methodraw
-                                                     BIND(replace( xsd:string(?methodraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?method) 
+                                                     BIND(CONCAT("mardi:", STRAFTER(STR(?methodraw), STR(wd:))) AS ?method)
                                                      
                                                      OPTIONAL {{
                                                                 ?methodraw rdfs:label ?methodlraw
@@ -76,9 +76,10 @@ queryInfo = {
                                                      ?statement0 ps:P143 ?platformsoftwareraw.
                                                     
                                                      ?statement pq:P560 ?platformsoftwaretyperaw.
-                                                     BIND(replace( xsd:string(?platformsoftwaretyperaw),'https://portal.mardi4nfdi.de/entity/','') as ?platformsoftwaretype)
+                                                     BIND(CONCAT("", STRAFTER(STR(?platformsoftwaretyperaw), STR(wd:))) AS ?platformsoftwaretype)
                                                      FILTER (?platformsoftwaretype = "Q56614")
-                                                     BIND(replace( xsd:string(?platformsoftwareraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?platformsoftware) 
+                                                     
+                                                     BIND(CONCAT("mardi:", STRAFTER(STR(?platformsoftwareraw), STR(wd:))) AS ?platformsoftware)
                                                      
                                                      OPTIONAL {{
                                                                 ?platformsoftwareraw rdfs:label ?platformsoftwarelraw
@@ -99,10 +100,10 @@ queryInfo = {
                                                      ?statement1 ps:P143 ?platforminstrumentraw.
                                                      
                                                      ?statement pq:P560 ?platforminstrumenttyperaw.
-                                                     BIND(replace( xsd:string(?platforminstrumenttyperaw),'https://portal.mardi4nfdi.de/entity/','') as ?platforminstrumenttype)
+                                                     BIND(CONCAT("", STRAFTER(STR(?platforminstrumenttyperaw), STR(wd:))) AS ?platforminstrumenttype)
                                                      FILTER (?platforminstrumenttype = "Q77076")
-                                                              
-                                                     BIND(replace( xsd:string(?platforminstrumentraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?platforminstrument) 
+                                                     
+                                                     BIND(CONCAT("mardi:", STRAFTER(STR(?platforminstrumentraw), STR(wd:))) AS ?platforminstrument)
                                                      
                                                      OPTIONAL {{
                                                                 ?platforminstrumentraw rdfs:label ?platforminstrumentlraw
@@ -120,7 +121,8 @@ queryInfo = {
                                                    }}
                                           OPTIONAL {{
                                                      ?step wdt:P437 ?fieldraw.
-                                                     BIND(replace( xsd:string(?fieldraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?field)
+                                                     
+                                                     BIND(CONCAT("mardi:", STRAFTER(STR(?fieldraw), STR(wd:))) AS ?field)
                                                      OPTIONAL {{
                                                                 ?fieldraw rdfs:label ?fieldlraw
                                                                 FILTER (lang(?fieldlraw) = 'en')
@@ -152,7 +154,7 @@ queryInfo = {
                                                           ?method wdt:P ?impSoftraw.
                                                           ?impSoftraw wdt:P31 wd:Q56614.
 
-                                                          BIND(replace( xsd:string(?impSoftraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?impSoft) 
+                                                          BIND(CONCAT("mardi:", STRAFTER(STR(?impSoftraw), STR(wd:))) AS ?impSoft)
                                                           
                                                           OPTIONAL {{
                                                                      ?impSoftraw rdfs:label ?impSoftlraw
@@ -173,7 +175,7 @@ queryInfo = {
                                                           ?method wdt:P ?impInstraw.
                                                           ?impInstraw wdt:P31 wd:Q77076.
                                                           
-                                                          BIND(replace( xsd:string(?impInstraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?impInst) 
+                                                          BIND(CONCAT("mardi:", STRAFTER(STR(?impInstraw), STR(wd:))) AS ?impInst)
                                                           
                                                           OPTIONAL {{
                                                                      ?impInstraw rdfs:label ?impInstlraw
@@ -205,7 +207,7 @@ queryInfo = {
                                           # Get Programming Language
                                           OPTIONAL {{
                                                      ?software wdt:P114 ?plraw.
-                                                     BIND(replace( xsd:string(?plraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?pl) 
+                                                     BIND(CONCAT("mardi:", STRAFTER(STR(?plraw), STR(wd:))) AS ?pl)
                                                      
                                                      OPTIONAL {{
                                                                 ?plraw rdfs:label ?pllraw
@@ -225,7 +227,7 @@ queryInfo = {
                                           # Get Dependencies
                                           OPTIONAL {{
                                                      ?software wdt:P342 ?dpraw.
-                                                     BIND(replace( xsd:string(?dpraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?dp) 
+                                                     BIND(CONCAT("mardi:", STRAFTER(STR(?dpraw), STR(wd:))) AS ?dp)
                                                      
                                                      OPTIONAL {{
                                                                 ?dpraw rdfs:label ?dplraw
@@ -294,7 +296,7 @@ queryInfo = {
                                           OPTIONAL {{
                                                      ?hardware p:P1540 ?statement.
                                                      ?statement ps:P1540 ?cpuraw.
-                                                     BIND(replace( xsd:string(?cpuraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?cpu) 
+                                                     BIND(CONCAT("mardi:", STRAFTER(STR(?cpuraw), STR(wd:))) AS ?cpu)
                                                      
                                                      OPTIONAL {{
                                                                 ?cpuraw rdfs:label ?cpulraw
@@ -355,7 +357,7 @@ queryInfo = {
                                                       ?statement_dt pq:P560 ?qualifier.
                                                       FILTER (?qualifier = wd:Q78802)
          
-                                                      BIND(replace( xsd:string(?datatyperaw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?datatype)
+                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?datatyperaw), STR(wd:))) AS ?datatype)
                                                       
                                                       OPTIONAL {{
                                                                  ?datatyperaw rdfs:label ?datatypelraw
@@ -379,7 +381,7 @@ queryInfo = {
                                                       ?statement_dt2 pq:P560 ?qualifier2.
                                                       FILTER (?qualifier2 = wd:Q6534222)
          
-                                                      BIND(replace( xsd:string(?representationformatraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?representationformat)
+                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?representationformatraw), STR(wd:))) AS ?representationformat)
                                                       
                                                       OPTIONAL {{
                                                                  ?representationformatraw rdfs:label ?representationformatlraw
@@ -585,7 +587,7 @@ queryInfo = {
                                                             ?method wdt:P ?impSoftraw.
                                                             ?impSoftraw wdt:P31 wd:Q7397.
   
-                                                            BIND(replace( xsd:string(?impSoftraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?impSoft) 
+                                                            BIND(CONCAT("mardi:", STRAFTER(STR(?impSoftraw), STR(wd:))) AS ?impSoft)
                                                             
                                                             OPTIONAL {{
                                                                        ?impSoftraw rdfs:label ?impSoftlraw
@@ -606,7 +608,7 @@ queryInfo = {
                                                             ?method wdt:P ?impInstraw.
                                                             ?impInstraw wdt:P31 wd:Q110994345.
                                                             
-                                                            BIND(replace( xsd:string(?impInstraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?impInst) 
+                                                            BIND(CONCAT("mardi:", STRAFTER(STR(?impInstraw), STR(wd:))) AS ?impInst)
                                                             
                                                             OPTIONAL {{
                                                                        ?impInstraw rdfs:label ?impInstlraw
@@ -894,8 +896,8 @@ queryProvider = {
 
                                           OPTIONAL {{
                                                          ?id wdt:{used by} ?taraw.
-                                                         BIND(replace( xsd:string(?taraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ta)
-
+                                                         BIND(CONCAT("mardi:", STRAFTER(STR(?taraw), STR(wd:))) AS ?ta)
+                                                         
                                                          ?taraw wdt:{instance of} wd:{computational task}.
 
                                                          OPTIONAL {{
@@ -946,7 +948,7 @@ queryPreview = {'basic': '''SELECT DISTINCT ?isSpaceContinuous ?isSpaceDiscrete
                                     ?statement ps:{contains} ?idraw.
                                     ?statement pq:{object has role} ?role.
                                     FILTER (?role = wd:{input})
-                                    BIND(replace( xsd:string(?idraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ID)
+                                    BIND(CONCAT("mardi:", STRAFTER(STR(?idraw), STR(wd:))) AS ?ID)
                                     OPTIONAL {{ ?idraw rdfs:label ?Nameraw .
                                                 FILTER (lang(?Nameraw) = 'en') }}
                                     BIND(COALESCE(?Nameraw, "No Label Provided!") AS ?Name)
@@ -958,7 +960,7 @@ queryPreview = {'basic': '''SELECT DISTINCT ?isSpaceContinuous ?isSpaceDiscrete
                                     ?statement ps:{contains} ?idraw.
                                     ?statement pq:{object has role} ?role.
                                     FILTER (?role = wd:{output})
-                                    BIND(replace( xsd:string(?idraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ID)
+                                    BIND(CONCAT("mardi:", STRAFTER(STR(?idraw), STR(wd:))) AS ?ID)
                                     OPTIONAL {{ ?idraw rdfs:label ?Nameraw .
                                                 FILTER (lang(?Nameraw) = 'en') }}
                                     BIND(COALESCE(?Nameraw, "No Label Provided!") AS ?Name)
@@ -972,7 +974,7 @@ queryPreview = {'basic': '''SELECT DISTINCT ?isSpaceContinuous ?isSpaceDiscrete
                                     ?formulation p:{in defining formula} ?statement2.
                                     ?statement2 ps:{in defining formula} ?Symbol.
                                     ?statement2 pq:{symbol represents} ?quantityraw.
-                                    BIND(replace( xsd:string(?quantityraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?quantity)
+                                    BIND(CONCAT("mardi:", STRAFTER(STR(?quantityraw), STR(wd:))) AS ?quantity)
                                 }}
                                 
                                 FILTER(?ID = ?quantity)       
@@ -998,7 +1000,7 @@ queryPreview = {'basic': '''SELECT DISTINCT ?isSpaceContinuous ?isSpaceDiscrete
                                     ?statement ps:{contains} ?idraw.
                                     ?statement pq:{object has role} ?role.
                                     FILTER (?role = wd:{parameter})
-                                    BIND(replace( xsd:string(?idraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ID)
+                                    BIND(CONCAT("mardi:", STRAFTER(STR(?idraw), STR(wd:))) AS ?ID)
                                     OPTIONAL {{ ?idraw rdfs:label ?Nameraw .
                                                 FILTER (lang(?Nameraw) = 'en') }}
                                     BIND(COALESCE(?Nameraw, "No Label Provided!") AS ?Name)
@@ -1011,7 +1013,7 @@ queryPreview = {'basic': '''SELECT DISTINCT ?isSpaceContinuous ?isSpaceDiscrete
                                     ?formulation p:{in defining formula} ?statement2.
                                     ?statement2 ps:{in defining formula} ?Symbol.
                                     ?statement2 pq:{symbol represents} ?quantityraw.
-                                    BIND(replace( xsd:string(?quantityraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?quantity)
+                                    BIND(CONCAT("mardi:", STRAFTER(STR(?quantityraw), STR(wd:))) AS ?quantity)
                                 }}
                                 
                                 FILTER(?ID = ?quantity)       
