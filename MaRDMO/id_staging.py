@@ -120,6 +120,7 @@ ITEMS = {
     'gigabyte':                                         'Q13147',
     'initial condition':                                'Q3453',
     'input':                                            'Q3744',
+    'invention':                                        '',
     'kilobyte':                                         'Q13145',
     'kind of quantity':                                 'Q2829',
     'linear equation':                                  '',

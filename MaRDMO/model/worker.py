@@ -1,8 +1,9 @@
 from .utils import mapEntityQuantity
 from .constants import PREVIEW_RELATIONS, PREVIEW_MAP_GENERAL, PREVIEW_MAP_QUANTITY, get_Relations, get_DATA_PROPERTIES
 
-from ..utils import GeneratePayload, entityRelations, get_mathmoddb, find_item, mapEntity, unique_items
-from ..id import PROPERTIES, ITEMS
+from ..config import endpoint
+from ..utils import GeneratePayload, entityRelations, get_mathmoddb, find_item, mapEntity, unique_items, inline_mathml, query_sparql
+from ..id_staging import PROPERTIES, ITEMS
 
 
 class prepareModel:
@@ -12,10 +13,6 @@ class prepareModel:
     def preview(answers):
         '''Function to establish relations between Model Documentation Data'''
         
-        # Flag all Tasks as unwanted by User in Workflow Documentation
-        for key in answers['task']:
-            answers['task'][key].update({'Include':False})
-
         # Prepare Relations for Preview
         for relation in PREVIEW_RELATIONS:
             entityRelations(
@@ -40,14 +37,17 @@ class prepareModel:
                 entityNew = mapping[3], 
                 enc = mapping[4]
             )
-
+        
         # Prepare Quantity Mapping
         for mapping in PREVIEW_MAP_QUANTITY:
             mapEntityQuantity(
                 data= answers, 
                 type = mapping, 
                 mapping = prepareModel.mathmoddb)
-
+        
+        # Adjust MathML for Preview
+        inline_mathml(answers)
+        
         return answers
 
     def export(data, url):
@@ -240,7 +240,7 @@ class prepareModel:
             payload.add_data_properties('equation')
 
             # Add defining Formulas to Mathematical Formulation
-            payload.add_answers('Formula', 'defining formula')
+            payload.add_answers('Formula', 'defining formula', 'math')
             
             # Add Symbols and Quantities to Mathematical Formulation
             payload.add_in_defining_formula()
@@ -252,7 +252,7 @@ class prepareModel:
             payload.add_intra_class_relation(relation = 'IntraClassRelation',
                                              relatant = 'IntraClassElement')
             
-        for quantity in data.get('quantityxyz', {}).values():
+        for quantity in data.get('quantity', {}).values():
 
             # Continue if no ID exists
             if not quantity.get('ID'):
@@ -284,7 +284,7 @@ class prepareModel:
                 payload.add_answer(PROPERTIES['QUDT quantity kind ID'], quantity['reference'][0][1], 'external-id')
            
             # Add defining Formulas to Mathematical Formulation
-            payload.add_answers('Formula', 'defining formula')
+            payload.add_answers('Formula', 'defining formula', 'math')
             
             # Add Symbols and Quantities to Mathematical Formulation
             payload.add_in_defining_formula()
@@ -348,6 +348,15 @@ class prepareModel:
             payload.add_forward_relation_multiple('P2E', 'EntityRelatant', True)
 
         # Construct Item Payloads
-        payload.add_item_payload()            
+        payload.add_item_payload()  
+
+        # Generate SPARQL Check Query
+        query = payload.build_relation_check_query()
+        print(query)
+        # Perform Check Query for Relations
+        check = query_sparql(query, endpoint['mardi']['sparql'])
+
+        # Add Check Results
+        payload.add_check_results(check)
             
         return payload.get_dictionary('dictionary')

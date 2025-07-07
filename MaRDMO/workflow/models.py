@@ -3,7 +3,6 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from ..utils import get_data
-from ..model.utils import mathmlToLatex
 
 from .constants import reference_order_software, order_to_publish
 
@@ -46,17 +45,11 @@ class Variables:
     @classmethod
     def from_query(cls, data: List) -> 'Variables':
 
-        latex = mathmlToLatex(data.get('Symbol', {}).get('value'))
-        if latex:
-            Symbol = f"$${latex}$$"
-        else:
-            Symbol = re.sub(r'(<math\b(?![^>]*\bdisplay=)[^>]*)(>)', r'\1 display="inline"\2', data.get('Symbol', {}).get('value'))
-
         return cls(
             ID = data.get('ID', {}).get('value'),
             Name = data.get('Name', {}).get('value'),
             Unit = data.get('Unit', {}).get('value'),
-            Symbol = Symbol,
+            Symbol = re.sub(r'(<math\b(?![^>]*\bdisplay=)[^>]*)(>)', r'\1 display="inline"\2', data.get('Symbol', {}).get('value')),
             Task = data.get('label', {}).get('value'),
             Type = data.get('Type', {}).get('value')
         )
@@ -71,16 +64,10 @@ class Parameters:
     @classmethod
     def from_query(cls, data: List) -> 'Parameters':
 
-        latex = mathmlToLatex(data.get('Symbol', {}).get('value'))
-        if latex:
-            Symbol = f"$${latex}$$"
-        else:
-            Symbol = data.get('Symbol', {}).get('value')
-
         return cls(
             Name = data.get('Name', {}).get('value'),
             Unit = data.get('Unit', {}).get('value'),
-            Symbol = Symbol,
+            Symbol = re.sub(r'(<math\b(?![^>]*\bdisplay=)[^>]*)(>)', r'\1 display="inline"\2', data.get('Symbol', {}).get('value')),
             Task = data.get('label', {}).get('value')
         )
     

@@ -7,7 +7,7 @@ from .constants import PROPS, RELATANT_URIS, RELATION_URIS, INDEX_COUNTERS, get_
 from .sparql import queryHandler
 from .models import ResearchField, ResearchProblem, MathematicalModel, QuantityOrQuantityKind, MathematicalFormulation, Task, Relatant
 
-from ..id import ITEMS, PROPERTIES
+from ..id_staging import ITEMS, PROPERTIES
 from ..utils import add_basics, add_entities, add_new_entities, add_properties, add_relations, add_references, extract_parts, get_mathmoddb, get_questionsMO, get_questionsPU, query_sparql, value_editor
 from ..config import BASE_URI, endpoint
 
@@ -32,7 +32,7 @@ def RFInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                query = queryHandler['researchFieldInformation'].format(Id, **ITEMS, **PROPERTIES)
+                query = queryHandler['researchFieldInformation'].format(Id, f"{endpoint[source]['uri']}/entity/", **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_mathmoddb()
                 
@@ -141,6 +141,7 @@ def QQKInformation(sender, **kwargs):
                            set_index = 0,
                            set_prefix = instance.set_index
                            )
+                print(instance.external_id)
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
                 
@@ -248,16 +249,19 @@ def MFInformation(sender, **kwargs):
                            set_index = 0,
                            set_prefix = instance.set_index
                            )# Get source and ID of Item
+                print(instance.external_id)
                 source, Id = instance.external_id.split(':')
 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['mathematicalFormulationInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
+                print(results)
                 mathmoddb = get_mathmoddb()
                 
                 if results:
                     # Structure Results
                     data = MathematicalFormulation.from_query(results)
+                    print(data)
                     # Add Optional Long Description
                     for idx, descriptionLong in enumerate(data.descriptionLong):
                         value_editor(project = instance.project, 

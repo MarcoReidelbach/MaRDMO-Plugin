@@ -7,9 +7,9 @@ wdt = '<https://portal.mardi4nfdi.de/prop/direct/>'
 
 # Endpoints
 endpoint = {'mardi': {
-                      'api': 'https://test.wikidata.org/w/api.php', 
-                      'sparql': '', 
-                      'uri': 'https://test.wikidata.org/wiki/Item:'
+                      'api': 'https://staging.mardi4nfdi.org/w/api.php',
+                      'sparql': 'https://query.staging.mardi4nfdi.org/sparql',
+                      'uri': 'https://staging.mardi4nfdi.org'
                      },
            'wikidata': {
                         'api': 'https://www.wikidata.org/w/api.php',

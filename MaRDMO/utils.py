@@ -13,7 +13,7 @@ from rdmo.options.models import Option
 from multiprocessing.pool import ThreadPool
 
 from .config import BASE_URI, endpoint
-from .id import PROPERTIES
+from .id_staging import PROPERTIES
 
 from .algorithm.sparql import queryProviderAL
 
@@ -427,17 +427,6 @@ def value_editor(project, uri, text=None, external_id=None, option=None, collect
     obj, created = Value.objects.update_or_create(**update_fields)
 
     return obj, created
-
-def splitVariableText(inputString):
-    '''Split inDefiningStatements in Variable and Text'''
-    match = re.match(r'(\$.*?\$)\s*,\s*(.*)', inputString)
-    if match:
-        # Extract the groups: math part and text part
-        math_part, text_part = match.groups()
-        return math_part, text_part
-    else:
-        # Handle case where the pattern is not found
-        return '', ''
     
 def get_data(file_name):
     '''Get Data from JSON File'''
@@ -670,6 +659,40 @@ def unique_items(data, title = None):
     search(data)
     return items
 
+def inline_mathml(data):
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if isinstance(value, str):
+                if '<math' in value:
+                    data[key] = clean_mathml(value)
+            elif isinstance(value, dict) or isinstance(value, list):
+                inline_mathml(value)
+    elif isinstance(data, list):
+        for item in data:
+            inline_mathml(item)
+
+def clean_mathml(mathml_str):
+    def clean_tag(match):
+        tag = match.group(1)
+        # Keep xmlns on <math> tag
+        if tag.startswith('math'):
+            xmlns_match = re.search(r'xmlns="[^"]+"', tag)
+            if xmlns_match:
+                return f"<math {xmlns_match.group(0)}>"
+            else:
+                return "<math>"
+        else:
+            # Just keep the tag name, strip attributes
+            tagname_match = re.match(r'^/?\w+', tag)
+            if tagname_match:
+                return f"<{tagname_match.group(0)}>"
+            else:
+                return f"<{tag}>"
+
+    # Apply substitution on all opening tags
+    cleaned = re.sub(r'<([^>\s]+(?:\s[^>]*)?)>', clean_tag, mathml_str)
+    return cleaned
+
 class GeneratePayload:
     
     def __init__(self, url, items, RELATIONS = None, DATA_PROPERTIES = None):
@@ -696,6 +719,72 @@ class GeneratePayload:
         
     def build_statement(self, id, content, data_type = "wikibase-item", qualifiers = []):
         return {"statement": {"property": {"id": id, "data_type": data_type}, "value": {"type": "value", "content": content}, "qualifiers": qualifiers}}
+    
+    def build_relation_check_query(self):
+        relation_keys = [k for k in self.dictionary.keys() if k.startswith('RELATION')]
+        optional_blocks = []
+        bind_blocks = []
+        for idx, key in enumerate(relation_keys):
+            entry = self.dictionary[key]
+            url = entry['url']
+            target_item_key = url.split('/')[-2]
+            target_item_data = self.dictionary.get(target_item_key)
+            if not target_item_data:
+                continue
+            target_item_id = target_item_data['id']
+            statement = entry['payload']['statement']
+            prop_id = statement['property']['id']
+            value = statement['value']['content']
+            data_type = statement['property']['data_type']
+            if value in self.dictionary and 'id' in self.dictionary[value]:
+                value = self.dictionary[value]['id']
+            subject = f'wd:{target_item_id}'
+            if data_type == 'wikibase-item':
+                value_str = f'wd:{value}'
+            elif data_type == 'string':
+                value_str = f"'{value}'"
+            elif data_type == 'quantity':
+                value_str = f"'{value}'^^<http://www.w3.org/2001/XMLSchema#decimal>"
+            elif data_type == 'time':
+                value_str = f"'{value}'^^<http://www.w3.org/2001/XMLSchema#dateTime>"
+            elif data_type == 'monolingualtext':
+                value_str = f"'{value}'@en"
+            elif data_type == 'math':
+                escaped_value = value.replace('\"', '\\\"')
+                value_str = f"'{escaped_value}'^^<http://www.w3.org/1998/Math/MathML>"
+            else:
+                value_str = f"'{value}'"
+            qualifiers = statement.get('qualifiers', [])
+            qual_triples = ''
+            for q in qualifiers:
+                q_prop = q['property']['id']
+                q_value = q['value']['content']
+                q_data_type = q['property']['data_type']
+                if q_value in self.dictionary and 'id' in self.dictionary[q_value]:
+                    q_value = self.dictionary[q_value]['id']
+                if q_data_type == 'wikibase-item':
+                    q_value_str = f'wd:{q_value}'
+                elif q_data_type == 'string':
+                    q_value_str = f"'{q_value}'"
+                elif q_data_type == 'quantity':
+                    q_value_str = f"'{q_value}'^^<http://www.w3.org/2001/XMLSchema#decimal>"
+                elif q_data_type == 'time':
+                    q_value_str = f"'{q_value}'^^<http://www.w3.org/2001/XMLSchema#dateTime>"
+                elif q_data_type == 'monolingualtext':
+                    q_value_str = f"'{q_value}'@en"
+                elif q_data_type == 'math':
+                    escaped_q_value = q_value.replace('\"', '\\\"')
+                    q_value_str = f"'{escaped_q_value}'^^<http://www.w3.org/1998/Math/MathML>"
+                else:
+                    q_value_str = f"'{q_value}'"
+                qual_triples += f'    ?statement{idx} pq:{q_prop} {q_value_str} .\n'
+            optional_block = f'OPTIONAL {{\n  {subject} p:{prop_id} ?statement{idx} .\n  ?statement{idx} ps:{prop_id} {value_str} .\n{qual_triples if qualifiers else ""}}}'
+            bind_block = f'BIND(BOUND(?statement{idx}) AS ?RELATION{idx})'
+            optional_blocks.append(optional_block)
+            bind_blocks.append(bind_block)
+        query_body = '\n'.join(optional_blocks + bind_blocks)
+        query = f'\nSELECT {" ".join([f"?RELATION{idx}" for idx in range(len(relation_keys))])} WHERE {{\n{query_body}\n}}'
+        return query
     
     def update_items(self, key, value):
         self.items[key]['ID'] = value 
@@ -734,6 +823,13 @@ class GeneratePayload:
         for prop in self.subject.get('Properties', {}).values():
             self.add_answer(PROPERTIES['instance of'], DATA_PROPERTIES[prop])
 
+    def add_check_results(self, check):
+        relation_keys = [k for k in self.dictionary.keys() if k.startswith('RELATION')]
+        for idx, key in enumerate(relation_keys):
+            exists_key = f'RELATION{idx}'
+            exists_value = check[0].get(exists_key, {}).get('value', 'false')
+            self.dictionary[key]['exists'] = exists_value
+
     def add_answer(self, predicate, object, object_type = 'wikibase-item', qualifier = None, subject = None):
         if subject is None:
             subject = self.subject_item
@@ -744,9 +840,9 @@ class GeneratePayload:
         else:
             self.add_to_item_statement(subject, predicate, object_type, object, qualifier)
 
-    def add_answers(self, mardmo_property, wikibase_property):
+    def add_answers(self, mardmo_property, wikibase_property, datatype = 'string'):
         for entry in self.subject.get(mardmo_property, {}).values():
-            self.add_answer(PROPERTIES[wikibase_property], entry, 'string')
+            self.add_answer(PROPERTIES[wikibase_property], entry, datatype)
 
     def add_backward_relation(self, data, relation, relatants):
         for entry in data:
@@ -792,9 +888,9 @@ class GeneratePayload:
             qualifier = self.add_qualifier(PROPERTIES['symbol represents'], 'wikibase-item', quantity_item)
             # Add Symbol to Payload
             if self.subject_item == quantity_item:
-                self.add_relation(self.subject_item, PROPERTIES['in defining formula'], element.get('symbol', ''), 'string', qualifier)
+                self.add_relation(self.subject_item, PROPERTIES['in defining formula'], element.get('symbol', ''), 'math', qualifier)
             else:
-                self.add_answer(PROPERTIES['in defining formula'], element.get('symbol', ''), 'string', qualifier)
+                self.add_answer(PROPERTIES['in defining formula'], element.get('symbol', ''), 'math', qualifier)
             
     def add_entry(self, dictionary, key, value):
         target_dictionary = getattr(self, dictionary, None)

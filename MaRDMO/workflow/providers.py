@@ -4,7 +4,7 @@ from rdmo.domain.models import Attribute
 from .sparql import queryProvider
 
 from ..config import BASE_URI, endpoint
-from ..id import ITEMS, PROPERTIES
+from ..id_staging import ITEMS, PROPERTIES
 from ..utils import get_data, query_sources, query_sources_with_user_additions, query_sparql
 import requests, time
 

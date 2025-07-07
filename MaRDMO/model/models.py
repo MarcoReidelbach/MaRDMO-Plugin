@@ -1,10 +1,8 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 
-from .utils import mathmlToLatex
-
 from ..utils import get_data, get_mathmoddb
-from ..id import ITEMS
+from ..id_staging import ITEMS
 
 @dataclass
 class Relatant:
@@ -241,8 +239,8 @@ class QuantityOrQuantityKind:
             reference = {idx: [options['QUDT'], data[prop]['value'].removeprefix('https://qudt.org/vocab/')] for idx, prop in enumerate(['reference']) if data.get(prop, {}).get('value')},
             qclass = data.get('class', {}).get('value'),
             properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isChemicalConstant','isMathematicalConstant','isPhysicalConstant','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isSpaceContinuous','isSpaceDiscrete']) if data.get(prop, {}).get('value') == 'True'},
-            formulas = [mathmlToLatex(formula) for formula in data.get('formulas', {}).get('value', '').split(" / ") if formula] if 'formulas' in data else [],
-            symbols = [mathmlToLatex(symbol.split(' | ', 1)[0]) for symbol in data.get('containsQuantity', {}).get('value', '').split(" / ") if symbol] if 'containsQuantity' in data else [],   
+            formulas = [formula for formula in data.get('formulas', {}).get('value', '').split(" / ") if formula] if 'formulas' in data else [],
+            symbols = [symbol.split(' | ', 1)[0] for symbol in data.get('containsQuantity', {}).get('value', '').split(" / ") if symbol] if 'containsQuantity' in data else [],   
             containsQuantity = [Relatant.from_query(quantity.split(' | ', 1)[1]) for quantity in data.get('containsQuantity', {}).get('value', '').split(" / ") if quantity] if 'containsQuantity' in data else [],
             specializedBy = [QRelatant.from_query(quantity) for quantity in data.get('specializedBy', {}).get('value', '').split(" / ") if quantity] if 'specializedBy' in data else [],            
             specializes = [QRelatant.from_query(quantity) for quantity in data.get('specializes', {}).get('value', '').split(" / ") if quantity] if 'specializes' in data else [],
@@ -301,8 +299,8 @@ class MathematicalFormulation:
             description = None,
             descriptionLong = [description for description in data.get('description', {}).get('value', '').split(" / ")] if 'description' in data else [],
             properties = {idx: [mathmoddb[prop]] for idx, prop in enumerate(['isLinear','isNotLinear','isDynamic','isStatic','isDeterministic','isStochastic','isDimensionless','isDimensional','isTimeContinuous','isTimeDiscrete','isSpaceContinuous','isSpaceDiscrete']) if data.get(prop, {}).get('value') == 'True'},
-            formulas = [mathmlToLatex(formula) for formula in data.get('formulas', {}).get('value', '').split(" / ") if formula] if 'formulas' in data else [],
-            symbols = [mathmlToLatex(symbol.split(' | ', 1)[0]) for symbol in data.get('containsQuantity', {}).get('value', '').split(" / ") if symbol] if 'containsQuantity' in data else [],   
+            formulas = [formula for formula in data.get('formulas', {}).get('value', '').split(" / ") if formula] if 'formulas' in data else [],
+            symbols = [symbol.split(' | ', 1)[0] for symbol in data.get('containsQuantity', {}).get('value', '').split(" / ") if symbol] if 'containsQuantity' in data else [],   
             containsQuantity = [Relatant.from_query(quantity.split(' | ', 1)[1]) for quantity in data.get('containsQuantity', {}).get('value', '').split(" / ") if quantity] if 'containsQuantity' in data else [],
             assumes = [Relatant.from_query(formulation) for formulation in data.get('assumes', {}).get('value', '').split(" / ") if formulation] if 'assumes' in data else [],
             containsFormulation = [item for formulation in data.get('containsFormulation', {}).get('value', '').split(" / ") if formulation and (item := RelatantWithQualifier.from_query(formulation)).qualifier == ''] if 'containsFormulation' in data else [],            

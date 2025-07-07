@@ -97,62 +97,67 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
         # MaRDMO: Mathematical Model Documentation
         if str(self.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
+
+            # Get answers, options, and mathmoddb             
+            answers, options, mathmoddb = self.get_post_data()
             
-            data = self.get_post_data()
-            
+            # Prepare Mathematical Model Preview
+            answers = prepareModel.preview(answers)
+
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
                                 'MaRDMO/modelTemplate.html',
                                 'include_params': {'title': self.project.title},
-                                                   'answers': data[0],
-                                                   'option': data[1]|data[2]}, 
+                                                   'answers': answers,
+                                                   'option': options|mathmoddb}, 
                            status=200)
         
         # MaRDMO: Algorithm Documentation
         elif str(self.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
             
-            data = self.get_post_data()
+            # Get answers, options, mathalgodb
+            answers, options, mathalgodb = self.get_post_data()
             
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
                                 'MaRDMO/algorithmTemplate.html',
                                 'include_params': {'title': self.project.title},
-                                                   'answers': data[0],
-                                                   'option': data[1]|data[2]}, 
+                                                   'answers': answers,
+                                                   'option': options|mathalgodb}, 
                            status=200)
 
 
         # MaRDMO: Search Interdisciplinary Workflows, Mathematical Models or Algorithms
         elif str(self.project.catalog).split('/')[-1] == 'mardmo-search-catalog':
 
-            data = self.get_post_data()
+            answers, options = self.get_post_data()
 
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
                            'MaRDMO/searchTemplate.html',
                            'include_params': {'title': self.project.title},
-                                              'answers': data[0],
-                                              'option': data[1]}, 
+                                              'answers': answers,
+                                              'option': options}, 
                            status=200)
         
         # MaRDMO: Interdisciplinary Workflow Documentation
         elif str(self.project.catalog).split('/')[-1] == 'mardmo-interdisciplinary-workflow-catalog':
 
-            data = self.get_post_data()
+            answers, options = self.get_post_data()
 
             # Get Model Data
-            data = prepareWorkflow.preview(data)
+            answers = prepareWorkflow.preview(answers)
             
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
                            'MaRDMO/workflowTemplate.html',
                            'include_params': {'title': self.project.title},
-                                              'answers': data[0],
-                                              'option': data[1],
+                                              'answers': answers,
+                                              'option': options,
                                               'mathmoddbURI': endpoint['mardi']['uri'],
                                               'mathalgodbURI': endpoint['mathalgodb']['uri'],
                                               'mardiURI': get_general_item_url(),
@@ -183,9 +188,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                    'errors': [_('Credentials for MaRDI Portal are missing!')]}, 
                                   status=200)
                 
-                data = self.get_post_data()
+                answers, _, _ = self.get_post_data()
                 checker = checks()
-                err = checker.run(self.project, data[0])
+                err = checker.run(self.project, answers)
                 if err:
                     # Stop export if documentation incomplete / inconsitent
                     return render(self.request, 
@@ -194,7 +199,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                    'errors': err}, 
                                   status=200)
                 try:
-                    payload = prepareModel.export(data[0], self.wikibase_url)
+                    payload = prepareModel.export(answers, self.wikibase_url)
                 except Exception as err:
                     return render(self.request, 
                                   'core/error.html', 
@@ -217,10 +222,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                    'errors': [_('Credentials for MathAlgoDB are missing!')]}, 
                                   status=200)
 
-                data = self.get_post_data()
+                answers, _, _ = self.get_post_data()
                 
                 # Merge answers related to mathematical model
-                merged_dict = merge_dicts_with_unique_keys(data[0], ['algorithm', 'problem', 'software', 'benchmark', 'publication'])
+                merged_dict = merge_dicts_with_unique_keys(answers, ['algorithm', 'problem', 'software', 'benchmark', 'publication'])
                 # Generate list of triples
                 triple_list, ids = dict_to_triples_mathalgodb(merged_dict)
                 # Generate query for MathModDB KG
@@ -250,17 +255,15 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             # MaRDMO: Search Interdisciplinary Workflow, Mathematical Models or Algorithms    
             elif str(self.project.catalog).split('/')[-1] == 'mardmo-search-catalog':
 
-                data = self.get_post_data()
-
-                options = get_data('data/options.json')
+                answers, options = self.get_post_data()
                 
-                if data[0]['search']['options'] == options['InterdisciplinaryWorkflow']:
+                if answers['search']['options'] == options['InterdisciplinaryWorkflow']:
                     datatype = "Workflow(s)"
                     source = "MaRDI Portal"
-                elif data[0]['search']['options'] == options['MathematicalModel']:
+                elif answers['search']['options'] == options['MathematicalModel']:
                     datatype = "Mathematical Model(s)"
                     source = "MathModDB KG"
-                elif data[0]['search']['options'] == options['Algorithm']:
+                elif answers['search']['options'] == options['Algorithm']:
                     datatype = "Algorithm(s)"
                     source = "MathAlgoDB KG"
 
@@ -268,8 +271,8 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                               'MaRDMO/searchResults.html', 
                               {'datatype': datatype,
                                'source': source,   
-                               'noResults': data[0]['no_results'],
-                               'links': data[0]['links']}, 
+                               'noResults': answers['no_results'],
+                               'links': answers['links']}, 
                               status=200)
             
             # MaRDMO: Interdisciplinary Workflow Documentation
@@ -283,9 +286,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                    'errors': [_('Credentials for MaRDI Portal are missing!')]}, 
                                   status=200)
 
-                data = self.get_post_data()
+                answers, _ = self.get_post_data()
                 try:
-                    payload = prepareWorkflow.export(data[0], self.project.title, self.wikibase_url)
+                    payload = prepareWorkflow.export(answers, self.project.title, self.wikibase_url)
                 except Exception as err:
                     return render(self.request, 
                                   'core/error.html', 
@@ -326,9 +329,6 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             for _, info in questions.items():
                 answers = get_answer_model(self.project, answers, **info)
             
-            # Prepare Mathematical Model Preview
-            answers = prepareModel.preview(answers)
-
             # Retrieve Publications related to Workflow
             answers = PublicationRetriever.WorkflowOrModel(self.project, answers, options)
             

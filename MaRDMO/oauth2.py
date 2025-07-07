@@ -90,12 +90,7 @@ class OauthProviderMixin:
                 if key in keys and not re.search(r"Item\d{10}", json.dumps(jsons[key].get('payload'))):
                     if not jsons[key]['id']:
                         if key.startswith('RELATION'):
-                            checks = requests.get(f"{jsons[key]['url']}?property={jsons[key]['payload']['statement']['property']['id']}").json()
-                            for check in checks.get(jsons[key]['payload']['statement']['property']['id'], []):
-                                if check['value']['content'] == jsons[key]['payload']['statement']['value']['content']:
-                                    if check['qualifiers'] == jsons[key]['payload']['statement']['qualifiers']:
-                                        break
-                            else:
+                            if jsons[key]['exists'] == 'false':
                                 response = requests.post(jsons[key]['url'], json=jsons[key]['payload'], headers=self.get_authorization_headers(access_token))
                                 try:
                                     response.raise_for_status()

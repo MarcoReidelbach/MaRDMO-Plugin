@@ -5,7 +5,7 @@ from .models import ModelProperties, Variables, Parameters
 from .constants import REPRODUCIBILITY
 
 from ..utils import find_item, get_data, unique_items, query_sparql, GeneratePayload
-from ..id import ITEMS, PROPERTIES
+from ..id_staging import ITEMS, PROPERTIES
 from ..config import endpoint
 
 class prepareWorkflow:
@@ -13,25 +13,25 @@ class prepareWorkflow:
     def preview(data):
 
         # Update Model Properties via MathModDB
-        if data[0].get('model',{}).get('ID'):
-            _, id = data[0]['model']['ID'].split(':')
+        if data.get('model',{}).get('ID'):
+            _, id = data['model']['ID'].split(':')
             query = queryPreview['basic'].format(id, **ITEMS, **PROPERTIES)
             basic = query_sparql(query, endpoint['mardi']['sparql'])
             if basic:
-                data[0].get('model', {}).update(asdict(ModelProperties.from_query(basic)))
+                data.get('model', {}).update(asdict(ModelProperties.from_query(basic)))
         
         # Update Model Variables and Parameters via MathModDB
-        if data[0].get('specifictask'):            
-            query = queryPreview['variables'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data[0]['specifictask'].items()), **ITEMS, **PROPERTIES)
+        if data.get('specifictask'):            
+            query = queryPreview['variables'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['specifictask'].items()), **ITEMS, **PROPERTIES)
             variables = query_sparql(query, endpoint['mardi']['sparql'])
             if variables:
                 for idx, variable in enumerate(variables):
-                    data[0].setdefault('variables', {}).update({idx: asdict(Variables.from_query(variable))})
-            query = queryPreview['parameters'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data[0]['specifictask'].items()), **ITEMS, **PROPERTIES)
+                    data.setdefault('variables', {}).update({idx: asdict(Variables.from_query(variable))})
+            query = queryPreview['parameters'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['specifictask'].items()), **ITEMS, **PROPERTIES)
             parameters = query_sparql(query, endpoint['mardi']['sparql'])
             if parameters:
                 for idx, parameter in enumerate(parameters):
-                    data[0].setdefault('parameters', {}).update({idx: asdict(Parameters.from_query(parameter))})
+                    data.setdefault('parameters', {}).update({idx: asdict(Parameters.from_query(parameter))})
 
         return data
 

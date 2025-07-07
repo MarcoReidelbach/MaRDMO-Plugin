@@ -14,8 +14,8 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{specialized by} ?sbrfraw.
-                                                                   BIND(replace( xsd:string(?sbrfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?sbrf)
-
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?sbrfraw), STR(wd:))) AS ?sbrf)
+                                                                   
                                                                    ?sbrfraw wdt:{instance of} wd:{academic discipline}.
                                                                    
                                                                    OPTIONAL {{
@@ -34,8 +34,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?srfraw wdt:{specialized by} ?id.
-                                                                   BIND(replace( xsd:string(?srfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?srf)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?srfraw), STR(wd:))) AS ?srf)
+                                                                   
                                                                    ?srfraw wdt:{instance of} wd:{academic discipline}.
                                                                    
                                                                    OPTIONAL {{
@@ -54,8 +55,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?strfraw wdt:{similar to} ?id.
-                                                                   BIND(replace( xsd:string(?strfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?strf)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?strfraw), STR(wd:))) AS ?strf)
+                                                                   
                                                                    ?strfraw wdt:{instance of} wd:{academic discipline}.
                                                                    
                                                                    OPTIONAL {{
@@ -74,8 +76,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{described by source} ?pubraw.
-                                                                   BIND(replace( xsd:string(?pubraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?pub)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?pubraw), STR(wd:))) AS ?pub)
+                                                                   
                                                                    OPTIONAL {{
                                                                               ?pubraw rdfs:label ?publraw.
                                                                               FILTER (lang(?publraw) = 'en')
@@ -108,8 +111,9 @@ queryHandler = {
                                                    
                                                     OPTIONAL {{
                                                                    ?rfraw wdt:{contains} ?id.
-                                                                   BIND(replace( xsd:string(?rfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?rf)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?rfraw), STR(wd:))) AS ?rf)
+                                                                   
                                                                    ?rfraw wdt:{instance of} wd:{academic discipline}.
 
                                                                    OPTIONAL {{
@@ -128,8 +132,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{specialized by} ?sbrpraw.
-                                                                   BIND(replace( xsd:string(?sbrpraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?sbrp)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?sbrpraw), STR(wd:))) AS ?sbrp)
+                                                                   
                                                                    ?sbrpraw wdt:{instance of} wd:{research problem}.
                                                                    
                                                                    OPTIONAL {{
@@ -148,8 +153,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?srpraw wdt:{specialized by} ?id.
-                                                                   BIND(replace( xsd:string(?srpraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?srp)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?srpraw), STR(wd:))) AS ?srp)
+                                                                   
                                                                    ?srpraw wdt:{instance of} wd:{research problem}.
                                                                    
                                                                    OPTIONAL {{
@@ -168,8 +174,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?strpraw wdt: ?id.
-                                                                   BIND(replace( xsd:string(?strpraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?strp)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?strpraw), STR(wd:))) AS ?strp)
+                                                                   
                                                                    ?strpraw wdt:{instance of} wd:{research problem}.
                                                                    
                                                                    OPTIONAL {{
@@ -188,8 +195,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{described by source} ?pubraw.
-                                                                   BIND(replace( xsd:string(?pubraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?pub)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?pubraw), STR(wd:))) AS ?pub)
+                                                                   
                                                                    OPTIONAL {{
                                                                               ?pubraw rdfs:label ?publraw.
                                                                               FILTER (lang(?publraw) = 'en')
@@ -257,8 +265,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?rpraw wdt:{modelled by} ?id.
-                                                                   BIND(replace( xsd:string(?rpraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?rp)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?rpraw), STR(wd:))) AS ?rp)
+                                                                   
                                                                    ?rpraw wdt:{instance of} wd:{research problem}.
 
                                                                    OPTIONAL {{
@@ -277,8 +286,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{assumes} ?assraw.
-                                                                   BIND(replace( xsd:string(?assraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ass)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?assraw), STR(wd:))) AS ?ass)
+                                                                   
                                                                    ?assraw wdt:{instance of} wd:{mathematical expression}.
 
                                                                    OPTIONAL {{
@@ -301,8 +311,8 @@ queryHandler = {
 
                                                                    ?confraw wdt:{instance of} wd:{mathematical expression}.
 
-                                                                   BIND(replace( xsd:string(?confraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?conf)
-
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?confraw), STR(wd:))) AS ?conf)
+                                                                   
                                                                    OPTIONAL {{
                                                                               ?confraw rdfs:label ?conflraw.
                                                                               FILTER (lang(?conflraw) = 'en')
@@ -318,7 +328,7 @@ queryHandler = {
 
                                                                   OPTIONAL {{
                                                                              ?statement pq:{object has role} ?quaraw.
-                                                                             BIND(REPLACE(STR(?quaraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua)
+                                                                             BIND(CONCAT("mardi:", STRAFTER(STR(?quaraw), STR(wd:))) AS ?qua)
                                                                            }}
                                                                   BIND(COALESCE(?qua, "") AS ?confq)
 
@@ -330,8 +340,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{used by} ?taraw.
-                                                                   BIND(replace( xsd:string(?taraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ta)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?taraw), STR(wd:))) AS ?ta)
+                                                                   
                                                                    ?taraw wdt:{instance of} wd:{computational task}.
 
                                                                    OPTIONAL {{
@@ -361,8 +372,9 @@ queryHandler = {
                                                               OPTIONAL {{
                                                      
                                                                  ?statement2 pq:{assumes} ?qua2raw.
-                                                                 BIND(REPLACE(STR(?qua2raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua2)
- 
+
+                                                                 BIND(CONCAT("mardi:", STRAFTER(STR(?qua2raw), STR(wd:))) AS ?qua2)
+                                                                 
                                                                  OPTIONAL {{
                                                                    ?qua2raw rdfs:label ?sbmqlraw.
                                                                    FILTER (lang(?sbmqlraw) = "en")
@@ -390,8 +402,8 @@ queryHandler = {
                                                           ?id p:{specialized by} ?statement2.
                                                           ?statement2 ps:{specialized by} ?sbmraw.
                                                           
-                                                          BIND(REPLACE(STR(?sbmraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?sbm)
-
+                                                          BIND(CONCAT("mardi:", STRAFTER(STR(?sbmraw), STR(wd:))) AS ?sbm)
+                                                          
                                                           ?sbmraw wdt:{instance of} wd:{mathematical model}.
                                                         
                                                           OPTIONAL {{
@@ -421,8 +433,9 @@ queryHandler = {
                                                               OPTIONAL {{
                                                      
                                                                  ?statement3 pq:{assumes} ?qua3raw.
-                                                                 BIND(REPLACE(STR(?qua3raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua3)
- 
+
+                                                                 BIND(CONCAT("mardi:", STRAFTER(STR(?qua3raw), STR(wd:))) AS ?qua3)
+                                                                 
                                                                  OPTIONAL {{
                                                                    ?qua3raw rdfs:label ?smqlraw.
                                                                    FILTER (lang(?smqlraw) = "en")
@@ -450,8 +463,8 @@ queryHandler = {
                                                           ?smraw p:{specialized by} ?statement3.
                                                           ?statement3 ps:{specialized by} ?id.
                                                           
-                                                          BIND(REPLACE(STR(?smraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?sm)
-
+                                                          BIND(CONCAT("mardi:", STRAFTER(STR(?smraw), STR(wd:))) AS ?sm)
+                                                          
                                                           ?smraw wdt:{instance of} wd:{mathematical model}.
                                                         
                                                           OPTIONAL {{
@@ -470,8 +483,9 @@ queryHandler = {
                                                     
                                                     OPTIONAL {{
                                                                    ?id wdt:{approximated by} ?abmraw.
-                                                                   BIND(replace( xsd:string(?abmraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?abm)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?abmraw), STR(wd:))) AS ?abm)
+                                                                   
                                                                    ?abmraw wdt:{instance of} wd:{mathematical model}.
 
                                                                    OPTIONAL {{
@@ -490,8 +504,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?amraw wdt:{approximated by} ?id.
-                                                                   BIND(replace( xsd:string(?amraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?am)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?amraw), STR(wd:))) AS ?am)
+                                                                   
                                                                    ?amraw wdt:{instance of} wd:{mathematical model}.
 
                                                                    OPTIONAL {{
@@ -510,8 +525,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{contains} ?conmraw.
-                                                                   BIND(replace( xsd:string(?conmraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?conm)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?conmraw), STR(wd:))) AS ?conm)
+                                                                   
                                                                    ?conmraw wdt:{instance of} wd:{mathematical model}.
 
                                                                    OPTIONAL {{
@@ -530,8 +546,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?conimraw wdt:{contains} ?id.
-                                                                   BIND(replace( xsd:string(?conimraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?conim)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?conimraw), STR(wd:))) AS ?conim)
+                                                                   
                                                                    ?conimraw wdt:{instance of} wd:{mathematical model}.
 
                                                                    OPTIONAL {{
@@ -550,8 +567,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{discretized by} ?dbmraw.
-                                                                   BIND(replace( xsd:string(?dbmraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?dbm)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?dbmraw), STR(wd:))) AS ?dbm)
+                                                                   
                                                                    ?dbmraw wdt:{instance of} wd:{mathematical model}.
 
                                                                    OPTIONAL {{
@@ -570,8 +588,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?dmraw wdt:{discretized by} ?id.
-                                                                   BIND(replace( xsd:string(?dmraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?dm)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?dmraw), STR(wd:))) AS ?dm)
+                                                                   
                                                                    ?dmraw wdt:{instance of} wd:{mathematical model}.
 
                                                                    OPTIONAL {{
@@ -590,8 +609,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{linearized by} ?lbmraw.
-                                                                   BIND(replace( xsd:string(?lbmraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?lbm)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?lbmraw), STR(wd:))) AS ?lbm)
+                                                                   
                                                                    ?lbmraw wdt:{instance of} wd:{mathematical model}.
 
                                                                    OPTIONAL {{
@@ -610,8 +630,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?lmraw wdt:{linearized by} ?id.
-                                                                   BIND(replace( xsd:string(?lmraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?lm)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?lmraw), STR(wd:))) AS ?lm)
+                                                                   
                                                                    ?lmraw wdt:{instance of} wd:{mathematical model}.
 
                                                                    OPTIONAL {{
@@ -630,8 +651,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?stmraw wdt:{similar to} ?id.
-                                                                   BIND(replace( xsd:string(?stmraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?stm)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?stmraw), STR(wd:))) AS ?stm)
+                                                                   
                                                                    ?straw wdt:{instance of} wd:{mathematical model}.
 
                                                                    OPTIONAL {{
@@ -650,8 +672,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{described by source} ?pubraw.
-                                                                   BIND(replace( xsd:string(?pubraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?pub)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?pubraw), STR(wd:))) AS ?pub)
+                                                                   
                                                                    OPTIONAL {{
                                                                               ?pubraw rdfs:label ?publraw.
                                                                               FILTER (lang(?publraw) = 'en')
@@ -743,7 +766,9 @@ queryHandler = {
   
                                                                     OPTIONAL {{
                                                                                ?statement pq:{symbol represents} ?cqraw.
-                                                                               BIND(REPLACE(STR(?cqraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?cq) 
+                                                                               
+                                                                               BIND(CONCAT("mardi:", STRAFTER(STR(?cqraw), STR(wd:))) AS ?cq)
+                                                                               
                                                                                OPTIONAL {{
                                                                                            ?cqraw rdfs:label ?cqlraw.
                                                                                            FILTER (lang(?cqlraw) = 'en')
@@ -759,8 +784,9 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                    ?id wdt:{specialized by} ?sbqraw.
-                                                                   BIND(replace( xsd:string(?sbqraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?sbq)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?sbqraw), STR(wd:))) AS ?sbq)
+                                                                   
                                                                    {{
                                                                      ?sbqraw wdt:{instance of} wd:{quantity}.
                                                                      BIND("Quantity" AS ?sbqc)
@@ -787,8 +813,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?sqraw wdt:{specialized by} ?id.
-                                                                   BIND(replace( xsd:string(?sqraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?sq)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?sqraw), STR(wd:))) AS ?sq)
+                                                                   
                                                                    {{
                                                                      ?sqraw wdt:{instance of} wd:{quantity}.
                                                                      BIND("Quantity" AS ?sqc)
@@ -815,8 +842,9 @@ queryHandler = {
 
                                                       OPTIONAL {{
                                                                    ?id wdt:{approximated by} ?abqraw.
-                                                                   BIND(replace( xsd:string(?abqraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?abq)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?abqraw), STR(wd:))) AS ?abq)
+                                                                   
                                                                    {{
                                                                      ?abqraw wdt:{instance of} wd:{quantity}.
                                                                      BIND("Quantity" AS ?abqc)
@@ -843,8 +871,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?aqraw wdt:{approximated by} ?id.
-                                                                   BIND(replace( xsd:string(?aqraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?aq)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?aqraw), STR(wd:))) AS ?aq)
+                                                                   
                                                                    {{
                                                                      ?aqraw wdt:{instance of} wd:{quantity}.
                                                                      BIND("Quantity" AS ?aqc)
@@ -871,8 +900,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{linearized by} ?lbqraw.
-                                                                   BIND(replace( xsd:string(?lbqraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?lbq)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?lbqraw), STR(wd:))) AS ?lbq)
+                                                                   
                                                                    {{
                                                                      ?lbqraw wdt:{instance of} wd:{quantity}.
                                                                      BIND("Quantity" AS ?lbqc)
@@ -899,8 +929,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?lqraw wdt:{linearized by} ?id.
-                                                                   BIND(replace( xsd:string(?lqraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?lq)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?lqraw), STR(wd:))) AS ?lq)
+                                                                   
                                                                    {{
                                                                      ?lqraw wdt:{instance of} wd:{quantity}.
                                                                      BIND("Quantity" AS ?lqc)
@@ -927,8 +958,9 @@ queryHandler = {
 
                                                       OPTIONAL {{
                                                                    ?id wdt:{nondimensionalized by} ?nbqraw.
-                                                                   BIND(replace( xsd:string(?nbqraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?nbq)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?nbqraw), STR(wd:))) AS ?nbq)
+                                                                   
                                                                    {{
                                                                      ?nbqraw wdt:{instance of} wd:{quantity}.
                                                                      BIND("Quantity" AS ?nbqc)
@@ -955,8 +987,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?nqraw wdt:{nondimensionalized by} ?id.
-                                                                   BIND(replace( xsd:string(?nqraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?nq)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?nqraw), STR(wd:))) AS ?nq)
+                                                                   
                                                                    {{
                                                                      ?nqraw wdt:{instance of} wd:{quantity}.
                                                                      BIND("Quantity" AS ?nqc)
@@ -983,8 +1016,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?stqraw wdt:{similar to} ?id.
-                                                                   BIND(replace( xsd:string(?stqraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?stq)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?stqraw), STR(wd:))) AS ?stq)
+                                                                   
                                                                    {{
                                                                      ?stqraw wdt:{instance of} wd:{quantity}.
                                                                      BIND("Quantity" AS ?stqc)
@@ -1011,8 +1045,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{described by source} ?pubraw.
-                                                                   BIND(replace( xsd:string(?pubraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?pub)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?pubraw), STR(wd:))) AS ?pub)
+                                                                   
                                                                    OPTIONAL {{
                                                                               ?pubraw rdfs:label ?publraw.
                                                                               FILTER (lang(?publraw) = 'en')
@@ -1089,8 +1124,9 @@ queryHandler = {
                  
                                                                                    OPTIONAL {{
                                                                                               ?statement pq:{symbol represents} ?cqraw.
-                                                                                              BIND(REPLACE(STR(?cqraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?cq)
 
+                                                                                              BIND(CONCAT("mardi:", STRAFTER(STR(?cqraw), STR(wd:))) AS ?cq)
+                                                                                              
                                                                                               OPTIONAL {{
                                                                                                           ?cqraw rdfs:label ?cqlraw.
                                                                                                           FILTER (lang(?cqlraw) = 'en')
@@ -1107,8 +1143,9 @@ queryHandler = {
                                                                       
                                                                        OPTIONAL {{
                                                                                    ?id wdt:{assumes} ?assraw.
-                                                                                   BIND(replace( xsd:string(?assraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ass)
-                
+
+                                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?assraw), STR(wd:))) AS ?ass)
+                                                                                   
                                                                                    ?assraw wdt:{instance of} wd:{mathematical expression}.
                 
                                                                                    OPTIONAL {{
@@ -1131,8 +1168,8 @@ queryHandler = {
                    
                                                                                       ?confraw wdt:{instance of} wd:{mathematical expression}.
                    
-                                                                                      BIND(replace( xsd:string(?confraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?conf)
-                   
+                                                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?confraw), STR(wd:))) AS ?conf)
+                                                                                      
                                                                                       OPTIONAL {{
                                                                                                  ?confraw rdfs:label ?conflraw.
                                                                                                  FILTER (lang(?conflraw) = 'en')
@@ -1148,7 +1185,7 @@ queryHandler = {
                    
                                                                                      OPTIONAL {{
                                                                                                 ?statement2 pq:{object has role} ?quaraw.
-                                                                                                BIND(REPLACE(STR(?quaraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua)
+                                                                                                BIND(CONCAT("mardi:", STRAFTER(STR(?quaraw), STR(wd:))) AS ?qua)
                                                                                               }}
                                                                                      BIND(COALESCE(?qua, "") AS ?confq)
                                                                                   }}
@@ -1166,8 +1203,9 @@ queryHandler = {
                                                               OPTIONAL {{
                                                      
                                                                  ?statement3 pq:{assumes} ?qua3raw.
-                                                                 BIND(REPLACE(STR(?qua3raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua3)
- 
+
+                                                                 BIND(CONCAT("mardi:", STRAFTER(STR(?qua3raw), STR(wd:))) AS ?qua3)
+                                                                 
                                                                  OPTIONAL {{
                                                                    ?qua3raw rdfs:label ?sbfqlraw.
                                                                    FILTER (lang(?sbfqlraw) = "en")
@@ -1195,8 +1233,8 @@ queryHandler = {
                                                           ?id p:{specialized by} ?statement3.
                                                           ?statement3 ps:{specialized by} ?sbfraw.
                                                           
-                                                          BIND(REPLACE(STR(?sbfraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?sbf)
-
+                                                          BIND(CONCAT("mardi:", STRAFTER(STR(?sbfraw), STR(wd:))) AS ?sbf)
+                                                          
                                                           ?sbfraw wdt:{instance of} wd:{mathematical expression}.
                                                         
                                                           OPTIONAL {{
@@ -1226,8 +1264,9 @@ queryHandler = {
                                                               OPTIONAL {{
                                                      
                                                                  ?statement4 pq:{assumes} ?qua4raw.
-                                                                 BIND(REPLACE(STR(?qua4raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua4)
- 
+
+                                                                 BIND(CONCAT("mardi:", STRAFTER(STR(?qua4raw), STR(wd:))) AS ?qua4)
+                                                                 
                                                                  OPTIONAL {{
                                                                    ?qua4raw rdfs:label ?sfqlraw.
                                                                    FILTER (lang(?sfqlraw) = "en")
@@ -1255,8 +1294,8 @@ queryHandler = {
                                                           ?sfraw p:{specialized by} ?statement4.
                                                           ?statement4 ps:{specialized by} ?id.
                                                           
-                                                          BIND(REPLACE(STR(?sfraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?sf)
-                                                        
+                                                          BIND(CONCAT("mardi:", STRAFTER(STR(?sfraw), STR(wd:))) AS ?sf)
+                                                          
                                                           ?sfraw wdt:{instance of} wd:{mathematical expression}.
 
                                                           OPTIONAL {{
@@ -1275,8 +1314,9 @@ queryHandler = {
                                                     
                                                     OPTIONAL {{
                                                                    ?id wdt:{approximated by} ?abfraw.
-                                                                   BIND(replace( xsd:string(?abfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?abf)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?abfraw), STR(wd:))) AS ?abf)
+                                                                   
                                                                    ?abfraw wdt:{instance of} wd:{mathematical expression}.
 
                                                                    OPTIONAL {{
@@ -1295,8 +1335,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?afraw wdt:{approximated by} ?id.
-                                                                   BIND(replace( xsd:string(?afraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?af)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?afraw), STR(wd:))) AS ?af)
+                                                                   
                                                                    ?afraw wdt:{instance of} wd:{mathematical expression}.
 
                                                                    OPTIONAL {{
@@ -1315,8 +1356,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{nondimensionalized by} ?nbfraw.
-                                                                   BIND(replace( xsd:string(?nbfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?nbf)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?nbfraw), STR(wd:))) AS ?nbf)
+                                                                   
                                                                    ?nbfraw wdt:{instance of} wd:{mathematical expression}.
                                                                    
                                                                    OPTIONAL {{
@@ -1335,8 +1377,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?nfraw wdt:{nondimensionalized by} ?id.
-                                                                   BIND(replace( xsd:string(?nfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?nf)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?nfraw), STR(wd:))) AS ?nf)
+                                                                   
                                                                    ?nfraw wdt:{instance of} wd:{mathematical expression}.
 
                                                                    OPTIONAL {{
@@ -1355,8 +1398,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{discretized by} ?dbfraw.
-                                                                   BIND(replace( xsd:string(?dbfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?dbf)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?dbfraw), STR(wd:))) AS ?dbf)
+                                                                   
                                                                    ?dbfraw wdt:{instance of} wd:{mathematical expression}.
 
                                                                    OPTIONAL {{
@@ -1375,8 +1419,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?dfraw wdt:{discretized by} ?id.
-                                                                   BIND(replace( xsd:string(?dfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?df)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?dfraw), STR(wd:))) AS ?df)
+                                                                   
                                                                    ?dbfraw wdt:{instance of} wd:{mathematical expression}.
 
                                                                    OPTIONAL {{
@@ -1393,10 +1438,12 @@ queryHandler = {
                                                                   BIND(COALESCE(?dfdraw, "No Description Provided!") AS ?dfd)
                                                                }}
 
+
                                                     OPTIONAL {{
                                                                    ?id wdt:{linearized by} ?lbfraw.
-                                                                   BIND(replace( xsd:string(?lbfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?lbf)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?lbfraw), STR(wd:))) AS ?lbf)
+                                                                   
                                                                    ?lbfraw wdt:{instance of} wd:{mathematical expression}.
 
                                                                    OPTIONAL {{
@@ -1415,8 +1462,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?lfraw wdt:{linearized by} ?id.
-                                                                   BIND(replace( xsd:string(?lfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?lf)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?lfraw), STR(wd:))) AS ?lf)
+                                                                   
                                                                    ?lfraw wdt:{instance of} wd:{mathematical expression}.
 
                                                                    OPTIONAL {{
@@ -1435,8 +1483,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?stfraw wdt:{similar to} ?id.
-                                                                   BIND(replace( xsd:string(?stfraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?stf)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?stfraw), STR(wd:))) AS ?stf)
+                                                                   
                                                                    ?stfraw wdt:{instance of} wd:{mathematical expression}.
 
                                                                    OPTIONAL {{
@@ -1455,8 +1504,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{described by source} ?pubraw.
-                                                                   BIND(replace( xsd:string(?pubraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?pub)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?pubraw), STR(wd:))) AS ?pub)
+                                                                   
                                                                    OPTIONAL {{
                                                                               ?pubraw rdfs:label ?publraw.
                                                                               FILTER (lang(?publraw) = 'en')
@@ -1513,8 +1563,9 @@ queryHandler = {
 
                                                         OPTIONAL {{
                                                                    ?id wdt:{assumes} ?assraw.
-                                                                   BIND(replace( xsd:string(?assraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?ass)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?assraw), STR(wd:))) AS ?ass)
+                                                                   
                                                                    ?assraw wdt:{instance of} wd:{mathematical expression}.
 
                                                                    OPTIONAL {{
@@ -1538,8 +1589,8 @@ queryHandler = {
 
                                                                    ?confraw wdt:{instance of} wd:{mathematical expression}.
 
-                                                                   BIND(replace( xsd:string(?confraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?conf)
-
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?confraw), STR(wd:))) AS ?conf)
+                                                                   
                                                                    OPTIONAL {{
                                                                               ?confraw rdfs:label ?conflraw.
                                                                               FILTER (lang(?conflraw) = 'en')
@@ -1555,7 +1606,7 @@ queryHandler = {
 
                                                                   OPTIONAL {{
                                                                              ?statement pq:{object has role} ?quaraw.
-                                                                             BIND(REPLACE(STR(?quaraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua)
+                                                                             BIND(CONCAT("mardi:", STRAFTER(STR(?quaraw), STR(wd:))) AS ?qua)
                                                                            }}
                                                                   BIND(COALESCE(?qua, "") AS ?confq)
                                                                }}
@@ -1572,8 +1623,8 @@ queryHandler = {
                                                                       ?quanraw wdt:{instance of} wd:{kind of quantity}.
                                                                    }}
 
-                                                                   BIND(replace( xsd:string(?quanraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?quan)
-
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?quanraw), STR(wd:))) AS ?quan)
+                                                                   
                                                                    OPTIONAL {{
                                                                               ?quanraw rdfs:label ?quanlraw.
                                                                               FILTER (lang(?quanlraw) = 'en')
@@ -1589,7 +1640,7 @@ queryHandler = {
 
                                                                   OPTIONAL {{
                                                                              ?statement2 pq:{object has role} ?qua2raw.
-                                                                             BIND(REPLACE(STR(?qua2raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua2)
+                                                                             BIND(CONCAT("mardi:", STRAFTER(STR(?qua2raw), STR(wd:))) AS ?qua2)
                                                                            }}
                                                                   BIND(COALESCE(?qua2, "") AS ?quanq)
                                                                }}
@@ -1607,8 +1658,8 @@ queryHandler = {
                                                               OPTIONAL {{
                                                      
                                                                  ?statement3 pq:{assumes} ?qua3raw.
-                                                                 BIND(REPLACE(STR(?qua3raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua3)
- 
+                                                                 BIND(CONCAT("mardi:", STRAFTER(STR(?qua3raw), STR(wd:))) AS ?qua3)
+                                                                 
                                                                  OPTIONAL {{
                                                                    ?qua3raw rdfs:label ?sbtqlraw.
                                                                    FILTER (lang(?sbtqlraw) = "en")
@@ -1636,8 +1687,8 @@ queryHandler = {
                                                           ?id p:{specialized by} ?statement3.
                                                           ?statement3 ps:{specialized by} ?sbtraw.
                                                           
-                                                          BIND(REPLACE(STR(?sbtraw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?sbt)
-                                                        
+                                                          BIND(CONCAT("mardi:", STRAFTER(STR(?sbtraw), STR(wd:))) AS ?sbt)
+                                                          
                                                           ?sbtraw wdt:{instance of} wd:{computational task}.
 
                                                           OPTIONAL {{
@@ -1667,8 +1718,8 @@ queryHandler = {
                                                               OPTIONAL {{
                                                      
                                                                  ?statement4 pq:{assumes} ?qua4raw.
-                                                                 BIND(REPLACE(STR(?qua4raw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?qua4)
- 
+                                                                 BIND(CONCAT("mardi:", STRAFTER(STR(?qua4raw), STR(wd:))) AS ?qua4)
+                                                                 
                                                                  OPTIONAL {{
                                                                    ?qua4raw rdfs:label ?stqlraw.
                                                                    FILTER (lang(?stqlraw) = "en")
@@ -1696,8 +1747,8 @@ queryHandler = {
                                                           ?straw p:{specialized by} ?statement4.
                                                           ?statement4 ps:{specialized by} ?id.
                                                           
-                                                          BIND(REPLACE(STR(?straw), "https://portal.mardi4nfdi.de/entity/", "mardi:") AS ?st)
-                                                        
+                                                          BIND(CONCAT("mardi:", STRAFTER(STR(?straw), STR(wd:))) AS ?st)
+                                                          
                                                           ?straw wdt:{instance of} wd:{computational task}.
 
                                                           OPTIONAL {{
@@ -1716,8 +1767,9 @@ queryHandler = {
                                                     
                                                     OPTIONAL {{
                                                                    ?id wdt:{approximated by} ?abtraw.
-                                                                   BIND(replace( xsd:string(?abtraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?abt)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?abtraw), STR(wd:))) AS ?abt)
+                                                                   
                                                                    ?abtraw wdt:{instance of} wd:{computational task}.
 
                                                                    OPTIONAL {{
@@ -1736,8 +1788,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?atraw wdt:{approximated by} ?id.
-                                                                   BIND(replace( xsd:string(?atraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?at)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?atraw), STR(wd:))) AS ?at)
+                                                                   
                                                                    ?atraw wdt:{instance of} wd:{computational task}.
 
                                                                    OPTIONAL {{
@@ -1758,8 +1811,8 @@ queryHandler = {
                                                                    ?id p:{contains} ?statement5.
                                                                    ?statement5 ps:{contains} ?contraw.
 
-                                                                   BIND(replace( xsd:string(?contraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?cont)
-
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?contraw), STR(wd:))) AS ?cont)
+                                                                   
                                                                    ?contraw wdt:{instance of} wd:{computational task}.
 
                                                                    OPTIONAL {{
@@ -1785,8 +1838,8 @@ queryHandler = {
                                                                    ?conitraw p:{contains} ?statement6.
                                                                    ?statement6 ps:{contains} ?conitraw.
 
-                                                                   BIND(replace( xsd:string(?conitraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?conit)
-
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?conitraw), STR(wd:))) AS ?conit)
+                                                                   
                                                                    ?conitraw wdt:{instance of} wd:{computational task}.
 
                                                                    OPTIONAL {{
@@ -1810,8 +1863,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{discretized by} ?dbtraw.
-                                                                   BIND(replace( xsd:string(?dbtraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?dbt)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?dbtraw), STR(wd:))) AS ?dbt)
+                                                                   
                                                                    ?dbtraw wdt:{instance of} wd:{computational task}.
 
                                                                    OPTIONAL {{
@@ -1830,8 +1884,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?dtraw wdt:{discretized by} ?id.
-                                                                   BIND(replace( xsd:string(?dtraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?dt)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?dtraw), STR(wd:))) AS ?dt)
+                                                                   
                                                                    ?dtraw wdt:{instance of} wd:{computational task}.
 
                                                                    OPTIONAL {{
@@ -1850,8 +1905,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{linearized by} ?lbtraw.
-                                                                   BIND(replace( xsd:string(?lbtraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?lbt)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?lbtraw), STR(wd:))) AS ?lbt)
+                                                                   
                                                                    ?lbtraw wdt:{instance of} wd:{computational task}.
 
                                                                    OPTIONAL {{
@@ -1870,8 +1926,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?ltraw wdt:{linearized by} ?id.
-                                                                   BIND(replace( xsd:string(?ltraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?lt)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?ltraw), STR(wd:))) AS ?lt)
+                                                                   
                                                                    ?ltraw wdt:{instance of} wd:{computational task}.
 
                                                                    OPTIONAL {{
@@ -1890,8 +1947,9 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?sttraw wdt:{similar to} ?id.
-                                                                   BIND(replace( xsd:string(?sttraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?stt)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?sttraw), STR(wd:))) AS ?stt)
+                                                                   
                                                                    ?sttraw wdt:{instance of} wd:{computational task}.
 
                                                                    OPTIONAL {{
@@ -1910,8 +1968,9 @@ queryHandler = {
                                                       
                                                     OPTIONAL {{
                                                                    ?id wdt:{described by source} ?pubraw.
-                                                                   BIND(replace( xsd:string(?pubraw),'https://portal.mardi4nfdi.de/entity/','mardi:') as ?pub)
 
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?pubraw), STR(wd:))) AS ?pub)
+                                                                   
                                                                    OPTIONAL {{
                                                                               ?pubraw rdfs:label ?publraw.
                                                                               FILTER (lang(?publraw) = 'en')

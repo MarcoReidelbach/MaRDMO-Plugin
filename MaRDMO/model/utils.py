@@ -85,25 +85,6 @@ def get_answer_model(project, val, uri, key1 = None, key2 = None, key3 = None, s
 
     return val
 
-def mathmlToLatex(mathml):
-    # Get via annotation tag
-    match = re.search(r'<annotation[^>]*encoding="application/x-tex"[^>]*>\s*(.*?)\s*</annotation>', mathml, re.DOTALL)
-    if not match:
-        # Fall back to alttext attribute
-        match = re.search(r'alttext="(.*?)"', mathml)
-        if not match:
-            # Extract from error message
-            match = re.search(r'<strong class="error texerror">.*?:\s*(\{\\displaystyle\s+.*?\})</strong>', mathml, re.DOTALL)
-    if match:
-        # Get Group
-        latex = match.group(1).strip()
-        # Remove \displaystyle and associated braces
-        latex = re.sub(r'^\{?\\displaystyle\s*', '', latex)
-        latex = re.sub(r'\}$', '', latex)
-        return latex
-    else:
-        return 
-
 def mapEntityQuantity(data, type, mapping):
     for key in data[type]:
         for key2 in data[type][key].get('element',{}):
