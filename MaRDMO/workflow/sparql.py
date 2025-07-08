@@ -14,7 +14,7 @@ queryInfo = {
                                   WHERE {{
                                           VALUES ?step {{ wd:{0} }}
                                           OPTIONAL {{
-                                                     ?step wdt:P1605 ?inputraw
+                                                     ?step wdt:{input data set} ?inputraw
                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?inputraw), STR(wd:))) AS ?input)
                                                      
                                                      OPTIONAL {{
@@ -32,7 +32,7 @@ queryInfo = {
                                                      BIND(COALESCE(?inputdraw, "No Description Provided!") AS ?inputd)
                                                    }}
                                           OPTIONAL {{
-                                                     ?step wdt:P1606 ?outputraw
+                                                     ?step wdt:{output data set} ?outputraw
                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?outputraw), STR(wd:))) AS ?output)
                                                      
                                                      OPTIONAL {{
@@ -50,7 +50,7 @@ queryInfo = {
                                                      BIND(COALESCE(?outputdraw, "No Description Provided!") AS ?outputd)
                                                    }}
                                           OPTIONAL {{
-                                                     ?step wdt:P557 ?methodraw
+                                                     ?step wdt:{uses} ?methodraw
                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?methodraw), STR(wd:))) AS ?method)
                                                      
                                                      OPTIONAL {{
@@ -67,17 +67,17 @@ queryInfo = {
                                                      
                                                      BIND(COALESCE(?methoddraw, "No Description Provided!") AS ?methodd)
                                                      OPTIONAL {{
-                                                                ?methodraw wdt:P188 ?methodurl
+                                                                ?methodraw wdt:{URL} ?methodurl
                                                               }}
                                                      BIND(COALESCE(?methodurl, "") AS ?methodurl)
                                                    }}
                                           OPTIONAL {{
-                                                     ?step p:P143 ?statement0.
-                                                     ?statement0 ps:P143 ?platformsoftwareraw.
+                                                     ?step p:{platform} ?statement0.
+                                                     ?statement0 ps:{platform} ?platformsoftwareraw.
                                                     
-                                                     ?statement pq:P560 ?platformsoftwaretyperaw.
+                                                     ?statement pq:{object has role} ?platformsoftwaretyperaw.
                                                      BIND(CONCAT("", STRAFTER(STR(?platformsoftwaretyperaw), STR(wd:))) AS ?platformsoftwaretype)
-                                                     FILTER (?platformsoftwaretype = "Q56614")
+                                                     FILTER (?platformsoftwaretype = "{software}")
                                                      
                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?platformsoftwareraw), STR(wd:))) AS ?platformsoftware)
                                                      
@@ -96,12 +96,12 @@ queryInfo = {
                                                      BIND(COALESCE(?platformsoftwaredraw, "No Description Provided!") AS ?platformsoftwared)
                                                    }}
                                           OPTIONAL {{
-                                                     ?step p:P143 ?statement1.
-                                                     ?statement1 ps:P143 ?platforminstrumentraw.
+                                                     ?step p:{platform} ?statement1.
+                                                     ?statement1 ps:{platform} ?platforminstrumentraw.
                                                      
-                                                     ?statement pq:P560 ?platforminstrumenttyperaw.
+                                                     ?statement pq:{object has role} ?platforminstrumenttyperaw.
                                                      BIND(CONCAT("", STRAFTER(STR(?platforminstrumenttyperaw), STR(wd:))) AS ?platforminstrumenttype)
-                                                     FILTER (?platforminstrumenttype = "Q77076")
+                                                     FILTER (?platforminstrumenttype = "{research tool}")
                                                      
                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?platforminstrumentraw), STR(wd:))) AS ?platforminstrument)
                                                      
@@ -120,7 +120,7 @@ queryInfo = {
                                                      BIND(COALESCE(?platforminstrumentdraw, "No Description Provided!") AS ?platforminstrumentd)
                                                    }}
                                           OPTIONAL {{
-                                                     ?step wdt:P437 ?fieldraw.
+                                                     ?step wdt:{field of work} ?fieldraw.
                                                      
                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?fieldraw), STR(wd:))) AS ?field)
                                                      OPTIONAL {{
@@ -138,7 +138,7 @@ queryInfo = {
                                                      BIND(COALESCE(?fielddraw, "No Description Provided!") AS ?fieldd)
                                                    }}
                                           OPTIONAL {{
-                                                     ?step wdt:P226 ?msc.
+                                                     ?step wdt:{MSC ID} ?msc.
                                                    }}
                                   }}''',
 
@@ -152,7 +152,7 @@ queryInfo = {
                                                VALUES ?method {{ wd:{0} }}
                                                OPTIONAL {{
                                                           ?method wdt:P ?impSoftraw.
-                                                          ?impSoftraw wdt:P31 wd:Q56614.
+                                                          ?impSoftraw wdt:{instance of} wd:{software}.
 
                                                           BIND(CONCAT("mardi:", STRAFTER(STR(?impSoftraw), STR(wd:))) AS ?impSoft)
                                                           
@@ -173,7 +173,7 @@ queryInfo = {
                                                         
                                               OPTIONAL {{
                                                           ?method wdt:P ?impInstraw.
-                                                          ?impInstraw wdt:P31 wd:Q77076.
+                                                          ?impInstraw wdt:{instance of} wd:{research tool}.
                                                           
                                                           BIND(CONCAT("mardi:", STRAFTER(STR(?impInstraw), STR(wd:))) AS ?impInst)
                                                           
@@ -206,7 +206,7 @@ queryInfo = {
                                           
                                           # Get Programming Language
                                           OPTIONAL {{
-                                                     ?software wdt:P114 ?plraw.
+                                                     ?software wdt:{programmed in} ?plraw.
                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?plraw), STR(wd:))) AS ?pl)
                                                      
                                                      OPTIONAL {{
@@ -226,7 +226,7 @@ queryInfo = {
                                           
                                           # Get Dependencies
                                           OPTIONAL {{
-                                                     ?software wdt:P342 ?dpraw.
+                                                     ?software wdt:{depends on software} ?dpraw.
                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?dpraw), STR(wd:))) AS ?dp)
                                                      
                                                      OPTIONAL {{
@@ -246,26 +246,26 @@ queryInfo = {
         
                                           # Source Code Repository
                                           OPTIONAL {{
-                                                     ?software wdt:P339 ?sourceCodeRepository.
+                                                     ?software wdt:{source code repository URL} ?sourceCodeRepository.
                                                    }}
         
                                           # User Manual URL
                                           OPTIONAL {{
-                                                     ?software wdt:P340 ?userManualURL.
+                                                     ?software wdt:{user manual URL} ?userManualURL.
                                                    }}
                                           # DOI
                                           OPTIONAL {{
-                                                     ?software wdt:P27 ?doi.
+                                                     ?software wdt:{DOI} ?doi.
                                                    }}
                                           
                                           # SWMATH
                                           OPTIONAL {{
-                                                     ?software wdt:P13 ?swmath.
+                                                     ?software wdt:{swMath work ID} ?swmath.
                                                    }}
 
                                           # URL
                                           OPTIONAL {{
-                                                     ?software wdt:P188 ?url.
+                                                     ?software wdt:{URL} ?url.
                                                    }}
 
                                          BIND(
@@ -294,8 +294,8 @@ queryInfo = {
         
                                           # Get CPU
                                           OPTIONAL {{
-                                                     ?hardware p:P1540 ?statement.
-                                                     ?statement ps:P1540 ?cpuraw.
+                                                     ?hardware p:{CPU} ?statement.
+                                                     ?statement ps:{CPU} ?cpuraw.
                                                      BIND(CONCAT("mardi:", STRAFTER(STR(?cpuraw), STR(wd:))) AS ?cpu)
                                                      
                                                      OPTIONAL {{
@@ -313,11 +313,11 @@ queryInfo = {
                                                      BIND(COALESCE(?cpudraw, "No Description Provided!") AS ?cpud)
         
                                                      OPTIONAL {{
-                                                                ?cpuraw wdt:P1565 ?cores.
+                                                                ?cpuraw wdt:{number of processor cores} ?cores.
                                                               }}
                                                                 
                                                      OPTIONAL {{
-                                                                ?statement pq:P149 ?nodes.
+                                                                ?statement pq:{quantity_property} ?nodes.
                                                               }}
                                                    }}
                                               }}
@@ -337,8 +337,8 @@ queryInfo = {
          
                                            # Get Size (bytes)
                                            OPTIONAL {{
-                                                      ?dataset p:P1542 ?statementNode.          
-                                                      ?statementNode psv:P1542 ?valueNode.      
+                                                      ?dataset p:{data size} ?statementNode.          
+                                                      ?statementNode psv:{data size} ?valueNode.      
                                                       ?valueNode wikibase:quantityAmount ?sizeValue; 
                                                                  wikibase:quantityUnit ?unit.
                                                       ?unit rdfs:label ?sizeUnit.
@@ -347,15 +347,15 @@ queryInfo = {
 
                                            # Get Size (number of items)
                                            OPTIONAL {{
-                                                      ?dataset wdt:P139 ?sizeRecord
+                                                      ?dataset wdt:{number of records} ?sizeRecord
                                                     }}
          
                                            # Data Type
                                            OPTIONAL {{
-                                                      ?dataset p:P557 ?statement_dt.
-                                                      ?statement_dt ps:P557 ?datatyperaw. 
-                                                      ?statement_dt pq:P560 ?qualifier.
-                                                      FILTER (?qualifier = wd:Q78802)
+                                                      ?dataset p:{uses} ?statement_dt.
+                                                      ?statement_dt ps:{uses} ?datatyperaw. 
+                                                      ?statement_dt pq:{object has role} ?qualifier.
+                                                      FILTER (?qualifier = wd:{data type})
          
                                                       BIND(CONCAT("mardi:", STRAFTER(STR(?datatyperaw), STR(wd:))) AS ?datatype)
                                                       
@@ -376,10 +376,10 @@ queryInfo = {
            
                                            #Representation Format
                                            OPTIONAL {{
-                                                      ?dataset p:P557 ?statement_dt2.
-                                                      ?statement_dt2 ps:P557 ?representationformatraw. 
-                                                      ?statement_dt2 pq:P560 ?qualifier2.
-                                                      FILTER (?qualifier2 = wd:Q6534222)
+                                                      ?dataset p:{uses} ?statement_dt2.
+                                                      ?statement_dt2 ps:{uses} ?representationformatraw. 
+                                                      ?statement_dt2 pq:{object has role} ?qualifier2.
+                                                      FILTER (?qualifier2 = wd:{representation format})
          
                                                       BIND(CONCAT("mardi:", STRAFTER(STR(?representationformatraw), STR(wd:))) AS ?representationformat)
                                                       
@@ -400,30 +400,30 @@ queryInfo = {
          
                                            # Get file extension
                                            OPTIONAL {{
-                                                      ?dataset wdt:P921 ?fileFormat
+                                                      ?dataset wdt:{file extension} ?fileFormat
                                                     }}
                                                
                                            # Binary or Text
-                                           BIND(IF(EXISTS {{ ?dataset wdt:P31 wd:Q6480276 }}, "binary", IF(EXISTS {{ ?dataset wdt:P31 wd:Q6534207 }}, "text", "" )) AS ?binaryOrText)
+                                           BIND(IF(EXISTS {{ ?dataset wdt:{instance of} wd:{binary data} }}, "binary", IF(EXISTS {{ ?dataset wdt:{instance of} wd:{text data} }}, "text", "" )) AS ?binaryOrText)
          
                                            # Proprietary
-                                           BIND(IF(EXISTS {{ ?dataset wdt:P31 wd:Q6480367 }}, "Yes", IF(EXISTS {{ ?dataset wdt:P31 wd:Q6480313 }}, "No", "" )) AS ?proprietary)
+                                           BIND(IF(EXISTS {{ ?dataset wdt:{instance of} wd:{proprietary information} }}, "Yes", IF(EXISTS {{ ?dataset wdt:{instance of} wd:{open data} }}, "No", "" )) AS ?proprietary)
                                            
                                            # Bind DOI and URL if they exist
-                                           OPTIONAL {{ ?dataset wdt:P27 ?DOI. }}
-                                           OPTIONAL {{ ?dataset wdt:P188 ?URL. }}
+                                           OPTIONAL {{ ?dataset wdt:{DOI} ?DOI. }}
+                                           OPTIONAL {{ ?dataset wdt:{URL} ?URL. }}
          
                                            # Data Publishing
-                                           BIND(IF(EXISTS {{ ?dataset wdt:P1563 wd:Q6480291 }}, "Yes", "No") AS ?publish)
+                                           BIND(IF(EXISTS {{ ?dataset wdt:{mandates} wd:{data publishing} }}, "Yes", "No") AS ?publish)
          
                                            # Data Archiving
-                                           BIND(IF(EXISTS {{ ?dataset wdt:P1563 wd:Q6480370 }}, "YesText", "NoText") AS ?archive)
+                                           BIND(IF(EXISTS {{ ?dataset wdt:{mandates} wd:{research data archiving} }}, "YesText", "NoText") AS ?archive)
          
                                            OPTIONAL {{
-                                                      ?dataset p:P1563 ?statementNode2.
-                                                      ?statementNode2 ps:P1563 wd:Q6480370.
+                                                      ?dataset p:{mandates} ?statementNode2.
+                                                      ?statementNode2 ps:{mandates} wd:{research data archiving}.
                                                       OPTIONAL {{
-                                                                  ?statementNode2 pq:P411 ?endTime.
+                                                                  ?statementNode2 pq:{end time} ?endTime.
                                                                }}
                                                     }}
                                            }}    

@@ -37,7 +37,7 @@ PROPERTIES = {
     'number of records':                'P139',
     'object has role':                  'P560',
     'ORCID iD':                         'P20',
-    'output data set':                  '1606',
+    'output data set':                  'P1606',
     'page(s)':                          'P128',
     'platform':                         'P143',
     'programmed in':                    'P114',

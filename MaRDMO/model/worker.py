@@ -352,7 +352,7 @@ class prepareModel:
 
         # Generate SPARQL Check Query
         query = payload.build_relation_check_query()
-        print(query)
+
         # Perform Check Query for Relations
         check = query_sparql(query, endpoint['mardi']['sparql'])
 

@@ -141,7 +141,7 @@ def QQKInformation(sender, **kwargs):
                            set_index = 0,
                            set_prefix = instance.set_index
                            )
-                print(instance.external_id)
+                
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
                 
@@ -249,19 +249,19 @@ def MFInformation(sender, **kwargs):
                            set_index = 0,
                            set_prefix = instance.set_index
                            )# Get source and ID of Item
-                print(instance.external_id)
+                
                 source, Id = instance.external_id.split(':')
 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandler['mathematicalFormulationInformation'].format(Id, **ITEMS, **PROPERTIES)
                 results = query_sparql(query, endpoint[source]['sparql'])
-                print(results)
+                
                 mathmoddb = get_mathmoddb()
                 
                 if results:
                     # Structure Results
                     data = MathematicalFormulation.from_query(results)
-                    print(data)
+
                     # Add Optional Long Description
                     for idx, descriptionLong in enumerate(data.descriptionLong):
                         value_editor(project = instance.project, 
