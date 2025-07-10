@@ -10,7 +10,7 @@ from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
 from .oauth2 import OauthProviderMixin
-from .utils import get_general_item_url, get_mathmoddb, get_mathalgodb, get_data, get_new_ids, get_questionsAL, get_questionsMO, get_questionsPU, get_questionsSE, get_questionsWO, merge_dicts_with_unique_keys, query_sparql
+from .utils import get_general_item_url, get_mathmoddb, get_mathalgodb, get_options, get_new_ids, get_questionsAL, get_questionsMO, get_questionsPU, get_questionsSE, get_questionsWO, merge_dicts_with_unique_keys
 from .config import endpoint
 
 from .model.worker import prepareModel
@@ -103,7 +103,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             
             # Prepare Mathematical Model Preview
             answers = prepareModel.preview(answers)
-
+            
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
@@ -206,7 +206,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   {'title': _('Value Error'),
                                    'errors': [err]}, 
                                   status=200)
-    
+                
                 url = self.get_post_url()
                 
                 return self.post(self.request, url, payload)
@@ -316,7 +316,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
     def get_post_data(self):
 
-        options = get_data('data/options.json')
+        options = get_options()
 
         # MaRDMO: Mathematical Model Documentation
         if str(self.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
@@ -372,7 +372,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         elif str(self.project.catalog).split('/')[-1] == 'mardmo-interdisciplinary-workflow-catalog':
 
             # Load Data for Interdisciplinary Workflow Documentation
-            questions = questions = get_questionsWO() | get_questionsPU()
+            questions = get_questionsWO() | get_questionsPU()
             
             answers ={}
             for _, info in questions.items():

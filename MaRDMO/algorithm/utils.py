@@ -3,7 +3,7 @@ import re
 from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI
-from ..utils import extract_parts, get_data, get_mathalgodb
+from ..utils import extract_parts, get_data, get_mathalgodb, get_options
 
 
 def get_answer_algorithm(project, val, uri, key1 = None, key2 = None, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
@@ -53,7 +53,7 @@ def dict_to_triples_mathalgodb(data):
 
     mathalgodb = get_mathalgodb()
     inversePropertyMapping = get_data('algorithm/data/inversePropertyMapping.json')
-    options = get_data('data/options.json')
+    options = get_options()
 
     relations = ['IntraClassRelation', 'P2A', 'P2B', 'P2S']
     relatants = ['IntraClassElement', 'ARelatant', 'BRelatant', 'SRelatant']

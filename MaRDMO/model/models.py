@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 
-from ..utils import get_data, get_mathmoddb
+from ..utils import get_mathmoddb, get_options
 from ..id_staging import ITEMS
 
 @dataclass
@@ -227,7 +227,7 @@ class QuantityOrQuantityKind:
     def from_query(cls, raw_data: dict) -> 'QuantityOrQuantityKind':
 
         mathmoddb = get_mathmoddb()
-        options = get_data('data/options.json')
+        options = get_options()
 
         data = raw_data[0]
 

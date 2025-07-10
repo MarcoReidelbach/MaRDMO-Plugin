@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from .constants import reference_order_benchmark, reference_order_software
+from ..utils import reference_order
 
 @dataclass
 class Relatant:
@@ -42,12 +42,13 @@ class Benchmark:
     def from_query(cls, raw_data: dict) -> 'Benchmark':
 
         data = raw_data[0]
+        order = reference_order('benchmark')
 
         return cls(
             id = None,
             label = None,
             description = None,
-            reference = {reference_order_benchmark[key][0]: [reference_order_benchmark[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in reference_order_benchmark and (value := part.split(':')[1])} | ({reference_order_benchmark['url'][0]: [reference_order_benchmark['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
+            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
             publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
         )
         
@@ -65,12 +66,13 @@ class Software:
     def from_query(cls, raw_data: dict) -> 'Software':
 
         data = raw_data[0]
+        order = reference_order('software')
 
         return cls(
             id = None,
             label = None,
             description = None,
-            reference = {reference_order_software[key][0]: [reference_order_software[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in reference_order_software and (value := part.split(':')[1])} | ({reference_order_software['url'][0]: [reference_order_software['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
+            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
             tests =  [Relatant.from_query(benchmark) for benchmark in data.get('tests', {}).get('value', '').split(" / ") if benchmark] if 'tests' in data else [], 
             publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
         )

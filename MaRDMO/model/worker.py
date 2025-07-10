@@ -349,14 +349,17 @@ class prepareModel:
 
         # Construct Item Payloads
         payload.add_item_payload()  
+        
+        # If Relations are added, check if they exist
+        if any(key.startswith('RELATION') for key in payload.get_dictionary('dictionary')):
 
-        # Generate SPARQL Check Query
-        query = payload.build_relation_check_query()
+            # Generate SPARQL Check Query
+            query = payload.build_relation_check_query()
+        
+            # Perform Check Query for Relations
+            check = query_sparql(query, endpoint['mardi']['sparql'])
 
-        # Perform Check Query for Relations
-        check = query_sparql(query, endpoint['mardi']['sparql'])
-
-        # Add Check Results
-        payload.add_check_results(check)
+            # Add Check Results
+            payload.add_check_results(check)
             
         return payload.get_dictionary('dictionary')

@@ -17,11 +17,6 @@ logger = logging.getLogger(__name__)
 
 class OauthProviderMixin:
 
-    def get(self, request, url):
-        # Always require login for GET requests
-        self.store_in_session(request, 'request', ('get', url))
-        return self.authorize(request)
-
     def post(self, request, url, jsons=None, files=None, multipart=None):
         # Always require login for POST requests
         self.store_in_session(request, 'request', ('post', url, jsons, files, multipart))
@@ -59,27 +54,12 @@ class OauthProviderMixin:
 
         # Replay the original request with the new access token
         try:
-            method, *args = self.pop_from_session(request, 'request')
-            if method == 'get':
-                return self.perform_get(request, access_token, *args)
-            elif method == 'post':
-                return self.perform_post(request, access_token, *args)
+            _, *args = self.pop_from_session(request, 'request')
+            return self.perform_post(request, access_token, *args)
         except ValueError:
             pass
 
         return self.render_error(request, _('OAuth authorization successful'), _('But no redirect could be found.'))
-
-    def perform_get(self, request, access_token, url):
-        response = requests.get(url, headers=self.get_authorization_headers(access_token))
-        if response.status_code == 401:
-            logger.warning('get forbidden: %s (%s)', response.content, response.status_code)
-        else:
-            try:
-                response.raise_for_status()
-                return self.get_success(request, response)
-            except requests.HTTPError:
-                logger.warning('get error: %s (%s)', response.content, response.status_code)
-                return self.render_error(request, _('Something went wrong'), _('Could not complete the GET request.'))
 
     def perform_post(self, request, access_token, url, jsons=None, files=None, multipart=None):
         
@@ -121,7 +101,6 @@ class OauthProviderMixin:
                     keys.remove(key)
         
         final = jsons
-        
         return self.post_success(request, init, final)
 
     def render_error(self, request, title, message):
@@ -159,9 +138,6 @@ class OauthProviderMixin:
 
     def get_callback_data(self, request):
         return {}
-
-    def get_success(self, request, response):
-        raise NotImplementedError
 
     def post_success(self, request, init, final):
         raise NotImplementedError

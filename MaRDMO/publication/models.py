@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Optional, ClassVar
 
-from ..utils import get_data
+from ..utils import get_data, get_options
 
 @dataclass
 class Relatant:
@@ -190,23 +190,31 @@ class Publication:
     issue: Optional[str]
     page: Optional[str]
     reference: Optional[str]
-    journal: Optional[List[Journal]] = field(default_factory=list)
-    authors: Optional[List[Author]] = field(default_factory=list)
-    language: Optional[List[Relatant]] = field(default_factory=list)
-    applies: Optional[List[Relatant]] = field(default_factory=list)
-    analyzes: Optional[List[Relatant]] = field(default_factory=list)
-    documents: Optional[List[Relatant]] = field(default_factory=list)
-    invents: Optional[List[Relatant]] = field(default_factory=list)
-    studies: Optional[List[Relatant]] = field(default_factory=list)
-    surveys: Optional[List[Relatant]] = field(default_factory=list)
-    uses: Optional[List[Relatant]] = field(default_factory=list)
+    journal: Optional[list[Journal]] = field(default_factory=list)
+    authors: Optional[list[Author]] = field(default_factory=list)
+    language: Optional[list[Relatant]] = field(default_factory=list)
+    applies: Optional[list[Relatant]] = field(default_factory=list)
+    analyzes: Optional[list[Relatant]] = field(default_factory=list)
+    documents: Optional[list[Relatant]] = field(default_factory=list)
+    invents: Optional[list[Relatant]] = field(default_factory=list)
+    studies: Optional[list[Relatant]] = field(default_factory=list)
+    surveys: Optional[list[Relatant]] = field(default_factory=list)
+    uses: Optional[list[Relatant]] = field(default_factory=list)
+
+    options: ClassVar[Optional[dict]] = None
+
+    @classmethod
+    def get_options(cls) -> dict:
+        if cls.options is None:
+            cls.options = get_options()
+        return cls.options
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Publication':
 
         data = raw_data[0]
 
-        options = get_data('data/options.json')
+        options = cls.get_options()
         languages = get_data('data/lang.json')
 
         return cls(
@@ -241,7 +249,7 @@ class Publication:
 
         data = raw_data.json().get('message', {})
         
-        options = get_data('data/options.json')
+        options = cls.get_options()
         languages = get_data('data/lang.json')
 
         return cls(
@@ -269,7 +277,7 @@ class Publication:
 
         data = raw_data.json().get('data', {}).get('attributes', {})
         
-        options = get_data('data/options.json')
+        options = cls.get_options()
         languages = get_data('data/lang.json')
 
         return cls(
@@ -297,7 +305,7 @@ class Publication:
 
         data = raw_data.json()
 
-        options = get_data('data/options.json')
+        options = cls.get_options()
         languages = get_data('data/lang.json')
 
         return cls(
@@ -325,7 +333,7 @@ class Publication:
 
         data = raw_data.json().get('result', [''])[0]
 
-        options = get_data('data/options.json')
+        options = cls.get_options()
         languages = get_data('data/lang.json')
 
         return cls(

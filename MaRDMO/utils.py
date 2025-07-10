@@ -27,6 +27,10 @@ def get_mathalgodb():
     """Retrieve the mathmoddb ontology from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").mathalgodb
 
+def get_options():
+    """Retrieve the rdmo options from MaRDMOConfig."""
+    return apps.get_app_config("MaRDMO").options
+
 def get_questionsWO():
     """Retrieve the questions dictionary from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").questionsWO
@@ -692,6 +696,16 @@ def clean_mathml(mathml_str):
     # Apply substitution on all opening tags
     cleaned = re.sub(r'<([^>\s]+(?:\s[^>]*)?)>', clean_tag, mathml_str)
     return cleaned
+
+# Order of References
+def reference_order(entity):
+    options = get_options()
+    order = {
+            'doi': (0, options['DOI']),
+            'morwiki' if entity == 'benchmark' else 'swmath': (1, options['MORWIKI' if entity == 'benchmark' else 'SWMATH']),
+            'url': (2, options['URL']),
+            }
+    return order
 
 class GeneratePayload:
     

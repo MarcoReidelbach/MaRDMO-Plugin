@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from rdmo.projects.models import Value
 
 from ..config import BASE_URI, endpoint
-from ..utils import add_basics, add_entities, add_new_entities, add_references, add_relations, get_data, get_questionsWO, value_editor, query_sparql
+from ..utils import add_basics, add_entities, add_new_entities, add_references, add_relations, get_options, get_questionsWO, value_editor, query_sparql
 
 from .utils import extract_parts
 from .sparql import queryInfo
@@ -83,7 +83,7 @@ def SoftwareInformation(sender, **kwargs):
                 
                     # Structure Results and load options
                     data = Software.from_query(results)
-                    options = get_data('data/options.json')
+                    options = get_options()
                     
                     # Add References to Questionnaire
                     add_references(project = instance.project,

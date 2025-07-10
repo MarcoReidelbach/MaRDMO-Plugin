@@ -2,9 +2,9 @@ import re
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from ..utils import get_data
+from ..utils import get_data, get_options, reference_order
 
-from .constants import reference_order_software, order_to_publish
+from .constants import order_to_publish
 
 @dataclass
 class ModelProperties:
@@ -198,6 +198,7 @@ class Software:
     def from_query(cls, raw_data: dict) -> 'Software':
 
         data = raw_data[0]
+        order = reference_order('software')
 
         return cls(
             id = None,
@@ -205,7 +206,7 @@ class Software:
             description = None,
             sourceCodeRepository = data.get('sourceCodeRepository', {}).get('value', '') ,
             userManualURL = data.get('userManualURL', {}).get('value', ''),
-            reference = {reference_order_software[key][0]: [reference_order_software[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in reference_order_software and (value := part.split(':')[1])} | ({reference_order_software['url'][0]: [reference_order_software['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
+            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
             programmedIn =  [Relatant.from_query(language) for language in data.get('programmedIn', {}).get('value', '').split(" / ") if language] if 'programmedIn' in data else [], 
             dependsOnSoftware = [Relatant.from_query(software) for software in data.get('dependsOnSoftware', {}).get('value', '').split(" / ") if software] if 'dependsOnSoftware' in data else []
         )
@@ -251,7 +252,7 @@ class DataSet:
     def from_query(cls, raw_data: dict) -> 'DataSet':
 
         # Load MSC Classification
-        options = get_data('data/options.json')
+        options = get_options()
 
         data = raw_data[0]
 

@@ -4,7 +4,7 @@ from .sparql import queryPreview
 from .models import ModelProperties, Variables, Parameters
 from .constants import REPRODUCIBILITY
 
-from ..utils import find_item, get_data, unique_items, query_sparql, GeneratePayload
+from ..utils import find_item, get_options, unique_items, query_sparql, GeneratePayload
 from ..id_staging import ITEMS, PROPERTIES
 from ..config import endpoint
 
@@ -42,7 +42,7 @@ class prepareWorkflow:
         payload = GeneratePayload(url, items)
 
         # Load Options
-        options = get_data('data/options.json')
+        options = get_options()
 
         # Add / Retrieve Components of Interdisciplinary Workflow Item
         for key, value in items.items():

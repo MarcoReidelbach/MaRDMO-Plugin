@@ -1,7 +1,5 @@
 from ..config import BASE_URI
-from ..utils import get_data, get_questionsWO
-
-options = get_data('data/options.json')
+from ..utils import get_options, get_questionsWO
 
 # URI PREFIX Map
 def get_URI_PREFIX_MAP():
@@ -74,20 +72,16 @@ PROPS = {
     'DS2RF': ['representationFormat']
 }
 
-# Order of References
-reference_order_software = {
-            'doi': (0, options['DOI']),
-            'swmath': (1, options['SWMATH']),
-            'url': (2, options['URL']),
-            }
-
 # Order of toPublish Answers
-order_to_publish = {
-            'Yes': (0, options['Yes']),
-            'doi': (1, options['DOI']),
-            'url': (2, options['URL']),
-            'No': (3, options['URL'])
-            }
+def order_to_publish(): 
+    options = get_options()
+    order = {
+        'Yes': (0, options['Yes']),
+        'doi': (1, options['DOI']),
+        'url': (2, options['URL']),
+        'No': (3, options['URL'])
+        }
+    return order
 
 #Dictionary For Reproducibility
 REPRODUCIBILITY = {

@@ -1,7 +1,5 @@
 from ..config import BASE_URI
-from ..utils import get_data, get_questionsAL
-
-options = get_data('data/options.json')
+from ..utils import get_questionsAL
 
 # Dictionary with list of property names
 PROPS = {
@@ -12,19 +10,6 @@ PROPS = {
     'Algorithm': ['hasComponent', 'componentOf', 'hasSubclass', 'subclassOf', 'relatedTo'],
     'Problem': ['specializes', 'specializedBy']
 }
-
-# Order of References
-reference_order_benchmark = {
-            'doi': (0, options['DOI']),
-            'morwiki': (1, options['MORWIKI']),
-            'url': (2, options['URL']),
-            }
-
-reference_order_software = {
-            'doi': (0, options['DOI']),
-            'swmath': (1, options['SWMATH']),
-            'url': (2, options['URL']),
-            }
 
 # URI PREFIX Map
 def get_URI_PREFIX_MAP():
