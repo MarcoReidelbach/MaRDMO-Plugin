@@ -1,6 +1,5 @@
 from ..config import BASE_URI
-from ..utils import get_mathmoddb, get_questionsMO
-from ..id_staging import ITEMS, PROPERTIES
+from ..getters import get_items, get_mathmoddb, get_properties, get_questions_model
 
 # Dictionary for internal / external section names
 SECTION_MAP = {
@@ -58,6 +57,7 @@ RELATANT_URIS = {
 # DATA Properties
 def get_DATA_PROPERTIES(type):
     mathmoddb = get_mathmoddb()
+    ITEMS = get_items()
     DATA_PROPERTIES = {
             mathmoddb['isChemicalConstant']:        ITEMS.get('chemical constant'),
             mathmoddb['isMathematicalConstant']:    ITEMS.get('mathematical constant'),
@@ -80,6 +80,8 @@ def get_DATA_PROPERTIES(type):
 # MF Relations
 def get_Relations():
     mathmoddb = get_mathmoddb()
+    ITEMS = get_items()
+    PROPERTIES = get_properties()
     RELATIONS = {
             # Map MathModDB Relation on Wikibase Property + Qualifier Item
             mathmoddb['assumes']:                       [PROPERTIES['assumes']],
@@ -118,6 +120,7 @@ def get_Relations():
 # Relation Map
 def get_INTRACLASS_RELATION():
     mathmoddb = get_mathmoddb()
+    PROPERTIES = get_properties()
     INTRACLASS_RELATION = {
             mathmoddb['specializedBy']:         [PROPERTIES['specialized by'],         'forward'],
             mathmoddb['specializes']:           [PROPERTIES['specialized by'],         'backward'],
@@ -173,7 +176,7 @@ PREVIEW_MAP_QUANTITY = [
 
 # URI PREFIX Map (I)
 def get_URI_PREFIX_MAP():
-    questions = get_questionsMO()
+    questions = get_questions_model()
     URI_PREFIX_MAP = {
         f'{BASE_URI}{questions["Task QRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Quantity"]["uri"]}',

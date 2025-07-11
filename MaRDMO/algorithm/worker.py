@@ -1,4 +1,4 @@
-from ..utils import entityRelations
+from ..helpers import entityRelations
 
 def algorithm_relations(instance, answers, mathalgodb):
     '''Function to establish relations between Algorithm Documentation Data'''

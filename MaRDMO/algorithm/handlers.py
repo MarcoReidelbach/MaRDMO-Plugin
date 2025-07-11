@@ -7,13 +7,16 @@ from .sparql import queryHandlerAL
 from .models import Benchmark, Software, Problem, Algorithm, Relatant
 
 from ..config import BASE_URI, endpoint
-from ..utils import add_basics, add_entities, add_new_entities, add_relations, add_references, extract_parts, get_mathalgodb, get_questionsAL, get_questionsPU, query_sparql, value_editor
+from ..getters import get_mathalgodb, get_questions_algorithm, get_questions_publication
+from ..helpers import extract_parts
+from ..queries import query_sparql
+from ..adders import add_basics, add_entities, add_new_entities, add_relations, add_references
 
 @receiver(post_save, sender=Value)
 def BenchmarkInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
     # Get Questions of Algorithm Catalog
-    questions = get_questionsAL() | get_questionsPU()
+    questions = get_questions_algorithm() | get_questions_publication()
     # Check if Algorithm Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
         # Check if Benchmark ID concerned
@@ -56,7 +59,7 @@ def BenchmarkInformation(sender, **kwargs):
 def SoftwareInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
     # Get Questions of Algorithm Catalog
-    questions = get_questionsAL() | get_questionsPU()
+    questions = get_questions_algorithm() | get_questions_publication()
     # Check if Algorithm Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
         # Check if Software ID concerned
@@ -106,7 +109,7 @@ def SoftwareInformation(sender, **kwargs):
 def ProblemInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
     # Get Questions of Algorithm Catalog
-    questions = get_questionsAL() | get_questionsPU()
+    questions = get_questions_algorithm() | get_questions_publication()
     # Check if Algorithm Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
         # Check if Algorithmic Problem ID concerned
@@ -152,7 +155,7 @@ def ProblemInformation(sender, **kwargs):
 def AlgorithmInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
     # Get Questions of Algorithm Catalog
-    questions = get_questionsAL() | get_questionsPU()
+    questions = get_questions_algorithm() | get_questions_publication()
     # Check if Algorithm Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
         # Check if Algorithm ID concerned

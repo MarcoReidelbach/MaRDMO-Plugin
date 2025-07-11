@@ -1,8 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 
-from ..utils import get_mathmoddb, get_options
-from ..id_staging import ITEMS
+from ..getters import get_items, get_mathmoddb, get_options
 
 @dataclass
 class Relatant:
@@ -167,6 +166,7 @@ class MathematicalModel:
     def from_query(cls, raw_data: dict) -> 'MathematicalModel':
 
         mathmoddb = get_mathmoddb()
+        ITEMS = get_items()
 
         data = raw_data[0]
         
@@ -290,6 +290,7 @@ class MathematicalFormulation:
     def from_query(cls, raw_data: dict) -> 'MathematicalFormulation':
 
         mathmoddb = get_mathmoddb()
+        ITEMS = get_items()
 
         data = raw_data[0]
 
@@ -360,6 +361,7 @@ class Task:
     def from_query(cls, raw_data: dict) -> 'Task':
 
         mathmoddb = get_mathmoddb()
+        ITEMS = get_items()
 
         data = raw_data[0]
 

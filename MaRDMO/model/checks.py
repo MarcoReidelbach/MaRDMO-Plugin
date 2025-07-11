@@ -1,8 +1,9 @@
 from rdmo.domain.models import Attribute
 
-from ..config import BASE_URI
-from ..utils import get_mathmoddb
 from .constants import SECTION_MAP
+
+from ..config import BASE_URI
+from ..getters import get_mathmoddb
 
 class checks:
 

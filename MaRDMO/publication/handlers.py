@@ -5,7 +5,10 @@ from rdmo.projects.models import Value
 from rdmo.options.models import Option
 
 from ..config import BASE_URI, endpoint
-from ..utils import add_basics, add_references, add_relations, get_data, get_mathmoddb, get_mathalgodb, get_questionsPU, query_sparql, value_editor
+from ..getters import get_mathmoddb, get_mathalgodb, get_questions_publication
+from ..helpers import value_editor
+from ..queries import query_sparql
+from ..adders import add_basics, add_references, add_relations
 
 from .constants import INDEX_COUNTERS, PROPS, RELATANT_URIS, RELATION_URIS
 from .utils import generate_label
@@ -16,7 +19,7 @@ from .models import Publication
 def PInformation(sender, **kwargs):
     instance = kwargs.get("instance", None)
     # Get Questions of Publication Section
-    questions = get_questionsPU()
+    questions = get_questions_publication()
     # Check if Publication is concerned
     if instance and instance.attribute.uri == f'{BASE_URI}{questions["Publication ID"]["uri"]}':
         # Check if actual Publication selected

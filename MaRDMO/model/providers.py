@@ -1,6 +1,6 @@
 from rdmo.options.providers import Provider
 
-from ..utils import query_sources, query_sources_with_user_additions
+from ..queries import query_sources, query_sources_with_user_additions
 
 
 class ResearchField(Provider):

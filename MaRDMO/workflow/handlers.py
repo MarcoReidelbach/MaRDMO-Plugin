@@ -3,12 +3,14 @@ from django.db.models.signals import post_save
 from rdmo.projects.models import Value
 
 from ..config import BASE_URI, endpoint
-from ..utils import add_basics, add_entities, add_new_entities, add_references, add_relations, get_options, get_questionsWO, value_editor, query_sparql
+from ..getters import get_items, get_options, get_properties, get_questions_workflow
+from ..helpers import extract_parts, value_editor
+from ..queries import query_sparql
+from ..adders import add_basics, add_entities, add_new_entities, add_references, add_relations
 
-from .utils import extract_parts
-from .sparql import queryInfo
-from .models import Method, ProcessStep, Relatant, Software, Hardware, DataSet
 from .constants import PROPS, get_URI_PREFIX_MAP
+from .models import Method, ProcessStep, Relatant, Software, Hardware, DataSet
+from .sparql import queryHandler
 
 @receiver(post_save, sender=Value)
 def RelationHandler(sender, **kwargs):
@@ -59,7 +61,7 @@ def SoftwareInformation(sender, **kwargs):
     # Check if Workflow Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
         # Get Questions of Workflow Catalog
-        questions = get_questionsWO()
+        questions = get_questions_workflow()
         # Check if Software ID is concerned
         if instance.attribute.uri == f'{BASE_URI}{questions["Software ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
@@ -77,7 +79,8 @@ def SoftwareInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
 
                 # Query source for further Information
-                results = query_sparql(queryInfo[source]['software'].format(Id), endpoint[source]['sparql'])
+                query = queryHandler[source]['software'].format(Id, **get_items(), **get_properties())
+                results = query_sparql(query, endpoint[source]['sparql'])
                 
                 if results:
                 
@@ -128,7 +131,7 @@ def HardwareInformation(sender, **kwargs):
     # Check if Workflow Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
         # Get Questions of Workflow Section
-        questions = get_questionsWO()
+        questions = get_questions_workflow()
         if instance.attribute.uri == f'{BASE_URI}{questions["Hardware ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
 
@@ -145,8 +148,9 @@ def HardwareInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
 
                 # Query source for further Information
-                results = query_sparql(queryInfo[source]['hardware'].format(Id), endpoint[source]['sparql'])
-
+                query = queryHandler[source]['hardware'].format(Id, **get_items(), **get_properties())
+                results = query_sparql(query, endpoint[source]['sparql'])
+                
                 if results:
 
                     # Structure Results
@@ -180,7 +184,7 @@ def InstrumentInformation(sender, **kwargs):
     # Check if Workflow Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
         # Get Questions of Workflow Section
-        questions = get_questionsWO()
+        questions = get_questions_workflow()
         if instance.attribute.uri == f'{BASE_URI}{questions["Instrument ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
 
@@ -201,7 +205,7 @@ def DataSetInformation(sender, **kwargs):
     # Check if Workflow Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
         # Get Questions of Workflow Section
-        questions = get_questionsWO()
+        questions = get_questions_workflow()
         if instance.attribute.uri == f'{BASE_URI}{questions["Data Set ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
 
@@ -218,8 +222,9 @@ def DataSetInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
 
                 # Query source for further Information
-                results = query_sparql(queryInfo[source]['data-set'].format(Id), endpoint[source]['sparql'])
-
+                query = queryHandler[source]['data-set'].format(Id, **get_items(), **get_properties())
+                results = query_sparql(query, endpoint[source]['sparql'])
+                
                 if results:
                     
                     # Structure Results and load Pptions
@@ -290,7 +295,7 @@ def MethodInformation(sender, **kwargs):
     # Check if Workflow Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
         # Get Questions of Workflow Section
-        questions = get_questionsWO()
+        questions = get_questions_workflow()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Method ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 
@@ -307,8 +312,9 @@ def MethodInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
 
                 # Query source for further Information
-                results = query_sparql(queryInfo[source]['method'].format(Id), endpoint[source]['sparql'])
-
+                query = queryHandler[source]['method'].format(Id, **get_items(), **get_properties())
+                results = query_sparql(query, endpoint[source]['sparql'])
+                
                 if results:
                     # Structure Results
                     data = Method.from_query(results)
@@ -336,7 +342,7 @@ def ProcessStepInformation(sender, **kwargs):
     # Check if Workflow Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
         # Get Questions of Workflow Section
-        questions = get_questionsWO()
+        questions = get_questions_workflow()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Process Step ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 
@@ -353,7 +359,8 @@ def ProcessStepInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
                 
                 # Query source for further Information
-                results = query_sparql(queryInfo[source]['step'].format(Id), endpoint[source]['sparql'])
+                query = queryHandler[source]['step'].format(Id, **get_items(), **get_properties())
+                results = query_sparql(query, endpoint[source]['sparql'])
                 
                 if results:
                     # Structure Results

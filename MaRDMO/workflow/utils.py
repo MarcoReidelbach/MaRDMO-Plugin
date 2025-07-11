@@ -1,5 +1,5 @@
 from rdmo.domain.models import Attribute
-from ..utils import extract_parts
+from ..helpers import extract_parts
 from ..config import BASE_URI
 
 def compare_items(old, new):

@@ -4,9 +4,8 @@ from rdmo.domain.models import Attribute
 from .sparql import queryProvider
 
 from ..config import BASE_URI, endpoint
-from ..id_staging import ITEMS, PROPERTIES
-from ..utils import get_data, query_sources, query_sources_with_user_additions, query_sparql
-import requests, time
+from ..getters import get_items, get_data, get_properties
+from ..queries import query_sources, query_sources_with_user_additions, query_sparql
 
 # PLACEHOLDER PROVIDER FOR FUTURE CHANGES
 #class WikibaseModelLoader:
@@ -168,7 +167,7 @@ class WorkflowTask(Provider):
 
         if model_id:
             _, id_value = model_id.split(':')
-            results = query_sparql(queryProvider['RT'].format(id_value, **ITEMS, **PROPERTIES), endpoint['mardi']['sparql'])
+            results = query_sparql(queryProvider['RT'].format(id_value, **get_items(), **get_properties()), endpoint['mardi']['sparql'])
             if results:
                 if results[0].get('usedBy', {}).get('value'):
                     tasks = results[0]['usedBy']['value'].split(' / ')

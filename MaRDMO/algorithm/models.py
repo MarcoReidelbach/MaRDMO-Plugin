@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from ..utils import reference_order
+from ..adders import add_reference_order
 
 @dataclass
 class Relatant:
@@ -42,7 +42,7 @@ class Benchmark:
     def from_query(cls, raw_data: dict) -> 'Benchmark':
 
         data = raw_data[0]
-        order = reference_order('benchmark')
+        order = add_reference_order('benchmark')
 
         return cls(
             id = None,
@@ -66,7 +66,7 @@ class Software:
     def from_query(cls, raw_data: dict) -> 'Software':
 
         data = raw_data[0]
-        order = reference_order('software')
+        order = add_reference_order('software')
 
         return cls(
             id = None,

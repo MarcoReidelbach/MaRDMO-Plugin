@@ -2,7 +2,8 @@ import re
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from ..utils import get_data, get_options, reference_order
+from ..getters import get_data, get_options
+from ..adders import add_reference_order
 
 from .constants import order_to_publish
 
@@ -198,7 +199,7 @@ class Software:
     def from_query(cls, raw_data: dict) -> 'Software':
 
         data = raw_data[0]
-        order = reference_order('software')
+        order = add_reference_order('software')
 
         return cls(
             id = None,

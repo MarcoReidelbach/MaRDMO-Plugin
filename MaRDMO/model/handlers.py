@@ -7,10 +7,11 @@ from .constants import PROPS, RELATANT_URIS, RELATION_URIS, INDEX_COUNTERS, get_
 from .sparql import queryHandler
 from .models import ResearchField, ResearchProblem, MathematicalModel, QuantityOrQuantityKind, MathematicalFormulation, Task, Relatant
 
-from ..id_staging import ITEMS, PROPERTIES
-from ..utils import add_basics, add_entities, add_new_entities, add_properties, add_relations, add_references, extract_parts, get_mathmoddb, get_questionsMO, get_questionsPU, query_sparql, value_editor
 from ..config import BASE_URI, endpoint
-
+from ..getters import get_items, get_mathmoddb, get_properties, get_questions_model, get_questions_publication
+from ..helpers import extract_parts, value_editor
+from ..queries import query_sparql
+from ..adders import add_basics, add_entities, add_new_entities, add_properties, add_relations, add_references
 
 @receiver(post_save, sender=Value)
 def RFInformation(sender, **kwargs):
@@ -18,7 +19,7 @@ def RFInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO() | get_questionsPU()
+        questions = get_questions_model() | get_questions_publication()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Research Field ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 add_basics(project = instance.project,
@@ -32,7 +33,7 @@ def RFInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                query = queryHandler['researchFieldInformation'].format(Id, f"{endpoint[source]['uri']}/entity/", **ITEMS, **PROPERTIES)
+                query = queryHandler['researchFieldInformation'].format(Id, f"{endpoint[source]['uri']}/entity/", **get_items(), **get_properties())
                 results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_mathmoddb()
                 
@@ -70,7 +71,7 @@ def RPInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO() | get_questionsPU()
+        questions = get_questions_model() | get_questions_publication()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Research Problem ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 # Get Label and Description of Item and add to questionnaire
@@ -85,7 +86,7 @@ def RPInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                query = queryHandler['researchProblemInformation'].format(Id, **ITEMS, **PROPERTIES)
+                query = queryHandler['researchProblemInformation'].format(Id, **get_items(), **get_properties())
                 results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_mathmoddb()
                 
@@ -130,7 +131,7 @@ def QQKInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO() | get_questionsPU()
+        questions = get_questions_model() | get_questions_publication()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Quantity ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 # Get Label and Description of Item and add to questionnaire
@@ -146,7 +147,7 @@ def QQKInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
                 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                query = queryHandler['quantityOrQuantityKindInformation'].format(Id, **ITEMS, **PROPERTIES)
+                query = queryHandler['quantityOrQuantityKindInformation'].format(Id, **get_items(), **get_properties())
                 results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_mathmoddb()
                 
@@ -238,7 +239,7 @@ def MFInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO() | get_questionsPU()
+        questions = get_questions_model() | get_questions_publication()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 # Get Label and Description of Item and add to questionnaire
@@ -253,7 +254,7 @@ def MFInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                query = queryHandler['mathematicalFormulationInformation'].format(Id, **ITEMS, **PROPERTIES)
+                query = queryHandler['mathematicalFormulationInformation'].format(Id, **get_items(), **get_properties())
                 results = query_sparql(query, endpoint[source]['sparql'])
                 
                 mathmoddb = get_mathmoddb()
@@ -331,7 +332,7 @@ def TInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO() | get_questionsPU()
+        questions = get_questions_model() | get_questions_publication()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Task ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 # Get Label and Description of Item and add to questionnaire
@@ -346,7 +347,7 @@ def TInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
                 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                query = queryHandler['taskInformation'].format(Id, **ITEMS, **PROPERTIES)
+                query = queryHandler['taskInformation'].format(Id, **get_items(), **get_properties())
                 results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_mathmoddb()
                 
@@ -408,7 +409,7 @@ def MMInformation(sender, **kwargs):
     # Check if Model Catalog is used
     if instance and str(instance.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
         # Get Questions of Model Catalog
-        questions = get_questionsMO() | get_questionsPU()
+        questions = get_questions_model() | get_questions_publication()
         if instance and instance.attribute.uri == f'{BASE_URI}{questions["Mathematical Model ID"]["uri"]}':
             if instance.text and instance.text != 'not found':
                 # Get Label and Description of Item and add to questionnaire
@@ -423,7 +424,7 @@ def MMInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
-                query = queryHandler['mathematicalModelInformation'].format(Id, **ITEMS, **PROPERTIES)
+                query = queryHandler['mathematicalModelInformation'].format(Id, **get_items(), **get_properties())
                 results = query_sparql(query, endpoint[source]['sparql'])
                 mathmoddb = get_mathmoddb()
                 if results:

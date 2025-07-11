@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional, ClassVar
 
-from ..utils import get_data, get_options
+from ..getters import get_data, get_options
 
 @dataclass
 class Relatant:

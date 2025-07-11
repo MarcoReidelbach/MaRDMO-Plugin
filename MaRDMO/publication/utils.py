@@ -7,7 +7,7 @@ from .models import Author, Journal, Publication
 from .sparql import queryPublication
 
 from ..config import endpoint
-from ..utils import query_sparql_pool
+from ..queries import query_sparql_pool
 
 def additional_queries(publication, choice, key, mardi_parameter, wikidata_parameter, function):
     '''Additional MaRDI Portal and Wikidata SPARQL Queries instance like authors or journals'''

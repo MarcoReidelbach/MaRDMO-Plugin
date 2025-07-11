@@ -1,7 +1,8 @@
 import html
 
 from ..config import endpoint
-from ..utils import query_sparql, get_general_item_url
+from ..getters import get_general_item_url
+from ..queries import query_sparql
 from .sparql import algorithmic_problem_sparql, software_sparql, algorithmic_problem_filter_sparql, quote_sparql, quantity_sparql, task_sparql, formulation_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql, query_base, query_base_model, query_base_algorithm, problem_sparql, problem_filter_sparql, field_sparql
 
 def search(answers, options):

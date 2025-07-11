@@ -10,7 +10,7 @@ from django.shortcuts import render
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 
-from .utils import replace_in_dict
+from .helpers import replace_in_dict
 
 logger = logging.getLogger(__name__)
 

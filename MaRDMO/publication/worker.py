@@ -3,8 +3,10 @@ from .utils import generate_label, get_citation
 from .sparql import queryPublication
 from .models import Publication
 
-from ..utils import query_sparql, get_questionsPU, value_editor
 from ..config import BASE_URI, endpoint
+from ..getters import get_questions_publication
+from ..queries import query_sparql
+from ..helpers import value_editor
 
 class PublicationRetriever:
 
@@ -12,7 +14,7 @@ class PublicationRetriever:
         '''Function retrieving Publication Information for workflow and model documentation'''
 
         # Get Questions of Workflow Catalog
-        questions = get_questionsPU()
+        questions = get_questions_publication()
 
         for key in answers['publication']:
 
@@ -106,7 +108,7 @@ class PublicationRetriever:
         '''Function retrieving Publication Information for algorithm documentation'''
 
         # Get Questions of Workflow Catalog
-        questions = get_questionsPU()
+        questions = get_questions_publication()
 
         # Go through all Publications
         for key in answers['publication']:

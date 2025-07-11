@@ -1,4 +1,4 @@
-queryInfo = {
+queryHandler = {
             'mardi': {
                       'step':  '''PREFIX wdt:<https://portal.mardi4nfdi.de/prop/direct/>
                                   PREFIX wd:<https://portal.mardi4nfdi.de/entity/>
