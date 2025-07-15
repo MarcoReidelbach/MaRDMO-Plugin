@@ -47,7 +47,7 @@
 "QUDT quantity kind ID":            "P1654",
 "serial number":                    "P1570",
 "series ordinal":                   "P146",
-"similar to":                       "",
+"similar to":                       "P1691",
 "software version identifier":      "P132",
 "source code repository URL":       "P339",
 "specialized by":                   "P1684",
