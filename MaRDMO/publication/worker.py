@@ -4,7 +4,7 @@ from .sparql import queryPublication
 from .models import Publication
 
 from ..config import BASE_URI, endpoint
-from ..getters import get_questions_publication
+from ..getters import get_items, get_questions_publication, get_properties
 from ..queries import query_sparql
 from ..helpers import value_editor
 
@@ -25,8 +25,10 @@ class PublicationRetriever:
 
             #If User selected Publication from Wikidata...
             if answers['publication'][key]['ID'].startswith('wikidata'):
-                #...use the DOI to query MaRDI Portal. 
-                query = queryPublication['MaRDIDOI'].format(answers['publication'][key].get('reference', {}).get(0, ['',''])[1])
+                #...use the DOI... 
+                doi = answers['publication'][key].get('reference', {}).get(0, ['',''])[1]
+                #...to query MaRDI Portal.
+                query = queryPublication['MaRDI']['DOI'].format(doi, **get_properties())
                 results = query_sparql(query, endpoint['mardi']['sparql'])
                 if results:
                     #If Publication found in MaRDI Portal...

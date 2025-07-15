@@ -5,7 +5,7 @@ from rdmo.projects.models import Value
 from rdmo.options.models import Option
 
 from ..config import BASE_URI, endpoint
-from ..getters import get_mathmoddb, get_mathalgodb, get_questions_publication
+from ..getters import get_items, get_mathmoddb, get_mathalgodb, get_properties, get_questions_publication
 from ..helpers import value_editor
 from ..queries import query_sparql
 from ..adders import add_basics, add_references, add_relations
@@ -50,7 +50,7 @@ def PInformation(sender, **kwargs):
             # If Publication from MaRDI Portal...
             elif source == 'mardi':
                 #...query the MaRDI Portal,...
-                query = queryPublication['All_MaRDILabel'].format(id.upper())
+                query = queryPublication['MaRDI']['QID_FULL'].format(id, **get_items(), **get_properties())
                 results = query_sparql(query, endpoint['mardi']['sparql'])
                 if results:
                     #...structure the data...
@@ -77,7 +77,7 @@ def PInformation(sender, **kwargs):
             # If Publication from Wikidata...   
             elif source == 'wikidata':
                 #...query Wikidata,...
-                query = queryPublication['All_WikidataLabel'].format(id.upper())
+                query = queryPublication['Wikidata']['QID_FULL'].format(id)
                 results = query_sparql(query, endpoint['wikidata']['sparql-scholarly'])
                 if results:
                     #...structure the data...

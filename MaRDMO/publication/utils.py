@@ -7,6 +7,7 @@ from .models import Author, Journal, Publication
 from .sparql import queryPublication
 
 from ..config import endpoint
+from ..getters import get_items, get_properties
 from ..queries import query_sparql_pool
 
 def additional_queries(publication, choice, key, mardi_parameter, wikidata_parameter, function):
@@ -74,9 +75,9 @@ def get_citation(DOI):
         choice = None
 
         # Define MaRDI Portal / Wikidata / MathModDB / MathAlgoDB SPARQL Queries
-        mardi_query = queryPublication['All_MaRDI'].format(DOI)#.upper())
-        wikidata_query = queryPublication['All_Wikidata'].format(DOI)#.upper())
-        mathalgodb_query = queryPublication['PublicationMathAlgoDBDOI'].format(DOI)
+        mardi_query = queryPublication['MaRDI']['DOI_FULL'].format(DOI.upper(), **get_items(), **get_properties())
+        wikidata_query = queryPublication['Wikidata']['DOI_FULL'].format(DOI.upper())
+        mathalgodb_query = queryPublication['PublicationMathAlgoDBDOI'].format(DOI.upper())
         
         # Get Citation Data from MaRDI Portal / Wikidata / MathAlgoDB
         results = query_sparql_pool({'wikidata':(wikidata_query, endpoint['wikidata']['sparql-scholarly']), 
@@ -129,12 +130,19 @@ def get_citation(DOI):
                 # Check if Authors already in MaRDI Portal or Wikidata
                 orcid_id = ' '.join(f'"{author.orcid_id}"' if author.orcid_id else '""' for author in publication[choice].authors)
                 zbmath_id = ' '.join(f'"{author.zbmath_id}"' if author.zbmath_id else '""' for author in publication[choice].authors)
+                properties = get_properties()
                 if orcid_id and zbmath_id:
-                    additional_queries(publication, choice, 'authors', [orcid_id, zbmath_id, '20', '676', '12'], [orcid_id, zbmath_id, '496', '1556', ''], extract_authors)
+                    additional_queries(publication, choice, 'authors', 
+                                       [orcid_id, zbmath_id, properties['ORCID iD'], properties['zbMATH author ID'], properties['Wikidata QID']], 
+                                       [orcid_id, zbmath_id, 'P496', 'P1556', ''], 
+                                       extract_authors)
                 # Check if Journal already in MaRDI Portal or Wikidata
                 journal_id = publication[choice].journal[0].issn
                 if journal_id:
-                    additional_queries(publication, choice, 'journal', [journal_id, '24'], [journal_id, '236'], extract_journals)
+                    additional_queries(publication, choice, 'journal', 
+                                       [journal_id, properties['ISSN']], 
+                                       [journal_id, 'P236'], 
+                                       extract_journals)
         
     return publication
 
