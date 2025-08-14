@@ -16,7 +16,7 @@ class PublicationRetriever:
         # Get Questions of Workflow Catalog
         questions = get_questions_publication()
 
-        for key in answers['publication']:
+        for key in answers.get('publication', {}):
 
             if str(project.catalog).split('/')[-1] == 'mardmo-interdisciplinary-workflow-catalog':
                 # Ignore references for individual triple in workflow catalog
@@ -35,7 +35,7 @@ class PublicationRetriever:
                     data = Publication.from_query(results)
                     #...add data to Questionnaire and...
                     value_editor(project = project, 
-                                 uri = f'{BASE_URI}{questions["Publication ID"]["uri"]}', 
+                                 uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
                                  text = f"{data.label} ({data.description}) [mardi]" , 
                                  external_id = data.id, 
                                  set_index = key)
@@ -58,7 +58,7 @@ class PublicationRetriever:
                         DATA = data['mardi'] or data['wikidata']
                         #...add data to Questionnaire and...
                         value_editor(project = project, 
-                                     uri = f'{BASE_URI}{questions["Publication ID"]["uri"]}', 
+                                     uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
                                      text = f"{DATA.label} ({DATA.description}) [{DATA.id.split(':')[0]}]" , 
                                      external_id = DATA.id, 
                                      set_index = key)
@@ -72,14 +72,14 @@ class PublicationRetriever:
                         #...add data to Questionnaire and...
                         for uri, data_key in PUBLICATIONS.items():
                             value_editor(project = project, 
-                                         uri = f'{BASE_URI}{questions[uri]["uri"]}', 
+                                         uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
                                          text = getattr(DATA, data_key), 
                                          set_index = key)
                             
                         for idx, language in enumerate(DATA.language):
                             for uri, data_key in LANGUAGES.items():
                                 value_editor(project = project, 
-                                             uri = f'{BASE_URI}{questions[uri]["uri"]}', 
+                                             uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
                                              text = getattr(language, data_key), 
                                              collection_index = idx, 
                                              set_index = key)
@@ -87,7 +87,7 @@ class PublicationRetriever:
                         for idx, journal in enumerate(DATA.journal):
                             for uri, data_key in JOURNALS.items():
                                 value_editor(project = project, 
-                                             uri = f'{BASE_URI}{questions[uri]["uri"]}', 
+                                             uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
                                              text = getattr(journal, data_key), 
                                              collection_index = idx, 
                                              set_index = key)
@@ -95,7 +95,7 @@ class PublicationRetriever:
                         for idx, author in enumerate(DATA.authors):
                             for uri, data_key in AUTHORS.items():
                                 value_editor(project = project, 
-                                             uri = f'{BASE_URI}{questions[uri]["uri"]}', 
+                                             uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
                                              text = getattr(author, data_key), 
                                              collection_index = idx, 
                                              set_index = key)
@@ -126,7 +126,7 @@ class PublicationRetriever:
                         data = Publication.from_query(results)
                         #...add data to Questionnaire and...
                         value_editor(project = project, 
-                                     uri = f'{BASE_URI}{questions["Publication ID"]["uri"]}', 
+                                     uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
                                      text = f"{data.label} ({data.description}) [mathalgodb]" , 
                                      external_id = data.id, 
                                      set_index = key)
@@ -145,7 +145,7 @@ class PublicationRetriever:
                     if data['mathalgodb']:
                         #...add data to Questionnaire and...
                         value_editor(project = project, 
-                                     uri = f'{BASE_URI}{questions["Publication ID"]["uri"]}', 
+                                     uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
                                      text = f"{data['mathalgodb'].label} ({data['mathalgodb'].description}) [mathalgodb]" , 
                                      external_id = data['mathalgodb'].id, 
                                      set_index = key)
@@ -158,11 +158,11 @@ class PublicationRetriever:
                         DATA = data['mardi'] or data['wikidata'] or data['crossref'] or data['datacite'] or data['zbmath'] or data['doi']
                         #...add data to Questionnaire and...
                         value_editor(project = project, 
-                                     uri = f'{BASE_URI}{questions["Publication Name"]["uri"]}', 
+                                     uri = f'{BASE_URI}{questions["Publication"]["Name"]["uri"]}', 
                                      text = generate_label(DATA), 
                                      set_index = key)
                         value_editor(project = project, 
-                                     uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
+                                     uri = f'{BASE_URI}{questions["Publication"]["Description"]["uri"]}', 
                                      text = DATA.description, 
                                      set_index = key)
                         #...output dictionary.

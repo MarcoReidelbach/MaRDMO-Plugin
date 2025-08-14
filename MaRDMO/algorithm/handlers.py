@@ -20,16 +20,15 @@ def BenchmarkInformation(sender, **kwargs):
     # Check if Algorithm Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
         # Check if Benchmark ID concerned
-        if instance.attribute.uri == f'{BASE_URI}{questions["Benchmark ID"]["uri"]}':
+        if instance.attribute.uri == f'{BASE_URI}{questions["Benchmark"]["ID"]["uri"]}':
             # Check if actual Benchmark chosen
             if instance.text and instance.text != 'not found':
                 # Add Information to Questionnaire if not already present
                 add_basics(project = instance.project,
                            text = instance.text,
-                           url_name = f'{BASE_URI}{questions["Benchmark Name"]["uri"]}',
-                           url_description = f'{BASE_URI}{questions["Benchmark Description"]["uri"]}',
-                           set_index = 0,
-                           set_prefix = instance.set_index
+                           questions = questions,
+                           item_type = "Benchmark",
+                           index = (0, instance.set_index)
                            )
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
@@ -44,12 +43,11 @@ def BenchmarkInformation(sender, **kwargs):
                     # Add References to Questionnaire
                     add_references(project = instance.project,
                                    data = data,
-                                   uri = f'{BASE_URI}{questions["Benchmark Reference"]["uri"]}',
+                                   uri = f'{BASE_URI}{questions["Benchmark"]["Reference"]["uri"]}',
                                    set_prefix = instance.set_index)
                     # Add Publications to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
-                                 question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
                                  datas = data.publications, 
                                  source = source,
                                  prefix = 'P')
@@ -63,22 +61,21 @@ def SoftwareInformation(sender, **kwargs):
     # Check if Algorithm Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
         # Check if Software ID concerned
-        if instance.attribute.uri == f'{BASE_URI}{questions["Software ID"]["uri"]}':
+        if instance.attribute.uri == f'{BASE_URI}{questions["Software"]["ID"]["uri"]}':
             # Check if actual Software chosen
             if instance.text and instance.text != 'not found':
                 # Add Information to Questionnaire if not already present
                 add_basics(project = instance.project,
                            text = instance.text,
-                           url_name = f'{BASE_URI}{questions["Software Name"]["uri"]}',
-                           url_description = f'{BASE_URI}{questions["Software Description"]["uri"]}',
-                           set_index = 0,
-                           set_prefix = instance.set_index
+                           questions = questions,
+                           item_type = "Software",
+                           index = (0, instance.set_index)
                            )
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
                 
                 query = queryHandlerAL['softwareInformation'].format(Id)
-                results = query_sparql(query, endpoint[source['sparql']])
+                results = query_sparql(query, endpoint[source]['sparql'])
                 mathalgodb = get_mathalgodb()
                 
                 if results:
@@ -87,7 +84,7 @@ def SoftwareInformation(sender, **kwargs):
                     # Add References to Questionnaire
                     add_references(project = instance.project,
                                    data = data,
-                                   uri = f'{BASE_URI}{questions["Software Reference"]["uri"]}',
+                                   uri = f'{BASE_URI}{questions["Software"]["Reference"]["uri"]}',
                                    set_prefix = instance.set_index)
                     # Add Benchmarks to Questionnaire
                     add_relations(project = instance.project, 
@@ -95,11 +92,10 @@ def SoftwareInformation(sender, **kwargs):
                                   props = PROPS['S2B'], 
                                   mapping = mathalgodb, 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Software BRelatant"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Software"]["BRelatant"]["uri"]}')
                     # Add Publications to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
-                                 question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
                                  datas = data.publications, 
                                  source = source,
                                  prefix = 'P')
@@ -113,16 +109,15 @@ def ProblemInformation(sender, **kwargs):
     # Check if Algorithm Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
         # Check if Algorithmic Problem ID concerned
-        if instance.attribute.uri == f'{BASE_URI}{questions["Problem ID"]["uri"]}':
+        if instance.attribute.uri == f'{BASE_URI}{questions["Problem"]["ID"]["uri"]}':
             # Check if actual Algorithmic Problem chosen
             if instance.text and instance.text != 'not found':
                 # Add Information to Questionnaire if not already present
                 add_basics(project = instance.project,
                            text = instance.text,
-                           url_name = f'{BASE_URI}{questions["Problem Name"]["uri"]}',
-                           url_description = f'{BASE_URI}{questions["Problem Description"]["uri"]}',
-                           set_index = 0,
-                           set_prefix = instance.set_index
+                           questions = questions,
+                           item_type = "Problem",
+                           index = (0, instance.set_index)
                            )
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')    
@@ -140,15 +135,15 @@ def ProblemInformation(sender, **kwargs):
                                   props = PROPS['P2B'], 
                                   mapping = mathalgodb, 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Problem BRelatant"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Problem"]["BRelatant"]["uri"]}')
                     # Add Relations between Algorithmic Problems to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['Problem'], 
                                   mapping = mathalgodb, 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Problem IntraClassElement"]["uri"]}', 
-                                  relation = f'{BASE_URI}{questions["Problem IntraClassRelation"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Problem"]["IntraClassElement"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Problem"]["IntraClassRelation"]["uri"]}')
     return
 
 @receiver(post_save, sender=Value)
@@ -159,17 +154,16 @@ def AlgorithmInformation(sender, **kwargs):
     # Check if Algorithm Catalog is used
     if instance and str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
         # Check if Algorithm ID concerned
-        if instance.attribute.uri == f'{BASE_URI}{questions["Algorithm ID"]["uri"]}':
+        if instance.attribute.uri == f'{BASE_URI}{questions["Algorithm"]["ID"]["uri"]}':
             # Check if actual Algorithm chosen
             if instance.text and instance.text != 'not found':
                 # Load Questions of Algorithm Catalog
                 # Add Information to Questionnaire if not already present
                 add_basics(project = instance.project,
                            text = instance.text,
-                           url_name = f'{BASE_URI}{questions["Algorithm Name"]["uri"]}',
-                           url_description = f'{BASE_URI}{questions["Algorithm Description"]["uri"]}',
-                           set_index = 0,
-                           set_prefix = instance.set_index
+                           questions = questions,
+                           item_type = "Algorithm",
+                           index = (0, instance.set_index)
                            )
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')
@@ -187,26 +181,25 @@ def AlgorithmInformation(sender, **kwargs):
                                   props = PROPS['A2P'], 
                                   mapping = mathalgodb, 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Algorithm PRelatant"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Algorithm"]["PRelatant"]["uri"]}')
                     # Add Softwares to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['A2S'], 
                                   mapping = mathalgodb, 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Algorithm SRelatant"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Algorithm"]["SRelatant"]["uri"]}')
                     # Add Relations between Algorithms to Questionnaire
                     add_relations(project = instance.project, 
                                   data = data, 
                                   props = PROPS['Algorithm'], 
                                   mapping = mathalgodb, 
                                   set_prefix = instance.set_index, 
-                                  relatant = f'{BASE_URI}{questions["Algorithm IntraClassElement"]["uri"]}', 
-                                  relation = f'{BASE_URI}{questions["Algorithm IntraClassRelation"]["uri"]}')
+                                  relatant = f'{BASE_URI}{questions["Algorithm"]["IntraClassElement"]["uri"]}', 
+                                  relation = f'{BASE_URI}{questions["Algorithm"]["IntraClassRelation"]["uri"]}')
                     # Add Publications to Questionnaire
                     add_entities(project = instance.project, 
                                  question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
-                                 question_id = f'{BASE_URI}{questions["Publication ID"]["uri"]}',
                                  datas = data.publications, 
                                  source = source,
                                  prefix = 'P')
@@ -236,7 +229,6 @@ def RelationHandler(sender, **kwargs):
                 add_entities(
                     project=instance.project,
                     question_set=config["question_set"],
-                    question_id=config["question_id"],
                     datas=datas,
                     source=source,
                     prefix=config["prefix"]
@@ -247,9 +239,7 @@ def RelationHandler(sender, **kwargs):
                 add_new_entities(
                     project=instance.project,
                     question_set=config["question_set"],
-                    question_id=config["question_id"],
                     datas=datas,
-                    source=source,
                     prefix=config["prefix"]
                 )
 

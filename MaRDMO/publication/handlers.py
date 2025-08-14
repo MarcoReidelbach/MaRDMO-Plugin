@@ -21,7 +21,7 @@ def PInformation(sender, **kwargs):
     # Get Questions of Publication Section
     questions = get_questions_publication()
     # Check if Publication is concerned
-    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Publication ID"]["uri"]}':
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}':
         # Check if actual Publication selected
         if instance.text and instance.text != 'not found':
             # Get Source and ID of selected Publication 
@@ -39,13 +39,13 @@ def PInformation(sender, **kwargs):
                     #...and add the Information to the Questionnaire.
                     add_basics(project = instance.project,
                                text = instance.text,
-                               url_name = f'{BASE_URI}{questions["Publication Name"]["uri"]}',
-                               url_description = f'{BASE_URI}{questions["Publication Description"]["uri"]}',
-                               set_index = instance.set_index
+                               questions = questions,
+                               item_type = 'Publication',
+                               index = (instance.set_index, None)
                                )
                     add_references(project = instance.project,
                                    data = data,
-                                   uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}',
+                                   uri = f'{BASE_URI}{questions["Publication"]["Reference"]["uri"]}',
                                    set_index = instance.set_index)
             # If Publication from MaRDI Portal...
             elif source == 'mardi':
@@ -58,21 +58,21 @@ def PInformation(sender, **kwargs):
                     #...and add the Information to the Questionnaire.
                     if str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
                         value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Publication Name"]["uri"]}', 
+                                     uri = f'{BASE_URI}{questions["Publication"]["Name"]["uri"]}', 
                                      text = generate_label(data), 
                                      set_index = instance.set_index)
                     else:
                         value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Publication Name"]["uri"]}', 
+                                     uri = f'{BASE_URI}{questions["Publication"]["Name"]["uri"]}', 
                                      text = data.label, 
                                      set_index = instance.set_index)
                     value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
+                                 uri = f'{BASE_URI}{questions["Publication"]["Description"]["uri"]}', 
                                  text = data.description, 
                                  set_index = instance.set_index)
                     add_references(project = instance.project,
                                    data = data,
-                                   uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}',
+                                   uri = f'{BASE_URI}{questions["Publication"]["Reference"]["uri"]}',
                                    set_index = instance.set_index)
             # If Publication from Wikidata...   
             elif source == 'wikidata':
@@ -85,21 +85,21 @@ def PInformation(sender, **kwargs):
                     #and add the Information to the Questionnaire.
                     if str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
                         value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Publication Name"]["uri"]}', 
+                                     uri = f'{BASE_URI}{questions["Publication"]["Name"]["uri"]}', 
                                      text = generate_label(data), 
                                      set_index = instance.set_index)
                     else:
                         value_editor(project = instance.project, 
-                                     uri = f'{BASE_URI}{questions["Publication Name"]["uri"]}', 
+                                     uri = f'{BASE_URI}{questions["Publication"]["Name"]["uri"]}', 
                                      text = data.label, 
                                      set_index = instance.set_index)
                     value_editor(project = instance.project, 
-                                 uri = f'{BASE_URI}{questions["Publication Description"]["uri"]}', 
+                                 uri = f'{BASE_URI}{questions["Publication"]["Description"]["uri"]}', 
                                  text = data.description, 
                                  set_index = instance.set_index)
                     add_references(project = instance.project,
                                    data = data,
-                                   uri = f'{BASE_URI}{questions["Publication Reference"]["uri"]}',
+                                   uri = f'{BASE_URI}{questions["Publication"]["Reference"]["uri"]}',
                                    set_index = instance.set_index)
             if data:
                 # For Models add Relations          
@@ -111,8 +111,8 @@ def PInformation(sender, **kwargs):
                                       props = PROPS['P2E'], 
                                       mapping = mathmoddb, 
                                       set_prefix = instance.set_index, 
-                                      relatant = f'{BASE_URI}{questions["Publication EntityRelatant"]["uri"]}', 
-                                      relation = f'{BASE_URI}{questions["Publication P2E"]["uri"]}')
+                                      relatant = f'{BASE_URI}{questions["Publication"]["EntityRelatant"]["uri"]}', 
+                                      relation = f'{BASE_URI}{questions["Publication"]["P2E"]["uri"]}')
 
                 # For Algorithms add Relations
                 if str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
@@ -123,8 +123,8 @@ def PInformation(sender, **kwargs):
                                       props = PROPS['P2A'], 
                                       mapping = mathalgodb, 
                                       set_prefix = instance.set_index, 
-                                      relatant = f'{BASE_URI}{questions["Publication ARelatant"]["uri"]}', 
-                                      relation = f'{BASE_URI}{questions["Publication P2A"]["uri"]}')
+                                      relatant = f'{BASE_URI}{questions["Publication"]["ARelatant"]["uri"]}', 
+                                      relation = f'{BASE_URI}{questions["Publication"]["P2A"]["uri"]}')
 
                         for prop in PROPS['P2BS']:
                             for value in getattr(data, prop):

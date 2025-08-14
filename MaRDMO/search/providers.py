@@ -15,8 +15,8 @@ class MaRDISearch(Provider):
         sources = ['mardi']
 
         return query_sources(search, queryID, sources)
-    
-class ModelEntitySearch(Provider):
+        
+class SoftwareSearch(Provider):
 
     search = True
 
@@ -25,8 +25,9 @@ class ModelEntitySearch(Provider):
         if not search or len(search) < 3:
             return []
 
-        # Define the query parameter
-        queryID = 'EN'
-        sources = ['mathmoddb']
+        # Define the sources to query
+        queryID = 'SO'
+        sources = ['mathalgodb']
 
         return query_sources(search, queryID, sources)
+    

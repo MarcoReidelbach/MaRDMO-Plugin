@@ -1,9 +1,9 @@
 import html
 
 from ..config import endpoint
-from ..getters import get_general_item_url
+from ..getters import get_general_item_url, get_items, get_properties
 from ..queries import query_sparql
-from .sparql import algorithmic_problem_sparql, software_sparql, algorithmic_problem_filter_sparql, quote_sparql, quantity_sparql, task_sparql, formulation_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql, query_base, query_base_model, query_base_algorithm, problem_sparql, problem_filter_sparql, field_sparql
+from .sparql import algorithmic_problem_sparql, software_sparql, algorithmic_problem_filter_sparql, quote_sparql, quantity_sparql, quantity_filter_sparql, task_sparql, formulation_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql, query_base, query_base_model, query_base_algorithm, problem_sparql, problem_filter_sparql, field_sparql
 
 def search(answers, options):
     
@@ -13,7 +13,7 @@ def search(answers, options):
 
         quote_str = ''
         res_obj_strs = ''
-
+        
         # If SPARQL query via research objective desired
         if answers['search'].get('via_research_objective') == options['Yes']:
             quote_str = quote_sparql
@@ -33,11 +33,12 @@ def search(answers, options):
             if answers['search'].get('research_discipline'):
                 for key in answers['search']['research_discipline'].keys():
                     # Get ID and Name of Research Discipline
-                    ID, Name = answers['search']['research_discipline'][key]['selection'].split(' <|> ') 
+                    ID = answers['search']['research_discipline'][key]['ID'].split(':')[1]
+                    Name = answers['search']['research_discipline'][key]['Name']
                     answers['search']['research_discipline'][key].update({'ID': ID})
                     answers['search']['research_discipline'][key].update({'Name': Name})
                     # Define Filters for SPARQL queries
-                    res_disc_str += res_disc_sparql.format('437', ID.split(':')[-1])
+                    res_disc_str += res_disc_sparql.format(ID.split(':')[-1], **get_items(), **get_properties())
 
         # SPARQL via Mathematical Models, Methods, Softwares, Input or Output Data Sets
 
@@ -49,14 +50,15 @@ def search(answers, options):
             if answers['search'].get('workflow_entity'):
                 for key in answers['search']['workflow_entity'].keys():
                     # Get ID and Name of Research Discipline
-                    ID, Name = answers['search']['workflow_entity'][key]['selection'].split(' <|> ') 
+                    ID = answers['search']['workflow_entity'][key]['ID'].split(':')[1]
+                    Name = answers['search']['workflow_entity'][key]['Name']
                     answers['search']['workflow_entity'][key].update({'ID': ID})
                     answers['search']['workflow_entity'][key].update({'Name': Name})
                     # Define Filters for SPARQL queries
-                    mmsios_str += mmsio_sparql.format('557', ID.split(':')[-1])
+                    mmsios_str += mmsio_sparql.format(ID.split(':')[-1], **get_items(), **get_properties())
 
         # Set up entire SPARQL query
-        query = "\n".join(line for line in query_base.format('31', 'Q68657', res_disc_str, mmsios_str, quote_str, res_obj_strs).splitlines() if line.strip())
+        query = "\n".join(line for line in query_base.format(res_disc_str, mmsios_str, quote_str, res_obj_strs, **get_items(), **get_properties()).splitlines() if line.strip())
         
         # Add Query to answer dictionary
         answers['query'] = html.escape(query).replace('\n', '<br>')
@@ -83,7 +85,7 @@ def search(answers, options):
         
         # If SPARQL query via research objective desired
         if answers['search'].get('via_research_problem') == options['Yes']:
-            pro_str = problem_sparql
+            pro_str = problem_sparql.format(**get_items(), **get_properties())
             # Separate key words for SPARQL query vie research objective
             if answers['search'].get('research_problem'):
                 for res_pro in answers['search']['research_problem'].values():
@@ -101,17 +103,18 @@ def search(answers, options):
             if answers['search'].get('research_field'):
                 for key in answers['search']['research_field'].keys():
                     # Get ID and Name of Research Field
-                    ID, Name = answers['search']['research_field'][key]['selection'].split(' <|> ') 
+                    ID = answers['search']['research_field'][key]['ID'].split(':')[1]
+                    Name = answers['search']['research_field'][key]['Name']
                     answers['search']['research_field'][key].update({'ID': ID})
                     answers['search']['research_field'][key].update({'Name': Name})
                     # Define Filters for SPARQL queries
-                    fie_str += field_sparql.format(ID)
+                    fie_str += field_sparql.format(ID, **get_items(), **get_properties())
 
         # SPARQL via Mathematical Formulations, Computational Task and Quantities
 
         for_str = ''
         ta_str = ''
-        qu_str = ''
+        qu_str = quantity_sparql.format(**get_items(), **get_properties())
         
         # If SPARQL query via model entity desired
         if answers['search'].get('via_model_entity') == options['Yes']:
@@ -119,38 +122,44 @@ def search(answers, options):
             if answers['search'].get('model_formulation'):
                 for key in answers['search']['model_formulation'].keys():
                     # Get ID and Name of Formulation
-                    ID, Name = answers['search']['model_formulation'][key]['selection'].split(' <|> ') 
+                    ID = answers['search']['model_formulation'][key]['ID'].split(':')[1]
+                    Name = answers['search']['model_formulation'][key]['Name']
                     answers['search']['model_formulation'][key].update({'ID': ID})
                     answers['search']['model_formulation'][key].update({'Name': Name})
                     # Define Filters for SPARQL queries
-                    for_str += formulation_sparql.format(ID)
+                    for_str += formulation_sparql.format(ID, **get_items(), **get_properties())
             # Via Computational Tasls
             if answers['search'].get('model_task'):
                 for key in answers['search']['model_task'].keys():
                     # Get ID and Name of Computational Task
-                    ID, Name = answers['search']['model_task'][key]['selection'].split(' <|> ') 
+                    ID = answers['search']['model_task'][key]['ID'].split(':')[1]
+                    Name = answers['search']['model_task'][key]['Name']
                     answers['search']['model_task'][key].update({'ID': ID})
                     answers['search']['model_task'][key].update({'Name': Name})
                     # Define Filters for SPARQL queries
-                    ta_str += task_sparql.format(ID)
+                    ta_str += task_sparql.format(ID, **get_items(), **get_properties())
             # Via Computational Tasls
             if answers['search'].get('model_quantity'):
-                for key in answers['search']['model_quantity'].keys():
+                for idx, key in enumerate(answers['search']['model_quantity'].keys()):
                     # Get ID and Name of Computational Task
-                    ID, Name = answers['search']['model_quantity'][key]['selection'].split(' <|> ') 
+                    ID = answers['search']['model_quantity'][key]['ID'].split(':')[1]
+                    Name = answers['search']['model_quantity'][key]['Name']
                     answers['search']['model_quantity'][key].update({'ID': ID})
                     answers['search']['model_quantity'][key].update({'Name': Name})
                     # Define Filters for SPARQL queries
-                    qu_str += quantity_sparql.format(ID)
+                    if idx == 0:
+                        qu_str += quantity_filter_sparql.format(ID, **get_items(), **get_properties())
+                    else:
+                        qu_str += """\n UNION""" + quantity_filter_sparql.format(ID, **get_items(), **get_properties()) 
 
         # Set up entire SPARQL query
-        query = "\n".join(line for line in query_base_model.format(pro_str, pro_fil_strs, fie_str, for_str, ta_str, qu_str).splitlines() if line.strip())
+        query = "\n".join(line for line in query_base_model.format(pro_str, pro_fil_strs, fie_str, for_str, ta_str, qu_str, **get_items(), **get_properties()).splitlines() if line.strip())
 
         # Add Query to answer dictionary
         answers['query'] = html.escape(query).replace('\n', '<br>')
 
         # Query MathModDB
-        results = query_sparql(query, endpoint['mathmoddb']['sparql'])
+        results = query_sparql(query, endpoint['mardi']['sparql'])
 
         # Number of Results
         answers['no_results'] = str(len(results))
@@ -158,8 +167,8 @@ def search(answers, options):
         # Generate Links to Entry
         links=[]
         for result in results:
-            links.append([result["label"]["value"], endpoint['mathmoddb']['uri'] + 'object/mathmoddb:' + result["qid"]["value"], ''])
-
+            links.append([result["label"]["value"], f"{endpoint['mardi']['uri']}/wiki/model:{result['qid']['value'][1:]}", f"{get_general_item_url()}{result['qid']['value']}"])
+            
         answers['links'] = links
 
     elif answers['search'].get('options') == options['Algorithm']:
@@ -188,11 +197,12 @@ def search(answers, options):
             if answers['search'].get('software'):
                 for key in answers['search']['software'].keys():
                     # Get ID and Name of Software
-                    ID, Name = answers['search']['software'][key]['selection'].split(' <|> ') 
+                    ID = answers['search']['software'][key]['ID'].split(':')[1]
+                    Name = answers['search']['software'][key]['Name']
                     answers['search']['software'][key].update({'ID': ID})
                     answers['search']['software'][key].update({'Name': Name})
                     # Define Filters for SPARQL queries
-                    sof_str += software_sparql.format(f"software:{ID.split(':')[1]}")
+                    sof_str += software_sparql.format(f"software:{ID}")
 
         # Set up entire SPARQL query
         query = "\n".join(line for line in query_base_algorithm.format(apr_str, apr_fil_strs, sof_str).splitlines() if line.strip())

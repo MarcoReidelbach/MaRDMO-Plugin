@@ -160,12 +160,15 @@
                     <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
                 {% endif %}
                 <br>
-                {% for reference in values.Reference.values %}
+                {% for reference in values.reference.values %}
                     {% if reference.0 == option.SWMATH %}
                         <b>swMath ID</b>: {{ reference.1 }} <br>
                     {% endif %}
                     {% if reference.0 == option.DOI %}
-                        <b>DOI</b>: {{ reference.1 }}
+                        <b>DOI</b>: {{ reference.1 }} <br>
+                    {% endif %}
+                    {% if reference.0 == option.URL %}
+                        <b>URL</b>: {{ reference.1 }} <br>
                     {% endif %}
                 {% endfor %}
             </p>
@@ -202,12 +205,15 @@
                     <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
                 {% endif %}
                 <br>
-                {% for reference in values.Reference.values %}
+                {% for reference in values.reference.values %}
                     {% if reference.0 == option.MORWIKI %}
                         <b>MORwiki ID</b>: {{ reference.1 }} <br>
                     {% endif %}
                     {% if reference.0 == option.DOI %}
-                        <b>DOI</b>: {{ reference.1 }}
+                        <b>DOI</b>: {{ reference.1 }} <br>
+                    {% endif %}
+                    {% if reference.0 == option.URL %}
+                        <b>URL</b>: {{ reference.1 }} <br>
                     {% endif %}
                 {% endfor %} 
             </p>

@@ -5,49 +5,49 @@ from ..getters import get_options, get_questions_workflow
 def get_URI_PREFIX_MAP():
     questions = get_questions_workflow()
     URI_PREFIX_MAP = {
-        f'{BASE_URI}{questions["Process Step Input"]["uri"]}': {
+        f'{BASE_URI}{questions["Process Step"]["Input"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Data Set"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Data Set ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Data Set"]["ID"]["uri"]}',
             "prefix": "DS"
         },
-        f'{BASE_URI}{questions["Process Step Output"]["uri"]}': {
+        f'{BASE_URI}{questions["Process Step"]["Output"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Data Set"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Data Set ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Data Set"]["ID"]["uri"]}',
             "prefix": "DS"
         },
-        f'{BASE_URI}{questions["Process Step Method"]["uri"]}': {
+        f'{BASE_URI}{questions["Process Step"]["Method"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Method"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Method ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Method"]["ID"]["uri"]}',
             "prefix": "M"
         },
-        f'{BASE_URI}{questions["Process Step Environment-Software"]["uri"]}': {
+        f'{BASE_URI}{questions["Process Step"]["Environment-Software"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Software"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Software ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Software"]["ID"]["uri"]}',
             "prefix": "S"
         },
-        f'{BASE_URI}{questions["Process Step Environment-Instrument"]["uri"]}': {
+        f'{BASE_URI}{questions["Process Step"]["Environment-Instrument"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Instrument"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Instrument ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Instrument"]["ID"]["uri"]}',
             "prefix": "I"
         },
-        f'{BASE_URI}{questions["Method Software"]["uri"]}': {
+        f'{BASE_URI}{questions["Method"]["Software"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Software"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Software ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Software"]["ID"]["uri"]}',
             "prefix": "S"
         },
-        f'{BASE_URI}{questions["Method Instrument"]["uri"]}': {
+        f'{BASE_URI}{questions["Method"]["Instrument"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Instrument"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Instrument ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Instrument"]["ID"]["uri"]}',
             "prefix": "I"
         },
-        f'{BASE_URI}{questions["Instrument Software"]["uri"]}': {
+        f'{BASE_URI}{questions["Instrument"]["Software"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Software"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Software ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Software"]["ID"]["uri"]}',
             "prefix": "S"
         },
-        f'{BASE_URI}{questions["Hardware Software"]["uri"]}': {
+        f'{BASE_URI}{questions["Hardware"]["Software"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Software"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Software ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Software"]["ID"]["uri"]}',
             "prefix": "S"
         }
     }

@@ -92,16 +92,14 @@
                 </tr>
             </thead>
             <tbody>
-                    {% for model in answers.model.values %}
-                        <tr>
-                            <td style="text-align: center; vertical-align: middle;">
-                                <a href="{{ mardiURI }}{{ model.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ model.Name }}</a>
-                            </td>
-                            <td style="text-align: center; vertical-align: middle;">{{ model.Description }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ model.Time }}</td>
-                            <td style="text-align: center; vertical-align: middle;">{{ model.Space }}</td>
-                        </tr>
-                    {% endfor %}
+                <tr>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <a href="{{ mardiURI }}{{ model.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ answers.model.Name }}</a>
+                    </td>
+                    <td style="text-align: center; vertical-align: middle;">{{ answers.model.Description }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ answers.model.Time }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ answers.model.Space }}</td>
+                </tr>
             </tbody>
         </table>
 {% endif %}

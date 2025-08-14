@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional, ClassVar
 
-from ..getters import get_data, get_options
+from ..getters import get_items, get_options
 
 @dataclass
 class Relatant:
@@ -134,42 +134,42 @@ class Journal:
     def from_crossref(cls, id: list, label: list) -> 'Journal':
         label = label[0] if label else None
         issn = id[0] if id else None
-        id = 'not found' if label else None
+        id = 'no journal found' if label else None
         return cls(
             id = id,
             issn = issn,
             label = label,
-            description = None,
+            description = 'No Description Provided!',
         )
     
     @classmethod
     def from_datacite(cls, ids: list, item: list) -> 'Journal':
         label = item[0].get('titles', [{}])[0].get('title')
         issn = ids[0].get('relatedIdentifier') if ids[0].get('relatedIdentifierType', '') == 'ISSN' else None
-        id = 'not found' if label else None
+        id = 'no journal found' if label else None
         return cls(
             id = id,
             issn = issn,
             label = label,
-            description = None,
+            description = 'No Description Provided!',
         )
     
     @classmethod
     def from_doi(cls, id: list, label: str) -> 'Journal':
         issn = id[0] if id else None
-        id = 'not found' if label else None
+        id = 'no journal found' if label else None
         return cls(
             id = id,
             issn = issn,
             label = label,
-            description = None,
+            description = 'No Description Provided!',
         )
     
     @classmethod
     def from_zbmath(cls, raw: dict) -> 'Journal':
         issn = raw.get('series', [{}])[0].get('issn', [{}])[0].get('number')
         label = raw.get('series', [{}])[0].get('title')
-        id = 'not found' if label else None
+        id = 'no journal found' if label else None
         return cls(
             id = id,
             issn = issn,
@@ -215,14 +215,14 @@ class Publication:
         data = raw_data[0]
 
         options = cls.get_options()
-        languages = get_data('data/lang.json')
+        ITEMS = get_items()
 
         return cls(
             id = data.get('id', {}).get('value'),
             label = data.get('label', {}).get('value'),
             description = data.get('description', {}).get('value'),
             entrytype = data.get('entrytypelabel', {}).get('value'),
-            language = [Relatant.from_language_dict(languages.get(data.get('langaugelabel', {}).get('value').lower()))] if 'language' in data else [],
+            language = [Relatant.from_language_dict({"ID": f"mardi:{ITEMS['english']}", "Name": "English", "Description": "West Germanic language"})] if data.get('langaugelabel', {}).get('value', '').lower() in {"en", "eng", "english"} else [],
             title = data.get('title', {}).get('value'),
             date = data.get('date', {}).get('value')[:10] if 'date' in data else None,
             volume = data.get('volume', {}).get('value'),
@@ -250,14 +250,14 @@ class Publication:
         data = raw_data.json().get('message', {})
         
         options = cls.get_options()
-        languages = get_data('data/lang.json')
+        ITEMS = get_items()
 
         return cls(
             id = None,
             label = None,
             description = 'No Description Provided!',
             entrytype = 'scholarly article' if data.get('type', '') == 'journal-article' else 'publication',
-            language = [Relatant.from_language_dict(languages.get(data.get('language','').lower()))] if 'language' in data else [],
+            language = [Relatant.from_language_dict({"ID": f"mardi:{ITEMS['english']}", "Name": "English", "Description": "West Germanic language"})] if data.get('language', '').lower() in {"en", "eng", "english"} else [],
             title = data.get('title', [''])[0],
             date = '{0[0]}-{0[1]:02d}-{0[2]:02d}'.format(data.get('published', {}).get('date-parts', [''])[0] + [1] * (3 - len(data.get('published', {}).get('date-parts', [''])))),
             volume = data.get('volume', ''),
@@ -278,14 +278,14 @@ class Publication:
         data = raw_data.json().get('data', {}).get('attributes', {})
         
         options = cls.get_options()
-        languages = get_data('data/lang.json')
+        ITEMS = get_items()
 
         return cls(
             id = None,
             label = None,
             description = 'No Description Provided!',
             entrytype = 'scholarly article' if data.get('types', {}).get('bibtex', '') == 'article' else 'publication',
-            language = [Relatant.from_language_dict(languages.get(data.get('language','').lower()))] if 'language' in data else [],
+            language = [Relatant.from_language_dict({"ID": f"mardi:{ITEMS['english']}", "Name": "English", "Description": "West Germanic language"})] if data.get('language', '').lower() in {"en", "eng", "english"} else [],
             title = data.get('titles', [''])[0].get('title', ''),
             date = next((date_part.get('date')+'-01-01' if len(date_part.get('date')) == 4 else date_part.get('date')+'-01' if len(date_part.get('date')) == 7 else date_part.get('date') for date_part in data.get('dates', []) if date_part.get('dateType') == 'Issued'), ''),
             volume = data['relatedItems'][0].get('volume') if data.get('relatedItems') else None,
@@ -306,14 +306,14 @@ class Publication:
         data = raw_data.json()
 
         options = cls.get_options()
-        languages = get_data('data/lang.json')
+        ITEMS = get_items()
 
         return cls(
             id = None,
             label = None,
             description = 'No Description Provided!',
             entrytype = 'scholarly article' if data.get('type', {}) == 'journal-article' else 'publication',
-            language = [Relatant.from_language_dict(languages.get(data.get('language').lower()))] if 'language' in data else [],
+            language = [Relatant.from_language_dict({"ID": f"mardi:{ITEMS['english']}", "Name": "English", "Description": "West Germanic language"})] if data.get('language', '').lower() in {"en", "eng", "english"} else [],
             title = data.get('title', ''),
             date = '{0[0]}-{0[1]:02d}-{0[2]:02d}'.format(data.get('published', {}).get('date-parts', [''])[0] + [1] * (3 - len(data.get('published', {}).get('date-parts', [''])))),
             volume = data.get('volume'),
@@ -334,14 +334,14 @@ class Publication:
         data = raw_data.json().get('result', [''])[0]
 
         options = cls.get_options()
-        languages = get_data('data/lang.json')
+        ITEMS = get_items()
 
         return cls(
             id = None,
             label = None,
             description = 'No Description Provided!',
             entrytype = 'scholarly article' if data.get('document_type', {}).get('description') == 'journal article' else 'publication',
-            language = [Relatant.from_language_dict(languages.get(data.get('language',{}).get('languages').lower()))] if 'language' in data else [],
+            language = [Relatant.from_language_dict({"ID": f"mardi:{ITEMS['english']}", "Name": "English", "Description": "West Germanic language"})] if data.get('language',{}).get('languages', '').lower() in {"en", "eng", "english"} else [],
             title = data.get('title', {}).get('title', {}),
             date = f"{data.get('year','')}-01-01",
             volume = data.get('source', {}).get('series', [''])[0].get('volume'),

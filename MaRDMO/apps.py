@@ -1,6 +1,10 @@
+'''MaRDMO Application File'''
+
 from django.apps import AppConfig
 
 class MaRDMOConfig(AppConfig):
+    '''MaRDMO Configuration'''
+
     name = 'MaRDMO'
     label = 'MaRDMO'
     verbose_name = 'MaRDMO Plugin'
@@ -22,6 +26,4 @@ class MaRDMOConfig(AppConfig):
         self.options = get_data('data/options.json')
         self.ITEMS = get_data('data/items_staging.json')
         self.PROPERTIES = get_data('data/properties_staging.json')
-        
-        
 

@@ -75,9 +75,9 @@ def get_citation(DOI):
         choice = None
 
         # Define MaRDI Portal / Wikidata / MathModDB / MathAlgoDB SPARQL Queries
-        mardi_query = queryPublication['MaRDI']['DOI_FULL'].format(DOI.upper(), **get_items(), **get_properties())
-        wikidata_query = queryPublication['Wikidata']['DOI_FULL'].format(DOI.upper())
-        mathalgodb_query = queryPublication['PublicationMathAlgoDBDOI'].format(DOI.upper())
+        mardi_query = queryPublication['MaRDI']['DOI_FULL'].format(DOI, **get_items(), **get_properties())
+        wikidata_query = queryPublication['Wikidata']['DOI_FULL'].format(DOI)
+        mathalgodb_query = queryPublication['PublicationMathAlgoDBDOI'].format(DOI)
         
         # Get Citation Data from MaRDI Portal / Wikidata / MathAlgoDB
         results = query_sparql_pool({'wikidata':(wikidata_query, endpoint['wikidata']['sparql-scholarly']), 
@@ -90,7 +90,7 @@ def get_citation(DOI):
                 publication[key] = Publication.from_query(results.get(key))
             except:
                 publication[key] = None
-
+        
         if not (publication['mardi'] or publication['wikidata']):
 
             # If no Citation Data in KGs and additional sources requested by User, get Citation Information from CrossRef, DataCite, DOI, zbMath 

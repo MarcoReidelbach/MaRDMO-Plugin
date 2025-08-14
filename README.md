@@ -6,9 +6,30 @@
 
 # MaRDMO Plugin
 
-This repository contains the MaRDMO Plugin for the [Research Datamanagement Organizer](https://rdmorganiser.github.io/) (RDMO) developed within the [Mathematical Research Data Initiative](https://www.mardi4nfdi.de/about/mission) (MaRDI). The plugin allows a standardized documentation of interdisciplinary workflows, where the connection to experiments or computational approaches, like simulations, is possible and desired. Documented workflows can be stored locally (depreciated) or shared with other scientists on the [MaRDI Portal](https://portal.mardi4nfdi.de/wiki/Portal). In the latter case a Wiki Page is created for the documented workflow and integral aspects of the workflow are integrated into the MaRDI Knowledge Graph. Integration into the MaRDI Knowledge Graph allows specific workflow queries which are also possible through the MaRDMO Plugin.
+This repository contains the MaRDMO Plugin for the [Research Datamanagement Organizer](https://rdmorganiser.github.io/) (RDMO) developed within the [Mathematical Research Data Initiative](https://www.mardi4nfdi.de/about/mission) (MaRDI). 
 
-To document the underlying mathematical model(s) MaRDMO relies on the [MathModDB](https://portal.mardi4nfdi.de/wiki/MathModDB) ontology developed within Task Area 4 of MaRDI. Existing model documentations are retrieved from the MathModDB Knowledge Graph. Export into the MathModDB KG is possible upon authentification. If credentials are missing, it is possible to export the documented model into a standardized model documentation template and share it with the MaRDI TA4 Team for integration.    
+The plugin allows a standardized documentation of:
+
+<ol>
+  <li>Mathematical Models</li>
+  <li>Interdisciplinary Workflows</li>
+  <li>Algorithms</li>
+</ol>
+
+Model documentation in MaRDMO is based on the [MathModDB ontology](https://portal.mardi4nfdi.de/wiki/MathModDB). Within the plugin, users can record a model, related expressions, computational tasks, quantities or quantity kinds, research problems, academic disciplines, and publications. These inputs are gathered in a guided interview, enabling MaRDMO to produce metadata that is directly compatible with the MaRDI knowledge graph for mathematical models.
+
+Workflow documentation follows a [standardized scheme](https://portal.mardi4nfdi.de/wiki/MD_UseCases) developed in MaRDI. Within the plugin, users can record a workflow, related models, methods, software, hardware, experimentall devices, data sets, and publications. These inputs are gathered in a guided interview, enabling MaRDMO to produce metadata that is directly compatible with the MaRDI knowledge graph for interdisciplinary workflows.
+
+Algorithm documentation in MaRDMO follows the [MathAlgoDB ontology](https://portal.mardi4nfdi.de/wiki/Service:6534228). Within the plugin, users can record an algorithm, related algorithmic tasks, implementing software, benchmarks, and publications. These inputs are gathered in a guided interview, enabling MaRDMO to produce metadata that is directly compatible with the MaRDI knowledge graph for algorithms.
+
+<div align="center" style="margin-top: 20px; font-size: 14px; color: grey;">
+  <img src="https://github.com/user-attachments/assets/bf03bfc9-d1ff-4ef8-a66a-4cd1ffce42d7" width="800" />
+  <p><em>Figure 1: MaRDMO Data Model containing Classes and Relations for the Documentation of Mathematical Models (blue), Algorithms (red), and Interdisciplinary Workflows (green).</em></p>
+</div>
+
+Completed documentations in MaRDMO can be exported directly from RDMO to the respective MaRDI knowledge graph via the **MaRDMO Button**. This feature generates a concise summary of the documented model, algorithm, or workflow, and—after user authentication—submits the metadata to the corresponding knowledge graphs. This streamlines the publication process and ensures the documentation becomes immediately discoverable within the MaRDI ecosystem. 
+
+In addition to documentation, MaRDMO provides a dedicated interview for searching existing workflows, algorithms, and models. Users can specify individual search parameters, and the MaRDI Button will generate the corresponding SPARQL query based on the input. The query results are displayed directly in RDMO, enabling researchers to discover and reuse existing knowledge—thus closing the knowledge transfer loop within the MaRDI ecosystem.
   
 ## MaRDMO Plugin Installation
 
@@ -36,7 +57,9 @@ PROJECT_EXPORTS += [
 OPTIONSET_PROVIDERS = [
     # Search
     ('MaRDISearch', _('Options for MaRDI Search'), 'MaRDMO.search.providers.MaRDISearch'),
+    ('SoftwareSearch', _('Options for Software Search'), 'MaRDMO.search.providers.SoftwareSearch'),
     # Workflow
+    ('TEST', _('Options for TEST'), 'MaRDMO.workflow.providers.TEST'),
     ('MaRDIAndWikidataSearch', _('Options for MaRDI and Wikidata Search'), 'MaRDMO.workflow.providers.MaRDIAndWikidataSearch'),
     ('MainMathematicalModel', _('Options for Main Mathematical Model'), 'MaRDMO.workflow.providers.MainMathematicalModel'),
     ('WorkflowTask', _('Options for Workflow Task'), 'MaRDMO.workflow.providers.WorkflowTask'),
@@ -85,6 +108,7 @@ OPTIONSET_PROVIDERS = [
     ('Benchmark', _('Options for Benchmarks'), 'MaRDMO.algorithm.providers.Benchmark'),
     ('RelatedBenchmarkWithCreation', _('Options for related Benchmarks with Creation'), 'MaRDMO.algorithm.providers.RelatedBenchmarkWithCreation')
     ]
+
 
 ```
 

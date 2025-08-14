@@ -191,7 +191,7 @@ class checks:
                 if ivalue.get('Formula'):
                     # Check \equiv sign
                     for formula in ivalue['Formula'].values():
-                        if not '\equiv' in formula:
+                        if not any(equiv in formula for equiv in ('>≡</', '>&#x2261;</', '>&equiv;</', '\\equiv', '\\Equiv')):
                             self.err.append(self.error_message('Quantity / Quantity Kind', page_name, 'Inconsistent Quantity / Quantity Kind Definition (missing \equiv)'))
                     # Check Element
                     if not ivalue.get('element'):

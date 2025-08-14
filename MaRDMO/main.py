@@ -1,3 +1,5 @@
+'''Main Export Functions of MaRDMO'''
+
 import logging
 import requests
 
@@ -10,23 +12,21 @@ from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
 from .config import endpoint
-from .getters import get_general_item_url, get_mathmoddb, get_mathalgodb, get_options, get_new_ids, get_questions_algorithm, get_questions_model, get_questions_publication, get_questions_search, get_questions_workflow
-from .helpers import  merge_dicts_with_unique_keys
+from .getters import get_answers, get_general_item_url, get_mathmoddb, get_mathalgodb, get_options, get_questions_algorithm, get_questions_model, get_questions_publication, get_questions_search, get_questions_workflow
+from .helpers import  merge_dicts_with_unique_keys, process_question_dict
 from .oauth2 import OauthProviderMixin
 
 from .model.worker import prepareModel
-from .model.utils import get_answer_model
 from .model.checks import checks
 
 from .algorithm.sparql import queryAlgorithmDocumentation
 from .algorithm.worker import algorithm_relations
-from .algorithm.utils import get_answer_algorithm, dict_to_triples_mathalgodb, generate_sparql_insert_with_new_ids_mathalgodb
+from .algorithm.utils import dict_to_triples_mathalgodb, generate_sparql_insert_with_new_ids_mathalgodb, update_ids
 
-from .workflow.utils import compare_items, get_answer_workflow, get_discipline
+from .workflow.utils import compare_items, get_discipline
 from .workflow.worker import prepareWorkflow
 
 from .search.worker import search
-from .search.utils import get_answer_search
 
 from .publication.worker import PublicationRetriever
 
@@ -193,14 +193,14 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 
                 answers, *__ = self.get_post_data()
                 checker = checks()
-                err = checker.run(self.project, answers)
-                if err:
-                    # Stop export if documentation incomplete / inconsitent
-                    return render(self.request, 
-                                  'core/error.html', 
-                                  {'title': _("Incomplete or Inconsistent Documentation"),
-                                   'errors': err}, 
-                                  status=200)
+                #err = checker.run(self.project, answers)
+                #if err:
+                #    # Stop export if documentation incomplete / inconsitent
+                #    return render(self.request, 
+                #                  'core/error.html', 
+                #                  {'title': _("Incomplete or Inconsistent Documentation"),
+                #                   'errors': err}, 
+                #                  status=200)
                 try:
                     prepare = prepareModel()
                     payload = prepare.export(answers, self.wikibase_url)
@@ -210,9 +210,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   {'title': _('Value Error'),
                                    'errors': [err]}, 
                                   status=200)
-                
-                url = self.get_post_url()
-                
+                return
                 return self.post(self.request, url, payload)
 
             # MaRDMO: Algorithm Documentation
@@ -243,7 +241,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                     )
                 
                 if response.status_code == 204:
-                    ids = get_new_ids(self.project, ids, queryAlgorithmDocumentation['IDCheck'], endpoint['mathalgodb']['sparql'], 'mathalgodb')
+                    ids = update_ids(self.project, ids, queryAlgorithmDocumentation['IDCheck'], endpoint['mathalgodb']['sparql'], 'mathalgodb')
                     # Links to newly created Entities
                     return render(self.request,
                                   'MaRDMO/algorithmExport.html', 
@@ -330,9 +328,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             questions = get_questions_model() | get_questions_publication()
             mathmoddb = get_mathmoddb()
 
-            answers ={}
-            for _, info in questions.items():
-                answers = get_answer_model(self.project, answers, **info)
+            answers = process_question_dict(project = self.project, 
+                                            questions = questions, 
+                                            get_answer = get_answers)
             
             # Retrieve Publications related to Workflow
             answers = PublicationRetriever.WorkflowOrModel(self.project, answers, options)
@@ -346,16 +344,16 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             questions = get_questions_algorithm() | get_questions_publication()
             mathalgodb = get_mathalgodb()
 
-            answers ={}
-            for _, info in questions.items():
-                answers = get_answer_algorithm(self.project, answers, **info)
+            answers = process_question_dict(project = self.project, 
+                                            questions = questions, 
+                                            get_answer = get_answers)
             
             # Refine Mathematical Model Information
             answers = algorithm_relations(self.project, answers, mathalgodb)
 
             # Retrieve Publications related to Workflow
             answers = PublicationRetriever.Algorithm(self.project, answers)
-
+            
             return answers, options, mathalgodb
 
         # MaRDMO: Search Interdisciplinary Workflow, Mathematical Model or Algorithm
@@ -364,9 +362,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             # Load Data for Interdisciplinary Workflow, Mathematical Model or Algorithm Search
             questions = get_questions_search()
             
-            answers ={}
-            for _, info in questions.items():
-                answers = get_answer_search(self.project, answers, **info)
+            answers = process_question_dict(project = self.project, 
+                                            questions = questions, 
+                                            get_answer = get_answers)
 
             # Get Results from MaRDI Resources
             answers = search(answers, options)
@@ -379,9 +377,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             # Load Data for Interdisciplinary Workflow Documentation
             questions = get_questions_workflow() | get_questions_publication()
             
-            answers ={}
-            for _, info in questions.items():
-                answers = get_answer_workflow(self.project, answers, **info)
+            answers = process_question_dict(project = self.project, 
+                                            questions = questions, 
+                                            get_answer = get_answers)
             
             # Refine associated Disciplines
             answers = get_discipline(answers)

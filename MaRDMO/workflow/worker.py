@@ -27,13 +27,13 @@ class prepareWorkflow:
                 data.get('model', {}).update(asdict(ModelProperties.from_query(basic)))
         
         # Update Model Variables and Parameters via MathModDB
-        if data.get('specifictask'):            
-            query = queryPreview['variables'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['specifictask'].items()), **self.ITEMS, **self.PROPERTIES)
+        if data.get('model', {}).get('task'):            
+            query = queryPreview['variables'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['model']['task'].items()), **self.ITEMS, **self.PROPERTIES)
             variables = query_sparql(query, endpoint['mardi']['sparql'])
             if variables:
                 for idx, variable in enumerate(variables):
                     data.setdefault('variables', {}).update({idx: asdict(Variables.from_query(variable))})
-            query = queryPreview['parameters'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['specifictask'].items()), **self.ITEMS, **self.PROPERTIES)
+            query = queryPreview['parameters'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['model']['task'].items()), **self.ITEMS, **self.PROPERTIES)
             parameters = query_sparql(query, endpoint['mardi']['sparql'])
             if parameters:
                 for idx, parameter in enumerate(parameters):
@@ -51,61 +51,7 @@ class prepareWorkflow:
         options = get_options()
 
         # Add / Retrieve Components of Interdisciplinary Workflow Item
-        for key, value in items.items():
-            if value.get('ID'):
-                # Item from MaRDI Portal
-                if 'mardi:' in value['ID']:
-                    _, id = value['ID'].split(':')
-                    payload.add_entry('dictionary', key, payload.build_item(id, value['Name'], value['Description']))
-                # Item from Wikidata
-                elif 'wikidata:' in value['ID']:
-                    _, id = value['ID'].split(':')
-                    mardiID = query_item(value['Name'], value['Description'])
-                    if mardiID:
-                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
-                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
-                        payload.update_items(key, f"mardi:{mardiID}")
-                    else:
-                        payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description'], [[self.PROPERTIES['Wikidata QID'], 'external-id', id]]))
-                # Item from MathAlgoDB KG
-                elif 'mathalgodb' in value['ID']:
-                    _, id = value['ID'].split(':')
-                    mardiID = query_item(value['Name'], value['Description'])
-                    if mardiID:
-                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
-                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
-                        payload.update_items(key, f"mardi:{mardiID}")
-                    else:
-                        payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description']))
-                        # No MathAlgoDB ID Property in Portal yet
-                # Item defined by User (I)
-                elif 'not found' in value['ID']:
-                    mardiID = query_item(value['Name'], value['Description'])
-                    if mardiID:
-                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
-                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
-                        payload.update_items(key, f"mardi:{mardiID}")
-                    else:
-                        statement = []
-                        if value.get('ISSN'):
-                            statement = statement.extend([[self.PROPERTIES['ISSN'], 'external-id', value['ISSN']]])
-                        payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description'], statement))
-                # Item defined by User (II)
-                elif 'no author found' in value['ID']:
-                    mardiID = query_item(value['Name'], value['Description'])
-                    if mardiID:
-                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
-                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
-                        payload.update_items(key, f"mardi:{mardiID}")
-                    else:
-                        statement = []
-                        if value.get('orcid'):
-                            statement = statement.extend([[self.PROPERTIES['ORCID iD'], 'external-id', value['orcid']]])
-                        if value.get('zbmath'):
-                            statement = statement.extend([[self.PROPERTIES['zbMATH author ID'], 'external-id', value['zbmath']]])
-                        if statement:
-                            payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description'], statement))
-
+        payload.process_items()
         
         ### Add additional Algorithms / Methods Information
         for method in data.get('method', {}).values():

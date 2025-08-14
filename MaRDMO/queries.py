@@ -1,4 +1,7 @@
-import requests, logging
+'''Function that query Data'''
+
+import requests
+import logging
 
 from multiprocessing.pool import ThreadPool
 from rdmo.domain.models import Attribute
@@ -7,21 +10,33 @@ from .algorithm.sparql import queryProviderAL
 from .config import BASE_URI, endpoint
 from .helpers import extract_parts
 
-logger = logging.getLogger(__name__)  # Get Django's logger for the current module 
+logger = logging.getLogger(__name__)
 
-def query_item(label, description, api = endpoint['mardi']['api']):
-    '''API request returning an Item with matching label and description.'''
-    # Check description
-    description = description if description and description != 'No Description Provided!' else ''
-    # Get Data
-    data = query_api(api,label)
-    # Filter results based on description
-    matched_items = [item for item in data if item.get('description', '') == description]
+def query_item(label, description, api=endpoint['mardi']['api']):
+    '''API request returning an Item whose label or alias matches, and with matching description.'''
+    # Only check Items with description
+    if not description or description == 'No Description Provided!':
+        return None
+
+    # Get data from API
+    data = query_api(api, label)
+
+    # Normalize input label for comparison (case insensitive)
+    norm_label = label.strip().lower()
+
+    matched_items = []
+    for item in data:
+        item_label = item.get('label', '').strip().lower()
+        item_description = item.get('description', '').strip()
+        item_aliases = [alias.strip().lower() for alias in item.get('aliases', [])]
+    
+        # Check label or alias match AND description match
+        if (item_label == norm_label or norm_label in item_aliases) and item_description == description:
+            matched_items.append(item)
+
     if matched_items:
-        # Return the ID of the first matching item
         return matched_items[0]['id']
     else:
-        # No matching item found
         return None
 
 def query_api(api_url, search_term, timeout=5):
@@ -96,7 +111,7 @@ def query_sources(search, queryID = '', sources = ['mardi', 'wikidata'], notFoun
                  'id': f"{source}:{result['id']}",
                  'text': f"{result['display']['label']['value']} ({result['display'].get('description', {}).get('value', 'No Description Provided!')}) [{source}]"
             }
-
+        
         source_functions = {
             'wikidata': lambda s: query_api(endpoint['wikidata']['api'], s),
             'mardi': lambda s: query_api(endpoint['mardi']['api'], s),

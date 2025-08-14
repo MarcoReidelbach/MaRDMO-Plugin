@@ -40,18 +40,18 @@ INDEX_COUNTERS = {
 
 # URI mappings for quantity relations
 RELATION_URIS = {
-    ("Quantity", "Quantity"): "Quantity Q2Q",
-    ("QuantityKind", "QuantityKind"): "QuantityKind QK2QK",
-    ("Quantity", "QuantityKind"): "Quantity Q2QK",
-    ("QuantityKind", "Quantity"): "QuantityKind QK2Q",
+    ("Quantity", "Quantity"): "Q2Q",
+    ("QuantityKind", "QuantityKind"): "QK2QK",
+    ("Quantity", "QuantityKind"): "Q2QK",
+    ("QuantityKind", "Quantity"): "QK2Q",
 }
 
 # URI mappings for quantity relatants
 RELATANT_URIS = {
-    ("Quantity", "Quantity"): "Quantity QRelatant",
-    ("QuantityKind", "QuantityKind"): "QuantityKind QKRelatant",
-    ("Quantity", "QuantityKind"): "Quantity QKRelatant",
-    ("QuantityKind", "Quantity"): "QuantityKind QRelatant",
+    ("Quantity", "Quantity"): "QQRelatant",
+    ("QuantityKind", "QuantityKind"): "QKQKRelatant",
+    ("Quantity", "QuantityKind"): "QQKRelatant",
+    ("QuantityKind", "Quantity"): "QKQRelatant",
 }
 
 # DATA Properties
@@ -178,64 +178,64 @@ PREVIEW_MAP_QUANTITY = [
 def get_URI_PREFIX_MAP():
     questions = get_questions_model()
     URI_PREFIX_MAP = {
-        f'{BASE_URI}{questions["Task QRelatant"]["uri"]}': {
+        f'{BASE_URI}{questions["Task"]["QRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Quantity"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Quantity ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Quantity"]["ID"]["uri"]}',
             "prefix": "QQK"
         },
-        f'{BASE_URI}{questions["Task MFRelatant"]["uri"]}': {
+        f'{BASE_URI}{questions["Task"]["MFRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Mathematical Formulation"]["ID"]["uri"]}',
             "prefix": "ME"
         },
-        f'{BASE_URI}{questions["Mathematical Formulation Element Quantity"]["uri"]}': {
+        f'{BASE_URI}{questions["Mathematical Formulation"]["Element Quantity"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Quantity"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Quantity ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Quantity"]["ID"]["uri"]}',
             "prefix": "QQK"
         },
-        f'{BASE_URI}{questions["Quantity Element Quantity"]["uri"]}': {
+        f'{BASE_URI}{questions["Quantity"]["Element Quantity"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Quantity"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Quantity ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Quantity"]["ID"]["uri"]}',
             "prefix": "QQK"
         },
-        f'{BASE_URI}{questions["Mathematical Model MFRelatant"]["uri"]}': {
+        f'{BASE_URI}{questions["Mathematical Model"]["MFRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Mathematical Formulation"]["ID"]["uri"]}',
             "prefix": "ME"
         },
-        f'{BASE_URI}{questions["Mathematical Model Assumption"]["uri"]}': {
+        f'{BASE_URI}{questions["Mathematical Model"]["Assumption"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Mathematical Formulation"]["ID"]["uri"]}',
             "prefix": "ME"
         },
-        f'{BASE_URI}{questions["Task Assumption"]["uri"]}': {
+        f'{BASE_URI}{questions["Task"]["Assumption"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Mathematical Formulation"]["ID"]["uri"]}',
             "prefix": "ME"
         },
-        f'{BASE_URI}{questions["Mathematical Formulation Assumption"]["uri"]}': {
+        f'{BASE_URI}{questions["Mathematical Formulation"]["Assumption"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Mathematical Formulation"]["ID"]["uri"]}',
             "prefix": "ME"
         },
-        f'{BASE_URI}{questions["Mathematical Formulation MFRelatant"]["uri"]}': {
+        f'{BASE_URI}{questions["Mathematical Formulation"]["MFRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Mathematical Formulation"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Mathematical Formulation ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Mathematical Formulation"]["ID"]["uri"]}',
             "prefix": "ME"
         },
-        f'{BASE_URI}{questions["Research Problem RFRelatant"]["uri"]}': {
+        f'{BASE_URI}{questions["Research Problem"]["RFRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Research Field"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Research Field ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Research Field"]["ID"]["uri"]}',
             "prefix": "AD"
         },
-        f'{BASE_URI}{questions["Mathematical Model RPRelatant"]["uri"]}': {
+        f'{BASE_URI}{questions["Mathematical Model"]["RPRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Research Problem"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Research Problem ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Research Problem"]["ID"]["uri"]}',
             "prefix": "RP"
         },
-        f'{BASE_URI}{questions["Mathematical Model TRelatant"]["uri"]}': {
+        f'{BASE_URI}{questions["Mathematical Model"]["TRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Task"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Task ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Task"]["ID"]["uri"]}',
             "prefix": "T"
         }
     }

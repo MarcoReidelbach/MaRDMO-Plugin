@@ -1,471 +1,486 @@
 {   
-    "General Objective": {
-        "key1": "general",
-        "key2": "objective",
-        "uri": "domain/general/objective"
-    },
-    "General Procedure": {
-        "key1": "general",
-        "key2": "procedure",
-        "uri": "domain/general/procedure"
+    "General": {
+        "uri": "domain/general",
+        "Objective": {
+            "key1": "general",
+            "key2": "objective",
+            "uri": "domain/general/objective"
+        },
+        "Procedure": {
+            "key1": "general",
+            "key2": "procedure",
+            "uri": "domain/general/procedure"
+        }
     },
     "Model": {
-        "key1": "model",
-        "key2": "ID",
         "uri": "domain/main-model",
-        "collection_index": false,
-        "external_id": true
-    },
-    "SpecificTask": {
-        "key1": "specifictask",
-        "key2": "ID",
-        "uri": "domain/main-model/workflow-relevant-task",
-        "collection_index": true,
-        "external_id": true
+        "ID": {
+            "key1": "model",
+            "key2": "ID",
+            "uri": "domain/main-model/id",
+            "external_id": true
+        },
+        "Task": {
+            "key1": "model",
+            "key2": "task",
+            "key3": "ID",
+            "uri": "domain/main-model/task/id",
+            "collection_index": true,
+            "external_id": true
+        }
     },
     "Software": {
-        "uri": "domain/software"
+        "uri": "domain/software",
+        "ID": {
+            "key1": "software",
+            "key2": "ID",
+            "uri": "domain/software/id",
+            "set_index": true,
+            "external_id": true
+        },
+        "Name": {
+            "key1": "software",
+            "key2": "Name",
+            "uri": "domain/software/name",
+            "set_prefix": true
+        },
+        "Description": {
+            "key1": "software",
+            "key2": "Description",
+            "uri": "domain/software/description",
+            "set_prefix": true
+        },
+        "Programming Language": {
+            "key1": "software",
+            "key2": "programminglanguage",
+            "key3": "ID",
+            "uri": "domain/software/programming-language",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Reference": {
+            "key1": "software",
+            "key2": "reference",
+            "uri": "domain/software/reference",
+            "set_prefix": true,
+            "collection_index": true
+        },
+        "Version": {
+            "key1": "software",
+            "key2": "Version",
+            "uri": "domain/software/version",
+            "set_prefix": true
+        },
+        "Dependency": {
+            "key1": "software",
+            "key2": "dependency",
+            "key3": "ID",
+            "uri": "domain/software/dependency",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Published": {
+            "key1": "software",
+            "key2": "Published",
+            "uri": "domain/software/published",
+            "set_prefix": true,
+            "option_text": true
+        },
+        "Documented": {
+            "key1": "software",
+            "key2": "Documented",
+            "uri": "domain/software/documented",
+            "set_prefix": true,
+            "option_text": true
+        }
     },
-    "Software ID": {
-        "key1": "software",
-        "key2": "ID",
-        "uri": "domain/software/id",
-        "set_index": true,
-        "external_id": true
-    },
-    "Software Name": {
-        "key1": "software",
-        "key2": "Name",
-        "uri": "domain/software/name",
-        "set_prefix": true
-    },
-    "Software Description": {
-        "key1": "software",
-        "key2": "Description",
-        "uri": "domain/software/description",
-        "set_prefix": true
-    },
-    "Software Programming Language": {
-        "key1": "software",
-        "key2": "programminglanguage",
-        "key3": "ID",
-        "uri": "domain/software/programming-language",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Software Reference": {
-        "key1": "software",
-        "key2": "Reference",
-        "uri": "domain/software/reference",
-        "set_prefix": true,
-        "collection_index": true
-    },
-    "Software Version": {
-        "key1": "software",
-        "key2": "Version",
-        "uri": "domain/software/version",
-        "set_prefix": true
-    },
-    "Software Dependency": {
-        "key1": "software",
-        "key2": "dependency",
-        "key3": "ID",
-        "uri": "domain/software/dependency",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Software Published": {
-        "key1": "software",
-        "key2": "Published",
-        "uri": "domain/software/published",
-        "set_prefix": true,
-        "option_text": true
-    },
-    "Software Documented": {
-        "key1": "software",
-        "key2": "Documented",
-        "uri": "domain/software/documented",
-        "set_prefix": true,
-        "option_text": true
-    },
-    "Hardware ID": {
-        "key1": "hardware",
-        "key2": "ID",
-        "uri": "domain/hardware/id",
-        "set_index": true,
-        "external_id": true
-    },
-    "Hardware Name": {
-        "key1": "hardware",
-        "key2": "Name",
-        "uri": "domain/hardware/name",
-        "set_prefix": true
-    },
-    "Hardware Description": {
-        "key1": "hardware",
-        "key2": "Description",
-        "uri": "domain/hardware/description",
-        "set_prefix": true
-    },
-    "Hardware CPU": {
-        "key1": "hardware",
-        "key2": "cpu",
-        "key3": "ID",
-        "uri": "domain/hardware/cpu",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Hardware Compiler": {
-        "key1": "hardware",
-        "key2": "compiler",
-        "key3": "ID",
-        "uri": "domain/hardware/compiler",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Hardware Nodes": {
-        "key1": "hardware",
-        "key2": "Nodes",
-        "uri": "domain/hardware/nodes",
-        "set_prefix": true
-    },
-    "Hardware Cores": {
-        "key1": "hardware",
-        "key2": "Cores",
-        "uri": "domain/hardware/cores",
-        "set_prefix": true
-    },
-    "Hardware Software": {
-        "key1": "hardware",
-        "key2": "software",
-        "key3": "ID",
-        "uri": "domain/hardware/software",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
+    "Hardware": {
+        "uri": "domain/hardware",
+        "ID": {
+            "key1": "hardware",
+            "key2": "ID",
+            "uri": "domain/hardware/id",
+            "set_index": true,
+            "external_id": true
+        },
+        "Name": {
+            "key1": "hardware",
+            "key2": "Name",
+            "uri": "domain/hardware/name",
+            "set_prefix": true
+        },
+        "Description": {
+            "key1": "hardware",
+            "key2": "Description",
+            "uri": "domain/hardware/description",
+            "set_prefix": true
+        },
+        "CPU": {
+            "key1": "hardware",
+            "key2": "cpu",
+            "key3": "ID",
+            "uri": "domain/hardware/cpu",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Compiler": {
+            "key1": "hardware",
+            "key2": "compiler",
+            "key3": "ID",
+            "uri": "domain/hardware/compiler",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Nodes": {
+            "key1": "hardware",
+            "key2": "Nodes",
+            "uri": "domain/hardware/nodes",
+            "set_prefix": true
+        },
+        "Cores": {
+            "key1": "hardware",
+            "key2": "Cores",
+            "uri": "domain/hardware/cores",
+            "set_prefix": true
+        },
+        "Software": {
+            "key1": "hardware",
+            "key2": "software",
+            "key3": "ID",
+            "uri": "domain/hardware/software",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        }
     },
     "Instrument": {
-        "uri": "domain/instrument"
-    },
-    "Instrument ID": {
-        "key1": "instrument",
-        "key2": "ID",
-        "uri": "domain/instrument/id",
-        "set_index": true,
-        "external_id": true
-    },
-    "Instrument Name": {
-        "key1": "instrument",
-        "key2": "Name",
-        "uri": "domain/instrument/name",
-        "set_prefix": true
-    },
-    "Instrument Description": {
-        "key1": "instrument",
-        "key2": "Description",
-        "uri": "domain/instrument/description",
-        "set_prefix": true
-    },
-    "Instrument Version": {
-        "key1": "instrument",
-        "key2": "Version",
-        "uri": "domain/instrument/version",
-        "set_prefix": true
-    },
-    "Instrment PartNumber": {
-        "key1": "instrument",
-        "key2": "PartNumber",
-        "uri": "domain/instrument/part-number",
-        "set_prefix": true
-    },
-    "Instrument SerialNumber": {
-        "key1": "instrument",
-        "key2": "SerialNumber",
-        "uri": "domain/instrument/serial-number",
-        "set_prefix": true
-    },
-    "Instrument Location": {
-        "key1": "instrument",
-        "key2": "location",
-        "key3": "ID",
-        "uri": "domain/instrument/location",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Instrument Software": {
-        "key1": "instrument",
-        "key2": "software",
-        "key3": "ID",
-        "uri": "domain/instrument/software",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
+        "uri": "domain/instrument",
+        "ID": {
+            "key1": "instrument",
+            "key2": "ID",
+            "uri": "domain/instrument/id",
+            "set_index": true,
+            "external_id": true
+        },
+        "Name": {
+            "key1": "instrument",
+            "key2": "Name",
+            "uri": "domain/instrument/name",
+            "set_prefix": true
+        },
+        "Description": {
+            "key1": "instrument",
+            "key2": "Description",
+            "uri": "domain/instrument/description",
+            "set_prefix": true
+        },
+        "Version": {
+            "key1": "instrument",
+            "key2": "Version",
+            "uri": "domain/instrument/version",
+            "set_prefix": true
+        },
+        "PartNumber": {
+            "key1": "instrument",
+            "key2": "PartNumber",
+            "uri": "domain/instrument/part-number",
+            "set_prefix": true
+        },
+        "SerialNumber": {
+            "key1": "instrument",
+            "key2": "SerialNumber",
+            "uri": "domain/instrument/serial-number",
+            "set_prefix": true
+        },
+        "Location": {
+            "key1": "instrument",
+            "key2": "location",
+            "key3": "ID",
+            "uri": "domain/instrument/location",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Software": {
+            "key1": "instrument",
+            "key2": "software",
+            "key3": "ID",
+            "uri": "domain/instrument/software",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        }
     },
     "Data Set": {
-        "uri": "domain/data-set"
-    },
-    "Data Set ID": {
-        "key1": "dataset",
-        "key2": "ID",
-        "uri": "domain/data-set/id",
-        "set_index": true,
-        "external_id": true
-    },
-    "Data Set Name": {
-        "key1": "dataset",
-        "key2": "Name",
-        "uri": "domain/data-set/name",
-        "set_prefix": true
-    },
-    "Data Set Description": {
-        "key1": "dataset",
-        "key2": "Description",
-        "uri": "domain/data-set/description",
-        "set_prefix": true
-    },
-    "Data Set Size": {
-        "key1": "dataset",
-        "key2": "Size",
-        "uri": "domain/data-set/size",
-        "set_prefix": true,
-        "option_text": true
-    },
-    "Data Set Data Type": {
-        "key1": "dataset",
-        "key2": "datatype",
-        "key3": "ID",
-        "uri": "domain/data-set/data-type",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Data Set Representation Format": {
-        "key1": "dataset",
-        "key2": "representationformat",
-        "key3": "ID",
-        "uri": "domain/data-set/representation-format",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Data Set File Format": {
-        "key1": "dataset",
-        "key2": "FileFormat",
-        "uri": "domain/data-set/file-format",
-        "set_prefix": true
-    },
-    "Data Set Binary or Text": {
-        "key1": "dataset",
-        "key2": "BinaryText",
-        "uri": "domain/data-set/binary-or-text",
-        "set_prefix": true
-    },
-    "Data Set Proprietary": {
-        "key1": "dataset",
-        "key2": "Proprietary",
-        "uri": "domain/data-set/proprietary",
-        "set_prefix": true
-    },
-    "Data Set To Publish": {
-        "key1": "dataset",
-        "key2": "ToPublish",
-        "uri": "domain/data-set/to-publish",
-        "set_prefix": true,
-        "collection_index": true
-    },
-    "Data Set To Archive": {
-        "key1": "dataset",
-        "key2": "ToArchive",
-        "uri": "domain/data-set/to-archive",
-        "set_prefix": true,
-        "option_text": true
+        "uri": "domain/data-set",
+        "ID": {
+            "key1": "dataset",
+            "key2": "ID",
+            "uri": "domain/data-set/id",
+            "set_index": true,
+            "external_id": true
+        },
+        "Name": {
+            "key1": "dataset",
+            "key2": "Name",
+            "uri": "domain/data-set/name",
+            "set_prefix": true
+        },
+        "Description": {
+            "key1": "dataset",
+            "key2": "Description",
+            "uri": "domain/data-set/description",
+            "set_prefix": true
+        },
+        "Size": {
+            "key1": "dataset",
+            "key2": "Size",
+            "uri": "domain/data-set/size",
+            "set_prefix": true,
+            "option_text": true
+        },
+        "Data Type": {
+            "key1": "dataset",
+            "key2": "datatype",
+            "key3": "ID",
+            "uri": "domain/data-set/data-type",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Representation Format": {
+            "key1": "dataset",
+            "key2": "representationformat",
+            "key3": "ID",
+            "uri": "domain/data-set/representation-format",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "File Format": {
+            "key1": "dataset",
+            "key2": "FileFormat",
+            "uri": "domain/data-set/file-format",
+            "set_prefix": true
+        },
+        "Binary or Text": {
+            "key1": "dataset",
+            "key2": "BinaryText",
+            "uri": "domain/data-set/binary-or-text",
+            "set_prefix": true
+        },
+        "Proprietary": {
+            "key1": "dataset",
+            "key2": "Proprietary",
+            "uri": "domain/data-set/proprietary",
+            "set_prefix": true
+        },
+        "To Publish": {
+            "key1": "dataset",
+            "key2": "ToPublish",
+            "uri": "domain/data-set/to-publish",
+            "set_prefix": true,
+            "collection_index": true
+        },
+        "To Archive": {
+            "key1": "dataset",
+            "key2": "ToArchive",
+            "uri": "domain/data-set/to-archive",
+            "set_prefix": true,
+            "option_text": true
+        }
     },
     "Method": {
-        "uri": "domain/method"
+        "uri": "domain/method",
+        "ID": {
+            "key1": "method",
+            "key2": "ID",
+            "uri": "domain/method/id",
+            "set_index": true,
+            "external_id": true
+        },
+        "Name": {
+            "key1": "method",
+            "key2": "Name",
+            "uri": "domain/method/name",
+            "set_prefix": true
+        },
+        "Description": {
+            "key1": "method",
+            "key2": "Description",
+            "uri": "domain/method/description",
+            "set_prefix": true
+        },
+        "Parameter": {
+            "key1": "method",
+            "key2": "Parameter",
+            "uri": "domain/method/parameter",
+            "set_prefix": true,
+            "collection_index": true
+        },
+        "Software": {
+            "key1": "method",
+            "key2": "software",
+            "key3": "ID",
+            "uri": "domain/method/software",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Instrument": {
+            "key1": "method",
+            "key2": "instrument",
+            "key3": "ID",
+            "uri": "domain/method/instrument",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        }
     },
-    "Method ID": {
-        "key1": "method",
-        "key2": "ID",
-        "uri": "domain/method/id",
-        "set_index": true,
-        "external_id": true
+    "Process Step": {
+        "uri": "domain/process-step",
+        "ID": {
+            "key1": "processstep",
+            "key2": "ID",
+            "uri": "domain/process-step/id",
+            "set_index": true,
+            "external_id": true
+        },
+        "Name": {
+            "key1": "processstep",
+            "key2": "Name",
+            "uri": "domain/process-step/name",
+            "set_prefix": true
+        },
+        "Description": {
+            "key1": "processstep",
+            "key2": "Description",
+            "uri": "domain/process-step/description",
+            "set_prefix": true
+        },
+        "Input": {
+            "key1": "processstep",
+            "key2": "input",
+            "key3": "ID",
+            "uri": "domain/process-step/input",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Output": {
+            "key1": "processstep",
+            "key2": "output",
+            "key3": "ID",
+            "uri": "domain/process-step/output",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Method": {
+            "key1": "processstep",
+            "key2": "method",
+            "key3": "ID",
+            "uri": "domain/process-step/method",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Parameter": {
+            "key1": "processstep",
+            "key2": "parameter",
+            "uri": "domain/process-step/parameter",
+            "set_prefix": true,
+            "collection_index": true
+        },
+        "Environment-Software": {
+            "key1": "processstep",
+            "key2": "environmentSoftware",
+            "key3": "ID",
+            "uri": "domain/process-step/environment-software",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Environment-Instrument": {
+            "key1": "processstep",
+            "key2": "environmentInstrument",
+            "key3": "ID",
+            "uri": "domain/process-step/environment-instrument",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        },
+        "Discipline": {
+            "key1": "processstep",
+            "key2": "discipline",
+            "key3": "ID",
+            "uri": "domain/process-step/discipline",
+            "set_prefix": true,
+            "collection_index": true,
+            "external_id": true
+        }
     },
-    "Method Name": {
-        "key1": "method",
-        "key2": "Name",
-        "uri": "domain/method/name",
-        "set_prefix": true
-    },
-    "Method Description": {
-        "key1": "method",
-        "key2": "Description",
-        "uri": "domain/method/description",
-        "set_prefix": true
-    },
-    "Method Parameter": {
-        "key1": "method",
-        "key2": "Parameter",
-        "uri": "domain/method/parameter",
-        "set_prefix": true,
-        "collection_index": true
-    },
-    "Method Software": {
-        "key1": "method",
-        "key2": "software",
-        "key3": "ID",
-        "uri": "domain/method/software",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Method Instrument": {
-        "key1": "method",
-        "key2": "instrument",
-        "key3": "ID",
-        "uri": "domain/method/instrument",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Process Step ID": {
-        "key1": "processstep",
-        "key2": "ID",
-        "uri": "domain/process-step/id",
-        "set_index": true,
-        "external_id": true
-    },
-    "Process Step Name": {
-        "key1": "processstep",
-        "key2": "Name",
-        "uri": "domain/process-step/name",
-        "set_prefix": true
-    },
-    "Process Step Description": {
-        "key1": "processstep",
-        "key2": "Description",
-        "uri": "domain/process-step/description",
-        "set_prefix": true
-    },
-    "Process Step Input": {
-        "key1": "processstep",
-        "key2": "input",
-        "key3": "ID",
-        "uri": "domain/process-step/input",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Process Step Output": {
-        "key1": "processstep",
-        "key2": "output",
-        "key3": "ID",
-        "uri": "domain/process-step/output",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Process Step Method": {
-        "key1": "processstep",
-        "key2": "method",
-        "key3": "ID",
-        "uri": "domain/process-step/method",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Process Step Parameter": {
-        "key1": "processstep",
-        "key2": "parameter",
-        "uri": "domain/process-step/parameter",
-        "set_prefix": true,
-        "collection_index": true
-    },
-    "Process Step Environment-Software": {
-        "key1": "processstep",
-        "key2": "environmentSoftware",
-        "key3": "ID",
-        "uri": "domain/process-step/environment-software",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Process Step Environment-Instrument": {
-        "key1": "processstep",
-        "key2": "environmentInstrument",
-        "key3": "ID",
-        "uri": "domain/process-step/environment-instrument",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Process Step Discipline": {
-        "key1": "processstep",
-        "key2": "discipline",
-        "key3": "ID",
-        "uri": "domain/process-step/discipline",
-        "set_prefix": true,
-        "collection_index": true,
-        "external_id": true
-    },
-    "Reproducibility Mathematical": {
-        "key1": "reproducibility",
-        "key2": "mathematical",
-        "uri": "domain/reproducibility/mathematical"
-    },
-    "Reproducibility Mathematical Condition": {
-        "key1": "reproducibility",
-        "key2": "mathematicalcondition",
-        "uri": "domain/reproducibility/mathematical/condition"
-    },
-    "Reproducibility Runtime": {
-        "key1": "reproducibility",
-        "key2": "runtime",
-        "uri": "domain/reproducibility/runtime"
-    },
-    "Reproducibility Runtime Condition": {
-        "key1": "reproducibility",
-        "key2": "runtimecondition",
-        "uri": "domain/reproducibility/runtime/condition"
-    },
-    "Reproducibility Result": {
-        "key1": "reproducibility",
-        "key2": "result",
-        "uri": "domain/reproducibility/result"
-    },
-    "Reproducibility Result Condition": {
-        "key1": "reproducibility",
-        "key2": "resultcondition",
-        "uri": "domain/reproducibility/result/condition"
-    },
-    "Reproducibility Original Platform": {
-        "key1": "reproducibility",
-        "key2": "originalplatform",
-        "uri": "domain/reproducibility/original-platform"
-    },
-    "Reproducibility Original Platform Condition": {
-        "key1": "reproducibility",
-        "key2": "originalplatformcondition",
-        "uri": "domain/reproducibility/original-platform/condition"
-    },
-    "Reproducibility Other Platform": {
-        "key1": "reproducibility",
-        "key2": "otherplatform",
-        "uri": "domain/reproducibility/other-platform"
-    },
-    "Reproducibility Other Platform Condition": {
-        "key1": "reproducibility",
-        "key2": "otherplatformcondition",
-        "uri": "domain/reproducibility/other-platform/condition"
-    },
-    "Reproducibility Transferability": {
-        "key1": "reproducibility",
-        "key2": "transferability",
-        "uri": "domain/reproducibility/transferability",
-        "collection_index": true
+    "Reproducibility": {
+        "uri": "domain/reproducibility",
+        "Mathematical": {
+            "key1": "reproducibility",
+            "key2": "mathematical",
+            "uri": "domain/reproducibility/mathematical"
+        },
+        "Mathematical Condition": {
+            "key1": "reproducibility",
+            "key2": "mathematicalcondition",
+            "uri": "domain/reproducibility/mathematical/condition"
+        },
+        "Runtime": {
+            "key1": "reproducibility",
+            "key2": "runtime",
+            "uri": "domain/reproducibility/runtime"
+        },
+        "Runtime Condition": {
+            "key1": "reproducibility",
+            "key2": "runtimecondition",
+            "uri": "domain/reproducibility/runtime/condition"
+        },
+        "Result": {
+            "key1": "reproducibility",
+            "key2": "result",
+            "uri": "domain/reproducibility/result"
+        },
+        "Result Condition": {
+            "key1": "reproducibility",
+            "key2": "resultcondition",
+            "uri": "domain/reproducibility/result/condition"
+        },
+        "Original Platform": {
+            "key1": "reproducibility",
+            "key2": "originalplatform",
+            "uri": "domain/reproducibility/original-platform"
+        },
+        "Original Platform Condition": {
+            "key1": "reproducibility",
+            "key2": "originalplatformcondition",
+            "uri": "domain/reproducibility/original-platform/condition"
+        },
+        "Other Platform": {
+            "key1": "reproducibility",
+            "key2": "otherplatform",
+            "uri": "domain/reproducibility/other-platform"
+        },
+        "Other Platform Condition": {
+            "key1": "reproducibility",
+            "key2": "otherplatformcondition",
+            "uri": "domain/reproducibility/other-platform/condition"
+        },
+        "Transferability": {
+            "key1": "reproducibility",
+            "key2": "transferability",
+            "uri": "domain/reproducibility/transferability",
+            "collection_index": true
+        }
     }
 }

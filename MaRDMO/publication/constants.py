@@ -24,37 +24,37 @@ RELATANT_URIS = {
 
 # URI mappings for publications
 PUBLICATIONS = {
-    "Publication Name": "title",
-    "Publication Description": "description",
-    "Publication Entrytype": "entrytype",
-    "Publication Title": "title",
-    "Publication Date": "date",
-    "Publication Volume": "volume",
-    "Publication Issue": "issue",
-    "Publication Page": "page"
+    "Name": "title",
+    "Description": "description",
+    "Entrytype": "entrytype",
+    "Title": "title",
+    "Date": "date",
+    "Volume": "volume",
+    "Issue": "issue",
+    "Page": "page"
 }
 
 # URI mappings for languages
 LANGUAGES = {
-    "Publication Language ID": "id",
-    "Publication Language Name": "label",
-    "Publication Language Description": "description"
+    "Language ID": "id",
+    "Language Name": "label",
+    "Language Description": "description"
 }
 
 # URI mappings for journals
 JOURNALS = {
-    "Publication Journal ID": "id",
-    "Publication Journal ISSN": "issn",
-    "Publication Journal Name": "label",
-    "Publication Journal Description": "description"
+    "Journal ID": "id",
+    "Journal ISSN": "issn",
+    "Journal Name": "label",
+    "Journal Description": "description"
 }
 
 # URI mappings for author
 AUTHORS = {
-    "Publication Author ID": "id",
-    "Publication Author ORCID": "orcid_id",
-    "Publication Author ZBMath": "zbmath_id",
-    "Publication Author Wikidata": "wikidata_id",
-    "Publication Author Name": "label",
-    "Publication Author Description": "description"
+    "Author ID": "id",
+    "Author ORCID": "orcid_id",
+    "Author ZBMath": "zbmath_id",
+    "Author Wikidata": "wikidata_id",
+    "Author Name": "label",
+    "Author Description": "description"
 }

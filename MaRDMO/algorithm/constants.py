@@ -15,25 +15,33 @@ PROPS = {
 def get_URI_PREFIX_MAP():
     questions = get_questions_algorithm()
     URI_PREFIX_MAP = {
-        f'{BASE_URI}{questions["Problem BRelatant"]["uri"]}': {
+        f'{BASE_URI}{questions["Problem"]["BRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Benchmark"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Benchmark ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Benchmark"]["ID"]["uri"]}',
             "prefix": "B"
         },
-        f'{BASE_URI}{questions["Software BRelatant"]["uri"]}': {
+        f'{BASE_URI}{questions["Software"]["BRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Benchmark"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Benchmark ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Benchmark"]["ID"]["uri"]}',
             "prefix": "B"
         },
-        f'{BASE_URI}{questions["Algorithm PRelatant"]["uri"]}': {
+        f'{BASE_URI}{questions["Algorithm"]["PRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Problem"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Problem ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Problem"]["ID"]["uri"]}',
             "prefix": "AP"
         },
-        f'{BASE_URI}{questions["Algorithm SRelatant"]["uri"]}': {
+        f'{BASE_URI}{questions["Algorithm"]["SRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Software"]["uri"]}',
-            "question_id": f'{BASE_URI}{questions["Software ID"]["uri"]}',
+            "question_id": f'{BASE_URI}{questions["Software"]["ID"]["uri"]}',
             "prefix": "S"
         }
     }
     return URI_PREFIX_MAP
+
+class_prefix_map = {
+        'algorithm': 'al',
+        'problem': 'pr',
+        'benchmark': 'bm',
+        'software': 'sw',
+        'publication': 'pb',
+    }

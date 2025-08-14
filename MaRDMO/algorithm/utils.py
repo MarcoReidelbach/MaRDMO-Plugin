@@ -1,54 +1,51 @@
 import re
 
-from rdmo.domain.models import Attribute
+from .constants import class_prefix_map
 
 from ..config import BASE_URI
+from ..helpers import value_editor
 from ..getters import get_data, get_mathalgodb, get_options
-from ..helpers import extract_parts
+from ..queries import query_sparql
 
-
-def get_answer_algorithm(project, val, uri, key1 = None, key2 = None, key3 = None, set_prefix = None, set_index = None, collection_index = None, external_id = None, option_text = None):
-    '''Function to get user answers into dictionary.'''
-    val.setdefault(key1, {})
+def update_ids(project, ids, query, sparql_endpoint, source):
+    """pdate IDs of new MathAlgoDB Items and add them to the Questionnaire"""
+    new_ids = {}
     
-    try:
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f"{BASE_URI}{uri}"))
-    except:
-        values = []
+    for key, id_value in ids.items():
+        # Ignore Items with MathAlgoDB ID
+        if id_value.startswith(('mathmoddb:', 'bm:', 'pr:', 'so:', 'al:', 'pb')):
+            continue
 
-    if not (key1 or key2):
-        values =[]
+        # Get MathAlgoDB ID
+        results = query_sparql(query.format(f'"{key}"'), sparql_endpoint)
+        if not (results and results[0].get('ID', {}).get('value')):
+            continue
 
-    for value in values:
-        if value.option:
-            if set_prefix and set_index and not collection_index and not external_id and not option_text:
-                prefix = value.set_prefix.split('|')
-                val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.set_index:value.option_uri})
-            elif not set_prefix and set_index and collection_index and not external_id and not option_text:
-                val[key1].setdefault(value.set_index, {}).setdefault(key2, {}).update({value.collection_index:[value.option_uri,value.text]})
-            elif set_prefix and not set_index and collection_index and not external_id and not option_text:
-                prefix = value.set_prefix.split('|')
-                val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:[value.option_uri,value.text]})
-        elif value.text:
-            if not set_prefix and set_index and not collection_index and not external_id and not option_text:
-                val[key1].setdefault(value.set_index, {}).update({key2:value.text})
-            elif not set_prefix and set_index and not collection_index and external_id and not option_text:
-                val[key1].setdefault(value.set_index, {}).update({key2:value.external_id})
-            elif set_prefix and not set_index and not collection_index and not external_id and not option_text:
-                prefix = value.set_prefix.split('|')
-                val[key1].setdefault(int(prefix[0]), {}).update({key2:value.text})
-            elif set_prefix and not set_index and collection_index and not external_id and not option_text:
-                prefix = value.set_prefix.split('|')
-                val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:value.text})    
-            elif set_prefix and not set_index and collection_index and external_id and not option_text:
-                prefix = value.set_prefix.split('|')
-                label,description,_ = extract_parts(value.text)
-                val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.collection_index:{'ID': value.external_id, 'Name': label, 'Description': description}})
-            elif set_prefix and set_index and not collection_index and external_id and not option_text:
-                prefix = value.set_prefix.split('|')
-                label,description,_ = extract_parts(value.text)
-                val[key1].setdefault(int(prefix[0]), {}).setdefault(key2, {}).update({value.set_index:{'ID': value.external_id, 'Name': label, 'Description': description}})    
-    return val
+        match = re.match(r"(\d+)(\D+)", id_value)
+        if not match:
+            continue
+
+        set_index, set_name = match.groups()
+        first_result = results[0]
+
+        # Generate Entry
+        value_editor(
+            project=project,
+            uri=f"{BASE_URI}domain/{set_name}/id",
+            text=f"{key} ({first_result['quote']['value']}) [{source}]",
+            external_id=f"{source}:{first_result['ID']['value']}",
+            set_index=set_index
+        )
+
+        if source == 'mathalgodb':
+            class_value = first_result.get('class', {}).get('value')
+            if not class_value:
+                continue
+            prefix = class_prefix_map.get(class_value)
+            if prefix:
+                new_ids[key] = f"{prefix}:{first_result['ID']['value']}"
+
+    return new_ids
 
 def dict_to_triples_mathalgodb(data):
 

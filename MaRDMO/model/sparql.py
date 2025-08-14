@@ -74,22 +74,24 @@ queryHandler = {
                                                                   BIND(COALESCE(?strfdraw, "No Description Provided!") AS ?strfd)
                                                                }}
 
-                                                    OPTIONAL {{
-                                                                   ?id wdt:{described by source} ?pubraw.
+                                                      OPTIONAL {{
+                                                                  ?id p:{described by source} ?statement .
+                                                                  ?statement ps:{described by source} ?pubraw .
+                                                                  ?statement pq:{object has role} ?role .
+                                                                  VALUES ?role {{ wd:{documentation} wd:{invention} wd:{review} wd:{study} wd:{use} }}
 
-                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?pubraw), STR(wd:))) AS ?pub)
-                                                                   
-                                                                   OPTIONAL {{
-                                                                              ?pubraw rdfs:label ?publraw.
-                                                                              FILTER (lang(?publraw) = 'en')
-                                                                           }}
+                                                                  BIND(CONCAT("mardi:", STRAFTER(STR(?pubraw), STR(wd:))) AS ?pub)
 
+                                                                  OPTIONAL {{
+                                                                    ?pubraw rdfs:label ?publraw .
+                                                                    FILTER (lang(?publraw) = 'en')
+                                                                  }}
                                                                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
 
                                                                   OPTIONAL {{
-                                                                             ?pubraw schema:description ?pubdraw
-                                                                             FILTER (lang(?pubdraw) = 'en')
-                                                                           }}
+                                                                    ?pubraw schema:description ?pubdraw .
+                                                                    FILTER (lang(?pubdraw) = 'en')
+                                                                  }}
                                                                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
                                                                }}
 

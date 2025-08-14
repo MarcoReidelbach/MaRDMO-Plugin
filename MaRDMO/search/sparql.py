@@ -1,33 +1,27 @@
-from ..config import wd, wdt 
-
-#SPARQL Query Base and components for Workflow Search
+#SPARQL Query Base and Components for Portal Search
 
 query_base="""
-PREFIX wdt: """+wdt+"""
-PREFIX wd: """+wd+"""
 SELECT DISTINCT ?label ?qid
 WHERE {{
-?workflow wdt:P{0} wd:{1};
+?workflow wdt:{instance of} wd:{research workflow};
           rdfs:label ?label;
+          {0}
+          {1}
           {2}
-          {3}
-          {4}
-{5}
+{3}
 BIND(STRAFTER(STR(?workflow),STR(wd:)) AS ?qid).
 }}
 LIMIT 10"""
 
 quote_sparql = "schema:description ?quote;"
 res_obj_sparql = "FILTER(CONTAINS(lcase(str(?quote)), '{}'@en)).\n"
-res_disc_sparql = "wdt:P{0} wd:{1};\n"
-mmsio_sparql = "wdt:P{0} wd:{1};\n"
+res_disc_sparql = "wdt:{field of work} wd:{0};\n"
+mmsio_sparql = "wdt:{uses} wd:{0};\n"
 
 query_base_model="""
-PREFIX mathmoddb: <https://mardi4nfdi.de/mathmoddb#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 SELECT DISTINCT ?label ?qid
 WHERE {{
-?model a mathmoddb:MathematicalModel;
+?model wdt:{instance of} wd:{mathematical model};
           rdfs:label ?label.
 {0}
 {1}
@@ -35,29 +29,47 @@ WHERE {{
 {3}
 {4}
 {5}
-BIND(STRAFTER(STR(?model),"#") AS ?qid).
+BIND(STRAFTER(STR(?model), STR(wd:)) AS ?qid)
 }}
 LIMIT 10"""
 
 problem_sparql = """
-?model mathmoddb:models ?problem.
-?problem rdfs:label ?problemlabel
+?problem wdt:{modelled by} ?model;
+         wdt:{instance of} wd:{research problem};
+         rdfs:label ?problemlabel.
 FILTER(lang(?problemlabel) = 'en')"""
 problem_filter_sparql = """
-FILTER(CONTAINS(lcase(str(?problemlabel)), '{}'))."""
+FILTER(CONTAINS(lcase(str(?problemlabel)), '{0}'))."""
 field_sparql = """
-?model mathmoddb:models ?problem.
-?problem mathmoddb:containedInField {}.
+?problem wdt:{modelled by} ?model.
+wd:{} wdt:{contains} ?problem;
+      wdt:{instance of} wd:{academic discipline}.
 """
 formulation_sparql = """
-?model (mathmoddb:containsFormulation | mathmoddb:containsAssumption | mathmoddb:containsBoundaryCondition | mathmoddb:containsConstraintCondition | mathmoddb:containsCouplingCondition | mathmoddb:containsInitialCondition | mathmoddb:containsFinalCondition) {}.
+?model wdt:{contains} wd:{0}.
+wd:{0} wdt:{instance of} wd:{mathematical expression}.
 """
 task_sparql = """
-?model (mathmoddb:appliedByTask) {}.
+?model wdt:{used by} wd:{0}.
+wd:{0} wdt:{instance of} wd:{computational task}.
 """
 quantity_sparql = """
-?model (mathmoddb:containsFormulation | mathmoddb:containsAssumption | mathmoddb:containsBoundaryCondition | mathmoddb:containsConstraintCondition | mathmoddb:containsCouplingCondition | mathmoddb:containsInitialCondition | mathmoddb:containsFinalCondition | mathmoddb:appliedByTask) ?intermediate.
-?intermediate (mathmoddb:containsQuantity | mathmoddb:containsInput | mathmoddb:containsOutput | mathmoddb:containsObjective | mathmoddb:containsParameter | mathmoddb:containsConstant) {}.
+{{
+  ?model wdt:{contains} ?intermediate .
+  ?intermediate wdt:{instance of} wd:{mathematical expression}.
+}}
+UNION
+{{
+  ?model wdt:{used by} ?intermediate .
+  ?intermediate wdt:{instance of} wd:{computational task}.
+}}
+VALUES ?type {{ wd:{quantity} wd:{kind of quantity} }} .
+"""
+quantity_filter_sparql = """
+{{
+  ?intermediate wdt:{contains} wd:{0}.
+  wd:{0} wdt:{instance of} ?type .
+}}
 """ 
 
 query_base_algorithm="""

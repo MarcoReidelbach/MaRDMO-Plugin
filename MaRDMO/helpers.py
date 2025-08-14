@@ -1,8 +1,33 @@
+'''General Helper Functions of MaRDMO'''
+
 import re
 
 from rdmo.projects.models import Value
 from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
+
+def basic_dict(value):
+    # Extract Parts from ID Question
+    label, description, _ = extract_parts(value.text)
+    # Define Basic Dict
+    basicDict = {
+                 'ID': value.external_id, 
+                 'Name': label, 
+                 'Description': description
+                }
+    return basicDict
+
+def basic_list(value):
+    # Define Basic List
+    basicList = [value.option_uri, value.text]
+    return basicList
+
+def nested_set(data, path, entry):
+    """Walk a sequence of keys, creating dicts as needed, and set the final value."""
+    d = data
+    for key in path[:-1]:
+        d = d.setdefault(key, {})
+    d[path[-1]] = entry
 
 def extract_parts(string):
     # Step 1: Split the string at the last occurrence of ') [' to isolate `c` (source)
@@ -182,10 +207,10 @@ def unique_items(data, title = None):
     # Add Workflow Component Items
     def search(subdict):
         if isinstance(subdict, dict) and 'ID' in subdict:
-            triple = (subdict.get('ID', ''), subdict.get('Name', ''), subdict.get('Description', ''))
+            triple = (subdict.get('ID', ''), subdict.get('Name', ''), subdict.get('Description', ''), subdict.get('orcid', ''), subdict.get('zbmath', ''), subdict.get('issn', ''))
             if triple not in seen_items:
                 item_key = f'Item{str(len(items)).zfill(10)}'  # Create unique key
-                items[item_key] = {'ID': triple[0], 'Name': triple[1], 'Description': triple[2]}
+                items[item_key] = {'ID': triple[0], 'Name': triple[1], 'Description': triple[2], 'orcid': triple[3], 'zbmath': triple[4], 'issn': triple[5]}
                 seen_items.add(triple)
         if isinstance(subdict, dict):
             for value in subdict.values():
@@ -227,3 +252,43 @@ def clean_mathml(mathml_str):
     # Apply substitution on all opening tags
     cleaned = re.sub(r'<([^>\s]+(?:\s[^>]*)?)>', clean_tag, mathml_str)
     return cleaned
+
+def process_question_dict(project, questions, get_answer):
+    """Iterate through nested questions dict and extract answers using provided answer function."""
+    answers = {}
+
+    for group in questions.values():
+        for sub_key, config in group.items():
+            if sub_key == "uri":
+                continue  # Skip the group-level URI
+
+            if not isinstance(config, dict) or "uri" not in config:
+                continue  # Skip invalid or metadata-only entries
+
+            # Fill in optional/default values
+            config = {
+                "key1": config.get("key1"),
+                "key2": config.get("key2"),
+                "key3": config.get("key3"),
+                "uri": config["uri"],
+                "set_prefix": config.get("set_prefix", False),
+                "set_index": config.get("set_index", False),
+                "collection_index": config.get("collection_index", False),
+                "external_id": config.get("external_id", False),
+                "option_text": config.get("option_text", False),
+            }
+        
+            # Call the injected function
+            answers = get_answer(
+                project,
+                answers,
+                config
+            )
+
+    return answers
+
+
+
+
+
+

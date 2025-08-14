@@ -61,63 +61,10 @@ class prepareModel:
         items = unique_items(data)
         
         payload = GeneratePayload(url, items, get_Relations, get_DATA_PROPERTIES)
-
+        
         # Add / Retrieve Components of Model Item
-        for key, value in items.items():
-            if value.get('ID'):
-                # Item from MaRDI Portal
-                if 'mardi:' in value['ID']:
-                    _, id = value['ID'].split(':')
-                    payload.add_entry('dictionary', key, payload.build_item(id, value['Name'], value['Description']))
-                # Item from Wikidata
-                elif 'wikidata:' in value['ID']:
-                    _, id = value['ID'].split(':')
-                    mardiID = query_item(value['Name'], value['Description'])
-                    if mardiID:
-                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
-                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
-                        payload.update_items(key, f"mardi:{mardiID}")
-                    else:
-                        payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description'], [[self.PROPERTIES['Wikidata QID'], 'external-id', id]]))
-                # Item from MathAlgoDB KG
-                elif 'mathalgodb' in value['ID']:
-                    _, id = value['ID'].split(':')
-                    mardiID = query_item(value['Name'], value['Description'])
-                    if mardiID:
-                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
-                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
-                        payload.update_items(key, f"mardi:{mardiID}")
-                    else:
-                        payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description']))
-                        # No MathAlgoDB ID Property in Portal yet
-                # Item defined by User (I)
-                elif 'not found' in value['ID']:
-                    mardiID = query_item(value['Name'], value['Description'])
-                    if mardiID:
-                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
-                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
-                        payload.update_items(key, f"mardi:{mardiID}")
-                    else:
-                        statement = []
-                        if value.get('ISSN'):
-                            statement = statement.extend([[self.PROPERTIES['ISSN'], 'external-id', value['ISSN']]])
-                        payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description'], statement))
-                # Item defined by User (II)
-                elif 'no author found' in value['ID']:
-                    mardiID = query_item(value['Name'], value['Description'])
-                    if mardiID:
-                        payload.add_entry('lookup', (value['ID'], value['Name'], value['Description']), (f"mardi:{mardiID}", value['Name'], value['Description']))
-                        payload.add_entry('dictionary', key, payload.build_item(mardiID, value['Name'], value['Description']))
-                        payload.update_items(key, f"mardi:{mardiID}")
-                    else:
-                        statement = []
-                        if value.get('orcid'):
-                            statement = statement.extend([[self.PROPERTIES['ORCID iD'], 'external-id', value['orcid']]])
-                        if value.get('zbmath'):
-                            statement = statement.extend([[self.PROPERTIES['zbMATH author ID'], 'external-id', value['zbmath']]])
-                        if statement:
-                            payload.add_entry('dictionary', key, payload.build_item('', value['Name'], value['Description'], statement))
-                              
+        payload.process_items()
+        
         for field in data.get('field', {}).values():
 
             # Continue if no ID exists
@@ -127,9 +74,10 @@ class prepareModel:
             # Get Item Key
             payload.get_item_key(field)
 
-            # Add Class and Community
+            # Add Class, Community, and Profile
             payload.add_answer(self.PROPERTIES['instance of'], self.ITEMS['academic discipline'])
             payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB'])
+            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI research field profile'])
             
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
@@ -152,9 +100,10 @@ class prepareModel:
             # Get Item Key
             payload.get_item_key(problem)
 
-            # Add Class and Community
+            # Add Class, Community, and Profile
             payload.add_answer(self.PROPERTIES['instance of'], self.ITEMS['research problem'])
             payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB']) 
+            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI research problem profile'])
 
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
@@ -177,9 +126,10 @@ class prepareModel:
             # Get Item Key
             payload.get_item_key(model)
             
-            # Add Class and Community
+            # Add Class, Community, and Profile
             payload.add_answer(self.PROPERTIES['instance of'], self.ITEMS['mathematical model'])
             payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB']) 
+            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI model profile'])
 
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
@@ -206,9 +156,10 @@ class prepareModel:
             # Get Item Key
             payload.get_item_key(task)
             
-            # Add Class and Community
+            # Add Class, Community, and Profile
             payload.add_answer(self.PROPERTIES['instance of'], self.ITEMS['computational task'])
             payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB'])
+            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI task profile'])
 
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
@@ -235,9 +186,10 @@ class prepareModel:
             # Get Item Key
             payload.get_item_key(formulation)
             
-            # Add Class and Community
+            # Add Class, Community, and Profile
             payload.add_answer(self.PROPERTIES['instance of'], self.ITEMS['mathematical expression'])
             payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB']) 
+            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI formula profile'])
 
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
@@ -275,9 +227,10 @@ class prepareModel:
                 qclass = self.ITEMS['kind of quantity']
                 qtype = 'quantity kind'
 
-            # Add Class and Community
+            # Add Class, Community, and Profile
             payload.add_answer(self.PROPERTIES['instance of'], qclass)
             payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB'])
+            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI quantity profile'])
 
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
@@ -349,6 +302,9 @@ class prepareModel:
                 payload.add_forward_relation_single(self.PROPERTIES['published in'], 'journal')
                 # Add the Authors of the Publication
                 payload.add_forward_relation_single(self.PROPERTIES['author'], 'author', self.PROPERTIES['author name string'], 'Name')
+
+                # Add the Profile Type
+                payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI publication profile'])
                 
             # Add relations to Entities of Mathematical Model
             payload.add_forward_relation_multiple('P2E', 'EntityRelatant', True)
@@ -361,7 +317,7 @@ class prepareModel:
 
             # Generate SPARQL Check Query
             query = payload.build_relation_check_query()
-        
+            print(query)
             # Perform Check Query for Relations
             check = query_sparql(query, endpoint['mardi']['sparql'])
 
