@@ -193,14 +193,14 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 
                 answers, *__ = self.get_post_data()
                 checker = checks()
-                #err = checker.run(self.project, answers)
-                #if err:
-                #    # Stop export if documentation incomplete / inconsitent
-                #    return render(self.request, 
-                #                  'core/error.html', 
-                #                  {'title': _("Incomplete or Inconsistent Documentation"),
-                #                   'errors': err}, 
-                #                  status=200)
+                err = checker.run(self.project, answers)
+                if err:
+                    # Stop export if documentation incomplete / inconsitent
+                    return render(self.request, 
+                                  'core/error.html', 
+                                  {'title': _("Incomplete or Inconsistent Documentation"),
+                                   'errors': err}, 
+                                  status=200)
                 try:
                     prepare = prepareModel()
                     payload = prepare.export(answers, self.wikibase_url)
@@ -210,7 +210,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   {'title': _('Value Error'),
                                    'errors': [err]}, 
                                   status=200)
-                return
+                
                 return self.post(self.request, url, payload)
 
             # MaRDMO: Algorithm Documentation

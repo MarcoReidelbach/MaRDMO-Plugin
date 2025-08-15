@@ -4,7 +4,7 @@ from .constants import PREVIEW_RELATIONS, PREVIEW_MAP_GENERAL, PREVIEW_MAP_QUANT
 from ..config import endpoint
 from ..getters import get_items, get_mathmoddb, get_properties
 from ..helpers import entityRelations, mapEntity, unique_items, inline_mathml
-from ..queries import query_item, query_sparql
+from ..queries import query_sparql
 from ..payload import GeneratePayload
 
 
@@ -74,10 +74,32 @@ class prepareModel:
             # Get Item Key
             payload.get_item_key(field)
 
-            # Add Class, Community, and Profile
-            payload.add_answer(self.PROPERTIES['instance of'], self.ITEMS['academic discipline'])
-            payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB'])
-            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI research field profile'])
+            # Add Class
+            payload.add_answer(
+                verb=self.PROPERTIES['instance of'],
+                object_and_type=[
+                    self.ITEMS['academic discipline'],
+                    'wikibase-item',
+                ]
+            )
+
+            # Add Community
+            payload.add_answer(
+                verb=self.PROPERTIES['community'],
+                object_and_type=[
+                    self.ITEMS['MathModDB'],
+                    'wikibase-item',
+                ]
+            )
+            
+            # Add MaRDI Research Field Profile
+            payload.add_answer(
+                verb=self.PROPERTIES['MaRDI profile type'],
+                object_and_type=[
+                    self.ITEMS['MaRDI research field profile'],
+                    'wikibase-item',
+                ]
+            )
             
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
@@ -100,10 +122,32 @@ class prepareModel:
             # Get Item Key
             payload.get_item_key(problem)
 
-            # Add Class, Community, and Profile
-            payload.add_answer(self.PROPERTIES['instance of'], self.ITEMS['research problem'])
-            payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB']) 
-            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI research problem profile'])
+            # Add Class
+            payload.add_answer(
+                verb=self.PROPERTIES['instance of'],
+                object_and_type=[
+                    self.ITEMS['research problem'],
+                    'wikibase-item',
+                ]
+            )
+
+            # Add Community
+            payload.add_answer(
+                verb=self.PROPERTIES['community'],
+                object_and_type=[
+                    self.ITEMS['MathModDB'],
+                    'wikibase-item',
+                ]
+            )
+            
+            # Add MaRDI Research Field Profile
+            payload.add_answer(
+                verb=self.PROPERTIES['MaRDI profile type'],
+                object_and_type=[
+                    self.ITEMS['MaRDI research problem profile'],
+                    'wikibase-item',
+                ]
+            )
 
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
@@ -125,12 +169,34 @@ class prepareModel:
             
             # Get Item Key
             payload.get_item_key(model)
-            
-            # Add Class, Community, and Profile
-            payload.add_answer(self.PROPERTIES['instance of'], self.ITEMS['mathematical model'])
-            payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB']) 
-            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI model profile'])
 
+            # Add Class
+            payload.add_answer(
+                verb=self.PROPERTIES['instance of'],
+                object_and_type=[
+                    self.ITEMS['mathematical model'],
+                    'wikibase-item',
+                ]
+            )
+
+            # Add Community
+            payload.add_answer(
+                verb=self.PROPERTIES['community'],
+                object_and_type=[
+                    self.ITEMS['MathModDB'],
+                    'wikibase-item',
+                ]
+            )
+            
+            # Add MaRDI Research Field Profile
+            payload.add_answer(
+                verb=self.PROPERTIES['MaRDI profile type'],
+                object_and_type=[
+                    self.ITEMS['MaRDI model profile'],
+                    'wikibase-item',
+                ]
+            )
+            
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
 
@@ -155,12 +221,34 @@ class prepareModel:
             
             # Get Item Key
             payload.get_item_key(task)
-            
-            # Add Class, Community, and Profile
-            payload.add_answer(self.PROPERTIES['instance of'], self.ITEMS['computational task'])
-            payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB'])
-            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI task profile'])
 
+            # Add Class
+            payload.add_answer(
+                verb=self.PROPERTIES['instance of'],
+                object_and_type=[
+                    self.ITEMS['computational task'],
+                    'wikibase-item',
+                ]
+            )
+
+            # Add Community
+            payload.add_answer(
+                verb=self.PROPERTIES['community'],
+                object_and_type=[
+                    self.ITEMS['MathModDB'],
+                    'wikibase-item',
+                ]
+            )
+            
+            # Add MaRDI Research Field Profile
+            payload.add_answer(
+                verb=self.PROPERTIES['MaRDI profile type'],
+                object_and_type=[
+                    self.ITEMS['MaRDI task profile'],
+                    'wikibase-item',
+                ]
+            )
+            
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
 
@@ -185,11 +273,33 @@ class prepareModel:
             
             # Get Item Key
             payload.get_item_key(formulation)
+
+            # Add Class
+            payload.add_answer(
+                verb=self.PROPERTIES['instance of'],
+                object_and_type=[
+                    self.ITEMS['mathematical expression'],
+                    'wikibase-item',
+                ]
+            )
+
+            # Add Community
+            payload.add_answer(
+                verb=self.PROPERTIES['community'],
+                object_and_type=[
+                    self.ITEMS['MathModDB'],
+                    'wikibase-item',
+                ]
+            )
             
-            # Add Class, Community, and Profile
-            payload.add_answer(self.PROPERTIES['instance of'], self.ITEMS['mathematical expression'])
-            payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB']) 
-            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI formula profile'])
+            # Add MaRDI Research Field Profile
+            payload.add_answer(
+                verb=self.PROPERTIES['MaRDI profile type'],
+                object_and_type=[
+                    self.ITEMS['MaRDI formula profile'],
+                    'wikibase-item',
+                ]
+            )
 
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
@@ -227,10 +337,32 @@ class prepareModel:
                 qclass = self.ITEMS['kind of quantity']
                 qtype = 'quantity kind'
 
-            # Add Class, Community, and Profile
-            payload.add_answer(self.PROPERTIES['instance of'], qclass)
-            payload.add_answer(self.PROPERTIES['community'], self.ITEMS['MathModDB'])
-            payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI quantity profile'])
+            # Add Class
+            payload.add_answer(
+                verb=self.PROPERTIES['instance of'],
+                object_and_type=[
+                    qclass,
+                    'wikibase-item',
+                ]
+            )
+
+            # Add Community
+            payload.add_answer(
+                verb=self.PROPERTIES['community'],
+                object_and_type=[
+                    self.ITEMS['MathModDB'],
+                    'wikibase-item',
+                ]
+            )
+            
+            # Add MaRDI Research Field Profile
+            payload.add_answer(
+                verb=self.PROPERTIES['MaRDI profile type'],
+                object_and_type=[
+                    self.ITEMS['MaRDI quantity profile'],
+                    'wikibase-item',
+                ]
+            )
 
             # Add Detailed Description
             payload.add_answers('descriptionLong', 'description')
@@ -240,8 +372,14 @@ class prepareModel:
 
             # Add QUDT ID for Quantity Kind
             if quantity.get('reference') and qtype == 'quantity kind':
-                payload.add_answer(self.PROPERTIES['QUDT quantity kind ID'], quantity['reference'][0][1], 'external-id')
-           
+                payload.add_answer(
+                    verb=self.PROPERTIES['QUDT quantity kind ID'],
+                    object_and_type=[
+                        quantity['reference'][0][1],
+                        'external-id',
+                    ]
+                )
+            
             # Add defining Formulas to Mathematical Formulation
             payload.add_answers('Formula', 'defining formula', 'math')
             
@@ -274,27 +412,88 @@ class prepareModel:
             payload.get_item_key(publication)
 
             if 'mardi' not in publication['ID'] and 'wikidata' not in publication['ID']:
+                
                 # Add the class of the Publication
                 if publication.get('entrytype'):
-                    payload.add_answer(self.PROPERTIES['instance of'], self.ITEMS['scholarly article'] if publication['entrytype'] == 'scholarly article' else self.ITEMS['publication'])
+
+                    if publication['entrytype'] == 'scholarly article':
+                        pclass = self.ITEMS['scholarly article']
+                    else:
+                        pclass = self.ITEMS['publication']
+
+                    payload.add_answer(
+                        verb=self.PROPERTIES['instance of'],
+                        object_and_type=[
+                            pclass,
+                            'wikibase-item',
+                        ]
+                    )
+               
                 # Add the Title of the Publication
                 if publication.get('title'):
-                    payload.add_answer(self.PROPERTIES['title'], {"text": publication['title'], "language": "en"}, 'monolingualtext')
+
+                    payload.add_answer(
+                        verb=self.PROPERTIES['title'],
+                        object_and_type=[
+                            {"text": publication['title'], "language": "en"},
+                            'monolingualtext',
+                        ]
+                    )
+
                 # Add the Volume of the Publication
                 if publication.get('volume'):
-                    payload.add_answer(self.PROPERTIES['volume'], publication['volume'], 'string')
+
+                    payload.add_answer(
+                        verb=self.PROPERTIES['volume'],
+                        object_and_type=[
+                            publication['volume'],
+                            'string',
+                        ]
+                    )
+
                 # Add the Issue of the Publication
                 if publication.get('issue'):
-                    payload.add_answer(self.PROPERTIES['issue'], publication['issue'], 'string')
+
+                   payload.add_answer(
+                        verb=self.PROPERTIES['issue'],
+                        object_and_type=[
+                            publication['issue'],
+                            'string',
+                        ]
+                    ) 
+
                 # Add the Page(s) of the Publication
                 if publication.get('page'):
-                    payload.add_answer(self.PROPERTIES['page(s)'], publication['page'], 'string')
+
+                    payload.add_answer(
+                        verb=self.PROPERTIES['page(s)'],
+                        object_and_type=[
+                            publication['page'],
+                            'string',
+                        ]
+                    )
+
                 # Add the Date of the Publication
                 if publication.get('date'):
-                    payload.add_answer(self.PROPERTIES['publication date'], {"time":f"+{publication['date']}T00:00:00Z","precision":11,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"}, 'time')
+
+                    payload.add_answer(
+                        verb=self.PROPERTIES['publication date'],
+                        object_and_type=[
+                            {"time":f"+{publication['date']}T00:00:00Z","precision":11,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"},
+                            'time',
+                        ]
+                    )
+
                 # Add the DOI of the Publication
                 if publication.get('reference', {}).get(0):
-                    payload.add_answer(self.PROPERTIES['DOI'], publication['reference'][0][1], 'external-id')
+
+                    payload.add_answer(
+                        verb=self.PROPERTIES['DOI'],
+                        object_and_type=[
+                            publication['reference'][0][1],
+                            'external-id',
+                        ]
+                    )
                 
                 # Add the Language of the Publication
                 payload.add_forward_relation_single(self.PROPERTIES['language of work or name'], 'language')
@@ -304,7 +503,13 @@ class prepareModel:
                 payload.add_forward_relation_single(self.PROPERTIES['author'], 'author', self.PROPERTIES['author name string'], 'Name')
 
                 # Add the Profile Type
-                payload.add_answer(self.PROPERTIES['MaRDI profile type'], self.ITEMS['MaRDI publication profile'])
+                payload.add_answer(
+                        verb=self.PROPERTIES['MaRDI profile type'],
+                        object_and_type=[
+                            self.ITEMS['MaRDI publication profile'],
+                            'wikibase-item',
+                        ]
+                    )
                 
             # Add relations to Entities of Mathematical Model
             payload.add_forward_relation_multiple('P2E', 'EntityRelatant', True)

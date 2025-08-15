@@ -190,8 +190,14 @@ class GeneratePayload:
         '''Build Data Property Statements'''
         data_properties = self.data_properties(item_class)
         for prop in self.subject.get('Properties', {}).values():
-            self.add_answer(self.properties['instance of'], data_properties[prop])
-
+            self.add_answer(
+                verb=self.properties['instance of'],
+                object_and_type=[
+                    data_properties[prop],
+                    'wikibase-item',
+                ]
+            )
+            
     def add_check_results(self, check):
         '''Add Check Status to Statements'''
         relation_keys = [k for k in self.dictionary if k.startswith('RELATION')]
@@ -200,35 +206,41 @@ class GeneratePayload:
             exists_value = check[0].get(exists_key, {}).get('value', 'false')
             self.dictionary[key]['exists'] = exists_value
 
-    def add_answer(self, triple_verb, triple_object, object_type = 'wikibase-item',
-                   qualifier = None, triple_subject = None):
+    def add_answer(self, verb, object_and_type,
+                   qualifier = None, subject = None):
         '''Add answer to Payload'''
-        if triple_subject is None:
-            triple_subject = self.subject_item
+        if subject is None:
+            subject = self.subject_item
         if qualifier is None:
             qualifier = []
         if self.dictionary[self.subject_item]['id']:
             self.add_relation(
-                triple_subject,
-                triple_verb,
-                triple_object,
-                object_type,
+                subject,
+                verb,
+                object_and_type[0],
+                object_and_type[1],
                 qualifier
             )
         else:
             self.add_to_item_statement(
-                triple_subject,
-                triple_verb,
-                object_type,
-                triple_object,
+                subject,
+                verb,
+                object_and_type[0],
+                object_and_type[1],
                 qualifier
             )
 
     def add_answers(self, mardmo_property, wikibase_property, datatype = 'string'):
         '''Add answer to Payload.'''
         for entry in self.subject.get(mardmo_property, {}).values():
-            self.add_answer(self.properties[wikibase_property], entry, datatype)
-
+            self.add_answer(
+                verb=self.properties[wikibase_property],
+                object_and_type=[
+                    entry,
+                    datatype,
+                ]
+            )
+            
     def add_backward_relation(self, data, relation, relatants):
         '''Add backward relations to payload.'''
         for entry in data:
@@ -236,24 +248,44 @@ class GeneratePayload:
                 relatant_item = self.get_item_key(relatant, 'object')
                 if self.subject_item == relatant_item:
                     entry_item = self.get_item_key(entry, 'object')
-                    self.add_answer(relation, entry_item)
-
+                    self.add_answer(
+                        verb=relation,
+                        object_and_type=[
+                            entry_item,
+                            'wikibase-item',
+                        ]
+                    )
+                    
     def add_forward_relation_single(self, relation, relatant, alt_relation = None,
                                     prop = None, qualifier = None):
         '''Add single forward relation to payload.'''
         # Empty Qualifiers if none provided
-        if qualifiers is None:
-            qualifiers = []
+        if qualifier is None:
+            qualifier = []
         for entry in self.subject.get(relatant, {}).values():
             # Get Item Key
             entry_item = self.get_item_key(entry, 'object')
             if entry_item in self.dictionary:
                 # Add Payload
-                self.add_answer(relation, entry_item, 'wikibase-item', qualifier)
+                self.add_answer(
+                    verb=relation,
+                    object_and_type=[
+                        entry_item,
+                        'wikibase-item',
+                    ],
+                    qualifier=qualifier
+                )
             else:
                 # Add Payload
-                self.add_answer(alt_relation, entry.get(prop), 'string', qualifier)
-
+                self.add_answer(
+                    verb=alt_relation,
+                    object_and_type=[
+                        entry.get(prop),
+                        'string',
+                    ],
+                    qualifier=qualifier
+                )
+                
     def add_forward_relation_multiple(self, relation, relatant, reverse = False):
         '''Add multiple forward relations to payload.'''
         for key, prop in self.subject.get(relation, {}).items():
@@ -280,18 +312,24 @@ class GeneratePayload:
             # Add Payload
             if not reverse:
                 self.add_answer(
-                    self.relations()[prop][0],
-                    relatant_item,
-                    'wikibase-item',
-                    qualifier)
+                    verb=self.relations()[prop][0],
+                    object_and_type=[
+                        relatant_item,
+                        'wikibase-item',
+                    ],
+                    qualifier=qualifier
+                )
             else:
                 self.add_answer(
-                    self.relations()[prop][0],
-                    self.subject_item,
-                    'wikibase-item',
-                    qualifier,
-                    relatant_item)
-
+                    verb=self.relations()[prop][0],
+                    object_and_type=[
+                        self.subject_item,
+                        'wikibase-item',
+                    ],
+                    qualifier=qualifier,
+                    subject=relatant_item
+                )
+                
     def add_in_defining_formula(self):
         '''Add in defining formula Statement'''
         for element in self.subject.get('element', {}).values():
@@ -317,12 +355,14 @@ class GeneratePayload:
                 )
             else:
                 self.add_answer(
-                    self.properties['in defining formula'],
-                    element.get('symbol', ''),
-                    'math',
-                    qualifier
+                    verb=self.properties['in defining formula'],
+                    object_and_type=[
+                        element.get('symbol', ''),
+                        'math',
+                    ],
+                    qualifier=qualifier
                 )
-
+                
     def add_entry(self, dictionary, key, value):
         '''Add Entry to Payload'''
         target_dictionary = getattr(
@@ -383,20 +423,24 @@ class GeneratePayload:
             # Add Forward or Backward Relation
             if self.relations()[prop][1] == 'forward':
                 self.add_answer(
-                    self.relations()[prop][0],
-                    relatant_item,
-                    'wikibase-item',
-                    qualifier
+                    verb=self.relations()[prop][0],
+                    object_and_type=[
+                        relatant_item,
+                        'wikibase-item',
+                    ],
+                    qualifier=qualifier
                 )
             elif self.relations()[prop][1] == 'backward':
                 self.add_answer(
-                    self.relations()[prop][0],
-                    self.subject_item,
-                    'wikibase-item',
-                    qualifier,
-                    relatant_item
+                    verb=self.relations()[prop][0],
+                    object_and_type=[
+                        self.subject_item,
+                        'wikibase-item',
+                    ],
+                    qualifier=qualifier,
+                    subject=relatant_item
                 )
-
+                
     def add_item_payload(self):
         '''Add Payload String to Item'''
         for item_id, item_data in self.dictionary.items():
