@@ -3,7 +3,7 @@ from .constants import PREVIEW_RELATIONS, PREVIEW_MAP_GENERAL, PREVIEW_MAP_QUANT
 
 from ..config import endpoint
 from ..getters import get_items, get_mathmoddb, get_properties
-from ..helpers import entityRelations, mapEntity, unique_items, inline_mathml
+from ..helpers import entityRelations, mapEntity, unique_items
 from ..queries import query_sparql
 from ..payload import GeneratePayload
 
@@ -50,9 +50,6 @@ class prepareModel:
                 data= answers, 
                 type = mapping, 
                 mapping = self.mathmoddb)
-        
-        # Adjust MathML for Preview
-        inline_mathml(answers)
         
         return answers
 
@@ -454,13 +451,13 @@ class prepareModel:
                 # Add the Issue of the Publication
                 if publication.get('issue'):
 
-                   payload.add_answer(
+                    payload.add_answer(
                         verb=self.PROPERTIES['issue'],
                         object_and_type=[
                             publication['issue'],
                             'string',
                         ]
-                    ) 
+                    )
 
                 # Add the Page(s) of the Publication
                 if publication.get('page'):

@@ -4,7 +4,7 @@ from rdmo.domain.models import Attribute
 from .sparql import queryProvider
 
 from ..config import BASE_URI, endpoint
-from ..getters import get_items, get_data, get_properties
+from ..getters import get_items, get_data, get_properties, get_questions_workflow
 from ..queries import query_sources, query_sources_with_user_additions, query_sparql
 
 class MaRDIAndWikidataSearch(Provider):
@@ -79,10 +79,11 @@ class WorkflowTask(Provider):
     def get_options(self, project, search=None, user=None, site=None):
         '''Queries MaRDI Portak for Task related to chosen Model'''
 
+        questions = get_questions_workflow()
         options = []
         model_id = ''
 
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/main-model'))        
+        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}{questions["Model"]["ID"]["uri"]}'))        
         for value in values:
             model_id = value.external_id
 

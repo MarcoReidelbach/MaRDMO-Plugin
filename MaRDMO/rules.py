@@ -1,4 +1,4 @@
-'''Module with functional Rules to feed User Answers in Dict'''
+'''Functional Rules to feed User Answers in Dict'''
 
 from .helpers import basic_dict, basic_list
 
@@ -68,7 +68,7 @@ def rule_8(value, _attribute, config, _prefix_idx):
 
 def rule_9(value, _attribute, config, _prefix_idx):
     "Handle Flag Combo 9 for Get Answers"
-    entry = basic_list(value)
+    entry = basic_dict(value)
     path = [config["key1"]]
     return entry, path
 

@@ -446,37 +446,28 @@ queryHandler = {
                                                          ?step wdt:P ?inputraw
                                                          BIND(replace( xsd:string(?inputraw),'http://www.wikidata.org/entity/','wikidata:') as ?input) 
 
-                                                         OPTIONAL {{
-                                                                    ?inputraw rdfs:label ?inputlraw
-                                                                    FILTER (lang(?inputlraw) = 'en')
-                                                                  }}
-
+                                                         SERVICE wikibase:label {{
+                                                           bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                           ?inputraw rdfs:label ?inputlraw .
+                                                           ?inputraw schema:description ?inputdraw .
+                                                         }}
+                                                         
                                                          BIND(COALESCE(?inputlraw, "No Label Provided!") AS ?inputl)
-
-                                                         OPTIONAL {{
-                                                                    ?inputraw schema:description ?inputdraw
-                                                                    FILTER (lang(?inputdraw) = 'en')
-                                                                  }}
-
                                                          BIND(COALESCE(?inputdraw, "No Description Provided!") AS ?inputd)
+
                                                        }}
 
                                               OPTIONAL {{
                                                          ?step wdt:P ?outputraw
                                                          BIND(replace( xsd:string(?outputraw),'http://www.wikidata.org/entity/','wikidata:') as ?output) 
 
-                                                         OPTIONAL {{
-                                                                    ?outputraw rdfs:label ?outputlraw
-                                                                    FILTER (lang(?outputlraw) = 'en')
-                                                                  }}
-
+                                                         SERVICE wikibase:label {{
+                                                           bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                           ?outputraw rdfs:label ?outputlraw .
+                                                           ?outputraw schema:description ?outputdraw .
+                                                         }}
+                                                         
                                                          BIND(COALESCE(?outputlraw, "No Label Provided!") AS ?outputl)
-
-                                                         OPTIONAL {{
-                                                                    ?outputraw schema:description ?outputdraw
-                                                                    FILTER (lang(?outputdraw) = 'en')
-                                                                  }}
-
                                                          BIND(COALESCE(?outputdraw, "No Description Provided!") AS ?outputd)
                                                        }}
 
@@ -484,18 +475,13 @@ queryHandler = {
                                                          ?step wdt:P2283 ?methodraw
                                                          BIND(replace( xsd:string(?methodraw),'http://www.wikidata.org/entity/','wikidata:') as ?method) 
 
-                                                         OPTIONAL {{
-                                                                    ?methodraw rdfs:label ?methodlraw
-                                                                    FILTER (lang(?methodlraw) = 'en')
-                                                                  }}
-
+                                                         SERVICE wikibase:label {{
+                                                           bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                           ?methodraw rdfs:label ?methodlraw .
+                                                           ?methodraw schema:description ?methoddraw .
+                                                         }}
+                                                         
                                                          BIND(COALESCE(?methodlraw, "No Label Provided!") AS ?methodl)
-
-                                                         OPTIONAL {{
-                                                                    ?methodraw schema:description ?methoddraw
-                                                                    FILTER (lang(?methoddraw) = 'en')
-                                                                  }}
-
                                                          BIND(COALESCE(?methoddraw, "No Description Provided!") AS ?methodd)
                                                        }}
 
@@ -511,18 +497,13 @@ queryHandler = {
 
                                                          BIND(replace( xsd:string(?platformsoftwareraw),'http://www.wikidata.org/entity/','wikidata:') as ?platformsoftware) 
 
-                                                         OPTIONAL {{
-                                                                    ?platformsoftwareraw rdfs:label ?platformsoftwarelraw
-                                                                    FILTER (lang(?platformsoftwarelraw) = 'en')
-                                                                  }}
-
+                                                         SERVICE wikibase:label {{
+                                                           bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                           ?platformsoftwareraw rdfs:label ?platformsoftwarelraw .
+                                                           ?platformsoftwareraw schema:description ?platformsoftwaredraw .
+                                                         }}
+                                                         
                                                          BIND(COALESCE(?platformsoftwarelraw, "No Label Provided!") AS ?platformsoftwarel)
-
-                                                         OPTIONAL {{
-                                                                    ?platformsoftwareraw schema:description ?platformsoftwaredraw
-                                                                    FILTER (lang(?platformsoftwaredraw) = 'en')
-                                                                  }}
-
                                                          BIND(COALESCE(?platformsoftwaredraw, "No Description Provided!") AS ?platformsoftwared)
                                                        }}
 
@@ -538,18 +519,13 @@ queryHandler = {
 
                                                          BIND(replace( xsd:string(?platforminstrumentraw),'http://www.wikidata.org/entity/','wikidata:') as ?platforminstrument) 
 
-                                                         OPTIONAL {{
-                                                                    ?platforminstrumentraw rdfs:label ?platforminstrumentlraw
-                                                                    FILTER (lang(?platforminstrumentlraw) = 'en')
-                                                                  }}
-
+                                                         SERVICE wikibase:label {{
+                                                           bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                           ?platforminstrumentraw rdfs:label ?platforminstrumentlraw .
+                                                           ?platformsoftwareraw schema:description ?platforminstrumentdraw .
+                                                         }}
+                                                         
                                                          BIND(COALESCE(?platforminstrumentlraw, "No Label Provided!") AS ?platforminstrumentl)
-
-                                                         OPTIONAL {{
-                                                                    ?platforminstrumentraw schema:description ?platforminstrumentdraw
-                                                                    FILTER (lang(?platforminstrumentdraw) = 'en')
-                                                                  }}
-
                                                          BIND(COALESCE(?platforminstrumentdraw, "No Description Provided!") AS ?platforminstrumentd)
                                                        }}
 
@@ -557,18 +533,13 @@ queryHandler = {
                                                          ?step wdt:P101 ?fieldraw.
                                                          BIND(replace( xsd:string(?fieldraw),'http://www.wikidata.org/entity/','wikidata:') as ?field)
 
-                                                         OPTIONAL {{
-                                                                    ?fieldraw rdfs:label ?fieldlraw
-                                                                    FILTER (lang(?fieldlraw) = 'en')
-                                                                  }}
-
+                                                         SERVICE wikibase:label {{
+                                                           bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                           ?fieldraw rdfs:label ?fieldlraw .
+                                                           ?fieldraw schema:description ?fielddraw .
+                                                         }}
+                                                         
                                                          BIND(COALESCE(?fieldlraw, "No Label Provided!") AS ?fieldl)
-
-                                                         OPTIONAL {{
-                                                                    ?fieldraw schema:description ?fielddraw
-                                                                    FILTER (lang(?fielddraw) = 'en')
-                                                                  }}
-
                                                          BIND(COALESCE(?fielddraw, "No Description Provided!") AS ?fieldd)
                                                        }}
 
@@ -587,20 +558,15 @@ queryHandler = {
                                                             ?method wdt:P ?impSoftraw.
                                                             ?impSoftraw wdt:P31 wd:Q7397.
   
-                                                            BIND(CONCAT("mardi:", STRAFTER(STR(?impSoftraw), STR(wd:))) AS ?impSoft)
+                                                            BIND(CONCAT("wikidata:", STRAFTER(STR(?impSoftraw), STR(wd:))) AS ?impSoft)
                                                             
-                                                            OPTIONAL {{
-                                                                       ?impSoftraw rdfs:label ?impSoftlraw
-                                                                       FILTER (lang(?impSoftlraw) = 'en')
-                                                                     }}
+                                                            SERVICE wikibase:label {{
+                                                              bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                              ?impSoftraw rdfs:label ?impSoftlraw .
+                                                              ?impSoftraw schema:description ?impSoftdraw .
+                                                            }}
                                                             
                                                             BIND(COALESCE(?impSoftlraw, "No Label Provided!") AS ?impSoftl)
-                                                            
-                                                            OPTIONAL {{
-                                                                       ?impSoftraw schema:description ?impSoftdraw
-                                                                       FILTER (lang(?impSoftdraw) = 'en')
-                                                                     }}
-                                                            
                                                             BIND(COALESCE(?impSoftdraw, "No Description Provided!") AS ?impSoftd)
                                                           }}
                                                           
@@ -608,20 +574,15 @@ queryHandler = {
                                                             ?method wdt:P ?impInstraw.
                                                             ?impInstraw wdt:P31 wd:Q110994345.
                                                             
-                                                            BIND(CONCAT("mardi:", STRAFTER(STR(?impInstraw), STR(wd:))) AS ?impInst)
+                                                            BIND(CONCAT("wikidata:", STRAFTER(STR(?impInstraw), STR(wd:))) AS ?impInst)
                                                             
-                                                            OPTIONAL {{
-                                                                       ?impInstraw rdfs:label ?impInstlraw
-                                                                       FILTER (lang(?impInstlraw) = 'en')
-                                                                     }}
+                                                            SERVICE wikibase:label {{
+                                                              bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                              ?impInstraw rdfs:label ?impInstlraw .
+                                                              ?impInstraw schema:description ?impInstdraw .
+                                                            }}
                                                             
                                                             BIND(COALESCE(?impInstlraw, "No Label Provided!") AS ?impInstl)
-                                                            
-                                                            OPTIONAL {{
-                                                                       ?impInstraw schema:description ?impInstdraw
-                                                                       FILTER (lang(?impInstdraw) = 'en')
-                                                                     }}
-                                                            
                                                             BIND(COALESCE(?impInstdraw, "No Description Provided!") AS ?impInstd)
                                                           }}
                                                }}''',
@@ -639,19 +600,14 @@ queryHandler = {
                                                         ?software wdt:P277 ?plraw.
                                                         BIND(replace( xsd:string(?plraw),'http://www.wikidata.org/entity/','wikidata:') as ?pl) 
                                                         
-                                                        OPTIONAL {{
-                                                                   ?plraw rdfs:label ?pllraw
-                                                                   FILTER (lang(?pllraw) = 'en')
-                                                                 }}
-                                                        
-                                                        BIND(COALESCE(?pllraw, "No Label Provided!") AS ?pll)
-                                                        
-                                                        OPTIONAL {{
-                                                                   ?plraw schema:description ?pldraw
-                                                                   FILTER (lang(?pldraw) = 'en')
-                                                                 }}
-                                                        
-                                                        BIND(COALESCE(?pldraw, "No Description Provided!") AS ?pld)
+                                                        SERVICE wikibase:label {{
+                                                              bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                              ?plraw rdfs:label ?pllraw .
+                                                              ?plraw schema:description ?pldraw .
+                                                            }}
+                                                            
+                                                            BIND(COALESCE(?pllraw, "No Label Provided!") AS ?pll)
+                                                            BIND(COALESCE(?pldraw, "No Description Provided!") AS ?pld)
                                                       }}  
                                              
                                              # Get Dependencies
@@ -659,19 +615,14 @@ queryHandler = {
                                                         ?software wdt:P1547 ?dpraw.
                                                         BIND(replace( xsd:string(?dpraw),'http://www.wikidata.org/entity/','wikidata:') as ?dp) 
                                                         
-                                                        OPTIONAL {{
-                                                                   ?dpraw rdfs:label ?dplraw
-                                                                   FILTER (lang(?dplraw) = 'en')
-                                                                 }}
-                                                        
-                                                        BIND(COALESCE(?dplraw, "No Label Provided!") AS ?dpl)
-                                                        
-                                                        OPTIONAL {{
-                                                                   ?dpraw schema:description ?dpdraw
-                                                                   FILTER (lang(?dpdraw) = 'en')
-                                                                 }}
-                                                        
-                                                        BIND(COALESCE(?dpdraw, "No Description Provided!") AS ?dpd)
+                                                        SERVICE wikibase:label {{
+                                                              bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                              ?dpraw rdfs:label ?dplraw .
+                                                              ?dpraw schema:description ?dpdraw .
+                                                            }}
+                                                            
+                                                            BIND(COALESCE(?dplraw, "No Label Provided!") AS ?dpl)
+                                                            BIND(COALESCE(?dpdraw, "No Description Provided!") AS ?dpd)
                                                       }}
            
                                              # Source Code Published
@@ -724,18 +675,13 @@ queryHandler = {
                                                        ?statement ps:P880 ?cpuraw.
                                                        BIND(replace( xsd:string(?cpuraw),'http://www.wikidata.org/entity/','wikidata:') as ?cpu) 
 
-                                                       OPTIONAL {{
-                                                                  ?cpuraw rdfs:label ?cpulraw
-                                                                  FILTER (lang(?cpulraw) = 'en')
-                                                                }}
-
+                                                       SERVICE wikibase:label {{
+                                                         bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                         ?cpuraw rdfs:label ?cpulraw .
+                                                         ?cpuraw schema:description ?cpudraw .
+                                                       }}
+                                                       
                                                        BIND(COALESCE(?cpulraw, "No Label Provided!") AS ?cpul)
-
-                                                       OPTIONAL {{
-                                                                  ?cpuraw schema:description ?cpudraw
-                                                                  FILTER (lang(?cpudraw) = 'en')
-                                                                }}
-
                                                        BIND(COALESCE(?cpudraw, "No Description Provided!") AS ?cpud)
 
                                                        OPTIONAL {{
@@ -782,19 +728,14 @@ queryHandler = {
          
                                                       BIND(replace( xsd:string(?datatyperaw),'http://www.wikidata.org/entity/','wikidata:') as ?datatype)
                                                       
-                                                      OPTIONAL {{
-                                                                 ?datatyperaw rdfs:label ?datatypelraw
-                                                                 FILTER (lang(?datatypelraw) = 'en')
-                                                               }}
-                                                      
-                                                      BIND(COALESCE(?datatypelraw, "No Label Provided!") AS ?datatypel)
-                                                      
-                                                      OPTIONAL {{
-                                                                 ?datatyperaw schema:description ?datatypedraw
-                                                                 FILTER (lang(?datatypedraw) = 'en')
-                                                               }}
-                                                      
-                                                      BIND(COALESCE(?datatypedraw, "No Description Provided!") AS ?datatyped)
+                                                      SERVICE wikibase:label {{
+                                                         bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                         ?datatyperaw rdfs:label ?datatypelraw .
+                                                         ?datatyperaw schema:description ?datatypedraw .
+                                                       }}
+                                                       
+                                                       BIND(COALESCE(?datatypelraw, "No Label Provided!") AS ?datatypel)
+                                                       BIND(COALESCE(?datatypedraw, "No Description Provided!") AS ?datatyped)
                                                     }}  
            
                                            #Representation Format
@@ -806,19 +747,14 @@ queryHandler = {
          
                                                       BIND(replace( xsd:string(?representationformatraw),'http://www.wikidata.org/entity/','wikidata:') as ?representationformat)
                                                       
-                                                      OPTIONAL {{
-                                                                 ?representationformatraw rdfs:label ?representationformatlraw
-                                                                 FILTER (lang(?representationformatlraw) = 'en')
-                                                               }}
-                                                      
-                                                      BIND(COALESCE(?representationformatlraw, "No Label Provided!") AS ?representationformatl)
-                                                      
-                                                      OPTIONAL {{
-                                                                 ?representationformatraw schema:description ?representationformatdraw
-                                                                 FILTER (lang(?representationformatdraw) = 'en')
-                                                               }}
-                                                      
-                                                      BIND(COALESCE(?representationformatdraw, "No Description Provided!") AS ?representationformatd)
+                                                      SERVICE wikibase:label {{
+                                                         bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+                                                         ?representationformatraw rdfs:label ?representationformatlraw .
+                                                         ?representationformatraw schema:description ?representationformatdraw .
+                                                       }}
+                                                       
+                                                       BIND(COALESCE(?representationformatlraw, "No Label Provided!") AS ?representationformatl)
+                                                       BIND(COALESCE(?representationformatdraw, "No Description Provided!") AS ?representationformatd)
                                                     }}
          
                                            # Get file extension

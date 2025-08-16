@@ -13,7 +13,7 @@ from rdmo.services.providers import OauthProviderMixin
 
 from .config import endpoint
 from .getters import get_answers, get_general_item_url, get_mathmoddb, get_mathalgodb, get_options, get_questions_algorithm, get_questions_model, get_questions_publication, get_questions_search, get_questions_workflow
-from .helpers import  merge_dicts_with_unique_keys, process_question_dict
+from .helpers import  inline_mathml, merge_dicts_with_unique_keys, process_question_dict
 from .oauth2 import OauthProviderMixin
 
 from .model.worker import prepareModel
@@ -102,10 +102,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             # Get answers, options, and mathmoddb             
             answers, options, mathmoddb = self.get_post_data()
             
-            # Prepare Mathematical Model Preview
-            prepare = prepareModel()
-            answers = prepare.preview(answers)
-            
+            # Adjust MathML for Preview
+            inline_mathml(answers)
+
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
                           {'form': self.ExportForm(), 'include_file': 
@@ -153,6 +152,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             # Get Model Data
             prepare = prepareWorkflow()
             answers = prepare.preview(answers)
+
+            # Adjust MathML for Preview
+            inline_mathml(answers)
             
             return render(self.request, 
                           'MaRDMO/mardmoPreview.html', 
@@ -192,6 +194,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   status=200)
                 
                 answers, *__ = self.get_post_data()
+                
                 checker = checks()
                 err = checker.run(self.project, answers)
                 if err:
@@ -210,6 +213,8 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                   {'title': _('Value Error'),
                                    'errors': [err]}, 
                                   status=200)
+                
+                url = self.get_post_url()
                 
                 return self.post(self.request, url, payload)
 
@@ -335,6 +340,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             # Retrieve Publications related to Workflow
             answers = PublicationRetriever.WorkflowOrModel(self.project, answers, options)
             
+            # Prepare Mathematical Model (Preview)
+            prepare = prepareModel()
+            answers = prepare.preview(answers)
+
             return answers, options, mathmoddb
         
         # MaRDMO: Algorithm Documentation
