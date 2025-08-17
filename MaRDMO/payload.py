@@ -225,8 +225,8 @@ class GeneratePayload:
             self.add_to_item_statement(
                 subject,
                 verb,
-                object_and_type[0],
                 object_and_type[1],
+                object_and_type[0],
                 qualifier
             )
 

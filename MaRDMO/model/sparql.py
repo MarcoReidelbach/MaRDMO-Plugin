@@ -54,7 +54,7 @@ queryHandler = {
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?strfraw wdt:{similar to} ?id.
+                                                                   ?id wdt:{similar to} ?strfraw.
 
                                                                    BIND(CONCAT("mardi:", STRAFTER(STR(?strfraw), STR(wd:))) AS ?strf)
                                                                    
@@ -175,7 +175,7 @@ queryHandler = {
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?strpraw wdt: ?id.
+                                                                   ?id wdt: ?strpraw.
 
                                                                    BIND(CONCAT("mardi:", STRAFTER(STR(?strpraw), STR(wd:))) AS ?strp)
                                                                    
@@ -652,11 +652,11 @@ queryHandler = {
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?stmraw wdt:{similar to} ?id.
+                                                                   ?id wdt:{similar to} ?stmraw.
 
                                                                    BIND(CONCAT("mardi:", STRAFTER(STR(?stmraw), STR(wd:))) AS ?stm)
                                                                    
-                                                                   ?straw wdt:{instance of} wd:{mathematical model}.
+                                                                   ?stmraw wdt:{instance of} wd:{mathematical model}.
 
                                                                    OPTIONAL {{
                                                                               ?stmraw rdfs:label ?stmlraw.
@@ -1017,7 +1017,7 @@ queryHandler = {
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?stqraw wdt:{similar to} ?id.
+                                                                   ?id wdt:{similar to} ?stqraw.
 
                                                                    BIND(CONCAT("mardi:", STRAFTER(STR(?stqraw), STR(wd:))) AS ?stq)
                                                                    
@@ -1484,7 +1484,7 @@ queryHandler = {
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?stfraw wdt:{similar to} ?id.
+                                                                   ?id wdt:{similar to} ?stfraw.
 
                                                                    BIND(CONCAT("mardi:", STRAFTER(STR(?stfraw), STR(wd:))) AS ?stf)
                                                                    
@@ -1948,7 +1948,7 @@ queryHandler = {
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?sttraw wdt:{similar to} ?id.
+                                                                   ?id wdt:{similar to} ?sttraw.
 
                                                                    BIND(CONCAT("mardi:", STRAFTER(STR(?sttraw), STR(wd:))) AS ?stt)
                                                                    
