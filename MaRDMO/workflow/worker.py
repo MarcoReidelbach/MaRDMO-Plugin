@@ -613,24 +613,23 @@ class prepareWorkflow:
             )
             
         # Add Model and Task the Workflow Uses
-        for value in data.get('model', {}).values():
-            #Continue if no ID exists
-            if not value.get('ID'):
-                continue
-            # Get Item Key
-            model_item = payload.get_item_key(value, 'object')
-            # Add Statement with Qualifier
-            qualifier = []
-            for task in data.get('specifictask', {}).values():
-                qualifier.extend(payload.add_qualifier(self.PROPERTIES['used by'], 'wikibase-item', payload.get_item_key(task, 'object')))
-            payload.add_answer(
-                verb=self.PROPERTIES['uses'],
-                object_and_type=[
-                    model_item,
-                    'wikibase-item',
-                ],
-                qualifier=qualifier
-            )
+        if data.get('model'):
+            #Continue if ID exists
+            if data['model'].get('ID'):
+                # Get Item Key
+                model_item = payload.get_item_key(data['model'], 'object')
+                # Add Statement with Qualifier
+                qualifier = []
+                for task in data['model'].get('task', {}).values():
+                    qualifier.extend(payload.add_qualifier(self.PROPERTIES['used by'], 'wikibase-item', payload.get_item_key(task, 'object')))
+                payload.add_answer(
+                    verb=self.PROPERTIES['uses'],
+                    object_and_type=[
+                        model_item,
+                        'wikibase-item',
+                    ],
+                    qualifier=qualifier
+                )
             
         # Add Methods the Workflow Uses
         for value in data.get('method', {}).values():

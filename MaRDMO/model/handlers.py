@@ -49,7 +49,7 @@ def RFInformation(sender, **kwargs):
                         value_editor(project = instance.project, 
                                          uri = f'{BASE_URI}{questions["Research Field"]["Long Description"]["uri"]}', 
                                          text = descriptionLong, 
-                                         collectionn_index = idx,
+                                         collection_index = idx,
                                          set_index = 0, 
                                          set_prefix =instance.set_index)
                     # Add Relations between Research Fields to Questionnaire
