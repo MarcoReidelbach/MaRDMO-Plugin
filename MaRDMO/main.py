@@ -358,7 +358,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                             get_answer = get_answers)
             
             # Refine Mathematical Model Information
-            answers = algorithm_relations(self.project, answers, mathalgodb)
+            answers = algorithm_relations(answers)
 
             # Retrieve Publications related to Workflow
             answers = PublicationRetriever.Algorithm(self.project, answers)

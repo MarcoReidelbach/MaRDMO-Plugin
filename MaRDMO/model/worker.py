@@ -3,7 +3,7 @@ from .constants import PREVIEW_RELATIONS, PREVIEW_MAP_GENERAL, PREVIEW_MAP_QUANT
 
 from ..config import endpoint
 from ..getters import get_items, get_mathmoddb, get_properties
-from ..helpers import entityRelations, mapEntity, unique_items
+from ..helpers import entity_relations, mapEntity, unique_items
 from ..queries import query_sparql
 from ..payload import GeneratePayload
 
@@ -21,7 +21,7 @@ class prepareModel:
         
         # Prepare Relations for Preview
         for relation in PREVIEW_RELATIONS:
-            entityRelations(
+            entity_relations(
                 data = answers,
                 fromIDX = relation[0],
                 toIDX = relation[1],

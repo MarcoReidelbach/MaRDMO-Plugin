@@ -116,30 +116,30 @@ def merge_dicts_with_unique_keys(answers, keys):
 
     return merged_dict
 
-def checkList(LIST):
+def check_list(list_var):
     '''Check if List is List'''
-    if not isinstance(LIST, list):
-        LIST = [LIST]
-    return LIST
+    if not isinstance(list_var, list):
+        list_var = [list_var]
+    return list_var
 
-def labelIndexMap(data, type):
+def label_index_map(data, data_type):
     '''Map Label to Index'''
     label_to_index_maps = []
-    for toIDX_entry in type:
+    for to_idx_entry in data_type:
         label_to_index_maps.append(
             {
-                data[toIDX_entry][k].get('Name'): idx
-                for idx, k in enumerate(data.get(toIDX_entry, {}))
+                data[to_idx_entry][k].get('Name'): idx
+                for idx, k in enumerate(data.get(to_idx_entry, {}))
             }
         )
     return label_to_index_maps
 
-def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', entityNew='',
+def entity_relations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', entityNew='',
                     enc=[], forder=False, torder=False):
     '''Process Entity Relations'''
-    toIDX = checkList(toIDX)
-    enc = checkList(enc)
-    label_to_index_maps = labelIndexMap(data, toIDX)
+    toIDX = check_list(toIDX)
+    enc = check_list(enc)
+    label_to_index_maps = label_index_map(data, toIDX)
 
     def resolve_target(name, id_, entity_enc, label_map):
         """Try to resolve name to index in label_map; fallback to id_."""
@@ -200,11 +200,11 @@ def initialize_counter(counter):
 def mapEntity(data, fromIDX, toIDX, entityOld, entityNew, enc):
     '''Map Entities'''
     # Ensure toIDX and enc are lists
-    toIDX = checkList(toIDX)
-    enc = checkList(enc)
+    toIDX = check_list(toIDX)
+    enc = check_list(enc)
 
     # Create mappings for all toIDX lists
-    label_to_index_maps = labelIndexMap(data, toIDX)
+    label_to_index_maps = label_index_map(data, toIDX)
 
     # Use Template or Ressource Label
     for from_entry in data.get(fromIDX, {}).values():
