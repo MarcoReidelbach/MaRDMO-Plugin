@@ -25,31 +25,15 @@ def get_options():
 
 def get_items():
     """Retrieve the rdmo options from MaRDMOConfig."""
-    return apps.get_app_config("MaRDMO").ITEMS
+    return apps.get_app_config("MaRDMO").items
 
 def get_properties():
     """Retrieve the rdmo options from MaRDMOConfig."""
-    return apps.get_app_config("MaRDMO").PROPERTIES
+    return apps.get_app_config("MaRDMO").properties
 
-def get_questions_workflow():
+def get_questions(question_set):
     """Retrieve the questions dictionary from MaRDMOConfig."""
-    return apps.get_app_config("MaRDMO").questions_workflow
-
-def get_questions_algorithm():
-    """Retrieve the questions dictionary from MaRDMOConfig."""
-    return apps.get_app_config("MaRDMO").questions_algorithm
-
-def get_questions_model():
-    """Retrieve the questions dictionary from MaRDMOConfig."""
-    return apps.get_app_config("MaRDMO").questions_model
-
-def get_questions_publication():
-    """Retrieve the questions dictionary from MaRDMOConfig."""
-    return apps.get_app_config("MaRDMO").questions_publication
-
-def get_questions_search():
-    """Retrieve the questions dictionary from MaRDMOConfig."""
-    return apps.get_app_config("MaRDMO").questions_search
+    return apps.get_app_config("MaRDMO").questions[question_set]
 
 def get_general_item_url():
     """Get general Wikibase Item URL from Wikibase URL"""
@@ -83,7 +67,7 @@ def get_id(project, uri, keys):
 def get_answers(project, val, config):
 
     """Unified function to get user answers into dictionary."""
-    
+
     val.setdefault(config["key1"], {})
 
     try:
@@ -96,9 +80,9 @@ def get_answers(project, val, config):
 
     if not (config["key1"] or config["key2"]):
         return val
-    
+
     for value in values:
-        
+
         # Set Prefix IDX
         prefix_idx = None
         if value.set_prefix:
@@ -112,7 +96,7 @@ def get_answers(project, val, config):
                  bool(config["external_id"]),
                  bool(config["option_text"]),
                 )
-        
+
         # Set Attribute
         attribute = 'option_uri' if value.option else 'text' if value.text else None
 

@@ -1,5 +1,5 @@
 from ..config import BASE_URI
-from ..getters import get_questions_algorithm
+from ..getters import get_questions
 
 # Dictionary with list of property names
 PROPS = {
@@ -13,7 +13,7 @@ PROPS = {
 
 # URI PREFIX Map
 def get_URI_PREFIX_MAP():
-    questions = get_questions_algorithm()
+    questions = get_questions('algorithm')
     URI_PREFIX_MAP = {
         f'{BASE_URI}{questions["Problem"]["BRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Benchmark"]["uri"]}',

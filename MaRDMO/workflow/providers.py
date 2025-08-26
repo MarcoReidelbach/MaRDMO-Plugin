@@ -4,7 +4,8 @@ from rdmo.domain.models import Attribute
 from .sparql import queryProvider
 
 from ..config import BASE_URI, endpoint
-from ..getters import get_items, get_data, get_properties, get_questions_workflow
+from ..getters import get_items, get_data, get_properties, get_questions
+from ..helpers import define_setup
 from ..queries import query_sources, query_sources_with_user_additions, query_sparql
 
 class MaRDIAndWikidataSearch(Provider):
@@ -17,10 +18,10 @@ class MaRDIAndWikidataSearch(Provider):
             return []
 
         # Define the query parameter
-        queryID = ''
+        query_id = ''
         sources = ['mardi', 'wikidata']
 
-        return query_sources(search, queryID, sources)
+        return query_sources(search, query_id, sources)
 
 class MainMathematicalModel(Provider):
 
@@ -32,10 +33,10 @@ class MainMathematicalModel(Provider):
             return []
 
         # Define the sources to query
-        queryID = 'MM'
+        query_id = 'MM'
         sources = ['mardi']
 
-        return query_sources(search, queryID, sources)
+        return query_sources(search, query_id, sources)
     
 class Method(Provider):
 
@@ -48,10 +49,10 @@ class Method(Provider):
             return []
 
         # Define the sources to query
-        queryID = 'AL'
+        query_id = 'AL'
         sources = ['mathalgodb','mardi','wikidata']
 
-        return query_sources(search, queryID, sources)
+        return query_sources(search, query_id, sources)
     
 class RelatedMethod(Provider):
 
@@ -62,24 +63,26 @@ class RelatedMethod(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'AL'
-        sources = ['mathalgodb', 'mardi', 'wikidata']
-        queryAttributes = ['method']
-
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes, 
-                                                 queryID = queryID,
-                                                 creation = True,
-                                                 sources = sources)
+        # Define the query_setup
+        setup = define_setup(
+            creation = True,
+            query_attributes = ['method'],
+            query_id = 'AL',
+            sources = ['mathalgodb','mardi','wikidata']
+        )
+        
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class WorkflowTask(Provider):
 
     def get_options(self, project, search=None, user=None, site=None):
         '''Queries MaRDI Portak for Task related to chosen Model'''
 
-        questions = get_questions_workflow()
+        questions = get_questions('workflow')
         options = []
         model_id = ''
 
@@ -110,10 +113,10 @@ class Software(Provider):
             return []
 
         # Define the query parameter
-        queryID = 'SO'
+        query_id = 'SO'
         sources = ['mathalgodb', 'mardi', 'wikidata']
 
-        return query_sources(search, queryID, sources)
+        return query_sources(search, query_id, sources)
 
 class RelatedSoftware(Provider):
 
@@ -124,17 +127,19 @@ class RelatedSoftware(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryID = 'SO'
-        sources = ['mathalgodb', 'mardi', 'wikidata']
-        queryAttributes = ['software']
-
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes, 
-                                                 queryID = queryID,
-                                                 creation = True,
-                                                 sources = sources)
+        # Define the query_setup
+        setup = define_setup(
+            creation = True,
+            query_attributes = ['software'],
+            query_id = 'SO',
+            sources = ['mathalgodb','mardi','wikidata']
+        )
+        
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
 
 class Hardware(Provider):
 
@@ -147,10 +152,10 @@ class Hardware(Provider):
             return []
 
         # Define the query parameter
-        queryID = ''
+        query_id = ''
         sources = ['mardi', 'wikidata']
 
-        return query_sources(search, queryID, sources)
+        return query_sources(search, query_id, sources)
     
 class Instrument(Provider):
 
@@ -163,10 +168,10 @@ class Instrument(Provider):
             return []
 
         # Define the query parameter
-        queryID = ''
+        query_id = ''
         sources = ['mardi', 'wikidata']
 
-        return query_sources(search, queryID, sources)
+        return query_sources(search, query_id, sources)
     
 class DataSet(Provider):
 
@@ -179,10 +184,10 @@ class DataSet(Provider):
             return []
 
         # Define the query parameter
-        queryID = ''
+        query_id = ''
         sources = ['mardi', 'wikidata']
 
-        return query_sources(search, queryID, sources)
+        return query_sources(search, query_id, sources)
     
 class RelatedInstrument(Provider):
 
@@ -193,13 +198,17 @@ class RelatedInstrument(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryAttributes = ['instrument']
-
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes,
-                                                 creation = True)
+        # Define the query_setup
+        setup = define_setup(
+            creation = True,
+            query_attributes = ['instrument']
+        )
+        
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class RelatedDataSet(Provider):
 
@@ -210,13 +219,17 @@ class RelatedDataSet(Provider):
         if not search:
             return []
         
-        # Define the query parameter
-        queryAttributes = ['data-set']
+        # Define the query_setup
+        setup = define_setup(
+            creation = True,
+            query_attributes = ['data-set']
+        )
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes, 
-                                                 creation = True)
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
             
 class ProcessStep(Provider):
 
@@ -229,10 +242,10 @@ class ProcessStep(Provider):
             return []
 
         # Define the query parameter
-        queryID = ''
+        query_id = ''
         sources = ['mardi', 'wikidata']
 
-        return query_sources(search, queryID, sources)
+        return query_sources(search, query_id, sources)
     
 class Discipline(Provider):
 
@@ -247,11 +260,11 @@ class Discipline(Provider):
             return []
 
         # Define the query parameter
-        queryID = ''
+        query_id = ''
         sources = ['mardi', 'wikidata']
 
         # Discipline from Knowledge Graphs
-        options = query_sources(search, queryID, sources, False)
+        options = query_sources(search, query_id, sources, False)
 
         # Mathematical Subjects
         options.extend([{'id': f"msc:{self.msc[key]['id']}", 'text': f"{key} ({self.msc[key]['quote']}) [msc]"} for key in self.msc if search.lower() in key.lower()])

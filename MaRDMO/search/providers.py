@@ -11,10 +11,10 @@ class MaRDISearch(Provider):
             return []
 
         # Define the query parameter
-        queryID = ''
+        query_id = ''
         sources = ['mardi']
 
-        return query_sources(search, queryID, sources)
+        return query_sources(search, query_id, sources)
         
 class SoftwareSearch(Provider):
 
@@ -26,8 +26,8 @@ class SoftwareSearch(Provider):
             return []
 
         # Define the sources to query
-        queryID = 'SO'
+        query_id = 'SO'
         sources = ['mathalgodb']
 
-        return query_sources(search, queryID, sources)
+        return query_sources(search, query_id, sources)
     

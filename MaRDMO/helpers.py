@@ -7,20 +7,32 @@ from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
 
 def basic_dict(value):
-    # Extract Parts from ID Question
+    '''Basic Information from ID Question as Dict'''
+    # Extract Label and Description from ID Question
     label, description, _ = extract_parts(value.text)
-    # Define Basic Dict
-    basicDict = {
-                 'ID': value.external_id, 
-                 'Name': label, 
-                 'Description': description
-                }
-    return basicDict
+    # Return Basic Dict
+    return {
+        'ID': value.external_id, 
+        'Name': label, 
+        'Description': description
+    }
 
 def basic_list(value):
-    # Define Basic List
-    basicList = [value.option_uri, value.text]
-    return basicList
+    '''Basic List with Option URI and Text'''
+    # Return Basic List
+    return [
+        value.option_uri,
+        value.text
+    ]
+
+def define_setup(query_attributes, creation=False, query_id='', sources=None):
+    """Define the setup of particular queries."""
+    return {
+        'creation': creation,
+        'query_attributes': query_attributes,
+        'query_id': query_id,
+        'sources': sources,
+    }
 
 def nested_set(data, path, entry):
     """Walk a sequence of keys, creating dicts as needed, and set the final value."""
@@ -30,30 +42,31 @@ def nested_set(data, path, entry):
     d[path[-1]] = entry
 
 def extract_parts(string):
-    # Step 1: Split the string at the last occurrence of ') [' to isolate `c` (source)
+    '''Extract Label, Description and Source from ID Question'''
+    # Step 1: Split the string at the last occurrence of ') [' to isolate source
     parts = string.rsplit(') [', 1)
     if len(parts) == 2:
         main_part, c = parts[0].strip(), parts[1].rstrip(']')
     else:
         main_part, c = parts[0].strip(), ""
-    # Step 2: Find the last whitespace outside brackets to split `a` and `b`
+    # Step 2: Find the last whitespace outside brackets to split
     depth = 0
     split_index = -1
     for i, char in enumerate(main_part):
-        if char == '(' or char == '[':
+        if char in ('(', '['):
             depth += 1
-        elif char == ')' or char == ']':
+        elif char in (')', ']'):
             depth -= 1
         elif char == ' ' and depth == 0:
             split_index = i  # Update split_index to last whitespace outside brackets
     if split_index != -1:
         a = main_part[:split_index].strip()
-        b = main_part[split_index+1:].strip().lstrip('(')  # Strip any leading '(' from b
+        b = main_part[split_index+1:].strip().lstrip('(')  # Strip any leading '('
     else:
         a, b = main_part, ""
     return a, b, c
 
-def value_editor(project, uri, text=None, external_id=None, option=None, collection_index=None, set_index=None, set_prefix=None):
+def value_editor(project, uri, info):
     '''Add values to the Questionnaire'''
     attribute_object = Attribute.objects.get(uri=uri)
     # Prepare the defaults dictionary
@@ -62,14 +75,14 @@ def value_editor(project, uri, text=None, external_id=None, option=None, collect
         'attribute': attribute_object,
     }
 
-    if text is not None:
-        defaults['text'] = text
+    if info.get('text') is not None:
+        defaults['text'] = info['text']
 
-    if external_id is not None:
-        defaults['external_id'] = external_id
+    if info.get('external_id') is not None:
+        defaults['external_id'] = ['external_id']
 
-    if option is not None:
-        defaults['option'] = Option.objects.get(uri=option)
+    if info.get('option') is not None:
+        defaults['option'] = Option.objects.get(uri=info['option'])
 
     # Prepare the fields for update_or_create
     update_fields = {
@@ -78,14 +91,14 @@ def value_editor(project, uri, text=None, external_id=None, option=None, collect
         'defaults': defaults
     }
 
-    if collection_index is not None:
-        update_fields['collection_index'] = collection_index
+    if info.get('collection_index') is not None:
+        update_fields['collection_index'] = info['collection_index']
 
-    if set_index is not None:
-        update_fields['set_index'] = set_index
+    if info.get('set_index') is not None:
+        update_fields['set_index'] = info['set_index']
 
-    if set_prefix is not None:
-        update_fields['set_prefix'] = set_prefix
+    if info.get('set_prefix') is not None:
+        update_fields['set_prefix'] = info['set_prefix']
 
     # Update or create the value
     obj, created = Value.objects.update_or_create(**update_fields)
@@ -93,28 +106,37 @@ def value_editor(project, uri, text=None, external_id=None, option=None, collect
     return obj, created
 
 def merge_dicts_with_unique_keys(answers, keys):
-    
+    '''Merge Dicts with unique Keys.'''
     merged_dict = {}
-    
+
     for key in keys:
         for inner_key, value in answers[key].items():
             new_inner_key = f"{inner_key}{key}"
-            merged_dict[new_inner_key] = value    
-    
+            merged_dict[new_inner_key] = value
+
     return merged_dict
 
 def checkList(LIST):
+    '''Check if List is List'''
     if not isinstance(LIST, list):
         LIST = [LIST]
     return LIST
 
 def labelIndexMap(data, type):
+    '''Map Label to Index'''
     label_to_index_maps = []
     for toIDX_entry in type:
-        label_to_index_maps.append({data[toIDX_entry][k].get('Name'): idx for idx, k in enumerate(data.get(toIDX_entry, {}))})
+        label_to_index_maps.append(
+            {
+                data[toIDX_entry][k].get('Name'): idx
+                for idx, k in enumerate(data.get(toIDX_entry, {}))
+            }
+        )
     return label_to_index_maps
 
-def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', entityNew='', enc=[], forder=False, torder=False):
+def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', entityNew='',
+                    enc=[], forder=False, torder=False):
+    '''Process Entity Relations'''
     toIDX = checkList(toIDX)
     enc = checkList(enc)
     label_to_index_maps = labelIndexMap(data, toIDX)
@@ -145,11 +167,22 @@ def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', en
                 else:
                     relation_value = 'MISSING RELATION TYPE'
                 if forder == False and torder == False:
-                    new_value = [relation_value, resolved]
+                    new_value = [
+                        relation_value,
+                        resolved
+                    ]
                 elif forder == True:
-                    new_value = [relation_value, resolved, from_entry.get('formulation_number',{}).get(key)]
+                    new_value = [
+                        relation_value,
+                        resolved,
+                        from_entry.get('formulation_number',{}).get(key)
+                    ]
                 elif torder == True:
-                    new_value = [relation_value, resolved, from_entry.get('task_number',{}).get(key)]
+                    new_value = [
+                        relation_value,
+                        resolved,
+                        from_entry.get('task_number',{}).get(key)
+                    ]
                 else:
                     new_value = resolved
             else:
@@ -160,32 +193,108 @@ def entityRelations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', en
 
     return
 
+def initialize_counter(counter):
+    '''Function which initializes counter.'''
+    return int(max(counter, default=-1)) + 1
+
 def mapEntity(data, fromIDX, toIDX, entityOld, entityNew, enc):
-    
+    '''Map Entities'''
     # Ensure toIDX and enc are lists
     toIDX = checkList(toIDX)
     enc = checkList(enc)
-    
+
     # Create mappings for all toIDX lists
     label_to_index_maps = labelIndexMap(data, toIDX)
-    
+
     # Use Template or Ressource Label
     for from_entry in data.get(fromIDX, {}).values():
         for outerKey, relation in from_entry.get(entityOld, {}).items():
             for innerKey, entity in relation.items():
                 match_found = False
+                # Create Dict Entry
+                outer = from_entry.setdefault(entityNew, {})
+                inner = outer.setdefault(outerKey, {})
                 for enc_entry, label_to_index in zip(enc, label_to_index_maps):
                     if entity['Name'] in label_to_index:
                         idx = label_to_index[entity['Name']]
                         match_found = True
-                        from_entry.setdefault(entityNew, {}).setdefault(outerKey, {}).update({innerKey: f'{enc_entry}{idx+1}'})
+                        inner[innerKey] = f"{enc_entry}{idx+1}"
                         break
 
                 if not match_found:
-                    from_entry.setdefault(entityNew, {}).setdefault(outerKey, {}).update({innerKey: entity['ID']})
+                    inner[innerKey] = entity['ID']
     return
 
+def process_qualifier(value):
+    '''Process Qualifier'''
+    # Create Value Dictionary
+    value_dict = {}
+    # Get splitted Values
+    value_splitted = value.split(' <|> ')
+    for value_idx, value_text in enumerate(value_splitted):
+        # Extract Value ID, Label, and Description
+        value_id, value_label, value_description = value_text.split(' | ')
+        # Get Value Source
+        value_source, _ = value_id.split(':')
+        # Add to dict
+        value_dict.update({value_idx: {'id': value_id,
+                                       'label': value_label,
+                                       'description': value_description,
+                                       'source': value_source}})
+    return value_dict
+
+
+def reduce_prefix(prefix):
+    '''Function that takes a prefix and reduces it if |-appended.'''
+    if isinstance(prefix, int):
+        prefix_reduced = prefix
+    else:
+        prefix_reduced = int(prefix.split('|')[0])
+    return prefix_reduced
+
+def relation_exists(value, set_prefix_red, info, relation_id=None):
+    '''Checks if a value–set (–relation) combination already exists in info.
+       If relation_id is provided, also checks relation existence.'''
+
+    # Case: relation check required
+    if relation_id and "rels" in info:
+        return any(
+            (
+                (f"{value.label} ({value.description})" in text or vid == value.id)
+                and int(sid) == set_prefix_red
+                and rel == relation_id
+            )
+            for vid, sid, rel, text in zip(
+                info['value_ids'],
+                info['set_prefix_ids'],
+                info['rels'],
+                info['texts'],
+            )
+        )
+
+    # Case: only value + set check
+    return any(
+        (
+            (f"{value.label} ({value.description})" in text or vid == value.id)
+            and int(sid) == set_prefix_red
+        )
+        for vid, sid, text in zip(
+            info['value_ids'],
+            info['set_prefix_ids'],
+            info['texts']
+        )
+    )
+
+def relevant_set_ids(info, set_prefix_red):
+    ''''Get relevant Set IDs'''
+    relevant_set_ids_list = []
+    for set_index, set_prefix in zip(info['set_index_ids'], info['set_prefix_ids']):
+        if set_prefix == set_prefix_red:
+            relevant_set_ids_list.append(set_index)
+    return relevant_set_ids_list
+
 def replace_in_dict(d, target, replacement):
+    '''Replace IDs in Dict'''
     if isinstance(d, dict):
         return {k: replace_in_dict(v, target, replacement) for k, v in d.items()}
     elif isinstance(d, list):
@@ -193,24 +302,48 @@ def replace_in_dict(d, target, replacement):
     elif isinstance(d, str):
         return d.replace(target, replacement)
     else:
-        return d 
-        
+        return d
+
 def unique_items(data, title = None):
+    '''Search unique Items'''
     # Set up Item Dict and track seen Items
     items = {}
-    seen_items = set() 
+    seen_items = set()
     # Add Workflow Item
     if title:
-        triple = ('not found', title, data.get('general', {}).get('objective', ''))
-        items[f'Item{str(0).zfill(10)}'] = {'ID': 'not found', 'Name': title, 'Description': data.get('general', {}).get('objective', '')}
+        triple = (
+            'not found',
+            title,
+            data.get('general', {}).get('objective', '')
+        )
+        items[f'Item{str(0).zfill(10)}'] = {
+            'ID': 'not found',
+            'Name': title,
+            'Description': data.get('general', {}).get('objective', '')
+        }
         seen_items.add(triple)
     # Add Workflow Component Items
     def search(subdict):
+        '''Search unique Items'''
         if isinstance(subdict, dict) and 'ID' in subdict:
-            triple = (subdict.get('ID', ''), subdict.get('Name', ''), subdict.get('Description', ''), subdict.get('orcid', ''), subdict.get('zbmath', ''), subdict.get('issn', ''))
+            triple = (
+                subdict.get('ID', ''),
+                subdict.get('Name', ''),
+                subdict.get('Description', ''),
+                subdict.get('orcid', ''),
+                subdict.get('zbmath', ''),
+                subdict.get('issn', '')
+            )
             if triple not in seen_items:
                 item_key = f'Item{str(len(items)).zfill(10)}'  # Create unique key
-                items[item_key] = {'ID': triple[0], 'Name': triple[1], 'Description': triple[2], 'orcid': triple[3], 'zbmath': triple[4], 'issn': triple[5]}
+                items[item_key] = {
+                    'ID': triple[0],
+                    'Name': triple[1],
+                    'Description': triple[2],
+                    'orcid': triple[3],
+                    'zbmath': triple[4],
+                    'issn': triple[5]
+                }
                 seen_items.add(triple)
         if isinstance(subdict, dict):
             for value in subdict.values():
@@ -220,6 +353,7 @@ def unique_items(data, title = None):
     return items
 
 def inline_mathml(data):
+    '''Process MathML to be inline'''
     if isinstance(data, dict):
         for key, value in data.items():
             if isinstance(value, str):
@@ -232,7 +366,9 @@ def inline_mathml(data):
             inline_mathml(item)
 
 def clean_mathml(mathml_str):
+    '''Clean MathL'''
     def clean_tag(match):
+        '''Clean Tag'''
         tag = match.group(1)
         # Keep xmlns on <math> tag
         if tag.startswith('math'):
@@ -277,7 +413,7 @@ def process_question_dict(project, questions, get_answer):
                 "external_id": config.get("external_id", False),
                 "option_text": config.get("option_text", False),
             }
-        
+
             # Call the injected function
             answers = get_answer(
                 project,
@@ -286,9 +422,3 @@ def process_question_dict(project, questions, get_answer):
             )
 
     return answers
-
-
-
-
-
-

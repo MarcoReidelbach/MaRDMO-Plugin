@@ -32,9 +32,11 @@ def update_ids(project, ids, query, sparql_endpoint, source):
         value_editor(
             project=project,
             uri=f"{BASE_URI}domain/{set_name}/id",
-            text=f"{key} ({first_result['quote']['value']}) [{source}]",
-            external_id=f"{source}:{first_result['ID']['value']}",
-            set_index=set_index
+            inf0 = {
+                'text': f"{key} ({first_result['quote']['value']}) [{source}]",
+                'external_id': f"{source}:{first_result['ID']['value']}",
+                'set_index': set_index
+            }
         )
 
         if source == 'mathalgodb':

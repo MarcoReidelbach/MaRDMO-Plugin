@@ -1,5 +1,6 @@
 from rdmo.options.providers import Provider
 
+from .. helpers import define_setup
 from ..queries import query_sources, query_sources_with_user_additions
 
 
@@ -24,13 +25,17 @@ class RelatedResearchFieldWithCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['field']
-
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes, 
-                                                 creation = True)
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['field'],
+            creation = True
+        )
+ 
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class RelatedResearchFieldWithoutCreation(Provider):
 
@@ -41,13 +46,17 @@ class RelatedResearchFieldWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['field']
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['field'],
+            sources = ['mardi']
+        )
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes,
-                                                 sources = ['mardi'])
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class ResearchProblem(Provider):
 
@@ -70,13 +79,17 @@ class RelatedResearchProblemWithCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['problem']
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['problem'],
+            creation = True
+        )
         
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes, 
-                                                 creation = True)
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class RelatedResearchProblemWithoutCreation(Provider):
 
@@ -87,13 +100,17 @@ class RelatedResearchProblemWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['problem']
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['problem'],
+            sources = ['mardi']
+        )
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes,
-                                                 sources = ['mardi'])
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class MathematicalModel(Provider):
 
@@ -116,13 +133,17 @@ class RelatedMathematicalModelWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['model']
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['model'],
+            sources = ['mardi']
+        )
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes,
-                                                 sources = ['mardi'])
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class QuantityOrQuantityKind(Provider):
 
@@ -145,13 +166,17 @@ class RelatedQuantityWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['quantity']
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['quantity'],
+            sources = ['mardi']
+        )
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes,
-                                                 sources = ['mardi'])
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
 
 class RelatedQuantityKindWithoutCreation(Provider):
 
@@ -162,13 +187,17 @@ class RelatedQuantityKindWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['quantity']
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['quantity'],
+            sources = ['mardi']
+        )
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes,
-                                                 sources = ['mardi'])
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class RelatedQuantityOrQuantityKindWithCreation(Provider):
 
@@ -180,13 +209,17 @@ class RelatedQuantityOrQuantityKindWithCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['quantity']
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['quantity'],
+            creation = True
+        )
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes, 
-                                                 creation = True)
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class MathematicalFormulation(Provider):
 
@@ -210,13 +243,17 @@ class RelatedMathematicalFormulationWithCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['formulation']
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['formulation'],
+            creation = True
+        )
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes, 
-                                                 creation = True)
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class RelatedMathematicalFormulationWithoutCreation(Provider):
 
@@ -227,13 +264,17 @@ class RelatedMathematicalFormulationWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['formulation']
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['formulation'],
+            sources = ['mardi']
+        )
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes,
-                                                 sources = ['mardi'])
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
 
 class Task(Provider):
 
@@ -256,13 +297,17 @@ class RelatedTaskWithCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['task']
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['task'],
+            creation = True
+        )
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes, 
-                                                 creation = True)
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class RelatedTaskWithoutCreation(Provider):
 
@@ -273,13 +318,17 @@ class RelatedTaskWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
         
-        # Define the queryAttributes
-        queryAttributes = ['task']
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['task'],
+            sources = ['mardi']
+        )
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes,
-                                                 sources = ['mardi'])
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )
     
 class RelatedModelEntityWithoutCreation(Provider):
 
@@ -289,11 +338,15 @@ class RelatedModelEntityWithoutCreation(Provider):
 
         if not search or len(search) < 3:
             return []
-        
-        # Define the query parameter
-        queryAttributes = ['field', 'problem', 'model', 'quantity', 'formulation', 'task']
 
-        return query_sources_with_user_additions(search = search, 
-                                                 project = project, 
-                                                 queryAttributes = queryAttributes,
-                                                 sources = ['mardi'])
+        # Define the query_setup
+        setup = define_setup(
+            query_attributes = ['field', 'problem', 'model', 'quantity', 'formulation', 'task'],
+            sources = ['mardi']
+        )
+        
+        return query_sources_with_user_additions(
+            search = search, 
+            project = project, 
+            setup = setup
+        )

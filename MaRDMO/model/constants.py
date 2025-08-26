@@ -1,5 +1,5 @@
 from ..config import BASE_URI
-from ..getters import get_items, get_mathmoddb, get_properties, get_questions_model
+from ..getters import get_items, get_mathmoddb, get_properties, get_questions
 
 # Dictionary for internal / external section names
 SECTION_MAP = {
@@ -176,7 +176,7 @@ PREVIEW_MAP_QUANTITY = [
 
 # URI PREFIX Map (I)
 def get_URI_PREFIX_MAP():
-    questions = get_questions_model()
+    questions = get_questions('model')
     URI_PREFIX_MAP = {
         f'{BASE_URI}{questions["Task"]["QRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Quantity"]["uri"]}',

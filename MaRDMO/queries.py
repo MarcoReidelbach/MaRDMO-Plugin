@@ -1,9 +1,9 @@
 '''Function that query Data'''
 
-import requests
 import logging
-
 from multiprocessing.pool import ThreadPool
+
+import requests
 from rdmo.domain.models import Attribute
 
 from .algorithm.sparql import queryProviderAL
@@ -13,7 +13,8 @@ from .helpers import extract_parts
 logger = logging.getLogger(__name__)
 
 def query_item(label, description, api=endpoint['mardi']['api']):
-    '''API request returning an Item whose label or alias matches, and with matching description.'''
+    '''API request returning an Item whose label or alias matches,
+       and with matching description.'''
     # Only check Items with description
     if not description or description == 'No Description Provided!':
         return None
@@ -29,15 +30,18 @@ def query_item(label, description, api=endpoint['mardi']['api']):
         item_label = item.get('label', '').strip().lower()
         item_description = item.get('description', '').strip()
         item_aliases = [alias.strip().lower() for alias in item.get('aliases', [])]
-    
+
         # Check label or alias match AND description match
-        if (item_label == norm_label or norm_label in item_aliases) and item_description == description:
+        if (
+            (item_label == norm_label or norm_label in item_aliases)
+            and item_description == description
+        ):
             matched_items.append(item)
 
     if matched_items:
         return matched_items[0]['id']
-    else:
-        return None
+
+    return None
 
 def query_api(api_url, search_term, timeout=5):
     """API requests returning all Items with matching label."""
@@ -62,86 +66,108 @@ def query_api(api_url, search_term, timeout=5):
             # Malformed JSON
             logger.error("Failed to parse JSON.")
     except requests.exceptions.RequestException as e:
-        logger.error(f"Request failed due to {e}")
+        logger.error("Request failed due to %s", e)
 
     return []
 
-def query_sparql(query, endpoint):
+def query_sparql(query, sparql_endpoint):
     '''SPARQL request returning all Items with matching properties.'''
-    if not endpoint:
+    if not sparql_endpoint:
         logger.warning("SPARQL query attempted without a valid endpoint.")
         return []
-    
+
     try:
         response = requests.post(
-            endpoint,
+            sparql_endpoint,
             data=query,
             headers={
                 "Content-Type": "application/sparql-query",
                 "Accept": "application/sparql-results+json"
-            }
+            },
+            timeout = 60
         )
         # Check if request was successful
         if response.status_code == 200:
             return response.json().get('results', {}).get('bindings', [])
-        else:
-            logger.error(f"SPARQL request to {endpoint} failed with status {response.status_code}: {response.text}")
-            return []
+
+        logger.error(
+            "SPARQL request to %s failed with status %s: %s",
+            sparql_endpoint,
+            response.status_code,
+            response.text,
+        )
+
+        return []
 
     except requests.exceptions.ConnectionError:
-        logger.error(f"SPARQL query failed: Unable to connect to the {endpoint}.")
+        logger.error(
+            "SPARQL query failed: Unable to connect to the %s.",
+            sparql_endpoint
+        )
+
     except requests.exceptions.RequestException as e:
-        logger.exception(f"SPARQL request failed: {e}")
-    
+        logger.exception("SPARQL request failed: %s", e)
+
     return []
 
-def query_sparql_pool(input):
-    '''Pooled SPARQL request returning all items with matching properties from different endpoints'''
-    pool = ThreadPool(processes=len(input))
+def query_sparql_pool(query_input):
+    '''Pooled SPARQL request returning all items with matching properties 
+       from different endpoints'''
+    pool = ThreadPool(processes = len(query_input))
     # Map each endpoint's query and store results in a dictionary
-    data = {key: result for key, result in zip(input.keys(), pool.map(lambda args: query_sparql(*args), input.values()))}
+    results = pool.map(lambda args: query_sparql(*args), query_input.values())
+    data = dict(zip(query_input.keys(), results))
     return data
 
-def query_sources(search, queryID = '', sources = ['mardi', 'wikidata'], notFound=True):
-        '''Helper function to query specified sources and process results.'''
-        
-        def process_result(result, source):
-            '''Function to process the result and return a dictionary with id and text'''
-            return {
-                 'id': f"{source}:{result['id']}",
-                 'text': f"{result['display']['label']['value']} ({result['display'].get('description', {}).get('value', 'No Description Provided!')}) [{source}]"
-            }
-        
-        source_functions = {
-            'wikidata': lambda s: query_api(endpoint['wikidata']['api'], s),
-            'mardi': lambda s: query_api(endpoint['mardi']['api'], s),
-            'mathalgodb': lambda s: query_provider(s, queryProviderAL[queryID], 'mathalgodb')
+def query_sources(search, query_id = '', sources = None, not_found = True):
+    '''Helper function to query specified sources and process results.'''
+
+    if sources is None:
+        # Set default Sources
+        sources = ['mardi', 'wikidata']
+
+    def process_result(result, source):
+        '''Function to process the result and return a dictionary with id and text'''
+        display = result['display']
+        label = display.get('label', {}).get('value', 'No Label Provided!')
+        description = display.get('description', {}).get('value', 'No Description Provided!')
+        return {
+            'id': f"{source}:{result['id']}",
+            'text': f"{label} ({description}) [{source}]"        
         }
 
-        # Filter only specified sources
-        queries = [source_functions[source] for source in sources if source in source_functions]
+    source_functions = {
+        'wikidata': lambda s: query_api(endpoint['wikidata']['api'], s),
+        'mardi': lambda s: query_api(endpoint['mardi']['api'], s),
+        'mathalgodb': lambda s: query_provider(s, queryProviderAL[query_id], 'mathalgodb')
+    }
 
-        # Use ThreadPool to make concurrent API requests
-        pool = ThreadPool(processes=len(queries))
-        results = pool.map(lambda func: func(search), queries)
-        # Unpack results based on available sources
-        results_dict = dict(zip(sources, results))
+    # Filter only specified sources
+    queries = [source_functions[source] for source in sources if source in source_functions]
 
-        # Process results to fit RDMO Provider Output Requirements
-        options = []
-        
-        if 'mathalgodb' in results_dict:
-            options += results_dict['mathalgodb'][:15]
+    # Use ThreadPool to make concurrent API requests
+    pool = ThreadPool(processes=len(queries))
+    results = pool.map(lambda func: func(search), queries)
 
-        if 'mardi' in results_dict:
-            options += [process_result(result, 'mardi') for result in results_dict['mardi'][:15]]
+    # Unpack results based on available sources
+    results_dict = dict(zip(sources, results))
 
-        if 'wikidata' in results_dict:
-            options += [process_result(result, 'wikidata') for result in results_dict['wikidata'][:15]]
+    # Process results to fit RDMO Provider Output Requirements
+    options = []
 
-        if notFound:
-            options = [{'id': 'not found', 'text': 'not found'}] + options
-        return options
+    if 'mathalgodb' in results_dict:
+        options += results_dict['mathalgodb'][:15]
+
+    if 'mardi' in results_dict:
+        options += [process_result(result, 'mardi') for result in results_dict['mardi'][:15]]
+
+    if 'wikidata' in results_dict:
+        options += [process_result(result, 'wikidata') for result in results_dict['wikidata'][:15]]
+
+    if not_found:
+        options = [{'id': 'not found', 'text': 'not found'}] + options
+
+    return options
 
 def query_provider(search, query, source):
     """
@@ -151,60 +177,130 @@ def query_provider(search, query, source):
         return []
 
     # Fetch results from the MathAlgoDB knowledge graph
-    results = query_sparql(query, endpoint['mathalgodb']['sparql'] if source == 'mathalgodb' else endpoint['mathmoddb']['sparql'] if source == 'mathmoddb' else '')
+    results = query_sparql(
+        query = query,
+        sparql_endpoint = endpoint['mathalgodb']['sparql']
+    )
+
     dic = {}
     options = []
-    
+
     # Store results in dict
     for result in results:
-        dic.update({result['label']['value']:{'id':result['id']['value'], 'quote':result['quote']['value']}})
+        dic.update(
+            {
+                result['label']['value']: {
+                    'id': result['id']['value'],
+                    'quote': result['quote']['value']
+                }
+            }
+        )
 
     # Filter results by user-defined search
-    options.extend([{'id': f"{source}:{dic[key]['id']}", 'text': f'{key} ({dic[key]["quote"]}) [{source}]'} for key in dic if search.lower() in key.lower()])
+    options.extend(
+        [
+            {
+                'id': f"{source}:{value['id']}",
+                'text': f'{key} ({value["quote"]}) [{source}]'
+            }
+            for key, value in dic.items()
+            if search.lower() in key.lower()
+        ]
+    )
 
     return options
 
-def query_sources_with_user_additions(search, project, queryAttributes, creation = False, queryID = '', sources = ['mardi', 'wikidata']):
-    '''Fetch options from MathModDB, user-defined fields, and other sources.'''
+def query_sources_with_user_additions(search, project, setup):
+    '''Fetch options from KG, user-defined fields, and other sources.'''
+
+    if setup['sources'] is None:
+        setup['sources'] = ['mardi', 'wikidata']
+
     # Query sources and get the results directly in options
     try:
-        options = query_sources(search, queryID, sources, False)
-    except:
+        options = query_sources(
+            search = search,
+            query_id = setup['query_id'],
+            sources = setup['sources'],
+            not_found = False
+        )
+    except(requests.exceptions.RequestException, KeyError, ValueError) as e:
+        logger.error("Query sources failed: %s", e)
         options = []
 
-    # Dictionary for User Answers
+    # Dictionaries for User Answers
+    values = {}
     dic = {}
 
-    for queryAttribute in queryAttributes:
-        # Fetch user-defined research fields from the project
-        values1 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{queryAttribute}/id'))
-        values2 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{queryAttribute}/name'))
-        values3 = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}domain/{queryAttribute}/description'))
+    for query_attribute in setup['query_attributes']:
+
+        # Fetch User entries from the project (ID)
+        values['id'] = project.values.filter(
+            snapshot = None,
+            attribute = Attribute.objects.get(
+                uri = f'{BASE_URI}domain/{query_attribute}/id'
+            )
+        )
+
+        # Fetch User entries from the project (Name)
+        values['name'] = project.values.filter(
+            snapshot = None,
+            attribute=Attribute.objects.get(
+                uri = f'{BASE_URI}domain/{query_attribute}/name'
+            )
+        )
+
+        # Fetch User entries from the project (Description)
+        values['description'] = project.values.filter(
+            snapshot = None,
+            attribute=Attribute.objects.get(
+                uri = f'{BASE_URI}domain/{query_attribute}/description'
+            )
+        )
+
+        # Zip user-defined answers
+        zipped = zip(
+            values['id'],
+            values['name'],
+            values['description']
+        )
 
         # Process user-defined answers
-        for idx, (value1, value2, value3) in enumerate(zip(values1, values2, values3)):
-            source = label = description = None
+        for idx, (value1, value2, value3) in enumerate(zipped):
+            item = dict.fromkeys(["source", "label", "description", "id"], None)
             if value1.text:
                 if value1.text == 'not found':
                     # User-Defined Cases
-                    label = value2.text or "No Label Provided!"
-                    description = value3.text or "No Description Provided!"
-                    id = idx
-                    source = 'user'
+                    item['label'] = value2.text or "No Label Provided!"
+                    item['description'] = value3.text or "No Description Provided!"
+                    item['id'] = idx
+                    item['source'] = 'user'
                 else:
                     # ID Cases
-                    label, description, source = extract_parts(value1.text)
-                    _, id = value1.external_id.split(':')
-            if source not in sources:
-                if source == 'user':
-                    dic[f"{label} ({description}) [{source}]"] = {'id': f"not found"}
+                    item['label'], item['description'], item['source'] = extract_parts(value1.text)
+                    _, item['id'] = value1.external_id.split(':')
+            if item['source'] not in setup['sources']:
+                if item['source'] == 'user':
+                    dic[f"{item['label']} ({item['description']}) [{item['source']}]"] = {
+                        'id': "not found"
+                    }
                 else:
-                    dic[f"{label} ({description}) [{source}]"] = {'id': f"{source}:{id}"}
-            
+                    dic[f"{item['label']} ({item['description']}) [{item['source']}]"] = {
+                        'id': f"{item['source']}:{item['id']}"
+                    }
+
     # Add the user-defined options to the list, filtered by search
-    options.extend([{'id': f"{dic[key]['id']}", 'text': key} for key in dic if search.lower() in key.lower()])
-    
-    if creation:
+    options.extend(
+        [
+            {
+                'id': f"{value['id']}",
+                'text': key
+            }
+            for key, value in dic.items() if search.lower() in key.lower()
+        ]
+    )
+
+    if setup['creation']:
         options = [{'id': 'not found', 'text': f"{search} [user]"}] + options
 
     # Return combined, sorted options

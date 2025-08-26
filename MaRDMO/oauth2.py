@@ -1,10 +1,12 @@
+'''Functions for OAuth2 Authorization'''
+
 import logging
 import copy
-import requests
 import re
 import json
-
 from urllib.parse import urlencode
+
+import requests
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.crypto import get_random_string
@@ -16,23 +18,28 @@ logger = logging.getLogger(__name__)
 
 
 class OauthProviderMixin:
-
-    def post(self, request, url, jsons=None, files=None, multipart=None):
-        # Always require login for POST requests
-        self.store_in_session(request, 'request', ('post', url, jsons, files, multipart))
+    '''Class containing functions for the authorization, post, and
+       callback related to the OAuth2 protocoll.'''
+    def post(self, request, jsons=None):
+        '''Start the Posting Process'''
+        self.store_in_session(request, 'request', ('post', jsons))
         return self.authorize(request)
 
     def authorize(self, request):
-        # Generate a random state and redirect the user to the OAuth login page
+        '''Authorize for Posting'''
         state = get_random_string(length=32)
         self.store_in_session(request, 'state', state)
         url = self.authorize_url + '?' + urlencode(self.get_authorize_params(request, state))
         return HttpResponseRedirect(url)
 
     def callback(self, request):
-        # Verify the state parameter
+        '''Ensure the Callback'''
         if request.GET.get('state') != self.pop_from_session(request, 'state'):
-            return self.render_error(request, _('OAuth authorization not successful'), _('State parameter did not match.'))
+            return self.render_error(
+                request,
+                _('OAuth authorization not successful'),
+                _('State parameter did not match.')
+            )
 
         # Exchange the authorization code for an access token
         url = self.token_url + '?' + urlencode(self.get_callback_params(request))
@@ -41,12 +48,17 @@ class OauthProviderMixin:
             self.get_callback_data(request),
             auth=self.get_callback_auth(request),
             headers=self.get_callback_headers(request),
+            timeout = 10
         )
 
         try:
             response.raise_for_status()
         except requests.HTTPError as e:
-            logger.error('callback error: %s (%s)', response.content, response.status_code)
+            logger.error(
+                'callback error: %s (%s)',
+                response.content,
+                response.status_code
+            )
             raise e
 
         response_data = response.json()
@@ -54,90 +66,247 @@ class OauthProviderMixin:
 
         # Replay the original request with the new access token
         try:
-            _, *args = self.pop_from_session(request, 'request')
-            return self.perform_post(request, access_token, *args)
+            _method, jsons = self.pop_from_session(request, 'request')
+            return self.perform_post(
+                request,
+                access_token,
+                jsons
+            )
         except ValueError:
             pass
 
-        return self.render_error(request, _('OAuth authorization successful'), _('But no redirect could be found.'))
+        return self.render_error(
+            request,
+            _('OAuth authorization successful'),
+            _('But no redirect could be found.')
+        )
 
-    def perform_post(self, request, access_token, url, jsons=None, files=None, multipart=None):
-        
+    def perform_post(self, request, access_token, jsons=None):
+        """Perform the actual Post"""
         init = copy.deepcopy(jsons)
         keys = list(jsons.keys())
+
         while keys:
             for key in list(jsons.keys()):
-                if key in keys and not re.search(r"Item\d{10}", json.dumps(jsons[key].get('payload'))):
+                if key not in keys:
+                    continue
+
+                payload = jsons[key].get("payload")
+                if re.search(r"Item\d{10}", json.dumps(payload)):
+                    continue
+
+                try:
                     if not jsons[key]['id']:
-                        if key.startswith('RELATION'):
-                            if jsons[key]['exists'] == 'false':
-                                response = requests.post(jsons[key]['url'], json=jsons[key]['payload'], headers=self.get_authorization_headers(access_token))
-                                try:
-                                    response.raise_for_status()
-                                    jsons[key]['id'] = response.json()['id']
-                                    jsons = replace_in_dict(jsons, key, response.json()['id'])
-                                except requests.HTTPError:
-                                    logger.warning('post error: %s (%s)', response.content, response.status_code)
-                                    return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
-                        else:
-                            response = requests.post(jsons[key]['url'], json=jsons[key]['payload'], headers=self.get_authorization_headers(access_token))
-                            try:
-                                response.raise_for_status()
-                                jsons[key]['id'] = response.json()['id']
-                                jsons = replace_in_dict(jsons, key, response.json()['id'])
-                            except requests.HTTPError:
-                                if response.status_code == 422:
-                                    error_json = response.json()
-                                    if error_json.get("code") == "data-policy-violation" and error_json.get("context", {}).get('violation') == 'item-label-description-duplicate':
-                                        conflict_id = error_json.get("context", {}).get("violation_context", {}).get("conflicting_item_id")
-                                        if conflict_id:
-                                            jsons[key]['id'] = conflict_id
-                                            jsons = replace_in_dict(jsons, key, conflict_id)
-                                else:
-                                    logger.warning('post error: %s (%s)', response.content, response.status_code)    
-                                    return self.render_error(request, _('Something went wrong'), _('Could not complete the POST request.'))
+                        jsons = self._post_data(key, jsons, access_token)
                     else:
                         jsons = replace_in_dict(jsons, key, jsons[key]['id'])
-                    keys.remove(key)
-        
+                except RuntimeError as err:
+                    return self.render_error(
+                        request,
+                        _('Something went wrong'),
+                        str(err)
+                    )
+
+                keys.remove(key)
+
         final = jsons
         return self.post_success(request, init, final)
 
+
+    def _post_data(self, key, jsons, access_token):
+        """Post data for a single key, handles both relations and items"""
+        item = jsons[key]
+
+        # Skip existing relations
+        if key.startswith('RELATION') and item['exists'] == 'true':
+            return jsons
+
+        response = requests.post(
+            item['url'],
+            json=item['payload'],
+            headers=self.get_authorization_headers(access_token),
+            timeout=30
+        )
+        return self._handle_response(response, key, jsons)
+
+    def _handle_response(self, response, key, jsons):
+        """Handle POST response and update placeholders.
+           Returns updated jsons or raises on error.
+        """
+        try:
+            response.raise_for_status()
+            jsons[key]['id'] = response.json()['id']
+            return replace_in_dict(jsons, key, response.json()['id'])
+
+        except requests.HTTPError as exc:
+            if response.status_code == 422:
+                return self._handle_policy_violation(response, key, jsons)
+
+            logger.warning('post error: %s (%s)', response.content, response.status_code)
+            raise RuntimeError(_("POST request failed")) from exc
+
+
+    def _handle_policy_violation(self, response, key, jsons):
+        """Handle data-policy-violation errors and return updated jsons"""
+        error_json = response.json()
+        if error_json.get("code") == "data-policy-violation":
+            violation = error_json.get("context", {}).get("violation")
+            if violation == 'item-label-description-duplicate':
+                conflict_id = (
+                    error_json["context"]
+                    .get("violation_context", {})
+                    .get("conflicting_item_id")
+                )
+                if conflict_id:
+                    jsons[key]['id'] = conflict_id
+                    return replace_in_dict(jsons, key, conflict_id)
+
+        # No fix possible → just return unchanged jsons
+        return jsons
+
+
+#    def perform_post(self, request, access_token, jsons=None):
+#        '''Perform the actual Post'''
+#        init = copy.deepcopy(jsons)
+#        keys = list(jsons.keys())
+#        while keys:
+#            for key in list(jsons.keys()):
+#                # Only consider untouched Data
+#                if key not in keys:
+#                    continue
+#                # Only consider Data without Placeholders
+#                payload = jsons[key].get("payload")
+#                if re.search(r"Item\d{10}", json.dumps(payload)):
+#                    continue
+#                # Only consider Data without ID
+#                if not jsons[key]['id']:
+#                    # Handle Relation Data
+#                    if key.startswith('RELATION'):
+#                        if jsons[key]['exists'] == 'true':
+#                            continue
+#                        # Post Data
+#                        response = requests.post(
+#                            jsons[key]['url'],
+#                            json=jsons[key]['payload'],
+#                            headers=self.get_authorization_headers(access_token),
+#                            timeout=30
+#                        )
+#                        try:
+#                            # Update Placeholders
+#                            response.raise_for_status()
+#                            jsons[key]['id'] = response.json()['id']
+#                            jsons = replace_in_dict(jsons, key, response.json()['id'])
+#                        except requests.HTTPError:
+#                            logger.warning(
+#                                'post error: %s (%s)',
+#                                response.content,
+#                                response.status_code
+#                            )
+#                            return self.render_error(
+#                                request,
+#                                _('Something went wrong'),
+#                                _('Could not complete the POST request.')
+#                            )
+#                    else:
+#                        # Handle Item Data
+#                        response = requests.post(
+#                            jsons[key]['url'],
+#                            json=jsons[key]['payload'],
+#                            headers=self.get_authorization_headers(access_token),
+#                            timeout=30
+#                        )
+#                        try:
+#                            # Update Placeholders
+#                            response.raise_for_status()
+#                            jsons[key]['id'] = response.json()['id']
+#                            jsons = replace_in_dict(jsons, key, response.json()['id'])
+#                        except requests.HTTPError:
+#                            if response.status_code == 422:
+#                                error_json = response.json()
+#                                if error_json.get("code") == "data-policy-violation":
+#                                    violation = error_json.get("context", {}).get("violation")
+#                                    if violation == 'item-label-description-duplicate':
+#                                        conflict_id = (
+#                                            error_json["context"]
+#                                            .get("violation_context", {})
+#                                            .get("conflicting_item_id")
+#                                        )
+#                                        if conflict_id:
+#                                            jsons[key]['id'] = conflict_id
+#                                            jsons = replace_in_dict(jsons, key, conflict_id)
+#                            else:
+#                                logger.warning('post error: %s (%s)',
+#                                               response.content,
+#                                               response.status_code
+#                                )
+#                                return self.render_error(
+#                                    request,
+#                                    _('Something went wrong'),
+#                                    _('Could not complete the POST request.')
+#                                )
+#                else:
+#                    # Update Placeholders
+#                    jsons = replace_in_dict(
+#                        jsons,
+#                        key,
+#                        jsons[key]['id']
+#                    )
+#                keys.remove(key)
+#
+#        final = jsons
+#        return self.post_success(
+#            request,
+#            init,
+#            final
+#        )
+
     def render_error(self, request, title, message):
+        '''Render Error'''
         return render(request, 'core/error.html', {'title': title, 'errors': [message]}, status=200)
 
     def get_session_key(self, key):
+        '''Get Session Key'''
         return f'{self.class_name}.{key}'
 
     def store_in_session(self, request, key, data):
+        '''Store in Session'''
         session_key = self.get_session_key(key)
         request.session[session_key] = data
 
     def get_from_session(self, request, key):
+        '''Get from Session'''
         session_key = self.get_session_key(key)
         return request.session.get(session_key)
 
     def pop_from_session(self, request, key):
+        '''Pop from Session'''
         session_key = self.get_session_key(key)
         return request.session.pop(session_key, None)
 
     def get_authorization_headers(self, access_token):
+        '''Get Authorization Header'''
         return {'Authorization': f'Bearer {access_token}'}
 
     def get_authorize_params(self, request, state):
+        '''Get Authorization Parameter'''
         raise NotImplementedError
 
     def get_callback_auth(self, request):
+        '''Get Callback Authorization'''
         return None
 
     def get_callback_headers(self, request):
+        '''Get Callback Headers'''
         return {'Accept': 'application/json'}
 
     def get_callback_params(self, request):
+        '''Get Callback Parameters'''
         return {}
 
     def get_callback_data(self, request):
+        '''Get Callback Data'''
         return {}
 
     def post_success(self, request, init, final):
+        '''Post Success'''
         raise NotImplementedError

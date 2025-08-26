@@ -4,7 +4,15 @@ from rdmo.options.models import Option
 
 from .config import BASE_URI
 from .getters import get_id, get_options
-from .helpers import extract_parts, value_editor
+from .helpers import (
+    extract_parts,
+    initialize_counter,
+    process_qualifier,
+    reduce_prefix,
+    relation_exists,
+    relevant_set_ids,
+    value_editor,
+)
 
 
 def add_basics(project, text, questions, item_type, index = (None, None)):
@@ -19,18 +27,26 @@ def add_basics(project, text, questions, item_type, index = (None, None)):
     label, description, source = extract_parts(text)
 
     # Add Label to Questionnaire
-    value_editor(project = project,
-                 uri = f'{BASE_URI}{questions[item_type]["Name"]["uri"]}',
-                 text = label,
-                 set_index = index[0],
-                 set_prefix = index[1])
+    value_editor(
+        project = project,
+        uri = f'{BASE_URI}{questions[item_type]["Name"]["uri"]}',
+        info = {
+            'text': label,
+            'set_index': index[0],
+            'set_prefix': index[1]
+        }
+    )
 
     # Add Description to Questionnaire
-    value_editor(project = project,
-                 uri = f'{BASE_URI}{questions[item_type]["Description"]["uri"]}',
-                 text = description,
-                 set_index = index[0],
-                 set_prefix = index[1])
+    value_editor(
+        project = project,
+        uri = f'{BASE_URI}{questions[item_type]["Description"]["uri"]}',
+        info = {
+            'text': description,
+            'set_index': index[0],
+            'set_prefix': index[1]
+        }
+    )
 
     return label, description, source
 
@@ -73,16 +89,24 @@ def add_entities(project, question_set, datas, source, prefix):
         # If Item not already in Questionnaire
         if data.id not in info['value_ids'] and not check_id and not check_name_desc:
             # Set up Page in Questionnaire
-            value_editor(project = project,
-                         uri = question_set,
-                         text = f"{prefix}{idx}",
-                         set_index = idx)
+            value_editor(
+                project = project,
+                uri = question_set,
+                info = {
+                    'text': f"{prefix}{idx}",
+                    'set_index': idx
+                }
+            )
             # Add ID Values
-            value_editor(project = project,
-                         uri = question['id'],
-                         text = f'{data.label} ({data.description}) [{source}]',
-                         external_id = f"{data.id}",
-                         set_index = idx)
+            value_editor(
+                project = project,
+                uri = question['id'],
+                info = {
+                    'text': f'{data.label} ({data.description}) [{source}]',
+                    'external_id': f"{data.id}",
+                    'set_index': idx
+                }
+            )
 
             # Update Index and existing Items
             idx += 1
@@ -119,32 +143,106 @@ def add_new_entities(project, question_set, datas, prefix):
         # If Item not already in Questionnaire
         if not check_name_desc:
             # Set up Page
-            value_editor(project = project,
-                         uri = question_set,
-                         text = f"{prefix}{idx}",
-                         set_index = idx)
+            value_editor(
+                project = project,
+                uri = question_set,
+                info = {
+                    'text': f"{prefix}{idx}",
+                    'set_index': idx
+                }
+            )
             # Add ID Values
-            value_editor(project = project,
-                         uri = question['id'],
-                         text = 'not found',
-                         external_id = 'not found',
-                         set_index = idx)
+            value_editor(
+                project = project,
+                uri = question['id'],
+                info = {
+                    'text': 'not found',
+                    'external_id': 'not found',
+                    'set_index': idx
+                }
+            )
             # Add Name Values
-            value_editor(project = project,
-                         uri = question['name'],
-                         text = data.label,
-                         set_prefix = idx)
+            value_editor(
+                project = project,
+                uri = question['name'],
+                info = {
+                    'text': data.label,
+                    'set_prefix': idx
+                }
+            )
             # Add Description Values
-            value_editor(project = project,
-                         uri = question['description'],
-                         text = data.description,
-                         set_prefix = idx)
+            value_editor(
+                project = project,
+                uri = question['description'],
+                info = {
+                    'text': data.description,
+                    'set_prefix': idx
+                }
+            )
 
             # Update Index
             idx += 1
 
-def add_relations(project, data, props, set_prefix, relatant,
-                  mapping=None, relation=None, assumption=None, order=None):
+def add_relations_static(project, data, props, index, statement):
+    '''Function checks if a related pair (relation and relatant) are part of the 
+       Questionnaire (fixed relation). If the pair is not yet in the Questionnaire 
+       it is added to the Questionnaire. Qualifiers are likewise checked and added.
+
+       Input: Item Information + Relation (if flexible)
+       Output: -'''
+
+    # Get existing Set and Item Information
+    info = {'set_prefix_ids': get_id(project, statement['relatant'], ['set_prefix']),
+            'set_index_ids': get_id(project, statement['relatant'], ['set_index']),
+            'collection_ids': get_id(project, statement['relatant'], ['collection_index']),
+            'value_ids': get_id(project, statement['relatant'], ['external_id']),
+            'texts': get_id(project, statement['relatant'], ['text'])}
+
+    # Get reduced set_prefixes
+    index.update({'set_prefix_reduced': reduce_prefix(index['set_prefix'])})
+
+    # Set initial value of counter
+    index.update({'idx': initialize_counter(info['collection_ids'])})
+
+    # Add Relations and Relatants
+    for prop in props['keys']:
+        for value in getattr(data, prop):
+
+            # Get Source and Label Description String
+            source, _ = value.id.split(':')
+
+            # Check if Relatant exists
+            matches = relation_exists(
+                value = value,
+                set_prefix_red = index['set_prefix_reduced'],
+                info = info)
+
+            if matches:
+                # Continue if existing
+                continue
+
+            # Add Relatant to Questionnaire
+            value_editor(
+                project = project,
+                uri = statement['relatant'],
+                info = {
+                    'text': f"{value.label} ({value.description}) [{source}]",
+                    'external_id': value.id,
+                    'collection_index': index['idx'],
+                    'set_index': 0,
+                    'set_prefix': index['set_prefix']
+                }
+            )
+
+            #Update Index
+            index['idx'] += 1
+
+            # Update existing IDs, Texts, and Relations
+            info['value_ids'].append(value.id)
+            info['set_prefix_ids'].append(index['set_prefix_reduced'])
+            info['texts'].append(f"{value.label} ({value.description}) [{source}]")
+
+def add_relations_flexible(project, data, props, index, statement):
     '''Function checks if an Item and a Relation (fixed/flexible) are part of the 
        Questionnaire. If the Item / Relation Pair is not yet in the Questionnaire 
        it is added to the Questionnaire. Qualifiers are likewise checked and added.
@@ -153,126 +251,104 @@ def add_relations(project, data, props, set_prefix, relatant,
        Output: -'''
 
     # Get existing Set, Item and Relation Information
-    info = {'set_ids': get_id(project, relatant, ['set_prefix']),
-            'set_ids2': get_id(project, relatant, ['set_index']),
-            'collection_ids': get_id(project, relatant, ['collection_index']),
-            'value_ids': get_id(project, relatant, ['external_id']),
-            'texts': get_id(project, relatant, ['text'])}
-    if relation:
-        info['rels'] = get_id(project, relation, ['option_uri'])
+    info = {'set_prefix_ids': get_id(project, statement['relatant'], ['set_prefix']),
+            'set_index_ids': get_id(project, statement['relatant'], ['set_index']),
+            'collection_ids': get_id(project, statement['relatant'], ['collection_index']),
+            'value_ids': get_id(project, statement['relatant'], ['external_id']),
+            'texts': get_id(project, statement['relatant'], ['text']),
+            'rels': get_id(project, statement['relation'], ['option_uri'])}
 
-    # Get IDs by reduced set_prefixes
-    set_prefix_red = set_prefix if isinstance(set_prefix, int) else int(set_prefix.split('|')[0])
-    ids = [set_id2
-           for set_id2, set_id in zip(info['set_ids2'], info['set_ids'])
-           if set_id == set_prefix_red]
+    # Get reduced set prefix ids
+    index.update({'set_prefix_reduced': reduce_prefix(index['set_prefix'])})
+
+    # Get relevant set index ids
+    ids = relevant_set_ids(info, index['set_prefix_reduced'])
 
     # Set initial value of counter
-    idx = int(max(ids if relation else info['collection_ids'], default=-1)) + 1
+    index.update({'idx': initialize_counter(ids)})
 
     # Add Relations and Relatants
-    for prop in props:
+    for prop in props['keys']:
         for value in getattr(data, prop):
 
             # Get Source and Label Description String
             source, _ = value.id.split(':')
-            name_desc = f"{value.label} ({value.description})"
 
-            if relation:
-                # Check if Relation / Relatant Combination exists (flexible relation)
-                matches = any(
-                    value.id == vid and int(sid) == set_prefix_red and rel == mapping[prop]
-                    for vid, sid, rel in zip(info['value_ids'], info['set_ids'], info['rels'])
-                    )
+            # Check if Relation / Relatant Combination exists (flexible relation)
+            matches = relation_exists(
+                value = value,
+                set_prefix_red = index['set_prefix_reduced'],
+                info = info,
+                relation_id = props['mapping'][prop])
 
-                if matches:
-                    # Continue if existing
-                    continue
+            if matches:
+                # Continue if existing
+                continue
 
-                # Define Indices for Relation / Relatant Entry
-                existing_index = None
-                collection_index = None
-                set_index = idx
-
-                # Add Relation to Questionnaire
-                value_editor(project = project,
-                             uri = relation,
-                             option = Option.objects.get(uri=mapping[prop]),
-                             collection_index = collection_index,
-                             set_index = set_index,
-                             set_prefix = set_prefix)
-            else:
-                # Check if Relation / Relatant Combination exists (fixed relation)
-                matches = any(
-                    value.id == vid and int(sid) == set_prefix_red
-                    for vid, sid in zip(info['value_ids'], info['set_ids'])
-                    )
-
-                if matches:
-                    # Continue if existing
-                    continue
-
-                # Define Indices for Relatant Entry
-                existing_index = next(
-                    (i for i, (text, sid) in enumerate(zip(info['texts'], info['set_ids']))
-                    if sid == set_prefix and name_desc in text), None
-                    )
-                collection_index = existing_index if existing_index is not None else idx
-                set_index = 0
+            # Add Relation to Questionnaire
+            value_editor(
+                project = project,
+                uri = statement['relation'],
+                info = {
+                    'option': Option.objects.get(uri=props['mapping'][prop]),
+                    'collection_index': None,
+                    'set_index': index['idx'],
+                    'set_prefix': index['set_prefix']
+                }
+            )
 
             # Add Relatant to Questionnaire
             value_editor(
                 project = project,
-                uri = relatant,
-                text = f"{name_desc} [{source}]",
-                external_id = value.id,
-                collection_index = collection_index,
-                set_index = set_index,
-                set_prefix = set_prefix
-                )
+                uri = statement['relatant'],
+                info = {
+                    'text': f"{value.label} ({value.description}) [{source}]",
+                    'external_id': value.id,
+                    'collection_index': None,
+                    'set_index': index['idx'],
+                    'set_prefix': index['set_prefix']
+                }
+            )
 
             # Add Assumption
-            if assumption and hasattr(value, 'qualifier') and value.qualifier:
+            if statement.get('assumption') and hasattr(value, 'qualifier') and value.qualifier:
                 # Get Assumptions
-                assumptions = value.qualifier.split(' <|> ')
-                for a_idx, a_value in enumerate(assumptions):
-                    # Extract Assumption ID, Label, and Description
-                    a_id, a_label, a_description = a_value.split(' | ')
-                    # Get Assumption Source and Name Description String
-                    a_source, _ = a_id.split(':')
-                    a_name_desc = f"{a_label} ({a_description})"
-                    # Add Assumption to Questionnaire
+                assumption_dict = process_qualifier(value.qualifier)
+                # Add Assumptions
+                for assumption_key, assumption_value in assumption_dict.items():
                     value_editor(
                         project = project,
-                        uri = assumption,
-                        text = f"{a_name_desc} [{a_source}]",
-                        external_id = a_id,
-                        collection_index = a_idx,
-                        set_index = set_index,
-                        set_prefix = set_prefix
-                        )
+                        uri = statement['assumption'],
+                        info = {
+                            'text': "{label} ({description}) [{source}]".format(**assumption_value),
+                            'external_id': assumption_value['id'],
+                            'collection_index': assumption_key,
+                            'set_index': index['idx'],
+                            'set_prefix': index['set_prefix']
+                        }
+                    )
 
             # Add Order Number
-            if order and hasattr(value, 'order') and value.order:
+            if statement.get('order') and hasattr(value, 'order') and value.order:
                 # Add Order Number to Questionnaire
                 value_editor(
                     project = project,
-                    uri = order,
-                    text = value.order,
-                    set_index = set_index,
-                    set_prefix = set_prefix
-                    )
+                    uri = statement['order'],
+                    info = {
+                        'text': value.order,
+                        'set_index': index['idx'],
+                        'set_prefix': index['set_prefix']
+                    }
+                )
 
-            if existing_index is None:
-                # Only increment if a new entry was added
-                idx += 1
+            # Update index
+            index['idx'] += 1
 
             # Update existing IDs, Texts, and Relations
             info['value_ids'].append(value.id)
-            info['set_ids'].append(set_prefix_red)
-            info['texts'].append(f"{name_desc} [{source}]")
-            if relation:
-                info['rels'].append(mapping[prop])
+            info['set_prefix_ids'].append(index['set_prefix_reduced'])
+            info['texts'].append(f"{value.label} ({value.description}) [{source}]")
+            info['rels'].append(props['mapping'][prop])
 
 def add_properties(project, data, uri, set_prefix):
     '''Function which adds Data Properties to the Questionnaire.
@@ -281,12 +357,16 @@ def add_properties(project, data, uri, set_prefix):
        Output: -'''
 
     for key, value in data.properties.items():
-        value_editor(project = project,
-                     uri  = uri,
-                     option = Option.objects.get(uri=value[0]),
-                     collection_index = key,
-                     set_index = 0,
-                     set_prefix = set_prefix)
+        value_editor(
+            project = project,
+            uri  = uri,
+            info = {
+                'option': Option.objects.get(uri=value[0]),
+                'collection_index': key,
+                'set_index': 0,
+                'set_prefix': set_prefix
+            }
+        )
 
 def add_references(project, data, uri, set_index = 0, set_prefix = None):
     '''Function which adds References to the Questionnaire.
@@ -295,13 +375,17 @@ def add_references(project, data, uri, set_index = 0, set_prefix = None):
        Output: -'''
 
     for key, value in data.reference.items():
-        value_editor(project = project,
-                     uri  = uri,
-                     text = value[1],
-                     option = Option.objects.get(uri=value[0]),
-                     collection_index = key,
-                     set_index = set_index,
-                     set_prefix = set_prefix)
+        value_editor(
+            project = project,
+            uri  = uri,
+            info = {
+                'text': value[1],
+                'option': Option.objects.get(uri=value[0]),
+                'collection_index': key,
+                'set_index': set_index,
+                'set_prefix': set_prefix
+            }
+        )
 
 def add_reference_order(entity):
     '''Function which defines the reference order according to the Item type

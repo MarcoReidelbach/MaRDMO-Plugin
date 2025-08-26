@@ -1,9 +1,9 @@
 from ..config import BASE_URI
-from ..getters import get_options, get_questions_workflow
+from ..getters import get_options, get_questions
 
 # URI PREFIX Map
 def get_URI_PREFIX_MAP():
-    questions = get_questions_workflow()
+    questions = get_questions('workflow')
     URI_PREFIX_MAP = {
         f'{BASE_URI}{questions["Process Step"]["Input"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Data Set"]["uri"]}',

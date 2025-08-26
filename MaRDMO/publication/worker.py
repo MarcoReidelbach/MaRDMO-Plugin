@@ -4,7 +4,7 @@ from .sparql import queryPublication
 from .models import Publication
 
 from ..config import BASE_URI, endpoint
-from ..getters import get_items, get_questions_publication, get_properties
+from ..getters import get_questions, get_properties
 from ..queries import query_sparql
 from ..helpers import value_editor
 
@@ -14,7 +14,7 @@ class PublicationRetriever:
         '''Function retrieving Publication Information for workflow and model documentation'''
 
         # Get Questions of Workflow Catalog
-        questions = get_questions_publication()
+        questions = get_questions('publication')
 
         for key in answers.get('publication', {}):
 
@@ -34,11 +34,15 @@ class PublicationRetriever:
                     #If Publication found in MaRDI Portal...
                     data = Publication.from_query(results)
                     #...add data to Questionnaire and...
-                    value_editor(project = project, 
-                                 uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
-                                 text = f"{data.label} ({data.description}) [mardi]" , 
-                                 external_id = data.id, 
-                                 set_index = key)
+                    value_editor(
+                        project = project, 
+                        uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
+                        info = {
+                            'text': f"{data.label} ({data.description}) [mardi]" , 
+                            'external_id': data.id, 
+                            'set_index': key
+                        }
+                    )
                     #...ouput dictionary.
                     answers['publication'][key]['ID'] = data.id
                     answers['publication'][key]['Name'] = data.label
@@ -57,11 +61,15 @@ class PublicationRetriever:
                     if data.get('mardi') or data.get('wikidata'):
                         DATA = data['mardi'] or data['wikidata']
                         #...add data to Questionnaire and...
-                        value_editor(project = project, 
-                                     uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
-                                     text = f"{DATA.label} ({DATA.description}) [{DATA.id.split(':')[0]}]" , 
-                                     external_id = DATA.id, 
-                                     set_index = key)
+                        value_editor(
+                            project = project, 
+                            uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
+                            info = {
+                                'text': f"{DATA.label} ({DATA.description}) [{DATA.id.split(':')[0]}]", 
+                                'external_id': DATA.id, 
+                                'set_index': key
+                            }
+                        )
                         #...ouput dictionary.
                         answers['publication'][key]['ID'] = DATA.id
                         answers['publication'][key]['Name'] = DATA.label
@@ -71,34 +79,50 @@ class PublicationRetriever:
                         DATA = data['crossref'] or data['datacite'] or data['zbmath'] or data['doi']
                         #...add data to Questionnaire and...
                         for uri, data_key in PUBLICATIONS.items():
-                            value_editor(project = project, 
-                                         uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
-                                         text = getattr(DATA, data_key), 
-                                         set_index = key)
+                            value_editor(
+                                project = project, 
+                                uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
+                                info = {
+                                    'text': getattr(DATA, data_key), 
+                                    'set_index': key
+                                }
+                            )
                             
                         for idx, language in enumerate(DATA.language):
                             for uri, data_key in LANGUAGES.items():
-                                value_editor(project = project, 
-                                             uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
-                                             text = getattr(language, data_key), 
-                                             collection_index = idx, 
-                                             set_index = key)
+                                value_editor(
+                                    project = project, 
+                                    uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
+                                    info = {
+                                        'text': getattr(language, data_key), 
+                                        'collection_index': idx, 
+                                        'set_index': key
+                                    }
+                                )
 
                         for idx, journal in enumerate(DATA.journal):
                             for uri, data_key in JOURNALS.items():
-                                value_editor(project = project, 
-                                             uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
-                                             text = getattr(journal, data_key), 
-                                             collection_index = idx, 
-                                             set_index = key)
+                                value_editor(
+                                    project = project, 
+                                    uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
+                                    info = {
+                                        'text': getattr(journal, data_key), 
+                                        'collection_index': idx, 
+                                        'set_index': key
+                                    }
+                                )
 
                         for idx, author in enumerate(DATA.authors):
                             for uri, data_key in AUTHORS.items():
-                                value_editor(project = project, 
-                                             uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
-                                             text = getattr(author, data_key), 
-                                             collection_index = idx, 
-                                             set_index = key)
+                                value_editor(
+                                    project = project, 
+                                    uri = f'{BASE_URI}{questions["Publication"][uri]["uri"]}', 
+                                    info = {
+                                        'text': getattr(author, data_key), 
+                                        'collection_index': idx, 
+                                        'set_index': key
+                                    }
+                                )
 
                         #...output dictionary.
                         answers['publication'][key]['Name'] = DATA.title
@@ -110,7 +134,7 @@ class PublicationRetriever:
         '''Function retrieving Publication Information for algorithm documentation'''
 
         # Get Questions of Workflow Catalog
-        questions = get_questions_publication()
+        questions = get_questions('publication')
 
         # Go through all Publications
         for key in answers['publication']:
@@ -125,11 +149,15 @@ class PublicationRetriever:
                         # If Publication found on MathAlgoDB...
                         data = Publication.from_query(results)
                         #...add data to Questionnaire and...
-                        value_editor(project = project, 
-                                     uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
-                                     text = f"{data.label} ({data.description}) [mathalgodb]" , 
-                                     external_id = data.id, 
-                                     set_index = key)
+                        value_editor(
+                            project = project, 
+                            uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
+                            info = {
+                                'text': f"{data.label} ({data.description}) [mathalgodb]" , 
+                                'external_id': data.id, 
+                                'set_index': key
+                            }
+                        )
                         #...ouput dictionary.
                         answers['publication'][key]['ID'] = data.id
                         answers['publication'][key]['Name'] = data.label
@@ -144,11 +172,15 @@ class PublicationRetriever:
                     #If Publication available at MathAlgoDB...
                     if data['mathalgodb']:
                         #...add data to Questionnaire and...
-                        value_editor(project = project, 
-                                     uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
-                                     text = f"{data['mathalgodb'].label} ({data['mathalgodb'].description}) [mathalgodb]" , 
-                                     external_id = data['mathalgodb'].id, 
-                                     set_index = key)
+                        value_editor(
+                            project = project, 
+                            uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
+                            info = {
+                                'text': f"{data['mathalgodb'].label} ({data['mathalgodb'].description}) [mathalgodb]" , 
+                                'external_id': data['mathalgodb'].id, 
+                                'set_index': key
+                            }
+                        )
                         #...ouput dictionary or...
                         answers['publication'][key]['ID'] = data['mathalgodb'].id
                         answers['publication'][key]['Name'] = data['mathalgodb'].label
@@ -157,14 +189,22 @@ class PublicationRetriever:
                     elif data['mardi'] or data['wikidata'] or data['crossref'] or data['datacite'] or data['zbmath'] or data['doi']:
                         DATA = data['mardi'] or data['wikidata'] or data['crossref'] or data['datacite'] or data['zbmath'] or data['doi']
                         #...add data to Questionnaire and...
-                        value_editor(project = project, 
-                                     uri = f'{BASE_URI}{questions["Publication"]["Name"]["uri"]}', 
-                                     text = generate_label(DATA), 
-                                     set_index = key)
-                        value_editor(project = project, 
-                                     uri = f'{BASE_URI}{questions["Publication"]["Description"]["uri"]}', 
-                                     text = DATA.description, 
-                                     set_index = key)
+                        value_editor(
+                            project = project, 
+                            uri = f'{BASE_URI}{questions["Publication"]["Name"]["uri"]}', 
+                            info = {
+                                'text': generate_label(DATA), 
+                                'set_index': key
+                            }
+                        )
+                        value_editor(
+                            project = project, 
+                            uri = f'{BASE_URI}{questions["Publication"]["Description"]["uri"]}', 
+                            info = {
+                                'text': DATA.description, 
+                                'set_index': key
+                            }
+                        )
                         #...output dictionary.
                         answers['publication'][key]['Name'] = generate_label(DATA)
                         answers['publication'][key]['Description'] = DATA.description

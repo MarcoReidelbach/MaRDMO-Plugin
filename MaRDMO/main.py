@@ -12,7 +12,7 @@ from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
 from .config import endpoint
-from .getters import get_answers, get_general_item_url, get_mathmoddb, get_mathalgodb, get_options, get_questions_algorithm, get_questions_model, get_questions_publication, get_questions_search, get_questions_workflow
+from .getters import get_answers, get_general_item_url, get_mathmoddb, get_mathalgodb, get_options, get_questions
 from .helpers import  inline_mathml, merge_dicts_with_unique_keys, process_question_dict
 from .oauth2 import OauthProviderMixin
 
@@ -195,28 +195,28 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 
                 answers, *__ = self.get_post_data()
                 
-                checker = checks()
-                err = checker.run(self.project, answers)
-                if err:
-                    # Stop export if documentation incomplete / inconsitent
-                    return render(self.request, 
-                                  'core/error.html', 
-                                  {'title': _("Incomplete or Inconsistent Documentation"),
-                                   'errors': err}, 
-                                  status=200)
-                try:
-                    prepare = prepareModel()
-                    payload = prepare.export(answers, self.wikibase_url)
-                except Exception as err:
-                    return render(self.request, 
-                                  'core/error.html', 
-                                  {'title': _('Value Error'),
-                                   'errors': [err]}, 
-                                  status=200)
+                #checker = checks()
+                #err = checker.run(self.project, answers)
+                #if err:
+                #    # Stop export if documentation incomplete / inconsitent
+                #    return render(self.request, 
+                #                  'core/error.html', 
+                #                  {'title': _("Incomplete or Inconsistent Documentation"),
+                #                   'errors': err}, 
+                #                  status=200)
+                #try:
+                prepare = prepareModel()
+                payload = prepare.export(answers, self.wikibase_url)
+                #except Exception as err:
+                #    return render(self.request, 
+                #                  'core/error.html', 
+                #                  {'title': _('Value Error'),
+                #                   'errors': [err]}, 
+                #                  status=200)
                 
-                url = self.get_post_url()
-                
-                return self.post(self.request, url, payload)
+                #url = self.get_post_url()
+                #return
+                return self.post(self.request, payload)
 
             # MaRDMO: Algorithm Documentation
             if str(self.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
@@ -304,9 +304,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                                    'errors': [err]}, 
                                   status=200)
      
-                url = self.get_post_url()
+                #url = self.get_post_url()
                 
-                return self.post(self.request, url, payload)
+                return self.post(self.request, payload)
 
     def post_success(self, request, init, final):
 
@@ -330,7 +330,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).split('/')[-1] == 'mardmo-model-catalog':
 
             # Load Data for Model & Publication Documentation
-            questions = get_questions_model() | get_questions_publication()
+            questions = get_questions('model') | get_questions('publication')
             mathmoddb = get_mathmoddb()
 
             answers = process_question_dict(project = self.project, 
@@ -350,7 +350,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
 
             # Load Data for Mathematical Model Documentation
-            questions = get_questions_algorithm() | get_questions_publication()
+            questions = get_questions('algorithm') | get_questions('publication')
             mathalgodb = get_mathalgodb()
 
             answers = process_question_dict(project = self.project, 
@@ -369,7 +369,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         elif str(self.project.catalog).split('/')[-1] == 'mardmo-search-catalog':
 
             # Load Data for Interdisciplinary Workflow, Mathematical Model or Algorithm Search
-            questions = get_questions_search()
+            questions = get_questions('search')
             
             answers = process_question_dict(project = self.project, 
                                             questions = questions, 
@@ -384,7 +384,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         elif str(self.project.catalog).split('/')[-1] == 'mardmo-interdisciplinary-workflow-catalog':
 
             # Load Data for Interdisciplinary Workflow Documentation
-            questions = get_questions_workflow() | get_questions_publication()
+            questions = get_questions('workflow') | get_questions('publication')
             
             answers = process_question_dict(project = self.project, 
                                             questions = questions, 

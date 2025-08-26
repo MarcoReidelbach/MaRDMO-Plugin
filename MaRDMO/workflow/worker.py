@@ -13,27 +13,27 @@ from ..payload import GeneratePayload
 class prepareWorkflow:
 
     def __init__(self):
-        self.ITEMS = get_items()
-        self.PROPERTIES = get_properties()
+        self.items = get_items()
+        self.properties = get_properties()
 
     def preview(self, data):
 
         # Update Model Properties via MathModDB
         if data.get('model',{}).get('ID'):
             _, id = data['model']['ID'].split(':')
-            query = queryPreview['basic'].format(id, **self.ITEMS, **self.PROPERTIES)
+            query = queryPreview['basic'].format(id, **self.items, **self.properties)
             basic = query_sparql(query, endpoint['mardi']['sparql'])
             if basic:
                 data.get('model', {}).update(asdict(ModelProperties.from_query(basic)))
         
         # Update Model Variables and Parameters via MathModDB
         if data.get('model', {}).get('task'):            
-            query = queryPreview['variables'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['model']['task'].items()), **self.ITEMS, **self.PROPERTIES)
+            query = queryPreview['variables'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['model']['task'].items()), **self.items, **self.properties)
             variables = query_sparql(query, endpoint['mardi']['sparql'])
             if variables:
                 for idx, variable in enumerate(variables):
                     data.setdefault('variables', {}).update({idx: asdict(Variables.from_query(variable))})
-            query = queryPreview['parameters'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['model']['task'].items()), **self.ITEMS, **self.PROPERTIES)
+            query = queryPreview['parameters'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['model']['task'].items()), **self.items, **self.properties)
             parameters = query_sparql(query, endpoint['mardi']['sparql'])
             if parameters:
                 for idx, parameter in enumerate(parameters):
@@ -66,17 +66,17 @@ class prepareWorkflow:
             # Add Class
             if 'mathalgodb' in method['ID']:
                 payload.add_answer(
-                    verb=self.PROPERTIES['instance of'],
+                    verb=self.properties['instance of'],
                     object_and_type=[
-                        self.ITEMS['algorithm'],
+                        self.items['algorithm'],
                         'wikibase-item',
                     ]
                 )
             else:
                 payload.add_answer(
-                    verb=self.PROPERTIES['instance of'],
+                    verb=self.properties['instance of'],
                     object_and_type=[
-                        self.ITEMS['method'],
+                        self.items['method'],
                         'wikibase-item',
                     ]
                 )
@@ -93,9 +93,9 @@ class prepareWorkflow:
 
             # Add Class
             payload.add_answer(
-                    verb=self.PROPERTIES['instance of'],
+                    verb=self.properties['instance of'],
                     object_and_type=[
-                        self.ITEMS['software'],
+                        self.items['software'],
                         'wikibase-item',
                     ]
                 )
@@ -104,7 +104,7 @@ class prepareWorkflow:
             for reference in software.get('Reference', {}).values():
                 if reference[0] == options['DOI']:
                     payload.add_answer(
-                        verb=self.PROPERTIES['DOI'],
+                        verb=self.properties['DOI'],
                         object_and_type=[
                             reference[1],
                             'external-id',
@@ -112,7 +112,7 @@ class prepareWorkflow:
                     )
                 elif reference[0] == options['SWMATH']:
                     payload.add_answer(
-                        verb=self.PROPERTIES['swMath work ID'],
+                        verb=self.properties['swMath work ID'],
                         object_and_type=[
                             reference[1],
                             'external-id',
@@ -120,7 +120,7 @@ class prepareWorkflow:
                     )
                 elif reference[0] == options['URL']:
                     payload.add_answer(
-                        verb=self.PROPERTIES['URL'],
+                        verb=self.properties['URL'],
                         object_and_type=[
                             reference[1],
                             'url',
@@ -128,15 +128,21 @@ class prepareWorkflow:
                     )
                     
             # Add Programming Languages
-            payload.add_forward_relation_single(self.PROPERTIES['programmed in'], 'programminglanguage')
+            payload.add_forward_relation_single(
+                relation = self.properties['programmed in'],
+                relatant = 'programminglanguage'
+            )
 
             # Add Dependencies
-            payload.add_forward_relation_single(self.PROPERTIES['depends on software'], 'dependency')
+            payload.add_forward_relation_single(
+                relation = self.properties['depends on software'],
+                relatant = 'dependency'
+            )
 
             # Add Source Code Repository
             if software.get('Published', [''])[0] == options['YesText']:
                 payload.add_answer(
-                    verb=self.PROPERTIES['source code repository URL'],
+                    verb=self.properties['source code repository URL'],
                     object_and_type=[
                         software['Published'][1],
                         'url',
@@ -146,7 +152,7 @@ class prepareWorkflow:
             # Add Documentation / Manual
             if software.get('Documented', [''])[0] == options['YesText']:
                 payload.add_answer(
-                    verb=self.PROPERTIES['user manual URL'],
+                    verb=self.properties['user manual URL'],
                     object_and_type=[
                         software['Documented'][1],
                         'url',
@@ -165,28 +171,31 @@ class prepareWorkflow:
 
             # Add Class
             payload.add_answer(
-                verb=self.PROPERTIES['instance of'],
+                verb=self.properties['instance of'],
                 object_and_type=[
-                    self.ITEMS['computer hardware'],
+                    self.items['computer hardware'],
                     'wikibase-item',
                 ]
             )
             
             # Add CPU
-            payload.add_forward_relation_single(self.PROPERTIES['CPU'], 'cpu')
+            payload.add_forward_relation_single(
+                relation = self.properties['CPU'],
+                relatant = 'cpu'
+            )
 
             # Add Number of Computing Nodes
             if hardware['Nodes']:
                 payload.add_answer(
-                    verb=self.PROPERTIES['has part(s)'], 
+                    verb=self.properties['has part(s)'], 
                     object_and_type=[
-                        self.ITEMS['compute node'],
+                        self.items['compute node'],
                         'wikibase-item',
                     ],
                     qualifier = [
                                     {
                                         "property": {
-                                            "id": self.PROPERTIES['quantity_property'],
+                                            "id": self.properties['quantity_property'],
                                         },
                                         "value": {
                                             "type": "value",
@@ -202,7 +211,7 @@ class prepareWorkflow:
             # Add Number of Processor Cores
             if hardware['Cores']:
                 payload.add_answer(
-                    verb=self.PROPERTIES['number of processor cores'], 
+                    verb=self.properties['number of processor cores'], 
                     object_and_type=[
                         {
                             "amount": f"+{hardware['Cores']}",
@@ -224,9 +233,9 @@ class prepareWorkflow:
 
             # Add Class
             payload.add_answer(
-                verb=self.PROPERTIES['instance of'],
+                verb=self.properties['instance of'],
                 object_and_type=[
-                    self.ITEMS['research tool'],
+                    self.items['research tool'],
                     'wikibase-item',
                 ]
             )
@@ -245,9 +254,9 @@ class prepareWorkflow:
 
             # Add Class
             payload.add_answer(
-                verb=self.PROPERTIES['instance of'],
+                verb=self.properties['instance of'],
                 object_and_type=[
-                    self.ITEMS['data set'],
+                    self.items['data set'],
                     'wikibase-item',
                 ]
             )
@@ -255,19 +264,19 @@ class prepareWorkflow:
             # Size of the data set
             if dataset.get('Size'):
                 if dataset['Size'][0] == options['kilobyte']:
-                    verb = self.PROPERTIES['data size']
-                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.ITEMS['kilobyte']}"}
+                    verb = self.properties['data size']
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.items['kilobyte']}"}
                 elif dataset['Size'][0] == options['megabyte']:
-                    verb = self.PROPERTIES['data size']
-                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.ITEMS['megabyte']}"}
+                    verb = self.properties['data size']
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.items['megabyte']}"}
                 elif dataset['Size'][0] == options['gigabyte']:
-                    verb = self.PROPERTIES['data size']
-                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.ITEMS['gigabyte']}"}
+                    verb = self.properties['data size']
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.items['gigabyte']}"}
                 elif dataset['Size'][0] == options['terabyte']:
-                    verb = self.PROPERTIES['data size']
-                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.ITEMS['terabyte']}"}
+                    verb = self.properties['data size']
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.items['terabyte']}"}
                 elif dataset['Size'][0] == options['items']:
-                    verb = self.PROPERTIES['number of records']
+                    verb = self.properties['number of records']
                     object = {"amount":f"+{dataset['Size'][1]}","unit":"1"}
 
                 payload.add_answer(
@@ -279,19 +288,31 @@ class prepareWorkflow:
                 )
                 
             # Add Data Type 
-            payload.add_forward_relation_single(relation = self.PROPERTIES['uses'], 
-                                                relatant = 'datatype', 
-                                                qualifier = payload.add_qualifier(self.PROPERTIES['object has role'], 'wikibase-item', self.ITEMS['data type']))
+            payload.add_forward_relation_single(
+                relation = self.properties['uses'], 
+                relatant = 'datatype', 
+                qualifier = payload.add_qualifier(
+                    self.properties['object has role'],
+                    'wikibase-item',
+                    self.items['data type']
+                )
+            )
 
             # Add Representation Format 
-            payload.add_forward_relation_single(relation = self.PROPERTIES['uses'], 
-                                                relatant = 'representationformat', 
-                                                qualifier = payload.add_qualifier(self.PROPERTIES['object has role'], 'wikibase-item', self.ITEMS['representation format']))            
+            payload.add_forward_relation_single(
+                relation = self.properties['uses'], 
+                relatant = 'representationformat', 
+                qualifier = payload.add_qualifier(
+                    self.properties['object has role'],
+                    'wikibase-item',
+                    self.items['representation format']
+                )
+            )            
 
             # Add File Format
             if dataset.get('FileFormat'):
                 payload.add_answer(
-                    verb=self.PROPERTIES['file extension'],
+                    verb=self.properties['file extension'],
                     object_and_type=[
                         dataset['FileFormat'],
                         'string',
@@ -302,17 +323,17 @@ class prepareWorkflow:
             if dataset.get('BinaryText'):
                 if dataset['BinaryText'] == options['binary']:
                     payload.add_answer(
-                        verb=self.PROPERTIES['instance of'],
+                        verb=self.properties['instance of'],
                         object_and_type=[
-                            self.ITEMS['binary data'],
+                            self.items['binary data'],
                             'wikibase-item',
                         ]
                     )
                 elif dataset['BinaryText'] == options['text']:
                     payload.add_answer(
-                        verb=self.PROPERTIES['instance of'],
+                        verb=self.properties['instance of'],
                         object_and_type=[
-                            self.ITEMS['text data'],
+                            self.items['text data'],
                             'wikibase-item',
                         ]
                     )
@@ -321,17 +342,17 @@ class prepareWorkflow:
             if dataset.get('Proprietary'):
                 if dataset['Proprietary'] == options['Yes']:
                     payload.add_answer(
-                        verb=self.PROPERTIES['instance of'],
+                        verb=self.properties['instance of'],
                         object_and_type=[
-                            self.ITEMS['proprietary information'],
+                            self.items['proprietary information'],
                             'wikibase-item',
                         ]
                     )
                 elif dataset['Proprietary'] == options['No']:
                     payload.add_answer(
-                        verb=self.PROPERTIES['instance of'],
+                        verb=self.properties['instance of'],
                         object_and_type=[
-                            self.ITEMS['open data'],
+                            self.items['open data'],
                             'wikibase-item',
                         ]
                     )
@@ -340,15 +361,15 @@ class prepareWorkflow:
             if dataset.get('ToPublish'):
                 if dataset['ToPublish'].get(0, ['',''])[0] == options['Yes']:
                     payload.add_answer(
-                        verb=self.PROPERTIES['mandates'],
+                        verb=self.properties['mandates'],
                         object_and_type=[
-                            self.ITEMS['data publishing'],
+                            self.items['data publishing'],
                             'wikibase-item',
                         ]
                     )
                     if dataset['ToPublish'].get(1, ['',''])[0] == options['DOI']:
                         payload.add_answer(
-                            verb=self.PROPERTIES['DOI'],
+                            verb=self.properties['DOI'],
                             object_and_type=[
                                 dataset['ToPublish'][1][1],
                                 'external-id',
@@ -356,7 +377,7 @@ class prepareWorkflow:
                         )
                     if dataset['ToPublish'].get(2, ['',''])[0] == options['URL']:
                         payload.add_answer(
-                            verb=self.PROPERTIES['URL'],
+                            verb=self.properties['URL'],
                             object_and_type=[
                                 dataset['ToPublish'][2][2],
                                 'url',
@@ -368,11 +389,11 @@ class prepareWorkflow:
                 if dataset['ToArchive'][0] == options['YesText']:
                     qualifier = []
                     if dataset['ToArchive'][1]:
-                        qualifier = payload.add_qualifier(self.PROPERTIES['end time'], 'time', {"time":f"+{dataset['ToArchive'][1]}-00-00T00:00:00Z","precision":9,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"})
+                        qualifier = payload.add_qualifier(self.properties['end time'], 'time', {"time":f"+{dataset['ToArchive'][1]}-00-00T00:00:00Z","precision":9,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"})
                     payload.add_answer(
-                            verb=self.PROPERTIES['mandates'],
+                            verb=self.properties['mandates'],
                             object_and_type=[
-                                self.ITEMS['research data archiving'],
+                                self.items['research data archiving'],
                                 'wikibase-item',
                             ],
                             qualifier=qualifier
@@ -390,18 +411,24 @@ class prepareWorkflow:
 
             # Add Class
             payload.add_answer(
-                verb=self.PROPERTIES['instance of'],
+                verb=self.properties['instance of'],
                 object_and_type=[
-                    self.ITEMS['process step'],
+                    self.items['process step'],
                     'wikibase-item',
                 ]
             )
             
             # Add Input Data Sets
-            payload.add_forward_relation_single(self.PROPERTIES['input data set'], 'input')
+            payload.add_forward_relation_single(
+                relation = self.properties['input data set'],
+                relatant = 'input'
+            )
 
             # Add Output Data Sets
-            payload.add_forward_relation_single(self.PROPERTIES['output data set'], 'output')
+            payload.add_forward_relation_single(
+                relation = self.properties['output data set'],
+                relatant = 'output'
+            )
 
             # Add applied Methods
             for method in processstep.get('method', {}).values():
@@ -413,10 +440,10 @@ class prepareWorkflow:
                 # Get Qualifier
                 qualifier = []
                 for parameter in method.get('Parameter', {}).values():
-                    qualifier.extend(payload.add_qualifier(self.PROPERTIES['comment'], 'string', parameter))
+                    qualifier.extend(payload.add_qualifier(self.properties['comment'], 'string', parameter))
                 # Add to Payload
                 payload.add_answer(
-                            verb=self.PROPERTIES['uses'],
+                            verb=self.properties['uses'],
                             object_and_type=[
                                 method_item,
                                 'wikibase-item',
@@ -425,14 +452,26 @@ class prepareWorkflow:
                         )
                 
             # Add Software Environment
-            payload.add_forward_relation_single(relation = self.PROPERTIES['platform'], 
-                                                relatant = 'environmentSoftware',
-                                                qualifier = payload.add_qualifier(self.PROPERTIES['object has role'], 'wikibase-item', self.ITEMS['software']))
+            payload.add_forward_relation_single(
+                relation = self.properties['platform'], 
+                relatant = 'environmentSoftware',
+                qualifier = payload.add_qualifier(
+                    self.properties['object has role'],
+                    'wikibase-item',
+                    self.items['software']
+                )
+            )
             
             # Add Instrument Environment
-            payload.add_forward_relation_single(relation = self.PROPERTIES['platform'], 
-                                                relatant = 'environmentInstrument',
-                                                qualifier = payload.add_qualifier(self.PROPERTIES['object has role'], 'wikibase-item', self.ITEMS['research tool']))
+            payload.add_forward_relation_single(
+                relation = self.properties['platform'], 
+                relatant = 'environmentInstrument',
+                qualifier = payload.add_qualifier(
+                    self.properties['object has role'],
+                    'wikibase-item',
+                    self.items['research tool']
+                )
+            )
             
             # Add Disciplines (math and non-math)
             for discipline in processstep.get('discipline', {}).values():
@@ -440,7 +479,7 @@ class prepareWorkflow:
                 if 'msc:' in discipline.get('ID'):
                     _, id = discipline['ID'].split(':')
                     payload.add_answer(
-                        verb=self.PROPERTIES['MSC ID'],
+                        verb=self.properties['MSC ID'],
                         object_and_type=[
                             id,
                             'external-id',
@@ -451,7 +490,7 @@ class prepareWorkflow:
                     discipline_item = payload.get_item_key(discipline, 'object')
                     # Add to Payload
                     payload.add_answer(
-                        verb=self.PROPERTIES['field of work'],
+                        verb=self.properties['field of work'],
                         object_and_type=[
                             discipline_item,
                             'wikibase-item',
@@ -473,12 +512,12 @@ class prepareWorkflow:
                 if publication.get('entrytype'):
 
                     if publication['entrytype'] == 'scholarly article':
-                        pclass = self.ITEMS['scholarly article']
+                        pclass = self.items['scholarly article']
                     else:
-                        pclass = self.ITEMS['publication']
+                        pclass = self.items['publication']
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['instance of'],
+                        verb=self.properties['instance of'],
                         object_and_type=[
                             pclass,
                             'wikibase-item',
@@ -489,7 +528,7 @@ class prepareWorkflow:
                 if publication.get('title'):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['title'],
+                        verb=self.properties['title'],
                         object_and_type=[
                             {"text": publication['title'], "language": "en"},
                             'monolingualtext',
@@ -500,7 +539,7 @@ class prepareWorkflow:
                 if publication.get('volume'):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['volume'],
+                        verb=self.properties['volume'],
                         object_and_type=[
                             publication['volume'],
                             'string',
@@ -511,7 +550,7 @@ class prepareWorkflow:
                 if publication.get('issue'):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['issue'],
+                        verb=self.properties['issue'],
                         object_and_type=[
                             publication['issue'],
                             'string',
@@ -522,7 +561,7 @@ class prepareWorkflow:
                 if publication.get('page'):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['page(s)'],
+                        verb=self.properties['page(s)'],
                         object_and_type=[
                             publication['page'],
                             'string',
@@ -533,7 +572,7 @@ class prepareWorkflow:
                 if publication.get('date'):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['publication date'],
+                        verb=self.properties['publication date'],
                         object_and_type=[
                             {"time":f"+{publication['date']}T00:00:00Z","precision":11,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"},
                             'time',
@@ -544,7 +583,7 @@ class prepareWorkflow:
                 if publication.get('reference', {}).get(0):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['DOI'],
+                        verb=self.properties['DOI'],
                         object_and_type=[
                             publication['reference'][0][1],
                             'external-id',
@@ -552,11 +591,26 @@ class prepareWorkflow:
                     )
                 
                 # Add the Language of the Publication
-                payload.add_forward_relation_single(self.PROPERTIES['language of work or name'], 'language')
+                payload.add_forward_relation_single(
+                    relation = self.properties['language of work or name'],
+                    relatant = 'language'
+                )
+
                 # Add the Journal of the Publication
-                payload.add_forward_relation_single(self.PROPERTIES['published in'], 'journal')
+                payload.add_forward_relation_single(
+                    relation = self.properties['published in'],
+                    relatant = 'journal'
+                )
+
                 # Add the Authors of the Publication
-                payload.add_forward_relation_single(self.PROPERTIES['author'], 'author', self.PROPERTIES['author name string'], 'Name')
+                payload.add_forward_relation_single(
+                    relation = self.properties['author'],
+                    relatant = 'author',
+                    alterantive = {
+                        'relation': self.properties['author name string'], 
+                        'relatant': 'Name'
+                    }
+                )
         
         # Add Interdisciplinary Workflow Information
         workflow = {'ID': 'not found', 'Name': title, 'Description': data.get('general', {}).get('objective')}
@@ -566,9 +620,9 @@ class prepareWorkflow:
 
         # Add Class
         payload.add_answer(
-            verb=self.PROPERTIES['instance of'],
+            verb=self.properties['instance of'],
             object_and_type=[
-                self.ITEMS['research workflow'],
+                self.items['research workflow'],
                 'wikibase-item',
             ]
         )
@@ -576,7 +630,7 @@ class prepareWorkflow:
         # Procedure Description to Workflow
         if data.get('general', {}).get('procedure'):
             payload.add_answer(
-                verb=self.PROPERTIES['description'],
+                verb=self.properties['description'],
                 object_and_type=[
                     data['general']['procedure'],
                     'string',
@@ -588,11 +642,11 @@ class prepareWorkflow:
             if data.get('reproducibility', {}).get(key) == options['Yes']:
                 qualifier = []
                 if data['reproducibility'].get(f'{key}condition'):
-                    qualifier.extend(payload.add_qualifier(self.PROPERTIES['comment'], 'string', data['reproducibility'][f'{key}condition']))
+                    qualifier.extend(payload.add_qualifier(self.properties['comment'], 'string', data['reproducibility'][f'{key}condition']))
                 payload.add_answer(
-                    verb=self.PROPERTIES['instance of'],
+                    verb=self.properties['instance of'],
                     object_and_type=[
-                        self.ITEMS[value],
+                        self.items[value],
                         'wikibase-item',
                     ],
                     qualifier=qualifier
@@ -602,11 +656,11 @@ class prepareWorkflow:
         if data.get('reproducibility', {}).get('transferability'):
             qualifier = []
             for value in data['reproducibility']['transferability'].values():
-                qualifier.extend(payload.add_qualifier(self.PROPERTIES['comment'], 'string', value))
+                qualifier.extend(payload.add_qualifier(self.properties['comment'], 'string', value))
             payload.add_answer(
-                verb=self.PROPERTIES['instance of'],
+                verb=self.properties['instance of'],
                 object_and_type=[
-                    self.ITEMS['transferable research workflow'],
+                    self.items['transferable research workflow'],
                     'wikibase-item',
                 ],
                 qualifier=qualifier
@@ -621,9 +675,9 @@ class prepareWorkflow:
                 # Add Statement with Qualifier
                 qualifier = []
                 for task in data['model'].get('task', {}).values():
-                    qualifier.extend(payload.add_qualifier(self.PROPERTIES['used by'], 'wikibase-item', payload.get_item_key(task, 'object')))
+                    qualifier.extend(payload.add_qualifier(self.properties['used by'], 'wikibase-item', payload.get_item_key(task, 'object')))
                 payload.add_answer(
-                    verb=self.PROPERTIES['uses'],
+                    verb=self.properties['uses'],
                     object_and_type=[
                         model_item,
                         'wikibase-item',
@@ -641,13 +695,13 @@ class prepareWorkflow:
             # Add Statement with Qualifier
             qualifier = []
             for parameter in value.get('Parameter', {}).values():
-                qualifier.extend(payload.add_qualifier(self.PROPERTIES['comment'], 'string', parameter))
+                qualifier.extend(payload.add_qualifier(self.properties['comment'], 'string', parameter))
             for software in value.get('software', {}).values():
-                qualifier.extend(payload.add_qualifier(self.PROPERTIES['implemented by'], payload.get_item_key(software, 'object')))
+                qualifier.extend(payload.add_qualifier(self.properties['implemented by'], payload.get_item_key(software, 'object')))
             for instrument in value.get('instrument', {}).values():
-                qualifier.extend(payload.add_qualifier(self.PROPERTIES['implemented by'], payload.get_item_key(instrument, 'object')))
+                qualifier.extend(payload.add_qualifier(self.properties['implemented by'], payload.get_item_key(instrument, 'object')))
             payload.add_answer(
-                verb=self.PROPERTIES['uses'],
+                verb=self.properties['uses'],
                 object_and_type=[
                     method_item,
                     'wikibase-item',
@@ -668,11 +722,11 @@ class prepareWorkflow:
                 for software in hardware.get('software', {}).values():
                     if (software.get('ID'), software.get('Name'), software.get('Description')) == (value['ID'], value['Name'], value['Description']):
                         hardware_item = payload.get_item_key(hardware, 'object')
-                        qualifier.extend(payload.add_qualifier(self.PROPERTIES['platform'], 'wikibase-item', hardware_item))
+                        qualifier.extend(payload.add_qualifier(self.properties['platform'], 'wikibase-item', hardware_item))
             if value.get('Version'):
-                qualifier = payload.add_qualifier(self.PROPERTIES['software version identifier'], 'string', value['Version'])
+                qualifier = payload.add_qualifier(self.properties['software version identifier'], 'string', value['Version'])
             payload.add_answer(
-                verb=self.PROPERTIES['uses'],
+                verb=self.properties['uses'],
                 object_and_type=[
                     software_item,
                     'wikibase-item',
@@ -690,9 +744,9 @@ class prepareWorkflow:
             # Add Satement with Qualifier
             qualifier = []
             for compiler in value.get('compiler', {}).values():
-                qualifier.extend(payload.add_qualifier(self.PROPERTIES['uses'], 'wikibase-item', payload.get_item_key(compiler, 'object')))
+                qualifier.extend(payload.add_qualifier(self.properties['uses'], 'wikibase-item', payload.get_item_key(compiler, 'object')))
             payload.add_answer(
-                verb=self.PROPERTIES['uses'],
+                verb=self.properties['uses'],
                 object_and_type=[
                     hardware_item,
                     'wikibase-item',
@@ -710,15 +764,15 @@ class prepareWorkflow:
             # Add Statement with Qualifer
             qualifier = []
             if value.get('Version'):
-                qualifier.extend(payload.add_qualifier(self.PROPERTIES['edition number'], 'string', value['Version'])) 
+                qualifier.extend(payload.add_qualifier(self.properties['edition number'], 'string', value['Version'])) 
             if value.get('SerialNumber'):
-                qualifier.extend(payload.add_qualifier(self.PROPERTIES['serial number'], 'string', value['SerialNumber'])) 
+                qualifier.extend(payload.add_qualifier(self.properties['serial number'], 'string', value['SerialNumber'])) 
             for location in value.get('location', {}).values():
-                qualifier.extend(payload.add_qualifier(self.PROPERTIES['location'], 'wikibase-item', payload.get_item_key(location, 'object'))) 
+                qualifier.extend(payload.add_qualifier(self.properties['location'], 'wikibase-item', payload.get_item_key(location, 'object'))) 
             for software in value.get('software', {}).values():
-                qualifier.extend(payload.add_qualifier(self.PROPERTIES['uses'], 'wikibase-item', payload.get_item_key(software, 'object'))) 
+                qualifier.extend(payload.add_qualifier(self.properties['uses'], 'wikibase-item', payload.get_item_key(software, 'object'))) 
             payload.add_answer(
-                verb=self.PROPERTIES['uses'],
+                verb=self.properties['uses'],
                 object_and_type=[
                     instrument_item,
                     'wikibase-item',
@@ -735,7 +789,7 @@ class prepareWorkflow:
             dataset_item = payload.get_item_key(value, 'object')
             # Add Statement
             payload.add_answer(
-                verb=self.PROPERTIES['uses'],
+                verb=self.properties['uses'],
                 object_and_type=[
                     dataset_item,
                     'wikibase-item',
@@ -752,9 +806,9 @@ class prepareWorkflow:
             # Add Statement with Qualifier
             qualifier = []
             for parameter in value.get('parameter', {}).values():
-                qualifier.extend(payload.add_qualifier(self.PROPERTIES['comment'], 'string', parameter)) 
+                qualifier.extend(payload.add_qualifier(self.properties['comment'], 'string', parameter)) 
             payload.add_answer(
-                verb=self.PROPERTIES['uses'],
+                verb=self.properties['uses'],
                 object_and_type=[
                     processstep_item,
                     'wikibase-item',
@@ -771,7 +825,7 @@ class prepareWorkflow:
             publication_item = payload.get_item_key(value, 'object')
             # Add Statement
             payload.add_answer(
-                verb=self.PROPERTIES['cites work'],
+                verb=self.properties['cites work'],
                 object_and_type=[
                     publication_item,
                     'wikibase-item',
@@ -782,7 +836,7 @@ class prepareWorkflow:
         payload.add_item_payload()
 
         # If Relations are added, check if they exist
-        if any(key.startswith('RELATION') for key in payload.get_dictionary('dictionary')):
+        if any(key.startswith('RELATION') for key in payload.get_dictionary()):
 
             # Generate SPARQL Check Query
             query = payload.build_relation_check_query()
@@ -793,4 +847,4 @@ class prepareWorkflow:
             # Add Check Results
             payload.add_check_results(check)
             
-        return payload.get_dictionary('dictionary')
+        return payload.get_dictionary()

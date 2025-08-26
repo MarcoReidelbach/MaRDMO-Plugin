@@ -13,8 +13,8 @@ class prepareModel:
     def __init__(self):
 
         self.mathmoddb = get_mathmoddb()
-        self.ITEMS = get_items()
-        self.PROPERTIES = get_properties()
+        self.items = get_items()
+        self.properties = get_properties()
 
     def preview(self, answers):
         '''Function to establish relations between Model Documentation Data'''
@@ -57,7 +57,7 @@ class prepareModel:
 
         items = unique_items(data)
         
-        payload = GeneratePayload(url, items, get_Relations, get_DATA_PROPERTIES)
+        payload = GeneratePayload(url, items, get_Relations(), get_DATA_PROPERTIES)
         
         # Add / Retrieve Components of Model Item
         payload.process_items()
@@ -73,27 +73,27 @@ class prepareModel:
 
             # Add Class
             payload.add_answer(
-                verb=self.PROPERTIES['instance of'],
+                verb=self.properties['instance of'],
                 object_and_type=[
-                    self.ITEMS['academic discipline'],
+                    self.items['academic discipline'],
                     'wikibase-item',
                 ]
             )
 
             # Add Community
             payload.add_answer(
-                verb=self.PROPERTIES['community'],
+                verb=self.properties['community'],
                 object_and_type=[
-                    self.ITEMS['MathModDB'],
+                    self.items['MathModDB'],
                     'wikibase-item',
                 ]
             )
             
             # Add MaRDI Research Field Profile
             payload.add_answer(
-                verb=self.PROPERTIES['MaRDI profile type'],
+                verb=self.properties['MaRDI profile type'],
                 object_and_type=[
-                    self.ITEMS['MaRDI research field profile'],
+                    self.items['MaRDI research field profile'],
                     'wikibase-item',
                 ]
             )
@@ -103,7 +103,7 @@ class prepareModel:
                     
             # Add Problem Relations (Backward)
             payload.add_backward_relation(data      = data.get('problem', {}).values(),
-                                          relation  = self.PROPERTIES['contains'], 
+                                          relation  = self.properties['contains'], 
                                           relatants = 'RFRelatant')
                             
             # Add Intraclass Relations (For-/Backward)
@@ -121,27 +121,27 @@ class prepareModel:
 
             # Add Class
             payload.add_answer(
-                verb=self.PROPERTIES['instance of'],
+                verb=self.properties['instance of'],
                 object_and_type=[
-                    self.ITEMS['research problem'],
+                    self.items['research problem'],
                     'wikibase-item',
                 ]
             )
 
             # Add Community
             payload.add_answer(
-                verb=self.PROPERTIES['community'],
+                verb=self.properties['community'],
                 object_and_type=[
-                    self.ITEMS['MathModDB'],
+                    self.items['MathModDB'],
                     'wikibase-item',
                 ]
             )
             
             # Add MaRDI Research Field Profile
             payload.add_answer(
-                verb=self.PROPERTIES['MaRDI profile type'],
+                verb=self.properties['MaRDI profile type'],
                 object_and_type=[
-                    self.ITEMS['MaRDI research problem profile'],
+                    self.items['MaRDI research problem profile'],
                     'wikibase-item',
                 ]
             )
@@ -151,7 +151,7 @@ class prepareModel:
 
             # Add Model Relations (Backward)
             payload.add_backward_relation(data      = data.get('model', {}).values(), 
-                                          relation  = self.PROPERTIES['modelled by'], 
+                                          relation  = self.properties['modelled by'], 
                                           relatants = 'RPRelatant')
 
             # Add Intraclass Relations (For-/Backward)
@@ -169,27 +169,27 @@ class prepareModel:
 
             # Add Class
             payload.add_answer(
-                verb=self.PROPERTIES['instance of'],
+                verb=self.properties['instance of'],
                 object_and_type=[
-                    self.ITEMS['mathematical model'],
+                    self.items['mathematical model'],
                     'wikibase-item',
                 ]
             )
 
             # Add Community
             payload.add_answer(
-                verb=self.PROPERTIES['community'],
+                verb=self.properties['community'],
                 object_and_type=[
-                    self.ITEMS['MathModDB'],
+                    self.items['MathModDB'],
                     'wikibase-item',
                 ]
             )
             
             # Add MaRDI Research Field Profile
             payload.add_answer(
-                verb=self.PROPERTIES['MaRDI profile type'],
+                verb=self.properties['MaRDI profile type'],
                 object_and_type=[
-                    self.ITEMS['MaRDI model profile'],
+                    self.items['MaRDI model profile'],
                     'wikibase-item',
                 ]
             )
@@ -204,11 +204,16 @@ class prepareModel:
             payload.add_forward_relation_multiple('MM2MF', 'MFRelatant')
     
             # Add related Computational Tasks
-            payload.add_forward_relation_single(self.PROPERTIES['used by'], 'TRelatant')
+            payload.add_forward_relation_single(
+                relation = self.properties['used by'], 
+                relatant = 'TRelatant'
+            )
             
             # Add Intraclass Relations (For-/Backward)
-            payload.add_intra_class_relation(relation = 'IntraClassRelation',
-                                             relatant = 'IntraClassElement')
+            payload.add_intra_class_relation(
+                relation = 'IntraClassRelation',
+                relatant = 'IntraClassElement'
+            )
             
         for task in data.get('task', {}).values():
 
@@ -221,27 +226,27 @@ class prepareModel:
 
             # Add Class
             payload.add_answer(
-                verb=self.PROPERTIES['instance of'],
+                verb=self.properties['instance of'],
                 object_and_type=[
-                    self.ITEMS['computational task'],
+                    self.items['computational task'],
                     'wikibase-item',
                 ]
             )
 
             # Add Community
             payload.add_answer(
-                verb=self.PROPERTIES['community'],
+                verb=self.properties['community'],
                 object_and_type=[
-                    self.ITEMS['MathModDB'],
+                    self.items['MathModDB'],
                     'wikibase-item',
                 ]
             )
             
             # Add MaRDI Research Field Profile
             payload.add_answer(
-                verb=self.PROPERTIES['MaRDI profile type'],
+                verb=self.properties['MaRDI profile type'],
                 object_and_type=[
-                    self.ITEMS['MaRDI task profile'],
+                    self.items['MaRDI task profile'],
                     'wikibase-item',
                 ]
             )
@@ -273,27 +278,27 @@ class prepareModel:
 
             # Add Class
             payload.add_answer(
-                verb=self.PROPERTIES['instance of'],
+                verb=self.properties['instance of'],
                 object_and_type=[
-                    self.ITEMS['mathematical expression'],
+                    self.items['mathematical expression'],
                     'wikibase-item',
                 ]
             )
 
             # Add Community
             payload.add_answer(
-                verb=self.PROPERTIES['community'],
+                verb=self.properties['community'],
                 object_and_type=[
-                    self.ITEMS['MathModDB'],
+                    self.items['MathModDB'],
                     'wikibase-item',
                 ]
             )
             
             # Add MaRDI Research Field Profile
             payload.add_answer(
-                verb=self.PROPERTIES['MaRDI profile type'],
+                verb=self.properties['MaRDI profile type'],
                 object_and_type=[
-                    self.ITEMS['MaRDI formula profile'],
+                    self.items['MaRDI formula profile'],
                     'wikibase-item',
                 ]
             )
@@ -328,15 +333,15 @@ class prepareModel:
             
             # Get Class of Quantity
             if quantity.get('QorQK') == self.mathmoddb['Quantity']:
-                qclass = self.ITEMS['quantity']
+                qclass = self.items['quantity']
                 qtype = 'quantity'
             elif quantity.get('QorQK') == self.mathmoddb['QuantityKind']:
-                qclass = self.ITEMS['kind of quantity']
+                qclass = self.items['kind of quantity']
                 qtype = 'quantity kind'
 
             # Add Class
             payload.add_answer(
-                verb=self.PROPERTIES['instance of'],
+                verb=self.properties['instance of'],
                 object_and_type=[
                     qclass,
                     'wikibase-item',
@@ -345,18 +350,18 @@ class prepareModel:
 
             # Add Community
             payload.add_answer(
-                verb=self.PROPERTIES['community'],
+                verb=self.properties['community'],
                 object_and_type=[
-                    self.ITEMS['MathModDB'],
+                    self.items['MathModDB'],
                     'wikibase-item',
                 ]
             )
             
             # Add MaRDI Research Field Profile
             payload.add_answer(
-                verb=self.PROPERTIES['MaRDI profile type'],
+                verb=self.properties['MaRDI profile type'],
                 object_and_type=[
-                    self.ITEMS['MaRDI quantity profile'],
+                    self.items['MaRDI quantity profile'],
                     'wikibase-item',
                 ]
             )
@@ -370,7 +375,7 @@ class prepareModel:
             # Add QUDT ID for Quantity Kind
             if quantity.get('reference') and qtype == 'quantity kind':
                 payload.add_answer(
-                    verb=self.PROPERTIES['QUDT quantity kind ID'],
+                    verb=self.properties['QUDT quantity kind ID'],
                     object_and_type=[
                         quantity['reference'][0][1],
                         'external-id',
@@ -414,12 +419,12 @@ class prepareModel:
                 if publication.get('entrytype'):
 
                     if publication['entrytype'] == 'scholarly article':
-                        pclass = self.ITEMS['scholarly article']
+                        pclass = self.items['scholarly article']
                     else:
-                        pclass = self.ITEMS['publication']
+                        pclass = self.items['publication']
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['instance of'],
+                        verb=self.properties['instance of'],
                         object_and_type=[
                             pclass,
                             'wikibase-item',
@@ -430,7 +435,7 @@ class prepareModel:
                 if publication.get('title'):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['title'],
+                        verb=self.properties['title'],
                         object_and_type=[
                             {"text": publication['title'], "language": "en"},
                             'monolingualtext',
@@ -441,7 +446,7 @@ class prepareModel:
                 if publication.get('volume'):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['volume'],
+                        verb=self.properties['volume'],
                         object_and_type=[
                             publication['volume'],
                             'string',
@@ -452,7 +457,7 @@ class prepareModel:
                 if publication.get('issue'):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['issue'],
+                        verb=self.properties['issue'],
                         object_and_type=[
                             publication['issue'],
                             'string',
@@ -463,7 +468,7 @@ class prepareModel:
                 if publication.get('page'):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['page(s)'],
+                        verb=self.properties['page(s)'],
                         object_and_type=[
                             publication['page'],
                             'string',
@@ -474,7 +479,7 @@ class prepareModel:
                 if publication.get('date'):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['publication date'],
+                        verb=self.properties['publication date'],
                         object_and_type=[
                             {"time":f"+{publication['date']}T00:00:00Z","precision":11,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"},
                             'time',
@@ -485,7 +490,7 @@ class prepareModel:
                 if publication.get('reference', {}).get(0):
 
                     payload.add_answer(
-                        verb=self.PROPERTIES['DOI'],
+                        verb=self.properties['DOI'],
                         object_and_type=[
                             publication['reference'][0][1],
                             'external-id',
@@ -493,17 +498,31 @@ class prepareModel:
                     )
                 
                 # Add the Language of the Publication
-                payload.add_forward_relation_single(self.PROPERTIES['language of work or name'], 'language')
+                payload.add_forward_relation_single(
+                    relation = self.properties['language of work or name'],
+                    relatant = 'language'
+                )
+                
                 # Add the Journal of the Publication
-                payload.add_forward_relation_single(self.PROPERTIES['published in'], 'journal')
+                payload.add_forward_relation_single(
+                    relation = self.properties['published in'], 
+                    relatant = 'journal'
+                )
                 # Add the Authors of the Publication
-                payload.add_forward_relation_single(self.PROPERTIES['author'], 'author', self.PROPERTIES['author name string'], 'Name')
+                payload.add_forward_relation_single(
+                    relation = self.properties['author'], 
+                    relatant = 'author', 
+                    alternative = {
+                        'relation': self.properties['author name string'], 
+                        'relatant': 'Name'
+                    }
+                )
 
                 # Add the Profile Type
                 payload.add_answer(
-                        verb=self.PROPERTIES['MaRDI profile type'],
+                        verb=self.properties['MaRDI profile type'],
                         object_and_type=[
-                            self.ITEMS['MaRDI publication profile'],
+                            self.items['MaRDI publication profile'],
                             'wikibase-item',
                         ]
                     )
@@ -515,7 +534,7 @@ class prepareModel:
         payload.add_item_payload()  
         
         # If Relations are added, check if they exist
-        if any(key.startswith('RELATION') for key in payload.get_dictionary('dictionary')):
+        if any(key.startswith('RELATION') for key in payload.get_dictionary()):
 
             # Generate SPARQL Check Query
             query = payload.build_relation_check_query()
@@ -526,4 +545,4 @@ class prepareModel:
             # Add Check Results
             payload.add_check_results(check)
             
-        return payload.get_dictionary('dictionary')
+        return payload.get_dictionary()
