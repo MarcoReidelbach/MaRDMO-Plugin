@@ -233,7 +233,7 @@ class GeneratePayload:
             'value': object_and_type[0]
         }
         # Add Relation
-        if self.state.dictionary[self.state.subject_item]['id']:
+        if self.state.dictionary[subject]['id']:
             self._add_relation(
                 item = subject,
                 statement = statement,

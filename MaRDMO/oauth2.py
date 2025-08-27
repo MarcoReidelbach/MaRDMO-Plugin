@@ -92,7 +92,11 @@ class OauthProviderMixin:
                     continue
 
                 payload = jsons[key].get("payload")
+                url = jsons[key].get("url")
+
                 if re.search(r"Item\d{10}", json.dumps(payload)):
+                    continue
+                if re.search(r"Item\d{10}", json.dumps(url)):
                     continue
 
                 try:
@@ -163,102 +167,6 @@ class OauthProviderMixin:
 
         # No fix possible → just return unchanged jsons
         return jsons
-
-
-#    def perform_post(self, request, access_token, jsons=None):
-#        '''Perform the actual Post'''
-#        init = copy.deepcopy(jsons)
-#        keys = list(jsons.keys())
-#        while keys:
-#            for key in list(jsons.keys()):
-#                # Only consider untouched Data
-#                if key not in keys:
-#                    continue
-#                # Only consider Data without Placeholders
-#                payload = jsons[key].get("payload")
-#                if re.search(r"Item\d{10}", json.dumps(payload)):
-#                    continue
-#                # Only consider Data without ID
-#                if not jsons[key]['id']:
-#                    # Handle Relation Data
-#                    if key.startswith('RELATION'):
-#                        if jsons[key]['exists'] == 'true':
-#                            continue
-#                        # Post Data
-#                        response = requests.post(
-#                            jsons[key]['url'],
-#                            json=jsons[key]['payload'],
-#                            headers=self.get_authorization_headers(access_token),
-#                            timeout=30
-#                        )
-#                        try:
-#                            # Update Placeholders
-#                            response.raise_for_status()
-#                            jsons[key]['id'] = response.json()['id']
-#                            jsons = replace_in_dict(jsons, key, response.json()['id'])
-#                        except requests.HTTPError:
-#                            logger.warning(
-#                                'post error: %s (%s)',
-#                                response.content,
-#                                response.status_code
-#                            )
-#                            return self.render_error(
-#                                request,
-#                                _('Something went wrong'),
-#                                _('Could not complete the POST request.')
-#                            )
-#                    else:
-#                        # Handle Item Data
-#                        response = requests.post(
-#                            jsons[key]['url'],
-#                            json=jsons[key]['payload'],
-#                            headers=self.get_authorization_headers(access_token),
-#                            timeout=30
-#                        )
-#                        try:
-#                            # Update Placeholders
-#                            response.raise_for_status()
-#                            jsons[key]['id'] = response.json()['id']
-#                            jsons = replace_in_dict(jsons, key, response.json()['id'])
-#                        except requests.HTTPError:
-#                            if response.status_code == 422:
-#                                error_json = response.json()
-#                                if error_json.get("code") == "data-policy-violation":
-#                                    violation = error_json.get("context", {}).get("violation")
-#                                    if violation == 'item-label-description-duplicate':
-#                                        conflict_id = (
-#                                            error_json["context"]
-#                                            .get("violation_context", {})
-#                                            .get("conflicting_item_id")
-#                                        )
-#                                        if conflict_id:
-#                                            jsons[key]['id'] = conflict_id
-#                                            jsons = replace_in_dict(jsons, key, conflict_id)
-#                            else:
-#                                logger.warning('post error: %s (%s)',
-#                                               response.content,
-#                                               response.status_code
-#                                )
-#                                return self.render_error(
-#                                    request,
-#                                    _('Something went wrong'),
-#                                    _('Could not complete the POST request.')
-#                                )
-#                else:
-#                    # Update Placeholders
-#                    jsons = replace_in_dict(
-#                        jsons,
-#                        key,
-#                        jsons[key]['id']
-#                    )
-#                keys.remove(key)
-#
-#        final = jsons
-#        return self.post_success(
-#            request,
-#            init,
-#            final
-#        )
 
     def render_error(self, request, title, message):
         '''Render Error'''
