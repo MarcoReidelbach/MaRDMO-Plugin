@@ -612,13 +612,11 @@
     
 <h1 id="Publication"> Publications </h1>
 {% for values in answers.publication.values %}
-
     {% if values.Name %}
         <h2 id="P{{ forloop.counter }}"> P{{ forloop.counter }}: {{ values.Name }} </h2>
     {% else %}
         <h2 id="P{{ forloop.counter }}"> P{{ forloop.counter }}: <strong style="color:red;">MISSING PUBLICATION NAME</strong> </h2>
     {% endif %}
-
     <p> {% if 'not found' in values.ID %} 
             <b>ID</b>: - 
         {% elif 'mardi' in values.ID %} 
@@ -640,7 +638,6 @@
             {% endif %}
         {% endfor %}
     </p>
-
     {% for values in values.RelationP.values %}
         {% if forloop.counter == 1 %}
             <h3 id="RelationsToEntitiesOfTheMathematicalModels"> Relations to Entities of the Mathematical Models </h3>

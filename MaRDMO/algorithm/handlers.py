@@ -148,7 +148,7 @@ def ProblemInformation(sender, **kwargs):
                     item_type = "Problem",
                     index = (0, instance.set_index)
                 )
-                print(instance.external_id)
+ 
                 # Get source and ID of Item
                 source, Id = instance.external_id.split(':')    
                 

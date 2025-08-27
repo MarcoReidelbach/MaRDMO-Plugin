@@ -371,18 +371,19 @@ def clean_mathml(mathml_str):
     def clean_tag(match):
         '''Clean Tag'''
         tag = match.group(1)
+
         # Keep xmlns on <math> tag
         if tag.startswith('math'):
             xmlns_match = re.search(r'xmlns="[^"]+"', tag)
             if xmlns_match:
                 return f"<math {xmlns_match.group(0)}>"
             return "<math>"
-        else:
-            # Just keep the tag name, strip attributes
-            tagname_match = re.match(r'^/?\w+', tag)
-            if tagname_match:
-                return f"<{tagname_match.group(0)}>"
-            return f"<{tag}>"
+
+        # Just keep the tag name, strip attributes
+        tagname_match = re.match(r'^/?\w+', tag)
+        if tagname_match:
+            return f"<{tagname_match.group(0)}>"
+        return f"<{tag}>"
 
     # Apply substitution on all opening tags
     cleaned = re.sub(r'<([^>\s]+(?:\s[^>]*)?)>', clean_tag, mathml_str)

@@ -23,6 +23,10 @@ class PublicationRetriever:
                 if answers['publication'][key]['workflow'] != options['Yes']:
                     continue
 
+            # If ID is missing (not answered or deleted)
+            if not answers['publication'][key].get('ID'):
+                continue
+
             #If User selected Publication from Wikidata...
             if answers['publication'][key]['ID'].startswith('wikidata'):
                 #...use the DOI... 
@@ -56,7 +60,7 @@ class PublicationRetriever:
                 #...but provided a DOI.
                 if answers['publication'][key].get('reference', {}).get(0, ['',''])[1]:
                     #Get the Citation of several ressource.
-                    data = get_citation(answers['publication'][key]['reference'][0][1])
+                    data = get_citation(answers['publication'][key]['reference'][0][1].upper())
                     #If Publication available at MaRDI Portal or Wikidata...
                     if data.get('mardi') or data.get('wikidata'):
                         DATA = data['mardi'] or data['wikidata']
@@ -138,6 +142,9 @@ class PublicationRetriever:
 
         # Go through all Publications
         for key in answers['publication']:
+            # If ID is missing (not answered or deleted)
+            if not answers['publication'][key].get('ID'):
+                continue
             # If User selected Publication from MaRDI Portal or Wikidata...
             if answers['publication'][key]['ID'].startswith('mardi') or answers['publication'][key]['ID'].startswith('wikidata'):
                 #...check if ressource returned a DOI and...

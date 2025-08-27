@@ -56,7 +56,7 @@ def query_api(api_url, search_term, timeout=5):
                 'limit': 10,
                 'search': search_term
             },
-            headers={'User-Agent': 'MaRDMO_0.1 (https://zib.de; reidelbach@zib.de)'},
+            headers={'User-Agent': 'MaRDMO (https://zib.de; reidelbach@zib.de)'},
             timeout=timeout
         )
         response.raise_for_status()  # Raise an error on bad HTTP status codes
@@ -81,6 +81,7 @@ def query_sparql(query, sparql_endpoint):
             sparql_endpoint,
             data=query,
             headers={
+                "User-Agent": "MaRDMO (https://zib.de; reidelbach@zib.de)",
                 "Content-Type": "application/sparql-query",
                 "Accept": "application/sparql-results+json"
             },

@@ -1,8 +1,9 @@
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 
 from rdmo.projects.models import Value
 from rdmo.options.models import Option
+from rdmo.domain.models import Attribute
 
 from ..config import BASE_URI, endpoint
 from ..getters import get_items, get_mathmoddb, get_mathalgodb, get_properties, get_questions
@@ -10,7 +11,7 @@ from ..helpers import value_editor
 from ..queries import query_sparql
 from ..adders import add_basics, add_references, add_relations_flexible
 
-from .constants import INDEX_COUNTERS, PROPS, RELATANT_URIS, RELATION_URIS
+from .constants import INDEX_COUNTERS, PROPS, RELATANT_URIS, RELATION_URIS, PUBLICATIONS, LANGUAGES, JOURNALS, AUTHORS
 from .utils import generate_label
 from .sparql import queryPublication
 from .models import Publication
@@ -200,3 +201,22 @@ def PInformation(sender, **kwargs):
                                 )
                                 INDEX_COUNTERS[value.bsclass] += 1
     return
+
+@receiver(post_delete, sender=Value)
+def publication_delete(sender, **kwargs):
+    instance = kwargs.get("instance", None)
+    # Get Questions of Publication Section
+    questions = get_questions('publication')
+    # Check if Publication is concerned
+    if instance and instance.attribute.uri == f'{BASE_URI}{questions["Publication"]["uri"]}':
+        # Get Index of Deleted Set
+        set_index = instance.set_index
+        # Loop through "hidden" Data and delet it
+        for key in PUBLICATIONS | LANGUAGES | JOURNALS | AUTHORS:
+            Value.objects.filter(
+                attribute_id = Attribute.objects.get(
+                    uri = f'{BASE_URI}{questions["Publication"][key]["uri"]}'
+                ),
+                set_index = set_index
+            ).delete()
+        
