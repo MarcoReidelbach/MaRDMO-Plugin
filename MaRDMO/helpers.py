@@ -79,7 +79,7 @@ def value_editor(project, uri, info):
         defaults['text'] = info['text']
 
     if info.get('external_id') is not None:
-        defaults['external_id'] = ['external_id']
+        defaults['external_id'] = info['external_id']
 
     if info.get('option') is not None:
         defaults['option'] = Option.objects.get(uri=info['option'])
@@ -118,7 +118,9 @@ def merge_dicts_with_unique_keys(answers, keys):
 
 def check_list(list_var):
     '''Check if List is List'''
-    if not isinstance(list_var, list):
+    if list_var is None:
+        list_var = []
+    elif not isinstance(list_var, list):
         list_var = [list_var]
     return list_var
 
@@ -134,96 +136,96 @@ def label_index_map(data, data_type):
         )
     return label_to_index_maps
 
-def entity_relations(data, fromIDX='', toIDX=[], relationOld='', entityOld='', entityNew='',
-                    enc=[], forder=False, torder=False):
-    '''Process Entity Relations'''
-    toIDX = check_list(toIDX)
-    enc = check_list(enc)
-    label_to_index_maps = label_index_map(data, toIDX)
+def resolve_target(name, id_, entity_enc, label_map):
+    """Try to resolve name to index in label_map; fallback to id_."""
+    if name in label_map:
+        return f"{entity_enc}{label_map[name] + 1}"
+    return id_
 
-    def resolve_target(name, id_, entity_enc, label_map):
-        """Try to resolve name to index in label_map; fallback to id_."""
-        if name in label_map:
-            idx = label_map[name]
-            return f"{entity_enc}{idx + 1}"
-        return id_
 
-    for from_entry in data.get(fromIDX, {}).values():
-        entries = from_entry.get(entityOld, {})
-        for key, value in entries.items():
-            name = value.get("Name")
-            id_ = value.get("ID")
-            entity_values = from_entry.setdefault(entityNew, {})
+def build_new_value(from_entry, entity, key, resolved, order):
+    """Build the new value depending on relation and order flags."""
+    if not entity['relation']:
+        return resolved
+
+    relation_value = from_entry.get(entity['relation'], {}).get(
+        key, "MISSING RELATION TYPE"
+    )
+
+    if order['formulation']:
+        return [
+            relation_value,
+            resolved,
+            from_entry.get('formulation_number', {}).get(key),
+        ]
+    if order['task']:
+        return [
+            relation_value,
+            resolved,
+            from_entry.get('task_number', {}).get(key),
+        ]
+    if not order['formulation'] and not order['task']:
+        return [relation_value, resolved]
+
+    return resolved
+
+
+def entity_relations(data, idx, entity, order):
+    """Process Entity Relations."""
+    idx['to'] = check_list(idx.get('to'))
+    entity['encryption'] = check_list(entity['encryption'])
+    label_to_index_maps = label_index_map(data, idx['to'])
+
+    for from_entry in data.get(idx.get('from'), {}).values():
+        for key, value in from_entry.get(entity['old_name'], {}).items():
+            entity_values = from_entry.setdefault(entity['new_name'], {})
 
             resolved = None
-            for enc_entry, label_map in zip(enc, label_to_index_maps):
-                resolved = resolve_target(name, id_, enc_entry, label_map)
-                if resolved != id_:
+            for enc_entry, label_map in zip(entity['encryption'], label_to_index_maps):
+                resolved = resolve_target(
+                    name=value.get("Name"),
+                    id_=value.get("ID"),
+                    entity_enc=enc_entry,
+                    label_map=label_map,
+                )
+                if resolved != value.get("ID"):
                     break  # match found
 
-            if relationOld:
-                if from_entry.get(relationOld, {}).get(key):
-                    relation_value = from_entry[relationOld][key]
-                else:
-                    relation_value = 'MISSING RELATION TYPE'
-                if forder == False and torder == False:
-                    new_value = [
-                        relation_value,
-                        resolved
-                    ]
-                elif forder == True:
-                    new_value = [
-                        relation_value,
-                        resolved,
-                        from_entry.get('formulation_number',{}).get(key)
-                    ]
-                elif torder == True:
-                    new_value = [
-                        relation_value,
-                        resolved,
-                        from_entry.get('task_number',{}).get(key)
-                    ]
-                else:
-                    new_value = resolved
-            else:
-                new_value = resolved
+            new_value = build_new_value(from_entry, entity, key, resolved, order)
 
             if key not in entity_values.values() and entity_values.get(key) != new_value:
                 entity_values[key] = new_value
-
-    return
 
 def initialize_counter(counter):
     '''Function which initializes counter.'''
     return int(max(counter, default=-1)) + 1
 
-def mapEntity(data, fromIDX, toIDX, entityOld, entityNew, enc):
+def map_entity(data, idx, entity):
     '''Map Entities'''
-    # Ensure toIDX and enc are lists
-    toIDX = check_list(toIDX)
-    enc = check_list(enc)
+    # Ensure idx['to'] and enc are lists
+    idx['to'] = check_list(idx['to'])
+    entity['encryption'] = check_list(entity['encryption'])
 
-    # Create mappings for all toIDX lists
-    label_to_index_maps = label_index_map(data, toIDX)
+    # Create mappings for all idx['to'] lists
+    label_to_index_maps = label_index_map(data, idx['to'])
 
     # Use Template or Ressource Label
-    for from_entry in data.get(fromIDX, {}).values():
-        for outerKey, relation in from_entry.get(entityOld, {}).items():
-            for innerKey, entity in relation.items():
+    for from_entry in data.get(idx['from'], {}).values():
+        for outer_key, relation in from_entry.get(entity['old_name'], {}).items():
+            for inner_key, entity_item in relation.items():
                 match_found = False
                 # Create Dict Entry
-                outer = from_entry.setdefault(entityNew, {})
-                inner = outer.setdefault(outerKey, {})
-                for enc_entry, label_to_index in zip(enc, label_to_index_maps):
-                    if entity['Name'] in label_to_index:
-                        idx = label_to_index[entity['Name']]
+                outer = from_entry.setdefault(entity['new_name'], {})
+                inner = outer.setdefault(outer_key, {})
+                for enc_entry, label_to_index in zip(entity['encryption'], label_to_index_maps):
+                    if entity_item['Name'] in label_to_index:
+                        label_idx = label_to_index[entity_item['Name']]
                         match_found = True
-                        inner[innerKey] = f"{enc_entry}{idx+1}"
+                        inner[inner_key] = f"{enc_entry}{label_idx+1}"
                         break
 
                 if not match_found:
-                    inner[innerKey] = entity['ID']
-    return
+                    inner[inner_key] = entity_item['ID']
 
 def process_qualifier(value):
     '''Process Qualifier'''
@@ -297,12 +299,11 @@ def replace_in_dict(d, target, replacement):
     '''Replace IDs in Dict'''
     if isinstance(d, dict):
         return {k: replace_in_dict(v, target, replacement) for k, v in d.items()}
-    elif isinstance(d, list):
+    if isinstance(d, list):
         return [replace_in_dict(v, target, replacement) for v in d]
-    elif isinstance(d, str):
+    if isinstance(d, str):
         return d.replace(target, replacement)
-    else:
-        return d
+    return d
 
 def unique_items(data, title = None):
     '''Search unique Items'''
@@ -359,7 +360,7 @@ def inline_mathml(data):
             if isinstance(value, str):
                 if '<math' in value:
                     data[key] = clean_mathml(value)
-            elif isinstance(value, dict) or isinstance(value, list):
+            elif isinstance(value, (dict, list)):
                 inline_mathml(value)
     elif isinstance(data, list):
         for item in data:
@@ -375,15 +376,13 @@ def clean_mathml(mathml_str):
             xmlns_match = re.search(r'xmlns="[^"]+"', tag)
             if xmlns_match:
                 return f"<math {xmlns_match.group(0)}>"
-            else:
-                return "<math>"
+            return "<math>"
         else:
             # Just keep the tag name, strip attributes
             tagname_match = re.match(r'^/?\w+', tag)
             if tagname_match:
                 return f"<{tagname_match.group(0)}>"
-            else:
-                return f"<{tag}>"
+            return f"<{tag}>"
 
     # Apply substitution on all opening tags
     cleaned = re.sub(r'<([^>\s]+(?:\s[^>]*)?)>', clean_tag, mathml_str)

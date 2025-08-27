@@ -3,7 +3,7 @@ from .constants import PREVIEW_RELATIONS, PREVIEW_MAP_GENERAL, PREVIEW_MAP_QUANT
 
 from ..config import endpoint
 from ..getters import get_items, get_mathmoddb, get_properties
-from ..helpers import entity_relations, mapEntity, unique_items
+from ..helpers import entity_relations, map_entity, unique_items
 from ..queries import query_sparql
 from ..payload import GeneratePayload
 
@@ -23,25 +23,35 @@ class prepareModel:
         for relation in PREVIEW_RELATIONS:
             entity_relations(
                 data = answers,
-                fromIDX = relation[0],
-                toIDX = relation[1],
-                relationOld = relation[2],
-                entityOld = relation[3],
-                entityNew = relation[4],
-                enc = relation[5],
-                forder = relation[6],
-                torder = relation[7]
+                idx = {
+                    'from': relation[0],
+                    'to': relation[1]
+                },
+                entity = {
+                    'relation': relation[2],
+                    'old_name': relation[3],
+                    'new_name': relation[4],
+                    'encryption': relation[5]
+                },
+                order = {
+                    'formulation': relation[6],
+                    'task': relation[7]
+                }
             )
 
         # Prepare General Mappings
         for mapping in PREVIEW_MAP_GENERAL:
-            mapEntity(
+            map_entity(
                 data = answers, 
-                fromIDX = mapping[0], 
-                toIDX = mapping[1], 
-                entityOld = mapping[2], 
-                entityNew = mapping[3], 
-                enc = mapping[4]
+                idx = {
+                    'from': mapping[0], 
+                    'to': mapping[1]
+                }, 
+                entity = {
+                    'old_name': mapping[2], 
+                    'new_name': mapping[3], 
+                    'encryption': mapping[4]
+                }
             )
         
         # Prepare Quantity Mapping

@@ -45,3 +45,17 @@ class_prefix_map = {
         'software': 'sw',
         'publication': 'pb',
     }
+
+# Parameter for Entity relations
+PREVIEW_RELATIONS = [
+    # fromIDX, toIDX, relationOld, entityOld, entityNew, enc
+    ('algorithm', 'problem', 'A2P', 'PRelatant', 'RelationP', 'AP'),
+    ('algorithm', 'software', 'A2S', 'SRelatant', 'RelationS', 'S'),
+    ('algorithm', 'algorithm', 'IntraClassRelation', 'IntraClassElement', 'RelationA', 'A'),
+    ('problem', 'benchmark', 'P2B', 'BRelatant', 'RelationB', 'B'),
+    ('problem', 'problem', 'IntraClassRelation', 'IntraClassElement', 'RelationP', 'AP'),
+    ('software', 'benchmark', 'S2B', 'BRelatant', 'RelationB', 'B'),
+    ('publication', 'algorithm', 'P2A', 'ARelatant', 'RelationA', 'A'),
+    ('publication', 'benchmark', 'P2B', 'BRelatant', 'RelationB', 'B'),
+    ('publication', 'software', 'P2S', 'SRelatant', 'RelationS', 'S')
+]
