@@ -1,8 +1,45 @@
+'''Module containing Constants for the Model Documentation'''
+
 from ..config import BASE_URI
 from ..getters import get_items, get_mathmoddb, get_properties, get_questions
 
+# Data Properties Check
+data_properties_check = {
+    ('is_deterministic', 'is_stochastic'): '(Deterministic and Stochastic)',
+    ('is_dimensionless', 'is_dimensional'): '(Dimensionless and Dimensional)',
+    ('is_dynamic', 'is_static'): '(Dynamic and Static)',
+    ('is_linear', 'is_not_linear'): '(Linear and Not Linear)',
+    ('is_space_continuous', 'is_space_discrete'): '(Space-Continuous and Space-Discrete)',
+    ('is_time_continuous', 'is_time_discrete'): '(Time-Continuous and Time-Discrete)',
+    ('is_mathematical_constant', 'is_physical_constant'): '(Mathematical Constant and Physical Constant)',
+    ('is_mathematical_constant', 'is_physical_constant'): '(Mathematical Constant and Chemical Constant)'
+}
+
+# Data Properties per Class
+data_properties_per_class = {
+    'model': [
+        'is_linear', 'is_not_linear', 'is_dynamic', 'is_static',
+        'is_deterministic', 'is_stochastic', 'is_dimensionless', 'is_dimensional',
+        'is_time_continuous', 'is_time_discrete', 'is_space_continuous', 'is_space_discrete',
+    ],
+    'quantity': [
+        'is_chemical_constant', 'is_mathematical_constant', 'is_physical_constant',
+        'is_dynamic', 'is_static', 'is_deterministic', 'is_stochastic', 'is_dimensionless',
+        'is_dimensional', 'is_time_continuous', 'is_time_discrete', 'is_space_continuous',
+        'is_space_discrete'
+    ],
+    'formulation': [
+        'is_linear', 'is_not_linear', 'is_dynamic', 'is_static', 'is_deterministic',
+        'is_stochastic', 'is_dimensionless', 'is_dimensional', 'is_time_continuous',
+        'is_time_discrete', 'is_space_continuous', 'is_space_discrete'
+    ],
+    'task': ['is_linear', 'is_not_linear', 'is_time_continuous', 'is_time_discrete',
+             'is_space_continuous', 'is_space_discrete'
+    ]
+}
+
 # Dictionary for internal / external section names
-SECTION_MAP = {
+section_map = {
     'model': 'Mathematical Model',
     'task': 'Computational Task',
     'formulation': 'Mathematical Expression',
@@ -13,25 +50,116 @@ SECTION_MAP = {
 }
 
 # Dictionary with list of property names
-PROPS = {
-    'T2MF': ['assumes','containsFormulation','containsBoundaryCondition','containsConstraintCondition','containsCouplingCondition','containsInitialCondition','containsFinalCondition'],
-    'T2Q': ['containsInput','containsOutput','containsObjective','containsParameter','containsConstant'],
-    'Q2MF': ['defines'],
-    'RP2RF': ['containedInField'],
-    'MM2RP': ['models'],
-    'MM2T': ['usedBy'],
-    'MM2MF': ['assumes', 'containsFormulation', 'containsBoundaryCondition', 'containsConstraintCondition', 'containsCouplingCondition', 'containsInitialCondition', 'containsFinalCondition'],
-    'MF2MF': ['assumes', 'containsFormulation', 'containsBoundaryCondition', 'containsConstraintCondition', 'containsCouplingCondition', 'containsInitialCondition', 'containsFinalCondition'],
-    'Field': ["specializedBy", "specializes", "similarTo"],
-    'Problem': ["specializedBy", "specializes", "similarTo"],
-    'Model': ['specializedBy','specializes','discretizedBy','discretizes','containedInModel','containsModel','approximatedBy','approximates','linearizedBy','linearizes','similarTo'],
-    'Task': ['specializedBy','specializes','discretizedBy','discretizes','containedInTask','containsTask','approximatedBy','approximates','linearizedBy','linearizes','similarTo'],
-    'Formulation': ['specializedBy','specializes','discretizedBy','discretizes','approximatedBy','approximates','linearizedBy','linearizes','nondimensionalizedBy','nondimensionalizes','similarTo'],
-    'Quantity': ["specializedBy", "specializes", "approximatedBy", "approximates", "linearizedBy", "linearizes", "nondimensionalizedBy", "nondimensionalizes", "similarTo"],
+props = {
+    'T2MF': [
+        'assumes',
+        'contains_formulation',
+        'contains_boundary_condition',
+        'contains_constraint_condition',
+        'contains_coupling_condition',
+        'contains_initial_condition',
+        'contains_final_condition'
+    ],
+    'T2Q': [
+        'contains_input',
+        'contains_output',
+        'contains_objective',
+        'contains_parameter',
+        'contains_constant'
+    ],
+    'RP2RF': [
+        'contained_in_field'
+    ],
+    'MM2RP': [
+        'models'
+    ],
+    'MM2T': [
+        'used_by'
+    ],
+    'MM2MF': [
+        'assumes',
+        'contains_formulation',
+        'contains_boundary_condition',
+        'contains_constraint_condition',
+        'contains_coupling_condition',
+        'contains_initial_condition',
+        'contains_final_condition'
+    ],
+    'MF2MF': [
+        'assumes',
+        'contains_formulation',
+        'contains_boundary_condition',
+        'contains_constraint_condition',
+        'contains_coupling_condition',
+        'contains_initial_condition',
+        'contains_final_condition'
+    ],
+    'Field': [
+        "specialized_by",
+        "specializes",
+        "similar_to"
+    ],
+    'Problem': [
+        "specialized_by",
+        "specializes",
+        "similar_to"
+    ],
+    'Model': [
+        'specialized_by',
+        'specializes',
+        'discretized_by',
+        'discretizes',
+        'contained_in_model',
+        'contains_model',
+        'approximated_by',
+        'approximates',
+        'linearized_by',
+        'linearizes',
+        'similar_to'
+    ],
+    'Task': [
+        'specialized_by',
+        'specializes',
+        'discretized_by',
+        'discretizes',
+        'contained_in_task',
+        'contains_task',
+        'approximated_by',
+        'approximates',
+        'linearized_by',
+        'linearizes',
+        'similar_to'
+    ],
+    'Formulation': [
+        'specialized_by',
+        'specializes',
+        'discretized_by',
+        'discretizes',
+        'approximated_by',
+        'approximates',
+        'linearized_by',
+        'linearizes',
+        'nondimensionalized_by',
+        'nondimensionalizes',
+        'similar_to'
+    ],
+    'Quantity': [
+        "specialized_by",
+        "specializes",
+        "approximated_by",
+        "approximates",
+        "discretized_by",
+        "discretizes",
+        "linearized_by",
+        "linearizes",
+        "nondimensionalized_by",
+        "nondimensionalizes",
+        "similar_to"
+    ],
 }
 
 # Index counters for different qclass combinations
-INDEX_COUNTERS = {
+index_counters = {
     ("Quantity", "Quantity"): 0,
     ("QuantityKind", "QuantityKind"): 0,
     ("Quantity", "QuantityKind"): 0,
@@ -39,7 +167,7 @@ INDEX_COUNTERS = {
 }
 
 # URI mappings for quantity relations
-RELATION_URIS = {
+relation_uris = {
     ("Quantity", "Quantity"): "Q2Q",
     ("QuantityKind", "QuantityKind"): "QK2QK",
     ("Quantity", "QuantityKind"): "Q2QK",
@@ -47,7 +175,7 @@ RELATION_URIS = {
 }
 
 # URI mappings for quantity relatants
-RELATANT_URIS = {
+relatant_uris = {
     ("Quantity", "Quantity"): "QQRelatant",
     ("QuantityKind", "QuantityKind"): "QKQKRelatant",
     ("Quantity", "QuantityKind"): "QQKRelatant",
@@ -55,129 +183,351 @@ RELATANT_URIS = {
 }
 
 # DATA Properties
-def get_DATA_PROPERTIES(type):
+def get_data_properties(item_type):
+    '''Data Properties for the Model Documentation'''
     mathmoddb = get_mathmoddb()
-    ITEMS = get_items()
-    DATA_PROPERTIES = {
-            mathmoddb['isChemicalConstant']:        ITEMS.get('chemical constant'),
-            mathmoddb['isMathematicalConstant']:    ITEMS.get('mathematical constant'),
-            mathmoddb['isPhysicalConstant']:        ITEMS.get('physical constant'),
-            mathmoddb['isDeterministic']:           ITEMS.get(f'deterministic {type}'),
-            mathmoddb['isStochastic']:              ITEMS.get(f'probabilistic {type}'),
-            mathmoddb['isDimensional']:             ITEMS.get(f'dimensional {type}'),
-            mathmoddb['isDimensionless']:           ITEMS.get(f'dimensionless {type}'),
-            mathmoddb['isDynamic']:                 ITEMS.get(f'dynamic {type}'),
-            mathmoddb['isStatic']:                  ITEMS.get(f'static {type}'),
-            mathmoddb['isLinear']:                  ITEMS.get(f'linear {type}'),
-            mathmoddb['isNotLinear']:               ITEMS.get(f'nonlinear {type}'),
-            mathmoddb['isSpaceContinuous']:         ITEMS.get(f'continuous-space {type}'),
-            mathmoddb['isSpaceDiscrete']:           ITEMS.get(f'discrete-space {type}'),
-            mathmoddb['isTimeContinuous']:          ITEMS.get(f'continuous-time {type}'),
-            mathmoddb['isTimeDiscrete']:            ITEMS.get(f'discrete-time {type}')
-        }
-    return DATA_PROPERTIES
+    items = get_items()
+    data_properties = {
+        mathmoddb['is_chemical_constant']: items.get('chemical constant'),
+        mathmoddb['is_mathematical_constant']: items.get('mathematical constant'),
+        mathmoddb['is_physical_constant']: items.get('physical constant'),
+        mathmoddb['is_deterministic']: items.get(f'deterministic {item_type}'),
+        mathmoddb['is_stochastic']: items.get(f'probabilistic {item_type}'),
+        mathmoddb['is_dimensional']: items.get(f'dimensional {item_type}'),
+        mathmoddb['is_dimensionless']: items.get(f'dimensionless {item_type}'),
+        mathmoddb['is_dynamic']: items.get(f'dynamic {item_type}'),
+        mathmoddb['is_static']: items.get(f'static {item_type}'),
+        mathmoddb['is_linear']: items.get(f'linear {item_type}'),
+        mathmoddb['is_not_linear']: items.get(f'nonlinear {item_type}'),
+        mathmoddb['is_space_continuous']: items.get(f'continuous-space {item_type}'),
+        mathmoddb['is_space_discrete']: items.get(f'discrete-space {item_type}'),
+        mathmoddb['is_time_continuous']: items.get(f'continuous-time {item_type}'),
+        mathmoddb['is_time_discrete']: items.get(f'discrete-time {item_type}')
+    }
+    return data_properties
 
-# MF Relations
-def get_Relations():
+# Relations
+def get_relations():
+    '''Relations for the Model Documentation'''
     mathmoddb = get_mathmoddb()
-    ITEMS = get_items()
-    PROPERTIES = get_properties()
-    RELATIONS = {
-            # Map MathModDB Relation on Wikibase Property + Qualifier Item
-            mathmoddb['assumes']:                       [PROPERTIES['assumes']],
-            mathmoddb['containsBoundaryCondition']:     [PROPERTIES['contains'], ITEMS['boundary condition']],
-            mathmoddb['containsConstraintCondition']:   [PROPERTIES['contains'], ITEMS['constraint']],
-            mathmoddb['containsCouplingCondition']:     [PROPERTIES['contains'], ITEMS['coupling condition']],
-            mathmoddb['containsInitialCondition']:      [PROPERTIES['contains'], ITEMS['initial condition']],
-            mathmoddb['containsFinalCondition']:        [PROPERTIES['contains'], ITEMS['final condition']],
-            mathmoddb['containsInput']:                 [PROPERTIES['contains'], ITEMS['input']],
-            mathmoddb['containsConstant']:              [PROPERTIES['contains'], ITEMS['constant']],
-            mathmoddb['containsObjective']:             [PROPERTIES['contains'], ITEMS['objective function']],
-            mathmoddb['containsOutput']:                [PROPERTIES['contains'], ITEMS['output']],
-            mathmoddb['containsParameter']:             [PROPERTIES['contains'], ITEMS['parameter']],
-            mathmoddb['documents']:                     [PROPERTIES['described by source'], ITEMS['documentation']],
-            mathmoddb['invents']:                       [PROPERTIES['described by source'], ITEMS['invention']],
-            mathmoddb['studies']:                       [PROPERTIES['described by source'], ITEMS['study']],
-            mathmoddb['surveys']:                       [PROPERTIES['described by source'], ITEMS['review']],
-            mathmoddb['uses']:                          [PROPERTIES['described by source'], ITEMS['use']],
-            # Map MathModDB Relation on Wikibase Property + Direction
-            mathmoddb['specializedBy']:                 [PROPERTIES['specialized by'],         'forward'],
-            mathmoddb['specializes']:                   [PROPERTIES['specialized by'],         'backward'],
-            mathmoddb['approximatedBy']:                [PROPERTIES['approximated by'],        'forward'],
-            mathmoddb['approximates']:                  [PROPERTIES['approximated by'],        'backward'],
-            mathmoddb['discretizedBy']:                 [PROPERTIES['discretized by'],         'forward'],
-            mathmoddb['discretizes']:                   [PROPERTIES['discretized by'],         'backward'],
-            mathmoddb['linearizedBy']:                  [PROPERTIES['linearized by'],          'forward'],
-            mathmoddb['linearizes']:                    [PROPERTIES['linearized by'],          'backward'],
-            mathmoddb['nondimensionalizedBy']:          [PROPERTIES['nondimensionalized by'],  'forward'],
-            mathmoddb['nondimensionalizes']:            [PROPERTIES['nondimensionalized by'],  'backward'],
-            mathmoddb['contains']:                      [PROPERTIES['contains'],               'forward'],
-            mathmoddb['containedIn']:                   [PROPERTIES['contains'],               'backward'],
-            mathmoddb['similarTo']:                     [PROPERTIES['similar to'],             'forward']
-        }
-    return RELATIONS
-
-# Relation Map
-def get_INTRACLASS_RELATION():
-    mathmoddb = get_mathmoddb()
-    PROPERTIES = get_properties()
-    INTRACLASS_RELATION = {
-            mathmoddb['specializedBy']:         [PROPERTIES['specialized by'],         'forward'],
-            mathmoddb['specializes']:           [PROPERTIES['specialized by'],         'backward'],
-            mathmoddb['approximatedBy']:        [PROPERTIES['approximated by'],        'forward'],
-            mathmoddb['approximates']:          [PROPERTIES['approximated by'],        'backward'],
-            mathmoddb['discretizedBy']:         [PROPERTIES['discretized by'],         'forward'],
-            mathmoddb['discretizes']:           [PROPERTIES['discretized by'],         'backward'],
-            mathmoddb['linearizedBy']:          [PROPERTIES['linearized by'],          'forward'],
-            mathmoddb['linearizes']:            [PROPERTIES['linearized by'],          'backward'],
-            mathmoddb['nondimensionalizedBy']:  [PROPERTIES['nondimensionalized by'],  'forward'],
-            mathmoddb['nondimensionalizes']:    [PROPERTIES['nondimensionalized by'],  'backward'],
-            mathmoddb['contains']:              [PROPERTIES['contains'],               'forward'],
-            mathmoddb['containedIn']:           [PROPERTIES['contains'],               'backward'],
-            mathmoddb['similarTo']:             [PROPERTIES['similar to'],             'forward']
-        }
-    return INTRACLASS_RELATION
+    items = get_items()
+    properties = get_properties()
+    relations = {
+        # Map MathModDB Relation on Wikibase Property + Qualifier Item
+        mathmoddb['assumes']: [
+            properties['assumes']
+        ],
+        mathmoddb['contains_boundary_condition']: [
+            properties['contains'],
+            items['boundary condition']
+        ],
+        mathmoddb['contains_constraint_condition']: [
+            properties['contains'],
+            items['constraint']
+        ],
+        mathmoddb['contains_coupling_condition']: [
+            properties['contains'],
+            items['coupling condition']
+        ],
+        mathmoddb['contains_initial_condition']: [
+            properties['contains'],
+            items['initial condition']
+        ],
+        mathmoddb['contains_final_condition']: [
+            properties['contains'],
+            items['final condition']
+        ],
+        mathmoddb['contains_input']: [
+            properties['contains'],
+            items['input']
+        ],
+        mathmoddb['contains_constant']: [
+            properties['contains'],
+            items['constant']
+        ],
+        mathmoddb['contains_objective']: [
+            properties['contains'],
+            items['objective function']
+        ],
+        mathmoddb['contains_output']: [
+            properties['contains'],
+            items['output']
+        ],
+        mathmoddb['contains_parameter']: [
+            properties['contains'],
+            items['parameter']
+        ],
+        mathmoddb['documents']: [
+            properties['described by source'],
+            items['documentation']
+        ],
+        mathmoddb['invents']: [
+            properties['described by source'],
+            items['invention']
+        ],
+        mathmoddb['studies']: [
+            properties['described by source'],
+            items['study']
+        ],
+        mathmoddb['surveys']: [
+            properties['described by source'],
+            items['review']
+        ],
+        mathmoddb['uses']: [
+            properties['described by source'],
+            items['use']
+        ],
+        # Map MathModDB Relation on Wikibase Property + Direction
+        mathmoddb['specialized_by']: [
+            properties['specialized by'],
+            'forward'
+        ],
+        mathmoddb['specializes']: [
+            properties['specialized by'],
+            'backward'
+        ],
+        mathmoddb['approximated_by']: [
+            properties['approximated by'],
+            'forward'
+        ],
+        mathmoddb['approximates']: [
+            properties['approximated by'],
+            'backward'
+        ],
+        mathmoddb['discretized_by']: [
+            properties['discretized by'],
+            'forward'
+        ],
+        mathmoddb['discretizes']: [
+            properties['discretized by'],
+            'backward'
+        ],
+        mathmoddb['linearized_by']: [
+            properties['linearized by'],
+            'forward'
+        ],
+        mathmoddb['linearizes']: [
+            properties['linearized by'],
+            'backward'
+        ],
+        mathmoddb['nondimensionalized_by']: [
+            properties['nondimensionalized by'],
+            'forward'
+        ],
+        mathmoddb['nondimensionalizes']: [
+            properties['nondimensionalized by'],
+            'backward'
+        ],
+        mathmoddb['contains']: [
+            properties['contains'],
+            'forward'
+        ],
+        mathmoddb['contained_in']: [
+            properties['contains'],
+            'backward'
+        ],
+        mathmoddb['similar_to']: [
+            properties['similar to'],
+            'forward'
+        ]
+    }
+    return relations
 
 # Parameter for Entity relations
-PREVIEW_RELATIONS = [
-    # fromIDX, toIDX, relationOld, entityOld, entityNew, enc
-    ('model', 'problem', None, 'RPRelatant', 'RelationRP', 'RP', False, False),
-    ('model', 'formulation', 'MM2MF', 'MFRelatant', 'RelationMF', 'ME', True, False),
-    ('model', 'task', None, 'TRelatant', 'RelationT', 'T', False, False),
-    ('model', 'model', 'IntraClassRelation', 'IntraClassElement', 'RelationMM', 'MM', False, False),
-    ('task', 'formulation', 'T2MF', 'MFRelatant', 'RelationMF', 'ME', False, False),
-    ('task', 'quantity', 'T2Q', 'QRelatant', 'RelationQQK', 'QQK', False, False),
-    ('task', 'task', 'IntraClassRelation', 'IntraClassElement', 'RelationT', 'T', False, True),
-    ('formulation', 'formulation', 'MF2MF', 'MFRelatant', 'RelationMF1', 'ME', False, False),
-    ('formulation', 'formulation', 'IntraClassRelation', 'IntraClassElement', 'RelationMF2', 'ME', False, False),
-    ('quantity', 'quantity', 'Q2Q', 'QRelatant', 'RelationQQ', 'QQK', False, False),
-    ('quantity', 'quantity', 'QK2QK', 'QKRelatant', 'RelationQKQK', 'QQK', False, False),
-    ('quantity', 'quantity', 'Q2QK', 'QKRelatant', 'RelationQQK', 'QQK', False, False),
-    ('quantity', 'quantity', 'QK2Q', 'QRelatant', 'RelationQKQ', 'QQK', False, False),
-    ('field', 'field', 'IntraClassRelation', 'IntraClassElement', 'RelationRF', 'AD', False, False),
-    ('problem', 'field', None, 'RFRelatant', 'RelationRF', 'AD', False, False),
-    ('problem', 'problem', 'IntraClassRelation', 'IntraClassElement', 'RelationRP', 'RP', False, False),
-    ('publication', ['field', 'problem', 'model', 'formulation', 'quantity', 'task'],
-     'P2E', 'EntityRelatant', 'RelationP', ['RF', 'RP', 'MM', 'ME', 'QQK', 'T'], False, False),
+preview_relations = [
+    {
+        "from_idx": "model",
+        "to_idx": "problem",
+        "relation": None,
+        "old_name": "RPRelatant",
+        "new_name": "RelationRP",
+        "encryption": "RP",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "model",
+        "to_idx": "formulation",
+        "relation": "MM2MF",
+        "old_name": "MFRelatant",
+        "new_name": "RelationMF",
+        "encryption": "ME",
+        "formulation": True,
+        "task": False,
+    },
+    {
+        "from_idx": "model",
+        "to_idx": "task",
+        "relation": None,
+        "old_name": "TRelatant",
+        "new_name": "RelationT",
+        "encryption": "T",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "model",
+        "to_idx": "model",
+        "relation": "IntraClassRelation",
+        "old_name": "IntraClassElement",
+        "new_name": "RelationMM",
+        "encryption": "MM",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "task",
+        "to_idx": "formulation",
+        "relation": "T2MF",
+        "old_name": "MFRelatant",
+        "new_name": "RelationMF",
+        "encryption": "ME",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "task",
+        "to_idx": "quantity",
+        "relation": "T2Q",
+        "old_name": "QRelatant",
+        "new_name": "RelationQQK",
+        "encryption": "QQK",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "task",
+        "to_idx": "task",
+        "relation": "IntraClassRelation",
+        "old_name": "IntraClassElement",
+        "new_name": "RelationT",
+        "encryption": "T",
+        "formulation": False,
+        "task": True,
+    },
+    {
+        "from_idx": "formulation",
+        "to_idx": "formulation",
+        "relation": "MF2MF",
+        "old_name": "MFRelatant",
+        "new_name": "RelationMF1",
+        "encryption": "ME",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "formulation",
+        "to_idx": "formulation",
+        "relation": "IntraClassRelation",
+        "old_name": "IntraClassElement",
+        "new_name": "RelationMF2",
+        "encryption": "ME",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "quantity",
+        "to_idx": "quantity",
+        "relation": "Q2Q",
+        "old_name": "QRelatant",
+        "new_name": "RelationQQ",
+        "encryption": "QQK",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "quantity",
+        "to_idx": "quantity",
+        "relation": "QK2QK",
+        "old_name": "QKRelatant",
+        "new_name": "RelationQKQK",
+        "encryption": "QQK",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "quantity",
+        "to_idx": "quantity",
+        "relation": "Q2QK",
+        "old_name": "QKRelatant",
+        "new_name": "RelationQQK",
+        "encryption": "QQK",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "quantity",
+        "to_idx": "quantity",
+        "relation": "QK2Q",
+        "old_name": "QRelatant",
+        "new_name": "RelationQKQ",
+        "encryption": "QQK",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "field",
+        "to_idx": "field",
+        "relation": "IntraClassRelation",
+        "old_name": "IntraClassElement",
+        "new_name": "RelationRF",
+        "encryption": "AD",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "problem",
+        "to_idx": "field",
+        "relation": None,
+        "old_name": "RFRelatant",
+        "new_name": "RelationRF",
+        "encryption": "AD",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "problem",
+        "to_idx": "problem",
+        "relation": "IntraClassRelation",
+        "old_name": "IntraClassElement",
+        "new_name": "RelationRP",
+        "encryption": "RP",
+        "formulation": False,
+        "task": False,
+    },
+    {
+        "from_idx": "publication",
+        "to_idx": [
+            "field", "problem", "model",
+            "formulation", "quantity", "task",
+        ],
+        "relation": "P2E",
+        "old_name": "EntityRelatant",
+        "new_name": "RelationP",
+        "encryption": ["RF", "RP", "MM", "ME", "QQK", "T"],
+        "formulation": False,
+        "task": False,
+    },
 ]
 
-PREVIEW_MAP_GENERAL = [
+preview_map_general = [
     # fromIDX, toIDX, entityOld, entityNew, enc
     ('model', 'formulation', 'assumption', 'assumptionMapped', 'ME'),
     ('task', 'formulation', 'assumption', 'assumptionMapped', 'ME'),
     ('formulation', 'formulation', 'assumption', 'assumptionMapped', 'ME'),
 ]
 
-PREVIEW_MAP_QUANTITY = [
+preview_map_quantity = [
     # type
     ('formulation'),
     ('quantity'),
 ]
 
 # URI PREFIX Map (I)
-def get_URI_PREFIX_MAP():
+def get_uri_prefix_map():
+    '''URI Prefixes for the Model Documentation'''
     questions = get_questions('model')
-    URI_PREFIX_MAP = {
+    uri_prefix_map = {
         f'{BASE_URI}{questions["Task"]["QRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Quantity"]["uri"]}',
             "question_id": f'{BASE_URI}{questions["Quantity"]["ID"]["uri"]}',
@@ -239,5 +589,4 @@ def get_URI_PREFIX_MAP():
             "prefix": "T"
         }
     }
-    return URI_PREFIX_MAP
-
+    return uri_prefix_map

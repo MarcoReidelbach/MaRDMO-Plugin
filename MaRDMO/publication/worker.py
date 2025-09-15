@@ -1,3 +1,6 @@
+from rdmo.projects.models import Value
+from rdmo.domain.models import Attribute
+
 from .constants import PUBLICATIONS, JOURNALS, AUTHORS, LANGUAGES
 from .utils import generate_label, get_citation
 from .sparql import queryPublication
@@ -17,7 +20,7 @@ class PublicationRetriever:
         questions = get_questions('publication')
 
         for key in answers.get('publication', {}):
-
+            
             if str(project.catalog).split('/')[-1] == 'mardmo-interdisciplinary-workflow-catalog':
                 # Ignore references for individual triple in workflow catalog
                 if answers['publication'][key]['workflow'] != options['Yes']:
@@ -54,9 +57,6 @@ class PublicationRetriever:
     
             #If User selected a Publication from MathAlgoDB or did not find it...
             elif answers['publication'][key]['ID'].startswith('mathalgodb') or answers['publication'][key]['ID'].startswith('not found'):
-                #...and exported for the first time...
-                if answers['publication'][key].get('Name'):
-                    return answers
                 #...but provided a DOI.
                 if answers['publication'][key].get('reference', {}).get(0, ['',''])[1]:
                     #Get the Citation of several ressource.
@@ -64,7 +64,15 @@ class PublicationRetriever:
                     #If Publication available at MaRDI Portal or Wikidata...
                     if data.get('mardi') or data.get('wikidata'):
                         DATA = data['mardi'] or data['wikidata']
-                        #...add data to Questionnaire and...
+                        #...clean potential old data...
+                        for question in PUBLICATIONS | LANGUAGES | JOURNALS | AUTHORS:
+                            Value.objects.filter(
+                                attribute_id = Attribute.objects.get(
+                                    uri = f'{BASE_URI}{questions["Publication"][question]["uri"]}'
+                                ),
+                                set_index = key
+                            ).delete()
+                        #...and add data to Questionnaire and...
                         value_editor(
                             project = project, 
                             uri = f'{BASE_URI}{questions["Publication"]["ID"]["uri"]}', 
@@ -78,9 +86,10 @@ class PublicationRetriever:
                         answers['publication'][key]['ID'] = DATA.id
                         answers['publication'][key]['Name'] = DATA.label
                         answers['publication'][key]['Description'] = DATA.description
+
                     #If Publication available at Crossref, Datacite, zbMath or DOI...
-                    elif data.get('crossref') or data.get('datacite') or data.get('zbmath') or data.get('doi'):
-                        DATA = data['crossref'] or data['datacite'] or data['zbmath'] or data['doi']
+                    elif data.get('crossref')  or data.get('doi') or data.get('datacite') or data.get('zbmath'):
+                        DATA = data['crossref'] or data['doi'] or data['datacite'] or data['zbmath']
                         #...add data to Questionnaire and...
                         for uri, data_key in PUBLICATIONS.items():
                             value_editor(
@@ -91,7 +100,7 @@ class PublicationRetriever:
                                     'set_index': key
                                 }
                             )
-                            
+                        
                         for idx, language in enumerate(DATA.language):
                             for uri, data_key in LANGUAGES.items():
                                 value_editor(

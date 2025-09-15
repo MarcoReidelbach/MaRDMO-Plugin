@@ -211,7 +211,7 @@ def publication_delete(sender, **kwargs):
     if instance and instance.attribute.uri == f'{BASE_URI}{questions["Publication"]["uri"]}':
         # Get Index of Deleted Set
         set_index = instance.set_index
-        # Loop through "hidden" Data and delet it
+        # Loop through "hidden" Data and delete it
         for key in PUBLICATIONS | LANGUAGES | JOURNALS | AUTHORS:
             Value.objects.filter(
                 attribute_id = Attribute.objects.get(

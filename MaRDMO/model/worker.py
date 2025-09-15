@@ -1,15 +1,26 @@
-from .utils import mapEntityQuantity
-from .constants import PREVIEW_RELATIONS, PREVIEW_MAP_GENERAL, PREVIEW_MAP_QUANTITY, get_Relations, get_DATA_PROPERTIES
+'''Worker Module for Model Preview and Export'''
+
+import logging
+import time
+
+from .utils import map_entity_quantity
+from .constants import (
+    preview_relations,
+    preview_map_general,
+    preview_map_quantity,
+    get_relations,
+    get_data_properties
+)
 
 from ..config import endpoint
 from ..getters import get_items, get_mathmoddb, get_properties
-from ..helpers import entity_relations, map_entity, unique_items
+from ..helpers import entity_relations, map_entity, unique_items, date_precision
 from ..queries import query_sparql
 from ..payload import GeneratePayload
 
 
-class prepareModel:
-
+class PrepareModel:
+    '''Class preparing Model Answers for Preview and Export'''
     def __init__(self):
 
         self.mathmoddb = get_mathmoddb()
@@ -18,541 +29,411 @@ class prepareModel:
 
     def preview(self, answers):
         '''Function to establish relations between Model Documentation Data'''
-        
+
         # Prepare Relations for Preview
-        for relation in PREVIEW_RELATIONS:
+        for relation in preview_relations:
             entity_relations(
                 data = answers,
                 idx = {
-                    'from': relation[0],
-                    'to': relation[1]
+                    'from': relation['from_idx'],
+                    'to': relation['to_idx']
                 },
                 entity = {
-                    'relation': relation[2],
-                    'old_name': relation[3],
-                    'new_name': relation[4],
-                    'encryption': relation[5]
+                    'relation': relation['relation'],
+                    'old_name': relation['old_name'],
+                    'new_name': relation['new_name'],
+                    'encryption': relation['encryption']
                 },
                 order = {
-                    'formulation': relation[6],
-                    'task': relation[7]
+                    'formulation': relation['formulation'],
+                    'task': relation['task']
                 }
             )
 
         # Prepare General Mappings
-        for mapping in PREVIEW_MAP_GENERAL:
+        for mapping in preview_map_general:
             map_entity(
-                data = answers, 
+                data = answers,
                 idx = {
                     'from': mapping[0], 
                     'to': mapping[1]
-                }, 
+                },
                 entity = {
                     'old_name': mapping[2], 
                     'new_name': mapping[3], 
                     'encryption': mapping[4]
                 }
             )
-        
+
         # Prepare Quantity Mapping
-        for mapping in PREVIEW_MAP_QUANTITY:
-            mapEntityQuantity(
-                data= answers, 
-                type = mapping, 
+        for mapping in preview_map_quantity:
+            map_entity_quantity(
+                data= answers,
+                entity_type = mapping,
                 mapping = self.mathmoddb)
-        
+
         return answers
 
     def export(self, data, url):
+        """Function to create Payload for Model Export."""
 
         items = unique_items(data)
-        
-        payload = GeneratePayload(url, items, get_Relations(), get_DATA_PROPERTIES)
-        
+
+        payload = GeneratePayload(
+            url,
+            items,
+            get_relations(),
+            get_data_properties,
+        )
+
         # Add / Retrieve Components of Model Item
         payload.process_items()
-        
-        for field in data.get('field', {}).values():
 
-            # Continue if no ID exists
-            if not field.get('ID'):
-                continue
-            
-            # Get Item Key
-            payload.get_item_key(field)
-
-            # Add Class
-            payload.add_answer(
-                verb=self.properties['instance of'],
-                object_and_type=[
-                    self.items['academic discipline'],
-                    'wikibase-item',
-                ]
-            )
-
-            # Add Community
-            payload.add_answer(
-                verb=self.properties['community'],
-                object_and_type=[
-                    self.items['MathModDB'],
-                    'wikibase-item',
-                ]
-            )
-            
-            # Add MaRDI Research Field Profile
-            payload.add_answer(
-                verb=self.properties['MaRDI profile type'],
-                object_and_type=[
-                    self.items['MaRDI research field profile'],
-                    'wikibase-item',
-                ]
-            )
-            
-            # Add Detailed Description
-            payload.add_answers('descriptionLong', 'description')
-                    
-            # Add Problem Relations (Backward)
-            payload.add_backward_relation(data      = data.get('problem', {}).values(),
-                                          relation  = self.properties['contains'], 
-                                          relatants = 'RFRelatant')
-                            
-            # Add Intraclass Relations (For-/Backward)
-            payload.add_intra_class_relation(relation = 'IntraClassRelation',
-                                             relatant = 'IntraClassElement')
-
-        for problem in data.get('problem', {}).values():
-
-            # Continue if no ID exists
-            if not problem.get('ID'):
-                continue
-            
-            # Get Item Key
-            payload.get_item_key(problem)
-
-            # Add Class
-            payload.add_answer(
-                verb=self.properties['instance of'],
-                object_and_type=[
-                    self.items['research problem'],
-                    'wikibase-item',
-                ]
-            )
-
-            # Add Community
-            payload.add_answer(
-                verb=self.properties['community'],
-                object_and_type=[
-                    self.items['MathModDB'],
-                    'wikibase-item',
-                ]
-            )
-            
-            # Add MaRDI Research Field Profile
-            payload.add_answer(
-                verb=self.properties['MaRDI profile type'],
-                object_and_type=[
-                    self.items['MaRDI research problem profile'],
-                    'wikibase-item',
-                ]
-            )
-
-            # Add Detailed Description
-            payload.add_answers('descriptionLong', 'description')
-
-            # Add Model Relations (Backward)
-            payload.add_backward_relation(data      = data.get('model', {}).values(), 
-                                          relation  = self.properties['modelled by'], 
-                                          relatants = 'RPRelatant')
-
-            # Add Intraclass Relations (For-/Backward)
-            payload.add_intra_class_relation(relation = 'IntraClassRelation',
-                                             relatant = 'IntraClassElement')
-
-        for model in data.get('model', {}).values():
-
-            # Continue if no ID exists
-            if not model.get('ID'):
-                continue
-            
-            # Get Item Key
-            payload.get_item_key(model)
-
-            # Add Class
-            payload.add_answer(
-                verb=self.properties['instance of'],
-                object_and_type=[
-                    self.items['mathematical model'],
-                    'wikibase-item',
-                ]
-            )
-
-            # Add Community
-            payload.add_answer(
-                verb=self.properties['community'],
-                object_and_type=[
-                    self.items['MathModDB'],
-                    'wikibase-item',
-                ]
-            )
-            
-            # Add MaRDI Research Field Profile
-            payload.add_answer(
-                verb=self.properties['MaRDI profile type'],
-                object_and_type=[
-                    self.items['MaRDI model profile'],
-                    'wikibase-item',
-                ]
-            )
-            
-            # Add Detailed Description
-            payload.add_answers('descriptionLong', 'description')
-
-            # Add Data Properties
-            payload.add_data_properties('model')
-            
-            # Add Mathematical Formulations
-            payload.add_forward_relation_multiple('MM2MF', 'MFRelatant')
-    
-            # Add related Computational Tasks
-            payload.add_forward_relation_single(
-                relation = self.properties['used by'], 
-                relatant = 'TRelatant'
-            )
-            
-            # Add Intraclass Relations (For-/Backward)
-            payload.add_intra_class_relation(
-                relation = 'IntraClassRelation',
-                relatant = 'IntraClassElement'
-            )
-            
-        for task in data.get('task', {}).values():
-
-            # Continue if no ID exists
-            if not task.get('ID'):
-                continue
-            
-            # Get Item Key
-            payload.get_item_key(task)
-
-            # Add Class
-            payload.add_answer(
-                verb=self.properties['instance of'],
-                object_and_type=[
-                    self.items['computational task'],
-                    'wikibase-item',
-                ]
-            )
-
-            # Add Community
-            payload.add_answer(
-                verb=self.properties['community'],
-                object_and_type=[
-                    self.items['MathModDB'],
-                    'wikibase-item',
-                ]
-            )
-            
-            # Add MaRDI Research Field Profile
-            payload.add_answer(
-                verb=self.properties['MaRDI profile type'],
-                object_and_type=[
-                    self.items['MaRDI task profile'],
-                    'wikibase-item',
-                ]
-            )
-            
-            # Add Detailed Description
-            payload.add_answers('descriptionLong', 'description')
-
-            # Add Data Properties
-            payload.add_data_properties('task')
-
-            # Add Mathematical Formulations
-            payload.add_forward_relation_multiple('T2MF', 'MFRelatant')
-
-            # Add Quantities / Quantity Kinds
-            payload.add_forward_relation_multiple('T2Q', 'QRelatant')
-
-            # Add Intraclass Relations (For-/Backward)
-            payload.add_intra_class_relation(relation = 'IntraClassRelation',
-                                             relatant = 'IntraClassElement')
-
-        for formulation in data.get('formulation', {}).values():
-
-            # Continue if no ID exists
-            if not formulation.get('ID'):
-                continue
-            
-            # Get Item Key
-            payload.get_item_key(formulation)
-
-            # Add Class
-            payload.add_answer(
-                verb=self.properties['instance of'],
-                object_and_type=[
-                    self.items['mathematical expression'],
-                    'wikibase-item',
-                ]
-            )
-
-            # Add Community
-            payload.add_answer(
-                verb=self.properties['community'],
-                object_and_type=[
-                    self.items['MathModDB'],
-                    'wikibase-item',
-                ]
-            )
-            
-            # Add MaRDI Research Field Profile
-            payload.add_answer(
-                verb=self.properties['MaRDI profile type'],
-                object_and_type=[
-                    self.items['MaRDI formula profile'],
-                    'wikibase-item',
-                ]
-            )
-
-            # Add Detailed Description
-            payload.add_answers('descriptionLong', 'description')
-
-            # Add Data Properties
-            payload.add_data_properties('equation')
-
-            # Add defining Formulas to Mathematical Formulation
-            payload.add_answers('Formula', 'defining formula', 'math')
-            
-            # Add Symbols and Quantities to Mathematical Formulation
-            payload.add_in_defining_formula()
-            
-            # Add Quantities / Quantity Kinds
-            payload.add_forward_relation_multiple('MF2MF', 'MFRelatant')
-
-            # Add Intraclass Relations (For-/Backward)
-            payload.add_intra_class_relation(relation = 'IntraClassRelation',
-                                             relatant = 'IntraClassElement')
-            
-        for quantity in data.get('quantity', {}).values():
-
-            # Continue if no ID exists
-            if not quantity.get('ID'):
-                continue
-            
-            # Get Item Key
-            payload.get_item_key(quantity)
-            
-            # Get Class of Quantity
-            if quantity.get('QorQK') == self.mathmoddb['Quantity']:
-                qclass = self.items['quantity']
-                qtype = 'quantity'
-            elif quantity.get('QorQK') == self.mathmoddb['QuantityKind']:
-                qclass = self.items['kind of quantity']
-                qtype = 'quantity kind'
-
-            # Add Class
-            payload.add_answer(
-                verb=self.properties['instance of'],
-                object_and_type=[
-                    qclass,
-                    'wikibase-item',
-                ]
-            )
-
-            # Add Community
-            payload.add_answer(
-                verb=self.properties['community'],
-                object_and_type=[
-                    self.items['MathModDB'],
-                    'wikibase-item',
-                ]
-            )
-            
-            # Add MaRDI Research Field Profile
-            payload.add_answer(
-                verb=self.properties['MaRDI profile type'],
-                object_and_type=[
-                    self.items['MaRDI quantity profile'],
-                    'wikibase-item',
-                ]
-            )
-
-            # Add Detailed Description
-            payload.add_answers('descriptionLong', 'description')
-
-            # Add Data Properties
-            payload.add_data_properties(qtype)
-
-            # Add QUDT ID for Quantity Kind
-            if quantity.get('reference') and qtype == 'quantity kind':
-                payload.add_answer(
-                    verb=self.properties['QUDT quantity kind ID'],
-                    object_and_type=[
-                        quantity['reference'][0][1],
-                        'external-id',
-                    ]
-                )
-            
-            # Add defining Formulas to Mathematical Formulation
-            payload.add_answers('Formula', 'defining formula', 'math')
-            
-            # Add Symbols and Quantities to Mathematical Formulation
-            payload.add_in_defining_formula()
-
-            # Add Intraclass Relations
-            if qtype == 'quantity':
-                # Quantity to Quantity
-                payload.add_intra_class_relation(relation = 'Q2Q',
-                                                 relatant = 'QRelatant')
-                # Quantity to Quantity Kind
-                payload.add_intra_class_relation(relation = 'Q2QK',
-                                                 relatant = 'QKRelatant')
-            elif qtype == 'quantity kind':
-                # Quantity to Quantity
-                payload.add_intra_class_relation(relation = 'QK2QK',
-                                                 relatant = 'QKRelatant')
-                # Quantity to Quantity Kind
-                payload.add_intra_class_relation(relation = 'QK2Q',
-                                                 relatant = 'QRelatant')
-
-        for publication in data.get('publication', {}).values():
-
-            # Continue if no ID exists
-            if not publication.get('ID'):
-                continue
-
-            # Get Item Key
-            payload.get_item_key(publication)
-
-            if 'mardi' not in publication['ID'] and 'wikidata' not in publication['ID']:
-                
-                # Add the class of the Publication
-                if publication.get('entrytype'):
-
-                    if publication['entrytype'] == 'scholarly article':
-                        pclass = self.items['scholarly article']
-                    else:
-                        pclass = self.items['publication']
-
-                    payload.add_answer(
-                        verb=self.properties['instance of'],
-                        object_and_type=[
-                            pclass,
-                            'wikibase-item',
-                        ]
-                    )
-               
-                # Add the Title of the Publication
-                if publication.get('title'):
-
-                    payload.add_answer(
-                        verb=self.properties['title'],
-                        object_and_type=[
-                            {"text": publication['title'], "language": "en"},
-                            'monolingualtext',
-                        ]
-                    )
-
-                # Add the Volume of the Publication
-                if publication.get('volume'):
-
-                    payload.add_answer(
-                        verb=self.properties['volume'],
-                        object_and_type=[
-                            publication['volume'],
-                            'string',
-                        ]
-                    )
-
-                # Add the Issue of the Publication
-                if publication.get('issue'):
-
-                    payload.add_answer(
-                        verb=self.properties['issue'],
-                        object_and_type=[
-                            publication['issue'],
-                            'string',
-                        ]
-                    )
-
-                # Add the Page(s) of the Publication
-                if publication.get('page'):
-
-                    payload.add_answer(
-                        verb=self.properties['page(s)'],
-                        object_and_type=[
-                            publication['page'],
-                            'string',
-                        ]
-                    )
-
-                # Add the Date of the Publication
-                if publication.get('date'):
-
-                    payload.add_answer(
-                        verb=self.properties['publication date'],
-                        object_and_type=[
-                            {"time":f"+{publication['date']}T00:00:00Z","precision":11,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"},
-                            'time',
-                        ]
-                    )
-
-                # Add the DOI of the Publication
-                if publication.get('reference', {}).get(0):
-
-                    payload.add_answer(
-                        verb=self.properties['DOI'],
-                        object_and_type=[
-                            publication['reference'][0][1],
-                            'external-id',
-                        ]
-                    )
-                
-                # Add the Language of the Publication
-                payload.add_forward_relation_single(
-                    relation = self.properties['language of work or name'],
-                    relatant = 'language'
-                )
-                
-                # Add the Journal of the Publication
-                payload.add_forward_relation_single(
-                    relation = self.properties['published in'], 
-                    relatant = 'journal'
-                )
-                # Add the Authors of the Publication
-                payload.add_forward_relation_single(
-                    relation = self.properties['author'], 
-                    relatant = 'author', 
-                    alternative = {
-                        'relation': self.properties['author name string'], 
-                        'relatant': 'Name'
-                    }
-                )
-
-                # Add the Profile Type
-                payload.add_answer(
-                        verb=self.properties['MaRDI profile type'],
-                        object_and_type=[
-                            self.items['MaRDI publication profile'],
-                            'wikibase-item',
-                        ]
-                    )
-                
-            # Add relations to Entities of Mathematical Model
-            payload.add_forward_relation_multiple('P2E', 'EntityRelatant', True)
+        # Delegate to helper functions
+        self._export_fields(payload, data.get("field", {}), data.get("problem", {}))
+        self._export_problems(payload, data.get("model", {}), data.get("problem", {}))
+        self._export_models(payload, data.get("model", {}))
+        self._export_tasks(payload, data.get("task", {}))
+        self._export_formulations(payload, data.get("formulation", {}))
+        self._export_quantities(payload, data.get("quantity", {}))
+        self._export_publications(payload, data.get("publication", {}))
 
         # Construct Item Payloads
-        payload.add_item_payload()  
-        
+        payload.add_item_payload()
+
         # If Relations are added, check if they exist
-        if any(key.startswith('RELATION') for key in payload.get_dictionary()):
-
-            # Generate SPARQL Check Query
+        if any(
+            key.startswith("RELATION")
+            for key in payload.get_dictionary()
+        ):
             query = payload.build_relation_check_query()
-            
-            # Perform Check Query for Relations
-            check = query_sparql(query, endpoint['mardi']['sparql'])
 
-            # Add Check Results
+            check = None
+            for attempt in range(2):  # try twice
+                try:
+                    check = query_sparql(query, endpoint["mardi"]["sparql"])
+                    break
+                except Exception as e:
+                    logging.warning("SPARQL query attempt %s failed: %s", attempt + 1, e)
+                    if attempt == 0:
+                        time.sleep(1)  # short wait before retry
+            if check is None:
+                # both attempts failed → pretend no results
+                check = [{}]
+
             payload.add_check_results(check)
-            
+
         return payload.get_dictionary()
+
+    # ---------------------------
+    # Shared helper
+    # ---------------------------
+    def _add_common_metadata(self, payload, qclass, profile_type):
+        """Add metadata common to most entities (except publication)."""
+        payload.add_answer(
+            self.properties["instance of"],
+            [qclass, "wikibase-item"],
+        )
+        payload.add_answer(
+            self.properties["community"],
+            [self.items["MathModDB"], "wikibase-item"],
+        )
+        payload.add_answer(
+            self.properties["MaRDI profile type"],
+            [self.items[profile_type], "wikibase-item"],
+        )
+        payload.add_answers(
+            "descriptionLong",
+            "description",
+        )
+
+    # ---------------------------
+    # Entity export helpers
+    # ---------------------------
+    def _export_fields(self, payload, fields: dict, problems: dict):
+        for entry in fields.values():
+            if not entry.get("ID"):
+                continue
+
+            payload.get_item_key(entry)
+            self._add_common_metadata(
+                payload,
+                self.items["academic discipline"],
+                "MaRDI research field profile",
+            )
+
+            payload.add_backward_relation(
+                problems.values(),
+                self.properties["contains"],
+                "RFRelatant",
+            )
+
+            payload.add_intra_class_relation(
+                "IntraClassRelation",
+                "IntraClassElement",
+            )
+
+    def _export_problems(self, payload, models: dict, problems: dict):
+        for entry in problems.values():
+            if not entry.get("ID"):
+                continue
+
+            payload.get_item_key(entry)
+            self._add_common_metadata(
+                payload,
+                self.items["research problem"],
+                "MaRDI research problem profile",
+            )
+
+            payload.add_backward_relation(
+                models.values(),
+                self.properties["modelled by"],
+                "RPRelatant",
+            )
+
+            payload.add_intra_class_relation(
+                "IntraClassRelation",
+                "IntraClassElement",
+            )
+
+    def _export_models(self, payload, models: dict):
+        for entry in models.values():
+            if not entry.get("ID"):
+                continue
+
+            payload.get_item_key(entry)
+            self._add_common_metadata(
+                payload,
+                self.items["mathematical model"],
+                "MaRDI model profile",
+            )
+
+            payload.add_data_properties("model")
+            payload.add_forward_relation_multiple(
+                "MM2MF",
+                "MFRelatant",
+            )
+            payload.add_forward_relation_single(
+                self.properties["used by"],
+                "TRelatant",
+            )
+            payload.add_intra_class_relation(
+                "IntraClassRelation",
+                "IntraClassElement",
+            )
+
+    def _export_tasks(self, payload, tasks: dict):
+        for entry in tasks.values():
+            if not entry.get("ID"):
+                continue
+
+            payload.get_item_key(entry)
+            self._add_common_metadata(
+                payload,
+                self.items["computational task"],
+                "MaRDI task profile",
+            )
+
+            payload.add_data_properties("task")
+            payload.add_forward_relation_multiple(
+                "T2MF",
+                "MFRelatant",
+            )
+            payload.add_forward_relation_multiple(
+                "T2Q",
+                "QRelatant",
+            )
+            payload.add_intra_class_relation(
+                "IntraClassRelation",
+                "IntraClassElement",
+            )
+
+    def _export_formulations(self, payload, formulations: dict):
+        for entry in formulations.values():
+            if not entry.get("ID"):
+                continue
+
+            payload.get_item_key(entry)
+            self._add_common_metadata(
+                payload,
+                self.items["mathematical expression"],
+                "MaRDI formula profile",
+            )
+
+            payload.add_data_properties("equation")
+            payload.add_answers(
+                "Formula",
+                "defining formula",
+                "math",
+            )
+            payload.add_in_defining_formula()
+            payload.add_forward_relation_multiple(
+                "MF2MF",
+                "MFRelatant",
+            )
+            payload.add_intra_class_relation(
+                "IntraClassRelation",
+                "IntraClassElement",
+            )
+
+    def _export_quantities(self, payload, quantities: dict):
+        for entry in quantities.values():
+            if not entry.get("ID"):
+                continue
+
+            payload.get_item_key(entry)
+
+            if entry.get("QorQK") == self.mathmoddb["Quantity"]:
+                self._add_common_metadata(
+                    payload,
+                    self.items["quantity"],
+                    "MaRDI quantity profile",
+                )
+                qtype = "quantity"
+
+            elif entry.get("QorQK") == self.mathmoddb["QuantityKind"]:
+                self._add_common_metadata(
+                    payload,
+                    self.items["kind of quantity"],
+                    "MaRDI quantity profile",
+                )
+                qtype = "quantity kind"
+
+            else:
+                continue
+
+            payload.add_data_properties(qtype)
+
+            if (
+                entry.get("reference")
+                and qtype == "quantity kind"
+            ):
+                payload.add_answer(
+                    self.properties["QUDT quantity kind ID"],
+                    [entry["reference"][0][1], "external-id"],
+                )
+
+            payload.add_answers(
+                "Formula",
+                "defining formula",
+                "math",
+            )
+            payload.add_in_defining_formula()
+
+            if qtype == "quantity":
+                payload.add_intra_class_relation(
+                    "Q2Q",
+                    "QRelatant",
+                )
+                payload.add_intra_class_relation(
+                    "Q2QK",
+                    "QKRelatant",
+                )
+            else:
+                payload.add_intra_class_relation(
+                    "QK2QK",
+                    "QKRelatant",
+                )
+                payload.add_intra_class_relation(
+                    "QK2Q",
+                    "QRelatant",
+                )
+
+    def _export_publications(self, payload, publications: dict):
+        for entry in publications.values():
+            if not entry.get("ID"):
+                continue
+
+            payload.get_item_key(entry)
+
+            # Only add bibliographic statements for non-MaRDI / non-Wikidata items
+            if "mardi" not in entry["ID"] and "wikidata" not in entry["ID"]:
+                # class
+                if entry.get("entrytype") == "scholarly article":
+                    pclass = self.items["scholarly article"]
+                else:
+                    pclass = self.items["publication"]
+
+                payload.add_answer(
+                    self.properties["instance of"],
+                    [pclass, "wikibase-item"],
+                )
+
+                # bibliographic data
+                if entry.get("title"):
+                    payload.add_answer(
+                        self.properties["title"],
+                        [
+                            {"text": entry["title"], "language": "en"},
+                            "monolingualtext",
+                        ],
+                    )
+
+                if entry.get("volume"):
+                    payload.add_answer(
+                        self.properties["volume"],
+                        [entry["volume"], "string"],
+                    )
+
+                if entry.get("issue"):
+                    payload.add_answer(
+                        self.properties["issue"],
+                        [entry["issue"], "string"],
+                    )
+
+                if entry.get("page"):
+                    payload.add_answer(
+                        self.properties["page(s)"],
+                        [entry["page"], "string"],
+                    )
+
+                if entry.get("date"):
+                    payload.add_answer(
+                        self.properties["publication date"],
+                        [
+                            {
+                                "time": f"+{entry['date']}",
+                                "precision": date_precision(entry['date']),
+                                "calendarmodel": (
+                                    "http://www.wikidata.org/entity/Q1985727"
+                                ),
+                            },
+                            "time",
+                        ],
+                    )
+
+                if entry.get("reference", {}).get(0):
+                    payload.add_answer(
+                        self.properties["DOI"],
+                        [entry["reference"][0][1].upper(), "external-id"],
+                    )
+
+                # relations
+                payload.add_forward_relation_single(
+                    self.properties["language of work or name"],
+                    "language",
+                )
+                payload.add_forward_relation_single(
+                    self.properties["published in"],
+                    "journal",
+                )
+                payload.add_forward_relation_single(
+                    self.properties["author"],
+                    "author",
+                    alternative={
+                        "relation": self.properties["author name string"],
+                        "relatant": "Name",
+                    },
+                )
+
+                payload.add_answer(
+                    self.properties["MaRDI profile type"],
+                    [self.items["MaRDI publication profile"], "wikibase-item"],
+                )
+
+            # Add relations to Entities of Mathematical Model
+            payload.add_forward_relation_multiple(
+                "P2E",
+                "EntityRelatant",
+                True,
+            )

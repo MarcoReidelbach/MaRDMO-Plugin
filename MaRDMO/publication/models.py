@@ -60,57 +60,214 @@ class Author:
     
     @classmethod
     def from_crossref(cls, raw: str) -> 'Author':
+
+        # Get Label
+        label = None
+        if raw.get('given') and raw.get('family'):
+            label = f"{raw['given']} {raw['family']}"
+
+        # Get MaRDI Portal ID
+        id = None
+        if label:
+            id = 'no author found'
+
+        # Get ORCID ID
+        orcid_id = None
+        if raw.get('ORCID'):
+            orcid_id = raw.get('ORCID').split('/')[-1]
+
+        # Get ZBMath ID
+        zbmath_id = None
+
+        # Get Wikidata ID
+        wikidata_id = None
+
+        # Get Label
+        label = None
+        if raw.get('given') and raw.get('family'):
+            label = f"{raw['given']} {raw['family']}"
+
+        # Get Description
+        description = None
+        if label:
+            if orcid_id:
+                description = f'scientist (ORCID iD {orcid_id})'
+            else:
+                description = 'scientist'
+
+
         return cls(
-            id = 'no author found',
-            label = f"{raw.get('given', '')} {raw.get('family', '')}",
-            description = 'No Description Provided!',
-            orcid_id = raw.get('ORCID').split('/')[-1] if raw.get('ORCID') else None,
-            zbmath_id = None,
-            wikidata_id = None
+            id = id,
+            label = label,
+            description = description,
+            orcid_id = orcid_id,
+            zbmath_id = zbmath_id,
+            wikidata_id = wikidata_id
         )
     
     @classmethod
     def from_datacite(cls, raw: str) -> 'Author':
+
+        # Get Label
+        label = None
+        if raw.get('givenName') and raw.get('familyName'):
+            label = f"{raw['givenName']} {raw['familyName']}"
+
+        # Get MaRDI Portal ID
+        id = None
+        if label:
+            id = 'no author found'
+
+        # Get ORCID ID
+        orcid_id = None
+        for identifier in raw.get('nameIdentifiers', []):
+            if identifier.get('nameIdentifierScheme') == 'ORCID':
+                name_identifier = identifier.get('nameIdentifier', '')
+                orcid_id = name_identifier.split('/')[-1]
+                break
+
+        # Get ZBMath ID
+        zbmath_id = None
+
+        # Get Wikidata ID
+        wikidata_id = None
+
+        # Get Description
+        description = None
+        if label:
+            if orcid_id:
+                description = f'scientist (ORCID iD {orcid_id})'
+            else:
+                description = 'scientist'
+
         return cls(
-            id = 'no author found',
-            label = f"{raw.get('givenName', '')} {raw.get('familyName', '')}",
-            description = 'No Description Provided!',
-            orcid_id = next((id.get('nameIdentifier', '').split('/')[-1] for id in raw.get('nameIdentifiers', []) if id.get('nameIdentifierScheme') == 'ORCID'), None),
-            zbmath_id = None,
-            wikidata_id = None
+            id = id,
+            label = label,
+            description = description,
+            orcid_id = orcid_id,
+            zbmath_id = zbmath_id,
+            wikidata_id = wikidata_id
         )
     
     @classmethod
     def from_doi(cls, raw: str) -> 'Author':
+
+        # Get Label
+        label = None
+        if raw.get('given') and raw.get('family'):
+            label = f"{raw['given']} {raw['family']}"
+
+        # Get MaRDI Portal ID
+        id = None
+        if label:
+            id = 'no author found'
+
+        # Get ORCID ID
+        orcid_id = None
+        if raw.get('ORCID'):
+            orcid_id = raw.get('ORCID').split('/')[-1]
+
+        # Get ZBMath ID
+        zbmath_id = None
+
+        # Get Wikidata ID
+        wikidata_id = None
+
+        # Get Description
+        description = None
+        if label:
+            if orcid_id:
+                description = f'scientist (ORCID iD {orcid_id})'
+            else:
+                description = 'scientist'
+
         return cls(
-            id = 'no author found',
-            label = f"{raw.get('given', '')} {raw.get('family', '')}",
-            description = 'No Description Provided!',
-            orcid_id = raw.get('ORCID').split('/')[-1] if raw.get('ORCID') else None,
-            zbmath_id = None,
-            wikidata_id = None
+            id = id,
+            label = label,
+            description = description,
+            orcid_id = orcid_id,
+            zbmath_id = zbmath_id,
+            wikidata_id = wikidata_id
         )
     
     @classmethod
     def from_zbmath(cls, raw: str) -> 'Author':
+
+        # Get Label
+        label = None
+        if raw.get('name'):
+            label = " ".join(reversed([s for s in raw['name'].split(", ")]))
+
+        # Get MaRDI Portal ID
+        id = None
+        if label:
+            id = 'no author found'
+
+        # Get ORCID ID
+        orcid_id = None
+
+        # Get zbMath ID
+        zbmath_id = None
+        if raw.get('codes'):
+            zbmath_id = raw['codes'][0]
+
+        # Get Wikidata ID
+        wikidata_id = None
+
+        # Get Description
+        description = None
+        if label:
+            if zbmath_id:
+                description = f'scientist (zbMath ID {zbmath_id})'
+            else:
+                description = 'scientist'
+
         return cls(
-            id = 'no author found',
-            label = " ".join(reversed([s for s in raw['name'].split(", ")])),
-            description = 'No Description Provided!',
-            orcid_id = None,
-            zbmath_id = raw['codes'][0] if raw.get('codes') else None,
-            wikidata_id = None
+            id = id,
+            label = label,
+            description = description,
+            orcid_id = orcid_id,
+            zbmath_id = zbmath_id,
+            wikidata_id = wikidata_id
         )
     
     @classmethod
     def from_orcid(cls, raw: str) -> 'Author':
+
+        # Get Label
+        label = None
+        if raw.get('name', {}).get('given-names', {}).get('value') and raw.get('name', {}).get('family-name', '').get('value'):
+            label = f"{raw['name']['given-names']['value']} {raw['name']['family-name']['value']}"
+
+        # Get MaRDI Portal ID
+        id = None
+        if label:
+            id = 'no author found'
+
+        # Get ORCID ID
+        orcid_id = raw.get('name', {}).get('path')
+
+        # Get ZBMath ID
+        zbmath_id = None
+
+        # Get Wikidata ID
+        wikidata_id = None
+
+        # Get Description
+        description = None
+        if label:
+            if orcid_id:
+                description = f'scientist (ORCID iD {orcid_id})'
+            else:
+                description = 'scientist'
+
         return cls(
-            id = 'no author found',
-            label = f"{raw.get('name', {}).get('given-names', {}).get('value', '')} {raw.get('name', {}).get('family-name', '').get('value', '')}",
-            description = 'No Description Provided!',
-            orcid_id = raw.get('name', {}).get('path'),
-            zbmath_id = None,
-            wikidata_id = None
+            id = id,
+            label = label,
+            description = description,
+            orcid_id = orcid_id,
+            zbmath_id = zbmath_id,
+            wikidata_id = wikidata_id
         )
 
 @dataclass
@@ -131,50 +288,138 @@ class Journal:
         )
     
     @classmethod
-    def from_crossref(cls, id: list, label: list) -> 'Journal':
-        label = label[0] if label else None
-        issn = id[0] if id else None
-        id = 'no journal found' if label else None
+    def from_crossref(cls, ids: list, item: list) -> 'Journal':
+
+        # Get Label
+        label = None
+        if item:
+            label = item[0]
+
+        # Get ISSN
+        issn = None
+        if ids:
+            issn = ids[0]
+
+        # Get MaRDI Portal ID
+        id = None
+        if label:
+            id = 'no journal found'
+        
+        # Get Description
+        description = None
+        if label:
+            if issn:
+                description = f'scientific journal (ISSN {issn})'
+            else:
+                description = 'scientific journal'
+
         return cls(
             id = id,
             issn = issn,
             label = label,
-            description = 'No Description Provided!',
+            description = description,
         )
     
     @classmethod
     def from_datacite(cls, ids: list, item: list) -> 'Journal':
-        label = item[0].get('titles', [{}])[0].get('title')
-        issn = ids[0].get('relatedIdentifier') if ids[0].get('relatedIdentifierType', '') == 'ISSN' else None
-        id = 'no journal found' if label else None
+
+        # Get Label
+        label = None
+        if item:
+            label = (item[0].get('titles') or [{}])[0].get('title')
+
+        # Get ISSN
+        issn = None
+        if ids:
+            if ids[0].get('relatedIdentifierType') == 'ISSN':
+                issn = ids[0].get('relatedIdentifier') 
+
+        # Get MaRDI Portal ID
+        id = None
+        if label:
+            id = 'no journal found'
+        
+        # Get Description
+        description = None
+        if label:
+            if issn:
+                description = f'scientific journal (ISSN {issn})'
+            else:
+                description = 'scientific journal'
+
         return cls(
             id = id,
             issn = issn,
             label = label,
-            description = 'No Description Provided!',
+            description = description,
         )
     
     @classmethod
-    def from_doi(cls, id: list, label: str) -> 'Journal':
-        issn = id[0] if id else None
-        id = 'no journal found' if label else None
+    def from_doi(cls, ids: list, item: str) -> 'Journal':
+
+        # Get Label
+        label = None
+        if item:
+            label = item
+
+        # Get ISSN
+        issn = None
+        if ids:
+            issn = ids[0]
+
+        # Get MaRDI Portal ID
+        id = None
+        if label:
+            id = 'no journal found'
+
+        # Get Description
+        description = None
+        if label:
+            if issn:
+                description = f'scientific journal (ISSN {issn})'
+            else:
+                description = 'scientific journal'
+
         return cls(
             id = id,
             issn = issn,
             label = label,
-            description = 'No Description Provided!',
+            description = description,
         )
     
     @classmethod
     def from_zbmath(cls, raw: dict) -> 'Journal':
-        issn = raw.get('series', [{}])[0].get('issn', [{}])[0].get('number')
-        label = raw.get('series', [{}])[0].get('title')
-        id = 'no journal found' if label else None
+
+        series = (raw.get('series') or [{}])[0]
+
+        # Get Label
+        label = None
+        if series.get('title'):
+            label = series['title']
+
+        # Get ISSN
+        issn = None
+        if (series.get('issn') or [{}])[0].get('number'):
+            issn = series['issn'][0]['number']
+
+        # Get MaRDI Portal ID
+        id = None
+        if label:
+            id = 'no journal found'
+
+        # Get Description
+        description = None
+        if label:
+            if issn:
+                description = f'scientific journal (ISSN {issn})'
+            else:
+                description = 'scientific journal'
+
         return cls(
             id = id,
             issn = issn,
             label = label,
-            description = None,
+            description = description,
         )
 
 
@@ -252,24 +497,105 @@ class Publication:
         options = cls.get_options()
         ITEMS = get_items()
 
-        return cls(
-            id = None,
-            label = None,
-            description = 'No Description Provided!',
-            entrytype = 'scholarly article' if data.get('type', '') == 'journal-article' else 'publication',
-            language = [Relatant.from_language_dict({"ID": f"mardi:{ITEMS['english']}", "Name": "English", "Description": "West Germanic language"})] if data.get('language', '').lower() in {"en", "eng", "english"} else [],
-            title = data.get('title', [''])[0],
-            date = '{0[0]}-{0[1]:02d}-{0[2]:02d}'.format(data.get('published', {}).get('date-parts', [''])[0] + [1] * (3 - len(data.get('published', {}).get('date-parts', [''])))),
-            volume = data.get('volume', ''),
-            issue = data.get('issue', ''),
-            page = data.get('page', ''),
-            reference = {idx: [options['DOI'], data[prop]] for idx, prop in enumerate(['DOI']) if data.get('DOI', '')},
-            journal = [Journal.from_crossref(data.get('ISSN', []), data.get('container-title', []))] if 'ISSN' in data or 'container-title' in data else [],
+        # Get Publication MaRDI Portal ID
+        id = None
+
+        # Get Publication DOI
+        doi = data.get('DOI')
+
+        # Get Publication Label
+        label = None
+
+        # Get Publication Description
+        if doi:
+            description = f'scientific article (doi {doi})'
+        else:
+            description = f'scientific article'
+
+        # Get Publication Entrytype
+        if data.get('type') == 'journal-article':
+            entrytype = 'scholarly article'
+        else:
+            entrytype = 'publication'
+
+        # Get Publication Language
+        language_code = (data.get('language') or '').lower()
+
+        if language_code in {"en", "eng", "english"}:
+            language = [
+                Relatant.from_language_dict({
+                    "ID": f"mardi:{ITEMS['english']}",
+                    "Name": "English",
+                    "Description": "West Germanic language",
+                })
+            ]
+        else:
+            language = []
+
+        # Get Publication Title
+        title = data.get('title', [''])[0]
+
+        # Get Publication Date
+        published = data.get('published', {}).get('date-parts', [])
+
+        date_parts = published[0] if published else []
+
+        if len(date_parts) == 1:
+            date = f"{date_parts[0]:04d}-00-00T00:00:00Z"
+        elif len(date_parts) == 2:
+            date = f"{date_parts[0]:04d}-{date_parts[1]:02d}-00T00:00:00Z"
+        elif len(date_parts) >= 3:
+            date = f"{date_parts[0]:04d}-{date_parts[1]:02d}-{date_parts[2]:02d}T00:00:00Z"
+        else:
+            date = None
+
+        # Get Publication Volume
+        volume = data.get('volume')
+
+        # Get Publication Issue
+        issue = data.get('issue')
+
+        # Get Publication Page
+        page = data.get('page')
+
+        # Get Publication Reference
+        reference = {}
+        if doi:
+            reference = {0: [options['DOI'], doi]}
+
+        # Get Publication Journal
+        journal = []
+        if 'ISSN' in data or 'container-title' in data:
+            journal = [
+                Journal.from_crossref(
+                    data.get('ISSN', []),
+                    data.get('container-title', [])
+                )
+            ]
+
+        # Get Publication Authors
+        authors = []
+        if 'author' in data:
             authors = [
                 Author.from_crossref(author)
                 for author in data.get('author', [])
                 if author
-            ] if 'author' in data else [],
+            ]
+        
+        return cls(
+            id = id,
+            label = label,
+            description = description,
+            entrytype = entrytype,
+            language = language,
+            title = title,
+            date = date,
+            volume = volume,
+            issue = issue,
+            page = page,
+            reference = reference,
+            journal = journal,
+            authors = authors
         )
     
     @classmethod
@@ -280,24 +606,108 @@ class Publication:
         options = cls.get_options()
         ITEMS = get_items()
 
-        return cls(
-            id = None,
-            label = None,
-            description = 'No Description Provided!',
-            entrytype = 'scholarly article' if data.get('types', {}).get('bibtex', '') == 'article' else 'publication',
-            language = [Relatant.from_language_dict({"ID": f"mardi:{ITEMS['english']}", "Name": "English", "Description": "West Germanic language"})] if data.get('language', '').lower() in {"en", "eng", "english"} else [],
-            title = data.get('titles', [''])[0].get('title', ''),
-            date = next((date_part.get('date')+'-01-01' if len(date_part.get('date')) == 4 else date_part.get('date')+'-01' if len(date_part.get('date')) == 7 else date_part.get('date') for date_part in data.get('dates', []) if date_part.get('dateType') == 'Issued'), ''),
-            volume = data['relatedItems'][0].get('volume') if data.get('relatedItems') else None,
-            issue = data['relatedItems'][0].get('issue') if data.get('relatedItems') else None,
-            page = f"{data['relatedItems'][0].get('firstPage', '')}-{data['relatedItems'][0].get('lastPage', '')}" if data.get('relatedItems') else None,
-            reference = {idx: [options['DOI'], data[prop]] for idx, prop in enumerate(['DOI']) if data.get('DOI', '')},
-            journal = [Journal.from_datacite(data.get('relatedIdentifiers', [{}]), data.get('relatedItems') or [{}])] if 'relatedIdentifiers' in data or 'relatedItems' in data else [],            
+        # Get Publication MaRDI Portal ID
+        id = None
+
+        # Get Publication DOI
+        doi = data.get('DOI')
+
+        # Get Publication Label
+        label = None
+
+        # Get Publication Description
+        if doi:
+            description = f'scientific article (doi {doi})'
+        else:
+            description = f'scientific article'
+
+        # Get Publication Entrytype
+        if data.get('types', {}).get('bibtex') == 'article':
+            entrytype = 'scholarly article'
+        else:
+            entrytype = 'publication'
+
+        # Get Publication Language
+        language_code = (data.get('language') or '').lower()
+
+        if language_code in {"en", "eng", "english"}:
+            language = [
+                Relatant.from_language_dict({
+                    "ID": f"mardi:{ITEMS['english']}",
+                    "Name": "English",
+                    "Description": "West Germanic language",
+                })
+            ]
+        else:
+            language = []
+
+        # Get Publication Title
+        title = data.get('titles', [''])[0].get('title')
+
+        # Get Publication Date
+        date = None
+        for date_part in data.get('dates', []):
+            if date_part.get('dateType') == 'Issued':
+                raw_date = date_part.get('date')
+                if raw_date:
+                    parts = raw_date.split('-')
+                    if len(parts) == 1:
+                        date = f"{int(parts[0]):04d}-00-00T00:00:00Z"
+                    elif len(parts) == 2:
+                        date = f"{int(parts[0]):04d}-{int(parts[1]):02d}-00T00:00:00Z"
+                    elif len(parts) >= 3:
+                        date = f"{int(parts[0]):04d}-{int(parts[1]):02d}-{int(parts[2]):02d}T00:00:00Z"
+                break
+
+        # Get Publication Volume
+        volume = (data.get('relatedItems') or [{}])[0].get('volume')
+
+        # Get Publication Issue
+        issue = (data.get('relatedItems') or [{}])[0].get('issue')
+
+        # Get Publication Page
+        page = None
+        if data.get('relatedItems'):
+            page = f"{data['relatedItems'][0].get('firstPage', '')}-{data['relatedItems'][0].get('lastPage', '')}"
+
+        # Get Publication Reference
+        reference = {}
+        if doi:
+            reference = {0: [options['DOI'], doi]}
+
+        # Get Publication Journal
+        journal = []
+        if 'relatedIdentifiers' in data or 'relatedItems' in data:
+            journal = [
+                Journal.from_datacite(
+                    data.get('relatedIdentifiers', [{}]),
+                    data.get('relatedItems') or [{}],
+                )
+            ]
+
+        # Get Publication Authors
+        authors = []
+        if 'creators' in data:
             authors = [
                 Author.from_datacite(author)
                 for author in data.get('creators', [])
                 if author
-            ] if 'creators' in data else [],
+            ]
+
+        return cls(
+            id = id,
+            label = label,
+            description = description,
+            entrytype = entrytype,
+            language = language,
+            title = title,
+            date = date,
+            volume = volume,
+            issue = issue,
+            page = page,
+            reference = reference,
+            journal = journal,
+            authors = authors
         )
     
     @classmethod
@@ -308,24 +718,105 @@ class Publication:
         options = cls.get_options()
         ITEMS = get_items()
 
-        return cls(
-            id = None,
-            label = None,
-            description = 'No Description Provided!',
-            entrytype = 'scholarly article' if data.get('type', {}) == 'journal-article' else 'publication',
-            language = [Relatant.from_language_dict({"ID": f"mardi:{ITEMS['english']}", "Name": "English", "Description": "West Germanic language"})] if data.get('language', '').lower() in {"en", "eng", "english"} else [],
-            title = data.get('title', ''),
-            date = '{0[0]}-{0[1]:02d}-{0[2]:02d}'.format(data.get('published', {}).get('date-parts', [''])[0] + [1] * (3 - len(data.get('published', {}).get('date-parts', [''])))),
-            volume = data.get('volume'),
-            issue = data.get('issue'),
-            page = data.get('page'),
-            reference = {idx: [options['DOI'], data[prop]] for idx, prop in enumerate(['DOI']) if data.get('DOI', '')},
-            journal = [Journal.from_doi(data.get('ISSN', []), data.get('container-title', []))] if 'ISSN' in data or 'container-title' in data else [],
+        # Get Publication MaRDI Portal ID
+        id = None
+
+        # Get Publication DOI
+        doi = data.get('DOI')
+
+        # Get Publication Label
+        label = None
+
+        # Get Publication Description
+        if doi:
+            description = f'scientific article (doi {doi})'
+        else:
+            description = f'scientific article'
+
+        # Get Publication Entrytype
+        if data.get('type') == 'journal-article' or data.get('type') == 'article-journal':
+            entrytype = 'scholarly article'
+        else:
+            entrytype = 'publication'
+
+        # Get Publication Language
+        language_code = (data.get('language') or '').lower()
+
+        if language_code in {"en", "eng", "english"}:
+            language = [
+                Relatant.from_language_dict({
+                    "ID": f"mardi:{ITEMS['english']}",
+                    "Name": "English",
+                    "Description": "West Germanic language",
+                })
+            ]
+        else:
+            language = []
+
+        # Get Publication Title
+        title = data.get('title')
+
+        # Get Publication Date
+        published = data.get('published', {}).get('date-parts', [])
+
+        date_parts = published[0] if published else []
+
+        if len(date_parts) == 1:
+            date = f"{date_parts[0]:04d}-00-00T00:00:00Z"
+        elif len(date_parts) == 2:
+            date = f"{date_parts[0]:04d}-{date_parts[1]:02d}-00T00:00:00Z"
+        elif len(date_parts) >= 3:
+            date = f"{date_parts[0]:04d}-{date_parts[1]:02d}-{date_parts[2]:02d}T00:00:00Z"
+        else:
+            date = None
+
+        # Get Publication Volume
+        volume = data.get('volume')
+
+        # Get Publication Issue
+        issue = data.get('issue')
+
+        # Get Publication Page
+        page = data.get('page')
+
+        # Get Publication Reference
+        reference = {}
+        if doi:
+            reference = {0: [options['DOI'], doi]}
+
+        # Get Publication Journal
+        journal = []
+        if 'ISSN' in data or 'container-title' in data:
+            journal = [
+                Journal.from_doi(
+                    data.get('ISSN', []),
+                    data.get('container-title', [])
+                )
+            ]
+
+        # Get Publication Authors
+        authors = []
+        if 'author' in data:
             authors = [
                 Author.from_doi(author)
                 for author in data.get('author', [])
                 if author
-            ] if 'author' in data else [],
+            ]
+
+        return cls(
+            id = id,
+            label = label,
+            description = description,
+            entrytype = entrytype,
+            language = language,
+            title = title,
+            date = date,
+            volume = volume,
+            issue = issue,
+            page = page,
+            reference = reference,
+            journal = journal,
+            authors = authors
         )
     
     @classmethod
@@ -336,22 +827,100 @@ class Publication:
         options = cls.get_options()
         ITEMS = get_items()
 
-        return cls(
-            id = None,
-            label = None,
-            description = 'No Description Provided!',
-            entrytype = 'scholarly article' if data.get('document_type', {}).get('description') == 'journal article' else 'publication',
-            language = [Relatant.from_language_dict({"ID": f"mardi:{ITEMS['english']}", "Name": "English", "Description": "West Germanic language"})] if data.get('language',{}).get('languages', '').lower() in {"en", "eng", "english"} else [],
-            title = data.get('title', {}).get('title', {}),
-            date = f"{data.get('year','')}-01-01",
-            volume = data.get('source', {}).get('series', [''])[0].get('volume'),
-            issue = data.get('source', {}).get('series', [''])[0].get('issue'),
-            page = data.get('source', {}).get('page'),
-            reference = {idx: [options['DOI'], next((link.get('identifier') for link in data.get(prop, []) if link.get('type') == 'doi'), None)] for idx, prop in enumerate(['links']) if any(link.get('type') == 'doi' for link in data.get(prop, []))},
-            journal = [Journal.from_zbmath(data.get('source', {}))] if 'source' in data else [],
+        # Get Publication MaRDI Portal ID
+        id = None
+
+        # Get Publication DOI
+        doi = None
+        for link in data.get('links'):
+            if link.get('type') == 'doi':
+                doi = link.get('identifier')
+                break
+
+        # Get Publication Label
+        label = None
+
+        # Get Publication Description
+        if doi:
+            description = f'scientific article (doi {doi})'
+        else:
+            description = f'scientific article'
+
+        # Get Publication Entrytype
+        if data.get('document_type', {}).get('description') == 'journal article':
+            entrytype = 'scholarly article'
+        else:
+            entrytype = 'publication'
+
+        # Get Publication Language
+        language_codes = data.get('language', {}).get('languages') or ['']
+
+        if any(code.lower() in {"en", "eng", "english"} for code in language_codes):
+            language = [
+                Relatant.from_language_dict({
+                    "ID": f"mardi:{ITEMS['english']}",
+                    "Name": "English",
+                    "Description": "West Germanic language",
+                })
+            ]
+        else:
+            language = []
+
+        # Get Publication Date
+        date = None
+        if data.get('year'):
+            date = f"{int(data['year']):04d}-00-00T00:00:00Z"
+
+        # Get Publication Title
+        title = data.get('title', {}).get('title')
+
+        # Get Publication... 
+        source = data.get('source', {})
+
+        # Volume
+        volume = (source.get('series') or [''])[0].get('volume')
+
+        # Issue
+        issue = (source.get('series') or [''])[0].get('issue')
+
+        # Page
+        page = source.get('page')
+
+        # Get Publication Reference
+        reference = {}
+        if doi:
+            reference = {0: [options['DOI'], doi]}
+
+        # Get Publication Journal
+        journal = []
+        if 'source' in data:
+            journal = [
+                Journal.from_zbmath(
+                    data.get('source', {})
+                )
+            ]
+
+        # Get Publication Authors
+        authors = []
+        if 'contributors' in data:
             authors = [
                 Author.from_zbmath(author)
                 for author in data.get('contributors', {}).get('authors', [])
                 if author
-            ] if 'contributors' in data else [],
+            ]
+
+        return cls(
+            id = id,
+            label = label,
+            description = description,
+            entrytype = entrytype,
+            language = language,
+            title = title,
+            date = date,
+            volume = volume,
+            issue = issue,
+            page = page,
+            reference = reference,
+            journal = journal,
+            authors = authors
         )

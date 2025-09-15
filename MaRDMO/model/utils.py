@@ -1,31 +1,40 @@
-def mapEntityQuantity(data, type, mapping):
-    for key in data.get(type, {}):
-        for key2 in data[type][key].get('element',{}):
-            for k in data.get('quantity', {}):
-                if data[type][key]['element'][key2].get('quantity', {}).get('Name', '').lower() == data['quantity'][k]['Name'].lower():
-                    if data['quantity'][k].get('QorQK') == mapping['Quantity']:
-                        data[type][key]['element'][key2].update(
-                            {'Info': 
-                                {'Type': mapping['Quantity'],
-                                 'Name':data['quantity'][k].get('Name',''),
-                                 'Description':data['quantity'][k].get('Description',''),
-                                 'ID':data['quantity'][k].get('ID','') if data['quantity'][k].get('ID','') and data['quantity'][k].get('ID','') != 'not found' else data['quantity'][k].get('Reference','') if data['quantity'][k].get('Reference','') else '', 
-                                 'QKName':data['quantity'][k].get('QKRelatant', {}).get(0, {}).get('Name', ''),
-                                 'QKID':data['quantity'][k].get('QKRelatant', {}).get(0, {}).get('ID', '')}
-                            })
-                    elif data['quantity'][k].get('QorQK') == mapping['QuantityKind']:
-                        data[type][key]['element'][key2].update(
-                            {'Info':
-                                {'Type': mapping['QuantityKind'],
-                                 'Name':data['quantity'][k].get('Name',''),
-                                 'Description':data['quantity'][k].get('Description',''),
-                                 'ID':data['quantity'][k].get('ID','') if data['quantity'][k].get('ID','') and data['quantity'][k].get('ID','') != 'not found' else ''}
-                            })
-    return
+'''Module containing Utility Functions for the Model Documentation'''
+
+def build_quantity_info(quantity, qtype):
+    """Build the Info dict for a Quantity or QuantityKind."""
+    base_info = {
+        "Type": qtype,
+        "Name": quantity.get("Name", ""),
+        "Description": quantity.get("Description", ""),
+        "ID": (
+            quantity.get("ID", "")
+            if quantity.get("ID", "") and quantity.get("ID", "") != "not found"
+            else quantity.get("Reference", "")
+            if qtype == "Quantity" and quantity.get("Reference", "")
+            else ""
+        ),
+    }
+
+    # Only Quantity has QKRelatant
+    if qtype == "Quantity":
+        base_info["QKName"] = quantity.get("QKRelatant", [{}])[0].get("Name", "")
+        base_info["QKID"] = quantity.get("QKRelatant", [{}])[0].get("ID", "")
+
+    return base_info
 
 
+def map_entity_quantity(data, entity_type, mapping):
+    """Map quantities or quantity kinds to entity elements."""
+    for entity in data.get(entity_type, {}).values():
+        for element in entity.get("element", {}).values():
+            element_quantity_name = element.get("quantity", {}).get("Name", "").lower()
 
+            for quantity in data.get("quantity", {}).values():
+                quantity_name = quantity.get("Name", "").lower()
 
+                if element_quantity_name != quantity_name:
+                    continue
 
-
-                    
+                qtype = quantity.get("QorQK")
+                if qtype in mapping.values():
+                    element["Info"] = build_quantity_info(quantity, qtype)

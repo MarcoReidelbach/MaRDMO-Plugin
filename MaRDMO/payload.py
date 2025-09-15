@@ -3,6 +3,8 @@
 from dataclasses import dataclass, field
 from typing import Optional, Callable
 
+import re
+
 from .getters import get_items, get_properties
 from .queries import query_item
 
@@ -101,7 +103,7 @@ class GeneratePayload:
         elif data_type == 'monolingualtext':
             formatted_value = f"'{value}'@en"
         elif data_type == 'math':
-            escaped_value = value.replace('\"', '\\\"')
+            escaped_value = value.replace("\\", "\\\\").replace("\"", "\\\"")
             formatted_value = f"'{escaped_value}'^^<http://www.w3.org/1998/Math/MathML>"
         else:
             formatted_value = f"'{value}'"
@@ -232,19 +234,25 @@ class GeneratePayload:
             'datatype': object_and_type[1],
             'value': object_and_type[0]
         }
+        # Pattern of New Item
+        pattern = re.compile(r"^Item\d{10}$")
         # Add Relation
-        if self.state.dictionary[subject]['id']:
+        if (
+            self.state.dictionary[subject]['id']
+            or (isinstance(statement['value'], str) and pattern.match(statement['value']))
+        ):
             self._add_relation(
-                item = subject,
-                statement = statement,
-                qualifier = qualifier
+                item=subject,
+                statement=statement,
+                qualifier=qualifier
             )
         else:
             self._add_to_item_statement(
-                item = subject,
-                statement = statement,
-                qualifier = qualifier
+                item=subject,
+                statement=statement,
+                qualifier=qualifier
             )
+
 
     def add_answers(self, mardmo_property, wikibase_property, datatype = 'string'):
         '''Add answer to Payload.'''
@@ -437,15 +445,16 @@ class GeneratePayload:
                     qualifier.extend(
                         self.add_qualifier(
                             self.properties['assumes'],
-                            'wikibase-item',assumption_item
+                            'wikibase-item',
+                            assumption_item
                         )
                     )
             if self.state.subject.get('task_number', {}).get(key):
                 qualifier.extend(
                     self.add_qualifier(
                         self.properties['series ordinal'],
-                        self.state.subject['task_number'][key],
-                        'string'
+                        'string',
+                        self.state.subject['task_number'][key]
                     )
                 )
             # Add Forward or Backward Relation
@@ -680,5 +689,9 @@ class GeneratePayload:
                 continue
             for id_type, handler in handlers.items():
                 if id_type in value['ID']:
-                    handler(key, value)
+                    if id_type == 'no author found':
+                        if value['zbmath'] or value['orcid']:
+                            handler(key, value)
+                    else:
+                        handler(key, value)
                     break

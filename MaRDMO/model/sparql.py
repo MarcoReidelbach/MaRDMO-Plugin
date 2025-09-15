@@ -1,16 +1,16 @@
 queryHandler = {
-    
-    'researchFieldInformation': '''SELECT DISTINCT ?descriptionLong
-                                                   (GROUP_CONCAT(DISTINCT CONCAT(?sbrf, " | ", ?sbrfl, " | ", ?sbrfd); separator=" / ") AS ?specializedBy)
+
+    'researchFieldInformation': '''SELECT DISTINCT ?description_long
+                                                   (GROUP_CONCAT(DISTINCT CONCAT(?sbrf, " | ", ?sbrfl, " | ", ?sbrfd); separator=" / ") AS ?specialized_by)
                                                    (GROUP_CONCAT(DISTINCT CONCAT(?srf, " | ", ?srfl, " | ", ?srfd); separator=" / ") AS ?specializes)
-                                                   (GROUP_CONCAT(DISTINCT CONCAT(?strf, " | ", ?strfl, " | ", ?strfd); separator=" / ") AS ?similarTo)
+                                                   (GROUP_CONCAT(DISTINCT CONCAT(?strf, " | ", ?strfl, " | ", ?strfd); separator=" / ") AS ?similar_to)
                                                    (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
 
                                      WHERE {{
                                                    
                                                     VALUES ?id {{wd:{0}}}
 
-                                                    OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
+                                                    OPTIONAL {{ ?id wdt:{description} ?description_long }}
 
                                                     OPTIONAL {{
                                                                    ?id wdt:{specialized by} ?sbrfraw.
@@ -96,20 +96,20 @@ queryHandler = {
                                                                }}
 
                                           }} 
-                                          GROUP BY ?descriptionLong''',
+                                          GROUP BY ?description_long''',
 
-    'researchProblemInformation': '''SELECT DISTINCT ?descriptionLong
-                                                     (GROUP_CONCAT(DISTINCT CONCAT(?rf, " | ", ?rfl, " | ", ?rfd); separator=" / ") AS ?containedInField)
-                                                     (GROUP_CONCAT(DISTINCT CONCAT(?sbrp, " | ", ?sbrpl, " | ", ?sbrpd); separator=" / ") AS ?specializedBy)
+    'researchProblemInformation': '''SELECT DISTINCT ?description_long
+                                                     (GROUP_CONCAT(DISTINCT CONCAT(?rf, " | ", ?rfl, " | ", ?rfd); separator=" / ") AS ?contained_in_field)
+                                                     (GROUP_CONCAT(DISTINCT CONCAT(?sbrp, " | ", ?sbrpl, " | ", ?sbrpd); separator=" / ") AS ?specialized_by)
                                                      (GROUP_CONCAT(DISTINCT CONCAT(?srp, " | ", ?srpl, " | ", ?srpd); separator=" / ") AS ?specializes)
-                                                     (GROUP_CONCAT(DISTINCT CONCAT(?strp, " | ", ?strpl, " | ", ?strpd); separator=" / ") AS ?similarTo)
+                                                     (GROUP_CONCAT(DISTINCT CONCAT(?strp, " | ", ?strpl, " | ", ?strpd); separator=" / ") AS ?similar_to)
                                                      (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
 
                                      WHERE {{
                                                    
                                                     VALUES ?id {{wd:{0}}}
 
-                                                    OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
+                                                    OPTIONAL {{ ?id wdt:{description} ?description_long }}
                                                    
                                                     OPTIONAL {{
                                                                    ?rfraw wdt:{contains} ?id.
@@ -175,7 +175,7 @@ queryHandler = {
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?id wdt: ?strpraw.
+                                                                   ?id wdt:{similar to} ?strpraw.
 
                                                                    BIND(CONCAT("mardi:", STRAFTER(STR(?strpraw), STR(wd:))) AS ?strp)
                                                                    
@@ -215,55 +215,55 @@ queryHandler = {
                                                                }}
 
                                           }}
-                                          GROUP BY ?descriptionLong''',
+                                          GROUP BY ?description_long''',
 
-    'mathematicalModelInformation': '''SELECT DISTINCT ?descriptionLong
-                                                       ?isLinear ?isNotLinear
-                                                       ?isDynamic ?isStatic
-                                                       ?isDeterministic ?isStochastic
-                                                       ?isDimensionless ?isDimensional
-                                                       ?isSpaceContinuous ?isSpaceDiscrete
-                                                       ?isTimeContinuous ?isTimeDiscrete
+    'mathematicalModelInformation': '''SELECT DISTINCT ?description_long
+                                                       ?is_linear ?is_not_linear
+                                                       ?is_dynamic ?is_static
+                                                       ?is_deterministic ?is_stochastic
+                                                       ?is_dimensionless ?is_dimensional
+                                                       ?is_space_continuous ?is_space_discrete
+                                                       ?is_time_continuous ?is_time_discrete
                                                        (GROUP_CONCAT(DISTINCT CONCAT(?rp, " | ", ?rpl, " | ", ?rpd); separator=" / ") AS ?models)
-                                                       (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); separator=" / ") AS ?assumes)
-                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq, " >|< ", ?confq2); separator=" / ") AS ?containsFormulation)
-                                                       (GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); separator=" / ") AS ?usedBy)
-                                                       (GROUP_CONCAT(DISTINCT CONCAT(?sbm, " | ", ?sbml, " | ", ?sbmd, " | ", ?sbmq); separator=" / ") AS ?specializedBy)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd, " |  >|< ", ?assq); separator=" / ") AS ?assumes)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq, " >|< ", ?confq2); separator=" / ") AS ?contains_formulation)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); separator=" / ") AS ?used_by)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?sbm, " | ", ?sbml, " | ", ?sbmd, " | ", ?sbmq); separator=" / ") AS ?specialized_by)
                                                        (GROUP_CONCAT(DISTINCT CONCAT(?sm, " | ", ?sml, " | ", ?smd, " | ", ?smq); separator=" / ") AS ?specializes)
-                                                       (GROUP_CONCAT(DISTINCT CONCAT(?abm, " | ", ?abml, " | ", ?abmd); separator=" / ") AS ?approximatedBy)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?abm, " | ", ?abml, " | ", ?abmd); separator=" / ") AS ?approximated_by)
                                                        (GROUP_CONCAT(DISTINCT CONCAT(?am, " | ", ?aml, " | ", ?amd); separator=" / ") AS ?approximates)
-                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conm, " | ", ?conml, " | ", ?conmd); separator=" / ") AS ?containsModel)
-                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conim, " | ", ?coniml, " | ", ?conimd); separator=" / ") AS ?containedInModel)
-                                                       (GROUP_CONCAT(DISTINCT CONCAT(?dbm, " | ", ?dbml, " | ", ?dbmd); separator=" / ") AS ?discretizedBy)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conm, " | ", ?conml, " | ", ?conmd); separator=" / ") AS ?contains_model)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conim, " | ", ?coniml, " | ", ?conimd); separator=" / ") AS ?contained_in_model)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?dbm, " | ", ?dbml, " | ", ?dbmd); separator=" / ") AS ?discretized_by)
                                                        (GROUP_CONCAT(DISTINCT CONCAT(?dm, " | ", ?dml, " | ", ?dmd); separator=" / ") AS ?discretizes)
-                                                       (GROUP_CONCAT(DISTINCT CONCAT(?lbm, " | ", ?lbml, " | ", ?lbmd); separator=" / ") AS ?linearizedBy)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?lbm, " | ", ?lbml, " | ", ?lbmd); separator=" / ") AS ?linearized_by)
                                                        (GROUP_CONCAT(DISTINCT CONCAT(?lm, " | ", ?lml, " | ", ?lmd); separator=" / ") AS ?linearizes)
-                                                       (GROUP_CONCAT(DISTINCT CONCAT(?stm, " | ", ?stml, " | ", ?stmd); separator=" / ") AS ?similarTo)
+                                                       (GROUP_CONCAT(DISTINCT CONCAT(?stm, " | ", ?stml, " | ", ?stmd); separator=" / ") AS ?similar_to)
                                                        (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
                                                                  
                                                  WHERE {{
                                                    
                                                     VALUES ?id {{wd:{0}}}
 
-                                                    OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
+                                                    OPTIONAL {{ ?id wdt:{description} ?description_long }}
                                                    
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear model} }}, "True", "False" ) AS ?isLinear)
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear model} }}, "True", "False" ) AS ?isNotLinear)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear model} }}, "True", "False" ) AS ?is_linear)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear model} }}, "True", "False" ) AS ?is_not_linear)
                                                    
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dynamic model} }}, "True", "False" ) AS ?isDynamic)
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{static model} }}, "True", "False" ) AS ?isStatic)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dynamic model} }}, "True", "False" ) AS ?is_dynamic)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{static model} }}, "True", "False" ) AS ?is_static)
                                                    
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{deterministic model} }}, "True", "False" ) AS ?isDeterministic)
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{probabilistic model} }}, "True", "False" ) AS ?isStochastic)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{deterministic model} }}, "True", "False" ) AS ?is_deterministic)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{probabilistic model} }}, "True", "False" ) AS ?is_stochastic)
                                                    
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dimensionless model} }}, "True", "False" ) AS ?isDimensionless)
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dimensional model} }}, "True", "False" ) AS ?isDimensional)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dimensionless model} }}, "True", "False" ) AS ?is_dimensionless)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dimensional model} }}, "True", "False" ) AS ?is_dimensional)
                                                    
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-space model} }}, "True", "False" ) AS ?isSpaceContinuous)
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-space model} }}, "True", "False" ) AS ?isSpaceDiscrete)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-space model} }}, "True", "False" ) AS ?is_space_continuous)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-space model} }}, "True", "False" ) AS ?is_space_discrete)
                                                    
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time model} }}, "True", "False" ) AS ?isTimeContinuous)
-                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time model} }}, "True", "False" ) AS ?isTimeDiscrete)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time model} }}, "True", "False" ) AS ?is_time_continuous)
+                                                    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time model} }}, "True", "False" ) AS ?is_time_discrete)
 
                                                     OPTIONAL {{
                                                                    ?rpraw wdt:{modelled by} ?id.
@@ -287,7 +287,8 @@ queryHandler = {
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?id wdt:{assumes} ?assraw.
+                                                                   ?id p:{assumes} ?statement_x.
+                                                                   ?statement_x ps:{assumes} ?assraw.
 
                                                                    BIND(CONCAT("mardi:", STRAFTER(STR(?assraw), STR(wd:))) AS ?ass)
                                                                    
@@ -305,11 +306,16 @@ queryHandler = {
                                                                              FILTER (lang(?assdraw) = 'en')
                                                                            }}
                                                                   BIND(COALESCE(?assdraw, "No Description Provided!") AS ?assd)
+
+                                                                  OPTIONAL {{
+                                                                             ?statement_x pq:{series ordinal} ?assqraw.
+                                                                           }}
+                                                                  BIND(COALESCE(?assqraw, "") AS ?assq)
                                                                }}
 
                                                     OPTIONAL {{
-                                                                   ?id p:{contains} ?statement.
-                                                                   ?statement ps:{contains} ?confraw.
+                                                                   ?id p:{contains} ?statement_y.
+                                                                   ?statement_y ps:{contains} ?confraw.
 
                                                                    ?confraw wdt:{instance of} wd:{mathematical expression}.
 
@@ -329,13 +335,13 @@ queryHandler = {
                                                                   BIND(COALESCE(?confdraw, "No Description Provided!") AS ?confd)
 
                                                                   OPTIONAL {{
-                                                                             ?statement pq:{object has role} ?quaraw.
+                                                                             ?statement_y pq:{object has role} ?quaraw.
                                                                              BIND(CONCAT("mardi:", STRAFTER(STR(?quaraw), STR(wd:))) AS ?qua)
                                                                            }}
                                                                   BIND(COALESCE(?qua, "") AS ?confq)
 
                                                                   OPTIONAL {{
-                                                                             ?statement pq:{series ordinal} ?qua2raw.
+                                                                             ?statement_y pq:{series ordinal} ?qua2raw.
                                                                            }}
                                                                   BIND(COALESCE(?qua2raw, "") AS ?confq2)
                                                                }}
@@ -430,6 +436,7 @@ queryHandler = {
                                                             SELECT ?statement3 (GROUP_CONCAT(DISTINCT ?smq_entry; separator=" <|> ") AS ?smq)
                                                             WHERE {{
                                                      
+                                                              ?smraw wdt:{specialized by} ?id.
                                                               ?smraw p:{specialized by} ?statement3.
                                                               
                                                               OPTIONAL {{
@@ -692,57 +699,91 @@ queryHandler = {
                                                                }}
           
                                                    }}
-                                                   GROUP BY ?descriptionLong ?isLinear ?isNotLinear ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
-                                                            ?isDimensional ?isSpaceContinuous ?isSpaceDiscrete ?isTimeContinuous ?isTimeDiscrete''',
+                                                   GROUP BY ?description_long ?is_linear ?is_not_linear ?is_dynamic ?is_static ?is_deterministic ?is_stochastic ?is_dimensionless 
+                                                            ?is_dimensional ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete''',
 
-              'quantityOrQuantityKindInformation': '''SELECT DISTINCT ?descriptionLong
-                                                                      ?isDynamic ?isStatic
-                                                                      ?isDeterministic ?isStochastic
-                                                                      ?isDimensionless ?isDimensional
-                                                                      ?isSpaceContinuous ?isSpaceDiscrete
-                                                                      ?isTimeContinuous ?isTimeDiscrete
-                                                                      ?isChemicalConstant ?isMathematicalConstant ?isPhysicalConstant
+              'quantityOrQuantityKindInformation': '''SELECT DISTINCT ?description_long
+                                                                      ?is_dynamic ?is_static
+                                                                      ?is_deterministic ?is_stochastic
+                                                                      ?is_dimensionless ?is_dimensional
+                                                                      ?is_space_continuous ?is_space_discrete
+                                                                      ?is_time_continuous ?is_time_discrete
+                                                                      ?is_chemical_constant ?is_mathematical_constant ?is_physical_constant
                                                                       ?class ?reference
                                                                       (GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" / ") AS ?formulas)
-                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?symbol, " | ", ?cq, " | ", ?cql, " | ", ?cqd); separator=" / ") AS ?containsQuantity)
-                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?sbq, " | ", ?sbql, " | ", ?sbqd, " | ", ?sbqc); separator=" / ") AS ?specializedBy)
+                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?symbol, " | ", ?cq, " | ", ?cql, " | ", ?cqd); separator=" / ") AS ?contains_quantity)
+                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?sbq, " | ", ?sbql, " | ", ?sbqd, " | ", ?sbqc); separator=" / ") AS ?specialized_by)
                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?sq, " | ", ?sql, " | ", ?sqd, " | ", ?sqc); separator=" / ") AS ?specializes)
-                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?abq, " | ", ?abql, " | ", ?abqd, " | ", ?abqc); separator=" / ") AS ?approximatedBy)
+                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?abq, " | ", ?abql, " | ", ?abqd, " | ", ?abqc); separator=" / ") AS ?approximated_by)
                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?aq, " | ", ?aql, " | ", ?aqd, " | ", ?aqc); separator=" / ") AS ?approximates)
-                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?lbq, " | ", ?lbql, " | ", ?lbqd, " | ", ?lbqc); separator=" / ") AS ?linearizedBy)
+                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?dbq, " | ", ?dbql, " | ", ?dbqd, " | ", ?dbqc); separator=" / ") AS ?discretized_by)
+                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?dq, " | ", ?dql, " | ", ?dqd, " | ", ?dqc); separator=" / ") AS ?discretizes)
+                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?lbq, " | ", ?lbql, " | ", ?lbqd, " | ", ?lbqc); separator=" / ") AS ?linearized_by)
                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?lq, " | ", ?lql, " | ", ?lqd, " | ", ?lqc); separator=" / ") AS ?linearizes)
-                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?nbq, " | ", ?nbql, " | ", ?nbqd, " | ", ?nbqc); separator=" / ") AS ?nondimensionalizedBy)
+                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?nbq, " | ", ?nbql, " | ", ?nbqd, " | ", ?nbqc); separator=" / ") AS ?nondimensionalized_by)
                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?nq, " | ", ?nql, " | ", ?nqd, " | ", ?nqc); separator=" / ") AS ?nondimensionalizes)
-                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?stq, " | ", ?stql, " | ", ?stqd, " | ", ?stqc); separator=" / ") AS ?similarTo)
+                                                                      (GROUP_CONCAT(DISTINCT CONCAT(?stq, " | ", ?stql, " | ", ?stqd, " | ", ?stqc); separator=" / ") AS ?similar_to)
                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
                                                                       
                                                       WHERE {{
                                                    
                                                         VALUES ?id {{wd:{0}}}
 
-                                                        OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
+                                                        OPTIONAL {{ ?id wdt:{description} ?description_long }}
 
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dynamic quantity} }}, "True", "False" ) AS ?isDynamic)
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{static quantity} }}, "True", "False" ) AS ?isStatic)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{dynamic quantity} }} AS ?dynamicQuantity)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{dynamic quantity kind} }} AS ?dynamicQuantityKind)
+                                                        BIND(IF(?dynamicQuantity || ?dynamicQuantityKind, "True", "False") AS ?dynamic)
+                                                        BIND(COALESCE(?dynamic, "False") AS ?is_dynamic)
 
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd: }}, "True", "False" ) AS ?isDeterministic)
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd: }}, "True", "False" ) AS ?isStochastic)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{static quantity} }} AS ?staticQuantity)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{static quantity kind} }} AS ?staticQuantityKind)
+                                                        BIND(IF(?staticQuantity || ?staticQuantityKind, "True", "False") AS ?static)
+                                                        BIND(COALESCE(?static, "False") AS ?is_static)
 
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{deterministic quantity} }} AS ?deterministicQuantity)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{deterministic quantity kind} }} AS ?deterministicQuantityKind)
+                                                        BIND(IF(?deterministicQuantity || ?deterministicQuantityKind, "True", "False") AS ?deterministic)
+                                                        BIND(COALESCE(?deterministic, "False") AS ?is_deterministic)
+
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{probabilistic quantity} }} AS ?stochasticQuantity)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{probabilistic quantity kind} }} AS ?stochasticQuantityKind)
+                                                        BIND(IF(?stochasticQuantity || ?stochasticQuantityKind, "True", "False") AS ?stochastic)
+                                                        BIND(COALESCE(?stochastic, "False") AS ?is_stochastic)
+                                                        
                                                         BIND(EXISTS {{ ?id wdt:{instance of} wd:{dimensionless quantity} }} AS ?dimensionlessQuantity)
                                                         BIND(EXISTS {{ ?id wdt:{instance of} wd:{dimensionless quantity kind} }} AS ?dimensionlessQuantityKind)
                                                         BIND(IF(?dimensionlessQuantity || ?dimensionlessQuantityKind, "True", "False") AS ?dimensionless)
-                                                        BIND(COALESCE(?dimensionless, "False") AS ?isDimensionless)
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dimensional quantity} }}, "True", "False" ) AS ?isDimensional)
+                                                        BIND(COALESCE(?dimensionless, "False") AS ?is_dimensionless)
+                  
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{dimensional quantity} }} AS ?dimensionalQuantity)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{dimensional quantity kind} }} AS ?dimensionalQuantityKind)
+                                                        BIND(IF(?dimensionalQuantity || ?dimensionalQuantityKind, "True", "False") AS ?dimensional)
+                                                        BIND(COALESCE(?dimensional, "False") AS ?is_dimensional)
+                                                        
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{continuous-space quantity} }} AS ?spaceContinuousQuantity)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{continuous-space quantity kind} }} AS ?spaceContinuousQuantityKind)
+                                                        BIND(IF(?spaceContinuousQuantity || ?spaceContinuousQuantityKind, "True", "False") AS ?spaceContinuous)
+                                                        BIND(COALESCE(?spaceContinuous, "False") AS ?is_space_continuous)
 
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-space quantity} }}, "True", "False" ) AS ?isSpaceContinuous)
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-space quantity} }}, "True", "False" ) AS ?isSpaceDiscrete)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{discrete-space quantity} }} AS ?spaceDiscreteQuantity)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{discrete-space quantity kind} }} AS ?spaceDiscreteQuantityKind)
+                                                        BIND(IF(?spaceDiscreteQuantity || ?spaceDiscreteQuantityKind, "True", "False") AS ?spaceDiscrete)
+                                                        BIND(COALESCE(?spaceDiscrete, "False") AS ?is_space_discrete)
 
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time quantity} }}, "True", "False" ) AS ?isTimeContinuous)
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time quantity} }}, "True", "False" ) AS ?isTimeDiscrete)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time quantity} }} AS ?timeContinuousQuantity)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time quantity kind} }} AS ?timeContinuousQuantityKind)
+                                                        BIND(IF(?timeContinuousQuantity || ?timeContinuousQuantityKind, "True", "False") AS ?timeContinuous)
+                                                        BIND(COALESCE(?timeContinuous, "False") AS ?is_time_continuous)
 
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{chemical constant} }}, "True", "False" ) AS ?isChemicalConstant)
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{mathematical constant} }}, "True", "False" ) AS ?isMathematicalConstant)
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{physical constant} }}, "True", "False" ) AS ?isPhysicalConstant)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time quantity} }} AS ?timeDiscreteQuantity)
+                                                        BIND(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time quantity kind} }} AS ?timeDiscreteQuantityKind)
+                                                        BIND(IF(?timeDiscreteQuantity || ?timeDiscreteQuantityKind, "True", "False") AS ?timeDiscrete)
+                                                        BIND(COALESCE(?timeDiscrete, "False") AS ?is_time_discrete)
+                                                        
+                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{chemical constant} }}, "True", "False" ) AS ?is_chemical_constant)
+                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{mathematical constant} }}, "True", "False" ) AS ?is_mathematical_constant)
+                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{physical constant} }}, "True", "False" ) AS ?is_physical_constant)
 
                                                         {{
                                                           ?id wdt:{instance of} wd:{quantity}.
@@ -869,6 +910,64 @@ queryHandler = {
                                                                              FILTER (lang(?abqdraw) = 'en')
                                                                            }}
                                                                   BIND(COALESCE(?abqdraw, "No Description Provided!") AS ?abqd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?dqraw wdt:{discretized by} ?id.
+
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?dqraw), STR(wd:))) AS ?dq)
+                                                                   
+                                                                   {{
+                                                                     ?dqraw wdt:{instance of} wd:{quantity}.
+                                                                     BIND("Quantity" AS ?dqc)
+                                                                   }}
+                                                                   UNION
+                                                                   {{
+                                                                     ?dqraw wdt:{instance of} wd:{kind of quantity}.
+                                                                     BIND("QuantityKind" AS ?dqc)
+                                                                   }}
+
+                                                                   OPTIONAL {{
+                                                                              ?dqraw rdfs:label ?dqlraw.
+                                                                              FILTER (lang(?dqlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?dqlraw, "No Label Provided!") AS ?dql)
+
+                                                                  OPTIONAL {{
+                                                                             ?dqraw schema:description ?dqdraw
+                                                                             FILTER (lang(?dqdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?dqdraw, "No Description Provided!") AS ?dqd)
+                                                               }}
+
+                                                    OPTIONAL {{
+                                                                   ?id wdt:{discretized by} ?dbqraw.
+
+                                                                   BIND(CONCAT("mardi:", STRAFTER(STR(?dbqraw), STR(wd:))) AS ?dbq)
+                                                                   
+                                                                   {{
+                                                                     ?dbqraw wdt:{instance of} wd:{quantity}.
+                                                                     BIND("Quantity" AS ?dbqc)
+                                                                   }}
+                                                                   UNION
+                                                                   {{
+                                                                     ?dbqraw wdt:{instance of} wd:{kind of quantity}.
+                                                                     BIND("QuantityKind" AS ?dbqc)
+                                                                   }}
+
+                                                                   OPTIONAL {{
+                                                                              ?dbqraw rdfs:label ?dbqlraw.
+                                                                              FILTER (lang(?dbqlraw) = 'en')
+                                                                           }}
+
+                                                                  BIND(COALESCE(?dbqlraw, "No Label Provided!") AS ?dbql)
+
+                                                                  OPTIONAL {{
+                                                                             ?dbqraw schema:description ?dbqdraw
+                                                                             FILTER (lang(?dbqdraw) = 'en')
+                                                                           }}
+                                                                  BIND(COALESCE(?dbqdraw, "No Description Provided!") AS ?dbqd)
                                                                }}
 
                                                     OPTIONAL {{
@@ -1065,56 +1164,56 @@ queryHandler = {
                                                                }}
 
                                                       }}
-                                                      GROUP BY ?descriptionLong ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
-                                                               ?isDimensional ?isSpaceContinuous ?isSpaceDiscrete ?isTimeContinuous ?isTimeDiscrete
-                                                               ?isChemicalConstant ?isMathematicalConstant ?isPhysicalConstant ?class ?reference''',
+                                                      GROUP BY ?description_long ?is_dynamic ?is_static ?is_deterministic ?is_stochastic ?is_dimensionless 
+                                                               ?is_dimensional ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete
+                                                               ?is_chemical_constant ?is_mathematical_constant ?is_physical_constant ?class ?reference''',
 
-              'mathematicalFormulationInformation': '''SELECT DISTINCT ?descriptionLong
-                                                                       ?isLinear ?isNotLinear
-                                                                       ?isDynamic ?isStatic
-                                                                       ?isDeterministic ?isStochastic
-                                                                       ?isDimensionless ?isDimensional
-                                                                       ?isTimeContinuous ?isTimeDiscrete
-                                                                       ?isSpaceContinuous ?isSpaceDiscrete
+              'mathematicalFormulationInformation': '''SELECT DISTINCT ?description_long
+                                                                       ?is_linear ?is_not_linear
+                                                                       ?is_dynamic ?is_static
+                                                                       ?is_deterministic ?is_stochastic
+                                                                       ?is_dimensionless ?is_dimensional
+                                                                       ?is_time_continuous ?is_time_discrete
+                                                                       ?is_space_continuous ?is_space_discrete
                                                                        (GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" / ") AS ?formulas)
-                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?symbol, " | ", ?cq, " | ", ?cql, " | ", ?cqd); separator=" / ") AS ?containsQuantity)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?symbol, " | ", ?cq, " | ", ?cql, " | ", ?cqd); separator=" / ") AS ?contains_quantity)
                                                                        (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); separator=" / ") AS ?assumes)
-                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?containsFormulation)    
-                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?sbf, " | ", ?sbfl, " | ", ?sbfd, " | ", ?sbfq); separator=" / ") AS ?specializedBy)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?contains_formulation)    
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?sbf, " | ", ?sbfl, " | ", ?sbfd, " | ", ?sbfq); separator=" / ") AS ?specialized_by)
                                                                        (GROUP_CONCAT(DISTINCT CONCAT(?sf, " | ", ?sfl, " | ", ?sfd, " | ", ?sfq); separator=" / ") AS ?specializes)
-                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?abf, " | ", ?abfl, " | ", ?abfd); separator=" / ") AS ?approximatedBy)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?abf, " | ", ?abfl, " | ", ?abfd); separator=" / ") AS ?approximated_by)
                                                                        (GROUP_CONCAT(DISTINCT CONCAT(?af, " | ", ?afl, " | ", ?afd); separator=" / ") AS ?approximates)
-                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?nbf, " | ", ?nbfl, " | ", ?nbfd); separator=" / ") AS ?nondimensionalizedBy)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?nbf, " | ", ?nbfl, " | ", ?nbfd); separator=" / ") AS ?nondimensionalized_by)
                                                                        (GROUP_CONCAT(DISTINCT CONCAT(?nf, " | ", ?nfl, " | ", ?nfd); separator=" / ") AS ?nondimensionalizes)
-                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?dbf, " | ", ?dbfl, " | ", ?dbfd); separator=" / ") AS ?discretizedBy)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?dbf, " | ", ?dbfl, " | ", ?dbfd); separator=" / ") AS ?discretized_by)
                                                                        (GROUP_CONCAT(DISTINCT CONCAT(?df, " | ", ?dfl, " | ", ?dfd); separator=" / ") AS ?discretizes)
-                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?lbf, " | ", ?lbfl, " | ", ?lbfd); separator=" / ") AS ?linearizedBy)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?lbf, " | ", ?lbfl, " | ", ?lbfd); separator=" / ") AS ?linearized_by)
                                                                        (GROUP_CONCAT(DISTINCT CONCAT(?lf, " | ", ?lfl, " | ", ?lfd); separator=" / ") AS ?linearizes)
-                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?stf, " | ", ?stfl, " | ", ?stfd); separator=" / ") AS ?similarTo)
+                                                                       (GROUP_CONCAT(DISTINCT CONCAT(?stf, " | ", ?stfl, " | ", ?stfd); separator=" / ") AS ?similar_to)
                                                                        (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publications)
                                                                                
                                                                WHERE {{ 
                                                                        VALUES ?id {{wd:{0}}}
 
-                                                                       OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
+                                                                       OPTIONAL {{ ?id wdt:{description} ?description_long }}
 
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear equation} }}, "True", "False" ) AS ?isLinear)
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear equation} }}, "True", "False" ) AS ?isNotLinear)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear equation} }}, "True", "False" ) AS ?is_linear)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear equation} }}, "True", "False" ) AS ?is_not_linear)
                                                                      
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dynamic equation} }}, "True", "False" ) AS ?isDynamic)
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{static equation} }}, "True", "False" ) AS ?isStatic)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dynamic equation} }}, "True", "False" ) AS ?is_dynamic)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{static equation} }}, "True", "False" ) AS ?is_static)
                                                                      
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{deterministic equation} }}, "True", "False" ) AS ?isDeterministic)
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{probabilistic equation} }}, "True", "False" ) AS ?isStochastic)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{deterministic equation} }}, "True", "False" ) AS ?is_deterministic)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{probabilistic equation} }}, "True", "False" ) AS ?is_stochastic)
                                                                      
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dimensionless equation} }}, "True", "False" ) AS ?isDimensionless)
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd: }}, "True", "False" ) AS ?isDimensional)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dimensionless equation} }}, "True", "False" ) AS ?is_dimensionless)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{dimensional equation} }}, "True", "False" ) AS ?is_dimensional)
                                                                      
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-space equation} }}, "True", "False" ) AS ?isSpaceContinuous)
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-space equation} }}, "True", "False" ) AS ?isSpaceDiscrete)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-space equation} }}, "True", "False" ) AS ?is_space_continuous)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-space equation} }}, "True", "False" ) AS ?is_space_discrete)
                                                                      
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time equation} }}, "True", "False" ) AS ?isTimeContinuous)
-                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time equation} }}, "True", "False" ) AS ?isTimeDiscrete)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time equation} }}, "True", "False" ) AS ?is_time_continuous)
+                                                                       BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time equation} }}, "True", "False" ) AS ?is_time_discrete)
 
                                                                        OPTIONAL {{
                                                                                     ?id wdt:{defining formula} ?formula.
@@ -1261,6 +1360,7 @@ queryHandler = {
                                                             SELECT ?statement4 (GROUP_CONCAT(DISTINCT ?sfq_entry; separator=" <|> ") AS ?sfq)
                                                             WHERE {{
                                                      
+                                                              ?sfraw wdt:{specialized by} ?id.
                                                               ?sfraw p:{specialized by} ?statement4.
                                                               
                                                               OPTIONAL {{
@@ -1424,7 +1524,7 @@ queryHandler = {
 
                                                                    BIND(CONCAT("mardi:", STRAFTER(STR(?dfraw), STR(wd:))) AS ?df)
                                                                    
-                                                                   ?dbfraw wdt:{instance of} wd:{mathematical expression}.
+                                                                   ?dfraw wdt:{instance of} wd:{mathematical expression}.
 
                                                                    OPTIONAL {{
                                                                               ?dfraw rdfs:label ?dflraw.
@@ -1524,44 +1624,44 @@ queryHandler = {
                                                                }}
 
                                                                      }}
-                                                                     GROUP BY ?descriptionLong ?isLinear ?isNotLinear ?isDynamic ?isStatic ?isDeterministic ?isStochastic ?isDimensionless 
-                                                                              ?isDimensional ?isSpaceContinuous ?isSpaceDiscrete ?isTimeContinuous ?isTimeDiscrete''',
+                                                                     GROUP BY ?description_long ?is_linear ?is_not_linear ?is_dynamic ?is_static ?is_deterministic ?is_stochastic ?is_dimensionless 
+                                                                              ?is_dimensional ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete''',
                                                                                              
-                              'taskInformation': '''SELECT DISTINCT ?descriptionLong
-                                                                    ?isLinear ?isNotLinear
-                                                                    ?isSpaceContinuous ?isSpaceDiscrete
-                                                                    ?isTimeContinuous ?isTimeDiscrete
+                              'taskInformation': '''SELECT DISTINCT ?description_long
+                                                                    ?is_linear ?is_not_linear
+                                                                    ?is_space_continuous ?is_space_discrete
+                                                                    ?is_time_continuous ?is_time_discrete
                                                                     (GROUP_CONCAT(DISTINCT ?descriptionLong; separator=" / ") AS ?description)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); separator=" / ") AS ?assumes)
-                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?containsFormulation)
-                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?quan, " | ", ?quanl, " | ", ?quand, " | ", ?quanq); separator=" / ") AS ?containsQuantity)
-                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?sbt, " | ", ?sbtl, " | ", ?sbtd, " | ", ?sbtq); separator=" / ") AS ?specializedBy)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?contains_formulation)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?quan, " | ", ?quanl, " | ", ?quand, " | ", ?quanq); separator=" / ") AS ?contains_quantity)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?sbt, " | ", ?sbtl, " | ", ?sbtd, " | ", ?sbtq); separator=" / ") AS ?specialized_by)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?st, " | ", ?stl, " | ", ?std, " | ", ?stq); separator=" / ") AS ?specializes)
-                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?abt, " | ", ?abtl, " | ", ?abtd); separator=" / ") AS ?approximatedBy)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?abt, " | ", ?abtl, " | ", ?abtd); separator=" / ") AS ?approximated_by)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?at, " | ", ?atl, " | ", ?atd); separator=" / ") AS ?approximates)
-                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?cont, " | ", ?contl, " | ", ?contd, " | ", " >|< ", ?corder); separator=" / ") AS ?containsTask)
-                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?conit, " | ", ?conitl, " | ", ?conitd, " | ", " >|< ", ?ciorder); separator=" / ") AS ?containedInTask)
-                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?dbt, " | ", ?dbtl, " | ", ?dbtd); separator=" / ") AS ?discretizedBy)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?cont, " | ", ?contl, " | ", ?contd, " | ", " >|< ", ?corder); separator=" / ") AS ?contains_task)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?conit, " | ", ?conitl, " | ", ?conitd, " | ", " >|< ", ?ciorder); separator=" / ") AS ?contained_in_task)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?dbt, " | ", ?dbtl, " | ", ?dbtd); separator=" / ") AS ?discretized_by)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?dt, " | ", ?dtl, " | ", ?dtd); separator=" / ") AS ?discretizes)
-                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?lbt, " | ", ?lbtl, " | ", ?lbtd); separator=" / ") AS ?linearizedBy)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?lbt, " | ", ?lbtl, " | ", ?lbtd); separator=" / ") AS ?linearized_by)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?lt, " | ", ?ltl, " | ", ?ltd); separator=" / ") AS ?linearizes)
-                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?stt, " | ", ?sttl, " | ", ?sttd); separator=" / ") AS ?similarTo)
+                                                                    (GROUP_CONCAT(DISTINCT CONCAT(?stt, " | ", ?sttl, " | ", ?sttd); separator=" / ") AS ?similar_to)
                                                                     (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publications)
                         
                                                     WHERE {{
 
                                                         VALUES ?id {{wd:{0}}}
 
-                                                        OPTIONAL {{ ?id wdt:{description} ?descriptionLong }}
+                                                        OPTIONAL {{ ?id wdt:{description} ?description_long }}
 
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear task} }}, "True", "False" ) AS ?isLinear)
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear task} }}, "True", "False" ) AS ?isNotLinear)
+                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear task} }}, "True", "False" ) AS ?is_linear)
+                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear task} }}, "True", "False" ) AS ?is_not_linear)
 
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-space task} }}, "True", "False" ) AS ?isSpaceContinuous)
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-space task} }}, "True", "False" ) AS ?isSpaceDiscrete)
+                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-space task} }}, "True", "False" ) AS ?is_space_continuous)
+                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-space task} }}, "True", "False" ) AS ?is_space_discrete)
                                                       
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time task} }}, "True", "False" ) AS ?isTimeContinuous)
-                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time task} }}, "True", "False" ) AS ?isTimeDiscrete)
+                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time task} }}, "True", "False" ) AS ?is_time_continuous)
+                                                        BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time task} }}, "True", "False" ) AS ?is_time_discrete)
 
                                                         OPTIONAL {{
                                                                    ?id wdt:{assumes} ?assraw.
@@ -1715,6 +1815,7 @@ queryHandler = {
                                                             SELECT ?statement4 (GROUP_CONCAT(DISTINCT ?stq_entry; separator=" <|> ") AS ?stq)
                                                             WHERE {{
                                                      
+                                                              ?straw wdt:{specialized by} ?id.
                                                               ?straw p:{specialized by} ?statement4.
                                                               
                                                               OPTIONAL {{
@@ -1838,7 +1939,7 @@ queryHandler = {
 
                                                     OPTIONAL {{
                                                                    ?conitraw p:{contains} ?statement6.
-                                                                   ?statement6 ps:{contains} ?conitraw.
+                                                                   ?statement6 ps:{contains} ?id.
 
                                                                    BIND(CONCAT("mardi:", STRAFTER(STR(?conitraw), STR(wd:))) AS ?conit)
                                                                    
@@ -1988,5 +2089,5 @@ queryHandler = {
                                                                }}
 
                                                         }}
-                                                        GROUP BY ?descriptionLong ?isLinear ?isNotLinear ?isSpaceContinuous ?isSpaceDiscrete ?isTimeContinuous ?isTimeDiscrete''',        
+                                                        GROUP BY ?description_long ?is_linear ?is_not_linear ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete''',        
                                                       }

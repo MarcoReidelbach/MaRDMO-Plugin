@@ -1,10 +1,62 @@
 '''General Helper Functions of MaRDMO'''
 
+from typing import Callable, Optional, Any
+
 import re
 
 from rdmo.projects.models import Value
 from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
+
+def date_precision(date_str: str) -> int | None:
+    """
+    Return Wikibase precision based on a date string.
+    '+YYYY' -> 9, '+YYYY-MM' -> 10, '+YYYY-MM-DD' -> 11.
+    """
+    if not date_str:
+        return None
+
+    # Remove leading + and split date/time
+    date_only = date_str.lstrip('+').split('T')[0]  # 'YYYY-MM-DD' or shorter
+    parts = date_only.split('-')
+
+    year = parts[0]
+    month = parts[1] if len(parts) > 1 else '00'
+    day = parts[2] if len(parts) > 2 else '00'
+
+    if year != '0000':
+        if month != '00':
+            if day != '00':
+                return 11  # day precision
+            return 10  # month precision
+        return 9  # year precision
+    return None
+
+
+def split_value(
+    data: dict,
+    key: str,
+    transform: Optional[Callable[[str], Any]] = None,
+    object_role: Optional[Callable[[Any], bool]] = None,
+) -> list:
+    """
+    Split data[key]['value'] on ' / '. Optionally apply a transform
+    to each element and filter the results with `object_role`.
+    """
+    if key not in data:
+        return []
+
+    raw = data.get(key, {}).get('value', '').split(" / ")
+
+    parts = [part for part in raw if part]
+
+    if transform is not None:
+        parts = [transform(part) for part in parts]
+
+    if object_role is not None:
+        parts = [part for part in parts if object_role(part)]
+
+    return parts
 
 def basic_dict(value):
     '''Basic Information from ID Question as Dict'''

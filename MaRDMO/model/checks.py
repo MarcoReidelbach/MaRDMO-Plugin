@@ -1,6 +1,6 @@
 from rdmo.domain.models import Attribute
 
-from .constants import SECTION_MAP
+from .constants import data_properties_check, section_map
 
 from ..config import BASE_URI
 from ..getters import get_mathmoddb
@@ -18,50 +18,89 @@ class checks:
     def id_name_description(self, project, data):
         '''Perform ID, Name and Description Checks:
             - ID, Name, Description present'''
-        
+
+        okeys = ('model', 'formulation', 'quantity', 'task', 'problem', 'field', 'publication')
+
         for okey, ovalue in data.items():
-            if okey in ('model', 'formulation', 'quantity', 'task', 'problem', 'field', 'publication'):
-                values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f"{BASE_URI}domain/{okey}"))
+            if okey in okeys:
+                values = project.values.filter(
+                    snapshot=None,
+                    attribute=Attribute.objects.get(
+                        uri=f'{BASE_URI}domain/{okey}'
+                    )
+                )
                 for ikey, ivalue in ovalue.items():
                     page_name = values.get(set_index=ikey).text
                     if not ivalue.get('ID'):
-                        self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Missing ID'))
+                        self.err.append(
+                            self.error_message(
+                                section = section_map[okey],
+                                page = page_name,
+                                message = 'Missing ID'
+                            )
+                        )
                     if not ivalue.get('Name'):
-                        self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Missing Name'))
+                        self.err.append(
+                            self.error_message(
+                                section = section_map[okey],
+                                page = page_name,
+                                message = 'Missing Name'
+                            )
+                        )
                     if not ivalue.get('Description'):
-                        self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Missing Short Description'))
+                        self.err.append(
+                            self.error_message(
+                                section = section_map[okey],
+                                page = page_name,
+                                message = 'Missing Short Description'
+                            )
+                        )
                     if ivalue.get('Description') and len(ivalue['Description']) > 250:
-                        self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Short Description Too Long'))
+                        self.err.append(
+                            self.error_message(
+                                section = section_map[okey],
+                                page = page_name,
+                                message = 'Short Description Too Long'
+                            )
+                        )
     
     def properties(self, project,data):
         '''Perform Property Checks:
             - Properties present
             - Properties consistent'''
         
+        okeys = ('model', 'formulation', 'quantity', 'task')
+
         for okey, ovalue in data.items():
-            if okey in ('model', 'formulation', 'quantity', 'task'):
-                values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f"{BASE_URI}domain/{okey}"))
-                for ikey, ivalue in ovalue.items():
-                    page_name = values.get(set_index=ikey).text
-                    if not ivalue.get('Properties'):
-                        self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Missing Properties'))
-                    else:
-                        if self.mathmoddb['isDeterministic'] in ivalue['Properties'].values() and self.mathmoddb['isStochastic'] in ivalue['Properties'].values():
-                            self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Inconsistent Properties (Deterministic and Stochastic)'))
-                        if self.mathmoddb['isDimensionless'] in ivalue['Properties'].values() and self.mathmoddb['isDimensional'] in ivalue['Properties'].values():
-                            self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Inconsistent Properties (Dimensionless and Dimensional)'))
-                        if self.mathmoddb['isDynamic'] in ivalue['Properties'].values() and self.mathmoddb['isStatic'] in ivalue['Properties'].values():
-                            self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Inconsistent Properties (Dynamic and Static)'))
-                        if self.mathmoddb['isLinear'] in ivalue['Properties'].values() and self.mathmoddb['isNotLinear'] in ivalue['Properties'].values():
-                            self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Inconsistent Properties (Linear and Not Linear)'))
-                        if self.mathmoddb['isSpaceContinuous'] in ivalue['Properties'].values() and self.mathmoddb['isSpaceDiscrete'] in ivalue['Properties'].values():
-                            self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Inconsistent Properties (Space-Continuous and Space-Discrete)'))
-                        if self.mathmoddb['isTimeContinuous'] in ivalue['Properties'].values() and self.mathmoddb['isTimeDiscrete'] in ivalue['Properties'].values():
-                            self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Inconsistent Properties (Time-Continuous and Time-Discrete)'))
-                        if self.mathmoddb['isMathematicalConstant'] in ivalue['Properties'].values() and self.mathmoddb['isPhysicalConstant'] in ivalue['Properties'].values():
-                            self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Inconsistent Properties (Mathematical Constant and Physical Constant)'))
-                        if self.mathmoddb['isMathematicalConstant'] in ivalue['Properties'].values() and self.mathmoddb['isChemicalConstant'] in ivalue['Properties'].values():
-                            self.err.append(self.error_message(SECTION_MAP[okey], page_name, 'Inconsistent Properties (Mathematical Constant and Chemical Constant)'))
+            if okey not in okeys:
+                continue
+            values = project.values.filter(
+                snapshot=None,
+                attribute=Attribute.objects.get(
+                    uri = f'{BASE_URI}domain/{okey}'
+                )
+            )
+            for ikey, ivalue in ovalue.items():
+                page_name = values.get(set_index=ikey).text
+                if not ivalue.get('Properties'):
+                    self.err.append(
+                        self.error_message(
+                            section = section_map[okey],
+                            page = page_name,
+                            message = 'Missing Properties'
+                        )
+                    )
+                else:
+                    properties = ivalue['Properties'].values()
+                    for key, value in data_properties_check.items():
+                        if {self.mathmoddb[key[0]], self.mathmoddb[key[1]]}.issubset(properties):
+                            self.err.append(
+                                self.error_message(
+                                    section = section_map[okey],
+                                    page = page_name,
+                                    message = f'Inconsistent Properties {value}'
+                                )
+                            )
 
     def model(self, project, data):
         '''Perform Model Checks:
@@ -86,7 +125,7 @@ class checks:
                     self.err.append(self.error_message('Mathematical Model', page_name, 'Missing Relation Type (Mathematical Model)'))
                 # Check Qualifier
                 for mkey, mvalue in ivalue.get('RelationMM', {}).items():
-                    if mvalue[0] == self.mathmoddb['specializes'] or mvalue[0] == self.mathmoddb['specializedBy']:
+                    if mvalue[0] == self.mathmoddb['specializes'] or mvalue[0] == self.mathmoddb['specialized_by']:
                         if not ivalue.get('assumption', {}).get(mkey):
                             self.err.append(self.error_message('Mathematical Model', page_name, 'Missing Assumption (Specializes / Specialized By Mathematical Model)'))
                 if ivalue.get('number'):
@@ -121,12 +160,12 @@ class checks:
                     self.err.append(self.error_message('Computational Task', page_name, 'Missing Relation Type (Computational Task)'))
                 # Check Qualifier
                 for tkey, tvalue in ivalue.get('RelationT', {}).items():
-                    if tvalue[0] == self.mathmoddb['specializes'] or tvalue[0] == self.mathmoddb['specializedBy']:
+                    if tvalue[0] == self.mathmoddb['specializes'] or tvalue[0] == self.mathmoddb['specialized_by']:
                         if not ivalue.get('assumption', {}).get(tkey):
                             self.err.append(self.error_message('Computational Task', page_name, 'Missing Assumption (Specializes / Specialized By Computational Task)'))
                 for tkey, tvalue in ivalue.get('RelationT', {}).items():
-                    if tvalue[0] == self.mathmoddb['contains'] or tvalue[0] == self.mathmoddb['containedIn']:
-                        if not ivalue.get('number', {}).get(tkey):
+                    if tvalue[0] == self.mathmoddb['contains'] or tvalue[0] == self.mathmoddb['contained_in']:
+                        if not ivalue.get('task_number', {}).get(tkey):
                             self.err.append(self.error_message('Computational Task', page_name, 'Missing Order Number (Conatins / Contained In Computational Task)'))
         else:
             self.err.append('Computational Task: No Computational Task Entered')
@@ -167,7 +206,7 @@ class checks:
                     self.err.append(self.error_message('Mathematical Expression', page_name, 'Missing Relation Type (Mathematical Expression II)'))
                 # Check Qualifier
                 for mkey, mvalue in ivalue.get('RelationMF2', {}).items():
-                    if mvalue[0] == self.mathmoddb['specializes'] or mvalue[0] == self.mathmoddb['specializedBy']:
+                    if mvalue[0] == self.mathmoddb['specializes'] or mvalue[0] == self.mathmoddb['specialized_by']:
                         if not ivalue.get('assumption', {}).get(mkey):
                             self.err.append(self.error_message('Mathematical Expression', page_name, 'Missing Assumption (Specializes / Specialized By Mathematical Expression)'))
         else:

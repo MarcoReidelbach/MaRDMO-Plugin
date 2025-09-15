@@ -4,6 +4,8 @@ import logging
 import copy
 import re
 import json
+import time
+
 from urllib.parse import urlencode
 
 import requests
@@ -110,6 +112,8 @@ class OauthProviderMixin:
                         _('Something went wrong'),
                         str(err)
                     )
+
+                time.sleep(0.1)
 
                 keys.remove(key)
 

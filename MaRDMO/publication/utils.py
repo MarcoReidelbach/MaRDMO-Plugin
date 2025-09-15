@@ -25,7 +25,7 @@ def additional_queries(publication, choice, key, mardi_parameter, wikidata_param
 
 def assign_id(entities, target, prefix):
     for entity in entities:
-        if not entity.id or entity.id == 'not found' or entity.id == 'no author found':
+        if not entity.id or entity.id == 'not found' or entity.id == 'no author found' or entity.id == 'no journal found':
             for id_entity in target.values():
                 if entity.label.lower() == id_entity.label.lower():
                     entity.id = f"{prefix}:{id_entity.id}"
@@ -95,14 +95,14 @@ def get_citation(DOI):
 
             # If no Citation Data in KGs and additional sources requested by User, get Citation Information from CrossRef, DataCite, DOI, zbMath 
             pool = ThreadPool(processes=4)
-            results = pool.map(lambda fn: fn(DOI), [get_crossref_data, get_datacite_data, get_doi_data, get_zbmath_data])
-            
-            for idx, source in enumerate(['crossref', 'datacite', 'doi', 'zbmath']): 
-                try:
+            results = pool.map(lambda fn: fn(DOI), [get_crossref_data, get_doi_data, get_datacite_data, get_zbmath_data])
+
+            for idx, source in enumerate(['crossref', 'doi', 'datacite', 'zbmath']): 
+                if results[idx].status_code == 200:
                     source_func_name = f"from_{source}"
                     source_func = getattr(Publication, source_func_name)
                     publication[source] = source_func(results[idx])
-                except:
+                else:
                     publication[source] = None      
             
             # Get Authors assigned to publication from ORCID
@@ -118,7 +118,7 @@ def get_citation(DOI):
                             orcid_author = response.json()
                             publication['orcid'][idx] = Author.from_orcid(orcid_author)     
             # Add (missing) ORCID IDs to authors
-            for choice in ['zbmath', 'crossref', 'datacite', 'doi']:
+            for choice in ['crossref', 'doi', 'datacite', 'zbmath']:
                 if publication[choice]:
                     assign_orcid(publication, choice)
                     break
