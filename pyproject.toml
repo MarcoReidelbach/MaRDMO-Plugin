@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MaRDMO"
-version = "0.3.0"
+version = "0.3.1"
 description = "RDMO Plugin to document and query mathematical research data using the MaRDI infrastructure."
 readme = "README.md"
 authors = [{name = "Marco Reidelbach", email = "reidelbach@zib.de"}]
@@ -32,7 +32,7 @@ where = ["."]
 include = ["MaRDMO*"]
 
 [tool.setuptools.package-data]
-"MaRDMO" = ["templates/MaRDMO/*.html", "data/*.json", "static/MaRDMO/images/*.png", "static/MaRDMO/js/**/*", "algorithm/data/*.json", "model/data/*.json", "publication/data/*.json", "search/data/*.json", "workflow/data/*.json"]
+"MaRDMO" = ["templates/MaRDMO/*.html", "data/*.json", "static/MaRDMO/images/*.png", "static/MaRDMO/js/**/*", "algorithm/data/*.json", "model/data/*.json", "publication/data/*.json", "search/data/*.json", "workflow/data/*.json", "model/queries/*.sparql"]
 
 [project.optional-dependencies]
 # Add optional dependencies here if needed
