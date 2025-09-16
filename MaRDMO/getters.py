@@ -46,6 +46,13 @@ def get_data(file_name):
         data = json.load(json_file)
     return data
 
+def get_sparql_query(file_name):
+    """Get Data from SPARQL File"""
+    path = os.path.join(os.path.dirname(__file__), file_name)
+    with open(path, "r", encoding="utf-8") as sparql_file:
+        query = sparql_file.read()
+    return query
+
 def get_id(project, uri, keys):
     """Get Set of User requested Identifiers for specific URI"""
     values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))

@@ -1,0 +1,92 @@
+SELECT DISTINCT 
+(GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" / ") AS ?description_long)
+(GROUP_CONCAT(DISTINCT CONCAT(?sbrf, " | ", ?sbrfl, " | ", ?sbrfd); separator=" / ") AS ?specialized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?srf, " | ", ?srfl, " | ", ?srfd); separator=" / ") AS ?specializes)
+(GROUP_CONCAT(DISTINCT CONCAT(?strf, " | ", ?strfl, " | ", ?strfd); separator=" / ") AS ?similar_to)
+(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+
+WHERE {{
+
+    VALUES ?id {{wd:{0}}}
+
+    OPTIONAL {{ 
+        ?id wdt:{description} ?descriptionLong 
+    }}
+
+    OPTIONAL {{
+        ?id wdt:{specialized by} ?sbrfraw.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?sbrfraw), STR(wd:))) AS ?sbrf)
+                   
+        ?sbrfraw wdt:{instance of} wd:{academic discipline}.
+                   
+        OPTIONAL {{
+            ?sbrfraw rdfs:label ?sbrflraw.
+            FILTER (lang(?sbrflraw) = 'en')
+        }}
+        BIND(COALESCE(?sbrflraw, "No Label Provided!") AS ?sbrfl)
+
+        OPTIONAL {{
+            ?sbrfraw schema:description ?sbrfdraw
+            FILTER (lang(?sbrfdraw) = 'en')
+        }}
+        BIND(COALESCE(?sbrfdraw, "No Description Provided!") AS ?sbrfd)
+    }}
+
+    OPTIONAL {{
+        ?srfraw wdt:{specialized by} ?id.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?srfraw), STR(wd:))) AS ?srf)
+                   
+        ?srfraw wdt:{instance of} wd:{academic discipline}.
+                   
+        OPTIONAL {{
+            ?srfraw rdfs:label ?srflraw.
+            FILTER (lang(?srflraw) = 'en')
+        }}
+        BIND(COALESCE(?srflraw, "No Label Provided!") AS ?srfl)
+        
+        OPTIONAL {{
+            ?srfraw schema:description ?srfdraw
+            FILTER (lang(?srfdraw) = 'en')
+        }}
+        BIND(COALESCE(?srfdraw, "No Description Provided!") AS ?srfd)
+    }}
+
+    OPTIONAL {{
+        ?id wdt:{similar to} ?strfraw.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?strfraw), STR(wd:))) AS ?strf)
+                   
+        ?strfraw wdt:{instance of} wd:{academic discipline}.
+                   
+        OPTIONAL {{
+            ?strfraw rdfs:label ?strflraw.
+            FILTER (lang(?strflraw) = 'en')
+        }}
+        BIND(COALESCE(?strflraw, "No Label Provided!") AS ?strfl)
+
+        OPTIONAL {{
+            ?strfraw schema:description ?strfdraw
+            FILTER (lang(?strfdraw) = 'en')
+        }}
+        BIND(COALESCE(?strfdraw, "No Description Provided!") AS ?strfd)
+    }}
+      
+    OPTIONAL {{
+        ?id p:{described by source} ?statement_p .
+        ?statement_p ps:{described by source} ?pubraw .
+        ?statement_p pq:{object has role} ?role .
+        VALUES ?role {{ wd:{documentation} wd:{invention} wd:{review} wd:{study} wd:{use} }}
+        BIND(CONCAT("mardi:", STRAFTER(STR(?pubraw), STR(wd:))) AS ?pub)
+
+        OPTIONAL {{
+            ?pubraw rdfs:label ?publraw .
+            FILTER (lang(?publraw) = 'en')
+        }}
+        BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
+
+        OPTIONAL {{
+            ?pubraw schema:description ?pubdraw .
+            FILTER (lang(?pubdraw) = 'en')
+        }}
+        BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+    }}
+}}

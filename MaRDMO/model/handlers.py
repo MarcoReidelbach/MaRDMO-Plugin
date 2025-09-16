@@ -1,6 +1,5 @@
 '''Module containing Handlers for the Model Documentation'''
 
-
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from rdmo.projects.models import Value
@@ -9,10 +8,9 @@ from rdmo.options.models import Option
 from . import models
 
 from .constants import props, relatant_uris, relation_uris, index_counters, get_uri_prefix_map
-from .sparql import queryHandler
 
 from ..config import BASE_URI, endpoint
-from ..getters import get_items, get_mathmoddb, get_properties, get_questions
+from ..getters import get_items, get_mathmoddb, get_properties, get_questions, get_sparql_query
 from ..helpers import extract_parts, value_editor
 from ..queries import query_sparql
 from ..adders import (
@@ -56,15 +54,17 @@ def field_information(sender, **kwargs):
                 if source != 'mardi':
                     return
 
-                # If Item from MathModDB, set up query...
-                query = queryHandler['researchFieldInformation'].format(
+                # If Item from MathModDB, set up Query...
+                query = get_sparql_query('model/queries/field.sparql').format(
                     identifier,
                     **get_items(),
                     **get_properties()
                 )
-                # ...get results...
+                
+                # ...get Results...
                 results = query_sparql(query, endpoint[source]['sparql'])
-                # ... and load MathModDB vocabulary.
+                
+                # ... and load MathModDB Vocabulary.
                 mathmoddb = get_mathmoddb()
 
                 if not results:
@@ -143,15 +143,17 @@ def problem_information(sender, **kwargs):
                 if source != 'mardi':
                     return
 
-                # If Item from MathModDB, set up query...
-                query = queryHandler['researchProblemInformation'].format(
+                # If Item from MathModDB, set up Query...
+                query = get_sparql_query('model/queries/problem.sparql').format(
                     identifier,
                     **get_items(),
                     **get_properties()
                 )
-                # ...get results...
+
+                # ...get Results...
                 results = query_sparql(query, endpoint[source]['sparql'])
-                # ...and load MathModDB vocabulary.
+
+                # ...and load MathModDB Vocabulary.
                 mathmoddb = get_mathmoddb()
 
                 if not results:
@@ -245,15 +247,17 @@ def quantity_information(sender, **kwargs):
                 if source != 'mardi':
                     return
 
-                # If Item from MathModDB, set up query...
-                query = queryHandler['quantityOrQuantityKindInformation'].format(
+                # If Item from MathModDB, set up Query...
+                query = get_sparql_query('model/queries/quantity.sparql').format(
                     identifier,
                     **get_items(),
                     **get_properties()
                 )
-                # ...get results...
+
+                # ...get Results...
                 results = query_sparql(query, endpoint[source]['sparql'])
-                # ...and load MathModDB vocabulary.
+
+                # ...and load MathModDB Vocabulary.
                 mathmoddb = get_mathmoddb()
 
                 if not results:
@@ -331,14 +335,14 @@ def quantity_information(sender, **kwargs):
                     )
 
                 # Add Quantities
-                for idx, quantity in enumerate(data.contains_quantity):
-                    source, _ = quantity.id.split(':')
+                for idx, encoded_quantity in enumerate(data.contains_quantity):
+                    source, _ = encoded_quantity.id.split(':')
                     value_editor(
                         project = instance.project,
                         uri = f'{BASE_URI}{quantity["Element Quantity"]["uri"]}',
                         info = {
-                            'text': f"{quantity.label} ({quantity.description}) [{source}]",
-                            'external_id': quantity.id,
+                            'text': f"{encoded_quantity.label} ({encoded_quantity.description}) [{source}]",
+                            'external_id': encoded_quantity.id,
                             'set_index': idx,
                             'set_prefix': f"{instance.set_index}|0"
                         }
@@ -409,15 +413,17 @@ def formulation_information(sender, **kwargs):
                 if source != 'mardi':
                     return
 
-                # If Item from MathModDB, set up query...
-                query = queryHandler['mathematicalFormulationInformation'].format(
+                # If Item from MathModDB, set up Query...
+                query = get_sparql_query('model/queries/formulation.sparql').format(
                     identifier,
                     **get_items(),
                     **get_properties()
                 )
-                # ...get results...
+
+                # ...get Results...
                 results = query_sparql(query, endpoint[source]['sparql'])
-                # ...and load MaRDMO vocabulary.
+
+                # ...and load MaRDMO Vocabulary.
                 mathmoddb = get_mathmoddb()
 
                 if not results:
@@ -561,15 +567,17 @@ def task_information(sender, **kwargs):
                 if source != 'mardi':
                     return
 
-                # If Item from MathModDB, set up query...
-                query = queryHandler['taskInformation'].format(
+                # If Item from MathModDB, set up Query...
+                query = get_sparql_query('model/queries/task.sparql').format(
                     identifier,
                     **get_items(),
                     **get_properties()
                 )
-                # ...get results...
+
+                # ...get Results...
                 results = query_sparql(query, endpoint[source]['sparql'])
-                # ...and load MazjModDB vocabulary.
+
+                # ...and load MazjModDB Vocabulary.
                 mathmoddb = get_mathmoddb()
 
                 if not results:
@@ -692,15 +700,17 @@ def model_information(sender, **kwargs):
                 if source != 'mardi':
                     return
 
-                # If Item from MathModDB, set up query...
-                query = queryHandler['mathematicalModelInformation'].format(
+                # If Item from MathModDB, set up Query...
+                query = get_sparql_query('model/queries/model.sparql').format(
                     identifier,
                     **get_items(),
                     **get_properties()
                 )
-                # ...get results...
+
+                # ...get Results...
                 results = query_sparql(query, endpoint[source]['sparql'])
-                # ...and load MathModDB vocabulary.
+
+                # ...and load MathModDB Vocabulary.
                 mathmoddb = get_mathmoddb()
 
                 if not results:

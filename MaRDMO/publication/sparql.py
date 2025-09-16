@@ -22,8 +22,9 @@ queryPublication = {
                             (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" | ") AS ?authorInfos) 
                             (GROUP_CONCAT(DISTINCT CONCAT(?inv, " | ", ?invl, " | ", ?invd); separator=" / ") AS ?invents)    
                             (GROUP_CONCAT(DISTINCT CONCAT(?doc, " | ", ?docl, " | ", ?docd); separator=" / ") AS ?documents)
+                            (GROUP_CONCAT(DISTINCT CONCAT(?stu, " | ", ?stul, " | ", ?stud); separator=" / ") AS ?studies)
                             (GROUP_CONCAT(DISTINCT CONCAT(?rev, " | ", ?revl, " | ", ?revd); separator=" / ") AS ?surveys)
-                            (GROUP_CONCAT(DISTINCT CONCAT(?use, " | ", ?usel, " | ", ?used); separator=" / ") AS ?uses)                                                   
+                            (GROUP_CONCAT(DISTINCT CONCAT(?use, " | ", ?usel, " | ", ?used); separator=" / ") AS ?uses)    
                             ?entrytypelabel ?journalInfo ?languagelabel                               
                             ?title ?date ?volume ?issue ?page          
 
@@ -69,6 +70,27 @@ queryPublication = {
                                       BIND(COALESCE(?docdraw, "No Description Provided!") AS ?docd)
                                       
                                       ?statement2 pq:{object has role} wd:{documentation}.
+                                   }}
+
+                        OPTIONAL {{
+                                       ?sturaw p:{described by source} ?statement3.
+                                       ?statement3 ps:{described by source} ?publication.
+
+                                       BIND(CONCAT("mardi:", STRAFTER(STR(?sturaw), STR(wd:))) AS ?stu)
+                                       
+                                       OPTIONAL {{
+                                                  ?sturaw rdfs:label ?stulraw.
+                                                  FILTER (lang(?stulraw) = 'en')
+                                               }}
+                                      BIND(COALESCE(?stulraw, "No Label Provided!") AS ?stul)
+                                      
+                                      OPTIONAL {{
+                                                 ?sturaw schema:description ?studraw
+                                                 FILTER (lang(?studraw) = 'en')
+                                               }}
+                                      BIND(COALESCE(?studraw, "No Description Provided!") AS ?stud)
+                                      
+                                      ?statement3 pq:{object has role} wd:{study}.
                                    }}
 
                         OPTIONAL {{

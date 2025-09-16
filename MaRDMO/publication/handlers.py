@@ -55,10 +55,12 @@ def PInformation(sender, **kwargs):
             elif source == 'mardi':
                 #...query the MaRDI Portal,...
                 query = queryPublication['MaRDI']['QID_FULL'].format(id, **get_items(), **get_properties())
+
                 results = query_sparql(query, endpoint['mardi']['sparql'])
                 if results:
                     #...structure the data...
                     data = Publication.from_query(results)
+
                     #...and add the Information to the Questionnaire.
                     if str(instance.project.catalog).split('/')[-1] == 'mardmo-algorithm-catalog':
                         value_editor(
