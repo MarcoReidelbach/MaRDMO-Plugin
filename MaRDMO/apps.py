@@ -35,5 +35,5 @@ class MaRDMOConfig(AppConfig):
         self.mathmoddb = get_data('model/data/mapping.json')
         self.mathalgodb = get_data('algorithm/data/mapping.json')
         self.options = get_data('data/options.json')
-        self.items = get_data('data/items_staging.json')
-        self.properties = get_data('data/properties_staging.json')
+        self.items = get_data('data/items.json')
+        self.properties = get_data('data/properties.json')
