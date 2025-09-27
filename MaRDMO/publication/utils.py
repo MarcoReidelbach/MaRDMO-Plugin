@@ -95,9 +95,9 @@ def get_citation(DOI):
 
             # If no Citation Data in KGs and additional sources requested by User, get Citation Information from CrossRef, DataCite, DOI, zbMath 
             pool = ThreadPool(processes=4)
-            results = pool.map(lambda fn: fn(DOI), [get_crossref_data, get_doi_data, get_datacite_data, get_zbmath_data])
+            results = pool.map(lambda fn: fn(DOI), [get_crossref_data, get_datacite_data, get_zbmath_data, get_doi_data])
 
-            for idx, source in enumerate(['crossref', 'doi', 'datacite', 'zbmath']): 
+            for idx, source in enumerate(['crossref', 'datacite', 'zbmath', 'doi']): 
                 if results[idx].status_code == 200:
                     source_func_name = f"from_{source}"
                     source_func = getattr(Publication, source_func_name)
@@ -118,7 +118,7 @@ def get_citation(DOI):
                             orcid_author = response.json()
                             publication['orcid'][idx] = Author.from_orcid(orcid_author)     
             # Add (missing) ORCID IDs to authors
-            for choice in ['crossref', 'doi', 'datacite', 'zbmath']:
+            for choice in ['crossref', 'datacite', 'zbmath', 'doi']:
                 if publication[choice]:
                     assign_orcid(publication, choice)
                     break
