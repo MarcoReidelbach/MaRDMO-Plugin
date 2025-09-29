@@ -303,6 +303,9 @@ class checks:
                 page_name = values.get(set_index=ikey).text
                 if ivalue.get('ID') == 'not found' and not ivalue.get('reference'):
                     self.err.append(self.error_message('Publication', page_name, 'Missing Publication DOI or URL'))
+                # Check Connections
+                if not ivalue.get('RelationP'):
+                    self.err.append(self.error_message('Publication', page_name, 'Missing Mathematical Model Entity'))
                 # Relation Connections
                 if any('MISSING RELATION TYPE' in val for val in ivalue.get('RelationP', {}).values()):
                     self.err.append(self.error_message('Publication', page_name, 'Missing Relation Type (Publication)'))

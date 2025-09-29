@@ -476,9 +476,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
             # Retrieve Publications related to Model
             answers = PublicationRetriever.WorkflowOrModel(
-                self.project,
-                answers,
-                options
+                project = self.project,
+                snapshot = self.snapshot,
+                answers = answers,
+                options = options
             )
 
             # Prepare Mathematical Model (Preview)
@@ -505,8 +506,8 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
             # Retrieve Publications related to Workflow
             answers = PublicationRetriever.Algorithm(
-                self.project,
-                answers
+                project = self.project,
+                answers = answers
             )
 
             return answers, options, mathalgodb
@@ -548,9 +549,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
             # Retrieve Publications related to Workflow
             answers = PublicationRetriever.WorkflowOrModel(
-                self.project,
-                answers,
-                options
+                project = self.project,
+                snapshot = self.snapshot,
+                answers = answers,
+                options = options
             )
 
             return answers, options

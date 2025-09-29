@@ -13,7 +13,7 @@ from ..helpers import value_editor
 
 class PublicationRetriever:
 
-    def WorkflowOrModel(project, answers, options):
+    def WorkflowOrModel(project, snapshot, answers, options):
         '''Function retrieving Publication Information for workflow and model documentation'''
 
         # Get Questions of Workflow Catalog
@@ -59,19 +59,21 @@ class PublicationRetriever:
             elif answers['publication'][key]['ID'].startswith('mathalgodb') or answers['publication'][key]['ID'].startswith('not found'):
                 #...but provided a DOI.
                 if answers['publication'][key].get('reference', {}).get(0, ['',''])[1]:
+                    #Clean potential old data...
+                    for question in PUBLICATIONS | LANGUAGES | JOURNALS | AUTHORS:
+                        Value.objects.filter(
+                            project = project,
+                            snapshot = snapshot,
+                            attribute_id = Attribute.objects.get(
+                                uri = f'{BASE_URI}{questions["Publication"][question]["uri"]}'
+                            ),
+                            set_index = key
+                        ).delete()
                     #Get the Citation of several ressource.
                     data = get_citation(answers['publication'][key]['reference'][0][1].upper())
                     #If Publication available at MaRDI Portal or Wikidata...
                     if data.get('mardi') or data.get('wikidata'):
                         DATA = data['mardi'] or data['wikidata']
-                        #...clean potential old data...
-                        for question in PUBLICATIONS | LANGUAGES | JOURNALS | AUTHORS:
-                            Value.objects.filter(
-                                attribute_id = Attribute.objects.get(
-                                    uri = f'{BASE_URI}{questions["Publication"][question]["uri"]}'
-                                ),
-                                set_index = key
-                            ).delete()
                         #...and add data to Questionnaire and...
                         value_editor(
                             project = project, 
