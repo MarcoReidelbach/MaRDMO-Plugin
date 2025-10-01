@@ -7,12 +7,12 @@ import requests
 from rdmo.domain.models import Attribute
 
 from .algorithm.sparql import queryProviderAL
-from .config import BASE_URI, endpoint
+from .config import BASE_URI, ENDPOINTS
 from .helpers import extract_parts
 
 logger = logging.getLogger(__name__)
 
-def query_item(label, description, api=endpoint['mardi']['api']):
+def query_item(label, description, api=ENDPOINTS['mardi']['api']):
     '''API request returning an Item whose label or alias matches,
        and with matching description.'''
     # Only check Items with description
@@ -138,8 +138,8 @@ def query_sources(search, query_id = '', sources = None, not_found = True):
         }
 
     source_functions = {
-        'wikidata': lambda s: query_api(endpoint['wikidata']['api'], s),
-        'mardi': lambda s: query_api(endpoint['mardi']['api'], s),
+        'wikidata': lambda s: query_api(ENDPOINTS['wikidata']['api'], s),
+        'mardi': lambda s: query_api(ENDPOINTS['mardi']['api'], s),
         'mathalgodb': lambda s: query_provider(s, queryProviderAL[query_id], 'mathalgodb')
     }
 
@@ -180,7 +180,7 @@ def query_provider(search, query, source):
     # Fetch results from the MathAlgoDB knowledge graph
     results = query_sparql(
         query = query,
-        sparql_endpoint = endpoint['mathalgodb']['sparql']
+        sparql_endpoint = ENDPOINTS['mathalgodb']['sparql']
     )
 
     dic = {}

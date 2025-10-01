@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
-from .config import endpoint
+from .config import ENDPOINTS
 from .getters import (
     get_answers,
     get_general_item_url,
@@ -69,7 +69,7 @@ class BaseMaRDMOExportProvider(OauthProviderMixin, Export, ABC):
     @property
     def wikibase_url(self):
         '''Provide MaRDI Portal URL'''
-        return endpoint['mardi']['uri']
+        return ENDPOINTS['mardi']['uri']
 
     @property
     def authorize_url(self):
@@ -205,10 +205,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                     },
                     'answers': answers,
                     'option': options,
-                    'mathmoddbURI': endpoint['mardi']['uri'],
-                    'mathalgodbURI': endpoint['mathalgodb']['uri'],
+                    'mathmoddbURI': ENDPOINTS['mardi']['uri'],
+                    'mathalgodbURI': ENDPOINTS['mathalgodb']['uri'],
                     'mardiURI': get_general_item_url(),
-                    'wikidataURI': endpoint['wikidata']['uri']
+                    'wikidataURI': ENDPOINTS['wikidata']['uri']
                 },
                 status=200
             )
@@ -339,7 +339,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
         try:
             response = requests.post(
-                endpoint['mathalgodb']['update'],
+                ENDPOINTS['mathalgodb']['update'],
                 data=query,
                 headers={
                     "Content-Type": "application/sparql-update",
@@ -362,13 +362,13 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 self.project,
                 ids,
                 queryAlgorithmDocumentation['IDCheck'],
-                endpoint['mathalgodb']['sparql'],
+                ENDPOINTS['mathalgodb']['sparql'],
                 'mathalgodb'
             )
             return render(
                 self.request,
                 'MaRDMO/algorithmExport.html',
-                {'ids': ids, 'mathalgodb_uri': endpoint['mathalgodb']['uri']},
+                {'ids': ids, 'mathalgodb_uri': ENDPOINTS['mathalgodb']['uri']},
                 status=200
             )
 

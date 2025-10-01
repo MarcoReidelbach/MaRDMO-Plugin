@@ -5,7 +5,7 @@ class MaRDISearch(Provider):
 
     search = True
 
-    def get_options(self, project, search, user=None, site=None):
+    def get_options(self, project, search=None, user=None, site=None):
         '''Queries MaRDI Portal for user input'''
         if not search or len(search) < 3:
             return []
@@ -20,7 +20,7 @@ class SoftwareSearch(Provider):
 
     search = True
 
-    def get_options(self, project, search, user=None, site=None):
+    def get_options(self, project, search=None, user=None, site=None):
         '''Queries MathModDB for user input'''
         if not search or len(search) < 3:
             return []

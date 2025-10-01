@@ -4,7 +4,7 @@
 BASE_URI = 'https://rdmo.mardi4nfdi.de/terms/'
 
 # Endpoints
-endpoint = {
+ENDPOINTS = {
     'mardi': {
         'api': 'https://portal.mardi4nfdi.de/w/api.php',
         'sparql': 'https://query.portal.mardi4nfdi.de/sparql',

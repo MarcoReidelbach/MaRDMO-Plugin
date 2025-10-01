@@ -2,7 +2,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from rdmo.projects.models import Value
 
-from ..config import BASE_URI, endpoint
+from ..config import BASE_URI, ENDPOINTS
 from ..getters import get_items, get_options, get_properties, get_questions
 from ..helpers import extract_parts, value_editor
 from ..queries import query_sparql
@@ -77,7 +77,7 @@ def SoftwareInformation(sender, **kwargs):
 
                 # Query source for further Information
                 query = queryHandler[source]['software'].format(Id, **get_items(), **get_properties())
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
                 
                 if results:
                 
@@ -174,7 +174,7 @@ def HardwareInformation(sender, **kwargs):
 
                 # Query source for further Information
                 query = queryHandler[source]['hardware'].format(Id, **get_items(), **get_properties())
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
                 
                 if results:
 
@@ -263,7 +263,7 @@ def DataSetInformation(sender, **kwargs):
 
                 # Query source for further Information
                 query = queryHandler[source]['data-set'].format(Id, **get_items(), **get_properties())
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
                 
                 if results:
                     
@@ -390,7 +390,7 @@ def MethodInformation(sender, **kwargs):
 
                 # Query source for further Information
                 query = queryHandler[source]['method'].format(Id, **get_items(), **get_properties())
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
                 
                 if results:
                     
@@ -453,7 +453,7 @@ def ProcessStepInformation(sender, **kwargs):
                 
                 # Query source for further Information
                 query = queryHandler[source]['step'].format(Id, **get_items(), **get_properties())
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
                 
                 if results:
                     
