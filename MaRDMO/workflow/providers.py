@@ -3,7 +3,7 @@ from rdmo.domain.models import Attribute
 
 from .sparql import queryProvider
 
-from ..config import BASE_URI, endpoint
+from ..config import BASE_URI, ENDPOINTS
 from ..getters import get_items, get_data, get_properties, get_questions
 from ..helpers import define_setup
 from ..queries import query_sources, query_sources_with_user_additions, query_sparql
@@ -92,7 +92,7 @@ class WorkflowTask(Provider):
 
         if model_id:
             _, id_value = model_id.split(':')
-            results = query_sparql(queryProvider['RT'].format(id_value, **get_items(), **get_properties()), endpoint['mardi']['sparql'])
+            results = query_sparql(queryProvider['RT'].format(id_value, **get_items(), **get_properties()), ENDPOINTS['mardi']['sparql'])
             if results:
                 if results[0].get('usedBy', {}).get('value'):
                     tasks = results[0]['usedBy']['value'].split(' / ')

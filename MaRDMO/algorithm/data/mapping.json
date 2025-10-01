@@ -1,4 +1,5 @@
-{"instantiates": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/instantiates",
+{
+ "instantiates": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/instantiates",
  "specializes": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/specializes",
  "specializedBy": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/specializedBy",
  "hasComponent": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/hasComponent",
@@ -15,4 +16,5 @@
  "surveys": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/surveys",
  "documents": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/documents",
  "uses": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/uses",
- "tests": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/tests"}
+ "tests": "https://rdmo.mardi4nfdi.de/terms/options/MathAlgoDB/tests"
+}

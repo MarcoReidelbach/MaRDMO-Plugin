@@ -9,7 +9,7 @@ from . import models
 
 from .constants import props, relatant_uris, relation_uris, index_counters, get_uri_prefix_map
 
-from ..config import BASE_URI, endpoint
+from ..config import BASE_URI, ENDPOINTS
 from ..getters import get_items, get_mathmoddb, get_properties, get_questions, get_sparql_query
 from ..helpers import extract_parts, value_editor
 from ..queries import query_sparql
@@ -62,7 +62,7 @@ def field_information(sender, **kwargs):
                 )
                 
                 # ...get Results...
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
                 
                 # ... and load MathModDB Vocabulary.
                 mathmoddb = get_mathmoddb()
@@ -151,7 +151,7 @@ def problem_information(sender, **kwargs):
                 )
 
                 # ...get Results...
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
 
                 # ...and load MathModDB Vocabulary.
                 mathmoddb = get_mathmoddb()
@@ -255,7 +255,7 @@ def quantity_information(sender, **kwargs):
                 )
 
                 # ...get Results...
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
 
                 # ...and load MathModDB Vocabulary.
                 mathmoddb = get_mathmoddb()
@@ -421,7 +421,7 @@ def formulation_information(sender, **kwargs):
                 )
 
                 # ...get Results...
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
 
                 # ...and load MaRDMO Vocabulary.
                 mathmoddb = get_mathmoddb()
@@ -575,7 +575,7 @@ def task_information(sender, **kwargs):
                 )
 
                 # ...get Results...
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
 
                 # ...and load MazjModDB Vocabulary.
                 mathmoddb = get_mathmoddb()
@@ -708,7 +708,7 @@ def model_information(sender, **kwargs):
                 )
 
                 # ...get Results...
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
 
                 # ...and load MathModDB Vocabulary.
                 mathmoddb = get_mathmoddb()

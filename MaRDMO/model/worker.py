@@ -12,7 +12,7 @@ from .constants import (
     get_data_properties
 )
 
-from ..config import endpoint
+from ..config import ENDPOINTS
 from ..getters import get_items, get_mathmoddb, get_properties
 from ..helpers import entity_relations, map_entity, unique_items, date_precision
 from ..queries import query_sparql
@@ -111,7 +111,7 @@ class PrepareModel:
             check = None
             for attempt in range(2):  # try twice
                 try:
-                    check = query_sparql(query, endpoint["mardi"]["sparql"])
+                    check = query_sparql(query, ENDPOINTS["mardi"]["sparql"])
                     break
                 except Exception as e:
                     logging.warning("SPARQL query attempt %s failed: %s", attempt + 1, e)

@@ -5,7 +5,7 @@ from rdmo.projects.models import Value
 from rdmo.options.models import Option
 from rdmo.domain.models import Attribute
 
-from ..config import BASE_URI, endpoint
+from ..config import BASE_URI, ENDPOINTS
 from ..getters import get_items, get_mathmoddb, get_mathalgodb, get_properties, get_questions
 from ..helpers import value_editor
 from ..queries import query_sparql
@@ -33,7 +33,7 @@ def PInformation(sender, **kwargs):
             if source == 'mathalgodb':
                 #...query the MathAlgoDB,...
                 query = queryPublication['PublicationMathAlgoDB'].format(id)
-                results = query_sparql(query, endpoint['mathalgodb']['sparql'])
+                results = query_sparql(query, ENDPOINTS['mathalgodb']['sparql'])
                 if results:
                     #...structure the data...
                     data = Publication.from_query(results)
@@ -56,7 +56,7 @@ def PInformation(sender, **kwargs):
                 #...query the MaRDI Portal,...
                 query = queryPublication['MaRDI']['QID_FULL'].format(id, **get_items(), **get_properties())
 
-                results = query_sparql(query, endpoint['mardi']['sparql'])
+                results = query_sparql(query, ENDPOINTS['mardi']['sparql'])
                 if results:
                     #...structure the data...
                     data = Publication.from_query(results)
@@ -100,7 +100,7 @@ def PInformation(sender, **kwargs):
             elif source == 'wikidata':
                 #...query Wikidata,...
                 query = queryPublication['Wikidata']['QID_FULL'].format(id)
-                results = query_sparql(query, endpoint['wikidata']['sparql-scholarly'])
+                results = query_sparql(query, ENDPOINTS['wikidata']['sparql-scholarly'])
                 if results:
                     #...structure the data...
                     data = Publication.from_query(results)

@@ -6,7 +6,7 @@ import os
 from django.apps import apps
 from rdmo.domain.models import Attribute
 
-from .config import BASE_URI, endpoint
+from .config import BASE_URI, ENDPOINTS
 from .constants import flag_dict
 from .helpers import nested_set
 
@@ -37,7 +37,7 @@ def get_questions(question_set):
 
 def get_general_item_url():
     """Get general Wikibase Item URL from Wikibase URL"""
-    return f"{endpoint['mardi']['uri']}/wiki/Item:"
+    return f"{ENDPOINTS['mardi']['uri']}/wiki/Item:"
 
 def get_data(file_name):
     """Get Data from JSON File"""
@@ -55,7 +55,8 @@ def get_sparql_query(file_name):
 
 def get_id(project, uri, keys):
     """Get Set of User requested Identifiers for specific URI"""
-    values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
+    attribute = Attribute.objects.get(uri=uri)
+    values = project.values.filter(snapshot=None, attribute=attribute)
     identifiers = []
     if len(keys) == 1:
         for value in values:
@@ -78,9 +79,10 @@ def get_answers(project, val, config):
     val.setdefault(config["key1"], {})
 
     try:
+        attribute = Attribute.objects.get(uri = f"{BASE_URI}{config['uri']}")
         values = project.values.filter(
             snapshot=None,
-            attribute=Attribute.objects.get(uri = f"{BASE_URI}{config['uri']}")
+            attribute=attribute
             )
     except Attribute.DoesNotExist:
         values = []

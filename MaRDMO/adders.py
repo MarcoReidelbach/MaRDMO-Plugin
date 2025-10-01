@@ -59,16 +59,20 @@ def add_entities(project, question_set, datas, source, prefix):
        Output: -'''
 
     # Generate ID, Name and Description URL from Set URL
-    question = {'id': f'{question_set}/id',
-                'name': f'{question_set}/name',
-                'description': f'{question_set}/description'}
+    question = {
+        'id': f'{question_set}/id',
+        'name': f'{question_set}/name',
+        'description': f'{question_set}/description'
+    }
 
     # Get existing Set and Item Information
-    info = {'set_ids': get_id(project, question_set, ['set_index']),
-            'value_ids': get_id(project, question['id'], ['external_id']),
-            'texts': get_id(project, question['id'], ['text']),
-            'names': get_id(project, question['name'], ['text']),
-            'descs': get_id(project, question['description'], ['text'])}
+    info = {
+        'set_ids': get_id(project, question_set, ['set_index']),
+        'value_ids': get_id(project, question['id'], ['external_id']),
+        'texts': get_id(project, question['id'], ['text']),
+        'names': get_id(project, question['name'], ['text']),
+        'descs': get_id(project, question['description'], ['text'])
+    }
 
     # Add Item to Questionnaire
     idx = max(info['set_ids'], default = -1) + 1
@@ -192,11 +196,13 @@ def add_relations_static(project, data, props, index, statement):
        Output: -'''
 
     # Get existing Set and Item Information
-    info = {'set_prefix_ids': get_id(project, statement['relatant'], ['set_prefix']),
-            'set_index_ids': get_id(project, statement['relatant'], ['set_index']),
-            'collection_ids': get_id(project, statement['relatant'], ['collection_index']),
-            'value_ids': get_id(project, statement['relatant'], ['external_id']),
-            'texts': get_id(project, statement['relatant'], ['text'])}
+    info = {
+        'set_prefix_ids': get_id(project, statement['relatant'], ['set_prefix']),
+        'set_index_ids': get_id(project, statement['relatant'], ['set_index']),
+        'collection_ids': get_id(project, statement['relatant'], ['collection_index']),
+        'value_ids': get_id(project, statement['relatant'], ['external_id']),
+        'texts': get_id(project, statement['relatant'], ['text'])
+    }
 
     # Get reduced set_prefixes
     index.update({'set_prefix_reduced': reduce_prefix(index['set_prefix'])})
@@ -251,12 +257,14 @@ def add_relations_flexible(project, data, props, index, statement):
        Output: -'''
 
     # Get existing Set, Item and Relation Information
-    info = {'set_prefix_ids': get_id(project, statement['relatant'], ['set_prefix']),
-            'set_index_ids': get_id(project, statement['relatant'], ['set_index']),
-            'collection_ids': get_id(project, statement['relatant'], ['collection_index']),
-            'value_ids': get_id(project, statement['relatant'], ['external_id']),
-            'texts': get_id(project, statement['relatant'], ['text']),
-            'rels': get_id(project, statement['relation'], ['option_uri'])}
+    info = {
+        'set_prefix_ids': get_id(project, statement['relatant'], ['set_prefix']),
+        'set_index_ids': get_id(project, statement['relatant'], ['set_index']),
+        'collection_ids': get_id(project, statement['relatant'], ['collection_index']),
+        'value_ids': get_id(project, statement['relatant'], ['external_id']),
+        'texts': get_id(project, statement['relatant'], ['text']),
+        'rels': get_id(project, statement['relation'], ['option_uri'])
+    }
 
     # Get reduced set prefix ids
     index.update({'set_prefix_reduced': reduce_prefix(index['set_prefix'])})

@@ -6,7 +6,7 @@ from multiprocessing.pool import ThreadPool
 from .models import Author, Journal, Publication
 from .sparql import queryPublication
 
-from ..config import endpoint
+from ..config import ENDPOINTS
 from ..getters import get_items, get_properties
 from ..queries import query_sparql_pool
 
@@ -15,7 +15,7 @@ def additional_queries(publication, choice, key, mardi_parameter, wikidata_param
     mardi_query = queryPublication[key].format(*mardi_parameter)
     wikidata_query = queryPublication[key].format(*wikidata_parameter)
     # Get Journal Information from MaRDI Portal / Wikidata
-    results = query_sparql_pool({'wikidata':(wikidata_query, endpoint['wikidata']['sparql']), 'mardi':(mardi_query, endpoint['mardi']['sparql'])})
+    results = query_sparql_pool({'wikidata':(wikidata_query, ENDPOINTS['wikidata']['sparql']), 'mardi':(mardi_query, ENDPOINTS['mardi']['sparql'])})
     mardi_info = function(results['mardi'])
     wikidata_info = function(results['wikidata'])
     # Add (missing) MaRDI Portal / Wikidata IDs to authors
@@ -80,9 +80,9 @@ def get_citation(DOI):
         mathalgodb_query = queryPublication['PublicationMathAlgoDBDOI'].format(DOI)
         
         # Get Citation Data from MaRDI Portal / Wikidata / MathAlgoDB
-        results = query_sparql_pool({'wikidata':(wikidata_query, endpoint['wikidata']['sparql-scholarly']), 
-                                     'mardi':(mardi_query, endpoint['mardi']['sparql']),  
-                                     'mathalgodb':(mathalgodb_query, endpoint['mathalgodb']['sparql'])})
+        results = query_sparql_pool({'wikidata':(wikidata_query, ENDPOINTS['wikidata']['sparql-scholarly']),
+                                     'mardi':(mardi_query, ENDPOINTS['mardi']['sparql']),
+                                     'mathalgodb':(mathalgodb_query, ENDPOINTS['mathalgodb']['sparql'])})
 
         # Structure Publication Information            
         for key in ['mardi', 'wikidata', 'mathalgodb']:
@@ -147,20 +147,20 @@ def get_citation(DOI):
     return publication
 
 def get_crossref_data(doi):
-    return requests.get(f"{endpoint['crossref']['api']}{doi}")
+    return requests.get(f"{ENDPOINTS['crossref']['api']}{doi}")
 
 def get_datacite_data(doi):
-    return requests.get(f"{endpoint['datacite']['api']}{doi}")
+    return requests.get(f"{ENDPOINTS['datacite']['api']}{doi}")
 
 def get_doi_data(doi):
-    return requests.get(f"{endpoint['doi']['api']}{doi}", headers={"accept": "application/json"})
+    return requests.get(f"{ENDPOINTS['doi']['api']}{doi}", headers={"accept": "application/json"})
 
 def get_zbmath_data(doi):
-    return requests.get(f"{endpoint['zbmath']['api']}{doi}")
+    return requests.get(f"{ENDPOINTS['zbmath']['api']}{doi}")
 
 def get_orcids(doi):
-    return requests.get(f"{endpoint['orcid']['api']}/search/?q=doi-self:{doi}", headers={'Accept': 'application/json'})
+    return requests.get(f"{ENDPOINTS['orcid']['api']}/search/?q=doi-self:{doi}", headers={'Accept': 'application/json'})
 
 def get_author_by_orcid(orcid_id):
-    return requests.get(f"{endpoint['orcid']['api']}/{orcid_id}/personal-details", headers={'Accept': 'application/json'})
+    return requests.get(f"{ENDPOINTS['orcid']['api']}/{orcid_id}/personal-details", headers={'Accept': 'application/json'})
 

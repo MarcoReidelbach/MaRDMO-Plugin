@@ -6,7 +6,7 @@ from .constants import PROPS, get_URI_PREFIX_MAP
 from .sparql import queryHandlerAL
 from .models import Benchmark, Software, Problem, Algorithm, Relatant
 
-from ..config import BASE_URI, endpoint
+from ..config import BASE_URI, ENDPOINTS
 from ..getters import get_mathalgodb, get_questions
 from ..helpers import extract_parts
 from ..queries import query_sparql
@@ -38,7 +38,7 @@ def BenchmarkInformation(sender, **kwargs):
                 
                 # If Item from MathModDB, query relations and load MathModDB Vocabulary
                 query = queryHandlerAL['benchmarkInformation'].format(Id)
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
 
                 if results:
                     
@@ -88,7 +88,7 @@ def SoftwareInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')
                 
                 query = queryHandlerAL['softwareInformation'].format(Id)
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
                 
                 if results:
                     
@@ -153,7 +153,7 @@ def ProblemInformation(sender, **kwargs):
                 source, Id = instance.external_id.split(':')    
                 
                 query = queryHandlerAL['softwareInformation'].format(Id)
-                results = query_sparql(query, endpoint[source]['sparql'])
+                results = query_sparql(query, ENDPOINTS[source]['sparql'])
                 mathalgodb = get_mathalgodb()
                 
                 if results:
@@ -195,93 +195,97 @@ def ProblemInformation(sender, **kwargs):
     return
 
 @receiver(post_save, sender=Value)
-def AlgorithmInformation(sender, **kwargs):
-    instance = kwargs.get("instance", None)
+def AlgorithmInformation(sender, instance=None, created=None, **kwargs):
+    # Check if Algorithm Catalog is used
+    if not instance or not instance.project.catalog.uri.endswith('mardmo-algorithm-catalog'):
+        return
+    # Check if actual Algorithm chosen
+    if not instance.text or instance.text == 'not found':
+        return
+
     # Get Questions of Algorithm Catalog
     questions = get_questions('algorithm') | get_questions('publication')
-    # Check if Algorithm Catalog is used
-    if instance and str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
-        # Check if Algorithm ID concerned
-        if instance.attribute.uri == f'{BASE_URI}{questions["Algorithm"]["ID"]["uri"]}':
-            # Check if actual Algorithm chosen
-            if instance.text and instance.text != 'not found':
-                
-                # Add basic Information
-                add_basics(
-                    project = instance.project,
-                    text = instance.text,
-                    questions = questions,
-                    item_type = "Algorithm",
-                    index = (0, instance.set_index)
-                )
+    # Check if Algorithm ID concerned
+    if instance.attribute.uri != f'{BASE_URI}{questions["Algorithm"]["ID"]["uri"]}':
+        return
 
-                # Get source and ID of Item
-                source, Id = instance.external_id.split(':')
-                
-                query = queryHandlerAL['algorithmInformation'].format(Id)
-                results = query_sparql(query, endpoint[source]['sparql'])
-                mathalgodb = get_mathalgodb()
-                
-                if results:
+    # Add basic Information
+    add_basics(
+        project = instance.project,
+        text = instance.text,
+        questions = questions,
+        item_type = "Algorithm",
+        index = (0, instance.set_index)
+    )
 
-                    # Structure Data and load MathAlgoDB
-                    data = Algorithm.from_query(results)
+    # Get source and ID of Item
+    source, Id = instance.external_id.split(':')
 
-                    # Add Algorithmic Problems to Questionnaire
-                    add_relations_static(
-                        project = instance.project, 
-                        data = data, 
-                        props = {
-                            'keys': PROPS['A2P']
-                        }, 
-                        index = {
-                            'set_prefix': instance.set_index
-                        }, 
-                        statement = {
-                            'relatant': f'{BASE_URI}{questions["Algorithm"]["PRelatant"]["uri"]}'
-                        }
-                    )
-                    
-                    # Add Softwares to Questionnaire
-                    add_relations_static(
-                        project = instance.project, 
-                        data = data, 
-                        props = {
-                            'keys': PROPS['A2S']
-                        }, 
-                        index = {
-                            'set_prefix': instance.set_index
-                        }, 
-                        statement = {
-                            'relatant': f'{BASE_URI}{questions["Algorithm"]["SRelatant"]["uri"]}'
-                        }
-                    )
-                    
-                    # Add Relations between Algorithms to Questionnaire
-                    add_relations_flexible(
-                        project = instance.project,
-                        data = data,
-                        props = {
-                            'keys': PROPS['Algorithm'],
-                            'mapping': mathalgodb,
-                        },
-                        index = {
-                            'set_prefix': instance.set_index
-                        },
-                        statement = {
-                            'relation': f'{BASE_URI}{questions["Algorithm"]["IntraClassRelation"]["uri"]}',
-                            'relatant': f'{BASE_URI}{questions["Algorithm"]["IntraClassElement"]["uri"]}',
-                        },
-                    )
-                    
-                    # Add Publications to Questionnaire
-                    add_entities(
-                        project = instance.project, 
-                        question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
-                        datas = data.publications, 
-                        source = source,
-                        prefix = 'P'
-                    )
+    query = queryHandlerAL['algorithmInformation'].format(Id)
+    results = query_sparql(query, ENDPOINTS[source]['sparql'])
+    mathalgodb = get_mathalgodb()
+
+    if not results or not any(bool(i) for i in results):
+        return
+
+    # Structure Data and load MathAlgoDB
+    data = Algorithm.from_query(results)
+
+    # Add Algorithmic Problems to Questionnaire
+    add_relations_static(
+        project = instance.project,
+        data = data,
+        props = {
+            'keys': PROPS['A2P']
+        },
+        index = {
+            'set_prefix': instance.set_index
+        },
+        statement = {
+            'relatant': f'{BASE_URI}{questions["Algorithm"]["PRelatant"]["uri"]}'
+        }
+    )
+
+    # Add Softwares to Questionnaire
+    add_relations_static(
+        project = instance.project,
+        data = data,
+        props = {
+            'keys': PROPS['A2S']
+        },
+        index = {
+            'set_prefix': instance.set_index
+        },
+        statement = {
+            'relatant': f'{BASE_URI}{questions["Algorithm"]["SRelatant"]["uri"]}'
+        }
+    )
+
+    # Add Relations between Algorithms to Questionnaire
+    add_relations_flexible(
+        project = instance.project,
+        data = data,
+        props = {
+            'keys': PROPS['Algorithm'],
+            'mapping': mathalgodb,
+        },
+        index = {
+            'set_prefix': instance.set_index
+        },
+        statement = {
+            'relation': f'{BASE_URI}{questions["Algorithm"]["IntraClassRelation"]["uri"]}',
+            'relatant': f'{BASE_URI}{questions["Algorithm"]["IntraClassElement"]["uri"]}',
+        },
+    )
+
+    # Add Publications to Questionnaire
+    add_entities(
+        project = instance.project,
+        question_set = f'{BASE_URI}{questions["Publication"]["uri"]}',
+        datas = data.publications,
+        source = source,
+        prefix = 'P'
+    )
     return
 
 @receiver(post_save, sender=Value)
