@@ -830,7 +830,7 @@ def relation_handler(sender, **kwargs):
             config = config_map[instance.attribute.uri]
             datas = [models.Relatant.from_relation(instance.external_id, label, description)]
             # Add items from specific source
-            if source != 'user':
+            if source in ('mardi', 'wikidata'):
                 add_entities(
                     project=instance.project,
                     question_set=config["question_set"],
@@ -839,7 +839,7 @@ def relation_handler(sender, **kwargs):
                     prefix=config["prefix"]
                 )
             # Add items from user
-            elif instance.external_id == 'not found':
+            elif source == 'user':
                 add_new_entities(
                     project=instance.project,
                     question_set=config["question_set"],

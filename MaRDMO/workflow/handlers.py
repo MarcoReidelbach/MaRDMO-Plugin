@@ -32,7 +32,7 @@ def RelationHandler(sender, **kwargs):
             datas = [Relatant.from_relation(instance.external_id, label, description)]
 
             # Add items from specific source
-            if source != 'user':
+            if source in ('mathalgodb', 'mardi', 'wikidata'):
                 add_entities(
                     project=instance.project,
                     question_set=config["question_set"],
@@ -42,7 +42,7 @@ def RelationHandler(sender, **kwargs):
                 )
             
             # Add items from user
-            elif instance.external_id == 'not found':
+            elif source == 'user':
                 add_new_entities(
                     project=instance.project,
                     question_set=config["question_set"],
