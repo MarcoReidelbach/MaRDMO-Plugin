@@ -5,6 +5,7 @@ import copy
 import re
 import json
 import time
+import random
 
 from urllib.parse import urlencode
 
@@ -120,22 +121,74 @@ class OauthProviderMixin:
         final = jsons
         return self.post_success(request, init, final)
 
-
     def _post_data(self, key, jsons, access_token):
-        """Post data for a single key, handles both relations and items"""
+        """Post data for a single key, handles both relations and items, with retries and backoff."""
         item = jsons[key]
 
         # Skip existing relations
-        if key.startswith('RELATION') and item['exists'] == 'true':
+        if key.startswith('RELATION') and item.get('exists') == 'true':
             return jsons
 
-        response = requests.post(
-            item['url'],
-            json=item['payload'],
-            headers=self.get_authorization_headers(access_token),
-            timeout=30
-        )
-        return self._handle_response(response, key, jsons)
+        # Reuse a requests.Session() to improve performance
+        session = getattr(self, "_session", None)
+        if session is None:
+            session = requests.Session()
+            self._session = session
+
+        url = item['url']
+        payload = item['payload']
+        headers = self.get_authorization_headers(access_token)
+        response = None
+
+        for attempt in range(1, 5 + 1):
+            try:
+                response = session.post(url, json=payload, headers=headers, timeout=30)
+                response.raise_for_status()
+                wait = 0.1 + random.uniform(0, 0.5)
+                time.sleep(wait)
+                return self._handle_response(response, key, jsons)
+
+            except requests.exceptions.Timeout:
+                wait = 1.5 ** attempt + random.uniform(0, 0.5)
+                logger.warning(f"Timeout while posting {key} (attempt {attempt}/{5}), retrying in {wait:.2f}s")
+                time.sleep(wait)
+                continue
+
+            except requests.exceptions.ConnectionError as exc:
+                wait = 1.5 ** attempt + random.uniform(0, 0.5)
+                logger.warning(f"Connection error posting {key}: {exc} (attempt {attempt}/{5}), retrying in {wait:.2f}s")
+                time.sleep(wait)
+                continue
+
+            except requests.HTTPError as exc:
+                status = response.status_code if response else "no_response"
+                content = response.text if response else "n/a"
+
+                if status == 429:  # Too Many Requests
+                    retry_after = int(response.headers.get("Retry-After", 5))
+                    logger.warning(f"Rate limit hit for {key}, waiting {retry_after}s before retry")
+                    time.sleep(retry_after)
+                    continue
+
+                if isinstance(status, int) and status >= 500:  # Server-side transient error
+                    wait = 1.5 ** attempt + random.uniform(0, 0.5)
+                    logger.warning(f"Server error {status} posting {key}, retrying in {wait:.2f}s")
+                    time.sleep(wait)
+                    continue
+
+                if status == 422:
+                    return self._handle_policy_violation(response, key, jsons)
+
+                logger.error(f"HTTP error posting {key}: {status} - {content}")
+                raise RuntimeError(_("POST request failed")) from exc
+
+            except requests.exceptions.RequestException as exc:
+                logger.error(f"Unexpected request error while posting {key}: {exc}")
+                raise RuntimeError(_("Unexpected network error")) from exc
+
+        # If we reach this point, all retries failed
+        logger.error(f"POST {url} failed after {5} retries")
+        raise RuntimeError(_("POST request failed after multiple retries"))
 
     def _handle_response(self, response, key, jsons):
         """Handle POST response and update placeholders.

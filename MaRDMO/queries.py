@@ -79,10 +79,10 @@ def query_sparql(query, sparql_endpoint):
     try:
         response = requests.post(
             sparql_endpoint,
-            data=query,
+            data=query.encode("utf-8"),
             headers={
                 "User-Agent": "MaRDMO (https://zib.de; reidelbach@zib.de)",
-                "Content-Type": "application/sparql-query",
+                "Content-Type": "application/sparql-query; charset=UTF-8",
                 "Accept": "application/sparql-results+json"
             },
             timeout = 60
@@ -302,7 +302,7 @@ def query_sources_with_user_additions(search, project, setup):
     )
 
     if setup['creation']:
-        options = [{'id': 'not found', 'text': f"{search} [user]"}] + options
+        options = [{'id': 'not found', 'text': f"{search}"}] + options
 
     # Return combined, sorted options
-    return sorted(options, key=lambda option: option['text'])
+    return options #sorted(options, key=lambda option: option['text'])

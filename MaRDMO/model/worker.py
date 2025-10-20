@@ -107,7 +107,6 @@ class PrepareModel:
             for key in payload.get_dictionary()
         ):
             query = payload.build_relation_check_query()
-
             check = None
             for attempt in range(2):  # try twice
                 try:
