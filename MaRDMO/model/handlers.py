@@ -288,8 +288,7 @@ def quantity_information(sender, **kwargs):
                             'option': Option.objects.get(
                                 uri=mathmoddb[results[0]['class']['value']]
                             ),
-                            'set_index': 0, 
-                            'set_prefix': instance.set_index
+                            'set_index': instance.set_index
                         }
                     )
 
@@ -318,7 +317,7 @@ def quantity_information(sender, **kwargs):
                             'text': formula, 
                             'collection_index': idx, 
                             'set_index': 0, 
-                            'set_prefix': instance.set_index
+                            'set_prefix': f"{instance.set_index}|0"
                         }
                     )
 
@@ -330,7 +329,7 @@ def quantity_information(sender, **kwargs):
                         info = {
                             'text': symbol,
                             'set_index': idx, 
-                            'set_prefix': f"{instance.set_index}|0"
+                            'set_prefix': f"{instance.set_index}|0|0"
                         }
                     )
 
@@ -344,7 +343,7 @@ def quantity_information(sender, **kwargs):
                             'text': f"{encoded_quantity.label} ({encoded_quantity.description}) [{source}]",
                             'external_id': encoded_quantity.id,
                             'set_index': idx,
-                            'set_prefix': f"{instance.set_index}|0"
+                            'set_prefix': f"{instance.set_index}|0|0"
                         }
                     )
 
@@ -462,7 +461,7 @@ def formulation_information(sender, **kwargs):
                             'text': formula, 
                             'collection_index': idx, 
                             'set_index': 0, 
-                            'set_prefix': instance.set_index
+                            'set_prefix': f"{instance.set_index}|0"
                         }
                     )
 
@@ -474,7 +473,7 @@ def formulation_information(sender, **kwargs):
                         info = {
                             'text': symbol, 
                             'set_index': idx, 
-                            'set_prefix': f"{instance.set_index}|0"
+                            'set_prefix': f"{instance.set_index}|0|0"
                         }
                     )
 
@@ -488,7 +487,7 @@ def formulation_information(sender, **kwargs):
                             'text': f"{quantity.label} ({quantity.description}) [{source}]", 
                             'external_id': quantity.id, 
                             'set_index': idx, 
-                            'set_prefix': f"{instance.set_index}|0"
+                            'set_prefix': f"{instance.set_index}|0|0"
                         }
                     )
 

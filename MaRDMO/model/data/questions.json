@@ -331,7 +331,7 @@
             "key1": "quantity",
             "key2": "QorQK",
             "uri": "domain/quantity/is-quantity-or-quantity-kind",
-            "set_prefix": true
+            "set_index": true
         },
         "Properties": {
             "key1": "quantity",
