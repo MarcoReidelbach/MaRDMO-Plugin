@@ -23,7 +23,12 @@ from .getters import (
     get_options,
     get_questions
 )
-from .helpers import  inline_mathml, merge_dicts_with_unique_keys, process_question_dict
+from .helpers import  (
+    compare_items,
+    inline_mathml,
+    merge_dicts_with_unique_keys,
+    process_question_dict
+)
 from .oauth2 import OauthProviderMixin
 
 from .model.worker import PrepareModel
@@ -37,7 +42,7 @@ from .algorithm.utils import (
     update_ids
 )
 
-from .workflow.utils import compare_items, get_discipline
+from .workflow.utils import get_discipline
 from .workflow.worker import prepareWorkflow
 from .search.worker import search
 from .publication.worker import PublicationRetriever

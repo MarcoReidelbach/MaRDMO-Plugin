@@ -257,13 +257,14 @@ class GeneratePayload:
     def add_answers(self, mardmo_property, wikibase_property, datatype = 'string'):
         '''Add answer to Payload.'''
         for entry in self.state.subject.get(mardmo_property, {}).values():
-            self.add_answer(
-                verb=self.properties[wikibase_property],
-                object_and_type=[
-                    entry,
-                    datatype,
-                ]
-            )
+            if not re.search(r"<math.*?</math>", entry, re.DOTALL): #IGNORE MATHML EXPORT UNTIL HANDLERS RE-WRITTEN FOR LATEX
+                self.add_answer(
+                    verb=self.properties[wikibase_property],
+                    object_and_type=[
+                        entry,
+                        datatype,
+                    ]
+                )
 
     def add_backward_relation(self, data, relation, relatants):
         '''Add backward relations to payload.'''
@@ -360,37 +361,38 @@ class GeneratePayload:
     def add_in_defining_formula(self):
         '''Add in defining formula Statement'''
         for element in self.state.subject.get('element', {}).values():
-            # Get Item Key
-            quantity_item = self.get_item_key(
-                element.get('quantity', {}),
-                'object'
-            )
-            # Add Quantity Qualifier
-            qualifier = self.add_qualifier(
-                self.properties['symbol represents'],
-                'wikibase-item',
-                quantity_item
-            )
-            # Add Symbol to Payload
-            if self.state.subject_item == quantity_item:
-                self._add_relation(
-                    item = self.state.subject_item,
-                    statement = {
-                        'property_id': self.properties['in defining formula'],
-                        'value': element.get('symbol', ''),
-                        'datatype': 'math'
-                    },
-                    qualifier = qualifier
+            if not re.search(r"<math.*?</math>", element.get('symbol', ''), re.DOTALL): #IGNORE MATHML EXPORT UNTIL HANDLERS RE-WRITTEN FOR LATEX
+                # Get Item Key
+                quantity_item = self.get_item_key(
+                    element.get('quantity', {}),
+                    'object'
                 )
-            else:
-                self.add_answer(
-                    verb=self.properties['in defining formula'],
-                    object_and_type=[
-                        element.get('symbol', ''),
-                        'math',
-                    ],
-                    qualifier=qualifier
+                # Add Quantity Qualifier
+                qualifier = self.add_qualifier(
+                    self.properties['symbol represents'],
+                    'wikibase-item',
+                    quantity_item
                 )
+                # Add Symbol to Payload
+                if self.state.subject_item == quantity_item:
+                    self._add_relation(
+                        item = self.state.subject_item,
+                        statement = {
+                            'property_id': self.properties['in defining formula'],
+                            'value': element.get('symbol', ''),
+                            'datatype': 'math'
+                        },
+                        qualifier = qualifier
+                    )
+                else:
+                    self.add_answer(
+                        verb=self.properties['in defining formula'],
+                        object_and_type=[
+                            element.get('symbol', ''),
+                            'math',
+                        ],
+                        qualifier=qualifier
+                    )
 
     def _add_entry(self, key, value):
         '''Add Entry to Payload'''

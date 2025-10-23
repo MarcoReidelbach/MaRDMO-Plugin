@@ -474,3 +474,11 @@ def process_question_dict(project, questions, get_answer):
             )
 
     return answers
+
+def compare_items(old, new):
+    """Compare Items before and after Export, to list newly created Items"""
+    ids = {}
+    for key, value in old.items():
+        if key.startswith('Item') and not value['id']:
+            ids.update({new[key]['payload']['item']['labels']['en']: new[key]['id']})
+    return ids
