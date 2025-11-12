@@ -1,3 +1,5 @@
+'''Module containing Constants for the Publication Documentation'''
+
 PROPS = {
     'P2E': ['documents','invents','studies','surveys','uses'],
     'P2A': ['analyzes','applies','invents','studies','surveys'],
@@ -12,14 +14,14 @@ INDEX_COUNTERS = {
 
 # URI mappings for quantity relations
 RELATION_URIS = {
-    "benchmark": "Publication P2B",
-    "software": "Publication P2S",
+    "benchmark": "P2B",
+    "software": "P2S",
 }
 
 # URI mappings for quantity relatants
 RELATANT_URIS = {
-    "benchmark": "Publication BRelatant",
-    "software": "Publication SRelatant",
+    "benchmark": "BRelatant",
+    "software": "SRelatant",
 }
 
 # URI mappings for publications

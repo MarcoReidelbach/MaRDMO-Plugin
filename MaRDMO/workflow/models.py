@@ -2,10 +2,11 @@ import re
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-from ..getters import get_data, get_options
-from ..adders import add_reference_order
-
 from .constants import order_to_publish
+
+from ..adders import add_reference_order
+from ..getters import get_data, get_options
+from ..models import Relatant
 
 @dataclass
 class ModelProperties:
@@ -70,41 +71,6 @@ class Parameters:
             Unit = data.get('Unit', {}).get('value'),
             Symbol = re.sub(r'(<math\b(?![^>]*\bdisplay=)[^>]*)(>)', r'\1 display="inline"\2', data.get('Symbol', {}).get('value')),
             Task = data.get('label', {}).get('value')
-        )
-    
-@dataclass
-class Relatant:
-    id: Optional[str]
-    label: Optional[str]
-    description: Optional[str]
-    
-    @classmethod
-    def from_query(cls, raw: str) -> 'Relatant':
-
-        id, label, description = raw.split(" | ")
-
-        return cls(
-            id = id,
-            label = label,
-            description = description,
-        )
-    
-    @classmethod
-    def from_relation(cls, id: str, label: str, description: str) -> 'Relatant':
-
-        return cls(
-            id = id,
-            label = label,
-            description = description,
-        )
-    
-    @classmethod
-    def from_msc(cls, id: str, label: str, description: str) -> 'Relatant':
-
-        return cls(
-            id = f"msc:{id}",
-            label = label,
-            description = description,
         )
     
 @dataclass

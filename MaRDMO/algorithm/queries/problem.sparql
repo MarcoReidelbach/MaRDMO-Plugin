@@ -1,0 +1,37 @@
+PREFIX prop: <https://mardi4nfdi.de/mathalgodb/0.1#>
+PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/problem#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>                          
+
+SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?bench, " | ", ?benchl, " | ", ?benchd); separator=" / ") AS ?instantiates)
+                (GROUP_CONCAT(DISTINCT CONCAT(?spec, " | ", ?specl, " | ", ?specd); separator=" / ") AS ?specializes)
+                (GROUP_CONCAT(DISTINCT CONCAT(?specby, " | ", ?specbyl, " | ", ?specbyd); separator=" / ") AS ?specializedBy)
+WHERE {{
+        VALUES ?idraw {{ :{0} }}
+
+        OPTIONAL {{
+                   ?idraw prop:instantiates ?benchraw.
+                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?benchraw), "#")) AS ?bench)
+                   OPTIONAL {{ ?benchraw rdfs:label ?benchlraw}}
+                   BIND(COALESCE(?benchlraw, "No Label Provided!") AS ?benchl)
+                   OPTIONAL {{ ?benchraw rdfs:comment ?benchdraw}}
+                   BIND(COALESCE(?benchdraw, "No Description Provided!") AS ?benchd)
+                 }}
+
+        OPTIONAL {{
+                   ?idraw prop:specializes ?specraw.
+                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?specraw), "#")) AS ?spec)
+                   OPTIONAL {{ ?specraw rdfs:label ?speclraw}}
+                   BIND(COALESCE(?speclraw, "No Label Provided!") AS ?specl)
+                   OPTIONAL {{ ?specraw rdfs:comment ?specdraw}}
+                   BIND(COALESCE(?specdraw, "No Description Provided!") AS ?specd)
+                 }}
+
+        OPTIONAL {{
+                   ?idraw prop:specializedBy ?specbyraw.
+                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?specbyraw), "#")) AS ?specby)
+                   OPTIONAL {{ ?specbyraw rdfs:label ?specbylraw}}
+                   BIND(COALESCE(?specbylraw, "No Label Provided!") AS ?specbyl)
+                   OPTIONAL {{ ?specbyraw rdfs:comment ?specbydraw}}
+                   BIND(COALESCE(?specbydraw, "No Description Provided!") AS ?specbyd)
+                 }}
+      }}

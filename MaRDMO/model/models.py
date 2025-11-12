@@ -7,32 +7,7 @@ from .constants import data_properties_per_class
 
 from ..getters import get_items, get_mathmoddb, get_options
 from ..helpers import split_value
-
-@dataclass
-class Relatant:
-    '''Data Class For Relatant Items'''
-    id: Optional[str]
-    label: Optional[str]
-    description: Optional[str]
-
-    @classmethod
-    def from_query(cls, raw: str) -> 'Relatant':
-        '''Generate Class Item From Query'''
-        identifier, label, description = raw.split(" | ")
-        return cls(
-            id = identifier,
-            label = label,
-            description = description,
-        )
-
-    @classmethod
-    def from_relation(cls, identifier: str, label: str, description: str) -> 'Relatant':
-        '''Generate Class Item From Relation'''
-        return cls(
-            id = identifier,
-            label = label,
-            description = description,
-        )
+from ..models import Relatant, RelatantWithClass
 
 @dataclass
 class RelatantWithQualifier:
@@ -57,25 +32,6 @@ class RelatantWithQualifier:
             description = description,
             qualifier = qualifier,
             order = order
-        )
-
-@dataclass
-class QRelatant:
-    '''Data Class For Relatant Items With MathModDB Class'''
-    id: Optional[str]
-    label: Optional[str]
-    description: Optional[str]
-    qclass: Optional[str]
-
-    @classmethod
-    def from_query(cls, raw: str) -> 'QRelatant':
-        '''Generate Class Item From Query'''
-        identifier, label, description, qclass = raw.split(" | ")
-        return cls(
-            id = identifier,
-            label = label,
-            description = description,
-            qclass = qclass
         )
 
 @dataclass
@@ -446,67 +402,67 @@ class QuantityOrQuantityKind:
             'specialized_by': split_value(
                 data = data,
                 key = 'specialized_by',
-                transform = QRelatant.from_query
+                transform = RelatantWithClass.from_query
             ),
             # Get Specializes Relation(s)
             'specializes': split_value(
                 data = data,
                 key = 'specializes',
-                transform = QRelatant.from_query
+                transform = RelatantWithClass.from_query
             ),
             # Get Approximated By Relation(s)
             'approximated_by': split_value(
                 data = data,
                 key = 'approximated_by',
-                transform = QRelatant.from_query
+                transform = RelatantWithClass.from_query
             ),
             # Get Approximates Relation(s)
             'approximates': split_value(
                 data = data,
                 key = 'approximates',
-                transform = QRelatant.from_query
+                transform = RelatantWithClass.from_query
             ),
             # Get Discretized By Relation(s)
             'discretized_by': split_value(
                 data = data,
                 key = 'discretized_by',
-                transform = QRelatant.from_query
+                transform = RelatantWithClass.from_query
             ),
             # Get Discretizes Relation(s)
             'discretizes': split_value(
                 data = data,
                 key = 'discretizes',
-                transform = QRelatant.from_query
+                transform = RelatantWithClass.from_query
             ),
             # Get Linearized By Relation(s)
             'linearized_by': split_value(
                 data = data,
                 key = 'linearized_by',
-                transform = QRelatant.from_query
+                transform = RelatantWithClass.from_query
             ),
             # Get Linearizes Relation(s)
             'linearizes': split_value(
                 data = data,
                 key = 'linearizes',
-                transform = QRelatant.from_query
+                transform = RelatantWithClass.from_query
             ),
             # Get Nondimesionalized By Relation(s)
             'nondimensionalized_by': split_value(
                 data = data,
                 key = 'nondimensionalized_by',
-                transform = QRelatant.from_query
+                transform = RelatantWithClass.from_query
             ),
             # Get Nondimensionalizes Relation(s)
             'nondimensionalizes': split_value(
                 data = data,
                 key = 'nondimensionalizes',
-                transform = QRelatant.from_query
+                transform = RelatantWithClass.from_query
             ),
             # Get Similar To Relation(s)
             'similar_to': split_value(
                 data = data,
                 key = 'similar_to',
-                transform = QRelatant.from_query
+                transform = RelatantWithClass.from_query
             ),
             # Get Publication(s)
             'publications': split_value(

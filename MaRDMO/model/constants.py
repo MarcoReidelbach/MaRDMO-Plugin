@@ -11,8 +11,8 @@ data_properties_check = {
     ('is_linear', 'is_not_linear'): '(Linear and Not Linear)',
     ('is_space_continuous', 'is_space_discrete'): '(Space-Continuous and Space-Discrete)',
     ('is_time_continuous', 'is_time_discrete'): '(Time-Continuous and Time-Discrete)',
-    ('is_mathematical_constant', 'is_physical_constant'): '(Mathematical Constant and Physical Constant)',
-    ('is_mathematical_constant', 'is_physical_constant'): '(Mathematical Constant and Chemical Constant)'
+    ('is_mathematical_constant', 'is_physical_constant'): '(Mathematical and Physical Constant)',
+    ('is_mathematical_constant', 'is_physical_constant'): '(Mathematical and Chemical Constant)'
 }
 
 # Data Properties per Class
@@ -43,7 +43,7 @@ section_map = {
     'model': 'Mathematical Model',
     'task': 'Computational Task',
     'formulation': 'Mathematical Expression',
-    'quantity': 'Quantity / Quantity Kind',
+    'quantity': 'Quantity [Kind]',
     'problem': 'Research Problem',
     'field': 'Academic Discipline',
     'publication': 'Publication'

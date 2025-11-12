@@ -10,7 +10,6 @@ from .config import BASE_URI, endpoint
 from .constants import flag_dict
 from .helpers import nested_set
 
-
 def get_mathmoddb():
     """Retrieve the mathmoddb ontology from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").mathmoddb

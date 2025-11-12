@@ -8,6 +8,16 @@ from rdmo.projects.models import Value
 from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
 
+def date_format(parts: list[int]) -> str | None:
+    """Return a date string as YYYY-MM-DDT00:00:00Z given a list of date parts."""
+    if not parts:
+        return None
+    if len(parts) == 1:
+        return f"{int(parts[0]):04d}-00-00T00:00:00Z"
+    if len(parts) == 2:
+        return f"{int(parts[0]):04d}-{int(parts[1]):02d}-00T00:00:00Z"
+    return f"{int(parts[0]):04d}-{int(parts[1]):02d}-{int(parts[2]):02d}T00:00:00Z"
+
 def date_precision(date_str: str) -> int | None:
     """
     Return Wikibase precision based on a date string.

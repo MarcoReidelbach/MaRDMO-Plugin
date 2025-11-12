@@ -137,7 +137,7 @@ def add_new_entities(project, question_set, datas, prefix):
         name_desc = f'{data.label} ({data.description})'
         # Check if Item already in Questionnaire via Name/Description Question
         check_name_desc = any(
-            name_desc in f'{name} ({desc})'
+            name_desc == f'{name} ({desc})'
             for name, desc in zip(info['names'], info['descs'])
             )
         # If Item not already in Questionnaire
@@ -320,7 +320,9 @@ def add_relations_flexible(project, data, props, index, statement):
                         project = project,
                         uri = statement['assumption'],
                         info = {
-                            'text': "{label} ({description}) [{source}]".format(**assumption_value),
+                            'text': "{label} ({description}) [{source}]".format_map(
+                                assumption_value
+                            ),
                             'external_id': assumption_value['id'],
                             'collection_index': assumption_key,
                             'set_index': index['idx'],

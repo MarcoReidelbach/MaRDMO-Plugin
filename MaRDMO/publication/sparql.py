@@ -476,11 +476,11 @@ queryPublication = {
 
                             OPTIONAL {{?authorraw rdfs:label ?labelraw.
                                        FILTER (lang(?labelraw) = 'en')}}
-                            BIND(COALESCE(?labelraw, "") AS ?label)
+                            BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
 
                             OPTIONAL {{?authorraw schema:description ?descriptionraw.
                                        FILTER (lang(?descriptionraw) = 'en')}}
-                            BIND(COALESCE(?descriptionraw, "") AS ?description)
+                            BIND(COALESCE(?descriptionraw, "No Description Provided!") AS ?description)
 
                             OPTIONAL {{?authorraw wdt:{4} ?wikidataidraw}}
                             BIND(COALESCE(?wikidataidraw, "") AS ?wikidataid)

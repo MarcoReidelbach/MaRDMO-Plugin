@@ -1,3 +1,5 @@
+'''Module containing Constants for the Algorithm Documentation'''
+
 from ..config import BASE_URI
 from ..getters import get_questions
 
@@ -12,9 +14,10 @@ PROPS = {
 }
 
 # URI PREFIX Map
-def get_URI_PREFIX_MAP():
+def get_uri_prefix_map():
+    '''URI Prefixes for the Algorithm Documentation'''
     questions = get_questions('algorithm')
-    URI_PREFIX_MAP = {
+    uri_prefix_map = {
         f'{BASE_URI}{questions["Problem"]["BRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Benchmark"]["uri"]}',
             "question_id": f'{BASE_URI}{questions["Benchmark"]["ID"]["uri"]}',
@@ -36,7 +39,7 @@ def get_URI_PREFIX_MAP():
             "prefix": "S"
         }
     }
-    return URI_PREFIX_MAP
+    return uri_prefix_map
 
 class_prefix_map = {
         'algorithm': 'al',

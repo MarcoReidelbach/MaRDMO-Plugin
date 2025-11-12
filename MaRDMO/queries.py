@@ -6,8 +6,8 @@ from multiprocessing.pool import ThreadPool
 import requests
 from rdmo.domain.models import Attribute
 
-from .algorithm.sparql import queryProviderAL
 from .config import BASE_URI, endpoint
+from .getters import get_sparql_query
 from .helpers import extract_parts
 
 logger = logging.getLogger(__name__)
@@ -140,7 +140,7 @@ def query_sources(search, query_id = '', sources = None, not_found = True):
     source_functions = {
         'wikidata': lambda s: query_api(endpoint['wikidata']['api'], s),
         'mardi': lambda s: query_api(endpoint['mardi']['api'], s),
-        'mathalgodb': lambda s: query_provider(s, queryProviderAL[query_id], 'mathalgodb')
+        'mathalgodb': lambda s: query_provider(s, get_sparql_query(query_id), 'mathalgodb')
     }
 
     # Filter only specified sources

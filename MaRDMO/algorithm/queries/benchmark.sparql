@@ -1,0 +1,22 @@
+PREFIX prop: <https://mardi4nfdi.de/mathalgodb/0.1#>
+PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/benchmark#>
+PREFIX dc: <http://purl.org/spar/datacite/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT DISTINCT (GROUP_CONCAT(DISTINCT ?referenceraw; separator=" | ") AS ?reference)
+                (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+WHERE {{
+        VALUES ?idraw {{ :{0} }}
+
+        OPTIONAL {{ ?idraw dc:hasIdentifier ?referenceraw }}
+
+        OPTIONAL {{
+                   ?idraw (prop:documentedIn | prop:usedIn) ?pubraw.
+                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?pubraw), "#")) AS ?pub)
+                   OPTIONAL {{ ?pubraw rdfs:label ?publraw}}
+                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
+                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw}}
+                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+                 }}
+      }}
+GROUP BY ?reference

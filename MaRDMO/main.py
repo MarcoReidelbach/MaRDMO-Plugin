@@ -21,7 +21,8 @@ from .getters import (
     get_mathmoddb,
     get_mathalgodb,
     get_options,
-    get_questions
+    get_questions,
+    get_sparql_query
 )
 from .helpers import  (
     compare_items,
@@ -32,9 +33,8 @@ from .helpers import  (
 from .oauth2 import OauthProviderMixin
 
 from .model.worker import PrepareModel
-from .model.checks import checks
+from .model.checks import Checks
 
-from .algorithm.sparql import queryAlgorithmDocumentation
 from .algorithm.worker import algorithm_relations
 from .algorithm.utils import (
     dict_to_triples_mathalgodb,
@@ -130,7 +130,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
             # Adjust MathML for Preview
             inline_mathml(answers)
-            
+
             return render(
                 self.request,
                 'MaRDMO/mardmoPreview.html', 
@@ -274,9 +274,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             )
 
         answers, *__ = self.get_post_data()
-        
+
         # Validate documentation completeness / consistency
-        checker = checks()
+        checker = Checks()
         err = checker.run(self.project, answers)
         if err:
             return render(
@@ -366,7 +366,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             ids = update_ids(
                 self.project,
                 ids,
-                queryAlgorithmDocumentation['IDCheck'],
+                get_sparql_query('algorithm/queries/id_check.sparql'),
                 endpoint['mathalgodb']['sparql'],
                 'mathalgodb'
             )
@@ -480,7 +480,8 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             )
 
             # Retrieve Publications related to Model
-            answers = PublicationRetriever.WorkflowOrModel(
+            publication = PublicationRetriever()
+            answers = publication.workflow_or_model(
                 project = self.project,
                 snapshot = self.snapshot,
                 answers = answers,
@@ -510,7 +511,8 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             answers = algorithm_relations(answers)
 
             # Retrieve Publications related to Workflow
-            answers = PublicationRetriever.Algorithm(
+            publication = PublicationRetriever()
+            answers = publication.algorithm(
                 project = self.project,
                 answers = answers
             )
@@ -553,7 +555,8 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             answers = get_discipline(answers)
 
             # Retrieve Publications related to Workflow
-            answers = PublicationRetriever.WorkflowOrModel(
+            publication = PublicationRetriever()
+            answers = publication.workflow_or_model(
                 project = self.project,
                 snapshot = self.snapshot,
                 answers = answers,

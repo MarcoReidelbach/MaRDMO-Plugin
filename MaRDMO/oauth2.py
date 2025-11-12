@@ -122,7 +122,8 @@ class OauthProviderMixin:
         return self.post_success(request, init, final)
 
     def _post_data(self, key, jsons, access_token):
-        """Post data for a single key, handles both relations and items, with retries and backoff."""
+        """Post data for a single key, handles both relations and items, 
+           with retries and backoff."""
         item = jsons[key]
 
         # Skip existing relations
@@ -150,22 +151,29 @@ class OauthProviderMixin:
 
             except requests.exceptions.Timeout:
                 wait = 1.5 ** attempt + random.uniform(0, 0.5)
-                logger.warning(f"Timeout while posting {key} (attempt {attempt}/{5}), retrying in {wait:.2f}s")
+                logger.warning(
+                    f"Timeout while posting {key} "
+                    f"(attempt {attempt}/5), retrying in {wait:.2f}s"
+                )
                 time.sleep(wait)
                 continue
 
             except requests.exceptions.ConnectionError as exc:
                 wait = 1.5 ** attempt + random.uniform(0, 0.5)
-                logger.warning(f"Connection error posting {key}: {exc} (attempt {attempt}/{5}), retrying in {wait:.2f}s")
+                logger.warning(
+                    f"Connection error posting {key}: {exc} "
+                    f"(attempt {attempt}/{5}), retrying in {wait:.2f}s"
+                )
                 time.sleep(wait)
                 continue
 
             except requests.HTTPError as exc:
-                status = response.status_code if response else "no_response"
-                content = response.text if response else "n/a"
+                resp = exc.response
+                status = resp.status_code if resp is not None else "no_response"
+                content = resp.text if resp else "n/a"
 
                 if status == 429:  # Too Many Requests
-                    retry_after = int(response.headers.get("Retry-After", 5))
+                    retry_after = int(resp.headers.get("Retry-After", 5))
                     logger.warning(f"Rate limit hit for {key}, waiting {retry_after}s before retry")
                     time.sleep(retry_after)
                     continue
@@ -177,7 +185,7 @@ class OauthProviderMixin:
                     continue
 
                 if status == 422:
-                    return self._handle_policy_violation(response, key, jsons)
+                    return self._handle_policy_violation(resp, key, jsons)
 
                 logger.error(f"HTTP error posting {key}: {status} - {content}")
                 raise RuntimeError(_("POST request failed")) from exc

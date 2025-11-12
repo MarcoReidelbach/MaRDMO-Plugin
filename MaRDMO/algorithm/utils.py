@@ -1,3 +1,5 @@
+'''Module containing Utility Functions for the Algorithm Documentation'''
+
 import re
 
 from .constants import class_prefix_map
@@ -8,9 +10,9 @@ from ..getters import get_data, get_mathalgodb, get_options
 from ..queries import query_sparql
 
 def update_ids(project, ids, query, sparql_endpoint, source):
-    """pdate IDs of new MathAlgoDB Items and add them to the Questionnaire"""
+    """Update IDs of new MathAlgoDB Items and add them to the Questionnaire"""
     new_ids = {}
-    
+
     for key, id_value in ids.items():
         # Ignore Items with MathAlgoDB ID
         if id_value.startswith(('mathmoddb:', 'bm:', 'pr:', 'so:', 'al:', 'pb')):
@@ -32,7 +34,7 @@ def update_ids(project, ids, query, sparql_endpoint, source):
         value_editor(
             project=project,
             uri=f"{BASE_URI}domain/{set_name}/id",
-            inf0 = {
+            info = {
                 'text': f"{key} ({first_result['quote']['value']}) [{source}]",
                 'external_id': f"{source}:{first_result['ID']['value']}",
                 'set_index': set_index
@@ -50,50 +52,50 @@ def update_ids(project, ids, query, sparql_endpoint, source):
     return new_ids
 
 def dict_to_triples_mathalgodb(data):
-
+    '''Turn Dictionary Entries into Subject-Predicate-Object Triples'''
     mathalgodb = get_mathalgodb()
-    inversePropertyMapping = get_data('algorithm/data/inversePropertyMapping.json')
+    inverse_property_mapping = get_data('algorithm/data/inversePropertyMapping.json')
     options = get_options()
 
     relations = ['IntraClassRelation', 'P2A', 'P2B', 'P2S']
     relatants = ['IntraClassElement', 'ARelatant', 'BRelatant', 'SRelatant']
-    
+
     triples = []
-    ids = {} 
-    
+    ids = {}
+
     # Get ID Dict
     for idx, item in data.items():
         if item['ID'] and item['ID'].startswith('mathalgodb:'):
             _, mathalgodb_id = item['ID'].split(':')
-            if 'algorithm' in idx:    
+            if 'algorithm' in idx:
                 ids[item['Name']] = f"al:{mathalgodb_id}"
-            if 'problem' in idx:    
+            if 'problem' in idx:
                 ids[item['Name']] = f"pr:{mathalgodb_id}"
-            if 'benchmark' in idx:    
+            if 'benchmark' in idx:
                 ids[item['Name']] = f"bm:{mathalgodb_id}"
-            if 'software' in idx:    
+            if 'software' in idx:
                 ids[item['Name']] = f"so:{mathalgodb_id}"
-            if 'publication' in idx:    
+            if 'publication' in idx:
                 ids[item['Name']] = f"pb:{mathalgodb_id}"
         else:
             ids[item['Name']] = idx
-    
+
     # Go through all individuals
     for idx, item in data.items():
 
         # Get ID of Individual
         subject = ids[item['Name']]
-        
+
         if not subject.startswith(("al:", "pr:", "so:", "pb:", "bm:", "mathalgodb:")):
-        
-            # Assign Individual Label 
+
+            # Assign Individual Label
             triples.append((subject, "rdfs:label", f'"{item["Name"]}"'))
-        
+
             # Assign Individual Description
             if item.get('Description'):
                 if item['Description'] != 'No Description Provided!':
                     triples.append((subject, "rdfs:comment", f'"{item["Description"]}"'))
-        
+
             # Assign Individual Class
             if 'algorithm' in idx:
                 triples.append((subject, "a", 'mathalgodb:algorithm'))
@@ -105,7 +107,7 @@ def dict_to_triples_mathalgodb(data):
                 triples.append((subject, "a", 'mathalgodb:benchmark'))
             elif 'publication' in idx:
                 triples.append((subject, "a", 'mathalgodb:publication'))
-        
+
             # Assign Individual References
             for reference in item.get('reference', {}).values():
                 if reference[0] == options['DOI']:
@@ -126,11 +128,13 @@ def dict_to_triples_mathalgodb(data):
             for relatant in ['PRelatant', 'SRelatant']:
                 relatant_dict = item.get(relatant, {})
                 for key in relatant_dict:
+                    relation_uri = None
                     if relatant == 'PRelatant':
                         relation_uri = mathalgodb['solves']
                     elif relatant == 'SRelatant':
                         relation_uri = mathalgodb['implementedBy']
                     relatant_value = relatant_dict[key]
+                    object_value = None
                     if relatant_value['ID'].startswith('mathalgodb:'):
                         _, mathalgodb_id = relatant_value['ID'].split(':')
                         if relatant == 'PRelatant':
@@ -140,8 +144,16 @@ def dict_to_triples_mathalgodb(data):
                     else:
                         referred_name = relatant_value['Name']
                         object_value = ids.get(referred_name)
-                    triples.append((subject, f"mathalgodb:{relation_uri.split('/')[-1]}", object_value))
-                    triples.append((object_value, f"mathalgodb:{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
+                    triples.append(
+                        (subject,
+                         f"mathalgodb:{relation_uri.split('/')[-1]}",
+                         object_value)
+                    )
+                    triples.append(
+                        (object_value,
+                         f"mathalgodb:{inverse_property_mapping[relation_uri].split('/')[-1]}",
+                         subject)
+                    )
 
         # Assign Individual Relations
         if 'problem' in idx:
@@ -158,8 +170,16 @@ def dict_to_triples_mathalgodb(data):
                     else:
                         referred_name = relatant_value['Name']
                         object_value = ids.get(referred_name)
-                    triples.append((subject, f"mathalgodb:{relation_uri.split('/')[-1]}", object_value))
-                    triples.append((object_value, f"mathalgodb:{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
+                    triples.append(
+                        (subject,
+                         f"mathalgodb:{relation_uri.split('/')[-1]}",
+                         object_value)
+                    )
+                    triples.append(
+                        (object_value,
+                         f"mathalgodb:{inverse_property_mapping[relation_uri].split('/')[-1]}",
+                         subject)
+                    )
 
         # Assign Individual Relations
         if 'software' in idx:
@@ -176,8 +196,16 @@ def dict_to_triples_mathalgodb(data):
                     else:
                         referred_name = relatant_value['Name']
                         object_value = ids.get(referred_name)
-                    triples.append((subject, f"mathalgodb:{relation_uri.split('/')[-1]}", object_value))
-                    triples.append((object_value, f"mathalgodb:{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
+                    triples.append(
+                        (subject,
+                         f"mathalgodb:{relation_uri.split('/')[-1]}",
+                         object_value)
+                    )
+                    triples.append(
+                        (object_value,
+                         f"mathalgodb:{inverse_property_mapping[relation_uri].split('/')[-1]}",
+                         subject)
+                    )
 
         # Assign Further Relations
         for relation, relatant in zip(relations,relatants):
@@ -190,15 +218,15 @@ def dict_to_triples_mathalgodb(data):
                     if relatant_value['ID'].startswith('mathalgodb:'):
                         _, mathalgodb_id = relatant_value['ID'].split(':')
                         if relation == 'IntraClassRelation':
-                            if 'algorithm' in idx:    
+                            if 'algorithm' in idx:
                                 object_value = f"al:{mathalgodb_id}"
-                            if 'problem' in idx:    
+                            if 'problem' in idx:
                                 object_value = f"pr:{mathalgodb_id}"
-                            if 'benchmark' in idx:    
+                            if 'benchmark' in idx:
                                 object_value = f"bm:{mathalgodb_id}"
-                            if 'software' in idx:    
+                            if 'software' in idx:
                                 object_value = f"so:{mathalgodb_id}"
-                            if 'publication' in idx:    
+                            if 'publication' in idx:
                                 object_value = f"pb:{mathalgodb_id}"
                         elif relation == 'A2P':
                             object_value = f"pr:{mathalgodb_id}"
@@ -217,12 +245,21 @@ def dict_to_triples_mathalgodb(data):
                     else:
                         referred_name = relatant_value['Name']
                         object_value = ids.get(referred_name)
-                    triples.append((subject, f"mathalgodb:{relation_uri.split('/')[-1]}", object_value))
-                    triples.append((object_value, f"mathalgodb:{inversePropertyMapping[relation_uri].split('/')[-1]}", subject))
-    
+                    triples.append(
+                        (subject,
+                         f"mathalgodb:{relation_uri.split('/')[-1]}",
+                         object_value)
+                    )
+                    triples.append(
+                        (object_value,
+                         f"mathalgodb:{inverse_property_mapping[relation_uri].split('/')[-1]}",
+                         subject)
+                    )
+
     return triples, ids
 
 def generate_sparql_insert_with_new_ids_mathalgodb(triples):
+    '''Generate SPARQL Insert Query'''
     # Step 1: Identify new items that need mardmo IDs
     new_items = {}
     counter = 0
@@ -263,7 +300,7 @@ def generate_sparql_insert_with_new_ids_mathalgodb(triples):
         if re.match(r'^https?://', obj):
             obj_formatted = f"<{obj}>"
         else:
-            if obj.startswith(("al:", "pr:", "so:", "pb:", "bm:", "mathalgodb:")) or obj.startswith('"') or obj.startswith(':') or obj.startswith('<'):
+            if obj.startswith(("al:", "pr:", "so:", "pb:", "bm:", "mathalgodb:", '"', ':', '<')):
                 obj_formatted = f'{obj}'
             else:
                 obj_formatted = f"?{new_items[obj]}"
@@ -292,18 +329,33 @@ def generate_sparql_insert_with_new_ids_mathalgodb(triples):
     """
     id_counter = 0
     for new_item in new_items:
-        
+
         if 'algorithm' in new_item:
-            insert_query += f"BIND(IRI(CONCAT('https://mardi4nfdi.de/mathalgodb/0.1/algorithm#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
+            insert_query += (
+                "BIND(IRI(CONCAT('https://mardi4nfdi.de/mathalgodb/0.1/algorithm"
+                f"#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
+            )
         elif 'benchmark' in new_item:
-            insert_query += f"BIND(IRI(CONCAT('https://mardi4nfdi.de/mathalgodb/0.1/benchmark#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
+            insert_query += (
+                "BIND(IRI(CONCAT('https://mardi4nfdi.de/mathalgodb/0.1/benchmark"
+                f"#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
+            )
         elif 'software' in new_item:
-            insert_query += f"BIND(IRI(CONCAT('https://mardi4nfdi.de/mathalgodb/0.1/software#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
+            insert_query += (
+                "BIND(IRI(CONCAT('https://mardi4nfdi.de/mathalgodb/0.1/software"
+                f"#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
+            )
         elif 'problem' in new_item:
-            insert_query += f"BIND(IRI(CONCAT('https://mardi4nfdi.de/mathalgodb/0.1/problem#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
+            insert_query += (
+                "BIND(IRI(CONCAT('https://mardi4nfdi.de/mathalgodb/0.1/problem"
+                f"#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
+            )
         elif 'publication' in new_item:
-            insert_query += f"BIND(IRI(CONCAT('https://mardi4nfdi.de/mathalgodb/0.1/publication#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
-        
+            insert_query += (
+                "BIND(IRI(CONCAT('https://mardi4nfdi.de/mathalgodb/0.1/publication"
+                f"#mardmo', STR(?nextID+{id_counter}))) AS ?{new_items[new_item]})\n"
+            )
+
         id_counter += 1
 
     insert_query += "}"

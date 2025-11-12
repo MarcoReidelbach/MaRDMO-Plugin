@@ -2,32 +2,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from ..adders import add_reference_order
-
-@dataclass
-class Relatant:
-    id: Optional[str]
-    label: Optional[str]
-    description: Optional[str]
-    
-    @classmethod
-    def from_query(cls, raw: str) -> 'Relatant':
-
-        id, label, description = raw.split(" | ")
-
-        return cls(
-            id = id,
-            label = label,
-            description = description,
-        )
-    
-    @classmethod
-    def from_relation(cls, id: str, label: str, description: str) -> 'Relatant':
-
-        return cls(
-            id = id,
-            label = label,
-            description = description,
-        )
+from ..models import Relatant
 
 @dataclass
 class Benchmark:

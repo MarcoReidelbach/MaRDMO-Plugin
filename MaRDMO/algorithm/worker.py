@@ -1,10 +1,12 @@
+'''Worker Module to collect Algorithm Metadata'''
+
 from .constants import PREVIEW_RELATIONS
 
 from ..helpers import entity_relations
 
 def algorithm_relations(answers):
     '''Function to establish relations between Algorithm Documentation Data'''
-     
+
     # Prepare Relations for Preview
     for relation in PREVIEW_RELATIONS:
         entity_relations(

@@ -19,11 +19,8 @@ class MaRDMOConfig(AppConfig):
         self.properties = None
 
     def ready(self):
-        from .getters import get_data  # pylint: disable=import-outside-toplevel
-        from .algorithm import handlers as algorithm_handlers # pylint: disable=import-outside-toplevel,unused-import
-        from .model import handlers as model_handlers # pylint: disable=import-outside-toplevel,unused-import
-        from .publication import handlers as publication_handlers # pylint: disable=import-outside-toplevel,unused-import
-        from .workflow import handlers as workflow_handlers # pylint: disable=import-outside-toplevel,unused-import
+
+        from .getters import get_data
 
         self.questions = {
             'algorithm': get_data('algorithm/data/questions.json'),
@@ -37,3 +34,5 @@ class MaRDMOConfig(AppConfig):
         self.options = get_data('data/options.json')
         self.items = get_data('data/items.json')
         self.properties = get_data('data/properties.json')
+
+        from . import router
