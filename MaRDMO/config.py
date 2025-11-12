@@ -32,7 +32,7 @@ endpoint = {
             },
     'zbmath': {
         'api': ('https://api.zbmath.org/v1/document/_structured_search'
-                '?page=0&results_per_page=100&external%20id=')
+                '?page=0&results_per_page=100&DOI=')
               },
     'orcid': {
         'api': 'https://pub.orcid.org/v3.0'
