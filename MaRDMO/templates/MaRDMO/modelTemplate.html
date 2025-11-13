@@ -957,7 +957,7 @@
                     {% if '>≡</' in value or '>&#x2261;</' in value or '>&equiv;</' in value or '\\equiv' in value or '\\Equiv' in value %}
                         <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if 'math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %}</li>
                     {% else %}
-                        <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if 'math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %} <strong style="color:red;">&nbsp;&nbsp;&nbsp;&nbsp;Inconsistent Quantity / Quantity Kind Definition (missing equivalent sign)</li>
+                        <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if 'math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %} <strong style="color:red;">&nbsp;&nbsp;&nbsp;&nbsp;Inconsistent Quantity / Quantity Kind Definition (missing equivalent sign)</strong></li>
                     {% endif %}
                 {% empty %}
                     <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION FORMULA</strong>
