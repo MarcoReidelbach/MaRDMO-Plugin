@@ -111,6 +111,18 @@ OPTIONSET_PROVIDERS = [
 
 ```
 
+In addition your `rdmo/services/urls/__init__.py` has to look like this:
+
+```python
+from django.urls import path, include
+
+from ..views import oauth_callback
+
+urlpatterns = [
+    path('oauth/<slug:provider_key>/callback/', oauth_callback, name='oauth_callback'),
+    path("", include("MaRDMO.urls")),
+]
+```
 Thereby, the MaRDMO Plugin is installed and a "MaRDI Button" button is added in the project view.
 
 ## MaRDI Portal, MathAlgoDB, and MathModDB Connection
