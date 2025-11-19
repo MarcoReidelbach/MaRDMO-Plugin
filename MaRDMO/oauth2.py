@@ -16,8 +16,8 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.views.decorators.http import require_GET
 
-from .getters import get_general_item_url
-from .helpers import compare_items, replace_in_dict
+from .helpers import replace_in_dict, compare_items
+from .store import _register_job_for_session
 
 logger = logging.getLogger(__name__)
 
@@ -72,26 +72,35 @@ class OauthProviderMixin:
         access_token = response_data.get('access_token')
 
         # Retrieve the original post request data
-        try:
-            _method, jsons = self.pop_from_session(request, 'request')
-        except ValueError:
+
+        # Retrieve the original post request data
+        data = self.pop_from_session(request, 'request')
+        if not data:
             return self.render_error(
                 request,
                 _('OAuth authorization successful'),
-                _('But no redirect could be found.')
+                _('But no redirect could be found.'),
             )
+
+        _method, jsons = data
 
         # ------------------- ASYNC POSTING -------------------
 
-        # Generate job ID and store initial progress
+        # Generate job ID and store initial progress in the cache
         job_id = get_random_string(16)
-        _progress_store[job_id] = {"progress": 0, "done": False}
+        _register_job_for_session(request, job_id)
+        _progress_store[job_id] = {
+            "progress": 0,
+            "done": False,
+            "phase": "starting",
+            "error": None,
+        }
 
         # Start posting thread
         thread = threading.Thread(
             target=self._background_post,
             args=(request, access_token, jsons, job_id),
-            daemon=True
+            daemon=True,
         )
         thread.start()
 
@@ -180,17 +189,23 @@ class OauthProviderMixin:
                 time.sleep(0.1)
 
             # --- All done
+            ids = compare_items(init, jsons)
             _progress_store[job_id] = {
-                "final": (init, jsons),
                 "progress": 100,
                 "done": True,
                 "phase": "done",
+                "error": None,
+                "ids": ids,
                 "redirect": request.build_absolute_uri(
                     reverse("show_success", args=[job_id])
-                )
+                ),
             }
 
-            logger.info("[%s] Posting complete. Redirect -> /services/success/%s/", job_id, job_id)
+            logger.info(
+                "[%s] Posting complete. Redirect -> /services/success/%s/",
+                job_id,
+                job_id,
+            )
 
         except Exception as e:
             logger.exception("[%s] Unexpected error: %s", job_id, e)
@@ -332,40 +347,3 @@ class OauthProviderMixin:
     def post_success(self, request, init, final):
         '''Function for Post Success'''
         raise NotImplementedError
-
-
-# ------------------- PROGRESS VIEW -------------------
-
-def get_progress(request, job_id):
-    """Return JSON progress updates"""
-    data = _progress_store.get(job_id, {"progress": 0, "done": False})
-    return JsonResponse(data)
-
-@require_GET
-def show_progress(request, job_id):
-    """Render the progress bar page"""
-    return render(request, "MaRDMO/progress.html", {"job_id": job_id})
-
-@require_GET
-def show_success(request, job_id):
-    """Render the Success Page"""
-    job_data = _progress_store.get(job_id)
-    if not job_data or "final" not in job_data:
-        return render(
-            request,
-            "core/error.html",
-            {
-                "title": "Not ready",
-                "errors": ["Job not found."]
-            }
-        )
-    init, final = job_data["final"]
-    ids = compare_items(init, final)
-    return render(
-        request,
-        "MaRDMO/portalExport.html",
-        {
-            "ids": ids,
-            "mardi_uri": get_general_item_url
-        }
-    )
