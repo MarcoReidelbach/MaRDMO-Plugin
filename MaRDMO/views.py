@@ -37,7 +37,7 @@ def show_success(request, job_id):
         raise Http404()
 
     job_data = _progress_store.get(job_id)
-    if not job_data or "final" not in job_data:
+    if not job_data or "ids" not in job_data:
         return render(
             request,
             "core/error.html",
@@ -58,7 +58,7 @@ def show_success(request, job_id):
         request,
         "MaRDMO/portalExport.html",
         {
-            "ids": ids,
+            "ids": job_data["ids"],
             "mardi_uri": get_general_item_url,
         },
     )
