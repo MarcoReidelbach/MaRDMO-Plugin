@@ -47,9 +47,6 @@ def show_success(request, job_id):
             },
         )
 
-    init, final = job_data["final"]
-    ids = compare_items(init, final)
-
     # Once the success page is shown we can drop the progress entry
     clear_progress(job_id)
     _unregister_job_for_session(request, job_id)
