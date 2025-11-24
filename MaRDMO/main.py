@@ -272,17 +272,17 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
         # Validate documentation completeness / consistency
         checker = Checks()
-        #err = checker.run(self.project, answers)
-        #if err:
-        #    return render(
-        #        self.request,
-        #        'core/error.html',
-        #        {
-        #            'title': _("Incomplete or Inconsistent Documentation"),
-        #            'errors': err
-        #        },
-        #        status=200
-        #    )
+        err = checker.run(self.project, answers)
+        if err:
+            return render(
+                self.request,
+                'core/error.html',
+                {
+                    'title': _("Incomplete or Inconsistent Documentation"),
+                    'errors': err
+                },
+                status=200
+            )
 
         # Prepare payload
         try:

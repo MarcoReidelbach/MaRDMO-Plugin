@@ -415,18 +415,38 @@ class PrepareModel:
                 value = entry
             )
 
+             # Set and add Publication Class
+            if entry.get("entrytype") == "scholarly article":
+                pclass = self.items["scholarly article"]
+            else:
+                pclass = self.items["publication"]
+
+            payload.add_answer(
+                verb = self.properties["instance of"],
+                object_and_type = [pclass, "wikibase-item"],
+            )
+
+            # Add Publication Profile
+            payload.add_answer(
+                    verb = self.properties["MaRDI profile type"],
+                    object_and_type = [
+                        self.items["MaRDI publication profile"],
+                        "wikibase-item"
+                    ],
+                )
+
+            # Add DOI
+            if entry.get("reference", {}).get(0):
+                payload.add_answer(
+                    verb = self.properties["DOI"],
+                    object_and_type = [
+                        entry["reference"][0][1].upper(),
+                        "external-id"
+                    ],
+                )
+
             # Only add bibliographic statements for non-MaRDI / non-Wikidata items
             if "mardi" not in entry["ID"] and "wikidata" not in entry["ID"]:
-                # class
-                if entry.get("entrytype") == "scholarly article":
-                    pclass = self.items["scholarly article"]
-                else:
-                    pclass = self.items["publication"]
-
-                payload.add_answer(
-                    verb = self.properties["instance of"],
-                    object_and_type = [pclass, "wikibase-item"],
-                )
 
                 # bibliographic data
                 if entry.get("title"):
@@ -473,24 +493,17 @@ class PrepareModel:
                         ],
                     )
 
-                if entry.get("reference", {}).get(0):
-                    payload.add_answer(
-                        verb = self.properties["DOI"],
-                        object_and_type = [
-                            entry["reference"][0][1].upper(),
-                            "external-id"
-                        ],
-                    )
-
-                # relations
+                # Add Language
                 payload.add_forward_relation_single(
                     relation = self.properties["language of work or name"],
                     relatant = "language",
                 )
+                # Add Journal
                 payload.add_forward_relation_single(
                     relation = self.properties["published in"],
                     relatant = "journal",
                 )
+                # Add Authors
                 payload.add_forward_relation_single(
                     relation = self.properties["author"],
                     relatant = "author",
@@ -498,14 +511,6 @@ class PrepareModel:
                         "relation": self.properties["author name string"],
                         "relatant": "Name",
                     },
-                )
-
-                payload.add_answer(
-                    verb = self.properties["MaRDI profile type"],
-                    object_and_type = [
-                        self.items["MaRDI publication profile"],
-                        "wikibase-item"
-                    ],
                 )
 
             # Add relations to Entities of Mathematical Model

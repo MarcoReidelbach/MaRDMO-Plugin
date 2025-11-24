@@ -505,23 +505,40 @@ class prepareWorkflow:
             # Get Item Key
             payload.get_item_key(publication)
 
+            # Set and add the Class of the Publication
+            if publication.get('entrytype') == 'scholarly article':
+                pclass = self.items['scholarly article']
+            else:
+                pclass = self.items['publication']
+
+            payload.add_answer(
+                verb=self.properties['instance of'],
+                object_and_type=[
+                    pclass,
+                    'wikibase-item',
+                ]
+            )
+
+            # Add Publication Profile
+            payload.add_answer(
+                    verb = self.properties["MaRDI profile type"],
+                    object_and_type = [
+                        self.items["MaRDI publication profile"],
+                        "wikibase-item"
+                    ],
+                )
+
+            # Add the DOI of the Publication
+            if publication.get('reference', {}).get(0):
+                payload.add_answer(
+                    verb=self.properties['DOI'],
+                    object_and_type=[
+                        publication['reference'][0][1],
+                        'external-id',
+                    ]
+                )
+
             if 'mardi' not in publication['ID'] and 'wikidata' not in publication['ID']:
-                
-                # Add the class of the Publication
-                if publication.get('entrytype'):
-
-                    if publication['entrytype'] == 'scholarly article':
-                        pclass = self.items['scholarly article']
-                    else:
-                        pclass = self.items['publication']
-
-                    payload.add_answer(
-                        verb=self.properties['instance of'],
-                        object_and_type=[
-                            pclass,
-                            'wikibase-item',
-                        ]
-                    )
                
                 # Add the Title of the Publication
                 if publication.get('title'):
@@ -575,17 +592,6 @@ class prepareWorkflow:
                         object_and_type=[
                             {"time":f"+{publication['date']}T00:00:00Z","precision":11,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"},
                             'time',
-                        ]
-                    )
-
-                # Add the DOI of the Publication
-                if publication.get('reference', {}).get(0):
-
-                    payload.add_answer(
-                        verb=self.properties['DOI'],
-                        object_and_type=[
-                            publication['reference'][0][1],
-                            'external-id',
                         ]
                     )
                 
