@@ -1,4 +1,4 @@
-from ..config import BASE_URI
+from ..constants import BASE_URI
 from ..getters import get_options, get_questions
 
 # URI PREFIX Map

@@ -8,8 +8,8 @@ from .utils import generate_label, get_citation
 from .sparql import queryPublication
 from .models import Publication
 
-from ..config import BASE_URI, endpoint
-from ..getters import get_questions, get_properties
+from ..constants import BASE_URI
+from ..getters import get_questions, get_properties, get_url
 from ..queries import query_sparql
 from ..helpers import value_editor
 
@@ -41,7 +41,13 @@ class PublicationRetriever:
                 doi = answers['publication'][key].get('reference', {}).get(0, ['',''])[1]
                 #...to query MaRDI Portal.
                 query = queryPublication['MaRDI']['DOI'].format(doi, **get_properties())
-                results = query_sparql(query, endpoint['mardi']['sparql'])
+                results = query_sparql(
+                    query,
+                    get_url(
+                        'mardi',
+                        'sparql'
+                    )
+                )
                 if results:
                     #If Publication found in MaRDI Portal...
                     data = Publication.from_query(results)
@@ -173,7 +179,13 @@ class PublicationRetriever:
                     query = queryPublication['PublicationMathAlgoDBDOI'].format(
                         answers['publication'][key]['reference'][0][1]
                     )
-                    results = query_sparql(query, endpoint['mathalgodb']['sparql'])
+                    results = query_sparql(
+                        query,
+                        get_url(
+                            'mathalgodb',
+                            'sparql'
+                        )
+                    )
                     if results:
                         # If Publication found on MathAlgoDB...
                         data = Publication.from_query(results)

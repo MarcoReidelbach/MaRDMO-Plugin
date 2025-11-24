@@ -7,8 +7,15 @@ from rdmo.projects.models import Value
 from rdmo.options.models import Option
 from rdmo.domain.models import Attribute
 
-from ..config import BASE_URI, endpoint
-from ..getters import get_items, get_mathmoddb, get_mathalgodb, get_properties, get_questions
+from ..constants import BASE_URI
+from ..getters import (
+    get_items,
+    get_mathmoddb,
+    get_mathalgodb,
+    get_properties,
+    get_questions,
+    get_url
+)
 from ..helpers import value_editor
 from ..queries import query_sparql
 from ..adders import add_basics, add_references, add_relations_flexible
@@ -62,7 +69,10 @@ class Information:
             )
             results = query_sparql(
                 query,
-                endpoint['mathalgodb']['sparql']
+                get_url(
+                    'mathalgodb',
+                    'sparql'
+                )
             )
 
             if not results:
@@ -97,7 +107,10 @@ class Information:
             )
             results = query_sparql(
                 query,
-                endpoint['mardi']['sparql']
+                get_url(
+                    'mardi',
+                    'sparql'
+                )
             )
 
             if not results:
@@ -150,7 +163,10 @@ class Information:
             )
             results = query_sparql(
                 query,
-                endpoint['wikidata']['sparql-scholarly']
+                get_url(
+                    'wikidata',
+                    'sparql-scholarly'
+                )
             )
 
             if not results:

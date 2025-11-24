@@ -569,6 +569,13 @@ class GeneratePayload:
                         self.items['human']
                     ]
                 )
+                statements.append(
+                    [
+                        self.properties['MaRDI profile type'],
+                        'wikibase-item',
+                        self.items['Person']
+                    ]
+                )
         if id_type == 'no journal found':
             # Add ISSN ID Statement
             if value.get('issn'):

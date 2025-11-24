@@ -1,6 +1,6 @@
 '''Module building handler maps for post_save and post_delete routing.'''
 
-from .config import BASE_URI
+from .constants import BASE_URI
 from .getters import get_questions
 from .model.handlers import Information as ModelInformation
 from .algorithm.handlers import Information as AlgorithmInformation

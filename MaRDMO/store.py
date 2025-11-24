@@ -9,18 +9,22 @@ SESSION_JOBS_KEY = "mardmo_jobs"
 
 
 def _progress_cache_key(job_id):
+    '''Progress Cache Key'''
     return "%s%s" % (PROGRESS_CACHE_PREFIX, job_id)
 
 
 def get_progress_data(job_id, default=None):
+    '''Get Progress Data'''
     return cache.get(_progress_cache_key(job_id), default)
 
 
 def set_progress_data(job_id, value, timeout=60 * 60):
+    '''Set Progress Data'''
     cache.set(_progress_cache_key(job_id), value, timeout=timeout)
 
 
 def clear_progress(job_id):
+    '''Clear Progress Data'''
     cache.delete(_progress_cache_key(job_id))
 
 

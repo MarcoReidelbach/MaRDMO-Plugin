@@ -1,6 +1,6 @@
 '''Module containing Constants for the Model Documentation'''
 
-from ..config import BASE_URI
+from ..constants import BASE_URI
 from ..getters import get_items, get_mathmoddb, get_properties, get_questions
 
 # Data Properties Check

@@ -12,8 +12,7 @@ from .constants import (
     get_data_properties
 )
 
-from ..config import endpoint
-from ..getters import get_items, get_mathmoddb, get_properties
+from ..getters import get_items, get_mathmoddb, get_properties, get_url
 from ..helpers import entity_relations, map_entity, unique_items, date_precision
 from ..queries import query_sparql
 from ..payload import GeneratePayload
@@ -134,7 +133,7 @@ class PrepareModel:
                 try:
                     check = query_sparql(
                         query = query,
-                        sparql_endpoint = endpoint["mardi"]["sparql"]
+                        sparql_endpoint = get_url('mardi', 'sparql')
                     )
                     break
                 except Exception as e:

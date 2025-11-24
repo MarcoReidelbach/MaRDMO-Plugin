@@ -1,5 +1,5 @@
-from ..config import BASE_URI, endpoint
-from ..getters import get_items, get_options, get_properties, get_questions
+from ..constants import BASE_URI
+from ..getters import get_items, get_options, get_properties, get_questions, get_url
 from ..helpers import value_editor
 from ..queries import query_sparql
 from ..adders import add_basics, add_references, add_relations_static
@@ -42,7 +42,13 @@ class Information:
 
         # Query source for further Information
         query = queryHandler[source]['software'].format(Id, **get_items(), **get_properties())
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         if not results:
             return
@@ -136,7 +142,13 @@ class Information:
 
         # Query source for further Information
         query = queryHandler[source]['hardware'].format(Id, **get_items(), **get_properties())
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         if not results:
             return
@@ -224,7 +236,13 @@ class Information:
 
         # Query source for further Information
         query = queryHandler[source]['data-set'].format(Id, **get_items(), **get_properties())
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         if not results:
             return
@@ -351,7 +369,13 @@ class Information:
 
         # Query source for further Information
         query = queryHandler[source]['method'].format(Id, **get_items(), **get_properties())
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         if not results:
             return
@@ -415,7 +439,13 @@ class Information:
 
         # Query source for further Information
         query = queryHandler[source]['step'].format(Id, **get_items(), **get_properties())
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         if not results:
             return

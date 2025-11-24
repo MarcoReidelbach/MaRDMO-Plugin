@@ -4,7 +4,7 @@ from rdmo.domain.models import Attribute
 
 from .constants import data_properties_check, section_map
 
-from ..config import BASE_URI
+from ..constants import BASE_URI
 from ..getters import get_mathmoddb
 
 class Checks:

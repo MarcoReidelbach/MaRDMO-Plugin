@@ -9,12 +9,11 @@ import threading
 from urllib.parse import urlencode
 
 import requests
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.crypto import get_random_string
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
-from django.views.decorators.http import require_GET
 
 from .helpers import replace_in_dict, compare_items
 from .store import _register_job_for_session

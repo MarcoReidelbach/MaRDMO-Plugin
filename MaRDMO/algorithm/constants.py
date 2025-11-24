@@ -1,6 +1,6 @@
 '''Module containing Constants for the Algorithm Documentation'''
 
-from ..config import BASE_URI
+from ..constants import BASE_URI
 from ..getters import get_questions
 
 # Dictionary with list of property names

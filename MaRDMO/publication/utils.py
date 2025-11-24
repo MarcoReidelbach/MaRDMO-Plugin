@@ -8,8 +8,7 @@ import requests
 from .models import Author, Journal, Publication
 from .sparql import queryPublication
 
-from ..config import endpoint
-from ..getters import get_items, get_properties
+from ..getters import get_items, get_properties, get_url
 from ..queries import query_sparql_pool
 
 def additional_queries(publication, choice, key, parameter, function):
@@ -21,8 +20,8 @@ def additional_queries(publication, choice, key, parameter, function):
     # Get Information from MaRDI Portal / Wikidata
     results = query_sparql_pool(
         {
-            'wikidata': (wikidata_query, endpoint['wikidata']['sparql']),
-            'mardi': (mardi_query, endpoint['mardi']['sparql'])
+            'wikidata': (wikidata_query, get_url('wikidata', 'sparql')),
+            'mardi': (mardi_query, get_url('mardi', 'sparql'))
         }
     )
     # Extract Information from MaRDI Portal / Wikidata
@@ -119,9 +118,9 @@ def get_citation(doi):
     # Get Citation Data from MaRDI Portal / Wikidata / MathAlgoDB
     results = query_sparql_pool(
         {
-            'wikidata': (wikidata_query, endpoint['wikidata']['sparql-scholarly']),
-            'mardi':(mardi_query, endpoint['mardi']['sparql']),
-            'mathalgodb':(mathalgodb_query, endpoint['mathalgodb']['sparql'])
+            'wikidata': (wikidata_query, get_url('wikidata', 'sparql-scholarly')),
+            'mardi':(mardi_query, get_url('mardi', 'sparql')),
+            'mathalgodb':(mathalgodb_query, get_url('mathalgodb', 'sparql'))
         }
     )
 
@@ -231,21 +230,21 @@ def get_citation(doi):
 def get_crossref_data(doi):
     '''Function to get Citation Information from Crossref'''
     return requests.get(
-        f"{endpoint['crossref']['api']}{doi}",
+        f"https://api.crossref.org/works/{doi}",
         timeout = 5
     )
 
 def get_datacite_data(doi):
     '''Function to get Citation Information from Datacite'''
     return requests.get(
-        f"{endpoint['datacite']['api']}{doi}",
+        f"https://api.datacite.org/dois/{doi}",
         timeout = 5
     )
 
 def get_doi_data(doi):
     '''Function to get Citation Information from DOI'''
     return requests.get(
-        f"{endpoint['doi']['api']}{doi}",
+        f"https://citation.doi.org/metadata?doi={doi}",
         headers = {"accept": "application/json"},
         timeout = 5
     )
@@ -253,14 +252,14 @@ def get_doi_data(doi):
 def get_zbmath_data(doi):
     '''Function to get Citation Information from ZbMath'''
     return requests.get(
-        f"{endpoint['zbmath']['api']}{doi}",
+        f"https://api.zbmath.org/v1/document/_structured_search?page=0&results_per_page=100&DOI={doi}",
         timeout = 5
     )
 
 def get_orcids(doi):
     '''Function to get ORCiD Information from ORCiD'''
     return requests.get(
-        f"{endpoint['orcid']['api']}/search/?q=doi-self:{doi}",
+        f"https://pub.orcid.org/v3.0/search/?q=doi-self:{doi}",
         headers = {'Accept': 'application/json'},
         timeout = 5
     )
@@ -268,7 +267,7 @@ def get_orcids(doi):
 def get_author_by_orcid(orcid_id):
     '''Function to get Author Information by ORCiD'''
     return requests.get(
-        f"{endpoint['orcid']['api']}/{orcid_id}/personal-details",
+        f"https://pub.orcid.org/v3.0/{orcid_id}/personal-details",
         headers = {'Accept': 'application/json'},
         timeout = 5
     )

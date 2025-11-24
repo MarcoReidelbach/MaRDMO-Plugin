@@ -125,11 +125,30 @@ Add the following lines to `config/settings/local.py` to connect MaRDMO with the
 
 ```python
 MARDMO_PROVIDER = {
-    'oauth2_client_id': '',
-    'oauth2_client_secret': '',
-    'mathalgodb_id': '',
-    'mathalgodb_secret': ''
-    }
+    'mardi': {
+        'items': 'data/items.json',
+        'properties': 'data/properties.json',
+        'api': 'https://portal.mardi4nfdi.de/w/api.php',
+        'sparql': 'https://query.portal.mardi4nfdi.de/sparql',
+        'uri': 'https://portal.mardi4nfdi.de',
+        'oauth2_client_id': '',
+        'oauth2_client_secret': '',
+    },
+    'mathalgodb': {
+        'uri': 'https://cordi2025.m1.mardi.ovh/',
+        'sparql': 'https://sparql.cordi2025.m1.mardi.ovh/mathalgodb/query',
+        'update': 'https://sparql.cordi2025.m1.mardi.ovh/mathalgodb/update',
+        'mathalgodb_id': '',
+        'mathalgodb_secret': ''
+    },
+    'wikidata': {
+        'uri': 'https://www.wikidata.org',
+        'api': 'https://www.wikidata.org/w/api.php',
+        'sparql': 'https://query-main.wikidata.org/sparql',
+        'sparql-scholarly': 'https://query-scholarly.wikidata.org/sparql',
+        'uri': 'https://www.wikidata.org'
+    },
+}
 ``` 
 Contact the MaRDI consortium for the individual credentials.
 

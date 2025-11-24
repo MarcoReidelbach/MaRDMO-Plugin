@@ -3,8 +3,7 @@ from django.http import JsonResponse, Http404
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
 
-from MaRDMO.getters import get_general_item_url
-from MaRDMO.helpers import compare_items
+from MaRDMO.getters import get_item_url
 from MaRDMO.oauth2 import _progress_store
 from MaRDMO.store import clear_progress, _unregister_job_for_session, _job_belongs_to_session
 
@@ -56,6 +55,6 @@ def show_success(request, job_id):
         "MaRDMO/portalExport.html",
         {
             "ids": job_data["ids"],
-            "mardi_uri": get_general_item_url,
+            "mardi_uri": get_item_url('mardi'),
         },
     )

@@ -6,8 +6,15 @@ from . import models
 
 from .constants import props, relatant_uris, relation_uris, index_counters
 
-from ..config import BASE_URI, endpoint
-from ..getters import get_items, get_mathmoddb, get_properties, get_questions, get_sparql_query
+from ..constants import BASE_URI
+from ..getters import (
+    get_items,
+    get_mathmoddb,
+    get_properties,
+    get_questions,
+    get_sparql_query, 
+    get_url
+)
 from ..helpers import value_editor
 from ..queries import query_sparql
 from ..adders import (
@@ -63,7 +70,13 @@ class Information:
         )
 
         # ...get Results.
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         # Stop if no Results retrieved from external source
         if not results:
@@ -145,7 +158,13 @@ class Information:
         )
 
         # ...get Results.
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         # Stop if no Results retrieved from external source
         if not results:
@@ -242,7 +261,13 @@ class Information:
         )
 
         # ...get Results.
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         # Stop if no Results retrieved from external source
         if not results:
@@ -400,7 +425,13 @@ class Information:
         )
 
         # ...get Results.
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         # Stop if no Results retrieved from external source
         if not results:
@@ -547,7 +578,13 @@ class Information:
         )
 
         # ...get Results.
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         # Stop if no Results retrieved from external source
         if not results:
@@ -673,7 +710,13 @@ class Information:
         )
 
         # ...get Results.
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         # Stop if no Results retrieved from external source
         if not results:

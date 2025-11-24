@@ -3,8 +3,8 @@
 from .constants import PROPS
 from .models import Benchmark, Software, Problem, Algorithm
 
-from ..config import BASE_URI, endpoint
-from ..getters import get_mathalgodb, get_questions, get_sparql_query
+from ..constants import BASE_URI
+from ..getters import get_mathalgodb, get_questions, get_sparql_query, get_url
 from ..queries import query_sparql
 from ..adders import (
     add_basics,
@@ -48,7 +48,13 @@ class Information:
 
         # If Item from MathModDB, query relations and load MathModDB Vocabulary
         query = get_sparql_query('algorithm/queries/benchmark.sparql').format(identifier)
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         # Stop if no Results retrieved from external source
         if not results:
@@ -97,7 +103,13 @@ class Information:
         source, identifier = instance.external_id.split(':')
 
         query = get_sparql_query('algorithm/queries/software.sparql').format(identifier)
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         # Stop if no Results retrieved from external source
         if not results:
@@ -161,7 +173,13 @@ class Information:
         source, identifier = instance.external_id.split(':')
 
         query = get_sparql_query('algorithm/queries/problem.sparql').format(identifier)
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         # Stop if no Results retrieved from external source
         if not results:
@@ -225,7 +243,13 @@ class Information:
         source, identifier = instance.external_id.split(':')
 
         query = get_sparql_query('algorithm/queries/algorithm.sparql').format(identifier)
-        results = query_sparql(query, endpoint[source]['sparql'])
+        results = query_sparql(
+            query,
+            get_url(
+                source,
+                'sparql'
+            )
+        )
 
         # Stop if no Results retrieved from external source
         if not results:
