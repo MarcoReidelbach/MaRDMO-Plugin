@@ -57,6 +57,14 @@ class Checks:
                                 message = 'Missing Short Description'
                             )
                         )
+                    if ivalue.get('Name') == ivalue.get('Description'):
+                        self.err.append(
+                            self.error_message(
+                                section = section_map[okey],
+                                page = page_name,
+                                message = 'Equal Name and Short Description Forbidden'
+                            )
+                        )
                     if ivalue.get('Description') and len(ivalue['Description']) > 250:
                         self.err.append(
                             self.error_message(
