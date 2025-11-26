@@ -373,8 +373,14 @@ class GeneratePayload:
                     'wikibase-item',
                     quantity_item
                 )
+                # Pattern of New Item
+                pattern = re.compile(r"^Item\d{10}$")
                 # Add Symbol to Payload
-                if self.state.subject_item == quantity_item:
+                if (
+                    self.state.dictionary[self.state.subject_item]['id']
+                    or self.state.subject_item == quantity_item
+                    or (isinstance(quantity_item, str) and pattern.match(quantity_item))
+                ):
                     self._add_relation(
                         item = self.state.subject_item,
                         statement = {
