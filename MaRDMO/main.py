@@ -14,15 +14,15 @@ from django.utils.translation import gettext_lazy as _
 from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
-from .config import endpoint
 from .getters import (
     get_answers,
-    get_general_item_url,
+    get_item_url,
     get_mathmoddb,
     get_mathalgodb,
     get_options,
     get_questions,
-    get_sparql_query
+    get_sparql_query,
+    get_url
 )
 from .helpers import  (
     compare_items,
@@ -54,37 +54,32 @@ class BaseMaRDMOExportProvider(OauthProviderMixin, Export, ABC):
     @property
     def oauth2_client_id(self):
         '''Provide OAuth2 Client ID'''
-        return settings.MARDMO_PROVIDER['oauth2_client_id']
+        return settings.MARDMO_PROVIDER['mardi']['oauth2_client_id']
 
     @property
     def oauth2_client_secret(self):
         '''Provide OAuth2 Client Secret'''
-        return settings.MARDMO_PROVIDER['oauth2_client_secret']
+        return settings.MARDMO_PROVIDER['mardi']['oauth2_client_secret']
 
     @property
     def mathalgodb_id(self):
         '''Provide MathAlgoDB ID'''
-        return settings.MARDMO_PROVIDER['mathalgodb_id']
+        return settings.MARDMO_PROVIDER['mathalgodb']['mathalgodb_id']
 
     @property
     def mathalgodb_secret(self):
         '''Provide MathAlgoDB Secret'''
-        return settings.MARDMO_PROVIDER['mathalgodb_secret']
-
-    @property
-    def wikibase_url(self):
-        '''Provide MaRDI Portal URL'''
-        return endpoint['mardi']['uri']
+        return settings.MARDMO_PROVIDER['mathalgodb']['mathalgodb_secret']
 
     @property
     def authorize_url(self):
         '''Provide OAuth2 Authorize URL'''
-        return f'{self.wikibase_url}/w/rest.php/oauth2/authorize'
+        return f"{get_url('mardi', 'uri')}/w/rest.php/oauth2/authorize"
 
     @property
     def token_url(self):
         '''Provide OAuth2 Token URL'''
-        return f'{self.wikibase_url}/w/rest.php/oauth2/access_token'
+        return f"{get_url('mardi', 'uri')}/w/rest.php/oauth2/access_token"
 
     @property
     def redirect_path(self):
@@ -126,7 +121,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).endswith('mardmo-model-catalog'):
 
             # Get answers, options, and mathmoddb
-            answers, options, mathmoddb = self.get_post_data()
+            answers, options, mathmoddb = self.get_post_data('preview')
 
             # Adjust MathML for Preview
             inline_mathml(answers)
@@ -150,7 +145,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).endswith('mardmo-algorithm-catalog'):
 
             # Get answers, options, mathalgodb
-            answers, options, mathalgodb = self.get_post_data()
+            answers, options, mathalgodb = self.get_post_data('preview')
 
             return render(
                 self.request,
@@ -170,7 +165,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         # MaRDMO: Search Interdisciplinary Workflows, Mathematical Models or Algorithms
         if str(self.project.catalog).endswith('mardmo-search-catalog'):
 
-            answers, options = self.get_post_data()
+            answers, options = self.get_post_data('preview')
 
             return render(
                 self.request,
@@ -190,7 +185,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         # MaRDMO: Interdisciplinary Workflow Documentation
         if str(self.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
 
-            answers, options = self.get_post_data()
+            answers, options = self.get_post_data('preview')
 
             # Get Model Data
             prepare = prepareWorkflow()
@@ -210,10 +205,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                     },
                     'answers': answers,
                     'option': options,
-                    'mathmoddbURI': endpoint['mardi']['uri'],
-                    'mathalgodbURI': endpoint['mathalgodb']['uri'],
-                    'mardiURI': get_general_item_url(),
-                    'wikidataURI': endpoint['wikidata']['uri']
+                    'mathmoddbURI': get_url('mardi', 'uri'),
+                    'mathalgodbURI': get_url('mathalgodb', 'uri'),
+                    'mardiURI': get_item_url('mardi'),
+                    'wikidataURI': get_item_url('wikidata'),
                 },
                 status=200
             )
@@ -292,7 +287,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         # Prepare payload
         try:
             prepare = PrepareModel()
-            payload = prepare.export(answers, self.wikibase_url)
+            payload = prepare.export(answers, get_url('mardi', 'uri'))
         except (ValueError, KeyError) as err:
             return render(
                 self.request,
@@ -344,7 +339,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
         try:
             response = requests.post(
-                endpoint['mathalgodb']['update'],
+                get_url('mathalgodb', 'update'),
                 data=query,
                 headers={
                     "Content-Type": "application/sparql-update",
@@ -367,13 +362,16 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 self.project,
                 ids,
                 get_sparql_query('algorithm/queries/id_check.sparql'),
-                endpoint['mathalgodb']['sparql'],
+                get_url('mathalgodb', 'sparql'),
                 'mathalgodb'
             )
             return render(
                 self.request,
                 'MaRDMO/algorithmExport.html',
-                {'ids': ids, 'mathalgodb_uri': endpoint['mathalgodb']['uri']},
+                {
+                    'ids': ids,
+                    'mathalgodb_uri': get_url('mathalgodb', 'uri')
+                },
                 status=200
             )
 
@@ -433,7 +431,11 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
         try:
             prepare = prepareWorkflow()
-            payload = prepare.export(answers, self.project.title, self.wikibase_url)
+            payload = prepare.export(
+                answers,
+                self.project.title,
+                get_url('mardi', 'uri')
+            )
         except (ValueError, KeyError) as err:
             return render(
                 self.request,
@@ -457,12 +459,12 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             'MaRDMO/portalExport.html',
             {
                 'ids': ids,
-                'mardi_uri': get_general_item_url
+                'mardi_uri': get_item_url('mardi')
             },
             status=200
         )
 
-    def get_post_data(self):
+    def get_post_data(self, mode = 'submit'):
         '''Function which gathers User Answers for individual catalogs.'''
         options = get_options()
 
@@ -479,14 +481,15 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 get_answer = get_answers
             )
 
-            # Retrieve Publications related to Model
-            publication = PublicationRetriever()
-            answers = publication.workflow_or_model(
-                project = self.project,
-                snapshot = self.snapshot,
-                answers = answers,
-                options = options
-            )
+            if mode == 'preview':
+                # Retrieve Publications related to Model for Preview
+                publication = PublicationRetriever()
+                answers = publication.workflow_or_model(
+                    project = self.project,
+                    snapshot = self.snapshot,
+                    answers = answers,
+                    options = options
+                )
 
             # Prepare Mathematical Model (Preview)
             prepare = PrepareModel()
@@ -514,6 +517,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             publication = PublicationRetriever()
             answers = publication.algorithm(
                 project = self.project,
+                snapshot = self.snapshot,
                 answers = answers
             )
 

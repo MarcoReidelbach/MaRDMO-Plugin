@@ -20,14 +20,26 @@ class Author:
     @classmethod
     def from_query(cls, raw: str) -> 'Author':
         '''Generate Class Item from Query'''
-        parts = raw.split(" <|> ")
+        identifier, label, description, orcid_id, zbmath_id, wikidata_id = raw.split(" <|> ")
+
+        if label and not identifier:
+            identifier = 'no author found'
+
+        if not description:
+            if orcid_id:
+                description = f'scientist (ORCID iD {orcid_id})'
+            elif zbmath_id:
+                description = f'scientist (zbMath ID {orcid_id})'
+            else:
+                description = 'scientist'
+
         return cls(
-            id = parts[0],
-            label = parts[1],
-            description = parts[2],
-            orcid_id = parts[3],
-            zbmath_id = parts[4],
-            wikidata_id = parts[5]
+            id = identifier,
+            label = label,
+            description = description,
+            orcid_id = orcid_id,
+            zbmath_id = zbmath_id,
+            wikidata_id = wikidata_id
         )
 
     @classmethod
@@ -53,11 +65,6 @@ class Author:
 
         # Get Wikidata ID
         wikidata_id = None
-
-        # Get Label
-        label = None
-        if raw.get('given') and raw.get('family'):
-            label = f"{raw['given']} {raw['family']}"
 
         # Get Description
         description = None
@@ -259,10 +266,25 @@ class Journal:
     @classmethod
     def from_query(cls, raw: str) -> 'Journal':
         '''Generate Class Item from Query'''
-        identifier, label, description = raw.split(" <|> ")
+        raw_splitted = raw.split(" <|> ")
+
+        identifier = raw_splitted[0]
+        label = raw_splitted[1]
+        description = raw_splitted[2]
+        if len(raw_splitted) == 4:
+            issn = raw_splitted[3]
+        else:
+            issn = None
+
+        if not description:
+            if issn:
+                description = f'scientific journal (ISSN {issn})'
+            else:
+                description = 'scientific journal'
+
         return cls(
             id = identifier,
-            issn =None,
+            issn = issn,
             label = label,
             description = description
         )
@@ -462,14 +484,14 @@ class Publication:
                         "West Germanic language"
                     )
                 ]
-                if data.get('langaugelabel', {}).get('value', '').lower()
+                if data.get('languagelabel', {}).get('value', '').lower()
                     in {"en", "eng", "english"}
                 else []
             ),
             # Get Title
             'title': data.get('title', {}).get('value'),
             # Get Date
-            'date': data.get('date', {}).get('value', '')[:10],
+            'date': data.get('date', {}).get('value', ''),
             # Get Volume
             'volume': data.get('volume', {}).get('value'),
             # Get Issue
@@ -560,7 +582,7 @@ class Publication:
             # Get ID
             'id': None,
             # Get Label
-            'label': None,
+            'label': data.get('title', [''])[0],
             # Get Description
             'description': 
                 f'scientific article (doi: {data["DOI"]})'
@@ -637,7 +659,7 @@ class Publication:
             # Get ID
             'id': None,
             # Get Label
-            'label': None,
+            'label': (data.get('titles') or [{}])[0].get('title'),
             # Get Description
             'description': 
                 f'scientific article (doi: {data["doi"]})'
@@ -723,7 +745,7 @@ class Publication:
             # Get ID
             'id': None,
             # Get Label
-            'label': None,
+            'label': data.get('title'),
             # Get Description
             'description': 
                 f'scientific article (doi: {data["DOI"]})'
@@ -800,7 +822,7 @@ class Publication:
             # Get ID
             'id': None,
             # Get Label
-            'label': None,
+            'label': data.get('title', {}).get('title'),
             # Get Description
             'description': (
                 f"scientific article (doi: {doi})"

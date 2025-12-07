@@ -4,7 +4,7 @@ from rdmo.domain.models import Attribute
 
 from .constants import data_properties_check, section_map
 
-from ..config import BASE_URI
+from ..constants import BASE_URI
 from ..getters import get_mathmoddb
 
 class Checks:
@@ -55,6 +55,14 @@ class Checks:
                                 section = section_map[okey],
                                 page = page_name,
                                 message = 'Missing Short Description'
+                            )
+                        )
+                    if ivalue.get('Name') == ivalue.get('Description'):
+                        self.err.append(
+                            self.error_message(
+                                section = section_map[okey],
+                                page = page_name,
+                                message = 'Equal Name and Short Description Forbidden'
                             )
                         )
                     if ivalue.get('Description') and len(ivalue['Description']) > 250:
@@ -115,10 +123,6 @@ class Checks:
                 uri = f"{BASE_URI}domain/model"
             )
         )
-
-        if not data.get('model'):
-            self.err.append('Mathematical Model: No Mathematical Model Entered')
-            return
 
         for ikey, ivalue in data.get('model',{}).items():
             page_name = values.get(set_index=ikey).text
@@ -215,10 +219,6 @@ class Checks:
             )
         )
 
-        if not data.get('task'):
-            self.err.append('Computational Task: No Computational Task Entered')
-            return
-
         for ikey, ivalue in data.get('task',{}).items():
             page_name = values.get(set_index=ikey).text
             # Check Connections
@@ -308,10 +308,6 @@ class Checks:
                 uri = f"{BASE_URI}domain/formulation"
             )
         )
-
-        if not data.get('formulation'):
-            self.err.append('Mathematical Expression: No Mathematical Expression Entered')
-            return
 
         for ikey, ivalue in data.get('formulation',{}).items():
             page_name = values.get(set_index=ikey).text
@@ -406,10 +402,6 @@ class Checks:
                 uri = f"{BASE_URI}domain/quantity"
             )
         )
-
-        if not data.get('quantity'):
-            self.err.append('Quantity [Kind]: No Quantity [Kind] Entered')
-            return
 
         for ikey, ivalue in data.get('quantity',{}).items():
             page_name = values.get(set_index=ikey).text
@@ -530,10 +522,6 @@ class Checks:
             )
         )
 
-        if not data.get('problem'):
-            self.err.append('Research Problem: No Research Problem Entered')
-            return
-
         for ikey, ivalue in data.get('problem',{}).items():
             page_name = values.get(set_index=ikey).text
             # Check Connections
@@ -569,10 +557,6 @@ class Checks:
             )
         )
 
-        if not data.get('field'):
-            self.err.append('Academic Discipline: No Academic Discipline Entered')
-            return
-
         for ikey, ivalue in data.get('field',{}).items():
             page_name = values.get(set_index=ikey).text
             # Relation Connections
@@ -598,10 +582,6 @@ class Checks:
                 uri = f"{BASE_URI}domain/publication"
             )
         )
-
-        if not data.get('publication'):
-            self.err.append('Publication: No Publication Entered')
-            return
 
         for ikey, ivalue in data.get('publication',{}).items():
             page_name = values.get(set_index=ikey).text

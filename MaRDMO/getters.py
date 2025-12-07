@@ -4,9 +4,10 @@ import json
 import os
 
 from django.apps import apps
+from django.conf import settings
 from rdmo.domain.models import Attribute
 
-from .config import BASE_URI, endpoint
+from .constants import BASE_URI
 from .constants import flag_dict
 from .helpers import nested_set
 
@@ -34,9 +35,13 @@ def get_questions(question_set):
     """Retrieve the questions dictionary from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").questions[question_set]
 
-def get_general_item_url():
+def get_url(source, url_type):
+    """Get Wikibase API URL, SPARQL URL, or Website URL"""
+    return settings.MARDMO_PROVIDER[source][url_type]
+
+def get_item_url(source):
     """Get general Wikibase Item URL from Wikibase URL"""
-    return f"{endpoint['mardi']['uri']}/wiki/Item:"
+    return f"{settings.MARDMO_PROVIDER[source]['uri']}/wiki/Item:"
 
 def get_data(file_name):
     """Get Data from JSON File"""

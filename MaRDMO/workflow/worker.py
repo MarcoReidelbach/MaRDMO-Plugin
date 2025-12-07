@@ -4,8 +4,7 @@ from .sparql import queryPreview
 from .models import ModelProperties, Variables, Parameters
 from .constants import REPRODUCIBILITY
 
-from ..config import endpoint
-from ..getters import get_items, get_options, get_properties
+from ..getters import get_items, get_options, get_properties, get_url
 from ..helpers import unique_items
 from ..queries import query_sparql
 from ..payload import GeneratePayload
@@ -22,22 +21,40 @@ class prepareWorkflow:
         if data.get('model',{}).get('ID'):
             _, id = data['model']['ID'].split(':')
             query = queryPreview['basic'].format(id, **self.items, **self.properties)
-            basic = query_sparql(query, endpoint['mardi']['sparql'])
+            basic = query_sparql(query, get_url('mardi', 'sparql'))
             if basic:
                 data.get('model', {}).update(asdict(ModelProperties.from_query(basic)))
-        
+
         # Update Model Variables and Parameters via MathModDB
-        if data.get('model', {}).get('task'):            
-            query = queryPreview['variables'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['model']['task'].items()), **self.items, **self.properties)
-            variables = query_sparql(query, endpoint['mardi']['sparql'])
+        if data.get('model', {}).get('task'):
+            query = queryPreview['variables'].format(
+                ' '.join(f"wd:{value.get('ID', '').split(':')[1]}"
+                for _, value in data['model']['task'].items()),
+                **self.items,
+                **self.properties
+            )
+            variables = query_sparql(query, get_url('mardi', 'sparql'))
             if variables:
                 for idx, variable in enumerate(variables):
-                    data.setdefault('variables', {}).update({idx: asdict(Variables.from_query(variable))})
-            query = queryPreview['parameters'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['model']['task'].items()), **self.items, **self.properties)
-            parameters = query_sparql(query, endpoint['mardi']['sparql'])
+                    data.setdefault('variables', {}).update(
+                        {
+                            idx: asdict(Variables.from_query(variable))
+                        }
+                    )
+            query = queryPreview['parameters'].format(
+                ' '.join(f"wd:{value.get('ID', '').split(':')[1]}"
+                for _, value in data['model']['task'].items()),
+                **self.items,
+                **self.properties
+            )
+            parameters = query_sparql(query, get_url('mardi', 'sparql'))
             if parameters:
                 for idx, parameter in enumerate(parameters):
-                    data.setdefault('parameters', {}).update({idx: asdict(Parameters.from_query(parameter))})
+                    data.setdefault('parameters', {}).update(
+                        {
+                            idx: asdict(Parameters.from_query(parameter))
+                        }
+                    )
 
         return data
 
@@ -265,16 +282,16 @@ class prepareWorkflow:
             if dataset.get('Size'):
                 if dataset['Size'][0] == options['kilobyte']:
                     verb = self.properties['data size']
-                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.items['kilobyte']}"}
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{get_url('mardi', 'uri')}/entity/{self.items['kilobyte']}"}
                 elif dataset['Size'][0] == options['megabyte']:
                     verb = self.properties['data size']
-                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.items['megabyte']}"}
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{get_url('mardi', 'uri')}/entity/{self.items['megabyte']}"}
                 elif dataset['Size'][0] == options['gigabyte']:
                     verb = self.properties['data size']
-                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.items['gigabyte']}"}
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{get_url('mardi', 'uri')}/entity/{self.items['gigabyte']}"}
                 elif dataset['Size'][0] == options['terabyte']:
                     verb = self.properties['data size']
-                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{endpoint['mardi']['uri']}/entity/{self.items['terabyte']}"}
+                    object = {"amount":f"+{dataset['Size'][1]}","unit": f"{get_url('mardi', 'uri')}/entity/{self.items['terabyte']}"}
                 elif dataset['Size'][0] == options['items']:
                     verb = self.properties['number of records']
                     object = {"amount":f"+{dataset['Size'][1]}","unit":"1"}
@@ -506,21 +523,38 @@ class prepareWorkflow:
             # Get Item Key
             payload.get_item_key(publication)
 
-            if 'mardi' not in publication['ID'] and 'wikidata' not in publication['ID']:
-                
-                # Add the class of the Publication
-                if publication.get('entrytype'):
+            if 'mardi' not in publication['ID']:
 
-                    if publication['entrytype'] == 'scholarly article':
-                        pclass = self.items['scholarly article']
-                    else:
-                        pclass = self.items['publication']
+                # Set and add the Class of the Publication
+                if publication.get('entrytype') == 'scholarly article':
+                    pclass = self.items['scholarly article']
+                else:
+                    pclass = self.items['publication']
 
+                payload.add_answer(
+                    verb=self.properties['instance of'],
+                    object_and_type=[
+                        pclass,
+                        'wikibase-item',
+                    ]
+                )
+
+                # Add Publication Profile
+                payload.add_answer(
+                        verb = self.properties["MaRDI profile type"],
+                        object_and_type = [
+                            self.items["MaRDI publication profile"],
+                            "wikibase-item"
+                        ],
+                    )
+
+                # Add the DOI of the Publication
+                if publication.get('reference', {}).get(0):
                     payload.add_answer(
-                        verb=self.properties['instance of'],
+                        verb=self.properties['DOI'],
                         object_and_type=[
-                            pclass,
-                            'wikibase-item',
+                            publication['reference'][0][1],
+                            'external-id',
                         ]
                     )
                
@@ -576,17 +610,6 @@ class prepareWorkflow:
                         object_and_type=[
                             {"time":f"+{publication['date']}T00:00:00Z","precision":11,"calendarmodel":"http://www.wikidata.org/entity/Q1985727"},
                             'time',
-                        ]
-                    )
-
-                # Add the DOI of the Publication
-                if publication.get('reference', {}).get(0):
-
-                    payload.add_answer(
-                        verb=self.properties['DOI'],
-                        object_and_type=[
-                            publication['reference'][0][1],
-                            'external-id',
                         ]
                     )
                 
@@ -842,7 +865,7 @@ class prepareWorkflow:
             query = payload.build_relation_check_query()
         
             # Perform Check Query for Relations
-            check = query_sparql(query, endpoint['mardi']['sparql'])
+            check = query_sparql(query, get_url('mardi', 'sparql'))
 
             # Add Check Results
             payload.add_check_results(check)

@@ -1,0 +1,24 @@
+PREFIX pb: <https://mardi4nfdi.de/mathalgodb/0.1/publication#>
+PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dc: <http://purl.org/spar/datacite/>
+
+SELECT DISTINCT ?id ?label ?description
+                                                                                    
+WHERE {{
+    ?idraw a :publication.
+    ?idraw dc:hasIdentifier ?doi
+    FILTER(LCASE(STR(?doi)) = LCASE("doi:{0}"))
+    BIND(CONCAT("mathalgodb:", STRAFTER(STR(?idraw), "#")) AS ?id)
+    
+    OPTIONAL {{
+        ?idraw rdfs:label ?labelraw.
+    }}
+    BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
+    
+    OPTIONAL {{
+        ?idraw rdfs:comment ?descriptionraw.
+    }}
+    BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
+}}
+GROUP BY ?id ?label ?description

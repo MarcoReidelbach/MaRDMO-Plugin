@@ -7,8 +7,16 @@ from rdmo.projects.models import Value
 from rdmo.options.models import Option
 from rdmo.domain.models import Attribute
 
-from ..config import BASE_URI, endpoint
-from ..getters import get_items, get_mathmoddb, get_mathalgodb, get_properties, get_questions
+from ..constants import BASE_URI
+from ..getters import (
+    get_items,
+    get_mathmoddb,
+    get_mathalgodb,
+    get_properties,
+    get_questions,
+    get_sparql_query,
+    get_url
+)
 from ..helpers import value_editor
 from ..queries import query_sparql
 from ..adders import add_basics, add_references, add_relations_flexible
@@ -18,13 +26,13 @@ from .constants import (
     PROPS,
     RELATANT_URIS,
     RELATION_URIS,
-    PUBLICATIONS,
+    ITEMINFOS,
+    CITATIONINFOS,
     LANGUAGES,
     JOURNALS,
     AUTHORS
 )
 from .utils import generate_label
-from .sparql import queryPublication
 from .models import Publication
 
 class Information:
@@ -44,6 +52,24 @@ class Information:
         # Publication specific Questions.
         publication = self.questions["Publication"]
 
+        Value.objects.filter(
+                attribute_id = Attribute.objects.get(
+                    uri = f'{BASE_URI}{publication["Name"]["uri"]}'
+                ),
+                set_index = instance.set_index,
+                project = instance.project,
+                snapshot = instance.snapshot
+            ).delete()
+        
+        Value.objects.filter(
+                attribute_id = Attribute.objects.get(
+                    uri = f'{BASE_URI}{publication["Description"]["uri"]}'
+                ),
+                set_index = instance.set_index,
+                project = instance.project,
+                snapshot = instance.snapshot
+            ).delete()
+
         # Stop if no Text or 'not found' in ID Field
         if not instance.text or instance.text == 'not found':
             return
@@ -57,12 +83,17 @@ class Information:
         # If Publication from MathAlgoDB...
         if source == 'mathalgodb':
             #...query the MathAlgoDB,...
-            query = queryPublication['PublicationMathAlgoDB'].format(
+            query = get_sparql_query(
+                'publication/queries/doi_from_mathalgodb.sparql'
+            ).format(
                 identifier
             )
             results = query_sparql(
                 query,
-                endpoint['mathalgodb']['sparql']
+                get_url(
+                    'mathalgodb',
+                    'sparql'
+                )
             )
 
             if not results:
@@ -90,14 +121,20 @@ class Information:
         # If Publication from MaRDI Portal...
         elif source == 'mardi':
             #...query the MaRDI Portal,...
-            query = queryPublication['MaRDI']['QID_FULL'].format(
+            query = get_sparql_query(
+                'publication/queries/doi_from_mardi.sparql'
+            ).format(
                 identifier,
                 **get_items(),
                 **get_properties()
             )
+
             results = query_sparql(
                 query,
-                endpoint['mardi']['sparql']
+                get_url(
+                    'mardi',
+                    'sparql'
+                )
             )
 
             if not results:
@@ -145,12 +182,17 @@ class Information:
         # If Publication from Wikidata...
         elif source == 'wikidata':
             #...query Wikidata,...
-            query = queryPublication['Wikidata']['QID_FULL'].format(
+            query = get_sparql_query(
+                'publication/queries/doi_from_wikidata.sparql'
+            ).format(
                 identifier
             )
             results = query_sparql(
                 query,
-                endpoint['wikidata']['sparql-scholarly']
+                get_url(
+                    'wikidata',
+                    'sparql'
+                )
             )
 
             if not results:
@@ -158,7 +200,6 @@ class Information:
 
             #...structure the data...
             data = Publication.from_query(results)
-
             #and add the Information to the Questionnaire.
             if str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
                 value_editor(
@@ -260,7 +301,7 @@ class Information:
         return
 
 @receiver(post_delete, sender=Value)
-def publication_delete(sender, **kwargs):
+def publication_set_delete(sender, **kwargs):
     '''Handler to delete hidden Publication Information
        upon deletion of Set.
     '''
@@ -274,7 +315,7 @@ def publication_delete(sender, **kwargs):
         project = instance.project
         snapshot = instance.snapshot
         # Loop through "hidden" Data and delete it
-        for key in PUBLICATIONS | LANGUAGES | JOURNALS | AUTHORS:
+        for key in ITEMINFOS | CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS:
             Value.objects.filter(
                 attribute_id = Attribute.objects.get(
                     uri = f'{BASE_URI}{questions["Publication"][key]["uri"]}'

@@ -1,0 +1,52 @@
+{% extends 'core/page.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block page %}
+<div id="progress-root"
+     data-job-id="{{ job_id }}"
+     data-progress-url="{% url 'get_progress' job_id=job_id %}">
+    <div align="center">
+        <br><br><br><br><br><br><br>
+
+        <!-- Logo Progress Section -->
+        <figure style="display: inline-block; position: relative;">
+            <!-- Grayscale Logo -->
+            <img src="{% static 'MaRDMO/images/MaRDMOLogo.png' %}"
+                 style="display: block; filter: grayscale(100%);"
+                 alt="Logo">
+
+            <!-- Colored Logo Container -->
+            <div id="coloredContainer"
+                 style="position: absolute; top: 0; left: 0; width: 0%; height: 100%; overflow: hidden; transition: width 0.5s ease;">
+                <img src="{% static 'MaRDMO/images/MaRDMOLogo.png' %}"
+                     style="display: block;"
+                     alt="Colored Logo">
+            </div>
+        </figure>
+
+        <br><br><br>
+
+        <!-- Status Text -->
+        <div id="status" style="font-size: 30px; font-weight: bold; margin-top: 40px;">
+            Starting...
+        </div>
+
+        <!-- Attribution -->
+        <div align="center" style="margin-top: 50px; font-size: 14px; color: grey;">
+            <p>
+                MaRDMO Logo by
+                <a href="https://www.mardi4nfdi.de/about/mission" target="_blank" style="color: grey;">
+                    MaRDI
+                </a>, licensed under
+                <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" style="color: grey;">
+                    CC BY-NC-ND 4.0
+                </a>.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'MaRDMO/js/progress.js' %}"></script>
+{% endblock %}
+

@@ -1,9 +1,26 @@
 import html
 
-from ..config import endpoint
-from ..getters import get_general_item_url, get_items, get_properties
+from ..getters import get_item_url, get_items, get_properties, get_url
 from ..queries import query_sparql
-from .sparql import algorithmic_problem_sparql, software_sparql, algorithmic_problem_filter_sparql, quote_sparql, quantity_sparql, quantity_filter_sparql, task_sparql, formulation_sparql, res_obj_sparql, res_disc_sparql, mmsio_sparql, query_base, query_base_model, query_base_algorithm, problem_sparql, problem_filter_sparql, field_sparql
+from .sparql import (
+    algorithmic_problem_sparql,
+    software_sparql,
+    algorithmic_problem_filter_sparql,
+    quote_sparql,
+    quantity_sparql,
+    quantity_filter_sparql,
+    task_sparql,
+    formulation_sparql,
+    res_obj_sparql,
+    res_disc_sparql,
+    mmsio_sparql,
+    query_base,
+    query_base_model,
+    query_base_algorithm,
+    problem_sparql,
+    problem_filter_sparql,
+    field_sparql
+)
 
 def search(answers, options):
     
@@ -64,7 +81,7 @@ def search(answers, options):
         answers['query'] = html.escape(query).replace('\n', '<br>')
 
         # Query MaRDI Portal
-        results = query_sparql(query, endpoint['mardi']['sparql'])
+        results = query_sparql(query, get_url('mardi', 'sparql'))
 
         # Number of Results
         answers['no_results'] = str(len(results))
@@ -72,7 +89,13 @@ def search(answers, options):
         # Generate Links to Wikipage and Knowledge Graoh Entry of Results
         links=[]
         for result in results:
-            links.append([result["label"]["value"], f"{endpoint['mardi']['uri']}/wiki/workflow:{result['qid']['value'][1:]}", f"{get_general_item_url()}{result['qid']['value']}"])
+            links.append(
+                [
+                    result["label"]["value"],
+                    f"{get_url('mardi', 'uri')}/wiki/workflow:{result['qid']['value'][1:]}",
+                    f"{get_item_url('mardi')}{result['qid']['value']}"
+                ]
+            )
 
         answers['links'] = links
 
@@ -159,7 +182,7 @@ def search(answers, options):
         answers['query'] = html.escape(query).replace('\n', '<br>')
 
         # Query MathModDB
-        results = query_sparql(query, endpoint['mardi']['sparql'])
+        results = query_sparql(query, get_url('mardi', 'sparql'))
 
         # Number of Results
         answers['no_results'] = str(len(results))
@@ -167,7 +190,13 @@ def search(answers, options):
         # Generate Links to Entry
         links=[]
         for result in results:
-            links.append([result["label"]["value"], f"{endpoint['mardi']['uri']}/wiki/model:{result['qid']['value'][1:]}", f"{get_general_item_url()}{result['qid']['value']}"])
+            links.append(
+                [
+                    result["label"]["value"],
+                    f"{get_url('mardi', 'uri')}/wiki/model:{result['qid']['value'][1:]}",
+                    f"{get_item_url('mardi')}{result['qid']['value']}"
+                ]
+            )
             
         answers['links'] = links
 
@@ -211,7 +240,7 @@ def search(answers, options):
         answers['query'] = html.escape(query).replace('\n', '<br>')
 
         # Query MathAlgoDB
-        results = query_sparql(query, endpoint['mathalgodb']['sparql'])
+        results = query_sparql(query, get_url('mathalgodb', 'sparql'))
 
         # Number of Results
         answers['no_results'] = str(len(results))
@@ -219,7 +248,13 @@ def search(answers, options):
         # Generate Links to Entry
         links=[]
         for result in results:
-            links.append([result["label"]["value"], endpoint['mathalgodb']['uri'] + 'object/al:' + result["qid"]["value"], ''])
+            links.append(
+                [
+                    result["label"]["value"],
+                    get_url('mathalgodb', 'uri') + 'object/al:' + result["qid"]["value"],
+                    ''
+                ]
+            )
 
         answers['links'] = links
 

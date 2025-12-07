@@ -1,0 +1,150 @@
+PREFIX pb: <https://mardi4nfdi.de/mathalgodb/0.1/publication#>
+PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dc: <http://purl.org/spar/datacite/>
+
+SELECT DISTINCT ?id ?label ?description ?doi
+                (GROUP_CONCAT(DISTINCT(CONCAT(?appliesentity, " | ", ?appliesentitylabel, " | ", ?appliesentitydescription)); SEPARATOR=" / ") AS ?applies)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?analyzesentity, " | ", ?analyzesentitylabel, " | ", ?analyzesentitydescription)); SEPARATOR=" / ") AS ?analyzes)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?documentsentity, " | ", ?documentsentitylabel, " | ", ?documentsentitydescription, " | ", ?documentsentityclass)); SEPARATOR=" / ") AS ?documents)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?inventsentity, " | ", ?inventsentitylabel, " | ", ?inventsentitydescription)); SEPARATOR=" / ") AS ?invents)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?studiesentity, " | ", ?studiesentitylabel, " | ", ?studiesentitydescription)); SEPARATOR=" / ") AS ?studies)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?surveysentity, " | ", ?surveysentitylabel, " | ", ?surveysentitydescription)); SEPARATOR=" / ") AS ?surveys)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?usesentity, " | ", ?usesentitylabel, " | ", ?usesentitydescription, " | ", ?usesentityclass)); SEPARATOR=" / ") AS ?uses)
+                                                                                    
+WHERE {{
+    
+    VALUES ?idraw {{ pb:{0} }}
+    
+    ?idraw a :publication.
+    BIND(CONCAT("mathalgodb:", STRAFTER(STR(?idraw), "#")) AS ?id)
+    
+    OPTIONAL {{
+        ?idraw dc:hasIdentifier ?doiraw 
+        BIND(STRAFTER(STR(?doiraw), ":") AS ?doi)
+    }}
+
+    OPTIONAL {{
+        ?idraw rdfs:label ?labelraw.
+    }}
+    BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
+
+    OPTIONAL {{
+        ?idraw rdfs:comment ?descriptionraw.
+    }}
+    BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
+
+    OPTIONAL {{
+        ?idraw :applies ?appliesentityraw.
+        BIND(CONCAT("mathalgodb:", STRAFTER(STR(?appliesentityraw), "#")) AS ?appliesentity)
+        
+        OPTIONAL {{
+            ?appliesentityraw rdfs:label ?appliesentitylabelraw.
+        }}
+        BIND(COALESCE(?appliesentitylabelraw, "No Label Provided!") As ?appliesentitylabel)
+        
+        OPTIONAL {{
+            ?appliesentityraw rdfs:comment ?appliesentitydescriptionraw.
+        }}
+        BIND(COALESCE(?appliesentitydescriptionraw, "No Description Provided!") As ?appliesentitydescription)
+    }}
+        
+    OPTIONAL {{
+        ?idraw :analyzes ?analyzesentityraw.
+        BIND(CONCAT("mathalgodb:", STRAFTER(STR(?analyzesentityraw), "#")) AS ?analyzesentity)
+        
+        OPTIONAL {{
+            ?analyzesentityraw rdfs:label ?analyzesentitylabelraw.
+        }}
+        BIND(COALESCE(?analyzesentitylabelraw, "No Label Provided!") As ?analyzesentitylabel)
+        
+        OPTIONAL {{
+            ?analyzesentityraw rdfs:comment ?analyzesentitydescriptionraw.
+        }}
+        BIND(COALESCE(?analyzesentitydescriptionraw, "No Description Provided!") As ?analyzesentitydescription)
+    }}
+    
+    OPTIONAL {{
+        ?idraw :documents ?documentsentityraw.
+        BIND(CONCAT("mathalgodb:", STRAFTER(STR(?documentsentityraw), "#")) AS ?documentsentity)
+        
+        ?documentsentityraw a ?documentsentityclassraw.
+        BIND(STRAFTER(STR(?documentsentityclassraw), "#") AS ?documentsentityclass)
+        FILTER (?documentsentityclassraw IN (:benchmark, :software))
+        
+        OPTIONAL {{
+            ?documentsentityraw rdfs:label ?documentsentitylabelraw.
+        }}
+        BIND(COALESCE(?documentsentitylabelraw, "No Label Provided!") As ?documentsentitylabel)
+        
+        OPTIONAL {{
+            ?documentsentityraw rdfs:comment ?documentsentitydescriptionraw.
+        }}
+        BIND(COALESCE(?documentsentitydescriptionraw, "No Description Provided!") As ?documentsentitydescription)
+    }}
+
+    OPTIONAL {{
+        ?idraw :invents ?inventsentityraw.
+        BIND(CONCAT("mathalgodb:", STRAFTER(STR(?inventsentityraw), "#")) AS ?inventsentity)
+        
+        OPTIONAL {{
+            ?inventsentityraw rdfs:label ?inventsentitylabelraw.
+        }}
+        BIND(COALESCE(?inventsentitylabelraw, "No Label Provided!") As ?inventsentitylabel)
+        
+        OPTIONAL {{
+            ?inventsentityraw rdfs:comment ?inventsentitydescriptionraw.
+        }}
+        BIND(COALESCE(?inventsentitydescriptionraw, "No Description Provided!") As ?inventsentitydescription)
+    }}
+    
+    OPTIONAL {{
+        ?idraw :studies ?studiesentityraw.
+        BIND(CONCAT("mathalgodb:", STRAFTER(STR(?studiesentityraw), "#")) AS ?studiesentity)
+        
+        OPTIONAL {{
+            ?studiesentityraw rdfs:label ?studiesentitylabelraw.
+        }}
+        BIND(COALESCE(?studiesentitylabelraw, "No Label Provided!") As ?studiesentitylabel)
+        
+        OPTIONAL {{
+            ?studiesentityraw rdfs:comment ?studiesentitydescriptionraw.
+        }}
+        BIND(COALESCE(?studiesentitydescriptionraw, "No Description Provided!") As ?studiesentitydescription)
+    }}
+    
+    OPTIONAL {{
+        ?idraw :reviews ?surveysentityraw.
+        BIND(CONCAT("mathalgodb:", STRAFTER(STR(?surveysentityraw), "#")) AS ?surveysentity)
+        
+        OPTIONAL {{
+            ?surveysentityraw rdfs:label ?surveysentitylabelraw.
+        }}
+        BIND(COALESCE(?surveysentitylabelraw, "No Label Provided!") As ?surveysentitylabel)
+        
+        OPTIONAL {{
+            ?surveysentityraw rdfs:comment ?surveysentitydescriptionraw.
+        }}
+        BIND(COALESCE(?surveysentitydescriptionraw, "No Description Provided!") As ?surveysentitydescription)
+    }}
+    
+    OPTIONAL {{
+        ?idraw :uses ?usesentityraw.
+        BIND(CONCAT("mathalgodb:", STRAFTER(STR(?usesentityraw), "#")) AS ?usesentity)
+        
+        ?usesentityraw a ?usesentityclassraw.
+        BIND(STRAFTER(STR(?usesentityclassraw), "#") AS ?usesentityclass)
+        FILTER (?usesentityclass IN (:benchmark, :software))
+        
+        OPTIONAL {{
+            ?usesentityraw rdfs:label ?usesentitylabelraw.
+        }}
+        BIND(COALESCE(?usesentitylabelraw, "No Label Provided!") As ?usesentitylabel)
+        
+        OPTIONAL {{
+            ?usesentityraw rdfs:comment ?usesentitydescriptionraw.
+        }}
+        BIND(COALESCE(?usesentitydescriptionraw, "No Description Provided!") As ?usesentitydescription)
+    }}
+}}
+GROUP BY ?id ?label ?description ?doi

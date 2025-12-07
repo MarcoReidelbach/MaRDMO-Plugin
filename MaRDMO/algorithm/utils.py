@@ -4,7 +4,7 @@ import re
 
 from .constants import class_prefix_map
 
-from ..config import BASE_URI
+from ..constants import BASE_URI
 from ..helpers import value_editor
 from ..getters import get_data, get_mathalgodb, get_options
 from ..queries import query_sparql

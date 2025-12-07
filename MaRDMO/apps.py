@@ -1,6 +1,7 @@
 '''MaRDMO Application File'''
 
 from django.apps import AppConfig
+from django.conf import settings
 
 class MaRDMOConfig(AppConfig):
     '''MaRDMO Configuration'''
@@ -32,7 +33,7 @@ class MaRDMOConfig(AppConfig):
         self.mathmoddb = get_data('model/data/mapping.json')
         self.mathalgodb = get_data('algorithm/data/mapping.json')
         self.options = get_data('data/options.json')
-        self.items = get_data('data/items.json')
-        self.properties = get_data('data/properties.json')
+        self.items = get_data(settings.MARDMO_PROVIDER['mardi']['items'])
+        self.properties = get_data(settings.MARDMO_PROVIDER['mardi']['properties'])
 
         from . import router

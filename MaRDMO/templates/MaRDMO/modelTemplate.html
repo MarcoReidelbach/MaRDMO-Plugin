@@ -220,7 +220,7 @@
         {% endif %}
     {% endfor %}
 {% empty %}
-    <strong style="color:red;">MISSING MATHEMATICAL MODEL</strong>
+    <strong style="color:black;">NO MATHEMATICAL MODEL DOCUMENTED</strong>
 {% endfor %}
 
 <h1 id="Task"> Computational Tasks </h1> 
@@ -380,7 +380,7 @@
         {% endif %}
     {% endfor %}
 {% empty %}
-    <strong style="color:red;">MISSING COMPUTATIONAL TASK</strong>
+    <strong style="color:black;">NO COMPUTATIONAL TASK DOCUMENTED</strong>
 {% endfor %}
 
 <h1 id="MathematicalFormulations"> Mathematical Expressions </h1>
@@ -631,7 +631,7 @@
         {% endif %}  
     {% endfor %}
 {% empty %}
-    <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION</strong>
+    <strong style="color:black;">NO MATHEMATICAL EXPRESSION DOCUMENTED</strong>
 {% endfor %}
     
 <h1 id="Publication"> Publications </h1>
@@ -683,7 +683,7 @@
         <strong style="color:red;">MISSING MATHEMATICAL MODEL ENTITY</strong>
     {% endfor %}
 {% empty %}
-    <strong style="color:red;">MISSING PUBLICATION</strong>
+    <strong style="color:black;">NO PUBLICATION DOCUMENTED</strong>
 {% endfor %}
 
 <h1 id="ResearchField"> Academic Disciplines </h1>
@@ -739,7 +739,7 @@
         {% endif %}
     {% endfor %}
 {% empty %}
-    <strong style="color:red;">MISSING ACADEMIC DISCIPLINE</strong>
+    <strong style="color:black;">NO ACADEMIC DISCIPLINE DOCUMENTED</strong>
 {% endfor %}
 
 <h1 id="ResearchProblem"> Research Problems </h1>
@@ -802,7 +802,7 @@
         {% endif %}
     {% endfor %}
 {% empty %}
-    <strong style="color:red;">MISSING RESEARCH PROBLEM</strong>
+    <strong style="color:black;">NO RESEARCH PROBLEM DOCUMENTED</strong>
 {% endfor %}
 
 <h1 id="QuantityQuantityKind"> Quantities / Quantity Kinds </h1>
@@ -957,7 +957,7 @@
                     {% if '>≡</' in value or '>&#x2261;</' in value or '>&equiv;</' in value or '\\equiv' in value or '\\Equiv' in value %}
                         <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if 'math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %}</li>
                     {% else %}
-                        <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if 'math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %} <strong style="color:red;">&nbsp;&nbsp;&nbsp;&nbsp;Inconsistent Quantity / Quantity Kind Definition (missing equivalent sign)</li>
+                        <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if 'math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %} <strong style="color:red;">&nbsp;&nbsp;&nbsp;&nbsp;Inconsistent Quantity / Quantity Kind Definition (missing equivalent sign)</strong></li>
                     {% endif %}
                 {% empty %}
                     <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION FORMULA</strong>
@@ -1093,7 +1093,7 @@
         {% endfor %}
     {% endif %}
 {% empty %}
-    <strong style="color:red;">MISSING QUANTITY / QUANTITY KIND</strong>
+    <strong style="color:black;">NO QUANTITY / QUANTITY KIND DOCUMENTED</strong>
 {% endfor %}
 
 </body>
