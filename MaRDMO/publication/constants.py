@@ -24,10 +24,14 @@ RELATANT_URIS = {
     "software": "SRelatant",
 }
 
-# URI mappings for publications
-PUBLICATIONS = {
+# URI mappings for item infos
+ITEMINFOS = {
     "Name": "title",
-    "Description": "description",
+    "Description": "description"
+}
+
+# URI mappings for citation infos
+CITATIONINFOS = {
     "Entrytype": "entrytype",
     "Title": "title",
     "Date": "date",

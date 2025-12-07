@@ -24,19 +24,37 @@ class prepareWorkflow:
             basic = query_sparql(query, get_url('mardi', 'sparql'))
             if basic:
                 data.get('model', {}).update(asdict(ModelProperties.from_query(basic)))
-        
+
         # Update Model Variables and Parameters via MathModDB
-        if data.get('model', {}).get('task'):            
-            query = queryPreview['variables'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['model']['task'].items()), **self.items, **self.properties)
+        if data.get('model', {}).get('task'):
+            query = queryPreview['variables'].format(
+                ' '.join(f"wd:{value.get('ID', '').split(':')[1]}"
+                for _, value in data['model']['task'].items()),
+                **self.items,
+                **self.properties
+            )
             variables = query_sparql(query, get_url('mardi', 'sparql'))
             if variables:
                 for idx, variable in enumerate(variables):
-                    data.setdefault('variables', {}).update({idx: asdict(Variables.from_query(variable))})
-            query = queryPreview['parameters'].format(' '.join(f"wd:{value.get('ID', '').split(':')[1]}" for _, value in data['model']['task'].items()), **self.items, **self.properties)
+                    data.setdefault('variables', {}).update(
+                        {
+                            idx: asdict(Variables.from_query(variable))
+                        }
+                    )
+            query = queryPreview['parameters'].format(
+                ' '.join(f"wd:{value.get('ID', '').split(':')[1]}"
+                for _, value in data['model']['task'].items()),
+                **self.items,
+                **self.properties
+            )
             parameters = query_sparql(query, get_url('mardi', 'sparql'))
             if parameters:
                 for idx, parameter in enumerate(parameters):
-                    data.setdefault('parameters', {}).update({idx: asdict(Parameters.from_query(parameter))})
+                    data.setdefault('parameters', {}).update(
+                        {
+                            idx: asdict(Parameters.from_query(parameter))
+                        }
+                    )
 
         return data
 
@@ -505,40 +523,40 @@ class prepareWorkflow:
             # Get Item Key
             payload.get_item_key(publication)
 
-            # Set and add the Class of the Publication
-            if publication.get('entrytype') == 'scholarly article':
-                pclass = self.items['scholarly article']
-            else:
-                pclass = self.items['publication']
+            if 'mardi' not in publication['ID']:
 
-            payload.add_answer(
-                verb=self.properties['instance of'],
-                object_and_type=[
-                    pclass,
-                    'wikibase-item',
-                ]
-            )
+                # Set and add the Class of the Publication
+                if publication.get('entrytype') == 'scholarly article':
+                    pclass = self.items['scholarly article']
+                else:
+                    pclass = self.items['publication']
 
-            # Add Publication Profile
-            payload.add_answer(
-                    verb = self.properties["MaRDI profile type"],
-                    object_and_type = [
-                        self.items["MaRDI publication profile"],
-                        "wikibase-item"
-                    ],
-                )
-
-            # Add the DOI of the Publication
-            if publication.get('reference', {}).get(0):
                 payload.add_answer(
-                    verb=self.properties['DOI'],
+                    verb=self.properties['instance of'],
                     object_and_type=[
-                        publication['reference'][0][1],
-                        'external-id',
+                        pclass,
+                        'wikibase-item',
                     ]
                 )
 
-            if 'mardi' not in publication['ID'] and 'wikidata' not in publication['ID']:
+                # Add Publication Profile
+                payload.add_answer(
+                        verb = self.properties["MaRDI profile type"],
+                        object_and_type = [
+                            self.items["MaRDI publication profile"],
+                            "wikibase-item"
+                        ],
+                    )
+
+                # Add the DOI of the Publication
+                if publication.get('reference', {}).get(0):
+                    payload.add_answer(
+                        verb=self.properties['DOI'],
+                        object_and_type=[
+                            publication['reference'][0][1],
+                            'external-id',
+                        ]
+                    )
                
                 # Add the Title of the Publication
                 if publication.get('title'):

@@ -1,0 +1,35 @@
+SELECT (GROUP_CONCAT(DISTINCT(?journal_info_raw); separator=" | ") AS ?journal_info)
+
+WHERE {{
+    
+    {{
+        ?journalraw wdt:{1} ?issn.
+        BIND(STRAFTER(STR(?journalraw),STR(wd:)) AS ?journal_id).
+        VALUES ?issn {{{0}}}
+    }}
+    UNION
+    {{
+        ?journalraw wdt:{2} ?wikidataqid.
+        BIND(STRAFTER(STR(?journalraw),STR(wd:)) AS ?journal_id).
+        VALUES ?wikidataqid {{{3}}}
+    }}
+    
+    OPTIONAL {{
+        ?journalraw rdfs:label ?journallabelraw.
+        FILTER (lang(?journallabelraw) = 'en')
+    }}
+    BIND(COALESCE(?journallabelraw, "No Label Provided!") As ?journallabel)
+    
+    OPTIONAL {{
+        ?journalraw schema:description ?journaldescriptionraw.
+        FILTER (lang(?journaldescriptionraw) = 'en')
+    }}
+    BIND(COALESCE(?journaldescriptionraw, "No Description Provided!") As ?journaldescription)
+
+    OPTIONAL {{
+        ?journalraw wdt:{1} ?journalissnraw
+    }}
+    BIND(COALESCE(?journalissn, "") AS ?journalissn)
+              
+    BIND(concat(?journal_id, " <|> ", ?journallabel, " <|> ", ?journaldescription, " <|> ", ?journalissn) AS ?journal_info_raw)
+}}

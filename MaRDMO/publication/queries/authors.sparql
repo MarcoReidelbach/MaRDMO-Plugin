@@ -1,0 +1,51 @@
+SELECT (GROUP_CONCAT(DISTINCT(?author_info_raw); separator=" | ") AS ?author_info)
+                          
+WHERE {{
+
+    {{
+        ?authorraw wdt:{2} ?orcid .
+        BIND(STRAFTER(STR(?authorraw), STR(wd:)) AS ?author)
+        VALUES ?orcid {{{0}}}
+    }}
+    UNION
+    {{
+        ?authorraw wdt:{3} ?zbmathid .
+        BIND(STRAFTER(STR(?authorraw), STR(wd:)) AS ?author)
+        VALUES ?zbmathid {{{1}}}
+    }}
+    UNION
+    {{
+        ?authorraw wdt:{4} ?wikidataqid .
+        BIND(STRAFTER(STR(?authorraw), STR(wd:)) AS ?author)
+        VALUES ?wikidataqid {{{5}}}
+    }}
+
+    OPTIONAL {{
+        ?authorraw rdfs:label ?labelraw.
+        FILTER (lang(?labelraw) = 'en')
+    }}
+    BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
+  
+    OPTIONAL {{
+        ?authorraw schema:description ?descriptionraw.
+        FILTER (lang(?descriptionraw) = 'en')
+    }}
+    BIND(COALESCE(?descriptionraw, "No Description Provided!") AS ?description)
+  
+    OPTIONAL {{
+        ?authorraw wdt:{4} ?wikidataidraw
+    }}
+    BIND(COALESCE(?wikidataidraw, "") AS ?wikidataid)
+  
+    OPTIONAL {{
+        ?authorraw wdt:{2} ?ORCIDRAW
+    }}
+    BIND(COALESCE(?ORCIDRAW, "") AS ?ORCID)
+  
+    OPTIONAL {{
+        ?authorraw wdt:{3} ?ZBMATHIDRAW
+    }}
+    BIND(COALESCE(?ZBMATHIDRAW, "") AS ?ZBMATHID)
+
+    BIND(CONCAT(?author, " <|> ", ?label, " <|> ", ?description, " <|> ", ?ORCID, " <|> ", ?ZBMATHID, " <|> ", ?wikidataid) AS ?author_info_raw)
+}}

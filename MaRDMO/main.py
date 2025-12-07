@@ -121,7 +121,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).endswith('mardmo-model-catalog'):
 
             # Get answers, options, and mathmoddb
-            answers, options, mathmoddb = self.get_post_data()
+            answers, options, mathmoddb = self.get_post_data('preview')
 
             # Adjust MathML for Preview
             inline_mathml(answers)
@@ -145,7 +145,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).endswith('mardmo-algorithm-catalog'):
 
             # Get answers, options, mathalgodb
-            answers, options, mathalgodb = self.get_post_data()
+            answers, options, mathalgodb = self.get_post_data('preview')
 
             return render(
                 self.request,
@@ -165,7 +165,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         # MaRDMO: Search Interdisciplinary Workflows, Mathematical Models or Algorithms
         if str(self.project.catalog).endswith('mardmo-search-catalog'):
 
-            answers, options = self.get_post_data()
+            answers, options = self.get_post_data('preview')
 
             return render(
                 self.request,
@@ -185,7 +185,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         # MaRDMO: Interdisciplinary Workflow Documentation
         if str(self.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
 
-            answers, options = self.get_post_data()
+            answers, options = self.get_post_data('preview')
 
             # Get Model Data
             prepare = prepareWorkflow()
@@ -464,7 +464,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             status=200
         )
 
-    def get_post_data(self):
+    def get_post_data(self, mode = 'submit'):
         '''Function which gathers User Answers for individual catalogs.'''
         options = get_options()
 
@@ -481,14 +481,15 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 get_answer = get_answers
             )
 
-            # Retrieve Publications related to Model
-            publication = PublicationRetriever()
-            answers = publication.workflow_or_model(
-                project = self.project,
-                snapshot = self.snapshot,
-                answers = answers,
-                options = options
-            )
+            if mode == 'preview':
+                # Retrieve Publications related to Model for Preview
+                publication = PublicationRetriever()
+                answers = publication.workflow_or_model(
+                    project = self.project,
+                    snapshot = self.snapshot,
+                    answers = answers,
+                    options = options
+                )
 
             # Prepare Mathematical Model (Preview)
             prepare = PrepareModel()
@@ -516,6 +517,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             publication = PublicationRetriever()
             answers = publication.algorithm(
                 project = self.project,
+                snapshot = self.snapshot,
                 answers = answers
             )
 

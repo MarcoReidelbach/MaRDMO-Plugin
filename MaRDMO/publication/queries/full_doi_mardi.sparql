@@ -1,0 +1,121 @@
+SELECT ?id ?label ?description         
+       (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" | ") AS ?authorInfos)                                                        
+       ?entrytypelabel ?journalInfo ?languagelabel                               
+       ?title ?date ?volume ?issue ?page          
+
+WHERE {{
+    
+    ?idraw wdt:{DOI} "{0}".
+    BIND(CONCAT("mardi:", STRAFTER(STR(?idraw), STR(wd:))) AS ?id)
+       
+    OPTIONAL {{
+        ?idraw rdfs:label ?labelraw.
+        FILTER (lang(?labelraw) = 'en')
+    }}
+    BIND(COALESCE(?labelraw, "No Label Provided!") As ?label)
+       
+    OPTIONAL {{
+        ?idraw schema:description ?descriptionraw.
+        FILTER (lang(?descriptionraw) = 'en')
+    }}
+    BIND(COALESCE(?descriptionraw, "No Description Provided!") As ?description)
+
+    OPTIONAL {{
+        ?idraw (wdt:{author} | wdt:{author name string}) ?authorraw.
+        BIND(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("mardi:", STRAFTER(STR(?authorraw), STR(wd:))), "") AS ?author)
+
+        OPTIONAL {{
+            ?authorraw rdfs:label ?authorlabelraw.
+            FILTER (lang(?authorlabelraw) = 'en')
+        }}
+        BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authorlabelraw, ?authorraw), "") AS ?authorlabel)
+
+        OPTIONAL {{
+            ?authorraw schema:description ?authordescriptionraw.
+            FILTER (lang(?authordescriptionraw) = 'en')
+        }}
+        BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authordescriptionraw, ""), "") AS ?authordescription)
+
+        OPTIONAL {{
+            ?authorraw wdt:{ORCID iD} ?authororcidraw.
+        }}
+        BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authororcidraw, ""), "") AS ?authororcid)
+
+        OPTIONAL {{
+            ?authorraw wdt:{Wikidata QID} ?authorwikidataidraw
+        }}
+        BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), CONCAT("wikidata:", STRAFTER(STR(?authorwikidataidraw), STR(wd:))), ""), "") AS ?authorwikidataid)
+
+        OPTIONAL {{
+            ?authorraw wdt:{zbMATH author ID} ?authorzbmathidraw.
+        }}
+        BIND(COALESCE(IF(CONTAINS(STR(?authorraw), STR(wd:)), ?authorzbmathidraw, ""), "") AS ?authorzbmathid)
+
+        BIND(CONCAT(?author, " <|> ", ?authorlabel, " <|> ", ?authordescription, " <|> ", ?authororcid, " <|> ", ?authorzbmathid, " <|> ", ?authorwikidataid) AS ?authorInfo)
+    }}
+
+    OPTIONAL {{
+        ?idraw wdt:{instance of} ?entrytyperaw.
+
+        OPTIONAL {{
+            ?entrytyperaw rdfs:label ?entrytypelabelraw.
+            FILTER (lang(?entrytypelabelraw) = 'en')
+        }}
+        BIND(COALESCE(?entrytypelabelraw, "No Label Provided!") As ?entrytypelabel)
+    }}
+       
+    OPTIONAL {{
+        ?idraw wdt:{published in} ?journalraw.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?journalraw), STR(wd:))) AS ?journal)
+
+        OPTIONAL {{
+            ?journalraw rdfs:label ?journallabelraw.
+            FILTER (lang(?journallabelraw) = 'en')
+        }}
+        BIND(COALESCE(?journallabelraw, "No Label Provided!") As ?journallabel)
+
+        OPTIONAL {{
+            ?journalraw schema:description ?journaldescriptionraw.
+            FILTER (lang(?journaldescriptionraw) = 'en')
+        }}
+        BIND(COALESCE(?journaldescriptionraw, "No Description Provided!") As ?journaldescription)
+
+        BIND(concat(?journal, " <|> ", ?journallabel, " <|> ", ?journaldescription) AS ?journalInfo)
+    }}
+       
+    OPTIONAL {{
+        ?idraw wdt:{language of work or name} ?languageraw.
+
+        OPTIONAL {{
+            ?languageraw rdfs:label ?languagelabelraw.
+            FILTER (lang(?languagelabelraw) = 'en')
+        }}
+        BIND(COALESCE(?languagelabelraw, "No Label Provided!") As ?languagelabel)
+    }}
+
+    OPTIONAL {{
+        ?idraw wdt:{title} ?titleraw.
+        BIND(COALESCE(?titleraw, "No Title Provided!") As ?title)
+    }}
+
+    OPTIONAL {{
+        ?idraw wdt:{publication date} ?dateraw.
+        BIND(COALESCE(?dateraw, "No Publication Date Provided!") As ?date)
+    }}
+       
+    OPTIONAL {{
+        ?idraw wdt:{volume} ?volumeraw.
+        BIND(COALESCE(?volumeraw, "No Volume Provided!") As ?volume)
+    }}
+       
+    OPTIONAL {{
+        ?idraw wdt:{issue} ?issueraw.
+        BIND(COALESCE(?issueraw, "No Issue Provided!") As ?issue)
+    }}
+       
+    OPTIONAL {{
+        ?idraw wdt:{page(s)} ?pageraw.
+        BIND(COALESCE(?pageraw, "No Pages Provided!") As ?page)
+    }}
+}}
+GROUP BY ?id ?label ?description ?entrytypelabel ?journalInfo ?languagelabel ?title ?date ?volume ?issue ?page

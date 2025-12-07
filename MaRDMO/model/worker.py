@@ -114,6 +114,14 @@ class PrepareModel:
             payload = payload,
             quantities = data.get("quantity", {})
         )
+        self._export_authors(
+            payload = payload,
+            publications = data.get("publication", {})
+        )
+        self._export_journals(
+            payload = payload,
+            publications = data.get("publication", {})
+        )
         self._export_publications(
             payload = payload,
             publications = data.get("publication", {})
@@ -406,6 +414,65 @@ class PrepareModel:
                     relatant = "QRelatant",
                 )
 
+    def _export_journals(self, payload, publications: dict):
+        for publication in publications.values():
+            for entry in publication.get('journal', {}).values():
+                if not entry.get("ID") or entry.get("ID") == 'no journal found':
+                    continue
+                
+                payload.get_item_key(
+                value = entry
+                )
+
+                payload.add_answer(
+                    verb = self.properties["instance of"],
+                    object_and_type = [self.items["scientific journal"], "wikibase-item"],
+                )
+
+                if entry.get('issn'):
+                    payload.add_answer(
+                        verb = self.properties["ISSN"],
+                        object_and_type = [entry["issn"], "external-id"],
+                    )
+
+    def _export_authors(self, payload, publications: dict):
+        for publication in publications.values():
+            for entry in publication.get('author', {}).values():
+                if not entry.get("ID") or entry.get("ID") == 'no author found':
+                    continue
+                
+                payload.get_item_key(
+                value = entry
+                )
+
+                payload.add_answer(
+                    verb = self.properties["instance of"],
+                    object_and_type = [self.items["human"], "wikibase-item"],
+                )
+
+                payload.add_answer(
+                    verb = self.properties["MaRDI profile type"],
+                    object_and_type = [self.items["Person"], "wikibase-item"],
+                )
+
+                if entry.get('orcid'):
+                    payload.add_answer(
+                        verb = self.properties["ORCID iD"],
+                        object_and_type = [
+                            entry['orcid'],
+                            "external-id"
+                        ],
+                    )
+
+                if entry.get('zbmath'):
+                    payload.add_answer(
+                        verb = self.properties["zbMATH author ID"],
+                        object_and_type = [
+                            entry['zbmath'],
+                            "external-id"
+                        ],
+                    )
+
     def _export_publications(self, payload, publications: dict):
         for entry in publications.values():
             if not entry.get("ID"):
@@ -415,38 +482,38 @@ class PrepareModel:
                 value = entry
             )
 
-             # Set and add Publication Class
-            if entry.get("entrytype") == "scholarly article":
-                pclass = self.items["scholarly article"]
-            else:
-                pclass = self.items["publication"]
+            # Only add class, profile, and DOI for non-MaRDI items
+            if "mardi" not in entry["ID"]:
 
-            payload.add_answer(
-                verb = self.properties["instance of"],
-                object_and_type = [pclass, "wikibase-item"],
-            )
+                 # Set and add Publication Class
+                if entry.get("entrytype") == "scholarly article":
+                    pclass = self.items["scholarly article"]
+                else:
+                    pclass = self.items["publication"]
 
-            # Add Publication Profile
-            payload.add_answer(
-                    verb = self.properties["MaRDI profile type"],
-                    object_and_type = [
-                        self.items["MaRDI publication profile"],
-                        "wikibase-item"
-                    ],
-                )
-
-            # Add DOI
-            if entry.get("reference", {}).get(0):
                 payload.add_answer(
-                    verb = self.properties["DOI"],
-                    object_and_type = [
-                        entry["reference"][0][1].upper(),
-                        "external-id"
-                    ],
+                    verb = self.properties["instance of"],
+                    object_and_type = [pclass, "wikibase-item"],
                 )
 
-            # Only add bibliographic statements for non-MaRDI / non-Wikidata items
-            if "mardi" not in entry["ID"] and "wikidata" not in entry["ID"]:
+                # Add Publication Profile
+                payload.add_answer(
+                        verb = self.properties["MaRDI profile type"],
+                        object_and_type = [
+                            self.items["MaRDI publication profile"],
+                            "wikibase-item"
+                        ],
+                    )
+
+                # Add DOI
+                if entry.get("reference", {}).get(0):
+                    payload.add_answer(
+                        verb = self.properties["DOI"],
+                        object_and_type = [
+                            entry["reference"][0][1].upper(),
+                            "external-id"
+                        ],
+                    )
 
                 # bibliographic data
                 if entry.get("title"):

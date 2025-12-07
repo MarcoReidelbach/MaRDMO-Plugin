@@ -145,7 +145,6 @@ MARDMO_PROVIDER = {
         'uri': 'https://www.wikidata.org',
         'api': 'https://www.wikidata.org/w/api.php',
         'sparql': 'https://query-main.wikidata.org/sparql',
-        'sparql-scholarly': 'https://query-scholarly.wikidata.org/sparql',
         'uri': 'https://www.wikidata.org'
     },
 }
