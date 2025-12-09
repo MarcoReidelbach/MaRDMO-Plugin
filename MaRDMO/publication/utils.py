@@ -5,8 +5,12 @@ from multiprocessing.pool import ThreadPool
 
 import requests
 
+from rdmo.projects.models import Value
+from rdmo.domain.models import Attribute
+
 from .models import Author, Journal, Publication
 
+from ..constants import BASE_URI
 from ..getters import get_items, get_properties, get_sparql_query, get_url
 from ..queries import query_sparql, query_sparql_pool
 
@@ -30,10 +34,10 @@ def additional_queries(publication, choice, key, parameter, function):
         f'"{entity.id}"' if entity.id else '""'
         for entity in wikidata_info.values()
     )
-    
+
     if wikidata_id:
         parameter['mardi'][-1] = wikidata_id
-    
+
     mardi_query = get_sparql_query(
         f"publication/queries/{key}.sparql"
     ).format(
@@ -86,6 +90,18 @@ def assign_orcid(publication, source, id_type = 'orcid'):
             for id_author in publication[id_type].values():
                 if author.label == id_author.label:
                     author.orcid_id = id_author.orcid_id
+
+def clean_background_data(key_dict, questions, project, snapshot, set_index):
+    '''Function to clean data safed in the background'''
+    for key in key_dict:
+        Value.objects.filter(
+            attribute_id = Attribute.objects.get(
+                uri = f'{BASE_URI}{questions[key]["uri"]}'
+            ),
+            set_index = set_index,
+            project = project,
+            snapshot = snapshot
+        ).delete()
 
 def extract_authors(data):
     '''Function to extract Author Information from query results'''
@@ -254,7 +270,10 @@ def get_citation(doi):
         if publication[choice].journal:
             if publication[choice].journal[0].issn:
                 journal_id = f'"{publication[choice].journal[0].issn}"'
-            if publication[choice].journal[0].id and 'wikidata' in publication[choice].journal[0].id:
+            if (
+                publication[choice].journal[0].id
+                and 'wikidata' in publication[choice].journal[0].id
+            ):
                 wikidata_id = f'"{publication[choice].journal[0].id.split(":")[1]}"'
 
         if journal_id or wikidata_id:

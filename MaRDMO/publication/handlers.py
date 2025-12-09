@@ -5,7 +5,6 @@ from django.db.models.signals import post_delete
 
 from rdmo.projects.models import Value
 from rdmo.options.models import Option
-from rdmo.domain.models import Attribute
 
 from ..constants import BASE_URI
 from ..getters import (
@@ -32,7 +31,7 @@ from .constants import (
     JOURNALS,
     AUTHORS
 )
-from .utils import generate_label
+from .utils import clean_background_data, generate_label
 from .models import Publication
 
 class Information:
@@ -52,23 +51,13 @@ class Information:
         # Publication specific Questions.
         publication = self.questions["Publication"]
 
-        Value.objects.filter(
-                attribute_id = Attribute.objects.get(
-                    uri = f'{BASE_URI}{publication["Name"]["uri"]}'
-                ),
-                set_index = instance.set_index,
-                project = instance.project,
-                snapshot = instance.snapshot
-            ).delete()
-        
-        Value.objects.filter(
-                attribute_id = Attribute.objects.get(
-                    uri = f'{BASE_URI}{publication["Description"]["uri"]}'
-                ),
-                set_index = instance.set_index,
-                project = instance.project,
-                snapshot = instance.snapshot
-            ).delete()
+        clean_background_data(
+            key_dict = ITEMINFOS | CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS,
+            questions = publication,
+            project = instance.project,
+            snapshot = instance.snapshot,
+            set_index = instance.set_index
+        )
 
         # Stop if no Text or 'not found' in ID Field
         if not instance.text or instance.text == 'not found':
@@ -310,17 +299,11 @@ def publication_set_delete(sender, **kwargs):
     questions = get_questions('publication')
     # Check if Publication is concerned
     if instance and instance.attribute.uri == f'{BASE_URI}{questions["Publication"]["uri"]}':
-        # Get Project, Snapshot and Index of Deleted Set
-        set_index = instance.set_index
-        project = instance.project
-        snapshot = instance.snapshot
         # Loop through "hidden" Data and delete it
-        for key in ITEMINFOS | CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS:
-            Value.objects.filter(
-                attribute_id = Attribute.objects.get(
-                    uri = f'{BASE_URI}{questions["Publication"][key]["uri"]}'
-                ),
-                set_index = set_index,
-                project = project,
-                snapshot = snapshot
-            ).delete()
+        clean_background_data(
+            key_dict = ITEMINFOS | CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS,
+            questions = questions["Publication"],
+            project = instance.project,
+            snapshot = instance.snapshot,
+            set_index = instance.set_index
+        )

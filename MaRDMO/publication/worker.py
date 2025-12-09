@@ -1,10 +1,7 @@
 '''Worker Module to collect Publication Metadata'''
 
-from rdmo.projects.models import Value
-from rdmo.domain.models import Attribute
-
 from .constants import ITEMINFOS, CITATIONINFOS, JOURNALS, AUTHORS, LANGUAGES
-from .utils import generate_label, get_citation
+from .utils import clean_background_data, generate_label, get_citation
 
 from ..constants import BASE_URI
 from ..getters import get_questions
@@ -33,19 +30,17 @@ class PublicationRetriever:
                 continue
 
             #Clean potential old data...
-            for question in CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS:
-                Value.objects.filter(
-                    project = project,
-                    snapshot = snapshot,
-                    attribute_id = Attribute.objects.get(
-                        uri = f'{BASE_URI}{self.questions["Publication"][question]["uri"]}'
-                    ),
-                    set_index = key
-                ).delete()
+            clean_background_data(
+                key_dict = CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS,
+                questions = self.questions["Publication"],
+                project = project,
+                snapshot = snapshot,
+                set_index = key
+            )
 
             #If User selected a Publication from Wikidata, MathAlgoDB or did not find it...
             if answers['publication'][key]['ID'].startswith(('wikidata','mathalgodb','not found')):
-                
+
                 #...check if DOI is available.
                 if not answers['publication'][key].get('reference', {}).get(0, ['',''])[1]:
                     continue
@@ -54,7 +49,10 @@ class PublicationRetriever:
                 data_all = get_citation(answers['publication'][key]['reference'][0][1].upper())
 
                 #If Publication available at MaRDI, Wikidata, Crossref, Datacite, zbMath or DOI...
-                if any(data_all.get(k) for k in ("mardi", "wikidata", "crossref", "datacite", "zbmath", "doi")):
+                if any(
+                    data_all.get(k)
+                    for k in ("mardi", "wikidata", "crossref", "datacite", "zbmath", "doi")
+                ):
 
                     data = (
                         data_all.get('mardi')
@@ -72,12 +70,12 @@ class PublicationRetriever:
                             uri = f'{BASE_URI}{self.questions["Publication"]["ID"]["uri"]}',
                             info = {
                                 'text': 
-                                    f"{data.label} ({data.description}) [{data.id.split(':'[0])}]",
+                                    f"{data.label} ({data.description}) [{data.id.split(':')[0]}]",
                                 'external_id': data.id,
                                 'set_index': key
                             }
                         )
-                    
+
                     for uri, data_key in (ITEMINFOS|CITATIONINFOS).items():
                         value_editor(
                             project = project,
@@ -134,32 +132,30 @@ class PublicationRetriever:
 
         # Go through all Publications
         for key in answers['publication']:
-            
+
             # If ID is missing (not answered or deleted)
             if not answers['publication'][key].get('ID'):
                 continue
-            
+
             # If User selected Publication from MaRDI Portal or Wikidata...
             if answers['publication'][key]['ID'].startswith(('mardi', 'wikidata', 'not found')):
-            
+
                 #...check if DOI is available.
                 if not answers['publication'][key].get('reference', {}).get(0, ['',''])[1]:
                     continue
 
                 #Clean potential old data...
-                for question in CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS:
-                    Value.objects.filter(
-                        project = project,
-                        snapshot = snapshot,
-                        attribute_id = Attribute.objects.get(
-                            uri = f'{BASE_URI}{self.questions["Publication"][question]["uri"]}'
-                        ),
-                        set_index = key
-                    ).delete()
+                clean_background_data(
+                    key_dict = CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS,
+                    questions = self.questions["Publication"],
+                    project = project,
+                    snapshot = snapshot,
+                    set_index = key
+                )
 
                 #Get the Citation of several ressource.
                 data_all = get_citation(answers['publication'][key]['reference'][0][1])
-                
+
                 #If Publication available at MathAlgoDB...
                 if data_all['mathalgodb']:
                     #...add data to Questionnaire and...
@@ -202,7 +198,7 @@ class PublicationRetriever:
                     )
                     value_editor(
                         project = project,
-                        uri = 
+                        uri =
                             f'{BASE_URI}{self.questions["Publication"]["Description"]["uri"]}',
                         info = {
                             'text': data.description, 
