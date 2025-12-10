@@ -353,7 +353,7 @@ def get_orcids(doi):
     '''Function to get ORCiD Information from ORCiD'''
     try:
         request = requests.get(
-            f"https://pub.orcid.org/v3.0/search/?q=doi-self:{doi}",
+            f'https://pub.orcid.org/v3.0/search/?q=doi-self:"{doi}"',
             headers = {'Accept': 'application/json'},
             timeout = 5
         )
