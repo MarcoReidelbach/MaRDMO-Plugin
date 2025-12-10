@@ -213,30 +213,26 @@ class Author:
     @classmethod
     def from_orcid(cls, raw: str) -> 'Author':
         '''Generate Class Item from ORCiD'''
-        # Get Label
+
         label = None
+        given = family = None
+        orcid_id = zbmath_id = wikidata_id = None
 
-        # Get Name
-        name = raw.get('name', {})
-        given = name.get('given-names', {}).get('value')
-        family = name.get('family-name', '').get('value')
-
-        if given and family:
-            label = f"{given} {family}"
+        # Get Name & ORCID ID
+        if raw.get('name'):
+            name = raw.get('name', {})
+            if name.get('given-names', {}):
+                given = name.get('given-names', {}).get('value')
+            if name.get('family-name', {}):
+                family = name.get('family-name', {}).get('value')
+            orcid_id = name.get('path')
+            if given and family:
+                label = f"{given} {family}"
 
         # Get MaRDI Portal ID
         identifier = None
         if label:
             identifier = 'no author found'
-
-        # Get ORCID ID
-        orcid_id = raw.get('name', {}).get('path')
-
-        # Get ZBMath ID
-        zbmath_id = None
-
-        # Get Wikidata ID
-        wikidata_id = None
 
         # Get Description
         description = None
