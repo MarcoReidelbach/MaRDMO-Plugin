@@ -95,13 +95,15 @@ class GeneratePayload:
         if data_type == 'wikibase-item':
             formatted_value = f'wd:{value}'
         elif data_type == 'string':
-            formatted_value = f"'{value}'"
+            escaped_value = value.replace("'", "\\'")
+            formatted_value = f"'{escaped_value}'"
         elif data_type == 'quantity':
             formatted_value = f"'{value}'^^<http://www.w3.org/2001/XMLSchema#decimal>"
         elif data_type == 'time':
             formatted_value = f"'{value}'^^<http://www.w3.org/2001/XMLSchema#dateTime>"
         elif data_type == 'monolingualtext':
-            formatted_value = f"'{value}'@en"
+            escaped_value = value.replace("'", "\\'")
+            formatted_value = f"'{escaped_value}'@en"
         elif data_type == 'math':
             escaped_value = value.replace("\\", "\\\\").replace("\"", "\\\"")
             formatted_value = f"'{escaped_value}'^^<http://www.w3.org/1998/Math/MathML>"

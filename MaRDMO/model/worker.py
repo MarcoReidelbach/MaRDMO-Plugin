@@ -148,7 +148,7 @@ class PrepareModel:
                     logging.warning("SPARQL query attempt %s failed: %s", attempt + 1, e)
                     if attempt == 0:
                         time.sleep(1)  # short wait before retry
-            if check is None:
+            if not check:
                 # both attempts failed → pretend no results
                 check = [{}]
 
