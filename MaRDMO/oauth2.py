@@ -30,9 +30,9 @@ class OauthProviderMixin:
 
     # ------------------- OAUTH FLOW -------------------
 
-    def post(self, request, jsons=None):
+    def post(self, request, jsons=None, dependency=None):
         '''Start the Posting Process'''
-        self.store_in_session(request, 'request', ('post', jsons))
+        self.store_in_session(request, 'request', ('post', jsons, dependency))
         return self.authorize(request)
 
     def authorize(self, request):
@@ -81,7 +81,7 @@ class OauthProviderMixin:
                 _('But no redirect could be found.'),
             )
 
-        _method, jsons = data
+        _method, jsons, dependency = data
 
         # ------------------- ASYNC POSTING -------------------
 
@@ -98,7 +98,7 @@ class OauthProviderMixin:
         # Start posting thread
         thread = threading.Thread(
             target=self._background_post,
-            args=(request, access_token, jsons, job_id),
+            args=(request, access_token, jsons, dependency, job_id),
             daemon=True,
         )
         thread.start()
@@ -110,7 +110,7 @@ class OauthProviderMixin:
 
     # ------------------- BACKGROUND PROCESS -------------------
 
-    def _background_post(self, request, access_token, jsons, job_id):
+    def _background_post(self, request, access_token, jsons, dependency, job_id):
         """
         Run the Wikibase posting in the background.
         Posts all 'Item*' payloads first, then all 'RELATION*' payloads.
@@ -137,7 +137,7 @@ class OauthProviderMixin:
             _progress_store[job_id] = {"progress": 0, "done": False, "phase": "items"}
             logger.info("[%s] Starting item upload: %s items", job_id, num_items)
 
-            for key in item_keys:
+            for key in dependency:
                 try:
                     jsons = self._post_data(key, jsons, access_token)
                 except RuntimeError as err:
@@ -219,6 +219,10 @@ class OauthProviderMixin:
 
     def _post_data(self, key, jsons, access_token):
         """Post data for a single key, handles both relations and items."""
+
+        if not jsons.get(key):
+            return jsons
+
         item = jsons[key]
         if key.startswith('RELATION') and item.get('exists') == 'true':
             return jsons
@@ -235,7 +239,7 @@ class OauthProviderMixin:
 
         for attempt in range(1, 6):
             try:
-                response = session.post(url, json=payload, headers=headers, timeout=30)
+                response = session.post(url, json=payload, headers=headers, timeout=120)
                 response.raise_for_status()
                 wait = 0.1 + random.uniform(0, 0.5)
                 time.sleep(wait)

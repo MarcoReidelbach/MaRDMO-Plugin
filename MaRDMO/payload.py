@@ -22,7 +22,8 @@ class GeneratePayload:
 
     def __init__(self, url: str, items: dict,
                  relations: dict | None = None,
-                 data_properties: Callable[[str], dict] | None = None):
+                 data_properties: Callable[[str], dict] | None = None,
+                 dependency: dict | None = None):
         '''Instantiate Class Attributes'''
         # Input Attributes
         self.url: str = url
@@ -31,6 +32,7 @@ class GeneratePayload:
         self.data_properties: Callable[[str], dict] | None = data_properties
         self.properties: dict = get_properties()
         self.items: dict = get_items()
+        self.dependency: dict= dependency
         # Working Attributes
         self.state: PayloadState = PayloadState()
 
@@ -241,7 +243,14 @@ class GeneratePayload:
         # Add Relation
         if (
             self.state.dictionary[subject]['id']
-            or (isinstance(statement['value'], str) and pattern.match(statement['value']))
+            or verb in (
+                self.properties["approximated by"],
+                self.properties["discretized by"],
+                self.properties["linearized by"],
+                self.properties["nondimensionalized by"],
+                self.properties["similar to"],
+                self.properties["specialized by"]
+                )
         ):
             self._add_relation(
                 item=subject,
@@ -249,12 +258,13 @@ class GeneratePayload:
                 qualifier=qualifier
             )
         else:
+            if (isinstance(statement['value'], str) and pattern.match(statement['value'])):
+                self.dependency[subject].add(statement['value'])
             self._add_to_item_statement(
                 item=subject,
                 statement=statement,
                 qualifier=qualifier
             )
-
 
     def add_answers(self, mardmo_property, wikibase_property, datatype = 'string'):
         '''Add answer to Payload.'''
@@ -381,7 +391,6 @@ class GeneratePayload:
                 if (
                     self.state.dictionary[self.state.subject_item]['id']
                     or self.state.subject_item == quantity_item
-                    or (isinstance(quantity_item, str) and pattern.match(quantity_item))
                 ):
                     self._add_relation(
                         item = self.state.subject_item,
@@ -393,6 +402,8 @@ class GeneratePayload:
                         qualifier = qualifier
                     )
                 else:
+                    if (isinstance(quantity_item, str) and pattern.match(quantity_item)):
+                        self.dependency[self.state.subject_item].add(quantity_item)
                     self.add_answer(
                         verb=self.properties['in defining formula'],
                         object_and_type=[

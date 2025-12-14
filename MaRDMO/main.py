@@ -27,8 +27,10 @@ from .getters import (
 from .helpers import  (
     compare_items,
     inline_mathml,
+    is_cyclic,
     merge_dicts_with_unique_keys,
-    process_question_dict
+    process_question_dict,
+    topological_order
 )
 from .oauth2 import OauthProviderMixin
 
@@ -287,7 +289,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         # Prepare payload
         try:
             prepare = PrepareModel()
-            payload = prepare.export(answers, get_url('mardi', 'uri'))
+            payload, dependency = prepare.export(answers, get_url('mardi', 'uri'))
         except (ValueError, KeyError) as err:
             return render(
                 self.request,
@@ -299,7 +301,22 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 status=200
             )
 
-        return self.post(self.request, payload)
+        # Check if Dependency Graph of Documentation is cyclic
+        if is_cyclic(dependency):
+            return render(
+                self.request,
+                'core/error.html',
+                {
+                    'title': _('Inconsistent Documentation'),
+                    'errors': ['Cyclic Dependency Graph']
+                },
+                status=200
+            )
+        
+        # Order the creation of Items following their dependencies
+        dependency_ordered = topological_order(dependency)
+
+        return self.post(self.request, payload, dependency_ordered)
 
 
     def submit_mardmo_algorithm(self):

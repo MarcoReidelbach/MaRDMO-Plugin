@@ -8,6 +8,50 @@ from rdmo.projects.models import Value
 from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
 
+from collections import defaultdict, deque
+
+def topological_order(direct_dependencies: dict[str, set[str]]) -> list[str]:
+    '''Generate Topological Order of Dependency Graph Nodes'''
+    dependents = defaultdict(set)
+    in_degree = {}
+    for item, deps in direct_dependencies.items():
+        in_degree[item] = len(deps)
+        for dep in deps:
+            dependents[dep].add(item)
+    queue = deque(item for item, deg in in_degree.items() if deg == 0)
+    order = []
+    while queue:
+        item = queue.popleft()
+        order.append(item)
+
+        for dependent in dependents[item]:
+            in_degree[dependent] -= 1
+            if in_degree[dependent] == 0:
+                queue.append(dependent)
+    return order
+
+def is_cyclic(dependencies: dict[str, set[str]]) -> bool:
+    '''Kahn'algorithm to check if dependency graph is cyclic'''
+    dependents = defaultdict(set)
+    in_degree = {}
+    # Build in-degree and reverse edges
+    for item, deps in dependencies.items():
+        in_degree[item] = len(deps)
+        for dep in deps:
+            dependents[dep].add(item)
+    # Nodes without dependencies
+    queue = deque(item for item, deg in in_degree.items() if deg == 0)
+    processed = 0
+    while queue:
+        item = queue.popleft()
+        processed += 1
+        for dependent in dependents[item]:
+            in_degree[dependent] -= 1
+            if in_degree[dependent] == 0:
+                queue.append(dependent)
+    # If not all items were processed → cycle exists
+    return processed != len(dependencies)
+
 def date_format(parts: list[int]) -> str | None:
     """Return a date string as YYYY-MM-DDT00:00:00Z given a list of date parts."""
     if not parts:
@@ -371,6 +415,7 @@ def unique_items(data, title = None):
     '''Search unique Items'''
     # Set up Item Dict and track seen Items
     items = {}
+    dependency = {}
     seen_items = set()
     # Add Workflow Item
     if title:
@@ -385,6 +430,7 @@ def unique_items(data, title = None):
             'Description': data.get('general', {}).get('objective', '')
         }
         seen_items.add(triple)
+        dependency.update({f'Item{str(0).zfill(10)}': set()})
     # Add Workflow Component Items
     def search(subdict):
         '''Search unique Items'''
@@ -408,12 +454,13 @@ def unique_items(data, title = None):
                     'issn': triple[5]
                 }
                 seen_items.add(triple)
+                dependency.update({item_key: set()})
         if isinstance(subdict, dict):
             for value in subdict.values():
                 if isinstance(value, dict):
                     search(value)
     search(data)
-    return items
+    return items, dependency
 
 def inline_mathml(data):
     '''Process MathML to be inline'''

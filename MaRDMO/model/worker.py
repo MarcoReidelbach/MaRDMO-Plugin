@@ -75,13 +75,14 @@ class PrepareModel:
     def export(self, data, url):
         """Function to create Payload for Model Export."""
 
-        items = unique_items(data)
+        items, dependency = unique_items(data)
 
         payload = GeneratePayload(
             url = url,
             items = items,
             relations = get_relations(),
             data_properties = get_data_properties,
+            dependency = dependency
         )
 
         # Add / Retrieve Components of Model Item
@@ -155,8 +156,7 @@ class PrepareModel:
             payload.add_check_results(
                 check = check
             )
-
-        return payload.get_dictionary()
+        return payload.get_dictionary(), payload.dependency
 
     # ---------------------------
     # Shared helper
