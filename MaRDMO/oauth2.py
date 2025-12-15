@@ -65,7 +65,11 @@ class OauthProviderMixin:
             response.raise_for_status()
         except requests.HTTPError as e:
             logger.error('callback error: %s (%s)', response.content, response.status_code)
-            raise e
+            return self.render_error(
+                request,
+                _('OAuth process failed'),
+                e
+            )
 
         response_data = response.json()
         access_token = response_data.get('access_token')
