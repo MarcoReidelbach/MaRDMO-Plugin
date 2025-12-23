@@ -127,7 +127,7 @@ class OauthProviderMixin:
             keys = list(jsons.keys())
 
             # --- Separate item and relation keys
-            item_keys = [k for k in keys if k.startswith("Item")]
+            item_keys = [k for k in dependency]
             relation_keys = [k for k in keys if k.startswith("RELATION")]
 
             num_items = len(item_keys)
@@ -141,7 +141,7 @@ class OauthProviderMixin:
             _progress_store[job_id] = {"progress": 0, "done": False, "phase": "items"}
             logger.info("[%s] Starting item upload: %s items", job_id, num_items)
 
-            for key in dependency:
+            for key in item_keys:
                 try:
                     jsons = self._post_data(key, jsons, access_token)
                 except RuntimeError as err:
@@ -224,10 +224,17 @@ class OauthProviderMixin:
     def _post_data(self, key, jsons, access_token):
         """Post data for a single key, handles both relations and items."""
 
+        # No Post, if key not in Payload
         if not jsons.get(key):
             return jsons
 
         item = jsons[key]
+
+        # No Post, if item already on Portal
+        if key.startswith('Item') and item.get('id'):
+            return replace_in_dict(jsons, key, item['id'])
+
+        # No Post, if relation already on Portal
         if key.startswith('RELATION') and item.get('exists') == 'true':
             return jsons
 
