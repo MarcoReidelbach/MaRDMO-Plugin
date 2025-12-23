@@ -243,14 +243,6 @@ class GeneratePayload:
         # Add Relation
         if (
             self.state.dictionary[subject]['id']
-            or verb in (
-                self.properties["approximated by"],
-                self.properties["discretized by"],
-                self.properties["linearized by"],
-                self.properties["nondimensionalized by"],
-                self.properties["similar to"],
-                self.properties["specialized by"]
-                )
         ):
             self._add_relation(
                 item=subject,
