@@ -74,6 +74,7 @@ OPTIONSET_PROVIDERS = [
     ('ProcessStep', _('Options for Process Step'), 'MaRDMO.workflow.providers.ProcessStep'),
     ('Discipline', _('Options for Disciplines'), 'MaRDMO.workflow.providers.Discipline'),
     # Model
+    ('Formula', _('Options for Formulas'), 'MaRDMO.model.providers.Formula'),
     ('ResearchField', _('Options for Research Fields'), 'MaRDMO.model.providers.ResearchField'),
     ('RelatedResearchFieldWithCreation', _('Options for related Research Fields with Creation'), 'MaRDMO.model.providers.RelatedResearchFieldWithCreation'),
     ('RelatedResearchFieldWithoutCreation', _('Options for related Research Fields without Creation'), 'MaRDMO.model.providers.RelatedResearchFieldWithoutCreation'),

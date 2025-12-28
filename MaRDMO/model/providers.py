@@ -5,6 +5,18 @@ from rdmo.options.providers import Provider
 from .. helpers import define_setup
 from ..queries import query_sources, query_sources_with_user_additions
 
+class Formula(Provider):
+    '''Formula Provider for all sorts of Latex Math.
+       Future Potential:
+          - render Latex Math while entered
+          - definitive safe to automatically extract elements
+    '''
+
+    search = True
+
+    def get_options(self, project, search=None, user=None, site=None):
+        '''Returns user input'''
+        return [{'id': 'formula', 'text': search}]
 
 class ResearchField(Provider):
     '''Research Field Provider (MaRDI Portal / Wikidata),
