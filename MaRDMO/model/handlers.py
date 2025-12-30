@@ -151,7 +151,13 @@ class Information:
             return
 
         # If Item from MathModDB, set up Query and...
-        query = get_sparql_query('model/queries/problem.sparql').format(
+        catalog = getattr(instance.project, "catalog", None)
+        if 'basics' in str(catalog):
+            sparql_file = 'model/queries/problem-basics.sparql'
+        else:
+            sparql_file = 'model/queries/problem.sparql'
+
+        query = get_sparql_query(sparql_file).format(
             identifier,
             **get_items(),
             **get_properties()
@@ -571,7 +577,13 @@ class Information:
             return
 
         # If Item from MathModDB, set up Query and...
-        query = get_sparql_query('model/queries/task.sparql').format(
+        catalog = getattr(instance.project, "catalog", None)
+        if 'basics' in str(catalog):
+            sparql_file = 'model/queries/task-basics.sparql'
+        else:
+            sparql_file = 'model/queries/task.sparql'
+
+        query = get_sparql_query(sparql_file).format(
             identifier,
             **get_items(),
             **get_properties()
@@ -703,7 +715,13 @@ class Information:
             return
 
         # If Item from MathModDB, set up Query and...
-        query = get_sparql_query('model/queries/model.sparql').format(
+        catalog = getattr(instance.project, "catalog", None)
+        if 'basics' in str(catalog):
+            sparql_file = 'model/queries/model-basics.sparql'
+        else:
+            sparql_file = 'model/queries/model.sparql'
+
+        query = get_sparql_query(sparql_file).format(
             identifier,
             **get_items(),
             **get_properties()

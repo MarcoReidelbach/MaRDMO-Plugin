@@ -120,7 +120,12 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
     def render(self):
         '''Render Preview of User Answers'''
         # MaRDMO: Mathematical Model Documentation
-        if str(self.project.catalog).endswith('mardmo-model-catalog'):
+        if str(self.project.catalog).endswith(
+            (
+                'mardmo-model-catalog',
+                'mardmo-model-basics-catalog'
+            )
+        ):
 
             # Get answers, options, and mathmoddb
             answers, options, mathmoddb = self.get_post_data('preview')
@@ -128,12 +133,18 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             # Adjust MathML for Preview
             inline_mathml(answers)
 
+            # Select Template
+            if str(self.project.catalog).endswith('mardmo-model-basics-catalog'):
+                template = 'MaRDMO/modelTemplate-basics.html'
+            else:
+                template = 'MaRDMO/modelTemplate.html'
+
             return render(
                 self.request,
                 'MaRDMO/mardmoPreview.html', 
                 {
                     'form': self.ExportForm(),
-                    'include_file': 'MaRDMO/modelTemplate.html',
+                    'include_file': template,
                     'include_params': {
                         'title': self.project.title
                     },
@@ -235,7 +246,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
         catalog = str(self.project.catalog)
 
-        if catalog.endswith('mardmo-model-catalog'):
+        if catalog.endswith(('mardmo-model-catalog', 'mardmo-model-basics-catalog')):
             return self.submit_mardmo_model()
         if catalog.endswith('mardmo-algorithm-catalog'):
             return self.submit_mardmo_algorithm()
@@ -274,7 +285,13 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
         # Validate documentation completeness / consistency
         checker = Checks()
-        err = checker.run(self.project, answers)
+        
+        err = checker.run(
+            project = self.project,
+            data = answers,
+            catalog = str(self.project.catalog)
+        )
+        
         if err:
             return render(
                 self.request,
@@ -315,7 +332,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         
         # Order the creation of Items following their dependencies
         dependency_ordered = topological_order(dependency)
-
+        
         return self.post(self.request, payload, dependency_ordered)
 
 
@@ -486,7 +503,12 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         options = get_options()
 
         # MaRDMO: Mathematical Model Documentation
-        if str(self.project.catalog).endswith('mardmo-model-catalog'):
+        if str(self.project.catalog).endswith(
+            (
+                'mardmo-model-catalog',
+                'mardmo-model-basics-catalog'
+            )
+        ):
 
             # Load Data for Model & Publication Documentation
             questions = get_questions('model') | get_questions('publication')

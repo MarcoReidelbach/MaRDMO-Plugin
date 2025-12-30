@@ -228,7 +228,12 @@ class Information:
         if data:
 
             # For Models add Relations
-            if str(instance.project.catalog).endswith('mardmo-model-catalog'):
+            if str(instance.project.catalog).endswith(
+                (
+                    'mardmo-model-catalog',
+                    'mardmo-model-basics-catalog'
+                )
+            ):
                 if source == 'mardi':
                     add_relations_flexible(
                         project = instance.project,

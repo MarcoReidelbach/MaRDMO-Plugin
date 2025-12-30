@@ -1,14 +1,13 @@
 '''General Helper Functions of MaRDMO'''
 
 from typing import Callable, Optional, Any
+from collections import defaultdict, deque
 
 import re
 
 from rdmo.projects.models import Value
 from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
-
-from collections import defaultdict, deque
 
 def topological_order(direct_dependencies: dict[str, set[str]]) -> list[str]:
     '''Generate Topological Order of Dependency Graph Nodes'''
