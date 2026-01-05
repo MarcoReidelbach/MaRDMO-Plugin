@@ -5,24 +5,24 @@ SELECT DISTINCT
 ?is_dimensionless ?is_dimensional
 ?is_time_continuous ?is_time_discrete
 ?is_space_continuous ?is_space_discrete
-(GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" / ") AS ?aliases)
-(GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" / ") AS ?description_long)
-(GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" / ") AS ?formulas)
-(GROUP_CONCAT(DISTINCT CONCAT(?symbol, " | ", ?cq, " | ", ?cql, " | ", ?cqd); separator=" / ") AS ?contains_quantity)
-(GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); separator=" / ") AS ?assumes)
-(GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); separator=" / ") AS ?contains_formulation)    
-(GROUP_CONCAT(DISTINCT CONCAT(?sbf, " | ", ?sbfl, " | ", ?sbfd, " | ", ?sbfq); separator=" / ") AS ?specialized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?sf, " | ", ?sfl, " | ", ?sfd, " | ", ?sfq); separator=" / ") AS ?specializes)
-(GROUP_CONCAT(DISTINCT CONCAT(?abf, " | ", ?abfl, " | ", ?abfd); separator=" / ") AS ?approximated_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?af, " | ", ?afl, " | ", ?afd); separator=" / ") AS ?approximates)
-(GROUP_CONCAT(DISTINCT CONCAT(?nbf, " | ", ?nbfl, " | ", ?nbfd); separator=" / ") AS ?nondimensionalized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?nf, " | ", ?nfl, " | ", ?nfd); separator=" / ") AS ?nondimensionalizes)
-(GROUP_CONCAT(DISTINCT CONCAT(?dbf, " | ", ?dbfl, " | ", ?dbfd); separator=" / ") AS ?discretized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?df, " | ", ?dfl, " | ", ?dfd); separator=" / ") AS ?discretizes)
-(GROUP_CONCAT(DISTINCT CONCAT(?lbf, " | ", ?lbfl, " | ", ?lbfd); separator=" / ") AS ?linearized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?lf, " | ", ?lfl, " | ", ?lfd); separator=" / ") AS ?linearizes)
-(GROUP_CONCAT(DISTINCT CONCAT(?stf, " | ", ?stfl, " | ", ?stfd); separator=" / ") AS ?similar_to)
-(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+(GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" <|> ") AS ?aliases)
+(GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" <|> ") AS ?description_long)
+(GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" <|> ") AS ?formulas)
+(GROUP_CONCAT(DISTINCT CONCAT(?symbol, " | ", ?cq, " | ", ?cql, " | ", ?cqd); SEPARATOR=" <|> ") AS ?contains_quantity)
+(GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); SEPARATOR=" <|> ") AS ?assumes)
+(GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); SEPARATOR=" <|> ") AS ?contains_formulation)    
+(GROUP_CONCAT(DISTINCT CONCAT(?sbf, " | ", ?sbfl, " | ", ?sbfd, " | ", ?sbfq); SEPARATOR=" <|> ") AS ?specialized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?sf, " | ", ?sfl, " | ", ?sfd, " | ", ?sfq); SEPARATOR=" <|> ") AS ?specializes)
+(GROUP_CONCAT(DISTINCT CONCAT(?abf, " | ", ?abfl, " | ", ?abfd); SEPARATOR=" <|> ") AS ?approximated_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?af, " | ", ?afl, " | ", ?afd); SEPARATOR=" <|> ") AS ?approximates)
+(GROUP_CONCAT(DISTINCT CONCAT(?nbf, " | ", ?nbfl, " | ", ?nbfd); SEPARATOR=" <|> ") AS ?nondimensionalized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?nf, " | ", ?nfl, " | ", ?nfd); SEPARATOR=" <|> ") AS ?nondimensionalizes)
+(GROUP_CONCAT(DISTINCT CONCAT(?dbf, " | ", ?dbfl, " | ", ?dbfd); SEPARATOR=" <|> ") AS ?discretized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?df, " | ", ?dfl, " | ", ?dfd); SEPARATOR=" <|> ") AS ?discretizes)
+(GROUP_CONCAT(DISTINCT CONCAT(?lbf, " | ", ?lbfl, " | ", ?lbfd); SEPARATOR=" <|> ") AS ?linearized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?lf, " | ", ?lfl, " | ", ?lfd); SEPARATOR=" <|> ") AS ?linearizes)
+(GROUP_CONCAT(DISTINCT CONCAT(?stf, " | ", ?stfl, " | ", ?stfd); SEPARATOR=" <|> ") AS ?similar_to)
+(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); SEPARATOR=" <|> ") AS ?publication)
                                                                                
 WHERE {{ 
 
@@ -130,7 +130,7 @@ WHERE {{
         OPTIONAL {{
                                                           
             {{
-                SELECT ?statement3 (GROUP_CONCAT(DISTINCT ?sbfq_entry; separator=" <|> ") AS ?sbfq)
+                SELECT ?statement3 (GROUP_CONCAT(DISTINCT ?sbfq_entry; separator=" <<||>> ") AS ?sbfq)
                 WHERE {{
                     ?id p:{specialized by} ?statement3.
 
@@ -187,7 +187,7 @@ WHERE {{
         OPTIONAL {{
                                                           
             {{
-                SELECT ?statement4 (GROUP_CONCAT(DISTINCT ?sfq_entry; separator=" <|> ") AS ?sfq)
+                SELECT ?statement4 (GROUP_CONCAT(DISTINCT ?sfq_entry; separator=" <<||>> ") AS ?sfq)
                 WHERE {{
                     ?sfraw wdt:{specialized by} ?id.
                     ?sfraw p:{specialized by} ?statement4.

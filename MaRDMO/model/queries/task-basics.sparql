@@ -2,18 +2,18 @@ SELECT DISTINCT
 ?is_linear ?is_not_linear
 ?is_space_continuous ?is_space_discrete
 ?is_time_continuous ?is_time_discrete
-(GROUP_CONCAT(DISTINCT CONCAT(?sbt, " | ", ?sbtl, " | ", ?sbtd, " | ", ?sbtq); separator=" / ") AS ?specialized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?st, " | ", ?stl, " | ", ?std, " | ", ?stq); separator=" / ") AS ?specializes)
-(GROUP_CONCAT(DISTINCT CONCAT(?abt, " | ", ?abtl, " | ", ?abtd); separator=" / ") AS ?approximated_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?at, " | ", ?atl, " | ", ?atd); separator=" / ") AS ?approximates)
-(GROUP_CONCAT(DISTINCT CONCAT(?cont, " | ", ?contl, " | ", ?contd, " | ", " >|< ", ?corder); separator=" / ") AS ?contains_task)
-(GROUP_CONCAT(DISTINCT CONCAT(?conit, " | ", ?conitl, " | ", ?conitd, " | ", " >|< ", ?ciorder); separator=" / ") AS ?contained_in_task)
-(GROUP_CONCAT(DISTINCT CONCAT(?dbt, " | ", ?dbtl, " | ", ?dbtd); separator=" / ") AS ?discretized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?dt, " | ", ?dtl, " | ", ?dtd); separator=" / ") AS ?discretizes)
-(GROUP_CONCAT(DISTINCT CONCAT(?lbt, " | ", ?lbtl, " | ", ?lbtd); separator=" / ") AS ?linearized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?lt, " | ", ?ltl, " | ", ?ltd); separator=" / ") AS ?linearizes)
-(GROUP_CONCAT(DISTINCT CONCAT(?stt, " | ", ?sttl, " | ", ?sttd); separator=" / ") AS ?similar_to)
-(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+(GROUP_CONCAT(DISTINCT CONCAT(?sbt, " | ", ?sbtl, " | ", ?sbtd, " | ", ?sbtq); SEPARATOR=" <|> ") AS ?specialized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?st, " | ", ?stl, " | ", ?std, " | ", ?stq); SEPARATOR=" <|> ") AS ?specializes)
+(GROUP_CONCAT(DISTINCT CONCAT(?abt, " | ", ?abtl, " | ", ?abtd); SEPARATOR=" <|> ") AS ?approximated_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?at, " | ", ?atl, " | ", ?atd); SEPARATOR=" <|> ") AS ?approximates)
+(GROUP_CONCAT(DISTINCT CONCAT(?cont, " | ", ?contl, " | ", ?contd, " | ", " >|< ", ?corder); SEPARATOR=" <|> ") AS ?contains_task)
+(GROUP_CONCAT(DISTINCT CONCAT(?conit, " | ", ?conitl, " | ", ?conitd, " | ", " >|< ", ?ciorder); SEPARATOR=" <|> ") AS ?contained_in_task)
+(GROUP_CONCAT(DISTINCT CONCAT(?dbt, " | ", ?dbtl, " | ", ?dbtd); SEPARATOR=" <|> ") AS ?discretized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?dt, " | ", ?dtl, " | ", ?dtd); SEPARATOR=" <|> ") AS ?discretizes)
+(GROUP_CONCAT(DISTINCT CONCAT(?lbt, " | ", ?lbtl, " | ", ?lbtd); SEPARATOR=" <|> ") AS ?linearized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?lt, " | ", ?ltl, " | ", ?ltd); SEPARATOR=" <|> ") AS ?linearizes)
+(GROUP_CONCAT(DISTINCT CONCAT(?stt, " | ", ?sttl, " | ", ?sttd); SEPARATOR=" <|> ") AS ?similar_to)
+(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); SEPARATOR=" <|> ") AS ?publication)
                         
 WHERE {{
 

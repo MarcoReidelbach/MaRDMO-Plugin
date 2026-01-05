@@ -5,24 +5,24 @@ SELECT DISTINCT
 ?is_dimensionless ?is_dimensional
 ?is_space_continuous ?is_space_discrete
 ?is_time_continuous ?is_time_discrete
-(GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" / ") AS ?description_long)
-(GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" / ") AS ?aliases)
-(GROUP_CONCAT(DISTINCT CONCAT(?rp, " | ", ?rpl, " | ", ?rpd); separator=" / ") AS ?models)
-(GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd, " |  >|< ", ?assq); separator=" / ") AS ?assumes)
-(GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq, " >|< ", ?confq2); separator=" / ") AS ?contains_formulation)
-(GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); separator=" / ") AS ?used_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?sbm, " | ", ?sbml, " | ", ?sbmd, " | ", ?sbmq); separator=" / ") AS ?specialized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?sm, " | ", ?sml, " | ", ?smd, " | ", ?smq); separator=" / ") AS ?specializes)
-(GROUP_CONCAT(DISTINCT CONCAT(?abm, " | ", ?abml, " | ", ?abmd); separator=" / ") AS ?approximated_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?am, " | ", ?aml, " | ", ?amd); separator=" / ") AS ?approximates)
-(GROUP_CONCAT(DISTINCT CONCAT(?conm, " | ", ?conml, " | ", ?conmd); separator=" / ") AS ?contains_model)
-(GROUP_CONCAT(DISTINCT CONCAT(?conim, " | ", ?coniml, " | ", ?conimd); separator=" / ") AS ?contained_in_model)
-(GROUP_CONCAT(DISTINCT CONCAT(?dbm, " | ", ?dbml, " | ", ?dbmd); separator=" / ") AS ?discretized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?dm, " | ", ?dml, " | ", ?dmd); separator=" / ") AS ?discretizes)
-(GROUP_CONCAT(DISTINCT CONCAT(?lbm, " | ", ?lbml, " | ", ?lbmd); separator=" / ") AS ?linearized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?lm, " | ", ?lml, " | ", ?lmd); separator=" / ") AS ?linearizes)
-(GROUP_CONCAT(DISTINCT CONCAT(?stm, " | ", ?stml, " | ", ?stmd); separator=" / ") AS ?similar_to)
-(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+(GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" <|> ") AS ?description_long)
+(GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" <|> ") AS ?aliases)
+(GROUP_CONCAT(DISTINCT CONCAT(?rp, " | ", ?rpl, " | ", ?rpd); SEPARATOR=" <|> ") AS ?models)
+(GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd, " |  >|< ", ?assq); SEPARATOR=" <|> ") AS ?assumes)
+(GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq, " >|< ", ?confq2); SEPARATOR=" <|> ") AS ?contains_formulation)
+(GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); SEPARATOR=" <|> ") AS ?used_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?sbm, " | ", ?sbml, " | ", ?sbmd, " | ", ?sbmq); SEPARATOR=" <|> ") AS ?specialized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?sm, " | ", ?sml, " | ", ?smd, " | ", ?smq); SEPARATOR=" <|> ") AS ?specializes)
+(GROUP_CONCAT(DISTINCT CONCAT(?abm, " | ", ?abml, " | ", ?abmd); SEPARATOR=" <|> ") AS ?approximated_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?am, " | ", ?aml, " | ", ?amd); SEPARATOR=" <|> ") AS ?approximates)
+(GROUP_CONCAT(DISTINCT CONCAT(?conm, " | ", ?conml, " | ", ?conmd); SEPARATOR=" <|> ") AS ?contains_model)
+(GROUP_CONCAT(DISTINCT CONCAT(?conim, " | ", ?coniml, " | ", ?conimd); SEPARATOR=" <|> ") AS ?contained_in_model)
+(GROUP_CONCAT(DISTINCT CONCAT(?dbm, " | ", ?dbml, " | ", ?dbmd); SEPARATOR=" <|> ") AS ?discretized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?dm, " | ", ?dml, " | ", ?dmd); SEPARATOR=" <|> ") AS ?discretizes)
+(GROUP_CONCAT(DISTINCT CONCAT(?lbm, " | ", ?lbml, " | ", ?lbmd); SEPARATOR=" <|> ") AS ?linearized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?lm, " | ", ?lml, " | ", ?lmd); SEPARATOR=" <|> ") AS ?linearizes)
+(GROUP_CONCAT(DISTINCT CONCAT(?stm, " | ", ?stml, " | ", ?stmd); SEPARATOR=" <|> ") AS ?similar_to)
+(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); SEPARATOR=" <|> ") AS ?publication)
                                                                  
 WHERE {{
                                                    
@@ -153,7 +153,7 @@ WHERE {{
         OPTIONAL {{
                                                           
             {{
-                SELECT ?statement2 (GROUP_CONCAT(DISTINCT ?sbmq_entry; separator=" <|> ") AS ?sbmq)
+                SELECT ?statement2 (GROUP_CONCAT(DISTINCT ?sbmq_entry; separator=" <<||>> ") AS ?sbmq)
                 WHERE {{
                     ?id p:{specialized by} ?statement2.
 
@@ -211,7 +211,7 @@ WHERE {{
         OPTIONAL {{
                                                           
             {{
-                SELECT ?statement3 (GROUP_CONCAT(DISTINCT ?smq_entry; separator=" <|> ") AS ?smq)
+                SELECT ?statement3 (GROUP_CONCAT(DISTINCT ?smq_entry; separator=" <<||>> ") AS ?smq)
                 WHERE {{
                     ?smraw wdt:{specialized by} ?id.
                     ?smraw p:{specialized by} ?statement3.

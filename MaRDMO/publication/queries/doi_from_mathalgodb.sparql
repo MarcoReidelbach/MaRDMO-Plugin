@@ -4,13 +4,13 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX dc: <http://purl.org/spar/datacite/>
 
 SELECT DISTINCT ?id ?label ?description ?doi
-                (GROUP_CONCAT(DISTINCT(CONCAT(?appliesentity, " | ", ?appliesentitylabel, " | ", ?appliesentitydescription)); SEPARATOR=" / ") AS ?applies)
-                (GROUP_CONCAT(DISTINCT(CONCAT(?analyzesentity, " | ", ?analyzesentitylabel, " | ", ?analyzesentitydescription)); SEPARATOR=" / ") AS ?analyzes)
-                (GROUP_CONCAT(DISTINCT(CONCAT(?documentsentity, " | ", ?documentsentitylabel, " | ", ?documentsentitydescription, " | ", ?documentsentityclass)); SEPARATOR=" / ") AS ?documents)
-                (GROUP_CONCAT(DISTINCT(CONCAT(?inventsentity, " | ", ?inventsentitylabel, " | ", ?inventsentitydescription)); SEPARATOR=" / ") AS ?invents)
-                (GROUP_CONCAT(DISTINCT(CONCAT(?studiesentity, " | ", ?studiesentitylabel, " | ", ?studiesentitydescription)); SEPARATOR=" / ") AS ?studies)
-                (GROUP_CONCAT(DISTINCT(CONCAT(?surveysentity, " | ", ?surveysentitylabel, " | ", ?surveysentitydescription)); SEPARATOR=" / ") AS ?surveys)
-                (GROUP_CONCAT(DISTINCT(CONCAT(?usesentity, " | ", ?usesentitylabel, " | ", ?usesentitydescription, " | ", ?usesentityclass)); SEPARATOR=" / ") AS ?uses)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?appliesentity, " | ", ?appliesentitylabel, " | ", ?appliesentitydescription)); SEPARATOR=" <|> ") AS ?applies)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?analyzesentity, " | ", ?analyzesentitylabel, " | ", ?analyzesentitydescription)); SEPARATOR=" <|> ") AS ?analyzes)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?documentsentity, " | ", ?documentsentitylabel, " | ", ?documentsentitydescription, " | ", ?documentsentityclass)); SEPARATOR=" <|> ") AS ?documents)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?inventsentity, " | ", ?inventsentitylabel, " | ", ?inventsentitydescription)); SEPARATOR=" <|> ") AS ?invents)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?studiesentity, " | ", ?studiesentitylabel, " | ", ?studiesentitydescription)); SEPARATOR=" <|> ") AS ?studies)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?surveysentity, " | ", ?surveysentitylabel, " | ", ?surveysentitydescription)); SEPARATOR=" <|> ") AS ?surveys)
+                (GROUP_CONCAT(DISTINCT(CONCAT(?usesentity, " | ", ?usesentitylabel, " | ", ?usesentitydescription, " | ", ?usesentityclass)); SEPARATOR=" <|> ") AS ?uses)
                                                                                     
 WHERE {{
     
