@@ -6,6 +6,7 @@ SELECT DISTINCT
 ?is_space_continuous ?is_space_discrete
 ?is_time_continuous ?is_time_discrete
 (GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" / ") AS ?description_long)
+(GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" / ") AS ?aliases)
 (GROUP_CONCAT(DISTINCT CONCAT(?rp, " | ", ?rpl, " | ", ?rpd); separator=" / ") AS ?models)
 (GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd, " |  >|< ", ?assq); separator=" / ") AS ?assumes)
 (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq, " >|< ", ?confq2); separator=" / ") AS ?contains_formulation)
@@ -29,6 +30,11 @@ WHERE {{
 
     OPTIONAL {{
         ?id wdt:{description} ?descriptionLong
+    }}
+
+    OPTIONAL {{
+        ?id skos:altLabel ?alias .
+      FILTER (LANG(?alias) = "en")
     }}
                                                    
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear model} }}, "True", "False" ) AS ?is_linear)

@@ -285,13 +285,13 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
         # Validate documentation completeness / consistency
         checker = Checks()
-        
+
         err = checker.run(
             project = self.project,
             data = answers,
             catalog = str(self.project.catalog)
         )
-        
+
         if err:
             return render(
                 self.request,
@@ -329,10 +329,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 },
                 status=200
             )
-        
+
         # Order the creation of Items following their dependencies
         dependency_ordered = topological_order(dependency)
-        
+
         return self.post(self.request, payload, dependency_ordered)
 
 

@@ -5,6 +5,7 @@ SELECT DISTINCT
 ?is_dimensionless ?is_dimensional
 ?is_time_continuous ?is_time_discrete
 ?is_space_continuous ?is_space_discrete
+(GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" / ") AS ?aliases)
 (GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" / ") AS ?description_long)
 (GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" / ") AS ?formulas)
 (GROUP_CONCAT(DISTINCT CONCAT(?symbol, " | ", ?cq, " | ", ?cql, " | ", ?cqd); separator=" / ") AS ?contains_quantity)
@@ -29,6 +30,11 @@ WHERE {{
 
     OPTIONAL {{
         ?id wdt:{description} ?descriptionLong
+    }}
+
+    OPTIONAL {{
+        ?id skos:altLabel ?alias .
+        FILTER (LANG(?alias) = "en")
     }}
 
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear equation} }}, "True", "False" ) AS ?is_linear)

@@ -6,6 +6,7 @@ SELECT DISTINCT
 ?is_time_continuous ?is_time_discrete
 ?is_chemical_constant ?is_mathematical_constant ?is_physical_constant
 ?class ?reference
+(GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" / ") AS ?aliases)
 (GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" / ") AS ?description_long)
 (GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" / ") AS ?formulas)
 (GROUP_CONCAT(DISTINCT CONCAT(?symbol, " | ", ?cq, " | ", ?cql, " | ", ?cqd); separator=" / ") AS ?contains_quantity)
@@ -25,6 +26,11 @@ SELECT DISTINCT
 WHERE {{
                                                 
     VALUES ?id {{wd:{0}}}
+
+    OPTIONAL {{
+        ?id skos:altLabel ?alias .
+        FILTER (LANG(?alias) = "en")
+    }}
 
     OPTIONAL {{
         ?id wdt:{description} ?descriptionLong

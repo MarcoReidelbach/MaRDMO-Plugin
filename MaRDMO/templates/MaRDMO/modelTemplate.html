@@ -53,6 +53,14 @@
         {% else %}
              <strong style="color:red;">MISSING MODEL SHORT DESCRIPTION</strong> <br>
         {% endif %}
+        {% if values.Alias %}
+            <b>Alias</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for alias in values.Alias.values %}
+                    <li style="margin-bottom: 0.5em;">{{ alias }}</li>
+                {% endfor %}
+            </ol>
+        {% endif %}
         {% if values.descriptionLong %}
             <b>Detailed Description</b>:
             <ol style="margin-left: 1.5em;">
@@ -243,6 +251,14 @@
         {% else %}
              <strong style="color:red;">MISSING MODEL SHORT DESCRIPTION</strong> <br>
         {% endif %}
+        {% if values.Alias %}
+            <b>Alias</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for alias in values.Alias.values %}
+                    <li style="margin-bottom: 0.5em;">{{ alias }}</li>
+                {% endfor %}
+            </ol>
+        {% endif %}
         {% if values.descriptionLong %}
             <b>Detailed Description</b>:
             <ol style="margin-left: 1.5em;">
@@ -402,6 +418,14 @@
             {% endif %}
         {% else %}
              <strong style="color:red;">MISSING MODEL SHORT DESCRIPTION</strong> <br>
+        {% endif %}
+        {% if values.Alias %}
+            <b>Alias</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for alias in values.Alias.values %}
+                    <li style="margin-bottom: 0.5em;">{{ alias }}</li>
+                {% endfor %}
+            </ol>
         {% endif %}
         {% if values.descriptionLong %}
             <b>Detailed Description</b>:
@@ -706,6 +730,14 @@
         {% else %}
              <strong style="color:red;">MISSING ACADEMIC DISCIPLINE SHORT DESCRIPTION</strong> <br>
         {% endif %}
+        {% if values.Alias %}
+            <b>Alias</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for alias in values.Alias.values %}
+                    <li style="margin-bottom: 0.5em;">{{ alias }}</li>
+                {% endfor %}
+            </ol>
+        {% endif %}
         {% if values.descriptionLong %}
             <b>Detailed Description</b>:
             <ol style="margin-left: 1.5em;">
@@ -761,6 +793,14 @@
             {% endif %}
         {% else %}
              <strong style="color:red;">MISSING RESEARCH PROBLEM SHORT DESCRIPTION</strong> <br>
+        {% endif %}
+        {% if values.Alias %}
+            <b>Alias</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for alias in values.Alias.values %}
+                    <li style="margin-bottom: 0.5em;">{{ alias }}</li>
+                {% endfor %}
+            </ol>
         {% endif %}
         {% if values.descriptionLong %}
             <b>Detailed Description</b>:
@@ -824,6 +864,14 @@
             {% endif %}
         {% else %}
              <strong style="color:red;">MISSING QUANTITY / QUANTITY KIND SHORT DESCRIPTION</strong> <br>
+        {% endif %}
+        {% if values.Alias %}
+            <b>Alias</b>:
+            <ol style="margin-left: 1.5em;">
+                {% for alias in values.Alias.values %}
+                    <li style="margin-bottom: 0.5em;">{{ alias }}</li>
+                {% endfor %}
+            </ol>
         {% endif %}
         {% if values.descriptionLong %}
             <b>Detailed Description</b>:
@@ -1097,5 +1145,3 @@
 {% endfor %}
 
 </body>
-
-

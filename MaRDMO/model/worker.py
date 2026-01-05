@@ -137,6 +137,7 @@ class PrepareModel:
             for key in payload.get_dictionary()
         ):
             query = payload.build_relation_check_query()
+
             check = None
             for attempt in range(2):  # try twice
                 try:
@@ -201,6 +202,10 @@ class PrepareModel:
                 profile_type = "MaRDI research field profile",
             )
 
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
+            )
+
             payload.add_backward_relation(
                 data = problems.values(),
                 relation = self.properties["contains"],
@@ -227,6 +232,10 @@ class PrepareModel:
                 profile_type = "MaRDI research problem profile",
             )
 
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
+            )
+
             payload.add_backward_relation(
                 data = models.values(),
                 relation = self.properties["modelled by"],
@@ -251,6 +260,10 @@ class PrepareModel:
                 payload = payload,
                 qclass = self.items["mathematical model"],
                 profile_type = "MaRDI model profile",
+            )
+
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
             )
 
             payload.add_data_properties(
@@ -287,6 +300,10 @@ class PrepareModel:
                 profile_type = "MaRDI task profile",
             )
 
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
+            )
+
             payload.add_data_properties(
                 item_class = "task"
             )
@@ -319,6 +336,10 @@ class PrepareModel:
                 payload = payload,
                 qclass = self.items["mathematical expression"],
                 profile_type = "MaRDI formula profile",
+            )
+
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
             )
 
             payload.add_data_properties(
@@ -371,6 +392,10 @@ class PrepareModel:
             else:
                 continue
 
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
+            )
+
             payload.add_data_properties(
                 item_class = qtype
             )
@@ -419,7 +444,7 @@ class PrepareModel:
             for entry in publication.get('journal', {}).values():
                 if not entry.get("ID") or entry.get("ID") == 'no journal found':
                     continue
-                
+
                 payload.get_item_key(
                 value = entry
                 )
@@ -440,7 +465,7 @@ class PrepareModel:
             for entry in publication.get('author', {}).values():
                 if not entry.get("ID") or entry.get("ID") == 'no author found':
                     continue
-                
+
                 payload.get_item_key(
                 value = entry
                 )

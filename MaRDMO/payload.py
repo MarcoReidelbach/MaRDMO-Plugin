@@ -44,6 +44,10 @@ class GeneratePayload:
         '''Get Statement URL'''
         return f'{self.url}/w/rest.php/wikibase/v1/entities/items/{item}/statements'
 
+    def _alias_url(self, item):
+        '''Get Alias URL'''
+        return f'{self.url}/w/rest.php/wikibase/v1/entities/items/{item}/aliases/en'
+
     def _build_item(self, identifier, label, description, statements = None):
         '''Build Item with ID, URL, Label, Description and optional Statement.'''
         # Empty Statements if none provided
@@ -74,6 +78,20 @@ class GeneratePayload:
                         }
                     }
         return statement
+
+    def _build_alias(self, alias):
+        '''Build Alias Dictionary'''
+        aliases_dict = {
+          "aliases": alias
+        }
+        return aliases_dict
+
+    def _normalize_aliases(self, aliases_dict: dict) -> list[str]:
+        '''Convert Alias Dict to List'''
+        return [
+            a for _, a in sorted(aliases_dict.items())
+            if isinstance(a, str) and a.strip()
+        ]
 
     def build_relation_check_query(self):
         '''Build SPARQL Check Query for Statement'''
@@ -224,6 +242,25 @@ class GeneratePayload:
             exists_key = f'RELATION{idx}'
             exists_value = check[0].get(exists_key, {}).get('value', 'false')
             self.state.dictionary[key]['exists'] = exists_value
+
+    def add_aliases(self, aliases_dict):
+        '''Add Aliases to Payload'''
+        if not aliases_dict:
+            return
+        aliases_list = self._normalize_aliases(aliases_dict)
+        # Add Aliases
+        if (
+            self.state.dictionary[self.state.subject_item]['id']
+        ):
+            self._add_alias(
+                item = self.state.subject_item,
+                aliases = aliases_list
+            )
+        else:
+            self._add_to_item_alias(
+                item = self.state.subject_item,
+                aliases = aliases_list
+            )
 
     def add_answer(self, verb, object_and_type,
                    qualifier = None, subject = None):
@@ -409,6 +446,9 @@ class GeneratePayload:
         '''Add Entry to Payload'''
         self.state.dictionary[key] = value
 
+    def _add_to_item_alias(self, item, aliases):
+        self.state.dictionary[item]['aliases'] = aliases
+
     def _add_to_item_statement(self, item, statement, qualifier=None):
         '''Add to Statement of Item'''
         if qualifier is None:
@@ -438,6 +478,19 @@ class GeneratePayload:
             )
         }
         self.state.counter += 1
+
+    def _add_alias(self, item, aliases):
+        '''Add Alias to Item'''
+        for alias in aliases:
+            key = f"ALIAS{self.state.counter}"
+            self.state.dictionary[key] = {
+                'id': '',
+                'url': self._alias_url(item),
+                'payload': self._build_alias(
+                    alias = [alias]
+                )
+            }
+            self.state.counter += 1
 
     def add_intra_class_relation(self, relation, relatant):
         '''Add forward/backward relations to Items of same Class'''
@@ -500,6 +553,7 @@ class GeneratePayload:
             # Extract Information
             label = item_data.get("label", "")
             description = item_data.get("description", "")
+            aliases = item_data.get("aliases", "")
             statements_input = item_data.get("statements", [])
             # Grouped statements by PID
             statements = {}
@@ -525,6 +579,8 @@ class GeneratePayload:
             }
             if description:
                 payload["item"]["descriptions"] = {"en": description}
+            if aliases:
+                payload["item"]["aliases"] = {"en": aliases}
             # Attach to original dict
             item_data["payload"] = payload
 
@@ -613,11 +669,12 @@ class GeneratePayload:
             'mardi': lambda key, value: 
                 self._add_entry(
                     key,
-                    self._build_item(value['ID'].split(':')[1],
-                    value['Name'],
-                    value['Description']
-                )
-            ),
+                    self._build_item(
+                        value['ID'].split(':')[1],
+                        value['Name'],
+                        value['Description'],
+                    )
+                ),
             'wikidata': lambda key, value: (
                 self._check_mardi_and_raise(
                     value['Name'],
@@ -644,7 +701,7 @@ class GeneratePayload:
                     self._build_item(
                         '',
                         value['Name'],
-                        value['Description']
+                        value['Description'],
                     )
                 )
             ),

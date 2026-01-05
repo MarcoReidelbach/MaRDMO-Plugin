@@ -162,7 +162,7 @@ class Checks:
                         'Missing Relation Type (Mathematical Model)'
                     )
                 )
-            
+
             # Complete Documentation Only Checks
             if 'basics' not in catalog:
                 # Check Expression Connections
@@ -318,7 +318,7 @@ class Checks:
             - Formula present
             - Element present
             - Relations present'''
-        
+
         if 'basics' in catalog:
             return
 
@@ -573,7 +573,7 @@ class Checks:
     def field(self, project, data, catalog):
         '''Perform Problem Checks:
             - Relations present'''
-        
+
         if 'basics' in catalog:
             return
 

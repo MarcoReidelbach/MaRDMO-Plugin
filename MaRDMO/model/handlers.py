@@ -12,7 +12,7 @@ from ..getters import (
     get_mathmoddb,
     get_properties,
     get_questions,
-    get_sparql_query, 
+    get_sparql_query,
     get_url
 )
 from ..helpers import value_editor
@@ -85,13 +85,26 @@ class Information:
         # Structure Results
         data = models.ResearchField.from_query(results)
 
+        # Add Aliases (optional)
+        for idx, alias in enumerate(data.aliases):
+            value_editor(
+                project = instance.project,
+                uri = f'{BASE_URI}{field["Alias"]["uri"]}',
+                info = {
+                    'text': alias,
+                    'collection_index': idx,
+                    'set_index': 0,
+                    'set_prefix': instance.set_index
+                }
+            )
+
         # Add long Descriptions (optional)
         for idx, description_long in enumerate(data.description_long):
             value_editor(
                 project = instance.project,
                 uri = f'{self.base}{field["Long Description"]["uri"]}',
                 info = {
-                    'text': description_long, 
+                    'text': description_long,
                     'collection_index': idx,
                     'set_index': 0, 
                     'set_prefix': instance.set_index
@@ -179,6 +192,19 @@ class Information:
         # Structure Results
         data = models.ResearchProblem.from_query(results)
 
+        # Add Aliases (optional)
+        for idx, alias in enumerate(data.aliases):
+            value_editor(
+                project = instance.project,
+                uri = f'{BASE_URI}{problem["Alias"]["uri"]}',
+                info = {
+                    'text': alias,
+                    'collection_index': idx,
+                    'set_index': 0,
+                    'set_prefix': instance.set_index
+                }
+            )
+
         # Add long Description (optional)
         for idx, description_long in enumerate(data.description_long):
             value_editor(
@@ -186,7 +212,7 @@ class Information:
                 uri = f'{self.base}{problem["Long Description"]["uri"]}',
                 info = {
                     'text': description_long,
-                    'collection_index': idx, 
+                    'collection_index': idx,
                     'set_index': 0, 
                     'set_prefix': instance.set_index
                 }
@@ -282,6 +308,19 @@ class Information:
         # Structure Results
         data = models.QuantityOrQuantityKind.from_query(results)
 
+        # Add Aliases (optional)
+        for idx, alias in enumerate(data.aliases):
+            value_editor(
+                project = instance.project,
+                uri = f'{BASE_URI}{quantity["Alias"]["uri"]}',
+                info = {
+                    'text': alias,
+                    'collection_index': idx,
+                    'set_index': 0,
+                    'set_prefix': instance.set_index
+                }
+            )
+
         # Add long Description (optional)
         for idx, description_long in enumerate(data.description_long):
             value_editor(
@@ -289,7 +328,7 @@ class Information:
                 uri = f'{self.base}{quantity["Long Description"]["uri"]}',
                 info = {
                     'text': description_long,
-                    'collection_index': idx, 
+                    'collection_index': idx,
                     'set_index': 0, 
                     'set_prefix': instance.set_index
                 }
@@ -445,6 +484,19 @@ class Information:
 
         # Structure Results
         data = models.MathematicalFormulation.from_query(results)
+
+        # Add Aliases (optional)
+        for idx, alias in enumerate(data.aliases):
+            value_editor(
+                project = instance.project,
+                uri = f'{BASE_URI}{formulation["Alias"]["uri"]}',
+                info = {
+                    'text': alias,
+                    'collection_index': idx,
+                    'set_index': 0,
+                    'set_prefix': instance.set_index
+                }
+            )
 
         # Add long Description (optional)
         for idx, description_long in enumerate(data.description_long):
@@ -605,6 +657,19 @@ class Information:
         #Structure Results
         data = models.Task.from_query(results)
 
+        # Add Aliases (optional)
+        for idx, alias in enumerate(data.aliases):
+            value_editor(
+                project = instance.project,
+                uri = f'{BASE_URI}{task["Alias"]["uri"]}',
+                info = {
+                    'text': alias,
+                    'collection_index': idx,
+                    'set_index': 0,
+                    'set_prefix': instance.set_index
+                }
+            )
+
         # Add long Description (optional)
         for idx, description_long in enumerate(data.description_long):
             value_editor(
@@ -743,6 +808,19 @@ class Information:
         # Structure Results
         data = models.MathematicalModel.from_query(results)
 
+        # Add Aliases (optional)
+        for idx, alias in enumerate(data.aliases):
+            value_editor(
+                project = instance.project,
+                uri = f'{BASE_URI}{model["Alias"]["uri"]}',
+                info = {
+                    'text': alias,
+                    'collection_index': idx,
+                    'set_index': 0,
+                    'set_prefix': instance.set_index
+                }
+            )
+
         # Add long Description (optional)
         for idx, description_long in enumerate(data.description_long):
             value_editor(
@@ -750,7 +828,7 @@ class Information:
                 uri = f'{BASE_URI}{model["Long Description"]["uri"]}',
                 info = {
                     'text': description_long,
-                    'collection_index': idx, 
+                    'collection_index': idx,
                     'set_index': 0,
                     'set_prefix': instance.set_index
                 }
