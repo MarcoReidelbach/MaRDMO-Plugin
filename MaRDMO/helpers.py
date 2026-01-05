@@ -99,7 +99,7 @@ def split_value(
     if key not in data:
         return []
 
-    raw = data.get(key, {}).get('value', '').split(" / ")
+    raw = data.get(key, {}).get('value', '').split(" <|> ")
 
     parts = [part for part in raw if part]
 
@@ -337,7 +337,7 @@ def process_qualifier(value):
     # Create Value Dictionary
     value_dict = {}
     # Get splitted Values
-    value_splitted = value.split(' <|> ')
+    value_splitted = value.split(' <<||>> ')
     for value_idx, value_text in enumerate(value_splitted):
         # Extract Value ID, Label, and Description
         value_id, value_label, value_description = value_text.split(' | ')
