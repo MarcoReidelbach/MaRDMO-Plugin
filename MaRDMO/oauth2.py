@@ -127,7 +127,7 @@ class OauthProviderMixin:
             keys = list(jsons.keys())
 
             # --- Separate item and relation keys
-            item_keys = [k for k in dependency]
+            item_keys = list(dependency)
             relation_keys = [k for k in keys if k.startswith(("RELATION", "ALIAS"))]
 
             num_items = len(item_keys)
