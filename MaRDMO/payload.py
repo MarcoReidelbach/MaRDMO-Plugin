@@ -1,11 +1,10 @@
 '''Functions to create Payload for Export'''
 
 from dataclasses import dataclass, field
-from typing import Optional, Callable
+from typing import Optional
 
 import re
 
-from .getters import get_items, get_properties
 from .queries import query_item
 
 @dataclass
@@ -20,18 +19,18 @@ class GeneratePayload:
     '''Class to build the Payload for an Export to a Wikibase
        with Items, Statements, Qualifiers, and Checks.'''
 
-    def __init__(self, url: str, items: dict,
-                 relations: dict | None = None,
-                 data_properties: Callable[[str], dict] | None = None,
-                 dependency: dict | None = None):
+    def __init__(
+        self,
+        url: str,
+        user_items: dict | None = None,
+        wikibase: dict | None = None,
+        dependency: dict | None = None
+    ):
         '''Instantiate Class Attributes'''
         # Input Attributes
         self.url: str = url
-        self.user_items: dict = items
-        self.relations: dict = relations
-        self.data_properties: Callable[[str], dict] | None = data_properties
-        self.properties: dict = get_properties()
-        self.items: dict = get_items()
+        self.user_items: dict = user_items
+        self.wikibase: dict =  wikibase
         self.dependency: dict= dependency
         # Working Attributes
         self.state: PayloadState = PayloadState()
@@ -225,10 +224,10 @@ class GeneratePayload:
 
     def add_data_properties(self, item_class):
         '''Build Data Property Statements'''
-        data_properties = self.data_properties(item_class)
+        data_properties = self.wikibase['data_properties'](item_class)
         for prop in self.state.subject.get('Properties', {}).values():
             self.add_answer(
-                verb=self.properties['instance of'],
+                verb=self.wikibase['properties']['instance of'],
                 object_and_type=[
                     data_properties[prop],
                     'wikibase-item',
@@ -300,104 +299,123 @@ class GeneratePayload:
         for entry in self.state.subject.get(mardmo_property, {}).values():
             if not re.search(r"<math.*?</math>", entry, re.DOTALL): #IGNORE MATHML EXPORT UNTIL HANDLERS RE-WRITTEN FOR LATEX
                 self.add_answer(
-                    verb=self.properties[wikibase_property],
+                    verb=self.wikibase['properties'][wikibase_property],
                     object_and_type=[
                         entry,
                         datatype,
                     ]
                 )
 
-    def add_backward_relation(self, data, relation, relatants):
-        '''Add backward relations to payload.'''
-        for entry in data:
-            for relatant in entry.get(relatants, {}).values():
-                relatant_item = self.get_item_key(relatant, 'object')
-                if self.state.subject_item == relatant_item:
-                    entry_item = self.get_item_key(entry, 'object')
-                    self.add_answer(
-                        verb=relation,
-                        object_and_type=[
-                            entry_item,
-                            'wikibase-item',
-                        ]
-                    )
-
-    def add_forward_relation_single(self, relation, relatant,
-                                    alternative = None, qualifier = None):
-        '''Add single forward relation to payload.'''
+    def add_single_relation(
+        self,
+        statement,
+        alt_statement = None,
+        qualifier = None,
+        reverse = False
+    ):
+        '''Add single relation to payload.'''
         # Empty Qualifiers if none provided
         if qualifier is None:
             qualifier = []
-        for entry in self.state.subject.get(relatant, {}).values():
+        for entry in self.state.subject.get(statement['relatant'], {}).values():
             # Get Item Key
             entry_item = self.get_item_key(entry, 'object')
             if entry_item in self.state.dictionary:
-                # Add Payload
+                # Assign Object and Subject
+                if reverse:
+                    subject_item, object_item = entry_item, self.state.subject_item
+                else:
+                    subject_item, object_item = self.state.subject_item, entry_item
+                # Add to Payload
                 self.add_answer(
-                    verb=relation,
-                    object_and_type=[
-                        entry_item,
+                    verb = statement['relation'],
+                    object_and_type = [
+                        object_item,
                         'wikibase-item',
                     ],
-                    qualifier=qualifier
+                    qualifier = qualifier,
+                    subject = subject_item
                 )
             else:
-                # Add Payload
+                # Add to Payload
                 self.add_answer(
-                    verb=alternative['relation'],
-                    object_and_type=[
-                        entry.get(alternative['relatant']),
+                    verb = alt_statement['relation'],
+                    object_and_type = [
+                        entry.get(alt_statement['relatant']),
                         'string',
                     ],
-                    qualifier=qualifier
+                    qualifier = qualifier
                 )
 
-    def add_forward_relation_multiple(self, relation, relatant, reverse = False):
-        '''Add multiple forward relations to payload.'''
-        for key, prop in self.state.subject.get(relation, {}).items():
+    def add_multiple_relation(self, statement, optional_qualifier = None, reverse = False):
+        '''Add multiple relations to payload.'''
+
+        if optional_qualifier is None:
+            optional_qualifier = []
+
+        for key, prop in self.state.subject.get(statement['relation'], {}).items():
             # Get Item Key
             relatant_item = self.get_item_key(
-                self.state.subject.get(relatant,{}).get(key,{}),
+                self.state.subject.get(statement['relatant'], {}).get(key, {}),
                 'object'
             )
-            # Get (optional) Order Number
+
+            # Set Up Qualifier
             qualifier = []
-            if self.state.subject.get('formulation_number'):
-                qualifier = self.add_qualifier(
-                    self.properties['series ordinal'],
-                    'string', 
-                    self.state.subject['formulation_number'][key]
-                )
-            # Get potential Qualifier
-            if len(self.relations[prop]) == 2:
-                if self.relations[prop][1] not in ('forward', 'backward'):
+
+            # Add Formulation and Task Order Numbers to Qualifier
+            if 'series ordinal' in optional_qualifier:
+                for number in ('formulation_number', 'task_number'):
+                    if self.state.subject.get(number, {}).get(key):
+                        qualifier = self.add_qualifier(
+                            self.wikibase['properties']['series ordinal'],
+                            'string', 
+                            self.state.subject[number][key]
+                        )
+
+            # Add Assumptions to Qualifier
+            if 'assumes' in optional_qualifier:
+                if self.state.subject.get('assumption', {}).get(key):
+                    for assumption in self.state.subject['assumption'][key].values():
+                        assumption_item = self.get_item_key(
+                            assumption,
+                            'object'
+                        )
+                        qualifier.extend(
+                            self.add_qualifier(
+                                self.wikibase['properties']['assumes'],
+                                'wikibase-item',
+                                assumption_item
+                            )
+                        )
+
+            # Add Roles to Qualifier
+            if len(self.wikibase['relations'][prop]) == 2:
+                if self.wikibase['relations'][prop][1] not in ('forward', 'backward'):
                     qualifier.extend(
                         self.add_qualifier(
-                            self.properties['object has role'],
+                            self.wikibase['properties']['object has role'],
                             'wikibase-item',
-                            self.relations[prop][1]
+                            self.wikibase['relations'][prop][1]
                         )
                     )
-            # Add Payload
-            if not reverse:
-                self.add_answer(
-                    verb=self.relations[prop][0],
-                    object_and_type=[
-                        relatant_item,
-                        'wikibase-item',
-                    ],
-                    qualifier=qualifier
-                )
+
+            # Assign Object and Subject
+            if reverse or self.wikibase['relations'][prop][-1] == 'backward':
+                subject_item, object_item = relatant_item, self.state.subject_item
             else:
-                self.add_answer(
-                    verb=self.relations[prop][0],
-                    object_and_type=[
-                        self.state.subject_item,
-                        'wikibase-item',
-                    ],
-                    qualifier=qualifier,
-                    subject=relatant_item
-                )
+                subject_item, object_item = self.state.subject_item, relatant_item
+
+            # Add to Payload
+            self.add_answer(
+                verb = self.wikibase['relations'][prop][0],
+                object_and_type = [
+                    object_item,
+                    'wikibase-item',
+                ],
+                qualifier = qualifier,
+                subject = subject_item
+            )
 
     def add_in_defining_formula(self):
         '''Add in defining formula Statement'''
@@ -410,7 +428,7 @@ class GeneratePayload:
                 )
                 # Add Quantity Qualifier
                 qualifier = self.add_qualifier(
-                    self.properties['symbol represents'],
+                    self.wikibase['properties']['symbol represents'],
                     'wikibase-item',
                     quantity_item
                 )
@@ -424,7 +442,7 @@ class GeneratePayload:
                     self._add_relation(
                         item = self.state.subject_item,
                         statement = {
-                            'property_id': self.properties['in defining formula'],
+                            'property_id': self.wikibase['properties']['in defining formula'],
                             'value': element.get('symbol', ''),
                             'datatype': 'math'
                         },
@@ -434,7 +452,7 @@ class GeneratePayload:
                     if (isinstance(quantity_item, str) and pattern.match(quantity_item)):
                         self.dependency[self.state.subject_item].add(quantity_item)
                     self.add_answer(
-                        verb=self.properties['in defining formula'],
+                        verb=self.wikibase['properties']['in defining formula'],
                         object_and_type=[
                             element.get('symbol', ''),
                             'math',
@@ -491,58 +509,6 @@ class GeneratePayload:
                 )
             }
             self.state.counter += 1
-
-    def add_intra_class_relation(self, relation, relatant):
-        '''Add forward/backward relations to Items of same Class'''
-        for key, prop in self.state.subject.get(relation, {}).items():
-            # Get Item Key
-            relatant_item = self.get_item_key(
-                self.state.subject.get(relatant, {}).get(key),
-                'object'
-            )
-            # Add potential Qualifier
-            qualifier = []
-            if self.state.subject.get('assumption', {}).get(key):
-                for assumption in self.state.subject['assumption'][key].values():
-                    assumption_item = self.get_item_key(
-                        assumption,
-                        'object'
-                    )
-                    qualifier.extend(
-                        self.add_qualifier(
-                            self.properties['assumes'],
-                            'wikibase-item',
-                            assumption_item
-                        )
-                    )
-            if self.state.subject.get('task_number', {}).get(key):
-                qualifier.extend(
-                    self.add_qualifier(
-                        self.properties['series ordinal'],
-                        'string',
-                        self.state.subject['task_number'][key]
-                    )
-                )
-            # Add Forward or Backward Relation
-            if self.relations[prop][1] == 'forward':
-                self.add_answer(
-                    verb=self.relations[prop][0],
-                    object_and_type=[
-                        relatant_item,
-                        'wikibase-item',
-                    ],
-                    qualifier=qualifier
-                )
-            elif self.relations[prop][1] == 'backward':
-                self.add_answer(
-                    verb=self.relations[prop][0],
-                    object_and_type=[
-                        self.state.subject_item,
-                        'wikibase-item',
-                    ],
-                    qualifier=qualifier,
-                    subject=relatant_item
-                )
 
     def add_item_payload(self):
         '''Add Payload String to Item'''
@@ -603,7 +569,7 @@ class GeneratePayload:
             # Add Wikidata ID
             statements.append(
                 [
-                    self.properties['Wikidata QID'],
+                    self.wikibase['properties']['Wikidata QID'],
                     'external-id',
                     value['ID'].split(':')[1]
                 ]
@@ -613,7 +579,7 @@ class GeneratePayload:
             if value.get('orcid'):
                 statements.append(
                     [
-                        self.properties['ORCID iD'],
+                        self.wikibase['properties']['ORCID iD'],
                         'external-id',
                         value['orcid']
                     ]
@@ -622,7 +588,7 @@ class GeneratePayload:
             if value.get('zbmath'):
                 statements.append(
                     [
-                        self.properties['zbMATH author ID'],
+                        self.wikibase['properties']['zbMATH author ID'],
                         'external-id',
                         value['zbmath']
                     ]
@@ -631,16 +597,16 @@ class GeneratePayload:
             if statements:
                 statements.append(
                     [
-                        self.properties['instance of'],
+                        self.wikibase['properties']['instance of'],
                         'wikibase-item',
-                        self.items['human']
+                        self.wikibase['items']['human']
                     ]
                 )
                 statements.append(
                     [
-                        self.properties['MaRDI profile type'],
+                        self.wikibase['properties']['MaRDI profile type'],
                         'wikibase-item',
-                        self.items['Person']
+                        self.wikibase['items']['Person']
                     ]
                 )
         if id_type == 'no journal found':
@@ -648,7 +614,7 @@ class GeneratePayload:
             if value.get('issn'):
                 statements.append(
                     [
-                        self.properties['ISSN'],
+                        self.wikibase['properties']['ISSN'],
                         'external-id',
                         value['issn']
                     ]
@@ -656,9 +622,9 @@ class GeneratePayload:
             # Add further Statements
             statements.append(
                 [
-                    self.properties['instance of'],
+                    self.wikibase['properties']['instance of'],
                     'wikibase-item',
-                    self.items['scientific journal']
+                    self.wikibase['items']['scientific journal']
                 ]
             )
         return statements
