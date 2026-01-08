@@ -1,3 +1,5 @@
+'''Module for Storing Data'''
+
 import logging
 
 from django.core.cache import cache
