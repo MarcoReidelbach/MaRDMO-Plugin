@@ -1,13 +1,10 @@
 '''Function that query Data'''
-
 import logging
 from multiprocessing.pool import ThreadPool
 
 import requests
-from rdmo.domain.models import Attribute
 
-from .constants import BASE_URI
-from .getters import get_sparql_query, get_url
+from .getters import get_sparql_query, get_url, get_user_entries
 from .helpers import extract_parts
 
 logger = logging.getLogger(__name__)
@@ -237,30 +234,19 @@ def query_sources_with_user_additions(search, project, setup):
     dic = {}
 
     for query_attribute in setup['query_attributes']:
-
-        # Fetch User entries from the project (ID)
-        values['id'] = project.values.filter(
-            snapshot = None,
-            attribute = Attribute.objects.get(
-                uri = f'{BASE_URI}domain/{query_attribute}/id'
-            )
+        values = get_user_entries(
+            project = project,
+            query_attribute = query_attribute,
+            values = values
         )
-
-        # Fetch User entries from the project (Name)
-        values['name'] = project.values.filter(
-            snapshot = None,
-            attribute=Attribute.objects.get(
-                uri = f'{BASE_URI}domain/{query_attribute}/name'
-            )
-        )
-
-        # Fetch User entries from the project (Description)
-        values['description'] = project.values.filter(
-            snapshot = None,
-            attribute=Attribute.objects.get(
-                uri = f'{BASE_URI}domain/{query_attribute}/description'
-            )
-        )
+        #for question in ('id', 'name', 'description'):
+        #    # Fetch User entries from the project (ID)
+        #    values[question] = project.values.filter(
+        #        snapshot = None,
+        #        attribute = Attribute.objects.get(
+        #            uri = f'{BASE_URI}domain/{query_attribute}/{question}'
+        #        )
+        #    )
 
         # Zip user-defined answers
         zipped = zip(
@@ -293,19 +279,20 @@ def query_sources_with_user_additions(search, project, setup):
                         'id': f"{item['source']}:{item['id']}"
                     }
 
-    # Add the user-defined options to the list, filtered by search
-    options.extend(
-        [
-            {
-                'id': f"{value['id']}",
-                'text': key
-            }
-            for key, value in dic.items() if search.lower() in key.lower()
-        ]
-    )
+    # Create filtered, user-defined Options
+    options_user = [
+        {
+            'id': f"{value['id']}",
+            'text': key
+        }
+        for key, value in dic.items() if search.lower() in key.lower()
+    ]
+
+    # Merge user and external options
+    options = options_user + options
 
     if setup['creation']:
+        # Add creation Option if desired
         options = [{'id': 'not found', 'text': f"{search}"}] + options
 
-    # Return combined, sorted options
-    return options #sorted(options, key=lambda option: option['text'])
+    return options
