@@ -59,7 +59,12 @@ def get_sparql_query(file_name):
 
 def get_id(project, uri, keys):
     """Get Set of User requested Identifiers for specific URI"""
-    values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
+    values = project.values.filter(
+        snapshot=None,
+        attribute=Attribute.objects.get(
+            uri=uri
+        )
+    )
     identifiers = []
     if len(keys) == 1:
         for value in values:

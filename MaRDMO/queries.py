@@ -234,20 +234,13 @@ def query_sources_with_user_additions(search, project, setup):
     dic = {}
 
     for query_attribute in setup['query_attributes']:
+        # Get User Entries
         values = get_user_entries(
             project = project,
             query_attribute = query_attribute,
             values = values
         )
-        #for question in ('id', 'name', 'description'):
-        #    # Fetch User entries from the project (ID)
-        #    values[question] = project.values.filter(
-        #        snapshot = None,
-        #        attribute = Attribute.objects.get(
-        #            uri = f'{BASE_URI}domain/{query_attribute}/{question}'
-        #        )
-        #    )
-
+        
         # Zip user-defined answers
         zipped = zip(
             values['id'],
