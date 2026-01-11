@@ -270,6 +270,8 @@ def build_new_value(from_entry, entity, key, resolved, order):
             from_entry.get('task_number', {}).get(key),
         ]
     if not order['formulation'] and not order['task']:
+        if not resolved:
+            resolved = 'MISSING OBJECT ITEM'
         return [relation_value, resolved]
 
     return resolved
@@ -282,20 +284,24 @@ def entity_relations(data, idx, entity, order):
     label_to_index_maps = label_index_map(data, idx['to'])
 
     for from_entry in data.get(idx.get('from'), {}).values():
-        for key, value in from_entry.get(entity['old_name'], {}).items():
+        # Get and combine Relation and Relatant Keys
+        keys = from_entry.get(entity['relation'], {}).keys() | from_entry.get(entity['old_name'], {}).keys()
+        for key in keys:
+            value = from_entry.get(entity['old_name'], {}).get(key)
             entity_values = from_entry.setdefault(entity['new_name'], {})
-
+            # Resolve Relatant
             resolved = None
-            for enc_entry, label_map in zip(entity['encryption'], label_to_index_maps):
-                resolved = resolve_target(
-                    name=value.get("Name"),
-                    id_=value.get("ID"),
-                    entity_enc=enc_entry,
-                    label_map=label_map,
-                )
-                if resolved != value.get("ID"):
-                    break  # match found
-
+            if value:
+                for enc_entry, label_map in zip(entity['encryption'], label_to_index_maps):
+                    resolved = resolve_target(
+                        name=value.get("Name"),
+                        id_=value.get("ID"),
+                        entity_enc=enc_entry,
+                        label_map=label_map,
+                    )
+                    if resolved != value.get("ID"):
+                        break  # match found
+            # Build new Item Value
             new_value = build_new_value(from_entry, entity, key, resolved, order)
 
             if key not in entity_values.values() and entity_values.get(key) != new_value:
