@@ -195,6 +195,8 @@ class GeneratePayload:
 
     def get_item_key(self, value, role='subject'):
         """Get the Key of an Item (Subject/Object)"""
+        if not value:
+            raise ValueError("A selected Relation is missing an Object!")
         if not value.get('Name') or not value.get('Description'):
             raise ValueError("All Items need to have a 'Name' and 'Description'!")
 
