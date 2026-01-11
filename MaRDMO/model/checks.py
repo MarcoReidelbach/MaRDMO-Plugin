@@ -163,6 +163,19 @@ class Checks:
                     )
                 )
 
+            # Check Missing Object Item (MM)
+            if any(
+                'MISSING OBJECT ITEM' in val
+                for val in ivalue.get('RelationMM', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Mathematical Model',
+                        page_name,
+                        'Missing Object Item (Mathematical Model)'
+                    )
+                )
+
             # Complete Documentation Only Checks
             if 'basics' not in catalog:
                 # Check Expression Connections
@@ -174,7 +187,7 @@ class Checks:
                             'Missing Mathematical Expression'
                         )
                     )
-                # Relation Connections
+                # Relation Type Check
                 if any(
                     'MISSING RELATION TYPE' in val
                     for val in ivalue.get('RelationMF', {}).values()
@@ -186,6 +199,20 @@ class Checks:
                             'Missing Relation Type (Mathematical Expression)'
                         )
                     )
+
+                # Object Item Check
+                if any(
+                    'MISSING OBJECT ITEM' in val
+                    for val in ivalue.get('RelationMF', {}).values()
+                ):
+                    self.err.append(
+                        self.error_message(
+                            'Mathematical Model',
+                            page_name,
+                            'Missing Object Item (Mathematical Expression)'
+                        )
+                    )
+
                 # Check Qualifier
                 for mkey, mval in ivalue.get('RelationMM', {}).items():
                     if mval[0] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by']):
@@ -246,6 +273,19 @@ class Checks:
                     )
                 )
 
+            # Check Missing Object Items (Task)
+            if any(
+                'MISSING OBJECT ITEM' in val
+                for val in ivalue.get('RelationT', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Computational Task',
+                        page_name,
+                        'Missing Object Item (Computational Task)'
+                    )
+                )
+
             # Complete Documentation Only Checks
             if 'basics' not in catalog:
                 # Check Connections
@@ -277,6 +317,19 @@ class Checks:
                             'Missing Relation Type (Mathematical Expression)'
                         )
                     )
+
+                if any(
+                    'MISSING OBJECT ITEM' in val
+                    for val in ivalue.get('RelationMF', {}).values()
+                ):
+                    self.err.append(
+                        self.error_message(
+                            'Computational Task',
+                            page_name,
+                            'Missing Object Item (Mathematical Expression)'
+                        )
+                    )
+
                 if any(
                     'MISSING RELATION TYPE' in val
                     for val in ivalue.get('RelationQQK', {}).values()
@@ -286,6 +339,18 @@ class Checks:
                             'Computational Task',
                             page_name,
                             'Missing Relation Type (Quantity / Quantity Kind)'
+                        )
+                    )
+
+                if any(
+                    'MISSING OBJECT ITEM' in val
+                    for val in ivalue.get('RelationQQK', {}).values()
+                ):
+                    self.err.append(
+                        self.error_message(
+                            'Computational Task',
+                            page_name,
+                            'Missing Object Item (Quantity / Quantity Kind)'
                         )
                     )
 
@@ -385,6 +450,19 @@ class Checks:
                         'Missing Relation Type (Mathematical Expression I)'
                     )
                 )
+
+            if any(
+                'MISSING OBJECT ITEM' in val
+                for val in ivalue.get('RelationMF1', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Mathematical Expression',
+                        page_name,
+                        'Missing Object Item (Mathematical Expression I)'
+                    )
+                )
+
             if any(
                 'MISSING RELATION TYPE' in val
                 for val in ivalue.get('RelationMF2', {}).values()
@@ -396,6 +474,19 @@ class Checks:
                         'Missing Relation Type (Mathematical Expression II)'
                     )
                 )
+
+            if any(
+                'MISSING OBJECT ITEM' in val
+                for val in ivalue.get('RelationMF2', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Mathematical Expression',
+                        page_name,
+                        'Missing Object Item (Mathematical Expression II)'
+                    )
+                )
+
             # Check Qualifier
             for mkey, mval in ivalue.get('RelationMF2', {}).items():
                 if mval[0] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by']):
@@ -498,6 +589,19 @@ class Checks:
                             'Missing Relation Type (Quantity [Kind])'
                         )
                     )
+
+                if any(
+                    'MISSING OBJECT ITEM' in val
+                    for val in ivalue.get('RelationQQ', {}).values()
+                ):
+                    self.err.append(
+                        self.error_message(
+                            'Quantity [Kind]',
+                            page_name,
+                            'Missing Object Item (Quantity [Kind])'
+                        )
+                    )
+
                 if any(
                     'MISSING RELATION TYPE' in val
                     for val in ivalue.get('RelationQQK', {}).values()
@@ -509,6 +613,19 @@ class Checks:
                             'Missing Relation Type (Quantity [Kind])'
                         )
                     )
+
+                if any(
+                    'MISSING OBJECT ITEM' in val
+                    for val in ivalue.get('RelationQQK', {}).values()
+                ):
+                    self.err.append(
+                        self.error_message(
+                            'Quantity [Kind]',
+                            page_name,
+                            'Missing Object Item (Quantity [Kind])'
+                        )
+                    )
+
             elif ivalue.get('QorQK') == self.mathmoddb['QuantityKind']:
                 if any(
                     'MISSING RELATION TYPE' in val
@@ -521,6 +638,19 @@ class Checks:
                             'Missing Relation Type (Quantity [Kind])'
                         )
                     )
+
+                if any(
+                    'MISSING OBJECT ITEM' in val
+                    for val in ivalue.get('RelationQKQK', {}).values()
+                ):
+                    self.err.append(
+                        self.error_message(
+                            'Quantity [Kind]',
+                            page_name,
+                            'Missing Object Item (Quantity [Kind])'
+                        )
+                    )
+
                 if any(
                     'MISSING RELATION TYPE' in val
                     for val in ivalue.get('RelationQKQ', {}).values()
@@ -530,6 +660,18 @@ class Checks:
                             'Quantity [Kind]',
                             page_name,
                             'Missing Relation Type (Quantity [Kind])'
+                        )
+                    )
+
+                if any(
+                    'MISSING OBJECT ITEM' in val
+                    for val in ivalue.get('RelationQKQ', {}).values()
+                ):
+                    self.err.append(
+                        self.error_message(
+                            'Quantity [Kind]',
+                            page_name,
+                            'Missing Object Item (Quantity [Kind])'
                         )
                     )
 
@@ -559,6 +701,19 @@ class Checks:
                         'Missing Relation Type (Research Problem)'
                     )
                 )
+
+            if any(
+                'MISSING OBJECT ITEM' in val
+                for val in ivalue.get('RelationRP', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Research Problem',
+                        page_name,
+                        'Missing Object Item (Research Problem)'
+                    )
+                )
+
             if 'basics' not in catalog:
                 # Check Connections
                 if not ivalue.get('RelationRF'):
@@ -596,6 +751,18 @@ class Checks:
                         'Academic Discipline',
                         page_name,
                         'Missing Relation Type (Academic Discipline)'
+                    )
+                )
+
+            if any(
+                'MISSING OBJECT ITEM' in val
+                for val in ivalue.get('RelationRF', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Academic Discipline',
+                        page_name,
+                        'Missing Object Item (Academic Discipline)'
                     )
                 )
 
@@ -639,6 +806,18 @@ class Checks:
                         'Publication',
                         page_name,
                         'Missing Relation Type (Publication)'
+                    )
+                )
+
+            if any(
+                'MISSING OBJECT ITEM' in val
+                for val in ivalue.get('RelationP', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Publication',
+                        page_name,
+                        'Missing Object Item (Publication)'
                     )
                 )
 
