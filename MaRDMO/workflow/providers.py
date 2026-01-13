@@ -1,10 +1,8 @@
 from rdmo.options.providers import Provider
 from rdmo.domain.models import Attribute
 
-from .sparql import queryProvider
-
 from ..constants import BASE_URI
-from ..getters import get_items, get_data, get_properties, get_questions, get_url
+from ..getters import get_items, get_data, get_properties, get_questions, get_sparql_query, get_url
 from ..helpers import define_setup
 from ..queries import query_sources, query_sources_with_user_additions, query_sparql
 
@@ -86,18 +84,27 @@ class WorkflowTask(Provider):
         options = []
         model_id = ''
 
-        values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=f'{BASE_URI}{questions["Model"]["ID"]["uri"]}'))        
+        values = project.values.filter(
+            snapshot = None,
+            attribute = Attribute.objects.get(
+                uri = f'{BASE_URI}{questions["Model"]["ID"]["uri"]}'
+            )
+        )
+                
         for value in values:
             model_id = value.external_id
 
         if model_id:
             _, id_value = model_id.split(':')
+
+            query = get_sparql_query(f'workflow/queries/task_mardi.sparql').format(
+                id_value,
+                **get_items(),
+                **get_properties()
+            )
+
             results = query_sparql(
-                queryProvider['RT'].format(
-                    id_value,
-                    **get_items(),
-                    **get_properties()
-                ),
+                query,
                 get_url(
                     'mardi',
                     'sparql'
@@ -123,7 +130,7 @@ class Software(Provider):
             return []
 
         # Define the query parameter
-        query_id = 'SO'
+        query_id = 'algorithm/queries/provider_software.sparql'
         sources = ['mathalgodb', 'mardi', 'wikidata']
 
         return query_sources(search, query_id, sources)

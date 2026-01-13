@@ -253,6 +253,9 @@ def build_new_value(from_entry, entity, key, resolved, order):
     if not entity['relation']:
         return resolved
 
+    if not resolved:
+        resolved = 'MISSING OBJECT ITEM'
+
     relation_value = from_entry.get(entity['relation'], {}).get(
         key, "MISSING RELATION TYPE"
     )
@@ -270,8 +273,6 @@ def build_new_value(from_entry, entity, key, resolved, order):
             from_entry.get('task_number', {}).get(key),
         ]
     if not order['formulation'] and not order['task']:
-        if not resolved:
-            resolved = 'MISSING OBJECT ITEM'
         return [relation_value, resolved]
 
     return resolved
@@ -285,8 +286,9 @@ def entity_relations(data, idx, entity, order):
 
     for from_entry in data.get(idx.get('from'), {}).values():
         # Get and combine Relation and Relatant Keys
-        keys = from_entry.get(entity['relation'], {}).keys() | from_entry.get(entity['old_name'], {}).keys()
-        for key in keys:
+        relation_keys = from_entry.get(entity['relation'], {}).keys()
+        old_name_keys = from_entry.get(entity['old_name'], {}).keys()
+        for key in relation_keys | old_name_keys:
             value = from_entry.get(entity['old_name'], {}).get(key)
             entity_values = from_entry.setdefault(entity['new_name'], {})
             # Resolve Relatant

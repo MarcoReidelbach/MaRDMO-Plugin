@@ -503,6 +503,7 @@ class QuantityOrQuantityKind:
 @dataclass
 class MathematicalFormulation:
     '''Data Class For Formulation Item'''
+    reference: Optional[str] = None
     aliases: list[str] = field(default_factory=list)
     description_long: list[str] = field(default_factory=list)
     properties: dict[int, str] = field(default_factory=dict)
@@ -557,6 +558,8 @@ class MathematicalFormulation:
                 for idx, prop in enumerate(data_properties_per_class['formulation'])
                 if data.get(prop, {}).get('value') == 'True'
             },
+            # Get Reference
+            'reference': data.get('reference', {}).get('value'),
             # Get Formulas
             'formulas': split_value(
                 data = data,

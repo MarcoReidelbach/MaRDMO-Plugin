@@ -1,0 +1,87 @@
+SELECT DISTINCT 
+?sizeValue ?sizeUnit ?sizeRecord ?fileFormat ?binaryOrText ?proprietary
+?DOI ?URL ?publish ?archive ?endTime
+(GROUP_CONCAT(DISTINCT CONCAT(?datatype, " | ", ?datatypel, " | ", ?datatyped); separator=" / ") AS ?dataType)
+(GROUP_CONCAT(DISTINCT CONCAT(?representationformat, " | ", ?representationformatl, " | ", ?representationformatd); separator=" / ") AS ?representationFormat)
+       
+WHERE {{
+
+    VALUES ?dataset {{ wd:{0} }}
+         
+    OPTIONAL {{
+        ?dataset p:P3575 ?statementNode.          
+        ?statementNode psv:P3575 ?valueNode.      
+        ?valueNode wikibase:quantityAmount ?sizeValue; 
+                   wikibase:quantityUnit ?unit.
+        ?unit rdfs:label ?sizeUnit.
+        FILTER (lang(?sizeUnit) = 'en')
+    }}
+
+    OPTIONAL {{
+        ?dataset wdt:P4876 ?sizeRecord
+    }}
+         
+    OPTIONAL {{
+        ?dataset p:P2283 ?statement_dt.
+        ?statement_dt ps:P2283 ?datatyperaw. 
+        ?statement_dt pq:P3831 ?qualifier.
+        FILTER (?qualifier = wd:Q190087)
+        BIND(replace( xsd:string(?datatyperaw),'http://www.wikidata.org/entity/','wikidata:') as ?datatype)
+        
+        SERVICE wikibase:label {{
+           bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+           ?datatyperaw rdfs:label ?datatypelraw .
+           ?datatyperaw schema:description ?datatypedraw .
+        }}
+         
+        BIND(COALESCE(?datatypelraw, "No Label Provided!") AS ?datatypel)
+        BIND(COALESCE(?datatypedraw, "No Description Provided!") AS ?datatyped)
+    }}  
+
+    OPTIONAL {{
+        ?dataset p:P2283 ?statement_dt2.
+        ?statement_dt2 ps:P2283 ?representationformatraw. 
+        ?statement_dt2 pq:P3831 ?qualifier2.
+        FILTER (?qualifier2 = wd:)
+        BIND(replace( xsd:string(?representationformatraw),'http://www.wikidata.org/entity/','wikidata:') as ?representationformat)
+        
+        SERVICE wikibase:label {{
+           bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+           ?representationformatraw rdfs:label ?representationformatlraw .
+           ?representationformatraw schema:description ?representationformatdraw .
+        }}
+         
+        BIND(COALESCE(?representationformatlraw, "No Label Provided!") AS ?representationformatl)
+        BIND(COALESCE(?representationformatdraw, "No Description Provided!") AS ?representationformatd)
+    }}
+         
+    OPTIONAL {{
+        ?dataset wdt:P1195 ?fileFormat
+    }}
+                                               
+    BIND(IF(EXISTS {{ ?dataset wdt:P31 wd:Q4913888 }}, "binary", IF(EXISTS {{ ?dataset wdt:P31 wd:Q60476328 }}, "text", "" )) AS ?binaryOrText)
+
+    BIND(IF(EXISTS {{ ?dataset wdt:P31 wd:Q123684347 }}, "Yes", IF(EXISTS {{ ?dataset wdt:P31 wd:Q309901 }}, "No", "" )) AS ?proprietary)
+                                
+    OPTIONAL {{ 
+        ?dataset wdt:P356 ?DOI. 
+    }}
+
+    OPTIONAL {{ 
+        ?dataset wdt:P2699 ?URL.
+    }}
+
+    BIND(IF(EXISTS {{ ?dataset wdt:P4424 wd:Q17051824 }}, "Yes", "No") AS ?publish)
+
+    BIND(IF(EXISTS {{ ?dataset wdt:P4424 wd:Q17155735 }}, "YesText", "NoText") AS ?archive)
+         
+    OPTIONAL {{ 
+        ?dataset p:P4424 ?statementNode2.
+        ?statementNode2 ps:P4424 wd:Q17155735.
+        OPTIONAL {{
+            ?statementNode2 pq:P582 ?endTime.
+        }}
+    }}
+}}    
+
+GROUP BY ?sizeValue ?sizeUnit ?sizeRecord ?fileFormat ?binaryOrText ?proprietary ?DOI ?URL ?publish ?archive ?endTime

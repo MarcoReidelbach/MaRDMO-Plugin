@@ -141,7 +141,7 @@
 	        , 
 	    {% endif %} 
     {% empty %}
-        <strong style="color:red;">MISSING MODEL PROPERTIES</strong>
+        -
     {% endfor %}
 
     <h3 id="RelationsToResearchProblems"> Relations to Research Problems </h3>
@@ -149,6 +149,57 @@
         models: {{ models }} <br>
     {% empty %}
         <strong style="color:red;">MISSING RESEARCH PROBLEM</strong>
+    {% endfor %}
+
+    <h3 id="RelationsToMathematicalFormulations"> Relations to Mathematical Expressions </h3>
+    {% for key, relation in values.RelationMF.items %}
+        {% if relation.0 == option.assumes %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                assumes: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                assumes: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_formulation %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_boundary_condition %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains Boundary Condition: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains Boundary Condition: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_constraint_condition %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains Constraint Condition: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains Constraint Condition: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_coupling_condition %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains Coupling Condition: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains Coupling Condition: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_initial_condition %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains Initial Condition: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains Initial Condition: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_final_condition %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains Final Condition: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains Final Condition: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == 'MISSING RELATION TYPE' %}
+            <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
+        {% endif %}
+    {% empty %}
+        <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION</strong>
     {% endfor %}
 
     <h3 id="RelationsToTasks"> Relations to Computational Tasks </h3>
@@ -162,34 +213,78 @@
     	{% if forloop.first %}
             <h3 id="RelationsToMathematicalModels"> Relations to Mathematical Models </h3>
         {% endif %}
-        {% if relation.0 == option.specialized_by %} 
-	        specialized by: {{relation.1 }} <br>
-        {% elif relation.0 == option.specializes %} 
-	        specializes: {{relation.1 }} <br>
-        {% elif relation.0 == option.discretized_by %} 
-	        discretized by: {{relation.1 }} <br>
-        {% elif relation.0 == option.discretizes %} 
-	        discretizes: {{relation.1 }} <br>
-        {% elif relation.0 == option.contained_in_model %} 
-	        contained in: {{relation.1 }} <br>
-        {% elif relation.0 == option.contains_model %} 
-	        contains: {{relation.1 }} <br>
-        {% elif relation.0 == option.approximated_by %} 
-	        approximated by: {{relation.1 }} <br>
-        {% elif relation.0 == option.approximates %} 
-	        approximates: {{relation.1 }} <br>
-        {% elif relation.0 == option.linearized_by %} 
-	        linearized by: {{relation.1 }} <br>
-        {% elif relation.0 == option.linearizes %} 
-	        linearizes: {{relation.1 }} <br>
-        {% elif relation.0 == option.similar_to %} 
-	        similar to: {{relation.1 }} <br>
+        {% if relation.0 == option.specialized_by %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                specialized by: <strong style="color:red;">{{relation.1 }}</strong> {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %} <br>
+            {% else %}
+                specialized by: {{relation.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %} <br>
+            {% endif %}
+        {% elif relation.0 == option.specializes %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                specializes: <strong style="color:red;">{{relation.1 }}</strong> {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %}<br>
+            {% else %}
+	            specializes: {{relation.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %}<br>
+            {% endif %}
+        {% elif relation.0 == option.discretized_by %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                discretized by: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %} 
+	            discretized by: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.discretizes %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                discretizes: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %} 
+	            discretizes: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contained_in_model %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contained in: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %} 
+	            contained in: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_model %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+	            contains: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.approximated_by %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                approximated by: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+	            approximated by: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.approximates %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                approximates: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+	            approximates: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.linearized_by %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                linearized by: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+	            linearized by: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.linearizes %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                linearizes: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+	            linearizes: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.similar_to %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                similar to: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+	            similar to: {{relation.1 }} <br>
+            {% endif %}
         {% elif relation.0 == 'MISSING RELATION TYPE' %}
             <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
         {% endif %}
     {% endfor %}
 {% empty %}
-    <strong style="color:black;">NO MATHEMATICAL MODEL DOCUMENTED</strong>
+    <strong style="color:black;">NO MODEL DOCUMENTED</strong>
 {% endfor %}
 
 <h1 id="Task"> Computational Tasks </h1> 
@@ -198,7 +293,7 @@
     {% if values.Name %}
         <h2 id="T{{ forloop.counter }}"> T{{ forloop.counter }}: {{ values.Name }} </h2>
     {% else %}
-        <h2 id="T{{ forloop.counter }}"> T{{ forloop.counter }}: <strong style="color:red;">MISSING COMPUTATIONAL TASK NAME</strong> </h2>
+        <h2 id="T{{ forloop.counter }}"> T{{ forloop.counter }}: <strong style="color:red;">MISSING TASK NAME</strong> </h2>
     {% endif %}
 
     <p>
@@ -210,7 +305,7 @@
                 {{ values.Description }} <br>
             {% endif %}
         {% else %}
-             <strong style="color:red;">MISSING MODEL SHORT DESCRIPTION</strong> <br>
+             <strong style="color:red;">MISSING TASK SHORT DESCRIPTION</strong> <br>
         {% endif %}
         {% if 'not found' in values.ID %} 
             <b>ID</b>: - 
@@ -265,41 +360,331 @@
             , 
         {% endif %}
     {% empty %}
-        <strong style="color:red;">MISSING COMPUTATIONAL TASK PROPERTIES</strong>
+        -
+    {% endfor %}
+
+    <h3 id="RelationsToMathematicalFormulations"> Relations to Mathematical Expressions </h3>
+    {% for key, relation in values.RelationMF.items %}
+        {% if relation.0 == option.assumes %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                assumes: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                assumes: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_formulation %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_boundary_condition %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains Boundary Condition: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains Boundary Condition: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_constraint_condition %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains Constraint Condition: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains Constraint Condition: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_coupling_condition %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains Coupling Condition: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains Coupling Condition: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_initial_condition %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains Initial Condition: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains Initial Condition: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.contains_final_condition %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contains Final Condition: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                contains Final Condition: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == 'MISSING RELATION TYPE' %}
+            <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
+        {% endif %}
+    {% empty %}
+        <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION</strong>
     {% endfor %}
 
     {% for key, relation in values.RelationT.items %}
         {% if forloop.counter == 1 %}
             <h3 id="RelationsToTasks"> Relations to Computational Tasks </h3>
         {% endif %}
-        {% if relation.0 == option.specialized_by %} 
-            specialized by: {{ relation.1 }} <br>
-        {% elif relation.0 == option.specializes %} 
-            specializes: {{ relation.1 }} <br>
-        {% elif relation.0 == option.discretized_by %} 
-            discretized by: {{ relation.1 }} <br>
+        {% if relation.0 == option.specialized_by %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                specialized by: <strong style="color:red;">{{relation.1 }}</strong> {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %} <br>
+            {% else %}
+                specialized by: {{relation.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %} <br>
+            {% endif %}
+        {% elif relation.0 == option.specializes %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                specialized by: <strong style="color:red;">{{relation.1 }}</strong> {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %}<br>
+            {% else %}
+                specializes: {{ relation.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %}<br>
+            {% endif %}
+        {% elif relation.0 == option.discretized_by %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                discretized by: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                discretized by: {{relation.1 }}
+            {% endif %}
         {% elif relation.0 == option.discretizes %} 
-            discretizes: {{ relation.1 }} <br>
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                discretizes: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                discretizes: {{relation.1 }}
+            {% endif %}
         {% elif relation.0 == option.contained_in_task %} 
-            contained in: {{ relation.1 }} <br>
-        {% elif relation.0 == option.contains_task %} 
-            contains: {{ relation.1 }} <br>
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contained in: <strong style="color:red;">{{relation.1 }}</strong> {% if values.task_number %} {% for key2, val in values.task_number.items %} {% if key == key2 %} - order number: {{ val }} {% endif %} {% endfor %} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
+            {% else %}
+                contained in: {{relation.1 }} {% if values.task_number %} {% for key2, val in values.task_number.items %} {% if key == key2 %} - order number: {{ val }} {% endif %} {% endfor %} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>                
+            {% endif %}
+        {% elif relation.0 == option.contains_task %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                contained in: <strong style="color:red;">{{relation.1 }}</strong> {% if values.task_number %} {% for key2, val in values.task_number.items %} {% if key == key2 %} - order number: {{ val }} {% endif %} {% endfor %} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
+            {% else %}
+                contained in: {{relation.1 }} {% if values.task_number %} {% for key2, val in values.task_number.items %} {% if key == key2 %} - order number: {{ val }} {% endif %} {% endfor %} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>            
+            {% endif %}
         {% elif relation.0 == option.approximated_by %} 
-            approximated by: {{ relation.1 }} <br>
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                approximated by: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                approximated by: {{relation.1 }}
+            {% endif %}
         {% elif relation.0 == option.approximates %} 
-            approximates: {{ relation.1 }} <br>
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                approximates: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                approximates: {{relation.1 }}
+            {% endif %}
         {% elif relation.0 == option.linearized_by %} 
-            linearized by: {{ relation.1 }} <br>
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                linearized by: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                linearized by: {{relation.1 }}
+            {% endif %}
         {% elif relation.0 == option.linearizes %} 
-            linearizes: {{ relation.1 }} <br>
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                linearizes: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                linearizes: {{relation.1 }}
+            {% endif %}
         {% elif relation.0 == option.similar_to %} 
-            similar to: {{ relation.1 }} <br>
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                similar to: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                similar to: {{relation.1 }}
+            {% endif %}
         {% elif relation.0 == 'MISSING RELATION TYPE' %}
             <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
         {% endif %}
     {% endfor %}
 {% empty %}
-    <strong style="color:black;">NO COMPUTATIONAL TASK DOCUMENTED</strong>
+    <strong style="color:black;">NO TASK DOCUMENTED</strong>
+{% endfor %}
+
+<h1 id="MathematicalFormulations"> Mathematical Expressions </h1>
+{% for values in answers.formulation.values %}
+        
+    {% if values.Name %}
+        <h2 id="MF{{ forloop.counter }}"> ME{{ forloop.counter }}: {{ values.Name }} </h2>
+    {% else %}
+        <h2 id="MF{{ forloop.counter }}"> ME{{ forloop.counter }}: <strong style="color:red;">MISSING EXPRESSION NAME</strong> </h2>
+    {% endif %}
+
+    <p>
+        <b>Short Description</b>:
+        {% if values.Description %}
+            {% if values.Description|length > 250 %}
+                <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% else %}
+                {{ values.Description }} <br>
+            {% endif %}
+        {% else %}
+             <strong style="color:red;">MISSING EXPRESSION SHORT DESCRIPTION</strong> <br>
+        {% endif %}
+        {% if 'not found' in values.ID %} 
+            <b>ID</b>: - <br>
+        {% elif 'mardi' in values.ID %} 
+            <b>MaRDI Portal ID</b>: {{ values.ID|cut:"mardi:"}} <br>
+        {% elif 'wikidata' in values.ID %} 
+            <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}} <br>
+        {% endif %} 
+        {% if values.reference %}
+            <b>Reference</b>: {{ values.reference }}
+        {% else %}
+            <b>Reference</b>: <strong style="color:red;">MISSING EXPRESSION REFERENCE</strong> <br>
+        {% endif %}
+        <br>
+    </p>
+
+    <b>Properties</b>:  
+    {% for value in values.Properties.values %} 
+        {% if value == option.is_deterministic %} 
+            {% if option.is_stocastic in values.Properties.values %}
+                <strong style="color:red;">Is Deterministic</strong>
+            {% else %}
+                Is Deterministic
+            {% endif %} 
+        {% elif value == option.is_stochastic %} 
+            {% if option.is_deterministic in values.Properties.values %}
+                <strong style="color:red;">Is Stochastic</strong>
+            {% else %}
+                Is Stochastic
+            {% endif %}
+        {% elif value == option.is_dimensionless %} 
+            {% if option.is_dimensional in values.Properties.values %}
+                <strong style="color:red;">Is Dimensionless</strong>
+            {% else %}
+                Is Dimensionless
+            {% endif %}
+        {% elif value == option.is_dimensional %} 
+            {% if option.is_dimensionless in values.Properties.values %}
+                <strong style="color:red;">Is Dimensional</strong>
+            {% else %}
+                Is Dimensional
+            {% endif %} 
+        {% elif value == option.is_dynamic %} 
+            {% if option.is_static in values.Properties.values %}
+                <strong style="color:red;">Is Dynamic</strong>
+            {% else %}
+                Is Dynamic
+            {% endif %} 
+        {% elif value == option.is_static %} 
+            {% if option.is_dynamic in values.Properties.values %}
+                <strong style="color:red;">Is Static</strong>
+            {% else %}
+                Is Static
+            {% endif %}  
+        {% elif value == option.is_linear %} 
+            {% if option.is_not_linear in values.Properties.values %}
+                <strong style="color:red;">Is Linear</strong>
+            {% else %}
+                Is Linear
+            {% endif %}    
+        {% elif value == option.is_not_linear %} 
+            {% if option.is_linear in values.Properties.values %}
+                <strong style="color:red;">Is Not Linear</strong>
+            {% else %}
+                Is Not Linear
+            {% endif %} 
+        {% elif value == option.is_space_continuous %} 
+            {% if option.is_space_discrete in values.Properties.values %}
+                <strong style="color:red;">Is Space-Continuous</strong>
+            {% else %}
+                Is Space-Continuous
+            {% endif %} 
+        {% elif value == option.is_space_discrete %}
+            {% if option.is_space_continuous in values.Properties.values %}
+                <strong style="color:red;">Is Space-Discrete</strong>
+            {% else %}
+                Is Space-Discrete
+            {% endif %}  
+        {% elif value == option.is_time_continuous %} 
+            {% if option.is_time_discrete in values.Properties.values %}
+                <strong style="color:red;">Is Time-Continuous</strong>
+            {% else %}
+                Is Time-Continuous
+            {% endif %}  
+        {% elif value == option.is_time_discrete %} 
+            {% if option.is_time_continuous in values.Properties.values %}
+                <strong style="color:red;">Is Time-Discrete</strong>
+            {% else %}
+                Is Time-Discrete
+            {% endif %} 
+        {% endif %} 
+        {% if not forloop.last %}
+            , 
+        {% endif %} 
+    {% empty %}
+        -
+    {% endfor %}
+        
+    {% for key, relation in values.RelationMF2.items %}
+        {% if forloop.first %}
+            <h3 id="RelationsToOtherMathematicalFormulationsII1"> Relations to other Mathematical Expressions </h3>
+        {% endif %}
+        {% if relation.0 == option.approximated_by %} 
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                approximated by: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                approximated by: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.approximates %} 
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                approximates: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                approximates: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.discretized_by %} 
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                discretized by: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                discretized by: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.discretizes %} 
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                discretizes: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                discretizes: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.specialized_by %} 
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                specialized by: <strong style="color:red;">{{relation.1 }}</strong> {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %} <br>
+            {% else %}
+                specialized by: {{relation.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %} <br>                
+            {% endif %}
+        {% elif relation.0 == option.specializes %} 
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                specializes: <strong style="color:red;">{{relation.1 }}</strong> {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %}<br>
+            {% else %}
+                specializes: {{relation.1 }} {% if values.assumptionMapped %} {% for key2, vals in values.assumptionMapped.items %} {% if key == key2 %} - assumptions (general to special): {% for val in vals.values %} {{ val }} {% if not forloop.last %}, {% endif %} {% endfor %} {% endif %} {% endfor %} {% else %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endif %}<br>                        
+            {% endif %}
+        {% elif relation.0 == option.nondimensionalized_by %} 
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                nondimensionalized by: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                nondimensionalized by: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.nondimensionalzes %} 
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                nondimensionalizes: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                nondimensionalizes: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.linearized_by %} 
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                linearized by: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                linearized by: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.linearizes %} 
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                linearizes: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                linearizes: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.similar_to %} 
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                similar to: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                similar to: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == 'MISSING RELATION TYPE' %}
+            <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
+        {% endif %}  
+    {% endfor %}
+{% empty %}
+    <strong style="color:black;">NO EXPRESSION DOCUMENTED</strong>
 {% endfor %}
 
 <h1 id="Publication"> Publications </h1>
@@ -360,7 +745,7 @@
     {% if values.Name %}
         <h2 id="RP{{ forloop.counter }}"> RP{{ forloop.counter }}: {{ values.Name }} </h2>
     {% else %}
-        <h2 id="RP{{ forloop.counter }}"> RP{{ forloop.counter }}: <strong style="color:red;">MISSING RESEARCH PROBLEM NAME</strong> </h2>
+        <h2 id="RP{{ forloop.counter }}"> RP{{ forloop.counter }}: <strong style="color:red;">MISSING PROBLEM NAME</strong> </h2>
     {% endif %}
 
     <p>
@@ -372,7 +757,7 @@
                 {{ values.Description }} <br>
             {% endif %}
         {% else %}
-             <strong style="color:red;">MISSING RESEARCH PROBLEM SHORT DESCRIPTION</strong> <br>
+             <strong style="color:red;">MISSING PROBLEM SHORT DESCRIPTION</strong> <br>
         {% endif %}
         {% if 'not found' in values.ID %} 
             <b>ID</b>: - 
@@ -388,18 +773,30 @@
         {% if forloop.first %}
             <h3 id="RelationsToOtherResearchProblems"> Relations to other Research Problems </h3>
         {% endif %}
-        {% if relation.0 == option.specialized_by %} 
-	        specialized by: {{relation.1 }} <br>
-        {% elif relation.0 == option.specializes %} 
-	        specializes: {{relation.1 }} <br>
-        {% elif relation.0 == option.similar_to %} 
-	        similar to: {{relation.1 }} <br>
+        {% if relation.0 == option.specialized_by %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                specialized by: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                specialized by: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.specializes %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                specializes: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                specializes: {{relation.1 }} <br>
+            {% endif %}
+        {% elif relation.0 == option.similar_to %}
+            {% if relation.1 == 'MISSING OBJECT ITEM' %}
+                similar to: <strong style="color:red;">{{relation.1 }}</strong> <br>
+            {% else %}
+                similar to: {{relation.1 }} <br>
+            {% endif %}
         {% elif relation.0 == 'MISSING RELATION TYPE' %}
             <strong style="color:red;">{{ relation.0 }}</strong>: {{ relation.1 }} <br>
         {% endif %}
     {% endfor %}
 {% empty %}
-    <strong style="color:black;">NO RESEARCH PROBLEM DOCUMENTED</strong>
+    <strong style="color:black;">NO PROBLEM DOCUMENTED</strong>
 {% endfor %}
 
 </body>

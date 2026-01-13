@@ -463,7 +463,14 @@ class Information:
             return
 
         # If Item from MathModDB, set up Query and...
-        query = get_sparql_query('model/queries/formulation.sparql').format(
+        catalog = getattr(instance.project, "catalog", None)
+        if 'basics' in str(catalog):
+            sparql_file = 'model/queries/formulation-basics.sparql'
+        else:
+            sparql_file = 'model/queries/formulation.sparql'
+
+        # If Item from MathModDB, set up Query and...
+        query = get_sparql_query(sparql_file).format(
             identifier,
             **get_items(),
             **get_properties()

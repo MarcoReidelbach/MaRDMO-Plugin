@@ -83,7 +83,7 @@ class Checks:
             - Properties consistent'''
 
         if 'basics' in catalog:
-            okeys = ('model', 'task')
+            okeys = ('model', 'formulation', 'task',)
         else:
             okeys = ('model', 'formulation', 'quantity', 'task')
 
@@ -98,15 +98,7 @@ class Checks:
             )
             for ikey, ivalue in ovalue.items():
                 page_name = values.get(set_index=ikey).text
-                if not ivalue.get('Properties'):
-                    self.err.append(
-                        self.error_message(
-                            section = section_map[okey],
-                            page = page_name,
-                            message = 'Missing Properties'
-                        )
-                    )
-                else:
+                if ivalue.get('Properties'):
                     properties = ivalue['Properties'].values()
                     for key, value in data_properties_check.items():
                         if {self.mathmoddb[key[0]], self.mathmoddb[key[1]]}.issubset(properties):
@@ -176,55 +168,57 @@ class Checks:
                     )
                 )
 
+            # Check Expression Connections
+            if not ivalue.get('RelationMF'):
+                self.err.append(
+                    self.error_message(
+                        'Mathematical Model',
+                        page_name,
+                        'Missing Mathematical Expression'
+                    )
+                )
+
+            # Relation Type Check
+            if any(
+                'MISSING RELATION TYPE' in val
+                for val in ivalue.get('RelationMF', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Mathematical Model',
+                        page_name,
+                        'Missing Relation Type (Mathematical Expression)'
+                    )
+                )
+
+            # Object Item Check
+            if any(
+                'MISSING OBJECT ITEM' in val
+                for val in ivalue.get('RelationMF', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Mathematical Model',
+                        page_name,
+                        'Missing Object Item (Mathematical Expression)'
+                    )
+                )
+
+            # Check Qualifier
+            for mkey, mval in ivalue.get('RelationMM', {}).items():
+                if mval[0] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by']):
+                    if not ivalue.get('assumption', {}).get(mkey):
+                        self.err.append(
+                            self.error_message(
+                                'Mathematical Model',
+                                page_name,
+                                'Missing Assumption '
+                                '(Specializes / Specialized By Mathematical Model)'
+                            )
+                        )
+
             # Complete Documentation Only Checks
             if 'basics' not in catalog:
-                # Check Expression Connections
-                if not ivalue.get('RelationMF'):
-                    self.err.append(
-                        self.error_message(
-                            'Mathematical Model',
-                            page_name,
-                            'Missing Mathematical Expression'
-                        )
-                    )
-                # Relation Type Check
-                if any(
-                    'MISSING RELATION TYPE' in val
-                    for val in ivalue.get('RelationMF', {}).values()
-                ):
-                    self.err.append(
-                        self.error_message(
-                            'Mathematical Model',
-                            page_name,
-                            'Missing Relation Type (Mathematical Expression)'
-                        )
-                    )
-
-                # Object Item Check
-                if any(
-                    'MISSING OBJECT ITEM' in val
-                    for val in ivalue.get('RelationMF', {}).values()
-                ):
-                    self.err.append(
-                        self.error_message(
-                            'Mathematical Model',
-                            page_name,
-                            'Missing Object Item (Mathematical Expression)'
-                        )
-                    )
-
-                # Check Qualifier
-                for mkey, mval in ivalue.get('RelationMM', {}).items():
-                    if mval[0] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by']):
-                        if not ivalue.get('assumption', {}).get(mkey):
-                            self.err.append(
-                                self.error_message(
-                                    'Mathematical Model',
-                                    page_name,
-                                    'Missing Assumption '
-                                    '(Specializes / Specialized By Mathematical Model)'
-                                )
-                            )
                 if ivalue.get('number'):
                     if not len(ivalue['number']) == len(ivalue['RelationMF']):
                         self.err.append(
@@ -286,47 +280,72 @@ class Checks:
                     )
                 )
 
+            # Check Connections
+            if not ivalue.get('RelationMF'):
+                self.err.append(
+                    self.error_message(
+                        'Computational Task',
+                        page_name,
+                        'Missing Mathematical Expression'
+                    )
+                )
+
+            # Relation Connections
+            if any(
+                'MISSING RELATION TYPE' in val
+                for val in ivalue.get('RelationMF', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Computational Task',
+                        page_name,
+                        'Missing Relation Type (Mathematical Expression)'
+                    )
+                )
+            if any(
+                'MISSING OBJECT ITEM' in val
+                for val in ivalue.get('RelationMF', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Computational Task',
+                        page_name,
+                        'Missing Object Item (Mathematical Expression)'
+                    )
+                )
+
+            # Check Qualifier
+            for tkey, tval in ivalue.get('RelationT', {}).items():
+                if tval[0] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by']):
+                    if not ivalue.get('assumption', {}).get(tkey):
+                        self.err.append(
+                            self.error_message(
+                                'Computational Task',
+                                page_name,
+                                'Missing Assumption'
+                                '(Specializes / Specialized By Computational Task)'
+                            )
+                        )
+            for tkey, tval in ivalue.get('RelationT', {}).items():
+                if tval[0] in (self.mathmoddb['contains'], self.mathmoddb['contained_in']):
+                    if not ivalue.get('task_number', {}).get(tkey):
+                        self.err.append(
+                            self.error_message(
+                                'Computational Task',
+                                page_name,
+                                'Missing Order Number'
+                                '(Conatins / Contained In Computational Task)'
+                            )
+                        )
+
             # Complete Documentation Only Checks
             if 'basics' not in catalog:
-                # Check Connections
-                if not ivalue.get('RelationMF'):
-                    self.err.append(
-                        self.error_message(
-                            'Computational Task',
-                            page_name,
-                            'Missing Mathematical Expression'
-                        )
-                    )
                 if not ivalue.get('RelationQQK'):
                     self.err.append(
                         self.error_message(
                             'Computational Task',
                             page_name,
                             'Missing Quantity / Quantity Kind'
-                        )
-                    )
-                # Relation Connections
-                if any(
-                    'MISSING RELATION TYPE' in val
-                    for val in ivalue.get('RelationMF', {}).values()
-                ):
-                    self.err.append(
-                        self.error_message(
-                            'Computational Task',
-                            page_name,
-                            'Missing Relation Type (Mathematical Expression)'
-                        )
-                    )
-
-                if any(
-                    'MISSING OBJECT ITEM' in val
-                    for val in ivalue.get('RelationMF', {}).values()
-                ):
-                    self.err.append(
-                        self.error_message(
-                            'Computational Task',
-                            page_name,
-                            'Missing Object Item (Mathematical Expression)'
                         )
                     )
 
@@ -354,38 +373,11 @@ class Checks:
                         )
                     )
 
-                # Check Qualifier
-                for tkey, tval in ivalue.get('RelationT', {}).items():
-                    if tval[0] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by']):
-                        if not ivalue.get('assumption', {}).get(tkey):
-                            self.err.append(
-                                self.error_message(
-                                    'Computational Task',
-                                    page_name,
-                                    'Missing Assumption'
-                                    '(Specializes / Specialized By Computational Task)'
-                                )
-                            )
-                for tkey, tval in ivalue.get('RelationT', {}).items():
-                    if tval[0] in (self.mathmoddb['contains'], self.mathmoddb['contained_in']):
-                        if not ivalue.get('task_number', {}).get(tkey):
-                            self.err.append(
-                                self.error_message(
-                                    'Computational Task',
-                                    page_name,
-                                    'Missing Order Number'
-                                    '(Conatins / Contained In Computational Task)'
-                                )
-                            )
-
     def formulation(self, project, data, catalog):
         '''Perform Formulation Checks:
             - Formula present
             - Element present
             - Relations present'''
-
-        if 'basics' in catalog:
-            return
 
         values = project.values.filter(
             snapshot = None,
@@ -396,72 +388,6 @@ class Checks:
 
         for ikey, ivalue in data.get('formulation',{}).items():
             page_name = values.get(set_index=ikey).text
-            # Check Formula
-            if not ivalue.get('Formula'):
-                self.err.append(
-                    self.error_message(
-                        'Mathematical Expression',
-                        page_name,
-                        'Missing Mathematical Expression Formula'
-                    )
-                )
-            # Check Element
-            if not ivalue.get('element'):
-                self.err.append(
-                    self.error_message(
-                        'Mathematical Expression',
-                        page_name,
-                        'Missing Mathematical Expression Element Information'
-                    )
-                )
-            else:
-                not_symbol = False
-                not_quantity = False
-                for evalue in ivalue['element'].values():
-                    if not evalue.get('symbol'):
-                        not_symbol = True
-                    if not evalue.get('quantity'):
-                        not_quantity = True
-                if not_symbol:
-                    self.err.append(
-                        self.error_message(
-                            'Mathematical Expression',
-                            page_name,
-                            'Missing Mathematical Expression Symbol'
-                        )
-                    )
-                if not_quantity:
-                    self.err.append(
-                        self.error_message(
-                            'Mathematical Expression',
-                            page_name,
-                            'Missing Mathematical Expression Quantity'
-                        )
-                    )
-            # Relation Connections
-            if any(
-                'MISSING RELATION TYPE' in val
-                for val in ivalue.get('RelationMF1', {}).values()
-            ):
-                self.err.append(
-                    self.error_message(
-                        'Mathematical Expression',
-                        page_name,
-                        'Missing Relation Type (Mathematical Expression I)'
-                    )
-                )
-
-            if any(
-                'MISSING OBJECT ITEM' in val
-                for val in ivalue.get('RelationMF1', {}).values()
-            ):
-                self.err.append(
-                    self.error_message(
-                        'Mathematical Expression',
-                        page_name,
-                        'Missing Object Item (Mathematical Expression I)'
-                    )
-                )
 
             if any(
                 'MISSING RELATION TYPE' in val
@@ -499,6 +425,87 @@ class Checks:
                                 '(Specializes / Specialized By Mathematical Expression)'
                             )
                         )
+
+            # Complete Documentation Only Checks
+            if 'basics' in catalog:
+                # Check Reference
+                if not ivalue.get('reference'):
+                    self.err.append(
+                        self.error_message(
+                            'Mathematical Expression',
+                            page_name,
+                            'Missing Reference'
+                        )
+                    )
+
+            # Complete Documentation Only Checks
+            if 'basics' not in catalog:
+                # Check Formula
+                if not ivalue.get('Formula'):
+                    self.err.append(
+                        self.error_message(
+                            'Mathematical Expression',
+                            page_name,
+                            'Missing Mathematical Expression Formula'
+                        )
+                    )
+                # Check Element
+                if not ivalue.get('element'):
+                    self.err.append(
+                        self.error_message(
+                            'Mathematical Expression',
+                            page_name,
+                            'Missing Mathematical Expression Element Information'
+                        )
+                    )
+                else:
+                    not_symbol = False
+                    not_quantity = False
+                    for evalue in ivalue['element'].values():
+                        if not evalue.get('symbol'):
+                            not_symbol = True
+                        if not evalue.get('quantity'):
+                            not_quantity = True
+                    if not_symbol:
+                        self.err.append(
+                            self.error_message(
+                                'Mathematical Expression',
+                                page_name,
+                                'Missing Mathematical Expression Symbol'
+                            )
+                        )
+                    if not_quantity:
+                        self.err.append(
+                            self.error_message(
+                                'Mathematical Expression',
+                                page_name,
+                                'Missing Mathematical Expression Quantity'
+                            )
+                        )
+                # Relation Connections
+                if any(
+                    'MISSING RELATION TYPE' in val
+                    for val in ivalue.get('RelationMF1', {}).values()
+                ):
+                    self.err.append(
+                        self.error_message(
+                            'Mathematical Expression',
+                            page_name,
+                            'Missing Relation Type (Mathematical Expression I)'
+                        )
+                    )
+
+                if any(
+                    'MISSING OBJECT ITEM' in val
+                    for val in ivalue.get('RelationMF1', {}).values()
+                ):
+                    self.err.append(
+                        self.error_message(
+                            'Mathematical Expression',
+                            page_name,
+                            'Missing Object Item (Mathematical Expression I)'
+                        )
+                    )
 
     def quantity(self, project, data, catalog):
         '''Perform Quantity Checks:

@@ -240,7 +240,7 @@ def query_sources_with_user_additions(search, project, setup):
             query_attribute = query_attribute,
             values = values
         )
-        
+
         # Zip user-defined answers
         zipped = zip(
             values['id'],

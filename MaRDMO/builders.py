@@ -80,9 +80,13 @@ def build_handler_map():
                 model.task,
             f"{base}{questions_model['Mathematical Model']['ID']['uri']}":
                 model.model,
+            f"{base}{questions_model['Mathematical Formulation']['ID']['uri']}":
+                model.formulation,
             f'{base}{questions_model["Mathematical Model"]["RPRelatant"]["uri"]}':
                 general.relation,
             f'{base}{questions_model["Mathematical Model"]["TRelatant"]["uri"]}':
+                general.relation,
+            f'{base}{questions_model["Mathematical Model"]["MFRelatant"]["uri"]}':
                 general.relation,
             f"{base}{questions_publication['Publication']['ID']['uri']}":
                 publication.citation,

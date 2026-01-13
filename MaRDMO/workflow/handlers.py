@@ -1,12 +1,11 @@
 from ..constants import BASE_URI
-from ..getters import get_items, get_options, get_properties, get_questions, get_url
+from ..getters import get_items, get_options, get_properties, get_questions, get_sparql_query, get_url
 from ..helpers import value_editor
 from ..queries import query_sparql
 from ..adders import add_basics, add_references, add_relations_static
 
 from .constants import PROPS
 from .models import Method, ProcessStep, Software, Hardware, DataSet
-from .sparql import queryHandler
 
 class Information:
     '''Class containing functions, querying external sources for specific
@@ -38,10 +37,16 @@ class Information:
         )
 
         # Get source and ID of Item
-        source, Id = instance.external_id.split(':')
+        source, identifier = instance.external_id.split(':')
 
-        # Query source for further Information
-        query = queryHandler[source]['software'].format(Id, **get_items(), **get_properties())
+        # If Item from MaRDI Portal, Wikidata, or MathAlgoDB, set up Query and...
+        query = get_sparql_query(f'workflow/queries/software_{source}.sparql').format(
+            identifier,
+            **get_items(),
+            **get_properties()
+        )
+
+        # ...Query source for further Information
         results = query_sparql(
             query,
             get_url(
@@ -138,10 +143,16 @@ class Information:
         )
 
         # Get source and ID of Item
-        source, Id = instance.external_id.split(':')
+        source, identifier = instance.external_id.split(':')
 
-        # Query source for further Information
-        query = queryHandler[source]['hardware'].format(Id, **get_items(), **get_properties())
+        # If Item from MaRDI Portal or Wikidata set up Query and...
+        query = get_sparql_query(f'workflow/queries/hardware_{source}.sparql').format(
+            identifier,
+            **get_items(),
+            **get_properties()
+        )
+
+        # ...Query source for further Information
         results = query_sparql(
             query,
             get_url(
@@ -232,10 +243,16 @@ class Information:
         )
 
         # Get source and ID of Item
-        source, Id = instance.external_id.split(':')
+        source, identifier = instance.external_id.split(':')
 
-        # Query source for further Information
-        query = queryHandler[source]['data-set'].format(Id, **get_items(), **get_properties())
+        # If Item from MaRDI Portal or Wikidata set up Query and...
+        query = get_sparql_query(f'workflow/queries/data_set_{source}.sparql').format(
+            identifier,
+            **get_items(),
+            **get_properties()
+        )
+
+        # ...Query source for further Information
         results = query_sparql(
             query,
             get_url(
@@ -365,10 +382,16 @@ class Information:
         )
 
         # Get source and ID of Item
-        source, Id = instance.external_id.split(':')
+        source, identifier = instance.external_id.split(':')
 
-        # Query source for further Information
-        query = queryHandler[source]['method'].format(Id, **get_items(), **get_properties())
+        # If Item from MaRDI Portal, Wikidata, or MathAlgoDB, set up Query and...
+        query = get_sparql_query(f'workflow/queries/method_{source}.sparql').format(
+            identifier,
+            **get_items(),
+            **get_properties()
+        )
+
+        # ...Query source for further Information
         results = query_sparql(
             query,
             get_url(
@@ -435,10 +458,16 @@ class Information:
         )
 
         # Get source and ID of Item
-        source, Id = instance.external_id.split(':')
+        source, identifier = instance.external_id.split(':')
 
-        # Query source for further Information
-        query = queryHandler[source]['step'].format(Id, **get_items(), **get_properties())
+        # If Item from MaRDI Portal or Wikidata set up Query and...
+        query = get_sparql_query(f'workflow/queries/process_step_{source}.sparql').format(
+            identifier,
+            **get_items(),
+            **get_properties()
+        )
+
+        # ...Query source for further Information
         results = query_sparql(
             query,
             get_url(

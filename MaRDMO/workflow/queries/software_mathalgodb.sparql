@@ -1,0 +1,10 @@
+PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/software#>
+PREFIX dc: <http://purl.org/spar/datacite/>   
+
+SELECT DISTINCT (GROUP_CONCAT(DISTINCT ?referenceraw; separator=" | ") AS ?reference)
+                
+WHERE {{
+        VALUES ?idraw {{ :{0} }}
+        OPTIONAL {{ ?idraw dc:hasIdentifier ?referenceraw }}
+      }}
+GROUP BY ?reference

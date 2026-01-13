@@ -1,0 +1,38 @@
+SELECT DISTINCT
+?nodes ?cores
+(GROUP_CONCAT(DISTINCT CONCAT(?cpu, " | ", ?cpul, " | ", ?cpud); separator=" / ") AS ?CPU)
+               
+WHERE {{
+
+    VALUES ?hardware {{ wd:{0} }}
+
+    OPTIONAL {{
+        ?hardware p:{CPU} ?statement.
+        ?statement ps:{CPU} ?cpuraw.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?cpuraw), STR(wd:))) AS ?cpu)
+        
+        OPTIONAL {{
+            ?cpuraw rdfs:label ?cpulraw
+            FILTER (lang(?cpulraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?cpulraw, "No Label Provided!") AS ?cpul)
+        
+        OPTIONAL {{
+            ?cpuraw schema:description ?cpudraw
+            FILTER (lang(?cpudraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?cpudraw, "No Description Provided!") AS ?cpud)
+        
+        OPTIONAL {{
+            ?cpuraw wdt:{number of processor cores} ?cores.
+        }}
+                   
+        OPTIONAL {{
+            ?statement pq:{quantity_property} ?nodes.
+        }}
+    }}
+}}
+
+GROUP BY ?nodes ?cores

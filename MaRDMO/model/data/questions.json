@@ -249,6 +249,12 @@
             "set_prefix": true,
             "collection_index": true
         },
+        "Reference": {
+            "key1": "formulation",
+            "key2": "reference",
+            "uri": "domain/formulation/reference",
+            "set_prefix": true
+        },
         "Properties": {
             "key1": "formulation",
             "key2": "Properties",

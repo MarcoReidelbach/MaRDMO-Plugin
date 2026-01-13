@@ -1,0 +1,63 @@
+SELECT DISTINCT
+?ID ?Name ?Unit ?Symbol ?label ?Type
+
+WHERE {{ 
+
+    VALUES ?task {{{0}}}
+
+    OPTIONAL {{ 
+        ?task rdfs:label ?labelraw .
+        FILTER (lang(?labelraw) = 'en') 
+    }}
+                                
+    BIND(COALESCE(?labelraw, "No Label Provided!") AS ?label)
+
+    {{
+        ?task p:{contains} ?statement.
+        ?statement ps:{contains} ?idraw.
+        ?statement pq:{object has role} ?role.
+        FILTER (?role = wd:{input})
+
+        BIND(CONCAT("mardi:", STRAFTER(STR(?idraw), STR(wd:))) AS ?ID)
+        
+        OPTIONAL {{ 
+            ?idraw rdfs:label ?Nameraw .
+            FILTER (lang(?Nameraw) = 'en') 
+        }}
+        
+        BIND(COALESCE(?Nameraw, "No Label Provided!") AS ?Name)
+        BIND("independent" AS ?Type)
+    }}
+    UNION
+    {{
+        ?task p:{contains} ?statement.
+        ?statement ps:{contains} ?idraw.
+        ?statement pq:{object has role} ?role.
+        FILTER (?role = wd:{output})
+        
+        BIND(CONCAT("mardi:", STRAFTER(STR(?idraw), STR(wd:))) AS ?ID)
+        
+        OPTIONAL {{ 
+            ?idraw rdfs:label ?Nameraw .
+            FILTER (lang(?Nameraw) = 'en') 
+        }}
+        
+        BIND(COALESCE(?Nameraw, "No Label Provided!") AS ?Name)
+        BIND("dependent" AS ?Type)
+    }}
+
+    OPTIONAL {{
+        ?task wdt:{contains} ?formulation.
+        ?formulation wdt:{instance of} wd:{mathematical expression}.
+        ?formulation p:{in defining formula} ?statement2.
+        ?statement2 ps:{in defining formula} ?Symbol.
+        ?statement2 pq:{symbol represents} ?quantityraw.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?quantityraw), STR(wd:))) AS ?quantity)
+    }}
+                                
+    FILTER(?ID = ?quantity)       
+
+    BIND("" AS ?Unit)
+}}
+
+ORDER BY ?label ?Type

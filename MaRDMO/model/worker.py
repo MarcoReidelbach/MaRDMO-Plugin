@@ -371,6 +371,12 @@ class PrepareModel:
                 item_class = "equation"
             )
 
+            if entry.get('reference'):
+                payload.add_answer(
+                    verb = self.properties["comment"],
+                    object_and_type = [entry.get('reference'), "string"],
+                )
+
             payload.add_answers(
                 mardmo_property = "Formula",
                 wikibase_property = "defining formula",

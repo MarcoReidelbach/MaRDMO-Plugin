@@ -1,0 +1,50 @@
+SELECT DISTINCT
+(GROUP_CONCAT(DISTINCT CONCAT(?impSoft, " | ", ?impSoftl, " | ", ?impSoftd); separator=" / ") AS ?implementedBySoftware)
+(GROUP_CONCAT(DISTINCT CONCAT(?impInst, " | ", ?impInstl, " | ", ?impInstd); separator=" / ") AS ?implementedByInstrument)
+                                              
+WHERE {{
+    
+    VALUES ?method {{ wd:{0} }}
+    
+    OPTIONAL {{
+        ?method wdt:P ?impSoftraw.
+        ?impSoftraw wdt:{instance of} wd:{software}.
+        
+        BIND(CONCAT("mardi:", STRAFTER(STR(?impSoftraw), STR(wd:))) AS ?impSoft)
+        
+        OPTIONAL {{
+            ?impSoftraw rdfs:label ?impSoftlraw
+            FILTER (lang(?impSoftlraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?impSoftlraw, "No Label Provided!") AS ?impSoftl)
+        
+        OPTIONAL {{
+            ?impSoftraw schema:description ?impSoftdraw
+            FILTER (lang(?impSoftdraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?impSoftdraw, "No Description Provided!") AS ?impSoftd)
+    }}
+                                                        
+    OPTIONAL {{
+        ?method wdt:P ?impInstraw.
+        ?impInstraw wdt:{instance of} wd:{research tool}.
+        
+        BIND(CONCAT("mardi:", STRAFTER(STR(?impInstraw), STR(wd:))) AS ?impInst)
+        
+        OPTIONAL {{
+            ?impInstraw rdfs:label ?impInstlraw
+            FILTER (lang(?impInstlraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?impInstlraw, "No Label Provided!") AS ?impInstl)
+        
+        OPTIONAL {{
+            ?impInstraw schema:description ?impInstdraw
+            FILTER (lang(?impInstdraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?impInstdraw, "No Description Provided!") AS ?impInstd)
+    }}
+}}

@@ -1,0 +1,81 @@
+SELECT DISTINCT
+?userManualURL ?sourceCodeRepository ?reference
+(GROUP_CONCAT(DISTINCT CONCAT(?pl, " | ", ?pll, " | ", ?pld); separator=" / ") AS ?programmedIn)
+(GROUP_CONCAT(DISTINCT CONCAT(?dp, " | ", ?dpl, " | ", ?dpd); separator=" / ") AS ?dependsOnSoftware)
+               
+WHERE {{
+                                          
+    VALUES ?software {{ wd:{0} }}
+                                          
+    OPTIONAL {{
+        ?software wdt:{programmed in} ?plraw.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?plraw), STR(wd:))) AS ?pl)
+        
+        OPTIONAL {{
+            ?plraw rdfs:label ?pllraw
+            FILTER (lang(?pllraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?pllraw, "No Label Provided!") AS ?pll)
+        
+        OPTIONAL {{
+            ?plraw schema:description ?pldraw
+            FILTER (lang(?pldraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?pldraw, "No Description Provided!") AS ?pld)
+    }}  
+                                          
+    OPTIONAL {{
+        ?software wdt:{depends on software} ?dpraw.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?dpraw), STR(wd:))) AS ?dp)
+        
+        OPTIONAL {{
+            ?dpraw rdfs:label ?dplraw
+            FILTER (lang(?dplraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?dplraw, "No Label Provided!") AS ?dpl)
+        
+        OPTIONAL {{
+            ?dpraw schema:description ?dpdraw
+            FILTER (lang(?dpdraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?dpdraw, "No Description Provided!") AS ?dpd)
+    }}
+        
+    
+    OPTIONAL {{
+        ?software wdt:{source code repository URL} ?sourceCodeRepository.
+    }}
+    
+    OPTIONAL {{
+        ?software wdt:{user manual URL} ?userManualURL.
+    }}
+    
+    OPTIONAL {{
+        ?software wdt:{DOI} ?doi.
+    }}
+    
+    OPTIONAL {{
+        ?software wdt:{swMath work ID} ?swmath.
+    }}
+    
+    OPTIONAL {{
+        ?software wdt:{URL} ?url.
+    }}
+
+    BIND(
+         CONCAT(
+             IF(BOUND(?doi), CONCAT("doi:", STR(?doi), " | "), ""),
+             IF(BOUND(?swmath), CONCAT("swmath:", STR(?swmath), " | "), ""),
+             IF(BOUND(?url), STR(?url), "")
+         ) AS ?referenceraw
+     )
+                                          
+    BIND(IF(STRENDS(?referenceraw, " | "), STRBEFORE(?referenceraw, " | "), ?referenceraw) AS ?reference)
+
+}}  
+                                        
+GROUP BY ?sourceCodeRepository ?userManualURL ?reference

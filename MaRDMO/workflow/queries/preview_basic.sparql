@@ -1,0 +1,16 @@
+SELECT DISTINCT
+?isSpaceContinuous ?isSpaceDiscrete
+?isTimeContinuous ?isTimeDiscrete
+                                                                 
+WHERE {{
+  
+   VALUES ?id {{wd:{0}}}
+   
+   BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-space model} }}, "True", "False" ) AS ?isSpaceContinuous)
+   BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-space model} }}, "True", "False" ) AS ?isSpaceDiscrete)
+   
+   BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time model} }}, "True", "False" ) AS ?isTimeContinuous)
+   BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time model} }}, "True", "False" ) AS ?isTimeDiscrete)
+}}
+
+GROUP BY ?isSpaceContinuous ?isTimeContinuous ?isSpaceDiscrete ?isTimeDiscrete
