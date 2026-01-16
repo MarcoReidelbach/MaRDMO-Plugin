@@ -20,6 +20,13 @@
             "uri": "domain/field/description",
             "set_prefix": true
         },
+        "Alias": {
+            "key1": "field",
+            "key2": "Alias",
+            "uri": "domain/field/alias",
+            "set_prefix": true,
+            "collection_index": true
+        },
         "Long Description": {
             "key1": "field",
             "key2": "descriptionLong",
@@ -63,6 +70,13 @@
             "key2": "Description",
             "uri": "domain/problem/description",
             "set_prefix": true
+        },
+        "Alias": {
+            "key1": "problem",
+            "key2": "Alias",
+            "uri": "domain/problem/alias",
+            "set_prefix": true,
+            "collection_index": true
         },
         "Long Description": {
             "key1": "problem",
@@ -115,6 +129,13 @@
             "key2": "Description",
             "uri": "domain/model/description",
             "set_prefix": true
+        },
+        "Alias": {
+            "key1": "model",
+            "key2": "Alias",
+            "uri": "domain/model/alias",
+            "set_prefix": true,
+            "collection_index": true
         },
         "Long Description": {
             "key1": "model",
@@ -214,12 +235,25 @@
             "uri": "domain/formulation/description",
             "set_prefix": true
         },
+        "Alias": {
+            "key1": "formulation",
+            "key2": "Alias",
+            "uri": "domain/formulation/alias",
+            "set_prefix": true,
+            "collection_index": true
+        },
         "Long Description": {
             "key1": "formulation",
             "key2": "descriptionLong",
             "uri": "domain/formulation/long-description",
             "set_prefix": true,
             "collection_index": true
+        },
+        "Reference": {
+            "key1": "formulation",
+            "key2": "reference",
+            "uri": "domain/formulation/reference",
+            "set_prefix": true
         },
         "Properties": {
             "key1": "formulation",
@@ -312,6 +346,13 @@
             "key2": "Description",
             "uri": "domain/quantity/description",
             "set_prefix": true
+        },
+        "Alias": {
+            "key1": "quantity",
+            "key2": "Alias",
+            "uri": "domain/quantity/alias",
+            "set_prefix": true,
+            "collection_index": true
         },
         "Long Description": {
             "key1": "quantity",
@@ -445,6 +486,13 @@
             "key2": "Description",
             "uri": "domain/task/description",
             "set_prefix": true
+        },
+        "Alias": {
+            "key1": "task",
+            "key2": "Alias",
+            "uri": "domain/task/alias",
+            "set_prefix": true,
+            "collection_index": true
         },
         "Long Description": {
             "key1": "task",

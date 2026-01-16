@@ -1,0 +1,24 @@
+SELECT DISTINCT
+(GROUP_CONCAT(DISTINCT CONCAT(?imple, " | ", ?implel, " | ", ?impled); separator=" / ") AS ?implementedBySoftware)
+                
+WHERE {{
+        
+    VALUES ?idraw {{ :{0} }}
+    
+    OPTIONAL {{
+        ?idraw prop:implementedBy ?impleraw.
+        BIND(CONCAT("mathalgodb:", STRAFTER(STR(?impleraw), "#")) AS ?imple)
+        
+        OPTIONAL {{ 
+            ?impleraw rdfs:label ?implelraw
+        }}
+        
+        BIND(COALESCE(?implelraw, "No Label Provided!") AS ?implel)
+        
+        OPTIONAL {{
+            ?impleraw rdfs:comment ?impledraw
+        }}
+        
+        BIND(COALESCE(?impledraw, "No Description Provided!") AS ?impled)
+    }}
+}}

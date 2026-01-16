@@ -18,6 +18,7 @@ def mardmo_router(sender, instance, update_fields=None, **kwargs):
     catalog = getattr(instance.project, "catalog", None)
     if not catalog or not str(catalog).endswith(
         ("mardmo-model-catalog",
+         "mardmo-model-basics-catalog",
          "mardmo-algorithm-catalog",
          "mardmo-interdisciplinary-workflow-catalog")
     ):

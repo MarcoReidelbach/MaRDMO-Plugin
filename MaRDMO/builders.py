@@ -71,6 +71,28 @@ def build_handler_map():
         }
     })
 
+    # Model handlers
+    handler_map.update({
+        'mardmo-model-basics-catalog': {
+            f"{base}{questions_model['Research Problem']['ID']['uri']}":
+                model.problem,
+            f"{base}{questions_model['Task']['ID']['uri']}":
+                model.task,
+            f"{base}{questions_model['Mathematical Model']['ID']['uri']}":
+                model.model,
+            f"{base}{questions_model['Mathematical Formulation']['ID']['uri']}":
+                model.formulation,
+            f'{base}{questions_model["Mathematical Model"]["RPRelatant"]["uri"]}':
+                general.relation,
+            f'{base}{questions_model["Mathematical Model"]["TRelatant"]["uri"]}':
+                general.relation,
+            f'{base}{questions_model["Mathematical Model"]["MFRelatant"]["uri"]}':
+                general.relation,
+            f"{base}{questions_publication['Publication']['ID']['uri']}":
+                publication.citation,
+        }
+    })
+
     # Algorithm handlers
     handler_map.update({
         'mardmo-algorithm-catalog': {

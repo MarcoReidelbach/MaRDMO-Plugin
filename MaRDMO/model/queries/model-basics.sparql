@@ -5,12 +5,9 @@ SELECT DISTINCT
 ?is_dimensionless ?is_dimensional
 ?is_space_continuous ?is_space_discrete
 ?is_time_continuous ?is_time_discrete
-(GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" <|> ") AS ?description_long)
-(GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" <|> ") AS ?aliases)
 (GROUP_CONCAT(DISTINCT CONCAT(?rp, " | ", ?rpl, " | ", ?rpd); SEPARATOR=" <|> ") AS ?models)
-(GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd, " |  >|< ", ?assq); SEPARATOR=" <|> ") AS ?assumes)
-(GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq, " >|< ", ?confq2); SEPARATOR=" <|> ") AS ?contains_formulation)
 (GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); SEPARATOR=" <|> ") AS ?used_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq, " >|< ", ?confq2); SEPARATOR=" <|> ") AS ?contains_formulation)
 (GROUP_CONCAT(DISTINCT CONCAT(?sbm, " | ", ?sbml, " | ", ?sbmd, " | ", ?sbmq); SEPARATOR=" <|> ") AS ?specialized_by)
 (GROUP_CONCAT(DISTINCT CONCAT(?sm, " | ", ?sml, " | ", ?smd, " | ", ?smq); SEPARATOR=" <|> ") AS ?specializes)
 (GROUP_CONCAT(DISTINCT CONCAT(?abm, " | ", ?abml, " | ", ?abmd); SEPARATOR=" <|> ") AS ?approximated_by)
@@ -27,15 +24,6 @@ SELECT DISTINCT
 WHERE {{
                                                    
     VALUES ?id {{wd:{0}}}
-
-    OPTIONAL {{
-        ?id wdt:{description} ?descriptionLong
-    }}
-
-    OPTIONAL {{
-        ?id skos:altLabel ?alias .
-      FILTER (LANG(?alias) = "en")
-    }}
                                                    
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear model} }}, "True", "False" ) AS ?is_linear)
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear model} }}, "True", "False" ) AS ?is_not_linear)
@@ -75,28 +63,22 @@ WHERE {{
     }}
 
     OPTIONAL {{
-        ?id p:{assumes} ?statement_x.
-        ?statement_x ps:{assumes} ?assraw.
-        BIND(CONCAT("mardi:", STRAFTER(STR(?assraw), STR(wd:))) AS ?ass)
+        ?id wdt:{used by} ?taraw.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?taraw), STR(wd:))) AS ?ta)
          
-        ?assraw wdt:{instance of} wd:{mathematical expression}.
+        ?taraw wdt:{instance of} wd:{computational task}.
         
         OPTIONAL {{
-            ?assraw rdfs:label ?asslraw.
-            FILTER (lang(?asslraw) = 'en')
+            ?taraw rdfs:label ?talraw.
+            FILTER (lang(?talraw) = 'en')
         }}
-        BIND(COALESCE(?asslraw, "No Label Provided!") AS ?assl)
+        BIND(COALESCE(?talraw, "No Label Provided!") AS ?tal)
         
         OPTIONAL {{
-            ?assraw schema:description ?assdraw
-            FILTER (lang(?assdraw) = 'en')
+            ?taraw schema:description ?tadraw
+            FILTER (lang(?tadraw) = 'en')
         }}
-        BIND(COALESCE(?assdraw, "No Description Provided!") AS ?assd)
-        
-        OPTIONAL {{
-            ?statement_x pq:{series ordinal} ?assqraw.
-        }}
-        BIND(COALESCE(?assqraw, "") AS ?assq)
+        BIND(COALESCE(?tadraw, "No Description Provided!") AS ?tad)
     }}
 
     OPTIONAL {{
@@ -127,25 +109,6 @@ WHERE {{
             ?statement_y pq:{series ordinal} ?qua2raw.
         }}
         BIND(COALESCE(?qua2raw, "") AS ?confq2)
-    }}
-
-    OPTIONAL {{
-        ?id wdt:{used by} ?taraw.
-        BIND(CONCAT("mardi:", STRAFTER(STR(?taraw), STR(wd:))) AS ?ta)
-         
-        ?taraw wdt:{instance of} wd:{computational task}.
-        
-        OPTIONAL {{
-            ?taraw rdfs:label ?talraw.
-            FILTER (lang(?talraw) = 'en')
-        }}
-        BIND(COALESCE(?talraw, "No Label Provided!") AS ?tal)
-        
-        OPTIONAL {{
-            ?taraw schema:description ?tadraw
-            FILTER (lang(?tadraw) = 'en')
-        }}
-        BIND(COALESCE(?tadraw, "No Description Provided!") AS ?tad)
     }}
 
     OPTIONAL {{   

@@ -1,14 +1,13 @@
 '''General Helper Functions of MaRDMO'''
 
 from typing import Callable, Optional, Any
+from collections import defaultdict, deque
 
 import re
 
 from rdmo.projects.models import Value
 from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
-
-from collections import defaultdict, deque
 
 def topological_order(direct_dependencies: dict[str, set[str]]) -> list[str]:
     '''Generate Topological Order of Dependency Graph Nodes'''
@@ -100,7 +99,7 @@ def split_value(
     if key not in data:
         return []
 
-    raw = data.get(key, {}).get('value', '').split(" / ")
+    raw = data.get(key, {}).get('value', '').split(" <|> ")
 
     parts = [part for part in raw if part]
 
@@ -254,6 +253,9 @@ def build_new_value(from_entry, entity, key, resolved, order):
     if not entity['relation']:
         return resolved
 
+    if not resolved:
+        resolved = 'MISSING OBJECT ITEM'
+
     relation_value = from_entry.get(entity['relation'], {}).get(
         key, "MISSING RELATION TYPE"
     )
@@ -283,20 +285,25 @@ def entity_relations(data, idx, entity, order):
     label_to_index_maps = label_index_map(data, idx['to'])
 
     for from_entry in data.get(idx.get('from'), {}).values():
-        for key, value in from_entry.get(entity['old_name'], {}).items():
+        # Get and combine Relation and Relatant Keys
+        relation_keys = from_entry.get(entity['relation'], {}).keys()
+        old_name_keys = from_entry.get(entity['old_name'], {}).keys()
+        for key in relation_keys | old_name_keys:
+            value = from_entry.get(entity['old_name'], {}).get(key)
             entity_values = from_entry.setdefault(entity['new_name'], {})
-
+            # Resolve Relatant
             resolved = None
-            for enc_entry, label_map in zip(entity['encryption'], label_to_index_maps):
-                resolved = resolve_target(
-                    name=value.get("Name"),
-                    id_=value.get("ID"),
-                    entity_enc=enc_entry,
-                    label_map=label_map,
-                )
-                if resolved != value.get("ID"):
-                    break  # match found
-
+            if value:
+                for enc_entry, label_map in zip(entity['encryption'], label_to_index_maps):
+                    resolved = resolve_target(
+                        name=value.get("Name"),
+                        id_=value.get("ID"),
+                        entity_enc=enc_entry,
+                        label_map=label_map,
+                    )
+                    if resolved != value.get("ID"):
+                        break  # match found
+            # Build new Item Value
             new_value = build_new_value(from_entry, entity, key, resolved, order)
 
             if key not in entity_values.values() and entity_values.get(key) != new_value:
@@ -338,7 +345,7 @@ def process_qualifier(value):
     # Create Value Dictionary
     value_dict = {}
     # Get splitted Values
-    value_splitted = value.split(' <|> ')
+    value_splitted = value.split(' <<||>> ')
     for value_idx, value_text in enumerate(value_splitted):
         # Extract Value ID, Label, and Description
         value_id, value_label, value_description = value_text.split(' | ')

@@ -1,0 +1,28 @@
+SELECT DISTINCT
+(GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); separator=" / ") AS ?usedBy)
+                                                       
+WHERE {{
+                                         
+    VALUES ?id {{wd:{0}}}
+
+    OPTIONAL {{
+         ?id wdt:{used by} ?taraw.
+         BIND(CONCAT("mardi:", STRAFTER(STR(?taraw), STR(wd:))) AS ?ta)
+         
+         ?taraw wdt:{instance of} wd:{computational task}.
+         
+         OPTIONAL {{
+            ?taraw rdfs:label ?talraw.
+            FILTER (lang(?talraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?talraw, "No Label Provided!") AS ?tal)
+        
+        OPTIONAL {{
+            ?taraw schema:description ?tadraw
+            FILTER (lang(?tadraw) = 'en')
+        }}
+        
+        BIND(COALESCE(?tadraw, "No Description Provided!") AS ?tad)
+    }}
+}}

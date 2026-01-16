@@ -164,7 +164,8 @@ class PublicationRetriever:
                         uri = f'{BASE_URI}{self.questions["Publication"]["ID"]["uri"]}',
                         info = {
                             'text': 
-                                f"{data_all['mathalgodb'].label} ({data_all['mathalgodb'].description}) [mathalgodb]",
+                                f"{data_all['mathalgodb'].label} "
+                                f"({data_all['mathalgodb'].description}) [mathalgodb]",
                             'external_id': data_all['mathalgodb'].id,
                             'set_index': key
                         }

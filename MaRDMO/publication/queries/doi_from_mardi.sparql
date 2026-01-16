@@ -1,9 +1,9 @@
 SELECT ?doi ?label ?description
-       (GROUP_CONCAT(DISTINCT CONCAT(?inv, " | ", ?invl, " | ", ?invd); separator=" / ") AS ?invents)    
-       (GROUP_CONCAT(DISTINCT CONCAT(?doc, " | ", ?docl, " | ", ?docd); separator=" / ") AS ?documents)
-       (GROUP_CONCAT(DISTINCT CONCAT(?stu, " | ", ?stul, " | ", ?stud); separator=" / ") AS ?studies)
-       (GROUP_CONCAT(DISTINCT CONCAT(?rev, " | ", ?revl, " | ", ?revd); separator=" / ") AS ?surveys)
-       (GROUP_CONCAT(DISTINCT CONCAT(?use, " | ", ?usel, " | ", ?used); separator=" / ") AS ?uses)    
+       (GROUP_CONCAT(DISTINCT CONCAT(?inv, " | ", ?invl, " | ", ?invd); SEPARATOR=" <|> ") AS ?invents)    
+       (GROUP_CONCAT(DISTINCT CONCAT(?doc, " | ", ?docl, " | ", ?docd); SEPARATOR=" <|> ") AS ?documents)
+       (GROUP_CONCAT(DISTINCT CONCAT(?stu, " | ", ?stul, " | ", ?stud); SEPARATOR=" <|> ") AS ?studies)
+       (GROUP_CONCAT(DISTINCT CONCAT(?rev, " | ", ?revl, " | ", ?revd); SEPARATOR=" <|> ") AS ?surveys)
+       (GROUP_CONCAT(DISTINCT CONCAT(?use, " | ", ?usel, " | ", ?used); SEPARATOR=" <|> ") AS ?uses)    
 
 WHERE {{ VALUES ?publication {{ wd:{0} }}
 

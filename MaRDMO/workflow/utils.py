@@ -1,10 +1,3 @@
-def compare_items(old, new):
-    ids = {}
-    for key, value in old.items():
-        if key.startswith('Item') and not value['id']:
-            ids.update({new[key]['payload']['item']['labels']['en']: new[key]['id']})
-    return ids
-
 def get_discipline(answers):
     ids = []
     md = 0

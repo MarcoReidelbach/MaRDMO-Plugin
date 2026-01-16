@@ -2,11 +2,7 @@ SELECT DISTINCT
 ?is_linear ?is_not_linear
 ?is_space_continuous ?is_space_discrete
 ?is_time_continuous ?is_time_discrete
-(GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" <|> ") AS ?aliases)
-(GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" <|> ") AS ?description_long)
-(GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); SEPARATOR=" <|> ") AS ?assumes)
 (GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); SEPARATOR=" <|> ") AS ?contains_formulation)
-(GROUP_CONCAT(DISTINCT CONCAT(?quan, " | ", ?quanl, " | ", ?quand, " | ", ?quanq); SEPARATOR=" <|> ") AS ?contains_quantity)
 (GROUP_CONCAT(DISTINCT CONCAT(?sbt, " | ", ?sbtl, " | ", ?sbtd, " | ", ?sbtq); SEPARATOR=" <|> ") AS ?specialized_by)
 (GROUP_CONCAT(DISTINCT CONCAT(?st, " | ", ?stl, " | ", ?std, " | ", ?stq); SEPARATOR=" <|> ") AS ?specializes)
 (GROUP_CONCAT(DISTINCT CONCAT(?abt, " | ", ?abtl, " | ", ?abtd); SEPARATOR=" <|> ") AS ?approximated_by)
@@ -24,15 +20,6 @@ WHERE {{
 
     VALUES ?id {{wd:{0}}}
 
-    OPTIONAL {{
-        ?id skos:altLabel ?alias .
-        FILTER (LANG(?alias) = "en")
-    }}
-
-    OPTIONAL {{
-        ?id wdt:{description} ?descriptionLong
-    }}
-
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear task} }}, "True", "False" ) AS ?is_linear)
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear task} }}, "True", "False" ) AS ?is_not_linear)
 
@@ -41,25 +28,6 @@ WHERE {{
 
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time task} }}, "True", "False" ) AS ?is_time_continuous)
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time task} }}, "True", "False" ) AS ?is_time_discrete)
-
-    OPTIONAL {{
-        ?id wdt:{assumes} ?assraw.
-        BIND(CONCAT("mardi:", STRAFTER(STR(?assraw), STR(wd:))) AS ?ass)
-               
-        ?assraw wdt:{instance of} wd:{mathematical expression}.
-
-        OPTIONAL {{
-            ?assraw rdfs:label ?asslraw.
-            FILTER (lang(?asslraw) = 'en')
-        }}
-        BIND(COALESCE(?asslraw, "No Label Provided!") AS ?assl)
-
-        OPTIONAL {{
-            ?assraw schema:description ?assdraw
-            FILTER (lang(?assdraw) = 'en')
-        }}
-        BIND(COALESCE(?assdraw, "No Description Provided!") AS ?assd)
-    }}
 
     OPTIONAL {{
         ?id p:{contains} ?statement.
@@ -86,38 +54,6 @@ WHERE {{
             BIND(CONCAT("mardi:", STRAFTER(STR(?quaraw), STR(wd:))) AS ?qua)
         }}
         BIND(COALESCE(?qua, "") AS ?confq)
-    }}
-
-    OPTIONAL {{
-        ?id p:{contains} ?statement2.
-        ?statement2 ps:{contains} ?quanraw.
-        BIND(CONCAT("mardi:", STRAFTER(STR(?quanraw), STR(wd:))) AS ?quan)
-
-        {{
-            ?quanraw wdt:{instance of} wd:{quantity}.
-        }}
-           UNION
-        {{
-            ?quanraw wdt:{instance of} wd:{kind of quantity}.
-        }}
-
-        OPTIONAL {{
-            ?quanraw rdfs:label ?quanlraw.
-            FILTER (lang(?quanlraw) = 'en')
-        }}
-        BIND(COALESCE(?quanlraw, "No Label Provided!") AS ?quanl)
-        
-        OPTIONAL {{
-            ?quanraw schema:description ?quandraw
-            FILTER (lang(?quandraw) = 'en')
-        }}
-        BIND(COALESCE(?quandraw, "No Description Provided!") AS ?quand)
-
-        OPTIONAL {{
-            ?statement2 pq:{object has role} ?qua2raw.
-            BIND(CONCAT("mardi:", STRAFTER(STR(?qua2raw), STR(wd:))) AS ?qua2)
-        }}
-        BIND(COALESCE(?qua2, "") AS ?quanq)
     }}
 
     OPTIONAL {{   

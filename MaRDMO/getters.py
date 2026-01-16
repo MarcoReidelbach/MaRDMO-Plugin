@@ -59,7 +59,12 @@ def get_sparql_query(file_name):
 
 def get_id(project, uri, keys):
     """Get Set of User requested Identifiers for specific URI"""
-    values = project.values.filter(snapshot=None, attribute=Attribute.objects.get(uri=uri))
+    values = project.values.filter(
+        snapshot=None,
+        attribute=Attribute.objects.get(
+            uri=uri
+        )
+    )
     identifiers = []
     if len(keys) == 1:
         for value in values:
@@ -127,3 +132,15 @@ def get_answers(project, val, config):
                    entry=entry)
 
     return val
+
+def get_user_entries(project, query_attribute, values):
+    '''Get ID, Name and Description User Answers'''
+    for question in ('id', 'name', 'description'):
+        # Fetch User entries from the project (ID)
+        values[question] = project.values.filter(
+            snapshot = None,
+            attribute = Attribute.objects.get(
+                uri = f'{BASE_URI}domain/{query_attribute}/{question}'
+            )
+        )
+    return values

@@ -127,8 +127,8 @@ class OauthProviderMixin:
             keys = list(jsons.keys())
 
             # --- Separate item and relation keys
-            item_keys = [k for k in dependency]
-            relation_keys = [k for k in keys if k.startswith("RELATION")]
+            item_keys = list(dependency)
+            relation_keys = [k for k in keys if k.startswith(("RELATION", "ALIAS"))]
 
             num_items = len(item_keys)
             num_relations = len(relation_keys)
@@ -283,8 +283,10 @@ class OauthProviderMixin:
     def _handle_response(self, response, key, jsons):
         """Handle POST response and update placeholders."""
         response.raise_for_status()
-        jsons[key]['id'] = response.json().get('id')
-        return replace_in_dict(jsons, key, jsons[key]['id'])
+        if not key.startswith("ALIAS"):
+            jsons[key]['id'] = response.json().get('id')
+            jsons = replace_in_dict(jsons, key, jsons[key]['id'])
+        return jsons
 
     def _handle_policy_violation(self, response, key, jsons):
         """Handle data-policy-violation errors and return updated jsons"""

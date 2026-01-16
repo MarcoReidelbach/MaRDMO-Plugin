@@ -1,0 +1,39 @@
+SELECT DISTINCT
+(GROUP_CONCAT(DISTINCT CONCAT(?impSoft, " | ", ?impSoftl, " | ", ?impSoftd); separator=" / ") AS ?implementedBySoftware)
+(GROUP_CONCAT(DISTINCT CONCAT(?impInst, " | ", ?impInstl, " | ", ?impInstd); separator=" / ") AS ?implementedByInstrument)
+                                                
+WHERE {{
+        
+    VALUES ?method {{ wd:{0} }}
+    
+    OPTIONAL {{
+        ?method wdt:P ?impSoftraw.
+        ?impSoftraw wdt:P31 wd:Q7397.
+        BIND(CONCAT("wikidata:", STRAFTER(STR(?impSoftraw), STR(wd:))) AS ?impSoft)
+        
+        SERVICE wikibase:label {{
+          bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+          ?impSoftraw rdfs:label ?impSoftlraw .
+          ?impSoftraw schema:description ?impSoftdraw .
+        }}
+        
+        BIND(COALESCE(?impSoftlraw, "No Label Provided!") AS ?impSoftl)
+        BIND(COALESCE(?impSoftdraw, "No Description Provided!") AS ?impSoftd)
+    }}
+                 
+    OPTIONAL {{
+        ?method wdt:P ?impInstraw.
+        ?impInstraw wdt:P31 wd:Q110994345.
+        
+        BIND(CONCAT("wikidata:", STRAFTER(STR(?impInstraw), STR(wd:))) AS ?impInst)
+        
+        SERVICE wikibase:label {{
+          bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+          ?impInstraw rdfs:label ?impInstlraw .
+          ?impInstraw schema:description ?impInstdraw .
+        }}
+        
+        BIND(COALESCE(?impInstlraw, "No Label Provided!") AS ?impInstl)
+        BIND(COALESCE(?impInstdraw, "No Description Provided!") AS ?impInstd)
+    }}
+}}

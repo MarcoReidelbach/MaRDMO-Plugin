@@ -1,0 +1,113 @@
+SELECT DISTINCT 
+(GROUP_CONCAT(DISTINCT(?msc); SEPARATOR=" / ") AS ?mscID)
+(GROUP_CONCAT(DISTINCT CONCAT(?input, " | ", ?inputl, " | ", ?inputd); separator=" / ") AS ?inputDataSet)
+(GROUP_CONCAT(DISTINCT CONCAT(?output, " | ", ?outputl, " | ", ?outputd); separator=" / ") AS ?outputDataSet)
+(GROUP_CONCAT(DISTINCT CONCAT(?method, " | ", ?methodl, " | ", ?methodd); separator=" / ") AS ?uses)
+(GROUP_CONCAT(DISTINCT CONCAT(?platformsoftware, " | ", ?platformsoftwarel, " | ", ?platformsoftwared); separator=" / ") AS ?platformSoftware)
+(GROUP_CONCAT(DISTINCT CONCAT(?platforminstrument, " | ", ?platforminstrumentl, " | ", ?platforminstrumentd); separator=" / ") AS ?platformInstrument)
+(GROUP_CONCAT(DISTINCT CONCAT(?field, " | ", ?fieldl, " | ", ?fieldd); separator=" / ") AS ?fieldOfWork)
+
+WHERE {{
+
+    VALUES ?step {{ wd:{0} }}
+
+    OPTIONAL {{
+        ?step wdt:P ?inputraw
+        BIND(replace( xsd:string(?inputraw),'http://www.wikidata.org/entity/','wikidata:') as ?input)
+        
+        SERVICE wikibase:label {{
+          bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+          ?inputraw rdfs:label ?inputlraw .
+          ?inputraw schema:description ?inputdraw .
+        }}
+        
+        BIND(COALESCE(?inputlraw, "No Label Provided!") AS ?inputl)
+        BIND(COALESCE(?inputdraw, "No Description Provided!") AS ?inputd)
+    }}
+
+    OPTIONAL {{
+        ?step wdt:P ?outputraw
+        BIND(replace( xsd:string(?outputraw),'http://www.wikidata.org/entity/','wikidata:') as ?output)
+        
+        SERVICE wikibase:label {{
+          bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+          ?outputraw rdfs:label ?outputlraw .
+          ?outputraw schema:description ?outputdraw .
+        }}
+        
+        BIND(COALESCE(?outputlraw, "No Label Provided!") AS ?outputl)
+        BIND(COALESCE(?outputdraw, "No Description Provided!") AS ?outputd)
+    }}
+
+    OPTIONAL {{
+        ?step wdt:P2283 ?methodraw
+        BIND(replace( xsd:string(?methodraw),'http://www.wikidata.org/entity/','wikidata:') as ?method) 
+        
+        SERVICE wikibase:label {{
+          bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+          ?methodraw rdfs:label ?methodlraw .
+          ?methodraw schema:description ?methoddraw .
+        }}
+        
+        BIND(COALESCE(?methodlraw, "No Label Provided!") AS ?methodl)
+        BIND(COALESCE(?methoddraw, "No Description Provided!") AS ?methodd)
+    }}
+
+    OPTIONAL {{
+        ?step p:P400 ?statement0.
+        ?statement0 ps:P400 ?platformsoftwareraw.
+        
+        ?statement pq:P3831 ?platformsoftwaretyperaw.
+        BIND(replace( xsd:string(?platformsoftwaretyperaw),'http://www.wikidata.org/entity/','') as ?platformsoftwaretype)
+        FILTER (?platformsoftwaretype = "Q7397")
+        
+        BIND(replace( xsd:string(?platformsoftwareraw),'http://www.wikidata.org/entity/','wikidata:') as ?platformsoftware) 
+        
+        SERVICE wikibase:label {{
+          bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+          ?platformsoftwareraw rdfs:label ?platformsoftwarelraw .
+          ?platformsoftwareraw schema:description ?platformsoftwaredraw .
+        }}
+        
+        BIND(COALESCE(?platformsoftwarelraw, "No Label Provided!") AS ?platformsoftwarel)
+        BIND(COALESCE(?platformsoftwaredraw, "No Description Provided!") AS ?platformsoftwared)
+    }}
+
+    OPTIONAL {{
+        ?step p:P400 ?statement1.
+        ?statement1 ps:P400 ?platforminstrumentraw.
+
+        ?statement pq:P3831 ?platforminstrumenttyperaw.
+        BIND(replace( xsd:string(?platforminstrumenttyperaw),'http://www.wikidata.org/entity/','') as ?platforminstrumenttype)
+        FILTER (?platforminstrumenttype = "")
+        
+        BIND(replace( xsd:string(?platforminstrumentraw),'http://www.wikidata.org/entity/','wikidata:') as ?platforminstrument) 
+        
+        SERVICE wikibase:label {{
+          bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+          ?platforminstrumentraw rdfs:label ?platforminstrumentlraw .
+          ?platformsoftwareraw schema:description ?platforminstrumentdraw .
+        }}
+
+        BIND(COALESCE(?platforminstrumentlraw, "No Label Provided!") AS ?platforminstrumentl)
+        BIND(COALESCE(?platforminstrumentdraw, "No Description Provided!") AS ?platforminstrumentd)
+    }}
+
+    OPTIONAL {{
+        ?step wdt:P101 ?fieldraw.
+        BIND(replace( xsd:string(?fieldraw),'http://www.wikidata.org/entity/','wikidata:') as ?field)
+        
+        SERVICE wikibase:label {{
+          bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+          ?fieldraw rdfs:label ?fieldlraw .
+          ?fieldraw schema:description ?fielddraw .
+        }}
+        
+        BIND(COALESCE(?fieldlraw, "No Label Provided!") AS ?fieldl)
+        BIND(COALESCE(?fielddraw, "No Description Provided!") AS ?fieldd)
+    }}
+
+    OPTIONAL {{
+        ?step wdt:P3285 ?msc.
+    }}
+}}

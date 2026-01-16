@@ -5,12 +5,7 @@ SELECT DISTINCT
 ?is_dimensionless ?is_dimensional
 ?is_time_continuous ?is_time_discrete
 ?is_space_continuous ?is_space_discrete
-(GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" <|> ") AS ?aliases)
-(GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" <|> ") AS ?description_long)
-(GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" <|> ") AS ?formulas)
-(GROUP_CONCAT(DISTINCT CONCAT(?symbol, " | ", ?cq, " | ", ?cql, " | ", ?cqd); SEPARATOR=" <|> ") AS ?contains_quantity)
-(GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd); SEPARATOR=" <|> ") AS ?assumes)
-(GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); SEPARATOR=" <|> ") AS ?contains_formulation)    
+?reference
 (GROUP_CONCAT(DISTINCT CONCAT(?sbf, " | ", ?sbfl, " | ", ?sbfd, " | ", ?sbfq); SEPARATOR=" <|> ") AS ?specialized_by)
 (GROUP_CONCAT(DISTINCT CONCAT(?sf, " | ", ?sfl, " | ", ?sfd, " | ", ?sfq); SEPARATOR=" <|> ") AS ?specializes)
 (GROUP_CONCAT(DISTINCT CONCAT(?abf, " | ", ?abfl, " | ", ?abfd); SEPARATOR=" <|> ") AS ?approximated_by)
@@ -29,12 +24,7 @@ WHERE {{
     VALUES ?id {{wd:{0}}}
 
     OPTIONAL {{
-        ?id wdt:{description} ?descriptionLong
-    }}
-
-    OPTIONAL {{
-        ?id skos:altLabel ?alias .
-        FILTER (LANG(?alias) = "en")
+        ?id wdt:{comment} ?reference
     }}
 
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear equation} }}, "True", "False" ) AS ?is_linear)
@@ -54,76 +44,6 @@ WHERE {{
 
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{continuous-time equation} }}, "True", "False" ) AS ?is_time_continuous)
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{discrete-time equation} }}, "True", "False" ) AS ?is_time_discrete)
-
-    OPTIONAL {{
-        ?id wdt:{defining formula} ?formula.
-    }}
-
-    OPTIONAL {{
-        ?id p:{in defining formula} ?statement.
-        ?statement ps:{in defining formula} ?symbol.
-
-        OPTIONAL {{
-            ?statement pq:{symbol represents} ?cqraw.
-            BIND(CONCAT("mardi:", STRAFTER(STR(?cqraw), STR(wd:))) AS ?cq)
-                           
-            OPTIONAL {{
-                ?cqraw rdfs:label ?cqlraw.
-                FILTER (lang(?cqlraw) = 'en')
-            }}
-            BIND(COALESCE(?cqlraw, "No Label Provided!") AS ?cql)
-
-            OPTIONAL {{
-                ?cqraw schema:description ?cqdraw
-                FILTER (lang(?cqdraw) = 'en')
-            }}
-            BIND(COALESCE(?cqdraw, "No Description Provided!") AS ?cqd)
-        }}
-    }}
-                                                                      
-    OPTIONAL {{
-        ?id wdt:{assumes} ?assraw.
-        BIND(CONCAT("mardi:", STRAFTER(STR(?assraw), STR(wd:))) AS ?ass)
-                
-        ?assraw wdt:{instance of} wd:{mathematical expression}.
-
-        OPTIONAL {{
-            ?assraw rdfs:label ?asslraw.
-            FILTER (lang(?asslraw) = 'en')
-        }}
-        BIND(COALESCE(?asslraw, "No Label Provided!") AS ?assl)
-               
-        OPTIONAL {{
-            ?assraw schema:description ?assdraw
-            FILTER (lang(?assdraw) = 'en')
-        }}
-        BIND(COALESCE(?assdraw, "No Description Provided!") AS ?assd)
-    }}
-
-    OPTIONAL {{
-        ?id p:{contains} ?statement2.
-        ?statement2 ps:{contains} ?confraw.
-        ?confraw wdt:{instance of} wd:{mathematical expression}.
-        BIND(CONCAT("mardi:", STRAFTER(STR(?confraw), STR(wd:))) AS ?conf)
-        
-        OPTIONAL {{
-            ?confraw rdfs:label ?conflraw.
-            FILTER (lang(?conflraw) = 'en')
-        }}
-        BIND(COALESCE(?conflraw, "No Label Provided!") AS ?confl)
-
-        OPTIONAL {{
-            ?confraw schema:description ?confdraw
-            FILTER (lang(?confdraw) = 'en')
-        }}
-       BIND(COALESCE(?confdraw, "No Description Provided!") AS ?confd)
-
-        OPTIONAL {{
-            ?statement2 pq:{object has role} ?quaraw.
-            BIND(CONCAT("mardi:", STRAFTER(STR(?quaraw), STR(wd:))) AS ?qua)
-        }}
-        BIND(COALESCE(?qua, "") AS ?confq)
-    }}
 
     OPTIONAL {{   
 

@@ -1,0 +1,70 @@
+SELECT DISTINCT
+?sourceCodeRepository ?userManualURL ?reference
+(GROUP_CONCAT(DISTINCT CONCAT(?pl, " | ", ?pll, " | ", ?pld); separator=" / ") AS ?programmedIn)
+(GROUP_CONCAT(DISTINCT CONCAT(?dp, " | ", ?dpl, " | ", ?dpd); separator=" / ") AS ?dependsOnSoftware)
+                                       
+WHERE {{
+
+    VALUES ?software {{ wd:{0} }}
+           
+    OPTIONAL {{
+        ?software wdt:P277 ?plraw.
+        BIND(replace( xsd:string(?plraw),'http://www.wikidata.org/entity/','wikidata:') as ?pl) 
+        
+        SERVICE wikibase:label {{
+              bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+              ?plraw rdfs:label ?pllraw .
+              ?plraw schema:description ?pldraw .
+        }}
+            
+            BIND(COALESCE(?pllraw, "No Label Provided!") AS ?pll)
+            BIND(COALESCE(?pldraw, "No Description Provided!") AS ?pld)
+    }}  
+                                             
+    OPTIONAL {{
+        ?software wdt:P1547 ?dpraw.
+        BIND(replace( xsd:string(?dpraw),'http://www.wikidata.org/entity/','wikidata:') as ?dp) 
+        
+        SERVICE wikibase:label {{
+              bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+              ?dpraw rdfs:label ?dplraw .
+              ?dpraw schema:description ?dpdraw .
+        }}
+            
+        BIND(COALESCE(?dplraw, "No Label Provided!") AS ?dpl)
+        BIND(COALESCE(?dpdraw, "No Description Provided!") AS ?dpd)
+    }}
+           
+    OPTIONAL {{
+        ?software wdt:P1324 ?published.
+    }}
+           
+    OPTIONAL {{
+        ?software wdt:P2078 ?documented.
+    }}
+    
+    OPTIONAL {{
+        ?software wdt:P356 ?doi.
+    }}
+                                             
+    OPTIONAL {{
+        ?software wdt:P6830 ?swmath.
+    }}
+
+    OPTIONAL {{
+        ?software wdt:P2699 ?url.
+    }}
+
+    BIND(
+     CONCAT(
+         IF(BOUND(?doi), CONCAT("doi:", STR(?doi), " | "), ""),
+         IF(BOUND(?swmath), CONCAT("swmath:", STR(?swmath), " | "), ""),
+         IF(BOUND(?url), STR(?url), "")
+     ) AS ?referenceraw
+    )
+                                          
+    BIND(IF(STRENDS(?referenceraw, " | "), STRBEFORE(?referenceraw, " | "), ?referenceraw) AS ?reference)
+           
+}}
+                                           
+GROUP BY ?sourceCodeRepository ?userManualURL ?reference

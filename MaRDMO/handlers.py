@@ -22,6 +22,8 @@ class Information:
         # Get appropriate config map
         if str(instance.project.catalog).endswith("mardmo-model-catalog"):
             config_map = get_uri_prefix_map_model()
+        elif str(instance.project.catalog).endswith("mardmo-model-basics-catalog"):
+            config_map = get_uri_prefix_map_model()
         elif str(instance.project.catalog).endswith("mardmo-interdisciplinary-workflow-catalog"):
             config_map = get_uri_prefix_map_workflow()
         elif str(instance.project.catalog).endswith("mardmo-algorithm-catalog"):

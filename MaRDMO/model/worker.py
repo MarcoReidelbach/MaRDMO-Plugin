@@ -9,7 +9,7 @@ from .constants import (
     preview_map_general,
     preview_map_quantity,
     get_relations,
-    get_data_properties
+    get_data_properties,
 )
 
 from ..getters import get_items, get_mathmoddb, get_properties, get_url
@@ -78,11 +78,15 @@ class PrepareModel:
         items, dependency = unique_items(data)
 
         payload = GeneratePayload(
+            dependency = dependency,
+            user_items = items,
             url = url,
-            items = items,
-            relations = get_relations(),
-            data_properties = get_data_properties,
-            dependency = dependency
+            wikibase = {
+                'data_properties': get_data_properties,
+                'items': get_items(),
+                'properties': get_properties(),
+                'relations': get_relations()
+            }
         )
 
         # Add / Retrieve Components of Model Item
@@ -92,11 +96,9 @@ class PrepareModel:
         self._export_fields(
             payload = payload,
             fields = data.get("field", {}),
-            problems = data.get("problem", {})
         )
         self._export_problems(
             payload = payload,
-            models = data.get("model", {}),
             problems = data.get("problem", {})
         )
         self._export_models(
@@ -137,6 +139,7 @@ class PrepareModel:
             for key in payload.get_dictionary()
         ):
             query = payload.build_relation_check_query()
+
             check = None
             for attempt in range(2):  # try twice
                 try:
@@ -186,7 +189,7 @@ class PrepareModel:
     # ---------------------------
     # Entity export helpers
     # ---------------------------
-    def _export_fields(self, payload, fields: dict, problems: dict):
+    def _export_fields(self, payload, fields: dict):
         for entry in fields.values():
             if not entry.get("ID"):
                 continue
@@ -201,18 +204,18 @@ class PrepareModel:
                 profile_type = "MaRDI research field profile",
             )
 
-            payload.add_backward_relation(
-                data = problems.values(),
-                relation = self.properties["contains"],
-                relatants = "RFRelatant",
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
             )
 
-            payload.add_intra_class_relation(
-                relation = "IntraClassRelation",
-                relatant = "IntraClassElement",
+            payload.add_multiple_relation(
+                statement = {
+                    'relation': "IntraClassRelation",
+                    'relatant': "IntraClassElement"
+                }
             )
 
-    def _export_problems(self, payload, models: dict, problems: dict):
+    def _export_problems(self, payload, problems: dict):
         for entry in problems.values():
             if not entry.get("ID"):
                 continue
@@ -227,15 +230,23 @@ class PrepareModel:
                 profile_type = "MaRDI research problem profile",
             )
 
-            payload.add_backward_relation(
-                data = models.values(),
-                relation = self.properties["modelled by"],
-                relatants = "RPRelatant",
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
             )
 
-            payload.add_intra_class_relation(
-                relation = "IntraClassRelation",
-                relatant = "IntraClassElement",
+            payload.add_single_relation(
+                statement = {
+                    'relation': self.properties["contains"],
+                    'relatant': "RFRelatant"
+                },
+                reverse = True
+            )
+
+            payload.add_multiple_relation(
+                statement = {
+                    'relation': "IntraClassRelation",
+                    'relatant': "IntraClassElement"
+                }
             )
 
     def _export_models(self, payload, models: dict):
@@ -253,23 +264,43 @@ class PrepareModel:
                 profile_type = "MaRDI model profile",
             )
 
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
+            )
+
             payload.add_data_properties(
                 item_class = "model"
             )
 
-            payload.add_forward_relation_multiple(
-                relation = "MM2MF",
-                relatant = "MFRelatant",
+            payload.add_multiple_relation(
+                statement = {
+                    'relation': "MM2MF",
+                    'relatant': "MFRelatant"
+                },
+                optional_qualifier = ['series ordinal']
             )
 
-            payload.add_forward_relation_single(
-                relation = self.properties["used by"],
-                relatant = "TRelatant",
+            payload.add_single_relation(
+                statement = {
+                    'relation': self.properties["modelled by"],
+                    'relatant': "RPRelatant"
+                },
+                reverse = True
             )
 
-            payload.add_intra_class_relation(
-                relation = "IntraClassRelation",
-                relatant = "IntraClassElement",
+            payload.add_single_relation(
+                statement = {
+                    'relation': self.properties["used by"],
+                    'relatant': "TRelatant"
+                }
+            )
+
+            payload.add_multiple_relation(
+                statement = {
+                    'relation': "IntraClassRelation",
+                    'relatant': "IntraClassElement"
+                },
+                optional_qualifier = ['assumes']
             )
 
     def _export_tasks(self, payload, tasks: dict):
@@ -287,23 +318,34 @@ class PrepareModel:
                 profile_type = "MaRDI task profile",
             )
 
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
+            )
+
             payload.add_data_properties(
                 item_class = "task"
             )
 
-            payload.add_forward_relation_multiple(
-                relation = "T2MF",
-                relatant = "MFRelatant",
+            payload.add_multiple_relation(
+                statement = {
+                    'relation': "T2MF",
+                    'relatant': "MFRelatant"
+                }
             )
 
-            payload.add_forward_relation_multiple(
-                relation = "T2Q",
-                relatant = "QRelatant",
+            payload.add_multiple_relation(
+                statement = {
+                    'relation': "T2Q",
+                    'relatant': "QRelatant"
+                }
             )
 
-            payload.add_intra_class_relation(
-                relation = "IntraClassRelation",
-                relatant = "IntraClassElement",
+            payload.add_multiple_relation(
+                statement = {
+                    'relation': "IntraClassRelation",
+                    'relatant': "IntraClassElement"
+                },
+                optional_qualifier = ['assumes', 'series ordinal']
             )
 
     def _export_formulations(self, payload, formulations: dict):
@@ -321,9 +363,19 @@ class PrepareModel:
                 profile_type = "MaRDI formula profile",
             )
 
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
+            )
+
             payload.add_data_properties(
                 item_class = "equation"
             )
+
+            if entry.get('reference'):
+                payload.add_answer(
+                    verb = self.properties["comment"],
+                    object_and_type = [entry.get('reference'), "string"],
+                )
 
             payload.add_answers(
                 mardmo_property = "Formula",
@@ -333,14 +385,19 @@ class PrepareModel:
 
             payload.add_in_defining_formula()
 
-            payload.add_forward_relation_multiple(
-                relation = "MF2MF",
-                relatant = "MFRelatant",
+            payload.add_multiple_relation(
+                statement = {
+                    'relation': "MF2MF",
+                    'relatant': "MFRelatant"
+                }
             )
 
-            payload.add_intra_class_relation(
-                relation = "IntraClassRelation",
-                relatant = "IntraClassElement",
+            payload.add_multiple_relation(
+                statement = {
+                    'relation': "IntraClassRelation",
+                    'relatant': "IntraClassElement"
+                },
+                optional_qualifier = ['assumes']
             )
 
     def _export_quantities(self, payload, quantities: dict):
@@ -371,6 +428,10 @@ class PrepareModel:
             else:
                 continue
 
+            payload.add_aliases(
+                aliases_dict = entry.get('Alias')
+            )
+
             payload.add_data_properties(
                 item_class = qtype
             )
@@ -393,25 +454,33 @@ class PrepareModel:
             payload.add_in_defining_formula()
 
             if qtype == "quantity":
-                payload.add_intra_class_relation(
-                    relation = "Q2Q",
-                    relatant = "QRelatant",
+                payload.add_multiple_relation(
+                    statement = {
+                        'relation': "Q2Q",
+                        'relatant': "QRelatant"
+                    }
                 )
 
-                payload.add_intra_class_relation(
-                    relation = "Q2QK",
-                    relatant = "QKRelatant",
+                payload.add_multiple_relation(
+                    statement = {
+                        'relation': "Q2QK",
+                        'relatant': "QKRelatant"
+                    }
                 )
 
             else:
-                payload.add_intra_class_relation(
-                    relation = "QK2QK",
-                    relatant = "QKRelatant",
+                payload.add_multiple_relation(
+                    statement = {
+                        'relation': "QK2QK",
+                        'relatant': "QKRelatant"
+                    }
                 )
 
-                payload.add_intra_class_relation(
-                    relation = "QK2Q",
-                    relatant = "QRelatant",
+                payload.add_multiple_relation(
+                    statement = {
+                        'relation': "QK2Q",
+                        'relatant': "QRelatant"
+                    }
                 )
 
     def _export_journals(self, payload, publications: dict):
@@ -419,7 +488,7 @@ class PrepareModel:
             for entry in publication.get('journal', {}).values():
                 if not entry.get("ID") or entry.get("ID") == 'no journal found':
                     continue
-                
+
                 payload.get_item_key(
                 value = entry
                 )
@@ -440,7 +509,7 @@ class PrepareModel:
             for entry in publication.get('author', {}).values():
                 if not entry.get("ID") or entry.get("ID") == 'no author found':
                     continue
-                
+
                 payload.get_item_key(
                 value = entry
                 )
@@ -561,28 +630,36 @@ class PrepareModel:
                     )
 
                 # Add Language
-                payload.add_forward_relation_single(
-                    relation = self.properties["language of work or name"],
-                    relatant = "language",
+                payload.add_single_relation(
+                    statement = {
+                        'relation': self.properties["language of work or name"],
+                        'relatant': "language"
+                    }
                 )
                 # Add Journal
-                payload.add_forward_relation_single(
-                    relation = self.properties["published in"],
-                    relatant = "journal",
+                payload.add_single_relation(
+                    statement = {
+                        'relation': self.properties["published in"],
+                        'relatant': "journal"
+                    }
                 )
                 # Add Authors
-                payload.add_forward_relation_single(
-                    relation = self.properties["author"],
-                    relatant = "author",
-                    alternative = {
+                payload.add_single_relation(
+                    statement = {
+                        'relation': self.properties["author"],
+                        'relatant': "author"
+                    },
+                    alt_statement = {
                         "relation": self.properties["author name string"],
                         "relatant": "Name",
                     },
                 )
 
             # Add relations to Entities of Mathematical Model
-            payload.add_forward_relation_multiple(
-                relation = "P2E",
-                relatant = "EntityRelatant",
+            payload.add_multiple_relation(
+                statement = {
+                    'relation': "P2E",
+                    'relatant': "EntityRelatant"
+                },
                 reverse = True,
             )

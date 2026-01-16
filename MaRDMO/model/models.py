@@ -37,6 +37,7 @@ class RelatantWithQualifier:
 @dataclass
 class ResearchField:
     '''Data Class For Research Field Item'''
+    aliases: list[str] = field(default_factory=list)
     description_long: list[str] = field(default_factory=list)
     specialized_by: list[Relatant] = field(default_factory=list)
     specializes: list[Relatant] = field(default_factory=list)
@@ -50,6 +51,11 @@ class ResearchField:
         data = raw_data[0]
 
         research_field = {
+            # Get Aliases
+            'aliases': split_value(
+                data = data,
+                key = 'aliases'
+            ),
             # Get Long Description(s)
             'description_long': split_value(
                 data = data,
@@ -88,6 +94,7 @@ class ResearchField:
 @dataclass
 class ResearchProblem:
     '''Data Class For Research Problem Item'''
+    aliases: list[str] = field(default_factory=list)
     description_long: list[str] = field(default_factory=list)
     contained_in_field: list[Relatant] = field(default_factory=list)
     specialized_by: list[Relatant] = field(default_factory=list)
@@ -102,6 +109,11 @@ class ResearchProblem:
         data = raw_data[0]
 
         research_problem = {
+            # Get Aliases
+            'aliases': split_value(
+                data = data,
+                key = 'aliases'
+            ),
             # Get Long Description(s)
             'description_long': split_value(
                 data = data,
@@ -146,6 +158,7 @@ class ResearchProblem:
 @dataclass
 class MathematicalModel:
     '''Data Class For Mathematical Model Item'''
+    aliases: list[str] = field(default_factory=list)
     description_long: list[str] = field(default_factory=list)
     properties: dict[int, str] = field(default_factory=dict)
     models: list[Relatant] = field(default_factory=list)
@@ -180,6 +193,11 @@ class MathematicalModel:
         data = raw_data[0]
 
         mathematical_model = {
+            # Get Aliases
+            'aliases': split_value(
+                data = data,
+                key = 'aliases'
+            ),
             # Get Long Description(s)
             'description_long': split_value(
                 data = data,
@@ -332,6 +350,7 @@ class MathematicalModel:
 @dataclass
 class QuantityOrQuantityKind:
     '''Data Class For Quantity [Kind] Item'''
+    aliases: list[str] = field(default_factory=list)
     description_long: list[str] = field(default_factory=list)
     reference: dict[int, list[str]] = field(default_factory=dict)
     qclass: Optional[str] = None
@@ -362,6 +381,11 @@ class QuantityOrQuantityKind:
         data = raw_data[0]
 
         quantity = {
+            # Get Aliases
+            'aliases': split_value(
+                data = data,
+                key = 'aliases'
+            ),
             # Get Long Description(s)
             'description_long': split_value(
                 data = data,
@@ -479,6 +503,8 @@ class QuantityOrQuantityKind:
 @dataclass
 class MathematicalFormulation:
     '''Data Class For Formulation Item'''
+    reference: Optional[str] = None
+    aliases: list[str] = field(default_factory=list)
     description_long: list[str] = field(default_factory=list)
     properties: dict[int, str] = field(default_factory=dict)
     formulas: list[str] = field(default_factory=list)
@@ -516,6 +542,11 @@ class MathematicalFormulation:
         data = raw_data[0]
 
         mathematical_formulation = {
+            # Get Aliases
+            'aliases': split_value(
+                data = data,
+                key = 'aliases'
+            ),
             # Get Long Description(s)
             'description_long': split_value(
                 data = data,
@@ -527,6 +558,8 @@ class MathematicalFormulation:
                 for idx, prop in enumerate(data_properties_per_class['formulation'])
                 if data.get(prop, {}).get('value') == 'True'
             },
+            # Get Reference
+            'reference': data.get('reference', {}).get('value'),
             # Get Formulas
             'formulas': split_value(
                 data = data,
@@ -673,6 +706,7 @@ class MathematicalFormulation:
 @dataclass
 class Task:
     '''Data Class For Task Item'''
+    aliases: list[str] = field(default_factory=list)
     description_long: list[str] = field(default_factory=list)
     properties: dict[int, str] = field(default_factory=dict)
     assumes: list[Relatant] = field(default_factory=list)
@@ -710,6 +744,11 @@ class Task:
         data = raw_data[0]
 
         task = {
+            # Get Aliases
+            'aliases': split_value(
+                data = data,
+                key = 'aliases'
+            ),
             # Get Long Description(s)
             'description_long': split_value(
                 data = data,
