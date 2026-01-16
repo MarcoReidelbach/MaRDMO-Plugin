@@ -353,4 +353,4 @@ WHERE {{
 }}
 
 GROUP BY ?descriptionLong ?is_linear ?is_not_linear ?is_dynamic ?is_static ?is_deterministic ?is_stochastic ?is_dimensionless 
-         ?is_dimensional ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete
+         ?is_dimensional ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete ?reference
