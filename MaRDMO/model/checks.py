@@ -429,14 +429,15 @@ class Checks:
             # Complete Documentation Only Checks
             if 'basics' in catalog:
                 # Check Reference
-                if not ivalue.get('reference'):
-                    self.err.append(
-                        self.error_message(
-                            'Mathematical Expression',
-                            page_name,
-                            'Missing Reference'
+                if ivalue.get('ID') == 'not found':
+                    if not ivalue.get('reference'):
+                        self.err.append(
+                            self.error_message(
+                                'Mathematical Expression',
+                                page_name,
+                                'Missing Reference'
+                            )
                         )
-                    )
 
             # Complete Documentation Only Checks
             if 'basics' not in catalog:
