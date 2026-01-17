@@ -264,7 +264,7 @@ def query_sources_with_user_additions(search, project, setup):
                     _, item['id'] = value1.external_id.split(':')
             if item['source'] not in setup['sources']:
                 if item['source'] == 'user':
-                    dic[f"{item['label']} ({item['description']}) [{item['source']}]"] = {
+                    dic[f"{item['label']} ({item['description']})"] = {
                         'id': "not found"
                     }
                 else:
@@ -285,7 +285,9 @@ def query_sources_with_user_additions(search, project, setup):
     options = options_user + options
 
     if setup['creation']:
-        # Add creation Option if desired
-        options = [{'id': 'not found', 'text': f"{search}"}] + options
+        # Check if User Input already in Options
+        if {'id': 'not found', 'text': f"{search}"} not in options:
+            # Add creation Option if desired
+            options = [{'id': 'not found', 'text': f"{search}"}] + options
 
     return options

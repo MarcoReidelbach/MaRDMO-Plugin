@@ -153,7 +153,11 @@ def extract_parts(string):
     if len(parts) == 2:
         main_part, c = parts[0].strip(), parts[1].rstrip(']')
     else:
-        main_part, c = parts[0].strip(), ""
+        main_part = parts[0].strip()
+        if main_part.endswith(')'):
+            main_part, c = main_part.rstrip(')'), "user"
+        else:
+            c = ""
     # Step 2: Find the last whitespace outside brackets to split
     depth = 0
     split_index = -1
