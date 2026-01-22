@@ -586,7 +586,7 @@ def get_uri_prefix_map():
         f'{BASE_URI}{questions["Mathematical Model"]["TRelatant"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Task"]["uri"]}',
             "question_id": f'{BASE_URI}{questions["Task"]["ID"]["uri"]}',
-            "prefix": "T"
+            "prefix": "CT"
         }
     }
     return uri_prefix_map
