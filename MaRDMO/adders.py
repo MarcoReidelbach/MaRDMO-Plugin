@@ -93,7 +93,7 @@ def add_entities(project, question_set, datas, source, prefix):
                 project = project,
                 uri = question_set,
                 info = {
-                    'text': f"{prefix}{idx}",
+                    'text': f"{prefix}{int(idx)+1}",
                     'set_index': idx
                 }
             )
@@ -147,7 +147,7 @@ def add_new_entities(project, question_set, datas, prefix):
                 project = project,
                 uri = question_set,
                 info = {
-                    'text': f"{prefix}{idx}",
+                    'text': f"{prefix}{int(idx)+1}",
                     'set_index': idx
                 }
             )
