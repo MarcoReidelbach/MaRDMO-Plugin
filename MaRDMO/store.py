@@ -12,7 +12,7 @@ SESSION_JOBS_KEY = "mardmo_jobs"
 
 def _progress_cache_key(job_id):
     '''Progress Cache Key'''
-    return "%s%s" % (PROGRESS_CACHE_PREFIX, job_id)
+    return f"{PROGRESS_CACHE_PREFIX}{job_id}"
 
 
 def get_progress_data(job_id, default=None):
@@ -47,6 +47,7 @@ class ProgressStore:
         set_progress_data(job_id, value)
 
     def get(self, job_id, default=None):
+        '''Get Progress Data'''
         return get_progress_data(job_id, default)
 
 

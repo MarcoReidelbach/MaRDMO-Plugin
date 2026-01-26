@@ -2,7 +2,7 @@
 
 from rdmo.options.providers import Provider
 
-from .. helpers import define_setup
+from ..helpers import define_setup
 from ..queries import query_sources, query_sources_with_user_additions
 
 class Formula(Provider):
