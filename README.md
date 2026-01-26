@@ -51,7 +51,7 @@ from django.utils.translation import gettext_lazy as _
 INSTALLED_APPS = ['MaRDMO'] + INSTALLED_APPS
 
 PROJECT_EXPORTS += [
-        ('wikibase', _('MaRDMO Button'), 'MaRDMO.main.MaRDMOExportProvider'),
+        ('wikibase', _('Export to MaRDI Portal'), 'MaRDMO.main.MaRDMOExportProvider'),
         ]
 
 OPTIONSET_PROVIDERS = [
