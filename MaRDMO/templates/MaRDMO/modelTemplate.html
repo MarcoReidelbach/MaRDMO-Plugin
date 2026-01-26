@@ -1203,8 +1203,26 @@
         
         {% if values.reference %}
             {% for reference in values.reference.values %}
-                {% if reference.0 == option.QUDT %}
-                    <b>QUDT ID</b>: {{ reference.1 }} <br>
+                {% if reference.0 == option.qudt_quantitykind_id %}
+                    {% if values.QorQK == option.QuantityKind %}
+                        {% if reference.1 %}
+                            <b>QUDT Quantity Kind ID</b>: {{ reference.1 }} <br>
+                        {% else %}
+                            <b>QUDT Quantity Kind ID</b>: <strong style="color:red;">Missing QUDT Quantity Kind ID</strong> <br>
+                        {% endif %}
+                    {% else %}
+                        <b>QUDT Quantity Kind ID</b>: <strong style="color:red;">{{ reference.1 }} Limited to Quantity Kinds</strong> <br>
+                    {% endif %}
+                {% elif reference.0 == option.qudt_constant_id %}
+                    {% if values.QorQK == option.Quantity %}
+                        {% if reference.1 %}
+                            <b>QUDT Constant ID</b>: {{ reference.1 }} <br>
+                        {% else %}
+                            <b>QUDT Constant ID</b>: <strong style="color:red;">Missing QUDT Constant ID</strong> <br>
+                        {% endif %}
+                    {% else %}
+                        <b>QUDT Constant ID</b>: <strong style="color:red;">{{ reference.1 }} Limited to Quantities</strong> <br>
+                    {% endif %}
                 {% endif %} 
             {% endfor %}
         {% endif %}
@@ -1406,6 +1424,18 @@
                     approximates: <strong style="color:red;">{{values.1 }}</strong> <br>
                 {% else %}
                     approximates: {{values.1 }} <br>
+                {% endif %}
+            {% elif values.0 == option.discretized_by %} 
+                {% if values.1 == 'MISSING OBJECT ITEM' %}
+                    discretized by: <strong style="color:red;">{{values.1 }}</strong> <br>
+                {% else %}
+                    discretized by: {{values.1 }} <br>
+                {% endif %}
+            {% elif values.0 == option.discretizes %} 
+                {% if values.1 == 'MISSING OBJECT ITEM' %}
+                    discretizes: <strong style="color:red;">{{values.1 }}</strong> <br>
+                {% else %}
+                    discretizes: {{values.1 }} <br>
                 {% endif %}
             {% elif values.0 == option.linearized_by %} 
                 {% if values.1 == 'MISSING OBJECT ITEM' %}

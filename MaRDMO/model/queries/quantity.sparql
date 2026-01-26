@@ -5,7 +5,7 @@ SELECT DISTINCT
 ?is_space_continuous ?is_space_discrete
 ?is_time_continuous ?is_time_discrete
 ?is_chemical_constant ?is_mathematical_constant ?is_physical_constant
-?class ?reference
+?class ?qudt_quantitykind_id ?qudt_constant_id
 (GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" <|> ") AS ?aliases)
 (GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" <|> ") AS ?description_long)
 (GROUP_CONCAT(DISTINCT(?formula); SEPARATOR=" <|> ") AS ?formulas)
@@ -101,7 +101,11 @@ WHERE {{
     }}
     
     OPTIONAL {{
-        ?id wdt:{QUDT quantity kind ID} ?reference
+        ?id wdt:{QUDT quantity kind ID} ?qudt_quantitykind_id
+    }}
+
+    OPTIONAL {{
+        ?id wdt:{QUDT constant ID} ?qudt_constant_id
     }}
 
     OPTIONAL {{
@@ -451,4 +455,5 @@ WHERE {{
 
 GROUP BY ?is_dynamic ?is_static ?is_deterministic ?is_stochastic ?is_dimensionless 
          ?is_dimensional ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete
-         ?is_chemical_constant ?is_mathematical_constant ?is_physical_constant ?class ?reference
+         ?is_chemical_constant ?is_mathematical_constant ?is_physical_constant ?class 
+         ?qudt_quantitykind_id ?qudt_constant_id

@@ -414,7 +414,7 @@
         },
         "QQRelatant": {
             "key1": "quantity",
-            "key2": "QRelatant",
+            "key2": "QRelatant-Q",
             "uri": "domain/quantity/quantity-to-quantity/relatant",
             "set_prefix": true,
             "set_index": true,
@@ -429,7 +429,7 @@
         },
         "QKQKRelatant": {
             "key1": "quantity",
-            "key2": "QKRelatant",
+            "key2": "QKRelatant-QK",
             "uri": "domain/quantity/quantity-kind-to-quantity-kind/relatant",
             "set_prefix": true,
             "set_index": true,
@@ -444,7 +444,7 @@
         },
         "QQKRelatant": {
             "key1": "quantity",
-            "key2": "QKRelatant",
+            "key2": "QKRelatant-Q",
             "uri": "domain/quantity/quantity-to-quantity-kind/relatant",
             "set_prefix": true,
             "set_index": true,
@@ -459,7 +459,7 @@
         },
         "QKQRelatant": {
             "key1": "quantity",
-            "key2": "QRelatant",
+            "key2": "QRelatant-QK",
             "uri": "domain/quantity/quantity-kind-to-quantity/relatant",
             "set_prefix": true,
             "set_index": true,

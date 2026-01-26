@@ -38,6 +38,12 @@ data_properties_per_class = {
     ]
 }
 
+# QUDT Reference IDs
+qudt_reference_ids = [
+    'qudt_quantitykind_id',
+    'qudt_constant_id'
+]
+
 # Dictionary for internal / external section names
 section_map = {
     'model': 'Mathematical Model',
@@ -429,7 +435,7 @@ preview_relations = [
         "from_idx": "quantity",
         "to_idx": "quantity",
         "relation": "Q2Q",
-        "old_name": "QRelatant",
+        "old_name": "QRelatant-Q",
         "new_name": "RelationQQ",
         "encryption": "QQK",
         "formulation": False,
@@ -439,7 +445,7 @@ preview_relations = [
         "from_idx": "quantity",
         "to_idx": "quantity",
         "relation": "QK2QK",
-        "old_name": "QKRelatant",
+        "old_name": "QKRelatant-QK",
         "new_name": "RelationQKQK",
         "encryption": "QQK",
         "formulation": False,
@@ -449,7 +455,7 @@ preview_relations = [
         "from_idx": "quantity",
         "to_idx": "quantity",
         "relation": "Q2QK",
-        "old_name": "QKRelatant",
+        "old_name": "QKRelatant-Q",
         "new_name": "RelationQQK",
         "encryption": "QQK",
         "formulation": False,
@@ -459,7 +465,7 @@ preview_relations = [
         "from_idx": "quantity",
         "to_idx": "quantity",
         "relation": "QK2Q",
-        "old_name": "QRelatant",
+        "old_name": "QRelatant-QK",
         "new_name": "RelationQKQ",
         "encryption": "QQK",
         "formulation": False,

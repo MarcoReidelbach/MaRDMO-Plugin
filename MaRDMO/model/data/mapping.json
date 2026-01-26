@@ -51,5 +51,7 @@
     "is_chemical_constant": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-chemical-constant",
     "is_mathematical_constant": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-mathematical-constant",
     "is_physical_constant": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-physical-constant",
+    "qudt_quantitykind_id": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/qudt-quantitykind-id",
+    "qudt_constant_id": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/qudt-constant-id",
     "Quantity": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/quantity",
     "QuantityKind": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/quantity-kind"}

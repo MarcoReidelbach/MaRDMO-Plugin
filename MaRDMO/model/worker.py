@@ -445,6 +445,15 @@ class PrepareModel:
                     object_and_type = [entry["reference"][0][1], "external-id"],
                 )
 
+            if (
+                entry.get("reference")
+                and qtype == "quantity"
+            ):
+                payload.add_answer(
+                    verb = self.properties["QUDT constant ID"],
+                    object_and_type = [entry["reference"][1][1], "external-id"],
+                )
+
             payload.add_answers(
                 mardmo_property = "Formula",
                 wikibase_property = "defining formula",
@@ -457,14 +466,14 @@ class PrepareModel:
                 payload.add_multiple_relation(
                     statement = {
                         'relation': "Q2Q",
-                        'relatant': "QRelatant"
+                        'relatant': "QRelatant-Q"
                     }
                 )
 
                 payload.add_multiple_relation(
                     statement = {
                         'relation': "Q2QK",
-                        'relatant': "QKRelatant"
+                        'relatant': "QKRelatant-Q"
                     }
                 )
 
@@ -472,14 +481,14 @@ class PrepareModel:
                 payload.add_multiple_relation(
                     statement = {
                         'relation': "QK2QK",
-                        'relatant': "QKRelatant"
+                        'relatant': "QKRelatant-QK"
                     }
                 )
 
                 payload.add_multiple_relation(
                     statement = {
                         'relation': "QK2Q",
-                        'relatant': "QRelatant"
+                        'relatant': "QRelatant-QK"
                     }
                 )
 

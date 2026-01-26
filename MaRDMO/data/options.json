@@ -34,7 +34,6 @@
   "MathAlgoDBID": "https://rdmo.mardi4nfdi.de/terms/options/publication-reference/mathalgodb-id",
   "DOI": "https://rdmo.mardi4nfdi.de/terms/options/doi",
   "URL": "https://rdmo.mardi4nfdi.de/terms/options/url",
-  "QUDT": "https://rdmo.mardi4nfdi.de/terms/options/qudt",
   "SWMATH": "https://rdmo.mardi4nfdi.de/terms/options/swmath",
   "MORWIKI": "https://rdmo.mardi4nfdi.de/terms/options/morwiki" 
 }

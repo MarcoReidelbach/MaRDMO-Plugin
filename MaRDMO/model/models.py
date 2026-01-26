@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-from .constants import data_properties_per_class
+from .constants import data_properties_per_class, qudt_reference_ids
 
 from ..getters import get_items, get_mathmoddb, get_options
 from ..helpers import split_value
@@ -393,8 +393,8 @@ class QuantityOrQuantityKind:
             ),
             # Get Reference
             'reference': {
-                idx: [options['QUDT'], data[prop]['value'].removeprefix('https://qudt.org/vocab/')]
-                for idx, prop in enumerate(['reference'])
+                idx: [mathmoddb[prop], data[prop]['value']]
+                for idx, prop in enumerate(qudt_reference_ids)
                 if data.get(prop, {}).get('value')
             },
             # Get Quantity or Quantity Kind Class

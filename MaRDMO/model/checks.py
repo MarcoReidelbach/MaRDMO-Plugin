@@ -536,6 +536,45 @@ class Checks:
                         'Missing [Kind] Class'
                     )
                 )
+            # QUDT Reference IDs
+            if ivalue.get('reference'):
+                # Check if ID for selected Option is provided
+                if ivalue['reference'].get(0) and not ivalue['reference'][0][1]:
+                    self.err.append(
+                        self.error_message(
+                            'Quantity [Kind]',
+                            page_name,
+                            'QUDT Quantity Kind ID selected, but no ID provided!'
+                        )
+                    )
+                elif ivalue['reference'].get(1) and not ivalue['reference'][1][1]:
+                    self.err.append(
+                        self.error_message(
+                            'Quantity [Kind]',
+                            page_name,
+                            'QUDT Constant ID selected, but no ID provided!'
+                        )
+                    )
+                # Check if Quantity Kind ID is selected for Quantity Kinds
+                if ivalue.get('QorQK') == self.mathmoddb['Quantity']:
+                    if ivalue['reference'].get(0):
+                        self.err.append(
+                            self.error_message(
+                                'Quantity [Kind]',
+                                page_name,
+                                'QUDT Quantity Kind ID limited to Quantity Kinds!'
+                            )
+                        )
+                # Check if Constant ID is selected for Quantities
+                if ivalue.get('QorQK') == self.mathmoddb['QuantityKind']:
+                    if ivalue['reference'].get(1):
+                        self.err.append(
+                            self.error_message(
+                                'Quantity [Kind]',
+                                page_name,
+                                'QUDT Constant ID limited to Quantities!'
+                            )
+                        )
             # Check Formula
             if ivalue.get('Formula'):
                 # Check \equiv sign
