@@ -1,6 +1,7 @@
 '''Function that query Data'''
 import logging
 from multiprocessing.pool import ThreadPool
+from django.core.cache import cache
 
 import requests
 
@@ -169,7 +170,7 @@ def query_sources(search, query_id = '', sources = None, not_found = True):
 
 def query_provider(search, query, source):
     """
-    Dynamic query of MathModDB and MathAlgoDB, results as options for Provider.
+    Dynamic query of MathAlgoDB, results as options for Provider.
     """
     if not search:
         return []
@@ -213,11 +214,10 @@ def query_provider(search, query, source):
 
 def query_sources_with_user_additions(search, project, setup):
     '''Fetch options from KG, user-defined fields, and other sources.'''
-
     if setup['sources'] is None:
         setup['sources'] = ['mardi', 'wikidata']
 
-    # Query sources and get the results directly in options
+    # Query external sources
     try:
         options = query_sources(
             search = search,
@@ -229,17 +229,24 @@ def query_sources_with_user_additions(search, project, setup):
         logger.error("Query sources failed: %s", e)
         options = []
 
-    # Dictionaries for User Answers
-    values = {}
-    dic = {}
+    # Create cache key for user entries
+    cache_key = f"user_entries_{project.id}_{','.join(setup['query_attributes'])}"
+    dic = cache.get(cache_key)
 
-    for query_attribute in setup['query_attributes']:
-        # Get User Entries
-        values = get_user_entries(
-            project = project,
-            query_attribute = query_attribute,
-            values = values
-        )
+    if dic is None:
+        # Cache miss - query database for user-defined entries
+        logger.debug("Cache miss for %s, querying database", cache_key)
+
+        values = {}
+        dic = {}
+
+        for query_attribute in setup['query_attributes']:
+            # Get User Entries from database
+            values = get_user_entries(
+                project = project,
+                query_attribute = query_attribute,
+                values = values
+            )
 
         # Zip user-defined answers
         zipped = zip(
@@ -249,30 +256,42 @@ def query_sources_with_user_additions(search, project, setup):
         )
 
         # Process user-defined answers
-        for idx, (value1, value2, value3) in enumerate(zipped):
+        for value1, value2, value3 in zipped:
+            if not value1.text:
+                continue
+            # Create Item Template
             item = dict.fromkeys(["source", "label", "description", "id"], None)
-            if value1.text:
-                if value1.text == 'not found':
-                    # User-Defined Cases
-                    item['label'] = value2.text or "No Label Provided!"
-                    item['description'] = value3.text or "No Description Provided!"
-                    item['id'] = idx
-                    item['source'] = 'user'
-                else:
-                    # ID Cases
-                    item['label'], item['description'], item['source'] = extract_parts(value1.text)
-                    _, item['id'] = value1.external_id.split(':')
+            # Distinguish User and ID Items
+            if value1.text == 'not found':
+                # Handle User Defined Items
+                item['label'] = value2.text or "No Label Provided!"
+                item['description'] = value3.text or "No Description Provided!"
+                item['id'] = value1.text
+                item['source'] = 'user'
+            else:
+                # Handle ID Items
+                item['label'], item['description'], item['source'] = extract_parts(value1.text)
+                _, item['id'] = value1.external_id.split(':')
+            # Set Up intermediate Dictionary
             if item['source'] not in setup['sources']:
                 if item['source'] == 'user':
+                    # Handle User Defined Items
                     dic[f"{item['label']} ({item['description']})"] = {
-                        'id': "not found"
+                        'id': item['id']
                     }
                 else:
+                    # Handle ID Items
                     dic[f"{item['label']} ({item['description']}) [{item['source']}]"] = {
                         'id': f"{item['source']}:{item['id']}"
                     }
 
-    # Create filtered, user-defined Options
+        # Cache User Input for 3 minutes)
+        cache.set(cache_key, dic, timeout=180)
+        logger.debug("Cached user entries for %s", cache_key)
+    else:
+        logger.debug("Cache hit for %s", cache_key)
+
+    # Filter user-defined options based on search
     options_user = [
         {
             'id': f"{value['id']}",
