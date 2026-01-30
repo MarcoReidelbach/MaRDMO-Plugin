@@ -1,13 +1,16 @@
 {
 "algorithm":                                        "Q4629",
 "academic discipline":                              "Q3758",
+"analytical solution":                              "Q19826",
 "binary data":                                      "Q3742",
 "boundary condition":                               "Q4504",
 "chemical constant":                                "Q13298",
+"computational domain":                             "Q19825",
 "computational task":                               "Q3863",
 "compute node":                                     "Q13129",
 "computer hardware":                                "Q387",
 "constant":                                         "Q1310",
+"constitutive equation":                            "Q19824",
 "constraint":                                       "Q4507",
 "continuous-space equation":                        "Q13299",
 "continuous-space model":                           "Q13300",
@@ -92,6 +95,7 @@
 "parameter":                                        "Q1340",
 "Person":                                           "Q825",
 "physical constant":                                "Q1777",
+"physical law":                                     "Q19827",
 "probabilistic equation":                           "Q13341",
 "probabilistic model":                              "Q13342",
 "probabilistic quantity":                           "Q13343",
@@ -115,9 +119,11 @@
 "static model":                                     "Q13347",
 "static quantity":                                  "Q13348",
 "static quantity kind":                             "Q13349",
+"strong formulation":                               "Q19823",
 "study":                                            "Q13350",
 "terabyte":                                         "Q13148",
 "text data":                                        "Q13351",
 "transferable research workflow":                   "Q13166",
-"use":                                              "Q3792"
+"use":                                              "Q3792",
+"weak formulation":                                 "Q19822"
 }

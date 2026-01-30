@@ -46,6 +46,7 @@
 "published in":                     "P23",
 "quantity_property":                "P302",
 "QUDT quantity kind ID":            "P664",
+"QUDT constant ID":                 "P1226",
 "serial number":                    "P587",
 "series ordinal":                   "P600",
 "similar to":                       "P819",
