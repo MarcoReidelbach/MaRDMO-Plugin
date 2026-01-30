@@ -252,7 +252,7 @@ def resolve_target(name, id_, entity_enc, label_map):
     return id_
 
 
-def build_new_value(from_entry, entity, key, resolved, order):
+def build_new_value(from_entry, entity, key, resolved, order, assumption):
     """Build the new value depending on relation and order flags."""
     if not entity['relation']:
         return resolved
@@ -264,25 +264,36 @@ def build_new_value(from_entry, entity, key, resolved, order):
         key, "MISSING RELATION TYPE"
     )
 
+    new_value = {
+            'relation': relation_value,
+            'relatant': resolved
+        }
+
     if order['formulation']:
-        return [
-            relation_value,
-            resolved,
-            from_entry.get('formulation_number', {}).get(key),
-        ]
+        new_value.update(
+            {
+                'order': from_entry.get('formulation_number', {}).get(key)
+            }
+        )
+        
     if order['task']:
-        return [
-            relation_value,
-            resolved,
-            from_entry.get('task_number', {}).get(key),
-        ]
-    if not order['formulation'] and not order['task']:
-        return [relation_value, resolved]
+        new_value.update(
+            {
+                'order': from_entry.get('task_number', {}).get(key)
+            }
+        )
 
-    return resolved
+    if assumption:
+        new_value.update(
+            {
+                'assumption': from_entry.get('assumptionMapped', {}).get(key)
+            }
+        )
+
+    return new_value
 
 
-def entity_relations(data, idx, entity, order):
+def entity_relations(data, idx, entity, order, assumption):
     """Process Entity Relations."""
     idx['to'] = check_list(idx.get('to'))
     entity['encryption'] = check_list(entity['encryption'])
@@ -292,26 +303,50 @@ def entity_relations(data, idx, entity, order):
         # Get and combine Relation and Relatant Keys
         relation_keys = from_entry.get(entity['relation'], {}).keys()
         old_name_keys = from_entry.get(entity['old_name'], {}).keys()
+        # Got through Relation and Relatant Keys
         for key in relation_keys | old_name_keys:
-            value = from_entry.get(entity['old_name'], {}).get(key)
+            # Get Relatants with old Names
+            values = from_entry.get(entity['old_name'], {}).get(key,{})
+            # Set Up Dict for Processed Names
             entity_values = from_entry.setdefault(entity['new_name'], {})
-            # Resolve Relatant
-            resolved = None
-            if value:
+            # Check if Dict is flat
+            if not is_flat(values):
+                # Handle non-flat dicts
+                for key2 in from_entry[entity['old_name']][key]:
+                    value = from_entry[entity['old_name']][key][key2]
+                    # Resolve Relatant
+                    resolved = None
+                    if value:
+                        for enc_entry, label_map in zip(entity['encryption'], label_to_index_maps):
+                            resolved = resolve_target(
+                                name=value.get("Name"),
+                                id_=value.get("ID"),
+                                entity_enc=enc_entry,
+                                label_map=label_map,
+                            )
+                            if resolved != value.get("ID"):
+                                break
+                    # Build new Item Value
+                    new_value = build_new_value(from_entry, entity, key, resolved, order, assumption)
+                    # Add Process Item to Dict
+                    if new_value not in entity_values.values():
+                        entity_values[f"{key}|{key2}"] = new_value
+            else:
+                #Handle flat dicts
+                resolved = None
                 for enc_entry, label_map in zip(entity['encryption'], label_to_index_maps):
                     resolved = resolve_target(
-                        name=value.get("Name"),
-                        id_=value.get("ID"),
+                        name=values.get("Name"),
+                        id_=values.get("ID"),
                         entity_enc=enc_entry,
                         label_map=label_map,
                     )
-                    if resolved != value.get("ID"):
-                        break  # match found
-            # Build new Item Value
-            new_value = build_new_value(from_entry, entity, key, resolved, order)
-
-            if key not in entity_values.values() and entity_values.get(key) != new_value:
-                entity_values[key] = new_value
+                    if resolved != values.get("ID"):
+                        break
+                # Build new Item Value
+                new_value = build_new_value(from_entry, entity, key, resolved, order, assumption)
+                if new_value not in entity_values.values():
+                    entity_values[key] = new_value
 
 def initialize_counter(counter):
     '''Function which initializes counter.'''
@@ -550,3 +585,11 @@ def compare_items(old, new):
         if key.startswith('Item') and not value['id']:
             ids.update({new[key]['payload']['item']['labels']['en']: new[key]['id']})
     return ids
+
+def is_flat(d):
+    """Check if dict has str or dict values."""
+    if not isinstance(d, dict):
+        return False
+    if d == {}:
+        return True
+    return isinstance(next(iter(d.values())), str)
