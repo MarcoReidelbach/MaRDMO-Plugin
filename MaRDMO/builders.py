@@ -88,6 +88,12 @@ def build_handler_map():
                 general.relation,
             f'{base}{questions_model["Mathematical Model"]["MFRelatant"]["uri"]}':
                 general.relation,
+            f'{base}{questions_model["Mathematical Model"]["Assumption"]["uri"]}':
+                general.relation,
+            f'{base}{questions_model["Task"]["Assumption"]["uri"]}':
+                general.relation,
+            f'{base}{questions_model["Mathematical Formulation"]["Assumption"]["uri"]}':
+                general.relation,
             f"{base}{questions_publication['Publication']['ID']['uri']}":
                 publication.citation,
         }
