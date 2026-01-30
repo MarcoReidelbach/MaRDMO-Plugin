@@ -59,6 +59,12 @@ section_map = {
 props = {
     'T2MF': [
         'assumes',
+        'contains_analytical_solution',
+        'contains_physical_law',
+        'contains_computational_domain',
+        'contains_constitutive_equation',
+        'contains_weak_formulation',
+        'contains_strong_formulation',
         'contains_formulation',
         'contains_boundary_condition',
         'contains_constraint_condition',
@@ -84,6 +90,12 @@ props = {
     ],
     'MM2MF': [
         'assumes',
+        'contains_analytical_solution',
+        'contains_physical_law',
+        'contains_computational_domain',
+        'contains_constitutive_equation',
+        'contains_weak_formulation',
+        'contains_strong_formulation',
         'contains_formulation',
         'contains_boundary_condition',
         'contains_constraint_condition',
@@ -263,6 +275,30 @@ def get_relations():
             properties['contains'],
             items['parameter']
         ],
+        mathmoddb['contains_analytical_solution']: [
+            properties['contains'],
+            items['analytical solution']
+        ],
+        mathmoddb['contains_physical_law']: [
+            properties['contains'],
+            items['physical law']
+        ],
+        mathmoddb['contains_computational_domain']: [
+            properties['contains'],
+            items['computational domain']
+        ],
+        mathmoddb['contains_constitutive_equation']: [
+            properties['contains'],
+            items['constitutive equation']
+        ],
+        mathmoddb['contains_weak_formulation']: [
+            properties['contains'],
+            items['weak formulation']
+        ],
+        mathmoddb['contains_strong_formulation']: [
+            properties['contains'],
+            items['strong formulation']
+        ],
         mathmoddb['documents']: [
             properties['described by source'],
             items['documentation']
@@ -350,6 +386,7 @@ preview_relations = [
         "encryption": "RP",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "model",
@@ -360,6 +397,7 @@ preview_relations = [
         "encryption": "ME",
         "formulation": True,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "model",
@@ -370,6 +408,7 @@ preview_relations = [
         "encryption": "T",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "model",
@@ -380,6 +419,7 @@ preview_relations = [
         "encryption": "MM",
         "formulation": False,
         "task": False,
+        "assumption": True,
     },
     {
         "from_idx": "task",
@@ -390,6 +430,7 @@ preview_relations = [
         "encryption": "ME",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "task",
@@ -400,6 +441,7 @@ preview_relations = [
         "encryption": "QQK",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "task",
@@ -410,6 +452,7 @@ preview_relations = [
         "encryption": "T",
         "formulation": False,
         "task": True,
+        "assumption": True,
     },
     {
         "from_idx": "formulation",
@@ -420,6 +463,7 @@ preview_relations = [
         "encryption": "ME",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "formulation",
@@ -430,6 +474,7 @@ preview_relations = [
         "encryption": "ME",
         "formulation": False,
         "task": False,
+        "assumption": True,
     },
     {
         "from_idx": "quantity",
@@ -440,6 +485,7 @@ preview_relations = [
         "encryption": "QQK",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "quantity",
@@ -450,6 +496,7 @@ preview_relations = [
         "encryption": "QQK",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "quantity",
@@ -460,6 +507,7 @@ preview_relations = [
         "encryption": "QQK",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "quantity",
@@ -470,6 +518,7 @@ preview_relations = [
         "encryption": "QQK",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "field",
@@ -480,6 +529,7 @@ preview_relations = [
         "encryption": "AD",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "problem",
@@ -490,6 +540,7 @@ preview_relations = [
         "encryption": "AD",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "problem",
@@ -500,6 +551,7 @@ preview_relations = [
         "encryption": "RP",
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
     {
         "from_idx": "publication",
@@ -513,6 +565,7 @@ preview_relations = [
         "encryption": ["RF", "RP", "MM", "ME", "QQK", "T"],
         "formulation": False,
         "task": False,
+        "assumption": False,
     },
 ]
 
