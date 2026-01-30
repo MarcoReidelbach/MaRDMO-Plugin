@@ -22,7 +22,7 @@ class Checks:
             - ID, Name, Description present'''
 
         if 'basics' in catalog:
-            okeys = ('model', 'task', 'problem', 'publication')
+            okeys = ('model', 'task', 'problem', 'formulation', 'publication')
         else:
             okeys = ('model', 'formulation', 'quantity', 'task', 'problem', 'field', 'publication')
 
@@ -144,7 +144,7 @@ class Checks:
                 )
             # Check Missing Relation Type (MM)
             if any(
-                'MISSING RELATION TYPE' in val
+                val['relation'] == 'MISSING RELATION TYPE'
                 for val in ivalue.get('RelationMM', {}).values()
             ):
                 self.err.append(
@@ -157,7 +157,7 @@ class Checks:
 
             # Check Missing Object Item (MM)
             if any(
-                'MISSING OBJECT ITEM' in val
+                val['relatant'] == 'MISSING OBJECT ITEM'
                 for val in ivalue.get('RelationMM', {}).values()
             ):
                 self.err.append(
@@ -180,7 +180,7 @@ class Checks:
 
             # Relation Type Check
             if any(
-                'MISSING RELATION TYPE' in val
+                val['relation'] == 'MISSING RELATION TYPE'
                 for val in ivalue.get('RelationMF', {}).values()
             ):
                 self.err.append(
@@ -193,7 +193,7 @@ class Checks:
 
             # Object Item Check
             if any(
-                'MISSING OBJECT ITEM' in val
+                val['relatant'] == 'MISSING OBJECT ITEM'
                 for val in ivalue.get('RelationMF', {}).values()
             ):
                 self.err.append(
@@ -204,40 +204,51 @@ class Checks:
                     )
                 )
 
-            # Check Qualifier
-            for mkey, mval in ivalue.get('RelationMM', {}).items():
-                if mval[0] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by']):
-                    if not ivalue.get('assumption', {}).get(mkey):
-                        self.err.append(
-                            self.error_message(
-                                'Mathematical Model',
-                                page_name,
-                                'Missing Assumption '
-                                '(Specializes / Specialized By Mathematical Model)'
-                            )
-                        )
+            # Check Qualifier Existance
+            if any(
+                mval['relation'] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by'])
+                and not mval.get('assumption')
+                for mval in ivalue.get('RelationMM', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Mathematical Model',
+                        page_name,
+                        'Missing Assumption '
+                        '(Specializes / Specialized By Mathematical Model)'
+                    )
+                )
 
             # Complete Documentation Only Checks
             if 'basics' not in catalog:
-                if ivalue.get('number'):
-                    if not len(ivalue['number']) == len(ivalue['RelationMF']):
-                        self.err.append(
-                            self.error_message(
-                                'Mathematical Model',
-                                page_name,
-                                'Missing Order Number (Mathematical Expression)'
+                relation_mf = ivalue.get('RelationMF', {})
+                if relation_mf:
+                    # Extract all order values
+                    orders = [val.get('order') for val in relation_mf.values()]
+                    # Check if any order is assigned
+                    has_any_order = any(order is not None for order in orders)
+                    if has_any_order:
+                        # 1) Check all subdicts have an order number
+                        if not all(order is not None for order in orders):
+                            self.err.append(
+                                self.error_message(
+                                    'Mathematical Model',
+                                    page_name,
+                                    'Missing Order Number (Mathematical Expression)'
+                                )
                             )
-                        )
-                    numbers = set(map(int, ivalue["number"].values()))
-                    expected = set(range(1, len(ivalue["number"]) + 1))
-                    if numbers != expected:
-                        self.err.append(
-                            self.error_message(
-                                'Mathematical Model',
-                                page_name,
-                                'Incorrect Order Number (Mathematical Expression)'
-                            )
-                        )
+                        # 2) Check the numbers form a correct sequence starting at 1
+                        else:
+                            order_numbers = order_numbers = set(int(order) for order in orders)
+                            expected = set(range(1, len(relation_mf) + 1))
+                            if order_numbers != expected:
+                                self.err.append(
+                                    self.error_message(
+                                        'Mathematical Model',
+                                        page_name,
+                                        'Incorrect Order Number (Mathematical Expression)'
+                                    )
+                                )
 
     def task(self, project, data, catalog):
         '''Perform Task Checks:
@@ -256,7 +267,7 @@ class Checks:
             page_name = values.get(set_index=ikey).text
             # Check Missing Relations (Task)
             if any(
-                'MISSING RELATION TYPE' in val
+                val['relation'] == 'MISSING RELATION TYPE'
                 for val in ivalue.get('RelationT', {}).values()
             ):
                 self.err.append(
@@ -269,7 +280,7 @@ class Checks:
 
             # Check Missing Object Items (Task)
             if any(
-                'MISSING OBJECT ITEM' in val
+                val['relatant'] == 'MISSING OBJECT ITEM'
                 for val in ivalue.get('RelationT', {}).values()
             ):
                 self.err.append(
@@ -292,7 +303,7 @@ class Checks:
 
             # Relation Connections
             if any(
-                'MISSING RELATION TYPE' in val
+                val['relation'] == 'MISSING RELATION TYPE'
                 for val in ivalue.get('RelationMF', {}).values()
             ):
                 self.err.append(
@@ -303,7 +314,7 @@ class Checks:
                     )
                 )
             if any(
-                'MISSING OBJECT ITEM' in val
+                val['relatant'] == 'MISSING OBJECT ITEM'
                 for val in ivalue.get('RelationMF', {}).values()
             ):
                 self.err.append(
@@ -315,28 +326,33 @@ class Checks:
                 )
 
             # Check Qualifier
-            for tkey, tval in ivalue.get('RelationT', {}).items():
-                if tval[0] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by']):
-                    if not ivalue.get('assumption', {}).get(tkey):
-                        self.err.append(
-                            self.error_message(
-                                'Computational Task',
-                                page_name,
-                                'Missing Assumption'
-                                '(Specializes / Specialized By Computational Task)'
-                            )
-                        )
-            for tkey, tval in ivalue.get('RelationT', {}).items():
-                if tval[0] in (self.mathmoddb['contains'], self.mathmoddb['contained_in']):
-                    if not ivalue.get('task_number', {}).get(tkey):
-                        self.err.append(
-                            self.error_message(
-                                'Computational Task',
-                                page_name,
-                                'Missing Order Number'
-                                '(Conatins / Contained In Computational Task)'
-                            )
-                        )
+            if any(
+                tval['relation'] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by'])
+                and not tval.get('assumption')
+                for tval in ivalue.get('RelationT', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Computational Task',
+                        page_name,
+                        'Missing Assumption '
+                        '(Specializes / Specialized By Mathematical Model)'
+                    )
+                )
+
+            if any(
+                tval['relation'] in (self.mathmoddb['contains'], self.mathmoddb['contained_in'])
+                and not tval.get('order')
+                for tval in ivalue.get('RelationT', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Computational Task',
+                        page_name,
+                        'Missing Order Number'
+                        '(Conatins / Contained In Computational Task)'
+                    )
+                )
 
             # Complete Documentation Only Checks
             if 'basics' not in catalog:
@@ -350,7 +366,7 @@ class Checks:
                     )
 
                 if any(
-                    'MISSING RELATION TYPE' in val
+                    val['relation'] == 'MISSING RELATION TYPE'
                     for val in ivalue.get('RelationQQK', {}).values()
                 ):
                     self.err.append(
@@ -362,7 +378,7 @@ class Checks:
                     )
 
                 if any(
-                    'MISSING OBJECT ITEM' in val
+                    val['relatant'] == 'MISSING OBJECT ITEM'
                     for val in ivalue.get('RelationQQK', {}).values()
                 ):
                     self.err.append(
@@ -390,7 +406,7 @@ class Checks:
             page_name = values.get(set_index=ikey).text
 
             if any(
-                'MISSING RELATION TYPE' in val
+                val['relation'] == 'MISSING RELATION TYPE'
                 for val in ivalue.get('RelationMF2', {}).values()
             ):
                 self.err.append(
@@ -402,7 +418,7 @@ class Checks:
                 )
 
             if any(
-                'MISSING OBJECT ITEM' in val
+                val['relatant'] == 'MISSING OBJECT ITEM'
                 for val in ivalue.get('RelationMF2', {}).values()
             ):
                 self.err.append(
@@ -414,17 +430,19 @@ class Checks:
                 )
 
             # Check Qualifier
-            for mkey, mval in ivalue.get('RelationMF2', {}).items():
-                if mval[0] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by']):
-                    if not ivalue.get('assumption', {}).get(mkey):
-                        self.err.append(
-                            self.error_message(
-                                'Mathematical Expression',
-                                page_name,
-                                'Missing Assumption '
-                                '(Specializes / Specialized By Mathematical Expression)'
-                            )
-                        )
+            if any(
+                mval['relation'] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by'])
+                and not mval.get('assumption')
+                for mval in ivalue.get('RelationMF2', {}).values()
+            ):
+                self.err.append(
+                    self.error_message(
+                        'Mathematical Expression',
+                        page_name,
+                        'Missing Assumption '
+                        '(Specializes / Specialized By Mathematical Expression)'
+                    )
+                )
 
             # Complete Documentation Only Checks
             if 'basics' in catalog:
@@ -485,7 +503,7 @@ class Checks:
                         )
                 # Relation Connections
                 if any(
-                    'MISSING RELATION TYPE' in val
+                    val['relation'] == 'MISSING RELATION TYPE'
                     for val in ivalue.get('RelationMF1', {}).values()
                 ):
                     self.err.append(
@@ -497,7 +515,7 @@ class Checks:
                     )
 
                 if any(
-                    'MISSING OBJECT ITEM' in val
+                    val['relatant'] == 'MISSING OBJECT ITEM'
                     for val in ivalue.get('RelationMF1', {}).values()
                 ):
                     self.err.append(
@@ -626,7 +644,7 @@ class Checks:
             # Relation Connections
             if ivalue.get('QorQK') == self.mathmoddb['Quantity']:
                 if any(
-                    'MISSING RELATION TYPE' in val
+                    val['relation'] == 'MISSING RELATION TYPE'
                     for val in ivalue.get('RelationQQ', {}).values()
                 ):
                     self.err.append(
@@ -638,7 +656,7 @@ class Checks:
                     )
 
                 if any(
-                    'MISSING OBJECT ITEM' in val
+                    val['relatant'] == 'MISSING OBJECT ITEM'
                     for val in ivalue.get('RelationQQ', {}).values()
                 ):
                     self.err.append(
@@ -650,7 +668,7 @@ class Checks:
                     )
 
                 if any(
-                    'MISSING RELATION TYPE' in val
+                    val['relation'] == 'MISSING RELATION TYPE'
                     for val in ivalue.get('RelationQQK', {}).values()
                 ):
                     self.err.append(
@@ -662,7 +680,7 @@ class Checks:
                     )
 
                 if any(
-                    'MISSING OBJECT ITEM' in val
+                    val['relatant'] == 'MISSING OBJECT ITEM'
                     for val in ivalue.get('RelationQQK', {}).values()
                 ):
                     self.err.append(
@@ -675,7 +693,7 @@ class Checks:
 
             elif ivalue.get('QorQK') == self.mathmoddb['QuantityKind']:
                 if any(
-                    'MISSING RELATION TYPE' in val
+                    val['relation'] == 'MISSING RELATION TYPE'
                     for val in ivalue.get('RelationQKQK', {}).values()
                 ):
                     self.err.append(
@@ -687,7 +705,7 @@ class Checks:
                     )
 
                 if any(
-                    'MISSING OBJECT ITEM' in val
+                    val['relatant'] == 'MISSING OBJECT ITEM'
                     for val in ivalue.get('RelationQKQK', {}).values()
                 ):
                     self.err.append(
@@ -699,7 +717,7 @@ class Checks:
                     )
 
                 if any(
-                    'MISSING RELATION TYPE' in val
+                    val['relation'] == 'MISSING RELATION TYPE'
                     for val in ivalue.get('RelationQKQ', {}).values()
                 ):
                     self.err.append(
@@ -711,7 +729,7 @@ class Checks:
                     )
 
                 if any(
-                    'MISSING OBJECT ITEM' in val
+                    val['relatant'] == 'MISSING OBJECT ITEM'
                     for val in ivalue.get('RelationQKQ', {}).values()
                 ):
                     self.err.append(
@@ -738,7 +756,7 @@ class Checks:
             page_name = values.get(set_index=ikey).text
             # Relation Connections
             if any(
-                'MISSING RELATION TYPE' in val
+                val['relation'] == 'MISSING RELATION TYPE'
                 for val in ivalue.get('RelationRP', {}).values()
             ):
                 self.err.append(
@@ -750,7 +768,7 @@ class Checks:
                 )
 
             if any(
-                'MISSING OBJECT ITEM' in val
+                val['relatant'] == 'MISSING OBJECT ITEM'
                 for val in ivalue.get('RelationRP', {}).values()
             ):
                 self.err.append(
@@ -790,7 +808,7 @@ class Checks:
             page_name = values.get(set_index=ikey).text
             # Relation Connections
             if any(
-                'MISSING RELATION TYPE' in val
+                val['relation'] == 'MISSING RELATION TYPE'
                 for val in ivalue.get('RelationRF', {}).values()
             ):
                 self.err.append(
@@ -802,7 +820,7 @@ class Checks:
                 )
 
             if any(
-                'MISSING OBJECT ITEM' in val
+                val['relatant'] == 'MISSING OBJECT ITEM'
                 for val in ivalue.get('RelationRF', {}).values()
             ):
                 self.err.append(
@@ -845,7 +863,7 @@ class Checks:
                 )
             # Relation Connections
             if any(
-                'MISSING RELATION TYPE' in val
+                val['relation'] == 'MISSING RELATION TYPE'
                 for val in ivalue.get('RelationP', {}).values()
             ):
                 self.err.append(
@@ -857,7 +875,7 @@ class Checks:
                 )
 
             if any(
-                'MISSING OBJECT ITEM' in val
+                val['relatant'] == 'MISSING OBJECT ITEM'
                 for val in ivalue.get('RelationP', {}).values()
             ):
                 self.err.append(

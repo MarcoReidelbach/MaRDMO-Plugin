@@ -356,68 +356,69 @@ class GeneratePayload:
             optional_qualifier = []
 
         for key, prop in self.state.subject.get(statement['relation'], {}).items():
-            # Get Item Key
-            relatant_item = self.get_item_key(
-                self.state.subject.get(statement['relatant'], {}).get(key, {}),
-                'object'
-            )
+            for key2 in self.state.subject.get(statement['relatant'], {}).get(key, {}):
+                # Get Item Key
+                relatant_item = self.get_item_key(
+                    self.state.subject.get(statement['relatant'], {}).get(key, {}).get(key2, {}),
+                    'object'
+                )
 
-            # Set Up Qualifier
-            qualifier = []
+                # Set Up Qualifier
+                qualifier = []
 
-            # Add Formulation and Task Order Numbers to Qualifier
-            if 'series ordinal' in optional_qualifier:
-                for number in ('formulation_number', 'task_number'):
-                    if self.state.subject.get(number, {}).get(key):
-                        qualifier = self.add_qualifier(
-                            self.wikibase['properties']['series ordinal'],
-                            'string', 
-                            self.state.subject[number][key]
-                        )
+                # Add Formulation and Task Order Numbers to Qualifier
+                if 'series ordinal' in optional_qualifier:
+                    for number in ('formulation_number', 'task_number'):
+                        if self.state.subject.get(number, {}).get(key, {}):
+                            qualifier = self.add_qualifier(
+                                self.wikibase['properties']['series ordinal'],
+                                'string', 
+                                self.state.subject[number][key]
+                            )
 
-            # Add Assumptions to Qualifier
-            if 'assumes' in optional_qualifier:
-                if self.state.subject.get('assumption', {}).get(key):
-                    for assumption in self.state.subject['assumption'][key].values():
-                        assumption_item = self.get_item_key(
-                            assumption,
-                            'object'
-                        )
+                # Add Assumptions to Qualifier
+                if 'assumes' in optional_qualifier:
+                    if self.state.subject.get('assumption', {}).get(key, {}):
+                        for assumption in self.state.subject['assumption'][key].values():
+                            assumption_item = self.get_item_key(
+                                assumption,
+                                'object'
+                            )
+                            qualifier.extend(
+                                self.add_qualifier(
+                                    self.wikibase['properties']['assumes'],
+                                    'wikibase-item',
+                                    assumption_item
+                                )
+                            )
+
+                # Add Roles to Qualifier
+                if len(self.wikibase['relations'][prop]) == 2:
+                    if self.wikibase['relations'][prop][1] not in ('forward', 'backward'):
                         qualifier.extend(
                             self.add_qualifier(
-                                self.wikibase['properties']['assumes'],
+                                self.wikibase['properties']['object has role'],
                                 'wikibase-item',
-                                assumption_item
+                                self.wikibase['relations'][prop][1]
                             )
                         )
 
-            # Add Roles to Qualifier
-            if len(self.wikibase['relations'][prop]) == 2:
-                if self.wikibase['relations'][prop][1] not in ('forward', 'backward'):
-                    qualifier.extend(
-                        self.add_qualifier(
-                            self.wikibase['properties']['object has role'],
-                            'wikibase-item',
-                            self.wikibase['relations'][prop][1]
-                        )
-                    )
+                # Assign Object and Subject
+                if reverse or self.wikibase['relations'][prop][-1] == 'backward':
+                    subject_item, object_item = relatant_item, self.state.subject_item
+                else:
+                    subject_item, object_item = self.state.subject_item, relatant_item
 
-            # Assign Object and Subject
-            if reverse or self.wikibase['relations'][prop][-1] == 'backward':
-                subject_item, object_item = relatant_item, self.state.subject_item
-            else:
-                subject_item, object_item = self.state.subject_item, relatant_item
-
-            # Add to Payload
-            self.add_answer(
-                verb = self.wikibase['relations'][prop][0],
-                object_and_type = [
-                    object_item,
-                    'wikibase-item',
-                ],
-                qualifier = qualifier,
-                subject = subject_item
-            )
+                # Add to Payload
+                self.add_answer(
+                    verb = self.wikibase['relations'][prop][0],
+                    object_and_type = [
+                        object_item,
+                        'wikibase-item',
+                    ],
+                    qualifier = qualifier,
+                    subject = subject_item
+                )
 
     def add_in_defining_formula(self):
         '''Add in defining formula Statement'''

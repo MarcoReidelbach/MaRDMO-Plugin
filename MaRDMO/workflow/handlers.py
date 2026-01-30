@@ -1,5 +1,14 @@
+'''Module containing Handlers for the Workflow Documentation'''
+
 from ..constants import BASE_URI
-from ..getters import get_items, get_options, get_properties, get_questions, get_sparql_query, get_url
+from ..getters import (
+    get_items,
+    get_options,
+    get_properties,
+    get_questions,
+    get_sparql_query,
+    get_url
+)
 from ..helpers import value_editor
 from ..queries import query_sparql
 from ..adders import add_basics, add_references, add_relations_static
@@ -10,7 +19,7 @@ from .models import Method, ProcessStep, Software, Hardware, DataSet
 class Information:
     '''Class containing functions, querying external sources for specific
        entities and integrating the related metadata into the questionnaire.'''
-    
+
     def __init__(self):
         # Load shared data once
         self.questions = get_questions("workflow")
@@ -57,7 +66,7 @@ class Information:
 
         if not results:
             return
-                    
+
         # Structure Results and load options
         data = Software.from_query(results)
 
@@ -71,14 +80,14 @@ class Information:
 
         # Add Relations between Programming Language and Method to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['S2PL']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{software["Programming Language"]["uri"]}'
             }
@@ -86,14 +95,14 @@ class Information:
 
         # Add Relations between Programming Language and Method to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['S2DP']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{software["Dependency"]["uri"]}'
             }
@@ -102,8 +111,8 @@ class Information:
         # Software Source Code Published?
         if data.sourceCodeRepository:
             value_editor(
-                project = instance.project, 
-                uri = f'{self.base}{software["Published"]["uri"]}', 
+                project = instance.project,
+                uri = f'{self.base}{software["Published"]["uri"]}',
                 info = {
                     'text': data.sourceCodeRepository, 
                     'option': self.options['YesText'], 
@@ -112,10 +121,10 @@ class Information:
             )
 
         # Software User Manual Documented?
-        if data.userManualURL: 
+        if data.userManualURL:
             value_editor(
-                project = instance.project, 
-                uri = f'{self.base}{software["Documented"]["uri"]}', 
+                project = instance.project,
+                uri = f'{self.base}{software["Documented"]["uri"]}',
                 info = {
                     'text': data.userManualURL,
                     'option': self.options['YesText'],
@@ -169,14 +178,14 @@ class Information:
 
         # Add Relations between CPU and Hardware to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['H2CPU']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{hardware["CPU"]["uri"]}'
             }
@@ -185,8 +194,8 @@ class Information:
         # Number of Nodes
         if data.nodes:
             value_editor(
-                project = instance.project, 
-                uri = f'{self.base}{hardware["Nodes"]["uri"]}', 
+                project = instance.project,
+                uri = f'{self.base}{hardware["Nodes"]["uri"]}',
                 info = {
                     'text': data.nodes, 
                     'set_prefix': instance.set_index
@@ -196,13 +205,13 @@ class Information:
         # Number of Cores
         if data.cores:
             value_editor(
-                project = instance.project, 
-                uri = f'{self.base}{hardware["Cores"]["uri"]}', 
+                project = instance.project,
+                uri = f'{self.base}{hardware["Cores"]["uri"]}',
                 info = {
                     'text': data.cores, 
                     'set_prefix': instance.set_index
                 }
-            )                
+            )
 
     def instrument(self, instance):
         '''Instrument Information'''
@@ -268,10 +277,10 @@ class Information:
         data = DataSet.from_query(results)
 
         # Data Set Size
-        if data.size: 
+        if data.size:
             value_editor(
-                project = instance.project, 
-                uri = f'{self.base}{data_set["Size"]["uri"]}', 
+                project = instance.project,
+                uri = f'{self.base}{data_set["Size"]["uri"]}',
                 info = {
                     'text': data.size[1],
                     'option': data.size[0],
@@ -281,14 +290,14 @@ class Information:
 
         # Add Relations between Data Type and Data Set to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['DS2DT']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{data_set["Data Type"]["uri"]}'
             }
@@ -296,14 +305,14 @@ class Information:
 
         # Add Relations between Representation Format and Data Set to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['DS2RF']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{data_set["Representation Format"]["uri"]}'
             }
@@ -312,8 +321,8 @@ class Information:
         # File Format
         if data.fileFormat:
             value_editor(
-                project = instance.project, 
-                uri = f'{self.base}{data_set["File Format"]["uri"]}', 
+                project = instance.project,
+                uri = f'{self.base}{data_set["File Format"]["uri"]}',
                 info = {
                     'text': data.fileFormat, 
                     'set_prefix': instance.set_index
@@ -323,8 +332,8 @@ class Information:
         # Binary or Text
         if data.binaryOrText:
             value_editor(
-                project = instance.project, 
-                uri = f'{self.base}{data_set["Binary or Text"]["uri"]}', 
+                project = instance.project,
+                uri = f'{self.base}{data_set["Binary or Text"]["uri"]}',
                 info = {
                     'option': data.binaryOrText, 
                     'set_prefix': instance.set_index
@@ -334,8 +343,8 @@ class Information:
         # Proprietary
         if data.proprietary:
             value_editor(
-                project = instance.project, 
-                uri = f'{self.base}{data_set["Proprietary"]["uri"]}', 
+                project = instance.project,
+                uri = f'{self.base}{data_set["Proprietary"]["uri"]}',
                 info = {
                     'option': data.proprietary, 
                     'set_prefix':  instance.set_index
@@ -353,8 +362,8 @@ class Information:
         # Archiving
         if data.toArchive:
             value_editor(
-                project = instance.project, 
-                uri = f'{self.base}{data_set["To Archive"]["uri"]}', 
+                project = instance.project,
+                uri = f'{self.base}{data_set["To Archive"]["uri"]}',
                 info = {
                     'text': data.toArchive[1],
                     'option': data.toArchive[0], 
@@ -408,14 +417,14 @@ class Information:
 
         # Add Relations between Software and Method to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['M2S']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{method["Software"]["uri"]}'
             }
@@ -423,14 +432,14 @@ class Information:
 
         # Add Relations between Instrument and Method to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['M2I']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{method["Instrument"]["uri"]}'
             }
@@ -484,14 +493,14 @@ class Information:
 
         # Add Relations between Input Data Set and Process Step to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['PS2IDS']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{process_step["Input"]["uri"]}'
             }
@@ -499,14 +508,14 @@ class Information:
 
         # Add Relations between Output Data Set and Process Step to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['PS2ODS']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{process_step["Output"]["uri"]}'
             }
@@ -514,14 +523,14 @@ class Information:
 
         # Add Relations between Method and Process Step to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['PS2M']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{process_step["Method"]["uri"]}'
             }
@@ -529,14 +538,14 @@ class Information:
 
         # Add Relations between Software Platform and Process Step to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['PS2PLS']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{process_step["Environment-Software"]["uri"]}'
             }
@@ -544,14 +553,14 @@ class Information:
 
         # Add Relations between Instrument Platform and Process Step to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['PS2PLI']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{process_step["Environment-Instrument"]["uri"]}'
             }
@@ -559,14 +568,14 @@ class Information:
 
         # Add Relations between Fields and Process Step to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['PS2F']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{process_step["Discipline"]["uri"]}'
             }
@@ -574,14 +583,14 @@ class Information:
 
         # Add Relations between Math Areas and Process Step to Questionnaire
         add_relations_static(
-            project = instance.project, 
-            data = data, 
+            project = instance.project,
+            data = data,
             props = {
                 'keys': PROPS['PS2MA']
-            }, 
+            },
             index = {
                 'set_prefix': instance.set_index
-            }, 
+            },
             statement = {
                 'relatant': f'{self.base}{process_step["Discipline"]["uri"]}'
             }

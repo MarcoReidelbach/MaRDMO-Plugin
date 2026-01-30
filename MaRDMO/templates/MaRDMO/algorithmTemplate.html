@@ -46,8 +46,6 @@
                 {% endif %}
                 {% if 'not found' in values.ID %} 
                     <b>ID</b>: - 
-                {% elif 'mathmoddb' in values.ID %} 
-                    <b>MathModDB ID</b>: {{ values.ID|cut:"mathmoddb:"}}
                 {% elif 'mathalgodb' in values.ID %} 
                     <b>MathAlgoDB ID</b>: {{ values.ID|cut:"mathalgodb:"}}
                 {% elif 'mardi' in values.ID %} 
@@ -61,30 +59,30 @@
                 {% if forloop.counter == 1 %}
                     <h3 id="RelationsToAlgorithmicProblems"> Relations to Algorithmic Problems </h3>
                 {% endif %}
-	            solves: {{ solves.1 }} <br>
+	            solves: {{ solves }} <br>
             {% endfor %}
 
             {% for implementedBy in values.RelationS.values %}
                 {% if forloop.counter == 1 %}
                     <h3 id="RelationsToSoftware"> Relations to Software </h3>
                 {% endif %}
-	            implemented by: {{ implementedBy.1 }} <br>
+	            implemented by: {{ implementedBy }} <br>
             {% endfor %}
 
             {% for relation in values.RelationA.values %}
                 {% if forloop.counter == 1 %}
                     <h3 id="RelationsToAlgorithms"> Relations to Algorithms </h3>
                 {% endif %}
-                {% if relation.0 == option.hasComponent %} 
-	                has Component: {{relation.1 }} <br>
-                {% elif relation.0 == option.componentOf %} 
-	                component of: {{relation.1 }} <br>
-                {% elif relation.0 == option.hasSubclass %} 
-	                has subclass: {{relation.1 }} <br>
-                {% elif relation.0 == option.subclassOf %} 
-	                subclass of: {{relation.1 }} <br>
-                {% elif relation.0 == option.relatedTo %} 
-	                related to: {{relation.1 }} <br>
+                {% if relation.relation == option.hasComponent %} 
+	                has Component: {{relation.relatant }} <br>
+                {% elif relation.relation == option.componentOf %} 
+	                component of: {{relation.relatant }} <br>
+                {% elif relation.relation == option.hasSubclass %} 
+	                has subclass: {{relation.relatant }} <br>
+                {% elif relation.relation == option.subclassOf %} 
+	                subclass of: {{relation.relatant }} <br>
+                {% elif relation.relation == option.relatedTo %} 
+	                related to: {{relation.relatant }} <br>
                 {% endif %}
             {% endfor %}
         {% endfor %}
@@ -104,8 +102,6 @@
                     {% endif %}
                     {% if 'not found' in values.ID %} 
                         <b>ID</b>: - 
-                    {% elif 'mathmoddb' in values.ID %} 
-                        <b>MathModDB ID</b>: {{ values.ID|cut:"mathmoddb:"}}
                     {% elif 'mathalgodb' in values.ID %} 
                         <b>MathAlgoDB ID</b>: {{ values.ID|cut:"mathalgodb:"}}
                     {% elif 'mardi' in values.ID %} 
@@ -119,17 +115,17 @@
                     {% if forloop.counter == 1 %}
                         <h3 id="RelationsToBenchmarks"> Relations to Benchmarks </h3>
                     {% endif %}
-	                instantiates: {{ instantiates.1 }} <br>
+	                instantiates: {{ instantiates }} <br>
                 {% endfor %}
 
                 {% for relation in values.RelationP.values %}
                     {% if forloop.counter == 1 %}
                         <h3 id="RelationsToAlgorithmicProblems"> Relations to Algorithmic Problems </h3>
                     {% endif %}
-                    {% if relation.0 == option.specializes %} 
-	                    specializes: {{relation.1 }} <br>
-                    {% elif relation.0 == option.specializedBy %} 
-	                    specializedby: {{relation.1 }} <br>
+                    {% if relation.relation == option.specializes %} 
+	                    specializes: {{relation.relatant }} <br>
+                    {% elif relation.relation == option.specializedBy %} 
+	                    specializedby: {{relation.relatant }} <br>
                     {% endif %}
                 {% endfor %}
             
@@ -150,8 +146,6 @@
                 {% endif %}
                 {% if 'not found' in values.ID %} 
                     <b>ID</b>: - 
-                {% elif 'mathmoddb' in values.ID %} 
-                    <b>MathModDB ID</b>: {{ values.ID|cut:"mathmoddb:"}}
                 {% elif 'mathalgodb' in values.ID %} 
                     <b>MathAlgoDB ID</b>: {{ values.ID|cut:"mathalgodb:"}}
                 {% elif 'mardi' in values.ID %} 
@@ -177,7 +171,7 @@
                 {% if forloop.counter == 1 %}
                     <h3 id="RelationsToBenchmarks"> Relations to Benchmarks </h3>
                 {% endif %}
-	            tests: {{ tests.1 }} <br>
+	            tests: {{ tests }} <br>
             {% endfor %}
 
         {% endfor %}
@@ -195,8 +189,6 @@
                 {% endif %}
                 {% if 'not found' in values.ID %} 
                     <b>ID</b>: - 
-                {% elif 'mathmoddb' in values.ID %} 
-                    <b>MathModDB ID</b>: {{ values.ID|cut:"mathmoddb:"}}
                 {% elif 'mathalgodb' in values.ID %} 
                     <b>MathAlgoDB ID</b>: {{ values.ID|cut:"mathalgodb:"}}
                 {% elif 'mardi' in values.ID %} 
@@ -235,48 +227,45 @@
                     {% if reference.0 == option.DOI %}
                         <b>DOI</b>: {{ reference.1 }} <br>
         	        {% endif %} 
-                    {% if reference.0 == option.URL %}
-                        <b>URL</b>: {{ reference.1 }} <br>
-        	        {% endif %}
                 {% endfor %}
             </p>
         
-            {% for values in values.RelationA.values %}
+            {% for relation in values.RelationA.values %}
                 {% if forloop.counter == 1 %}
                     <h3 id="RelationsToAlgorithms"> Relations to Algorithms </h3>
                 {% endif %}
-                {% if values.0 == option.analyzes %} 
-        	    analyzes: {{ values.1 }} <br>
-                {% elif values.0 == option.applies %} 
-        	    applies: {{ values.1 }} <br>
-                {% elif values.0 == option.invents %} 
-        	    invents: {{ values.1 }} <br>
-                {% elif values.0 == option.studies %} 
-        	    studies: {{ values.1 }} <br>
-                {% elif values.0 == option.surveys %} 
-        	    surveys: {{ values.1 }} <br>
+                {% if relation.relation == option.analyzes %} 
+        	    analyzes: {{ relation.relatant }} <br>
+                {% elif relation.relation == option.applies %} 
+        	    applies: {{ relation.relatant }} <br>
+                {% elif relation.relation == option.invents %} 
+        	    invents: {{ relation.relatant }} <br>
+                {% elif relation.relation == option.studies %} 
+        	    studies: {{ relation.relatant }} <br>
+                {% elif relation.relation == option.surveys %} 
+        	    surveys: {{ relation.relatant }} <br>
                 {% endif %}
             {% endfor %}
 
-            {% for values in values.RelationB.values %}
+            {% for relation in values.RelationB.values %}
                 {% if forloop.counter == 1 %}
                     <h3 id="RelationsToBenchmarks"> Relations to Benchmarks </h3>
                 {% endif %}
-                {% if values.0 == option.documents %} 
-        	    documents: {{ values.1 }} <br>
-                {% elif values.0 == option.uses %} 
-        	    uses: {{ values.1 }} <br>
+                {% if relation.relation == option.documents %} 
+        	    documents: {{ relation.relatant }} <br>
+                {% elif relation.relation == option.uses %} 
+        	    uses: {{ relation.relatant }} <br>
                 {% endif %}
             {% endfor %}
 
-            {% for values in values.RelationS.values %}
+            {% for relation in values.RelationS.values %}
                 {% if forloop.counter == 1 %}
                     <h3 id="RelationsToSoftware"> Relations to Software </h3>
                 {% endif %}
-                {% if values.0 == option.documents %} 
-        	    documents: {{ values.1 }} <br>
-                {% elif values.0 == option.uses %} 
-        	    uses: {{ values.1 }} <br>
+                {% if relation.relation == option.documents %} 
+        	    documents: {{ relation.relatant }} <br>
+                {% elif relation.relation == option.uses %} 
+        	    uses: {{ relation.relatant }} <br>
                 {% endif %}
             {% endfor %}
 

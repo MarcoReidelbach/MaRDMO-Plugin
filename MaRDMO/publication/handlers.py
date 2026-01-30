@@ -270,14 +270,16 @@ class Information:
                         },
                     )
 
-                    for prop in PROPS['P2BS']:
+                    for prop_index, prop in enumerate(PROPS['P2BS']):
+                        INDEX_COUNTERS['Benchmark'] = 0
+                        INDEX_COUNTERS['Software'] = 0
                         for value in getattr(data, prop):
                             value_editor(
                                 project = instance.project,
                                 uri = f'{BASE_URI}{publication[RELATION_URIS[value.item_class]]["uri"]}',
                                 info = {
                                     'option': Option.objects.get(uri = self.mathalgodb[prop]),
-                                    'set_index': INDEX_COUNTERS[value.item_class],
+                                    'set_index': prop_index,
                                     'set_prefix': instance.set_index
                                 }
                             )
@@ -287,7 +289,8 @@ class Information:
                                 info = {
                                     'text': f"{value.label} ({value.description}) [mathalgodb]",
                                     'external_id': value.id,
-                                    'set_index': INDEX_COUNTERS[value.item_class],
+                                    'set_index': prop_index,
+                                    'collection_index': INDEX_COUNTERS[value.item_class],
                                     'set_prefix': instance.set_index
                                 }
                             )

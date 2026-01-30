@@ -15,7 +15,7 @@ class prepareWorkflow:
         self.properties = get_properties()
 
     def preview(self, data):
-
+        '''Function to establish relations between Workflow Documentation Data'''
         # Update Model Properties via MathModDB
         if data.get('model',{}).get('ID'):
             _, identifier = data['model']['ID'].split(':')
@@ -75,10 +75,19 @@ class prepareWorkflow:
         return data
 
     def export(self,data, title, url):
+        """Function to create Payload for Workflow Export."""
+        
+        items, dependency = unique_items(data, title)
 
-        items = unique_items(data, title)
-
-        payload = GeneratePayload(url, items)
+        payload = GeneratePayload(
+            dependency = dependency,
+            user_items = items,
+            url = url,
+            wikibase = {
+                'items': get_items(),
+                'properties': get_properties(),
+            }
+        )
 
         # Load Options
         options = get_options()
@@ -622,7 +631,6 @@ class prepareWorkflow:
 
                 # Add the Title of the Publication
                 if publication.get('title'):
-
                     payload.add_answer(
                         verb=self.properties['title'],
                         object_and_type=[
@@ -633,7 +641,6 @@ class prepareWorkflow:
 
                 # Add the Volume of the Publication
                 if publication.get('volume'):
-
                     payload.add_answer(
                         verb=self.properties['volume'],
                         object_and_type=[
@@ -644,7 +651,6 @@ class prepareWorkflow:
 
                 # Add the Issue of the Publication
                 if publication.get('issue'):
-
                     payload.add_answer(
                         verb=self.properties['issue'],
                         object_and_type=[
@@ -655,7 +661,6 @@ class prepareWorkflow:
 
                 # Add the Page(s) of the Publication
                 if publication.get('page'):
-
                     payload.add_answer(
                         verb=self.properties['page(s)'],
                         object_and_type=[
@@ -666,7 +671,6 @@ class prepareWorkflow:
 
                 # Add the Date of the Publication
                 if publication.get('date'):
-
                     payload.add_answer(
                         verb=self.properties['publication date'],
                         object_and_type=[
