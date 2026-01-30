@@ -214,47 +214,40 @@ def dict_to_triples_mathalgodb(data):
             for key in relation_dict:
                 if relatant_dict.get(key):
                     relation_uri = relation_dict[key]
-                    relatant_value = relatant_dict[key]
-                    if relatant_value['ID'].startswith('mathalgodb:'):
-                        _, mathalgodb_id = relatant_value['ID'].split(':')
-                        if relation == 'IntraClassRelation':
-                            if 'algorithm' in idx:
+                    relatant_values = relatant_dict[key]
+                    for relatant_value in relatant_values.values():
+                        if relatant_value['ID'].startswith('mathalgodb:'):
+                            _, mathalgodb_id = relatant_value['ID'].split(':')
+                            if relation == 'IntraClassRelation':
+                                if 'algorithm' in idx:
+                                    object_value = f"al:{mathalgodb_id}"
+                                if 'problem' in idx:
+                                    object_value = f"pr:{mathalgodb_id}"
+                                if 'benchmark' in idx:
+                                    object_value = f"bm:{mathalgodb_id}"
+                                if 'software' in idx:
+                                    object_value = f"so:{mathalgodb_id}"
+                                if 'publication' in idx:
+                                    object_value = f"pb:{mathalgodb_id}"
+                            elif relation == 'P2A':
                                 object_value = f"al:{mathalgodb_id}"
-                            if 'problem' in idx:
-                                object_value = f"pr:{mathalgodb_id}"
-                            if 'benchmark' in idx:
+                            elif relation == 'P2B':
                                 object_value = f"bm:{mathalgodb_id}"
-                            if 'software' in idx:
+                            elif relation == 'P2S':
                                 object_value = f"so:{mathalgodb_id}"
-                            if 'publication' in idx:
-                                object_value = f"pb:{mathalgodb_id}"
-                        elif relation == 'A2P':
-                            object_value = f"pr:{mathalgodb_id}"
-                        elif relation == 'A2S':
-                            object_value = f"so:{mathalgodb_id}"
-                        elif relation == 'P2B':
-                            object_value = f"bm:{mathalgodb_id}"
-                        elif relation == 'S2B':
-                            object_value = f"bm:{mathalgodb_id}"
-                        elif relation == 'P2A':
-                            object_value = f"al:{mathalgodb_id}"
-                        elif relation == 'P2B':
-                            object_value = f"bm:{mathalgodb_id}"
-                        elif relation == 'P2S':
-                            object_value = f"so:{mathalgodb_id}"
-                    else:
-                        referred_name = relatant_value['Name']
-                        object_value = ids.get(referred_name)
-                    triples.append(
-                        (subject,
-                         f"mathalgodb:{relation_uri.split('/')[-1]}",
-                         object_value)
-                    )
-                    triples.append(
-                        (object_value,
-                         f"mathalgodb:{inverse_property_mapping[relation_uri].split('/')[-1]}",
-                         subject)
-                    )
+                        else:
+                            referred_name = relatant_value['Name']
+                            object_value = ids.get(referred_name)
+                        triples.append(
+                            (subject,
+                             f"mathalgodb:{relation_uri.split('/')[-1]}",
+                             object_value)
+                        )
+                        triples.append(
+                            (object_value,
+                             f"mathalgodb:{inverse_property_mapping[relation_uri].split('/')[-1]}",
+                             subject)
+                        )
 
     return triples, ids
 
