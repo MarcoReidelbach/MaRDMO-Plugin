@@ -237,22 +237,31 @@ def query_sources_with_user_additions(search, project, setup):
         # Cache miss - query database for user-defined entries
         logger.debug("Cache miss for %s, querying database", cache_key)
 
-        values = {}
         dic = {}
+
+        # Collect entries from ALL query attributes
+        all_ids = []
+        all_names = []
+        all_descriptions = []
 
         for query_attribute in setup['query_attributes']:
             # Get User Entries from database
             values = get_user_entries(
                 project = project,
                 query_attribute = query_attribute,
-                values = values
+                values = {}
             )
 
-        # Zip user-defined answers
+            # Accumulate values from all attributes
+            all_ids.extend(values['id'])
+            all_names.extend(values['name'])
+            all_descriptions.extend(values['description'])
+
+        # Zip ALL user-defined answers
         zipped = zip(
-            values['id'],
-            values['name'],
-            values['description']
+            all_ids,
+            all_names,
+            all_descriptions
         )
 
         # Process user-defined answers
