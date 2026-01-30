@@ -1,6 +1,6 @@
 '''Worker Module to collect Algorithm Metadata'''
 
-from .constants import PREVIEW_RELATIONS
+from .constants import preview_relations
 
 from ..helpers import entity_relations
 
@@ -8,23 +8,24 @@ def algorithm_relations(answers):
     '''Function to establish relations between Algorithm Documentation Data'''
 
     # Prepare Relations for Preview
-    for relation in PREVIEW_RELATIONS:
+    for relation in preview_relations:
         entity_relations(
             data = answers,
             idx = {
-                'from': relation[0],
-                'to': relation[1]
+                'from': relation['from_idx'],
+                'to': relation['to_idx']
             },
             entity = {
-                'relation': relation[2],
-                'old_name': relation[3],
-                'new_name': relation[4],
-                'encryption': relation[5]
+                'relation': relation['relation'],
+                'old_name': relation['old_name'],
+                'new_name': relation['new_name'],
+                'encryption': relation['encryption']
             },
             order = {
                 'formulation': False,
                 'task': False
-            }
+            },
+            assumption = False
         )
 
     return answers

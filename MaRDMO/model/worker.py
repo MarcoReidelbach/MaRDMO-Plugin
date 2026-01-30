@@ -28,6 +28,21 @@ class PrepareModel:
     def preview(self, answers):
         '''Function to establish relations between Model Documentation Data'''
 
+        # Prepare General Mappings
+        for mapping in preview_map_general:
+            map_entity(
+                data = answers,
+                idx = {
+                    'from': mapping[0],
+                    'to': mapping[1]
+                },
+                entity = {
+                    'old_name': mapping[2],
+                    'new_name': mapping[3],
+                    'encryption': mapping[4]
+                }
+            )
+
         # Prepare Relations for Preview
         for relation in preview_relations:
             entity_relations(
@@ -45,22 +60,8 @@ class PrepareModel:
                 order = {
                     'formulation': relation['formulation'],
                     'task': relation['task']
-                }
-            )
-
-        # Prepare General Mappings
-        for mapping in preview_map_general:
-            map_entity(
-                data = answers,
-                idx = {
-                    'from': mapping[0], 
-                    'to': mapping[1]
                 },
-                entity = {
-                    'old_name': mapping[2], 
-                    'new_name': mapping[3], 
-                    'encryption': mapping[4]
-                }
+                assumption = relation['assumption']
             )
 
         # Prepare Quantity Mapping
