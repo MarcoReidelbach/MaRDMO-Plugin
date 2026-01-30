@@ -50,15 +50,77 @@ class_prefix_map = {
     }
 
 # Parameter for Entity relations
-PREVIEW_RELATIONS = [
-    # fromIDX, toIDX, relationOld, entityOld, entityNew, enc
-    ('algorithm', 'problem', 'A2P', 'PRelatant', 'RelationP', 'AP'),
-    ('algorithm', 'software', 'A2S', 'SRelatant', 'RelationS', 'S'),
-    ('algorithm', 'algorithm', 'IntraClassRelation', 'IntraClassElement', 'RelationA', 'A'),
-    ('problem', 'benchmark', 'P2B', 'BRelatant', 'RelationB', 'B'),
-    ('problem', 'problem', 'IntraClassRelation', 'IntraClassElement', 'RelationP', 'AP'),
-    ('software', 'benchmark', 'S2B', 'BRelatant', 'RelationB', 'B'),
-    ('publication', 'algorithm', 'P2A', 'ARelatant', 'RelationA', 'A'),
-    ('publication', 'benchmark', 'P2B', 'BRelatant', 'RelationB', 'B'),
-    ('publication', 'software', 'P2S', 'SRelatant', 'RelationS', 'S')
+preview_relations = [
+    {
+        "from_idx": "algorithm",
+        "to_idx": "problem",
+        "relation": None,
+        "old_name": "PRelatant",
+        "new_name": "RelationP",
+        "encryption": "AP"
+    },
+    {
+        "from_idx": "algorithm",
+        "to_idx": "software",
+        "relation": None,
+        "old_name": "SRelatant",
+        "new_name": "RelationS",
+        "encryption": "S"
+    },
+    {
+        "from_idx": "algorithm",
+        "to_idx": "algorithm",
+        "relation": "IntraClassRelation",
+        "old_name": "IntraClassElement",
+        "new_name": "RelationA",
+        "encryption": "A"
+    },
+    {
+        "from_idx": "problem",
+        "to_idx": "benchmark",
+        "relation": None,
+        "old_name": "BRelatant",
+        "new_name": "RelationB",
+        "encryption": "B"
+    },
+    {
+        "from_idx": "problem",
+        "to_idx": "problem",
+        "relation": "IntraClassRelation",
+        "old_name": "IntraClassElement",
+        "new_name": "RelationP",
+        "encryption": "AP"
+    },
+    {
+        "from_idx": "software",
+        "to_idx": "benchmark",
+        "relation": None,
+        "old_name": "BRelatant",
+        "new_name": "RelationB",
+        "encryption": "B"
+    },
+    {
+        "from_idx": "publication",
+        "to_idx": "algorithm",
+        "relation": "P2A",
+        "old_name": "ARelatant",
+        "new_name": "RelationA",
+        "encryption": "A"
+    },
+    {
+        "from_idx": "publication",
+        "to_idx": "benchmark",
+        "relation": "P2B",
+        "old_name": "BRelatant",
+        "new_name": "RelationB",
+        "encryption": "B"
+    },
+    {
+        "from_idx": "publication",
+        "to_idx": "software",
+        "relation": "P2S",
+        "old_name": "SRelatant",
+        "new_name": "RelationS",
+        "encryption": "S"
+    }
 ]
