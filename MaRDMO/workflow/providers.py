@@ -47,7 +47,7 @@ class Method(Provider):
             return []
 
         # Define the sources to query
-        query_id = 'AL'
+        query_id = 'algorithm/queries/provider_algorithm.sparql',
         sources = ['mathalgodb','mardi','wikidata']
 
         return query_sources(search, query_id, sources)
@@ -65,7 +65,7 @@ class RelatedMethod(Provider):
         setup = define_setup(
             creation = True,
             query_attributes = ['method'],
-            query_id = 'AL',
+            query_id = 'algorithm/queries/provider_algorithm.sparql',
             sources = ['mathalgodb','mardi','wikidata']
         )
         
@@ -148,7 +148,7 @@ class RelatedSoftware(Provider):
         setup = define_setup(
             creation = True,
             query_attributes = ['software'],
-            query_id = 'SO',
+            query_id = 'algorithm/queries/provider_software.sparql',
             sources = ['mathalgodb','mardi','wikidata']
         )
         
