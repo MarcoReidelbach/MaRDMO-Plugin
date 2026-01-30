@@ -7,7 +7,7 @@ SELECT DISTINCT
 ?is_time_continuous ?is_time_discrete
 (GROUP_CONCAT(DISTINCT CONCAT(?rp, " | ", ?rpl, " | ", ?rpd); SEPARATOR=" <|> ") AS ?models)
 (GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); SEPARATOR=" <|> ") AS ?used_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq, " >|< ", ?confq2); SEPARATOR=" <|> ") AS ?contains_formulation)
+(GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq); SEPARATOR=" <|> ") AS ?contains_formulation)
 (GROUP_CONCAT(DISTINCT CONCAT(?sbm, " | ", ?sbml, " | ", ?sbmd, " | ", ?sbmq); SEPARATOR=" <|> ") AS ?specialized_by)
 (GROUP_CONCAT(DISTINCT CONCAT(?sm, " | ", ?sml, " | ", ?smd, " | ", ?smq); SEPARATOR=" <|> ") AS ?specializes)
 (GROUP_CONCAT(DISTINCT CONCAT(?abm, " | ", ?abml, " | ", ?abmd); SEPARATOR=" <|> ") AS ?approximated_by)
@@ -104,11 +104,6 @@ WHERE {{
             BIND(CONCAT("mardi:", STRAFTER(STR(?quaraw), STR(wd:))) AS ?qua)
         }}
         BIND(COALESCE(?qua, "") AS ?confq)
-        
-        OPTIONAL {{
-            ?statement_y pq:{series ordinal} ?qua2raw.
-        }}
-        BIND(COALESCE(?qua2raw, "") AS ?confq2)
     }}
 
     OPTIONAL {{   
