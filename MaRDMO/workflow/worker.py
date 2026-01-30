@@ -1024,4 +1024,4 @@ class prepareWorkflow:
             # Add Check Results
             payload.add_check_results(check)
 
-        return payload.get_dictionary()
+        return payload.get_dictionary(), payload.dependency
