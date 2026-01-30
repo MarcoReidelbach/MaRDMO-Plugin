@@ -271,6 +271,9 @@ class OauthProviderMixin:
                     retry_after = int(resp.headers.get("Retry-After", 5))
                     time.sleep(retry_after)
                     continue
+                if status == 403:
+                    time.sleep(1.5 ** attempt + random.uniform(0, 0.5))
+                    continue
                 if isinstance(status, int) and status >= 500:
                     time.sleep(1.5 ** attempt + random.uniform(0, 0.5))
                     continue
