@@ -269,8 +269,12 @@ def add_relations_flexible(project, data, props, index, statement):
 
     # Add Relations and Relatants
     for prop in props['keys']:
+        inner_idx = 0
+        assumption_store = {}
+        order_number_store = {}
         for value in getattr(data, prop):
-
+            assumption_index = None
+            order_number_index = None
             # Get Source and Label Description String
             source, _ = value.id.split(':')
 
@@ -279,39 +283,38 @@ def add_relations_flexible(project, data, props, index, statement):
                 value = value,
                 set_prefix_red = index['set_prefix_reduced'],
                 info = info,
-                relation_id = props['mapping'][prop])
+                relation_id = props['mapping'][prop]
+            )
 
             if matches:
                 # Continue if existing
                 continue
 
-            # Add Relation to Questionnaire
-            value_editor(
-                project = project,
-                uri = statement['relation'],
-                info = {
-                    'option': Option.objects.get(uri=props['mapping'][prop]),
-                    'collection_index': None,
-                    'set_index': index['idx'],
-                    'set_prefix': index['set_prefix']
-                }
-            )
-
-            # Add Relatant to Questionnaire
-            value_editor(
-                project = project,
-                uri = statement['relatant'],
-                info = {
-                    'text': f"{value.label} ({value.description}) [{source}]",
-                    'external_id': value.id,
-                    'collection_index': None,
-                    'set_index': index['idx'],
-                    'set_prefix': index['set_prefix']
-                }
-            )
+            # Add Order Number
+            if statement.get('order') and hasattr(value, 'order') and value.order:
+                if value.order not in order_number_store:
+                    index['idx'] +=1
+                    inner_idx = 0
+                    order_number_store.update({value.order: index['idx']})
+                order_number_index = order_number_store.get(value.order)
+                # Add Order Number to Questionnaire
+                value_editor(
+                    project = project,
+                    uri = statement['order'],
+                    info = {
+                        'text': value.order,
+                        'set_index': order_number_index,
+                        'set_prefix': index['set_prefix']
+                    }
+                )
 
             # Add Assumption
             if statement.get('assumption') and hasattr(value, 'qualifier') and value.qualifier:
+                if value.qualifier not in assumption_store:
+                    index['idx'] +=1
+                    inner_idx = 0
+                    assumption_store.update({value.qualifier: index['idx']})
+                assumption_index = assumption_store.get(value.qualifier)
                 # Get Assumptions
                 assumption_dict = process_qualifier(value.qualifier)
                 # Add Assumptions
@@ -325,32 +328,46 @@ def add_relations_flexible(project, data, props, index, statement):
                             ),
                             'external_id': assumption_value['id'],
                             'collection_index': assumption_key,
-                            'set_index': index['idx'],
+                            'set_index': assumption_index,
                             'set_prefix': index['set_prefix']
                         }
                     )
 
-            # Add Order Number
-            if statement.get('order') and hasattr(value, 'order') and value.order:
-                # Add Order Number to Questionnaire
-                value_editor(
-                    project = project,
-                    uri = statement['order'],
-                    info = {
-                        'text': value.order,
-                        'set_index': index['idx'],
-                        'set_prefix': index['set_prefix']
-                    }
-                )
+            # Add Relation to Questionnaire
+            value_editor(
+                project = project,
+                uri = statement['relation'],
+                info = {
+                    'option': Option.objects.get(uri=props['mapping'][prop]),
+                    'collection_index': None,
+                    'set_index': order_number_index or assumption_index or index['idx'],
+                    'set_prefix': index['set_prefix']
+                }
+            )
 
-            # Update index
-            index['idx'] += 1
+            # Add Relatant to Questionnaire
+            value_editor(
+                project = project,
+                uri = statement['relatant'],
+                info = {
+                    'text': f"{value.label} ({value.description}) [{source}]",
+                    'external_id': value.id,
+                    'collection_index': inner_idx,
+                    'set_index': order_number_index or assumption_index or index['idx'],
+                    'set_prefix': index['set_prefix']
+                }
+            )
 
             # Update existing IDs, Texts, and Relations
             info['value_ids'].append(value.id)
             info['set_prefix_ids'].append(index['set_prefix_reduced'])
             info['texts'].append(f"{value.label} ({value.description}) [{source}]")
             info['rels'].append(props['mapping'][prop])
+
+            inner_idx += 1
+
+        # Update index
+        index['idx'] += 1
 
 def add_properties(project, data, uri, set_prefix):
     '''Function which adds Data Properties to the Questionnaire.
