@@ -47,6 +47,7 @@
             "uri": "domain/field/field-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         }
     },
@@ -106,6 +107,7 @@
             "uri": "domain/problem/problem-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         }
     },
@@ -172,6 +174,7 @@
             "uri": "domain/model/formulation-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "TRelatant": {
@@ -195,6 +198,7 @@
             "uri": "domain/model/model-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "Assumption": {
@@ -299,6 +303,7 @@
             "uri": "domain/formulation/formulation-relatant-1",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "IntraClassRelation": {
@@ -314,6 +319,7 @@
             "uri": "domain/formulation/formulation-relatant-2",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "Assumption": {
@@ -418,6 +424,7 @@
             "uri": "domain/quantity/quantity-to-quantity/relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "QK2QK": {
@@ -433,6 +440,7 @@
             "uri": "domain/quantity/quantity-kind-to-quantity-kind/relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "Q2QK": {
@@ -448,6 +456,7 @@
             "uri": "domain/quantity/quantity-to-quantity-kind/relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "QK2Q": {
@@ -463,6 +472,7 @@
             "uri": "domain/quantity/quantity-kind-to-quantity/relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         }
     },
@@ -521,6 +531,7 @@
             "uri": "domain/task/formulation-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "T2Q": {
@@ -536,6 +547,7 @@
             "uri": "domain/task/quantity-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "IntraClassRelation": {
@@ -551,6 +563,7 @@
             "uri": "domain/task/task-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "Assumption": {

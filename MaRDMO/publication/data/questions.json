@@ -46,6 +46,7 @@
             "uri": "domain/publication/algorithm-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "P2B": {
@@ -61,6 +62,7 @@
             "uri": "domain/publication/benchmark-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "P2S": {
@@ -76,6 +78,7 @@
             "uri": "domain/publication/software-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "P2E": {
@@ -91,6 +94,7 @@
             "uri": "domain/publication/entity-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         },
         "Entrytype": {

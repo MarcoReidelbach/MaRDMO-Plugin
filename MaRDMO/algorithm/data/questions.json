@@ -49,6 +49,7 @@
             "uri": "domain/algorithm/algorithm-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         }
     },
@@ -94,6 +95,7 @@
             "uri": "domain/problem/problem-relatant",
             "set_prefix": true,
             "set_index": true,
+            "collection_index": true,
             "external_id": true
         }
     },
