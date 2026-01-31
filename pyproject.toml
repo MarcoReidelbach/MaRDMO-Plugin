@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "MaRDMO"
-version = "0.4.0"
+version = "0.4.1"
 description = "RDMO Plugin to document and query mathematical research data using the MaRDI infrastructure."
 readme = "README.md"
 authors = [{name = "Marco Reidelbach", email = "reidelbach@zib.de"}]
