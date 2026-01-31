@@ -33,7 +33,7 @@ In addition to documentation, MaRDMO provides a dedicated interview for searchin
   
 ## MaRDMO Plugin Installation
 
-To use the MaRDMO Plugin at least `RDMO v2.3.0` is required. Follow the installation / update instructions of [RDMO](https://rdmo.readthedocs.io/en/latest/installation) if required. 
+To use the MaRDMO Plugin at least `RDMO v2.4.0` is required. Follow the installation / update instructions of [RDMO](https://rdmo.readthedocs.io/en/latest/installation) if required. 
 
 Go to the `rdmo-app` directory of your RDMO installation. In the virtual environment of the RDMO installation install the MaRDMO Plugin:
 
