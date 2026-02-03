@@ -597,9 +597,9 @@
             {% endif %}
         {% elif relation.relation == option.contains_task %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contained in: <strong style="color:red;">{{relation.relatant }}</strong> {% if relation.order %} - order number: {{ relation.order }} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
+                contains: <strong style="color:red;">{{relation.relatant }}</strong> {% if relation.order %} - order number: {{ relation.order }} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
             {% else %}
-                contained in: {{relation.relatant }} {% if relation.order %} - order number: {{ relation.order }} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>            
+                contains: {{relation.relatant }} {% if relation.order %} - order number: {{ relation.order }} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>            
             {% endif %}
         {% elif relation.relation == option.approximated_by %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
