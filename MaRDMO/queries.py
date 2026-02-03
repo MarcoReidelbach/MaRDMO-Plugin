@@ -213,109 +213,101 @@ def query_provider(search, query, source):
     return options
 
 def query_sources_with_user_additions(search, project, setup):
-    '''Fetch options from KG, user-defined fields, and other sources.'''
+    '''Fetch options from KG, user-defined fields, and allow creation.'''
     if setup['sources'] is None:
         setup['sources'] = ['mardi', 'wikidata']
 
     # Query external sources
     try:
         options = query_sources(
-            search = search,
-            query_id = setup['query_id'],
-            sources = setup['sources'],
-            not_found = False
+            search=search,
+            query_id=setup['query_id'],
+            sources=setup['sources'],
+            not_found=False
         )
-    except(requests.exceptions.RequestException, KeyError, ValueError) as e:
+    except (requests.exceptions.RequestException, KeyError, ValueError) as e:
         logger.error("Query sources failed: %s", e)
         options = []
 
-    # Create cache key for user entries
+    # Get or build user entries dictionary
     cache_key = f"user_entries_{project.id}_{','.join(setup['query_attributes'])}"
     dic = cache.get(cache_key)
 
     if dic is None:
-        # Cache miss - query database for user-defined entries
         logger.debug("Cache miss for %s, querying database", cache_key)
-
-        dic = {}
-
-        # Collect entries from ALL query attributes
-        all_ids = []
-        all_names = []
-        all_descriptions = []
-
-        for query_attribute in setup['query_attributes']:
-            # Get User Entries from database
-            values = get_user_entries(
-                project = project,
-                query_attribute = query_attribute,
-                values = {}
-            )
-
-            # Accumulate values from all attributes
-            all_ids.extend(values['id'])
-            all_names.extend(values['name'])
-            all_descriptions.extend(values['description'])
-
-        # Zip ALL user-defined answers
-        zipped = zip(
-            all_ids,
-            all_names,
-            all_descriptions
-        )
-
-        # Process user-defined answers
-        for value1, value2, value3 in zipped:
-            if not value1.text:
-                continue
-            # Create Item Template
-            item = dict.fromkeys(["source", "label", "description", "id"], None)
-            # Distinguish User and ID Items
-            if value1.text == 'not found':
-                # Handle User Defined Items
-                item['label'] = value2.text or "No Label Provided!"
-                item['description'] = value3.text or "No Description Provided!"
-                item['id'] = value1.text
-                item['source'] = 'user'
-            else:
-                # Handle ID Items
-                item['label'], item['description'], item['source'] = extract_parts(value1.text)
-                _, item['id'] = value1.external_id.split(':')
-            # Set Up intermediate Dictionary
-            if item['source'] not in setup['sources']:
-                if item['source'] == 'user':
-                    # Handle User Defined Items
-                    dic[f"{item['label']} ({item['description']})"] = {
-                        'id': item['id']
-                    }
-                else:
-                    # Handle ID Items
-                    dic[f"{item['label']} ({item['description']}) [{item['source']}]"] = {
-                        'id': f"{item['source']}:{item['id']}"
-                    }
-
-        # Cache User Input for 3 minutes)
+        dic = query_user_entries(project, setup)
         cache.set(cache_key, dic, timeout=180)
         logger.debug("Cached user entries for %s", cache_key)
     else:
         logger.debug("Cache hit for %s", cache_key)
 
-    # Filter user-defined options based on search
+    # Filter and merge options
     options_user = [
-        {
-            'id': f"{value['id']}",
-            'text': key
-        }
-        for key, value in dic.items() if search.lower() in key.lower()
+        {'id': value['id'], 'text': key}
+        for key, value in dic.items()
+        if search.lower() in key.lower()
     ]
-
-    # Merge user and external options
     options = options_user + options
 
+    # Add creation option if needed
     if setup['creation']:
-        # Check if User Input already in Options
-        if {'id': 'not found', 'text': f"{search}"} not in options:
-            # Add creation Option if desired
-            options = [{'id': 'not found', 'text': f"{search}"}] + options
+        creation_option = {'id': 'not found', 'text': search}
+        if creation_option not in options:
+            options.insert(0, creation_option)
 
     return options
+
+def query_user_entries(project, setup):
+    '''Collect user entries from database and build options dictionary.'''
+    dic = {}
+
+    for query_attribute in setup['query_attributes']:
+        # Get entries from database
+        values = get_user_entries(
+            project=project,
+            query_attribute=query_attribute,
+            values={}
+        )
+
+        # Align id/name/description by numeric index
+        entries_by_idx = {}
+        for value_id in values['id']:
+            idx = value_id.set_index
+            entries_by_idx.setdefault(idx, {})['id'] = value_id
+
+        for value_name in values['name']:
+            idx = int(value_name.set_prefix)
+            entries_by_idx.setdefault(idx, {})['name'] = value_name
+
+        for value_desc in values['description']:
+            idx = int(value_desc.set_prefix)
+            entries_by_idx.setdefault(idx, {})['description'] = value_desc
+
+        # Process aligned entries
+        for idx in sorted(entries_by_idx.keys()):
+            entry = entries_by_idx[idx]
+
+            if not entry['id'].text:
+                continue
+
+            # Build item
+            if entry['id'].text == 'not found':
+                # User-defined item
+                label = entry['name'].text or "No Label Provided!"
+                description = entry['description'].text or "No Description Provided!"
+                item_id = 'not found'
+                source = 'user'
+            else:
+                # External ID item
+                label, description, source = extract_parts(entry['id'].text)
+                _, item_id = entry['id'].external_id.split(':')
+                item_id = f"{source}:{item_id}"
+
+            # Add to dictionary if not from primary sources
+            if source not in setup['sources']:
+                if source == 'user':
+                    dic[f"{label} ({description})"] = {'id': item_id}
+                else:
+                    dic[f"{label} ({description}) [{source}]"] = {'id': item_id}
+
+    return dic

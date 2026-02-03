@@ -275,7 +275,7 @@ def build_new_value(from_entry, entity, key, resolved, order, assumption):
                 'order': from_entry.get('formulation_number', {}).get(key)
             }
         )
-        
+
     if order['task']:
         new_value.update(
             {
@@ -593,3 +593,4 @@ def is_flat(d):
     if d == {}:
         return True
     return isinstance(next(iter(d.values())), str)
+
