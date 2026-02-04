@@ -6,41 +6,36 @@ from ..helpers import define_setup
 from ..queries import query_sources, query_sources_with_user_additions
 
 class Algorithm(Provider):
-    '''Algorithm Provider (MaRDI Portal / Wikidata / MathAlgoDB),
+    '''Algorithm Provider (MaRDI Portal / Wikidata),
        No User Creation, Refresh Upon Selection
     '''
 
     search = True
-    refresh = True
+    refresh =True
 
     def get_options(self, project, search=None, user=None, site=None):
-        '''Queries MathModDB for user input'''
+        '''Queries external source for user input'''
         if not search or len(search) < 3:
             return []
 
-        # Define the sources to query
-        query_id = 'algorithm/queries/provider_algorithm.sparql'
-        sources = ['mathalgodb','mardi','wikidata']
-
-        return query_sources(search, query_id, sources)
+        return query_sources(search)
 
 class RelatedAlgorithmWithoutCreation(Provider):
-    '''Algorithm Provider (MaRDI Portal / Wikidata / MathAlgoDB),
+    '''Algorithm Provider (MaRDI Portal),
        No User Creation, No Refresh Upon Selection
     '''
 
     search = True
 
     def get_options(self, project, search=None, user=None, site=None):
-
+        '''Queries external source for user input'''
         if not search or len(search) < 3:
             return []
 
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['algorithm'],
-            query_id = 'algorithm/queries/provider_algorithm.sparql',
-            sources = ['mathalgodb']
+            sources = ['mardi']
         )
 
         return query_sources_with_user_additions(
@@ -50,7 +45,7 @@ class RelatedAlgorithmWithoutCreation(Provider):
         )
 
 class AlgorithmicProblem(Provider):
-    '''Algorithmic Problem Provider (MaRDI Portal / Wikidata / MathAlgoDB),
+    '''Algorithmic Problem Provider (MaRDI Portal / Wikidata),
        No User Creation, Refresh Upon Selection
     '''
 
@@ -58,34 +53,28 @@ class AlgorithmicProblem(Provider):
     refresh = True
 
     def get_options(self, project, search=None, user=None, site=None):
-        '''Queries MathModDB for user input'''
+        '''Queries external sources for user input'''
         if not search or len(search) < 3:
             return []
 
-        # Define the sources to query
-        query_id = 'algorithm/queries/provider_problem.sparql'
-        sources = ['mathalgodb','mardi','wikidata']
-
-        return query_sources(search, query_id, sources)
+        return query_sources(search)
 
 class RelatedAlgorithmicProblemWithCreation(Provider):
-    '''Algorithmic Problem Provider (MaRDI Portal / Wikidata / MathAlgoDB),
+    '''Algorithmic Problem Provider (MaRDI Portal / Wikidata),
        User Creation, No Refresh Upon Selection
     '''
 
     search = True
 
     def get_options(self, project, search=None, user=None, site=None):
-
+        '''Queries external sources for user input'''
         if not search or len(search) < 3:
             return []
 
         # Define the query_setup
         setup = define_setup(
-            creation = True,
             query_attributes = ['problem'],
-            query_id = 'algorithm/queries/provider_problem.sparql',
-            sources = ['mathalgodb','mardi','wikidata']
+            creation = True
         )
 
         return query_sources_with_user_additions(
@@ -95,66 +84,21 @@ class RelatedAlgorithmicProblemWithCreation(Provider):
         )
 
 class RelatedAlgorithmicProblemWithoutCreation(Provider):
-    '''Algorithmic Problem Provider (MaRDI Portal / Wikidata / MathAlgoDB),
+    '''Algorithmic Problem Provider (MaRDI Portal),
        No User Creation, No Refresh Upon Selection
     '''
 
     search = True
 
     def get_options(self, project, search=None, user=None, site=None):
-
-        if not search or len(search) < 3:
-            return []
-
-        setup = define_setup(
-            query_attributes = ['problem'],
-            query_id = 'algorithm/queries/provider_problem.sparql',
-            sources = ['mathalgodb']
-        )
-
-        return query_sources_with_user_additions(
-            search = search,
-            project = project,
-            setup = setup
-        )
-
-class Software(Provider):
-    '''Software Provider (MaRDI Portal / Wikidata / MathAlgoDB),
-       No User Creation, Refresh Upon Selection
-    '''
-
-    search = True
-    refresh = True
-
-    def get_options(self, project, search=None, user=None, site=None):
-        '''Queries MathModDB for user input'''
-        if not search or len(search) < 3:
-            return []
-
-        # Define the sources to query
-        query_id = 'algorithm/queries/provider_software.sparql'
-        sources = ['mathalgodb','mardi','wikidata']
-
-        return query_sources(search, query_id, sources)
-
-class RelatedSoftwareWithCreation(Provider):
-    '''Software Provider (MaRDI Portal / Wikidata / MathAlgoDB),
-       User Creation, No Refresh Upon Selection
-    '''
-
-    search = True
-
-    def get_options(self, project, search=None, user=None, site=None):
-
+        '''Queries external sources for user input'''
         if not search or len(search) < 3:
             return []
 
         # Define the query_setup
         setup = define_setup(
-            creation = True,
-            query_attributes = ['software'],
-            query_id = 'algorithm/queries/provider_software.sparql',
-            sources = ['mathalgodb','mardi','wikidata']
+            query_attributes = ['problem'],
+            sources = ['mardi']
         )
 
         return query_sources_with_user_additions(
@@ -164,7 +108,7 @@ class RelatedSoftwareWithCreation(Provider):
         )
 
 class Benchmark(Provider):
-    '''Benchmark Provider (MaRDI Portal / Wikidata / MathAlgoDB),
+    '''Benchmark Provider (MaRDI Portal / Wikidata),
        No User Creation, Refresh Upon Selection
     '''
 
@@ -172,34 +116,28 @@ class Benchmark(Provider):
     refresh = True
 
     def get_options(self, project, search=None, user=None, site=None):
-        '''Queries MathModDB for user input'''
+        '''Queries external sources for user input'''
         if not search or len(search) < 3:
             return []
 
-        # Define the sources to query
-        query_id = 'algorithm/queries/provider_benchmark.sparql'
-        sources = ['mathalgodb','mardi','wikidata']
-
-        return query_sources(search, query_id, sources)
+        return query_sources(search)
 
 class RelatedBenchmarkWithCreation(Provider):
-    '''Benchmark Provider (MaRDI Portal / Wikidata / MathAlgoDB),
+    '''Benchmark Provider (MaRDI Portal / Wikidata),
        User Creation, No Refresh Upon Selection
     '''
 
     search = True
 
     def get_options(self, project, search=None, user=None, site=None):
-
+        '''Queries external sources for user input'''
         if not search or len(search) < 3:
             return []
 
         # Define the query_setup
         setup = define_setup(
-            creation = True,
             query_attributes = ['benchmark'],
-            query_id = 'algorithm/queries/provider_benchmark.sparql',
-            sources = ['mathalgodb','mardi','wikidata']
+            creation = True
         )
 
         return query_sources_with_user_additions(

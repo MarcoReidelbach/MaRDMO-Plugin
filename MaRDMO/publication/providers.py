@@ -16,8 +16,4 @@ class Publication(Provider):
         if not search or len(search) < 3:
             return []
 
-        # Define the query parameter
-        query_id = 'algorithm/queries/provider_publication.sparql'
-        sources = ['mathalgodb', 'mardi', 'wikidata']
-
-        return query_sources(search, query_id, sources)
+        return query_sources(search)
