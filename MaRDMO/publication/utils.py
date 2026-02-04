@@ -121,17 +121,6 @@ def extract_journals(data):
                 journals[idx] = Journal.from_query(entry)
     return journals
 
-def generate_label(data):
-    '''Function to generate a Publication Label for MathAlgoDB'''
-    name = year = title = ''
-    if data.authors:
-        name = data.authors[0].label.split(' ')[-1]
-    if data.date:
-        year = data.date[:4]
-    if data.title:
-        title = data.title
-    return f'{name} ({year}) {title}'
-
 def get_citation(doi):
     '''Function to get citation information from DOI'''
     publication = {}
@@ -154,23 +143,17 @@ def get_citation(doi):
     ).format(
         doi
     )
-    mathalgodb_query = get_sparql_query(
-        'publication/queries/full_doi_mathalgodb.sparql'
-    ).format(
-        doi
-    )
 
     # Get Citation Data from MaRDI Portal / Wikidata / MathAlgoDB
     results = query_sparql_pool(
         {
             'wikidata': (wikidata_query, get_url('wikidata', 'sparql')),
             'mardi':(mardi_query, get_url('mardi', 'sparql')),
-            'mathalgodb':(mathalgodb_query, get_url('mathalgodb', 'sparql'))
         }
     )
 
     # Structure Publication Information
-    for key in ['mardi', 'wikidata', 'mathalgodb']:
+    for key in ['mardi', 'wikidata']:
         try:
             publication[key] = Publication.from_query(results.get(key))
         except:
