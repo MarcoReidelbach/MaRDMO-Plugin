@@ -6,24 +6,6 @@ PROPS = {
     'P2BS': ['documents', 'uses']
 }
 
-# Index counters for different cenchmarks and software
-INDEX_COUNTERS = {
-    "benchmark": 0,
-    "software": 0
-}
-
-# URI mappings for quantity relations
-RELATION_URIS = {
-    "benchmark": "P2B",
-    "software": "P2S",
-}
-
-# URI mappings for quantity relatants
-RELATANT_URIS = {
-    "benchmark": "BRelatant",
-    "software": "SRelatant",
-}
-
 # URI mappings for item infos
 ITEMINFOS = {
     "Name": "title",
