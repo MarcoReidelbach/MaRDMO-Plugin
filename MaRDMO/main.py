@@ -541,7 +541,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             if mode == 'preview':
                 # Retrieve Publications related to Model for Preview
                 publication = PublicationRetriever()
-                answers = publication.workflow_or_model(
+                answers = publication.get_information(
                     project = self.project,
                     snapshot = self.snapshot,
                     answers = answers,
@@ -572,7 +572,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
             # Retrieve Publications related to Workflow
             publication = PublicationRetriever()
-            answers = publication.algorithm(
+            answers = publication.get_information(
                 project = self.project,
                 snapshot = self.snapshot,
                 answers = answers
