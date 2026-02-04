@@ -55,19 +55,19 @@ PROJECT_EXPORTS += [
         ]
 
 OPTIONSET_PROVIDERS = [
+    # General
+    ('Software', _('Options for Software'), 'MaRDMO.providers.Software'),
+    ('RelatedSoftwareWithCreation', _('Options for related Software with Creation'), 'MaRDMO.providers.RelatedSoftwareWithCreation'),
     # Search
     ('MaRDISearch', _('Options for MaRDI Search'), 'MaRDMO.search.providers.MaRDISearch'),
-    ('SoftwareSearch', _('Options for Software Search'), 'MaRDMO.search.providers.SoftwareSearch'),
     # Workflow
     ('MaRDIAndWikidataSearch', _('Options for MaRDI and Wikidata Search'), 'MaRDMO.workflow.providers.MaRDIAndWikidataSearch'),
     ('MainMathematicalModel', _('Options for Main Mathematical Model'), 'MaRDMO.workflow.providers.MainMathematicalModel'),
     ('WorkflowTask', _('Options for Workflow Task'), 'MaRDMO.workflow.providers.WorkflowTask'),
-    ('SoftwareW', _('Options for Software (Workflow)'), 'MaRDMO.workflow.providers.Software'),
     ('Hardware', _('Options for Hardware'), 'MaRDMO.workflow.providers.Hardware'),
     ('Instrument', _('Options for Instruments'), 'MaRDMO.workflow.providers.Instrument'),
     ('DataSet', _('Options for Data Sets'), 'MaRDMO.workflow.providers.DataSet'),
     ('RelatedDataSet', _('Options for related Data Sets'), 'MaRDMO.workflow.providers.RelatedDataSet'),
-    ('RelatedSoftware', _('Options for related Software'), 'MaRDMO.workflow.providers.RelatedSoftware'),
     ('RelatedInstrument', _('Options for related Instruments'), 'MaRDMO.workflow.providers.RelatedInstrument'),
     ('Method', _('Options for Methods'), 'MaRDMO.workflow.providers.Method'),
     ('RelatedMethod', _('Options for related Methods'), 'MaRDMO.workflow.providers.RelatedMethod'),
@@ -103,12 +103,10 @@ OPTIONSET_PROVIDERS = [
     ('AlgorithmicProblem', _('Options for Algorithmic Problems'), 'MaRDMO.algorithm.providers.AlgorithmicProblem'),
     ('RelatedAlgorithmicProblemWithCreation', _('Options for related Algorithmic Problems with Creation'), 'MaRDMO.algorithm.providers.RelatedAlgorithmicProblemWithCreation'),
     ('RelatedAlgorithmicProblemWithoutCreation', _('Options for related Algorithmic Problems without Creation'), 'MaRDMO.algorithm.providers.RelatedAlgorithmicProblemWithoutCreation'),
-    ('SoftwareAL', _('Options for Software (Algorithm)'), 'MaRDMO.algorithm.providers.Software'),
-    ('RelatedSoftwareALWithCreation', _('Options for related Software (Algorithm) with Creation'), 'MaRDMO.algorithm.providers.RelatedSoftwareWithCreation'),
     ('Benchmark', _('Options for Benchmarks'), 'MaRDMO.algorithm.providers.Benchmark'),
-    ('RelatedBenchmarkWithCreation', _('Options for related Benchmarks with Creation'), 'MaRDMO.algorithm.providers.RelatedBenchmarkWithCreation')
+    ('RelatedBenchmarkWithCreation', _('Options for related Benchmarks with Creation'), 'MaRDMO.algorithm.providers.RelatedBenchmarkWithCreation'),
+    ('RelatedBenchmarkOrSoftwareWithoutCreation', _('Options for related Benchmarks or Software without Creation'), 'MaRDMO.algorithm.providers.RelatedBenchmarkOrSoftwareWithoutCreation'),
     ]
-
 
 ```
 
