@@ -5,7 +5,7 @@ from typing import Optional
 
 from .constants import data_properties_per_class, qudt_reference_ids
 
-from ..getters import get_items, get_mathmoddb, get_options
+from ..getters import get_items, get_mathmoddb
 from ..helpers import split_value
 from ..models import Relatant, RelatantWithClass
 
@@ -424,7 +424,6 @@ class QuantityOrQuantityKind:
         '''Generate Class Item From Query'''
 
         mathmoddb = get_mathmoddb()
-        options = get_options()
 
         data = raw_data[0]
 
