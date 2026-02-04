@@ -41,14 +41,6 @@ def get_uri_prefix_map():
     }
     return uri_prefix_map
 
-class_prefix_map = {
-        'algorithm': 'al',
-        'problem': 'pr',
-        'benchmark': 'bm',
-        'software': 'sw',
-        'publication': 'pb',
-    }
-
 # Parameter for Entity relations
 preview_relations = [
     {

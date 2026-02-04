@@ -133,13 +133,6 @@ MARDMO_PROVIDER = {
         'oauth2_client_id': '',
         'oauth2_client_secret': '',
     },
-    'mathalgodb': {
-        'uri': 'https://cordi2025.m1.mardi.ovh/',
-        'sparql': 'https://sparql.cordi2025.m1.mardi.ovh/mathalgodb/query',
-        'update': 'https://sparql.cordi2025.m1.mardi.ovh/mathalgodb/update',
-        'mathalgodb_id': '',
-        'mathalgodb_secret': ''
-    },
     'wikidata': {
         'uri': 'https://www.wikidata.org',
         'api': 'https://www.wikidata.org/w/api.php',

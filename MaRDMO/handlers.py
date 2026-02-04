@@ -41,7 +41,7 @@ class Information:
         datas = [Relatant.from_triple(instance.external_id, label, description)]
 
         # Add items from specific source
-        if source in ('mardi', 'mathalgodb', 'wikidata'):
+        if source in ('mardi', 'wikidata'):
             add_entities(
                 project=instance.project,
                 question_set=config["question_set"],

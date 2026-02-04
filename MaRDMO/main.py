@@ -3,8 +3,6 @@
 import logging
 from abc import ABC
 
-import requests
-
 from django import forms
 from django.conf import settings
 from django.http import HttpRequest
@@ -21,14 +19,12 @@ from .getters import (
     get_mathalgodb,
     get_options,
     get_questions,
-    get_sparql_query,
     get_url
 )
 from .helpers import  (
     compare_items,
     inline_mathml,
     is_cyclic,
-    merge_dicts_with_unique_keys,
     process_question_dict,
     topological_order
 )
@@ -37,12 +33,7 @@ from .oauth2 import OauthProviderMixin
 from .model.worker import PrepareModel
 from .model.checks import Checks
 
-from .algorithm.worker import algorithm_relations
-from .algorithm.utils import (
-    dict_to_triples_mathalgodb,
-    generate_sparql_insert_with_new_ids_mathalgodb,
-    update_ids
-)
+from .algorithm.worker import PrepareAlgorithm
 
 from .workflow.utils import get_discipline
 from .workflow.worker import prepareWorkflow
@@ -62,16 +53,6 @@ class BaseMaRDMOExportProvider(OauthProviderMixin, Export, ABC):
     def oauth2_client_secret(self):
         '''Provide OAuth2 Client Secret'''
         return settings.MARDMO_PROVIDER['mardi']['oauth2_client_secret']
-
-    @property
-    def mathalgodb_id(self):
-        '''Provide MathAlgoDB ID'''
-        return settings.MARDMO_PROVIDER['mathalgodb']['mathalgodb_id']
-
-    @property
-    def mathalgodb_secret(self):
-        '''Provide MathAlgoDB Secret'''
-        return settings.MARDMO_PROVIDER['mathalgodb']['mathalgodb_secret']
 
     @property
     def authorize_url(self):
@@ -342,82 +323,21 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
     def submit_mardmo_algorithm(self):
         """Submit MaRDMO Algorithm Documentation."""
 
-        # Check MathAlgoDB Credentials
-        if not (self.mathalgodb_id and self.mathalgodb_secret):
+        # Check MaRDI Portal Credentials
+        if not (self.oauth2_client_id and self.oauth2_client_secret):
             return render(
                 self.request,
                 'core/error.html',
                 {
                     'title': _('Missing Credentials'),
-                    'errors': [_('Credentials for MathAlgoDB are missing!')]
+                    'errors': [_('Credentials for MaRDI Portal are missing!')]
                 },
                 status=200
             )
 
         answers, *__ = self.get_post_data()
 
-        # Merge answers related to mathematical model
-        merged_dict = merge_dicts_with_unique_keys(
-            answers,
-            [
-                'algorithm',
-                'problem',
-                'software',
-                'benchmark',
-                'publication'
-            ]
-        )
-
-        # Generate list of triples
-        triple_list, ids = dict_to_triples_mathalgodb(merged_dict)
-
-        # Generate SPARQL query
-        query = generate_sparql_insert_with_new_ids_mathalgodb(triple_list)
-
-        try:
-            response = requests.post(
-                get_url('mathalgodb', 'update'),
-                data=query,
-                headers={
-                    "Content-Type": "application/sparql-update",
-                    "Accept": "text/turtle"
-                },
-                auth=(self.mathalgodb_id, self.mathalgodb_secret),
-                verify=False,
-                timeout=60
-            )
-        except requests.RequestException as err:
-            return render(
-                self.request,
-                'core/error.html',
-                {'title': _('Request Error'), 'errors': [err]},
-                status=500
-            )
-
-        if response.status_code == 204:
-            ids = update_ids(
-                self.project,
-                ids,
-                get_sparql_query('algorithm/queries/id_check.sparql'),
-                get_url('mathalgodb', 'sparql'),
-                'mathalgodb'
-            )
-            return render(
-                self.request,
-                'MaRDMO/algorithmExport.html',
-                {
-                    'ids': ids,
-                    'mathalgodb_uri': get_url('mathalgodb', 'uri')
-                },
-                status=200
-            )
-
-        return render(
-            self.request,
-            'MaRDMO/workflowError.html',
-            {'error': 'The algorithm could not be integrated into the MathAlgoDB!'},
-            status=200
-        )
+        ###ADD MATHALGODB EXPORT TO PORTAL###
 
     def submit_mardmo_search(self):
         """Submit MaRDMO Search Interdisciplinary Workflow, Models, or Algorithms."""
@@ -567,16 +487,19 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 get_answer = get_answers
             )
 
-            # Refine Mathematical Model Information
-            answers = algorithm_relations(answers)
+            if mode == 'preview':
+                # Retrieve Publications related to Model for Preview
+                publication = PublicationRetriever()
+                answers = publication.get_information(
+                    project = self.project,
+                    snapshot = self.snapshot,
+                    answers = answers,
+                    options = options
+                )
 
-            # Retrieve Publications related to Workflow
-            publication = PublicationRetriever()
-            answers = publication.get_information(
-                project = self.project,
-                snapshot = self.snapshot,
-                answers = answers
-            )
+            # Prepare Mathematical Model (Preview)
+            prepare = PrepareAlgorithm()
+            answers = prepare.preview(answers)
 
             return answers, options, mathalgodb
 

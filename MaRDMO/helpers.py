@@ -214,17 +214,6 @@ def value_editor(project, uri, info):
 
     return obj, created
 
-def merge_dicts_with_unique_keys(answers, keys):
-    '''Merge Dicts with unique Keys.'''
-    merged_dict = {}
-
-    for key in keys:
-        for inner_key, value in answers[key].items():
-            new_inner_key = f"{inner_key}{key}"
-            merged_dict[new_inner_key] = value
-
-    return merged_dict
-
 def check_list(list_var):
     '''Check if List is List'''
     if list_var is None:

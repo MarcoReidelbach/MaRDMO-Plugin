@@ -3,7 +3,6 @@
 import logging
 import time
 
-from .utils import map_entity_quantity
 from .constants import (
     preview_relations,
     preview_map_general,
@@ -11,12 +10,12 @@ from .constants import (
     get_relations,
     get_data_properties,
 )
+from .utils import map_entity_quantity
 
 from ..getters import get_items, get_mathmoddb, get_properties, get_url
 from ..helpers import entity_relations, map_entity, unique_items, date_precision
-from ..queries import query_sparql
 from ..payload import GeneratePayload
-
+from ..queries import query_sparql
 
 class PrepareModel:
     '''Class preparing Model Answers for Preview and Export'''
