@@ -5,8 +5,8 @@ from django.core.cache import cache
 
 import requests
 
-from .getters import get_sparql_query, get_url, get_user_entries
-from .helpers import extract_parts
+from .getters import get_url, get_user_entries
+from .helpers import extract_parts, process_result
 
 logger = logging.getLogger(__name__)
 
@@ -118,27 +118,16 @@ def query_sparql_pool(query_input):
     data = dict(zip(query_input.keys(), results))
     return data
 
-def query_sources(search, query_id = '', sources = None, not_found = True):
+def query_sources(search, sources = None, not_found = True):
     '''Helper function to query specified sources and process results.'''
 
     if sources is None:
         # Set default Sources
         sources = ['mardi', 'wikidata']
 
-    def process_result(result, source):
-        '''Function to process the result and return a dictionary with id and text'''
-        display = result['display']
-        label = display.get('label', {}).get('value', 'No Label Provided!')
-        description = display.get('description', {}).get('value', 'No Description Provided!')
-        return {
-            'id': f"{source}:{result['id']}",
-            'text': f"{label} ({description}) [{source}]"        
-        }
-
     source_functions = {
         'wikidata': lambda s: query_api(get_url('wikidata', 'api'), s),
         'mardi': lambda s: query_api(get_url('mardi', 'api'), s),
-        'mathalgodb': lambda s: query_provider(s, get_sparql_query(query_id), 'mathalgodb')
     }
 
     # Filter only specified sources
@@ -154,9 +143,6 @@ def query_sources(search, query_id = '', sources = None, not_found = True):
     # Process results to fit RDMO Provider Output Requirements
     options = []
 
-    if 'mathalgodb' in results_dict:
-        options += results_dict['mathalgodb'][:15]
-
     if 'mardi' in results_dict:
         options += [process_result(result, 'mardi') for result in results_dict['mardi'][:15]]
 
@@ -165,50 +151,6 @@ def query_sources(search, query_id = '', sources = None, not_found = True):
 
     if not_found:
         options = [{'id': 'not found', 'text': 'not found'}] + options
-
-    return options
-
-def query_provider(search, query, source):
-    """
-    Dynamic query of MathAlgoDB, results as options for Provider.
-    """
-    if not search:
-        return []
-
-    # Fetch results from the MathAlgoDB knowledge graph
-    results = query_sparql(
-        query = query,
-        sparql_endpoint = get_url(
-            'mathalgodb',
-            'sparql'
-        )
-    )
-
-    dic = {}
-    options = []
-
-    # Store results in dict
-    for result in results:
-        dic.update(
-            {
-                result['label']['value']: {
-                    'id': result['id']['value'],
-                    'quote': result['quote']['value']
-                }
-            }
-        )
-
-    # Filter results by user-defined search
-    options.extend(
-        [
-            {
-                'id': f"{source}:{value['id']}",
-                'text': f'{key} ({value["quote"]}) [{source}]'
-            }
-            for key, value in dic.items()
-            if search.lower() in key.lower()
-        ]
-    )
 
     return options
 

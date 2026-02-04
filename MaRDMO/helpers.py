@@ -93,7 +93,7 @@ def split_value(
     object_role: Optional[Callable[[Any], bool]] = None,
 ) -> list:
     """
-    Split data[key]['value'] on ' / '. Optionally apply a transform
+    Split data[key]['value'] on ' <|> '. Optionally apply a transform
     to each element and filter the results with `object_role`.
     """
     if key not in data:
@@ -594,3 +594,12 @@ def is_flat(d):
         return True
     return isinstance(next(iter(d.values())), str)
 
+def process_result(result, source):
+    '''Function to process the result and return a dictionary with id and text'''
+    display = result['display']
+    label = display.get('label', {}).get('value', 'No Label Provided!')
+    description = display.get('description', {}).get('value', 'No Description Provided!')
+    return {
+        'id': f"{source}:{result['id']}",
+        'text': f"{label} ({description}) [{source}]"        
+    }
