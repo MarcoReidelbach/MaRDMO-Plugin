@@ -345,9 +345,9 @@
 {% for values in answers.task.values %}
 
     {% if values.Name %}
-        <h2 id="T{{ forloop.counter }}"> T{{ forloop.counter }}: {{ values.Name }} </h2>
+        <h2 id="T{{ forloop.counter }}"> CT{{ forloop.counter }}: {{ values.Name }} </h2>
     {% else %}
-        <h2 id="T{{ forloop.counter }}"> T{{ forloop.counter }}: <strong style="color:red;">MISSING COMPUTATIONAL TASK NAME</strong> </h2>
+        <h2 id="T{{ forloop.counter }}"> CT{{ forloop.counter }}: <strong style="color:red;">MISSING COMPUTATIONAL TASK NAME</strong> </h2>
     {% endif %}
 
     <p>
