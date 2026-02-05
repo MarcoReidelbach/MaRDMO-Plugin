@@ -47,6 +47,8 @@
         {% if values.Description %}
             {% if values.Description|length > 250 %}
                 <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% elif values.Description == values.Name %}
+                <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>
             {% else %}
                 {{ values.Description }} <br>
             {% endif %}
@@ -355,6 +357,8 @@
         {% if values.Description %}
             {% if values.Description|length > 250 %}
                 <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% elif values.Description == values.Name %}
+                <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>
             {% else %}
                 {{ values.Description }} <br>
             {% endif %}
@@ -653,6 +657,8 @@
         {% if values.Description %}
             {% if values.Description|length > 250 %}
                 <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% elif values.Description == values.Name %}
+                <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>
             {% else %}
                 {{ values.Description }} <br>
             {% endif %}
@@ -1060,6 +1066,8 @@
         {% if values.Description %}
             {% if values.Description|length > 250 %}
                 <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% elif values.Description == values.Name %}
+                <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>
             {% else %}
                 {{ values.Description }} <br>
             {% endif %}
@@ -1140,6 +1148,8 @@
         {% if values.Description %}
             {% if values.Description|length > 250 %}
                 <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% elif values.Description == values.Name %}
+                <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>
             {% else %}
                 {{ values.Description }} <br>
             {% endif %}
@@ -1227,6 +1237,8 @@
         {% if values.Description %}
             {% if values.Description|length > 250 %}
                 <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% elif values.Description == values.Name %}
+                <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>
             {% else %}
                 {{ values.Description }} <br>
             {% endif %}
