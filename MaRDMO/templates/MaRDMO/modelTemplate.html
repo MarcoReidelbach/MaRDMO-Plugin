@@ -979,10 +979,10 @@
                     {% else %}
                         <tr>
                             {% if 'math' in value.symbol %}
-                                    <td style="text-align: center; vertical-align: middle;">{{ value.symbol|safe }} {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
-                                {% else %}
-                                    <td style="text-align: center; vertical-align: middle;">\( {{ value.Info.Name }} \) {% if value.Info.Name %} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %} </td>
-                                {% endif %}
+                                <td style="text-align: center; vertical-align: middle;">{{ value.symbol|safe }} {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                            {% else %}
+                                <td style="text-align: center; vertical-align: middle;">\( {{ value.symbol }} \) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                            {% endif %}
                             <td colspan="5" style="text-align: center; vertical-align: middle;"> <strong style="color:red;">MISSING QUANTITY OR QUANTITY KIND</strong> </td>
                         </tr>
                     {% endif %}
