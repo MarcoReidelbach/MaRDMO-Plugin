@@ -923,7 +923,7 @@
         <b>Defining formulations</b>:
         <ol style="margin-left: 1.5em;">
             {% for value in values.Formula.values %}
-                <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if 'math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %}</li>
+                <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if '<math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %}</li>
             {% empty %}
                 <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION FORMULA</strong>
             {% endfor %}
@@ -953,7 +953,7 @@
             <tbody>
                 {% for value in values.element.values %}
                     {% if value.Info.Type == option.Quantity %}
-                        <tr>{% if 'math' in value.symbol %}
+                        <tr>{% if '<math' in value.symbol %}
                                 <td style="text-align: center; vertical-align: middle;">{{ value.symbol|safe }} {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
                             {% else %}
                                 <td style="text-align: center; vertical-align: middle;">\( {{ value.symbol }} \) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
@@ -965,7 +965,7 @@
                             <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }} {% if value.Info.Description %} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
                         </tr>
                     {% elif value.Info.Type == option.QuantityKind %}
-                        <tr>{% if 'math' in value.symbol %}
+                        <tr>{% if '<math' in value.symbol %}
                                 <td style="text-align: center; vertical-align: middle;">{{ value.symbol|safe }} {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
                             {% else %}
                                 <td style="text-align: center; vertical-align: middle;">\( {{ value.symbol }} \) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
@@ -978,7 +978,7 @@
                         </tr>
                     {% else %}
                         <tr>
-                            {% if 'math' in value.symbol %}
+                            {% if '<math' in value.symbol %}
                                 <td style="text-align: center; vertical-align: middle;">{{ value.symbol|safe }} {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
                             {% else %}
                                 <td style="text-align: center; vertical-align: middle;">\( {{ value.symbol }} \) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
@@ -1639,9 +1639,9 @@
             <ol style="margin-left: 1.5em;">
                 {% for value in values.Formula.values %}
                     {% if '>≡</' in value or '>&#x2261;</' in value or '>&equiv;</' in value or '\\equiv' in value or '\\Equiv' in value %}
-                        <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if 'math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %}</li>
+                        <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if '<math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %}</li>
                     {% else %}
-                        <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if 'math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %} <strong style="color:red;">&nbsp;&nbsp;&nbsp;&nbsp;Inconsistent Quantity / Quantity Kind Definition (missing equivalent sign)</strong></li>
+                        <li style="margin-bottom: 0.5em;">&nbsp;&nbsp; {% if '<math' in value %} {{ value|safe }} {% else %} \( {{ value }} \) {% endif %} <strong style="color:red;">&nbsp;&nbsp;&nbsp;&nbsp;Inconsistent Quantity / Quantity Kind Definition (missing equivalent sign)</strong></li>
                     {% endif %}
                 {% empty %}
                     <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION FORMULA</strong>
@@ -1672,7 +1672,7 @@
                 <tbody>
                     {% for value in values.element.values %}
                         {% if value.Info.Type == option.Quantity %}
-                            <tr>{% if 'math' in value.symbol %}
+                            <tr>{% if '<math' in value.symbol %}
                                     <td style="text-align: center; vertical-align: middle;">{{ value.symbol|safe }} {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
                                 {% else %}
                                     <td style="text-align: center; vertical-align: middle;">\( {{ value.symbol }} \) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
@@ -1684,7 +1684,7 @@
                                 <td style="text-align: center; vertical-align: middle;">{{ value.Info.Description }} {% if value.Info.Description %} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
                             </tr>
                         {% elif value.Info.Type == option.QuantityKind %}
-                            <tr>{% if 'math' in value.symbol %}
+                            <tr>{% if '<math' in value.symbol %}
                                     <td style="text-align: center; vertical-align: middle;">{{ value.symbol|safe }} {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
                                 {% else %}
                                     <td style="text-align: center; vertical-align: middle;">\( {{ value.symbol }} \) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
@@ -1697,7 +1697,7 @@
                             </tr>
                         {% else %}
                             <tr>
-                                {% if 'math' in value.symbol %}
+                                {% if '<math' in value.symbol %}
                                     <td style="text-align: center; vertical-align: middle;">{{ value.symbol|safe }} {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
                                 {% else %}
                                     <td style="text-align: center; vertical-align: middle;">\( {{ value.symbol }} \) {% if value.symbol %} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
