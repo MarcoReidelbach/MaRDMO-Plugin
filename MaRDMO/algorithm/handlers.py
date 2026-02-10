@@ -4,7 +4,14 @@ from .constants import PROPS
 from .models import Benchmark, Software, Problem, Algorithm
 
 from ..constants import BASE_URI
-from ..getters import get_mathalgodb, get_questions, get_sparql_query, get_url
+from ..getters import (
+    get_items,
+    get_mathalgodb,
+    get_properties,
+    get_questions,
+    get_sparql_query,
+    get_url
+)
 from ..queries import query_sparql
 from ..adders import (
     add_basics,
@@ -47,7 +54,12 @@ class Information:
         source, identifier = instance.external_id.split(':')
 
         # If Item from MathModDB, query relations and load MathModDB Vocabulary
-        query = get_sparql_query('algorithm/queries/benchmark.sparql').format(identifier)
+        query = get_sparql_query('algorithm/queries/benchmark.sparql').format(
+            identifier,
+            **get_items(),
+            **get_properties()
+        )
+
         results = query_sparql(
             query,
             get_url(
@@ -102,7 +114,12 @@ class Information:
         # Get source and ID of Item
         source, identifier = instance.external_id.split(':')
 
-        query = get_sparql_query('algorithm/queries/software.sparql').format(identifier)
+        query = get_sparql_query('algorithm/queries/software.sparql').format(
+            identifier,
+            **get_items(),
+            **get_properties()
+        )
+
         results = query_sparql(
             query,
             get_url(
@@ -172,7 +189,12 @@ class Information:
         # Get source and ID of Item
         source, identifier = instance.external_id.split(':')
 
-        query = get_sparql_query('algorithm/queries/problem.sparql').format(identifier)
+        query = get_sparql_query('algorithm/queries/problem.sparql').format(
+            identifier,
+            **get_items(),
+            **get_properties()
+        )
+
         results = query_sparql(
             query,
             get_url(
@@ -242,7 +264,12 @@ class Information:
         # Get source and ID of Item
         source, identifier = instance.external_id.split(':')
 
-        query = get_sparql_query('algorithm/queries/algorithm.sparql').format(identifier)
+        query = get_sparql_query('algorithm/queries/algorithm.sparql').format(
+            identifier,
+            **get_items(),
+            **get_properties()
+        )
+
         results = query_sparql(
             query,
             get_url(

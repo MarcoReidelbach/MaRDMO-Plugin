@@ -6,12 +6,24 @@ from ..getters import get_questions
 # Dictionary with list of property names
 PROPS = {
     'A2P': ['solves'],
-    'A2S': ['implementedBy'],
-    'P2B': ['instantiates'],
-    'S2B': ['tests'],
-    'Algorithm': ['hasComponent', 'componentOf', 'hasSubclass', 'subclassOf', 'relatedTo'],
-    'Problem': ['specializes', 'specializedBy']
+    'A2S': ['implemented_by'],
+    'P2B': ['manifests'],
+    'S2B': ['tested_by'],
+    'Algorithm': ['has_component', 'component_of', 'has_subclass', 'subclass_of', 'related_to'],
+    'Problem': ['specializes', 'specialized_by']
 }
+
+software_reference_ids = [
+    'DOI',
+    'SWMATH',
+    'URL'
+]
+
+benchmark_reference_ids = [
+    'DOI',
+    'MORWIKI',
+    'URL'
+]
 
 # URI PREFIX Map
 def get_uri_prefix_map():

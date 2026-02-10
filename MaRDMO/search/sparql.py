@@ -1,6 +1,6 @@
 #SPARQL Query Base and Components for Portal Search
 
-query_base="""
+query_base_workflow="""
 SELECT DISTINCT ?label ?qid
 WHERE {{
 ?workflow wdt:{instance of} wd:{research workflow};

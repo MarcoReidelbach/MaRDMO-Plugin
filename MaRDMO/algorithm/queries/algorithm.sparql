@@ -1,87 +1,167 @@
-PREFIX prop: <https://mardi4nfdi.de/mathalgodb/0.1#>
-PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/algorithm#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT DISTINCT 
+(GROUP_CONCAT(DISTINCT CONCAT(?prob, " | ", ?probl, " | ", ?probd); separator=" <|> ") AS ?solved_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?imple, " | ", ?implel, " | ", ?impled); separator=" <|> ") AS ?implementation_of)
+(GROUP_CONCAT(DISTINCT CONCAT(?hascomp, " | ", ?hascompl, " | ", ?hascompd); separator=" <|> ") AS ?has_parts)
+(GROUP_CONCAT(DISTINCT CONCAT(?comp, " | ", ?compl, " | ", ?compd); separator=" <|> ") AS ?part_of)
+(GROUP_CONCAT(DISTINCT CONCAT(?hassub, " | ", ?hassubl, " | ", ?hassubd); separator=" <|> ") AS ?has_subclass)
+(GROUP_CONCAT(DISTINCT CONCAT(?sub, " | ", ?subl, " | ", ?subd); separator=" <|> ") AS ?subclass_of)
+(GROUP_CONCAT(DISTINCT CONCAT(?rel, " | ", ?rell, " | ", ?reld); separator=" <|> ") AS ?similar_to)
+(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
 
-SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?prob, " | ", ?probl, " | ", ?probd); separator=" / ") AS ?solves)
-                (GROUP_CONCAT(DISTINCT CONCAT(?imple, " | ", ?implel, " | ", ?impled); separator=" / ") AS ?implementedBy)
-                (GROUP_CONCAT(DISTINCT CONCAT(?hascomp, " | ", ?hascompl, " | ", ?hascompd); separator=" / ") AS ?hasComponent)
-                (GROUP_CONCAT(DISTINCT CONCAT(?comp, " | ", ?compl, " | ", ?compd); separator=" / ") AS ?componentOf)
-                (GROUP_CONCAT(DISTINCT CONCAT(?hassub, " | ", ?hassubl, " | ", ?hassubd); separator=" / ") AS ?hasSubclass)
-                (GROUP_CONCAT(DISTINCT CONCAT(?sub, " | ", ?subl, " | ", ?subd); separator=" / ") AS ?subclassOf)
-                (GROUP_CONCAT(DISTINCT CONCAT(?rel, " | ", ?rell, " | ", ?reld); separator=" / ") AS ?relatedTo)
-                (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
 WHERE {{
-        VALUES ?idraw {{ :{0} }}
+  
+    VALUES ?id {{ wd:{0} }}
+
+    OPTIONAL {{
+        ?probraw wdt:{solved by} ?id.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?probraw), STR(wd:))) AS ?prob)
+        
+        ?probraw wdt:{instance of} wd:{algorithmic task}.
 
         OPTIONAL {{
-                   ?idraw prop:solves ?probraw.
-                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?probraw), "#")) AS ?prob)
-                   OPTIONAL {{ ?probraw rdfs:label ?problraw}}
-                   BIND(COALESCE(?problraw, "No Label Provided!") AS ?probl)
-                   OPTIONAL {{ ?probraw rdfs:comment ?probdraw}}
-                   BIND(COALESCE(?probdraw, "No Description Provided!") AS ?probd)
-                 }}
+            ?probraw rdfs:label ?problraw.
+            FILTER (lang(?problraw) = 'en')
+        }}
+        BIND(COALESCE(?problraw, "No Label Provided!") AS ?probl)
 
         OPTIONAL {{
-                   ?idraw prop:implementedBy ?impleraw.
-                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?impleraw), "#")) AS ?imple)
-                   OPTIONAL {{ ?impleraw rdfs:label ?implelraw}}
-                   BIND(COALESCE(?implelraw, "No Label Provided!") AS ?implel)
-                   OPTIONAL {{ ?impleraw rdfs:comment ?impledraw}}
-                   BIND(COALESCE(?impledraw, "No Description Provided!") AS ?impled)
-                 }}
+            ?probraw schema:description ?probdraw
+            FILTER (lang(?probdraw) = 'en')
+        }}
+        BIND(COALESCE(?probdraw, "No Description Provided!") AS ?probd)
+    }}
+
+    OPTIONAL {{
+        ?impleraw wdt:{implementation of} ?id.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?impleraw), STR(wd:))) AS ?imple)
+
+        ?impleraw wdt:{instance of} wd:{software}.
 
         OPTIONAL {{
-                   ?idraw prop:hasComponent ?hascompraw.
-                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?hascompraw), "#")) AS ?hascomp)
-                   OPTIONAL {{ ?hascompraw rdfs:label ?hascomplraw}}
-                   BIND(COALESCE(?hascomplraw, "No Label Provided!") AS ?hascompl)
-                   OPTIONAL {{ ?hascompraw rdfs:comment ?hascompdraw}}
-                   BIND(COALESCE(?hascompdraw, "No Description Provided!") AS ?hascompd)
-                 }}
+            ?impleraw rdfs:label ?implelraw.
+            FILTER (lang(?implelraw) = 'en')
+        }}
+        BIND(COALESCE(?implelraw, "No Label Provided!") AS ?implel)
 
         OPTIONAL {{
-                   ?idraw prop:componentOf ?compraw.
-                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?compraw), "#")) AS ?comp)
-                   OPTIONAL {{ ?compraw rdfs:label ?complraw}}
-                   BIND(COALESCE(?complraw, "No Label Provided!") AS ?compl)
-                   OPTIONAL {{ ?compraw rdfs:comment ?compdraw}}
-                   BIND(COALESCE(?compdraw, "No Description Provided!") AS ?compd)
-                 }}
+            ?impleraw schema:description ?impledraw
+            FILTER (lang(?impledraw) = 'en')
+        }}
+        BIND(COALESCE(?impledraw, "No Description Provided!") AS ?impled)
+    }}
 
-     OPTIONAL {{
-                   ?idraw prop:hasSubclass ?hassubraw.
-                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?hassubraw), "#")) AS ?hassub)
-                   OPTIONAL {{ ?hassubraw rdfs:label ?hassublraw}}
-                   BIND(COALESCE(?hassublraw, "No Label Provided!") AS ?hassubl)
-                   OPTIONAL {{ ?hassubraw rdfs:comment ?hassubdraw}}
-                   BIND(COALESCE(?hassubdraw, "No Description Provided!") AS ?hassubd)
-                 }}
+    OPTIONAL {{
+        ?id wdt:{has part(s)} ?hascompraw.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?hascompraw), STR(wd:))) AS ?hascomp)
+
+        ?hascompraw wdt:{instance of} wd:{algorithm}.
 
         OPTIONAL {{
-                   ?idraw prop:subclassOf ?subraw.
-                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?subraw), "#")) AS ?sub)
-                   OPTIONAL {{ ?subraw rdfs:label ?sublraw}}
-                   BIND(COALESCE(?sublraw, "No Label Provided!") AS ?subl)
-                   OPTIONAL {{ ?subraw rdfs:comment ?subdraw}}
-                   BIND(COALESCE(?subdraw, "No Description Provided!") AS ?subd)
-                 }}
+            ?hascompraw rdfs:label ?hascomplraw.
+            FILTER (lang(?hascomplraw) = 'en')
+        }}
+        BIND(COALESCE(?hascomplraw, "No Label Provided!") AS ?hascompl)
 
         OPTIONAL {{
-                   ?idraw prop:relatedTo ?relraw.
-                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?relraw), "#")) AS ?rel)
-                   OPTIONAL {{ ?relraw rdfs:label ?rellraw}}
-                   BIND(COALESCE(?rellraw, "No Label Provided!") AS ?rell)
-                   OPTIONAL {{ ?relraw rdfs:comment ?reldraw}}
-                   BIND(COALESCE(?reldraw, "No Description Provided!") AS ?reld)
-                 }}
+            ?hascompraw schema:description ?hascompdraw
+            FILTER (lang(?hascompdraw) = 'en')
+        }}
+        BIND(COALESCE(?hascompdraw, "No Description Provided!") AS ?hascompd)
+    }}
+
+    OPTIONAL {{
+        ?compraw wdt:{has part(s)} ?id.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?compraw), STR(wd:))) AS ?comp)
+
+        ?compraw wdt:{instance of} wd:{algorithm}.
 
         OPTIONAL {{
-                   ?idraw (prop:analyzedIn | prop:appliedIn | prop:inventedIn | prop:studiedIn | prop:reviewedIn) ?pubraw.
-                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?pubraw), "#")) AS ?pub)
-                   OPTIONAL {{ ?pubraw rdfs:label ?publraw}}
-                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
-                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw}}
-                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
-                 }}
-      }}
+            ?compraw rdfs:label ?complraw.
+            FILTER (lang(?complraw) = 'en')
+        }}
+        BIND(COALESCE(?complraw, "No Label Provided!") AS ?compl)
+
+        OPTIONAL {{
+            ?compraw schema:description ?compdraw
+            FILTER (lang(?compdraw) = 'en')
+        }}
+        BIND(COALESCE(?compdraw, "No Description Provided!") AS ?compd)
+    }}
+
+    OPTIONAL {{
+        ?hassubraw wdt:{subclass of} ?id.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?hassubraw), STR(wd:))) AS ?hassub)
+
+        ?hassubraw wdt:{instance of} wd:{algorithm}.
+
+        OPTIONAL {{
+            ?hassubraw rdfs:label ?hassublraw.
+            FILTER (lang(?hassublraw) = 'en')
+        }}
+        BIND(COALESCE(?hassublraw, "No Label Provided!") AS ?hassubl)
+
+        OPTIONAL {{
+            ?hassubraw schema:description ?hassubdraw
+            FILTER (lang(?hassubdraw) = 'en')
+        }}
+        BIND(COALESCE(?hassubdraw, "No Description Provided!") AS ?hassubd)
+    }}
+
+    OPTIONAL {{
+        ?id wdt:{subclass of} ?subraw.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?subraw), STR(wd:))) AS ?sub)
+
+        ?subraw wdt:{instance of} wd:{algorithm}.
+
+        OPTIONAL {{
+            ?subraw rdfs:label ?sublraw.
+            FILTER (lang(?sublraw) = 'en')
+        }}
+        BIND(COALESCE(?sublraw, "No Label Provided!") AS ?subl)
+
+        OPTIONAL {{
+            ?subraw schema:description ?subdraw
+            FILTER (lang(?subdraw) = 'en')
+        }}
+        BIND(COALESCE(?subdraw, "No Description Provided!") AS ?subd)
+    }}
+
+    OPTIONAL {{
+      ?id wdt:{similar to} ?relraw.
+      BIND(CONCAT("mardi:", STRAFTER(STR(?relraw), STR(wd:))) AS ?rel)
+                   
+      ?relraw wdt:{instance of} wd:{algorithm}.
+
+      OPTIONAL {{
+            ?relraw rdfs:label ?rellraw.
+            FILTER (lang(?rellraw) = 'en')
+        }}
+        BIND(COALESCE(?rellraw, "No Label Provided!") AS ?rell)
+
+        OPTIONAL {{
+            ?relraw schema:description ?reldraw
+            FILTER (lang(?reldraw) = 'en')
+        }}
+        BIND(COALESCE(?reldraw, "No Description Provided!") AS ?reld)
+    }}
+
+    OPTIONAL {{
+        ?id p:{described by source} ?statement_p .
+        ?statement_p ps:{described by source} ?pubraw .
+        ?statement_p pq:{object has role} ?role .
+        VALUES ?role {{ wd:{invention} wd:{review} wd:{study} }}
+        BIND(CONCAT("mardi:", STRAFTER(STR(?pubraw), STR(wd:))) AS ?pub)
+
+        OPTIONAL {{
+            ?pubraw rdfs:label ?publraw .
+            FILTER (lang(?publraw) = 'en')
+        }}
+        BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
+
+        OPTIONAL {{
+            ?pubraw schema:description ?pubdraw .
+            FILTER (lang(?pubdraw) = 'en')
+        }}
+        BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+    }}
+}}

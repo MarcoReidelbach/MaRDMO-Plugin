@@ -239,9 +239,7 @@
                                 </td>
                                 <td style="text-align: center; vertical-align: middle;">
                                     {% for method in values.method.values %}
-                                        {% if 'mathalgodb' in method.ID %}
-                                            <a href="{{ mathalgodbURI }}object/al:{{ method.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ method.Name }}</a>
-                                        {% elif 'mardi' in method.ID %}
+                                        {% if 'mardi' in method.ID %}
                                             <a href="{{ mardiURI }}{{ method.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ method.Name }}</a>
                                         {% elif 'wikidata' in method.ID %}
                                             <a href="{{ wikidataURI }}{{ method.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ method.Name }}</a>
@@ -321,9 +319,7 @@
                     {% for values in answers.method.values %}
                         <tr>
                             <td style="text-align: center; vertical-align: middle;">
-                                {% if 'mathalgodb' in values.ID %}
-                                    <a href="{{ mathalgodbURI }}object/al:{{ values.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
-                                {% elif 'mardi' in values.ID %}
+                                {% if 'mardi' in values.ID %}
                                     <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
                                 {% elif 'wikidata' in values.ID %}
                                     <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
@@ -355,9 +351,7 @@
                             </td>
                             <td style="text-align: center; vertical-align: middle;">
                                 {% for software in values.software.values %}
-                                    {% if 'mathalgodb' in software.ID %}
-                                        <a href="{{ mathalgodbURI }}{{ software.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
-                                    {% elif 'mardi' in software.ID %}
+                                    {% if 'mardi' in software.ID %}
                                         <a href="{{ mardiURI }}{{ software.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
                                     {% elif 'wikidata' in software.ID %}
                                         <a href="{{ wikidataURI }}{{ software.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ software.Name }}</a>
@@ -413,9 +407,7 @@
                     {% for values in answers.software.values %}
                         <tr>
                             <td style="text-align: center; vertical-align: middle;">
-                                {% if 'mathalgodb' in values.ID %}
-                                    <a href="{{ mathalgodbURI }}object/al:{{ values.ID|cut:"mathalgodb:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
-                                {% elif 'mardi' in values.ID %}
+                                {% if 'mardi' in values.ID %}
                                     <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
                                 {% elif 'wikidata' in values.ID %}
                                     <a href="{{ wikidataURI }}{{ values.ID|cut:"wikidata:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>

@@ -1,88 +1,190 @@
-from dataclasses import dataclass, field
-from typing import List, Optional
+'''Module containing Models for the Algorithm Documentation'''
 
-from ..adders import add_reference_order
+from dataclasses import dataclass, field
+
+from .constants import software_reference_ids, benchmark_reference_ids
+
+from ..getters import get_options
+from ..helpers import split_value
 from ..models import Relatant
 
 @dataclass
 class Benchmark:
     '''Data Class For Benchmark Item'''
-    reference: Optional[List] = field(default_factory=list)
-    publications: Optional[List[Relatant]] = field(default_factory=list)
-    
+    reference: dict[int, list[str]] = field(default_factory=dict)
+    publications: list[Relatant] = field(default_factory=list)
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Benchmark':
+        '''Generate Class Item From Query'''
+        options = get_options()
 
         data = raw_data[0]
-        order = add_reference_order('benchmark')
+
+        benchmark = {
+            # Benchmark Reference (DOI, MORWIKI, URL)
+            'reference': {
+                idx: [options[prop], data[prop]['value']]
+                for idx, prop in enumerate(benchmark_reference_ids)
+                if data.get(prop, {}).get('value')
+            },
+            # Get Publication(s)
+            'publications': split_value(
+                data = data,
+                key = 'publication',
+                transform = Relatant.from_query
+            )
+        }
 
         return cls(
-            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
-            publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
+            **benchmark
         )
-        
+
 @dataclass
 class Software:
-    reference: Optional[List] = field(default_factory=list)
-    tests: Optional[List[Relatant]] = field(default_factory=list)
-    publications: Optional[List[Relatant]] = field(default_factory=list)
-    
+    '''Data Class for Software Item'''
+    reference: dict[int, list[str]] = field(default_factory=dict)
+    tested_by: list[Relatant] = field(default_factory=list)
+    publications: list[Relatant] = field(default_factory=list)
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Software':
+        '''Generate Class Item From Query'''
+        options = get_options()
 
         data = raw_data[0]
-        order = add_reference_order('software')
+
+        software = {
+            # Software Reference (DOI, SWMATH, and URL)
+            'reference': {
+                idx: [options[prop], data[prop]['value']]
+                for idx, prop in enumerate(software_reference_ids)
+                if data.get(prop, {}).get('value')
+            },
+            # Related Benchmarks
+            'tested_by': split_value(
+                data = data,
+                key = 'tested_by',
+                transform = Relatant.from_query
+            ),
+            # Get Publication(s)
+            'publications': split_value(
+                data = data,
+                key = 'publication',
+                transform = Relatant.from_query
+            )
+        }
 
         return cls(
-            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
-            tests =  [Relatant.from_query(benchmark) for benchmark in data.get('tests', {}).get('value', '').split(" / ") if benchmark] if 'tests' in data else [], 
-            publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
+            **software
         )
-    
+
 @dataclass
 class Problem:
-    specializes: Optional[List[Relatant]] = field(default_factory=list)
-    specializedBy: Optional[List[Relatant]] = field(default_factory=list)
-    instantiates: Optional[List[Relatant]] = field(default_factory=list)
-    
+    '''Data Class for Problem Item'''
+    specializes: list[Relatant] = field(default_factory=list)
+    specialized_by: list[Relatant] = field(default_factory=list)
+    manifests: list[Relatant] = field(default_factory=list)
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Problem':
-
+        '''Generate Class Item From Query'''
         data = raw_data[0]
 
+        problem = {
+            # Get manifests Statements
+            'manifests': split_value(
+                data = data,
+                key = 'manifests',
+                transform = Relatant.from_query
+            ),
+            # Get specializes Statements
+            'specializes': split_value(
+                data = data,
+                key = 'specializes',
+                transform = Relatant.from_query
+            ),
+            # Get specialized by Statements
+            'specialized_by': split_value(
+                data = data,
+                key = 'specialized_by',
+                transform = Relatant.from_query
+            ),
+        }
+
         return cls(
-            specializes = [Relatant.from_query(specializes) for specializes in data.get('specializes', {}).get('value', '').split(" / ") if specializes] if 'specializes' in data else [], 
-            specializedBy = [Relatant.from_query(specializedBy) for specializedBy in data.get('specializedBy', {}).get('value', '').split(" / ") if specializedBy] if 'specializedBy' in data else [], 
-            instantiates =  [Relatant.from_query(benchmark) for benchmark in data.get('instantiates', {}).get('value', '').split(" / ") if benchmark] if 'instantiates' in data else [], 
+            **problem
         )
-    
+
 @dataclass
 class Algorithm:
-    componentOf: Optional[List[Relatant]] = field(default_factory=list)
-    hasComponent: Optional[List[Relatant]] = field(default_factory=list)
-    subclassOf: Optional[List[Relatant]] = field(default_factory=list)
-    hasSubclass: Optional[List[Relatant]] = field(default_factory=list)
-    relatedTo: Optional[List[Relatant]] = field(default_factory=list)
-    solves: Optional[List[Relatant]] = field(default_factory=list)
-    implementedBy: Optional[List[Relatant]] = field(default_factory=list)
-    publications: Optional[List[Relatant]] = field(default_factory=list)
-    
+    '''Data Class for Algorithm Item'''
+    component_of: list[Relatant] = field(default_factory=list)
+    has_component: list[Relatant] = field(default_factory=list)
+    subclass_of: list[Relatant] = field(default_factory=list)
+    has_subclass: list[Relatant] = field(default_factory=list)
+    related_to: list[Relatant] = field(default_factory=list)
+    solves: list[Relatant] = field(default_factory=list)
+    implemented_by: list[Relatant] = field(default_factory=list)
+    publications: list[Relatant] = field(default_factory=list)
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Algorithm':
+        '''Generate Class Item From Query'''
 
         data = raw_data[0]
 
+        algorithm = {
+            # Get Problems Solved
+            'solves': split_value(
+                data = data,
+                key = 'solved_by',
+                transform = Relatant.from_query
+            ),
+            # Get implementing Software
+            'implemented_by': split_value(
+                data = data,
+                key = 'implementation_of',
+                transform = Relatant.from_query
+            ),
+            # Get has Components
+            'has_component': split_value(
+                data = data,
+                key = 'has_parts',
+                transform = Relatant.from_query
+            ),
+            # Get Component Of
+            'component_of': split_value(
+                data = data,
+                key = 'part_of',
+                transform = Relatant.from_query
+            ),
+            # Get has Subclass
+            'has_subclass': split_value(
+                data = data,
+                key = 'has_subclass',
+                transform = Relatant.from_query
+            ),
+            # Get Subclass Of
+            'subclass_of': split_value(
+                data = data,
+                key = 'subclass_of',
+                transform = Relatant.from_query
+            ),
+            # Get related to
+            'related_to': split_value(
+                data = data,
+                key = 'similar_to',
+                transform = Relatant.from_query
+            ),
+            # Get Publication(s)
+            'publications': split_value(
+                data = data,
+                key = 'publication',
+                transform = Relatant.from_query
+            )
+        }
+
         return cls(
-            componentOf = [Relatant.from_query(componentOf) for componentOf in data.get('componentOf', {}).get('value', '').split(" / ") if componentOf] if 'componentOf' in data else [], 
-            hasComponent = [Relatant.from_query(hasComponent) for hasComponent in data.get('hasComponent', {}).get('value', '').split(" / ") if hasComponent] if 'hasComponent' in data else [], 
-            subclassOf = [Relatant.from_query(subclassOf) for subclassOf in data.get('subclassOf', {}).get('value', '').split(" / ") if subclassOf] if 'subclassOf' in data else [], 
-            hasSubclass = [Relatant.from_query(hasSubclass) for hasSubclass in data.get('hasSubclass', {}).get('value', '').split(" / ") if hasSubclass] if 'hasSubclass' in data else [], 
-            relatedTo = [Relatant.from_query(relatedTo) for relatedTo in data.get('relatedTo', {}).get('value', '').split(" / ") if relatedTo] if 'relatedTo' in data else [], 
-            solves =  [Relatant.from_query(problem) for problem in data.get('solves', {}).get('value', '').split(" / ") if problem] if 'solves' in data else [], 
-            implementedBy =  [Relatant.from_query(software) for software in data.get('implementedBy', {}).get('value', '').split(" / ") if software] if 'implementedBy' in data else [], 
-            publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
+            **algorithm
         )

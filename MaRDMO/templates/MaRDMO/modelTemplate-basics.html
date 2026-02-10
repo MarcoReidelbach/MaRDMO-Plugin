@@ -47,6 +47,8 @@
         {% if values.Description %}
             {% if values.Description|length > 250 %}
                 <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% elif values.Description == values.Name %}
+                <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>
             {% else %}
                 {{ values.Description }} <br>
             {% endif %}
@@ -150,7 +152,11 @@
 
     <h3 id="RelationsToResearchProblems"> Relations to Research Problems </h3>
     {% for models in values.RelationRP.values %}
-        models: {{ models }} <br>
+        {% if models == 'not found' %}
+            models: <strong style="color:red;">SELECTED RESEARCH PROBLEM NOT FOUND IN RESEARCH PROBLEM SECTION</strong>
+        {% else %}
+            models: {{ models }} <br>
+        {% endif %}
     {% empty %}
         <strong style="color:red;">MISSING RESEARCH PROBLEM</strong>
     {% endfor %}
@@ -160,83 +166,115 @@
         {% if relation.relation == option.assumes %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 assumes: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                assumes: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
                 assumes: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_analytical_solution %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains analytical solution: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Analytical Solution: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Analytical Solution: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
-                contains analytical solution: {{relation.relatant }} <br>
+                contains Analytical Solution: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_physical_law %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains physical law: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Physical Law: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Physical Law: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
-                contains physical law: {{relation.relatant }} <br>
+                contains Physical Law: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_computational_domain %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains computational domain: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Computational Domain: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Computational Domain: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
-                contains computational domain: {{relation.relatant }} <br>
+                contains Computational Domain: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_constitutive_equation %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains constitutive equation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Constitutive Equation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Constitutive Equation: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
-                contains constitutive equation: {{relation.relatant }} <br>
+                contains Constitutive Equation: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_weak_formulation %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains weak formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Weak Formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Weak Formulation: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
-                contains weak formulation: {{relation.relatant }} <br>
+                contains Weak Formulation: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_strong_formulation %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains strong formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Strong Formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Strong Formulation: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
-                contains strong formulation: {{relation.relatant }} <br>
+                contains Strong Formulation: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_formulation %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
                 contains: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_boundary_condition %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains Boundary Condition: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Boundary Condition: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
                 contains Boundary Condition: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_constraint_condition %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains Constraint Condition: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Constraint Condition: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
                 contains Constraint Condition: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_coupling_condition %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains Coupling Condition: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Coupling Condition: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
                 contains Coupling Condition: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_initial_condition %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains Initial Condition: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Initial Condition: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
                 contains Initial Condition: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_final_condition %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains Final Condition: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Final Condition: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
             {% else %}
                 contains Final Condition: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
+            {% else %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% endif %}
         {% endif %}
     {% empty %}
         <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION</strong>
@@ -244,7 +282,11 @@
 
     <h3 id="RelationsToTasks"> Relations to Computational Tasks </h3>
     {% for task in values.RelationT.values %}
-        used by: {{ task }} <br>
+        {% if task == 'not found' %}
+            used by: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong>
+        {% else %}
+            used by: {{ task }} <br>
+        {% endif %}
     {% empty %}
         <strong style="color:red;">MISSING COMPUTATIONAL TASK</strong>
     {% endfor %}
@@ -255,72 +297,100 @@
         {% endif %}
         {% if relation.relation == option.specialized_by %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                specialized by: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+                specialized by: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+            {% elif relation.relatant == 'not found' %}
+                specialized by: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
             {% else %}
-                specialized by: {{relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+                specialized by: {{relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
             {% endif %}
         {% elif relation.relation == option.specializes %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                specializes: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+                specializes: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+            {% elif relation.relatant == 'not found' %}
+                specializes: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
             {% else %}
-	            specializes: {{relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+	            specializes: {{relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
             {% endif %}
         {% elif relation.relation == option.discretized_by %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 discretized by: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                discretized by: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
             {% else %} 
 	            discretized by: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.discretizes %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 discretizes: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                discretizes: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
             {% else %} 
 	            discretizes: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contained_in_model %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contained in: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contained in: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
             {% else %} 
 	            contained in: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_model %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
             {% else %}
 	            contains: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.approximated_by %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 approximated by: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                approximated by: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
             {% else %}
 	            approximated by: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.approximates %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 approximates: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                approximates: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
             {% else %}
 	            approximates: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.linearized_by %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 linearized by: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                linearized by: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
             {% else %}
 	            linearized by: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.linearizes %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 linearizes: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                linearizes: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
             {% else %}
 	            linearizes: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.similar_to %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 similar to: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                similar to: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
             {% else %}
 	            similar to: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong>
+            {% else %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% endif %}
         {% endif %}
     {% endfor %}
 {% empty %}
@@ -331,9 +401,9 @@
 {% for values in answers.task.values %}
 
     {% if values.Name %}
-        <h2 id="T{{ forloop.counter }}"> T{{ forloop.counter }}: {{ values.Name }} </h2>
+        <h2 id="T{{ forloop.counter }}"> CT{{ forloop.counter }}: {{ values.Name }} </h2>
     {% else %}
-        <h2 id="T{{ forloop.counter }}"> T{{ forloop.counter }}: <strong style="color:red;">MISSING COMPUTATIONAL TASK NAME</strong> </h2>
+        <h2 id="T{{ forloop.counter }}"> CT{{ forloop.counter }}: <strong style="color:red;">MISSING COMPUTATIONAL TASK NAME</strong> </h2>
     {% endif %}
 
     <p>
@@ -341,6 +411,8 @@
         {% if values.Description %}
             {% if values.Description|length > 250 %}
                 <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% elif values.Description == values.Name %}
+                <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>
             {% else %}
                 {{ values.Description }} <br>
             {% endif %}
@@ -412,83 +484,115 @@
         {% if relation.relation == option.assumes %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 assumes: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                assumes: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 assumes: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_analytical_solution %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains analytical solution: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Analytical Solution: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Analytical Solution: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
-                contains analytical solution: {{relation.relatant }} <br>
+                contains Analytical Solution: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_physical_law %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains physical law: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Physical Law: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Physical Law: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
-                contains physical law: {{relation.relatant }} <br>
+                contains Physical Law: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_computational_domain %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains computational domain: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Computational Domain: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Computational Domain: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
-                contains computational domain: {{relation.relatant }} <br>
+                contains Computational Domain: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_constitutive_equation %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains constitutive equation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Constitutive Equation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Constitutive Equation: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
-                contains constitutive equation: {{relation.relatant }} <br>
+                contains Constitutive Equation: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_weak_formulation %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains weak formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Weak Formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Weak Formulation: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
-                contains weak formulation: {{relation.relatant }} <br>
+                contains Weak Formulation: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_strong_formulation %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                contains strong formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+                contains Strong Formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Strong Formulation: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
-                contains strong formulation: {{relation.relatant }} <br>
+                contains Strong Formulation: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_formulation %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 contains: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_boundary_condition %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains Boundary Condition: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Boundary Condition: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 contains Boundary Condition: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_constraint_condition %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains Constraint Condition: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Constraint Conddition: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 contains Constraint Condition: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_coupling_condition %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains Coupling Condition: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Coupling Condition: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 contains Coupling Condition: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_initial_condition %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains Initial Condition: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Initial Condition: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 contains Initial Condition: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contains_final_condition %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains Final Condition: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                contains Final Condition: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 contains Final Condition: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
+            {% else %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% endif %}
         {% endif %}
     {% empty %}
         <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION</strong>
@@ -500,72 +604,100 @@
         {% endif %}
         {% if relation.relation == option.specialized_by %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                specialized by: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+                specialized by: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+            {% elif relation.relatant == 'not found' %}
+                specialized by: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
             {% else %}
-                specialized by: {{relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+                specialized by: {{relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
             {% endif %}
         {% elif relation.relation == option.specializes %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                specialized by: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+                specializes: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+            {% elif relation.relatant == 'not found' %}
+                specializes: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
             {% else %}
-                specializes: {{ relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+                specializes: {{ relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
             {% endif %}
         {% elif relation.relation == option.discretized_by %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 discretized by: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                discretized by: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong> <br>
             {% else %}
                 discretized by: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.discretizes %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 discretizes: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                discretizes: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong> <br>
             {% else %}
                 discretizes: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.contained_in_task %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contained in: <strong style="color:red;">{{relation.relatant }}</strong> {% if relation.order %} - order number: {{ relation.order }} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br> 
+            {% elif relation.relatant == 'not found' %}
+                contained in: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong> {% if relation.order %} - order number: {{ relation.order }} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
             {% else %}
                 contained in: {{relation.relatant }} {% if relation.order %} - order number: {{ relation.order }} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
             {% endif %}
         {% elif relation.relation == option.contains_task %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 contains: <strong style="color:red;">{{relation.relatant }}</strong> {% if relation.order %} - order number: {{ relation.order }} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
+            {% elif relation.relatant == 'not found' %}
+                contains: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong> {% if relation.order %} - order number: {{ relation.order }} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
             {% else %}
                 contains: {{relation.relatant }} {% if relation.order %} - order number: {{ relation.order }} {% else %} - oder number: <strong style="color:red;">MISSING ORDER NUMBER</strong> {% endif %} <br>
             {% endif %}
         {% elif relation.relation == option.approximated_by %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 approximated by: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                approximated by: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong> <br>
             {% else %}
                 approximated by: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.approximates %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 approximates: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                approximates: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong> <br>
             {% else %}
                 approximates: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.linearized_by %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 linearized by: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                linearized by: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong> <br>
             {% else %}
                 linearized by: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.linearizes %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 linearizes: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                linearizes: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong> <br>
             {% else %}
                 linearizes: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.similar_to %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 similar to: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                similar to: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong> <br>
             {% else %}
                 similar to: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">SELECTED COMPUTATIONAL TASK NOT FOUND IN COMPUTATIONAL TASK SECTION</strong>
+            {% else %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% endif %}
         {% endif %}
     {% endfor %}
 {% empty %}
@@ -586,6 +718,8 @@
         {% if values.Description %}
             {% if values.Description|length > 250 %}
                 <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% elif values.Description == values.Name %}
+                <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>
             {% else %}
                 {{ values.Description }} <br>
             {% endif %}
@@ -702,71 +836,99 @@
         {% if relation.relation == option.approximated_by %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 approximated by: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                approximated by: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 approximated by: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.approximates %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 approximates: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                approximates: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 approximates: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.discretized_by %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 discretized by: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                discretized by: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 discretized by: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.discretizes %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 discretizes: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                discretizes: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 discretizes: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.specialized_by %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                specialized by: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+                specialized by: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+            {% elif relation.relatant == 'not found' %}
+                specialized by: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
             {% else %}
-                specialized by: {{relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>                
+                specialized by: {{relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>                
             {% endif %}
         {% elif relation.relation == option.specializes %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
-                specializes: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+                specializes: <strong style="color:red;">{{relation.relatant }}</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
+            {% elif relation.relatant == 'not found' %}
+                specializes: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>
             {% else %}
-                specializes: {{relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {{ val }} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>                        
+                specializes: {{relation.relatant }} {% for val in relation.assumption.values %} - assumptions (general to special): {% if val == 'not found' %} <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> {% else %} {{ val }} {% endif %} {% if not forloop.last %}, {% endif %} {% empty %} - assumptions (general to special): <strong style="color:red;">MISSING ASSUMPTIONS</strong> {% endfor %} <br>                        
             {% endif %}
         {% elif relation.relation == option.nondimensionalized_by %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 nondimensionalized by: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                nondimensionalized by: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 nondimensionalized by: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.nondimensionalzes %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 nondimensionalizes: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                nondimensionalizes: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 nondimensionalizes: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.linearized_by %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 linearized by: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                linearized by: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 linearized by: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.linearizes %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 linearizes: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                linearizes: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 linearizes: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.similar_to %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 similar to: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                similar to: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 similar to: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong>
+            {% else %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% endif %}
         {% endif %}  
     {% endfor %}
 {% empty %}
@@ -807,18 +969,54 @@
         {% if forloop.counter == 1 %}
             <h3 id="RelationsToEntitiesOfTheMathematicalModels"> Relations to Entities of the Mathematical Models </h3>
         {% endif %}
-        {% if relation.relation == option.documents %} 
-	        documents: {{ relation.relatant }} <br>
+        {% if relation.relation == option.documents %}
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                documents: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                documents: <strong style="color:red;">SELECTED MATHEMATICAL MODEL ENTITY NOT FOUND IN RELEVANT SECTION</strong> <br>
+            {% else %}
+	            documents: {{ relation.relatant }} <br>
+            {% endif %}
         {% elif relation.relation == option.invents %} 
-	        invents: {{ relation.relatant }} <br>
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                invents: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                invents: <strong style="color:red;">SELECTED MATHEMATICAL MODEL ENTITY NOT FOUND IN RELEVANT SECTION</strong> <br>
+            {% else %}
+                invents: {{ relation.relatant }} <br>
+            {% endif %}
         {% elif relation.relation == option.studies %} 
-	        studies: {{ relation.relatant }} <br>
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                studies: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                studies: <strong style="color:red;">SELECTED MATHEMATICAL MODEL ENTITY NOT FOUND IN RELEVANT SECTION</strong> <br>
+            {% else %}
+                studies: {{ relation.relatant }} <br>
+            {% endif %}
         {% elif relation.relation == option.surveys %} 
-	        surveys: {{ relation.relatant }} <br>
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                surveys: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                surveys: <strong style="color:red;">SELECTED MATHEMATICAL MODEL ENTITY NOT FOUND IN RELEVANT SECTION</strong> <br>
+            {% else %}
+                surveys: {{ relation.relatant }} <br>
+            {% endif %}
         {% elif relation.relation == option.uses %} 
-	        uses: {{ relation.relatant }} <br>
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                uses: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                uses: <strong style="color:red;">SELECTED MATHEMATICAL MODEL ENTITY NOT FOUND IN RELEVANT SECTION</strong> <br>
+            {% else %}
+                uses: {{ relation.relatant }} <br>
+            {% endif %}
         {% elif relation.relation == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">SELECTED MATHEMATICAL MODEL ENTITY NOT FOUND IN RELEVANT SECTION</strong>
+            {% else %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% endif %}
         {% endif %}
     {% empty %}
         <strong style="color:red;">MISSING MATHEMATICAL MODEL ENTITY</strong>
@@ -841,6 +1039,8 @@
         {% if values.Description %}
             {% if values.Description|length > 250 %}
                 <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+            {% elif values.Description == values.Name %}
+                <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>
             {% else %}
                 {{ values.Description }} <br>
             {% endif %}
@@ -868,23 +1068,35 @@
         {% if relation.relation == option.specialized_by %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 specialized by: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                specialized by: <strong style="color:red;">SELECTED RESEARCH PROBLEM NOT FOUND IN RESEARCH PROBLEM SECTION</strong> <br>
             {% else %}
                 specialized by: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.specializes %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 specializes: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                specializes: <strong style="color:red;">SELECTED RESEARCH PROBLEM NOT FOUND IN RESEARCH PROBLEM SECTION</strong> <br>
             {% else %}
                 specializes: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.similar_to %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 similar to: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                similar to: <strong style="color:red;">SELECTED RESEARCH PROBLEM NOT FOUND IN RESEARCH PROBLEM SECTION</strong> <br>
             {% else %}
                 similar to: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == 'MISSING RELATION TYPE' %}
-            <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: <strong style="color:red;">SELECTED RESEARCH PROBLEM NOT FOUND IN RESEARCH PROBLEM SECTION</strong>
+            {% else %}
+                <strong style="color:red;">{{ relation.relation }}</strong>: {{ relation.relatant }} <br>
+            {% endif %}
         {% endif %}
     {% endfor %}
 {% empty %}

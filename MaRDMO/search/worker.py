@@ -16,7 +16,7 @@ from .sparql import (
     res_obj_sparql,
     res_disc_sparql,
     mmsio_sparql,
-    query_base,
+    query_base_workflow,
     query_base_model,
     query_base_algorithm,
     problem_sparql,
@@ -87,7 +87,7 @@ def search(answers, options):
         # Set up entire SPARQL query
         query = "\n".join(
             line
-            for line in query_base.format(
+            for line in query_base_workflow.format(
                 res_disc_str,
                 mmsios_str,
                 quote_str,

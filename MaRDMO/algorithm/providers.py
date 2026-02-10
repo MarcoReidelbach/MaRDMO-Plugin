@@ -145,7 +145,7 @@ class RelatedBenchmarkWithCreation(Provider):
             project = project,
             setup = setup
         )
-    
+
 class RelatedBenchmarkOrSoftwareWithoutCreation(Provider):
     '''Benchmark, Software Provider (MaRDI Portal),
        No User Creation, No Refresh Upon Selection

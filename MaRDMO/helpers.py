@@ -315,8 +315,17 @@ def entity_relations(data, idx, entity, order, assumption):
                             )
                             if resolved != value.get("ID"):
                                 break
+
                     # Build new Item Value
-                    new_value = build_new_value(from_entry, entity, key, resolved, order, assumption)
+                    new_value = build_new_value(
+                        from_entry,
+                        entity,
+                        key,
+                        resolved,
+                        order,
+                        assumption
+                    )
+
                     # Add Process Item to Dict
                     if new_value not in entity_values.values():
                         entity_values[f"{key}|{key2}"] = new_value

@@ -163,7 +163,6 @@ def query_sources_with_user_additions(search, project, setup):
     try:
         options = query_sources(
             search=search,
-            query_id=setup['query_id'],
             sources=setup['sources'],
             not_found=False
         )

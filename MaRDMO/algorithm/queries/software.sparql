@@ -1,32 +1,57 @@
-PREFIX prop: <https://mardi4nfdi.de/mathalgodb/0.1#>
-PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/software#>
-PREFIX dc: <http://purl.org/spar/datacite/>   
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>                          
+SELECT DISTINCT
+?DOI ?SWMATH
+(GROUP_CONCAT(DISTINCT CONCAT(?bench, " | ", ?benchl, " | ", ?benchd); separator=" <|> ") AS ?tested_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" <|> ") AS ?publication)
 
-SELECT DISTINCT (GROUP_CONCAT(DISTINCT ?referenceraw; separator=" | ") AS ?reference)
-                (GROUP_CONCAT(DISTINCT CONCAT(?bench, " | ", ?benchl, " | ", ?benchd); separator=" / ") AS ?tests)
-                (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
 WHERE {{
-        VALUES ?idraw {{ :{0} }}
+    VALUES ?id {{ wd:{0} }}
 
-        OPTIONAL {{ ?idraw dc:hasIdentifier ?referenceraw }}
+    OPTIONAL {{ 
+      ?id wdt:{swMath work ID} ?swMath
+    }}
+
+    OPTIONAL {{ 
+      ?id wdt:{DOI} ?doi
+    }}
+
+    OPTIONAL {{
+        ?benchraw wdt:{tested by} ?id. 
+        BIND(CONCAT("mardi:", STRAFTER(STR(?benchraw), STR(wd:))) AS ?bench)
+
+        ?benchraw wdt:{instance of} wd:{benchmark}.
 
         OPTIONAL {{
-                   ?idraw prop:tests ?benchraw.
-                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?benchraw), "#")) AS ?bench)
-                   OPTIONAL {{ ?benchraw rdfs:label ?benchlraw}}
-                   BIND(COALESCE(?benchlraw, "No Label Provided!") AS ?benchl)
-                   OPTIONAL {{ ?benchraw rdfs:comment ?benchdraw}}
-                   BIND(COALESCE(?benchdraw, "No Description Provided!") AS ?benchd)
-                 }}
-      
+            ?benchraw rdfs:label ?benchlraw.
+            FILTER (lang(?benchlraw) = 'en')
+        }}
+        BIND(COALESCE(?benchlraw, "No Label Provided!") AS ?benchl)
+
         OPTIONAL {{
-                   ?idraw (prop:documentedIn | prop:usedIn) ?pubraw.
-                   BIND(CONCAT("mathalgodb:", STRAFTER(STR(?pubraw), "#")) AS ?pub)
-                   OPTIONAL {{ ?pubraw rdfs:label ?publraw}}
-                   BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
-                   OPTIONAL {{ ?pubraw rdfs:comment ?pubdraw}}
-                   BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
-                 }}
-      }}
-GROUP BY ?reference
+            ?benchraw schema:description ?benchdraw
+            FILTER (lang(?benchdraw) = 'en')
+        }}
+        BIND(COALESCE(?benchdraw, "No Description Provided!") AS ?benchd)
+    }}
+  
+    OPTIONAL {{
+        ?id p:{described by source} ?statement_p .
+        ?statement_p ps:{described by source} ?pubraw .
+        ?statement_p pq:{object has role} ?role .
+        VALUES ?role {{ wd:{documentation} wd:{use} }}
+        BIND(CONCAT("mardi:", STRAFTER(STR(?pubraw), STR(wd:))) AS ?pub)
+
+        OPTIONAL {{
+            ?pubraw rdfs:label ?publraw .
+            FILTER (lang(?publraw) = 'en')
+        }}
+        BIND(COALESCE(?publraw, "No Label Provided!") AS ?publ)
+
+        OPTIONAL {{
+            ?pubraw schema:description ?pubdraw .
+            FILTER (lang(?pubdraw) = 'en')
+        }}
+        BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
+    }}
+}}
+
+GROUP BY ?swmath ?doi

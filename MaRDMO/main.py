@@ -199,8 +199,6 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                     },
                     'answers': answers,
                     'option': options,
-                    'mathmoddbURI': get_url('mardi', 'uri'),
-                    'mathalgodbURI': get_url('mathalgodb', 'uri'),
                     'mardiURI': get_item_url('mardi'),
                     'wikidataURI': get_item_url('wikidata'),
                 },

@@ -660,20 +660,6 @@ class GeneratePayload:
                             'wikidata'))
                 )
             ),
-            'mathalgodb': lambda key, value: (
-                self._check_mardi_and_raise(
-                    value['Name'],
-                    value['Description']
-                ),
-                self._add_entry(
-                    key,
-                    self._build_item(
-                        '',
-                        value['Name'],
-                        value['Description'],
-                    )
-                )
-            ),
             'not found': lambda key, value: (
                 self._check_mardi_and_raise(
                     value['Name'],
