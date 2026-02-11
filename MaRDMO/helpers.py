@@ -93,7 +93,7 @@ def split_value(
     object_role: Optional[Callable[[Any], bool]] = None,
 ) -> list:
     """
-    Split data[key]['value'] on ' / '. Optionally apply a transform
+    Split data[key]['value'] on ' <|> '. Optionally apply a transform
     to each element and filter the results with `object_role`.
     """
     if key not in data:
@@ -214,17 +214,6 @@ def value_editor(project, uri, info):
 
     return obj, created
 
-def merge_dicts_with_unique_keys(answers, keys):
-    '''Merge Dicts with unique Keys.'''
-    merged_dict = {}
-
-    for key in keys:
-        for inner_key, value in answers[key].items():
-            new_inner_key = f"{inner_key}{key}"
-            merged_dict[new_inner_key] = value
-
-    return merged_dict
-
 def check_list(list_var):
     '''Check if List is List'''
     if list_var is None:
@@ -239,18 +228,18 @@ def label_index_map(data, data_type):
     for to_idx_entry in data_type:
         label_to_index_maps.append(
             {
-                data[to_idx_entry][k].get('Name'): idx
+                f"{data[to_idx_entry][k].get('Name')} ({data[to_idx_entry][k].get('Description')})": idx
                 for idx, k in enumerate(data.get(to_idx_entry, {}))
             }
         )
     return label_to_index_maps
 
-def resolve_target(name, id_, entity_enc, label_map):
+def resolve_target(name, description, id_, entity_enc, label_map):
     """Try to resolve name to index in label_map; fallback to id_."""
-    if name in label_map:
-        return f"{entity_enc}{label_map[name] + 1}"
+    label_description = f"{name} ({description})"
+    if label_description in label_map:
+        return f"{entity_enc}{label_map[label_description] + 1}"
     return id_
-
 
 def build_new_value(from_entry, entity, key, resolved, order, assumption):
     """Build the new value depending on relation and order flags."""
@@ -320,14 +309,24 @@ def entity_relations(data, idx, entity, order, assumption):
                         for enc_entry, label_map in zip(entity['encryption'], label_to_index_maps):
                             resolved = resolve_target(
                                 name=value.get("Name"),
+                                description=value.get("Description"), 
                                 id_=value.get("ID"),
                                 entity_enc=enc_entry,
                                 label_map=label_map,
                             )
                             if resolved != value.get("ID"):
                                 break
+
                     # Build new Item Value
-                    new_value = build_new_value(from_entry, entity, key, resolved, order, assumption)
+                    new_value = build_new_value(
+                        from_entry,
+                        entity,
+                        key,
+                        resolved,
+                        order,
+                        assumption
+                    )
+
                     # Add Process Item to Dict
                     if new_value not in entity_values.values():
                         entity_values[f"{key}|{key2}"] = new_value
@@ -337,6 +336,7 @@ def entity_relations(data, idx, entity, order, assumption):
                 for enc_entry, label_map in zip(entity['encryption'], label_to_index_maps):
                     resolved = resolve_target(
                         name=values.get("Name"),
+                        description=values.get("Description"),
                         id_=values.get("ID"),
                         entity_enc=enc_entry,
                         label_map=label_map,
@@ -594,3 +594,12 @@ def is_flat(d):
         return True
     return isinstance(next(iter(d.values())), str)
 
+def process_result(result, source):
+    '''Function to process the result and return a dictionary with id and text'''
+    display = result['display']
+    label = display.get('label', {}).get('value', 'No Label Provided!')
+    description = display.get('description', {}).get('value', 'No Description Provided!')
+    return {
+        'id': f"{source}:{result['id']}",
+        'text': f"{label} ({description}) [{source}]"        
+    }
