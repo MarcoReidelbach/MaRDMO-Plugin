@@ -20,6 +20,7 @@
 "field of work":                    "P19",
 "file extension":                   "P792",
 "has part(s)":                      "P124",
+"has weak formulation":		    "P1336",
 "implemented by":                   "P1089",
 "in defining formula":              "P597",
 "input data set":                   "P1093",
