@@ -375,6 +375,22 @@
             {% else %}
 	            linearizes: {{relation.relatant }} <br>
             {% endif %}
+	{% elif relation.relation == option.has_weak_formulation %}
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                has weak Formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                has weak Formulation: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
+            {% else %}
+                has weak Formulation: {{relation.relatant }} <br>
+            {% endif %}
+        {% elif relation.relation == option.is_weak_formulation_of %}
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                is weak Formulation of: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                is weak Formulation of: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
+            {% else %}
+                is weak Formulation of: {{relation.relatant }} <br>
+            {% endif %}
         {% elif relation.relation == option.similar_to %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 similar to: <strong style="color:red;">{{relation.relatant }}</strong> <br>
@@ -936,6 +952,22 @@
                 linearizes: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 linearizes: {{relation.relatant }} <br>
+            {% endif %}
+	{% elif relation.relation == option.has_weak_formulation %}
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                has weak Formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                has weak Formulation: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
+            {% else %}
+                has weak Formulation: {{relation.relatant }} <br>
+            {% endif %}
+        {% elif relation.relation == option.is_weak_formulation_of %}
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                is weak Formulation of: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                is weak Formulation of: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
+            {% else %}
+                is weak Formulation of: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.similar_to %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
