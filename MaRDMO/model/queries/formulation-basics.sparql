@@ -5,6 +5,10 @@ SELECT DISTINCT
 ?is_dimensionless ?is_dimensional
 ?is_time_continuous ?is_time_discrete
 ?is_space_continuous ?is_space_discrete
+?is_ordinary_differential_equation
+?is_partial_differential_equation
+?is_stochastic_differential_equation
+?is_integro_differential_equation
 ?reference
 (GROUP_CONCAT(DISTINCT CONCAT(?sbf, " | ", ?sbfl, " | ", ?sbfd, " | ", ?sbfq); SEPARATOR=" <|> ") AS ?specialized_by)
 (GROUP_CONCAT(DISTINCT CONCAT(?sf, " | ", ?sfl, " | ", ?sfd, " | ", ?sfq); SEPARATOR=" <|> ") AS ?specializes)
@@ -26,6 +30,11 @@ WHERE {{
     OPTIONAL {{
         ?id wdt:{comment} ?reference
     }}
+
+    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{ordinary differential equation} }}, "True", "False" ) AS ?is_ordinary_differential_equation)
+    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{partial differential equation} }}, "True", "False" ) AS ?is_partial_differential_equation)
+    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{stochastic differential equation} }}, "True", "False" ) AS ?is_stochastic_differential_equation)
+    BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{integro-differential equation} }}, "True", "False" ) AS ?is_integro_differential_equation)
 
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear equation} }}, "True", "False" ) AS ?is_linear)
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear equation} }}, "True", "False" ) AS ?is_not_linear)
@@ -354,3 +363,5 @@ WHERE {{
 
 GROUP BY ?descriptionLong ?is_linear ?is_not_linear ?is_dynamic ?is_static ?is_deterministic ?is_stochastic ?is_dimensionless 
          ?is_dimensional ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete ?reference
+	 ?is_ordinary_differential_equation ?is_partial_differential_equation ?is_stochastic_differential_equation
+         ?is_integro_differential_equation
