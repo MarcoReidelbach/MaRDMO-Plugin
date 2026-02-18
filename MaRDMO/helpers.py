@@ -387,7 +387,7 @@ def process_qualifier(value):
     value_splitted = value.split(' <<||>> ')
     for value_idx, value_text in enumerate(value_splitted):
         # Extract Value ID, Label, and Description
-        value_id, value_label, value_description = value_text.split(' | ')
+        value_id, value_label, value_description = value_text.split(' || ')
         # Get Value Source
         value_source, _ = value_id.split(':')
         # Add to dict

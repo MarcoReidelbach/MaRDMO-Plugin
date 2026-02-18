@@ -514,7 +514,7 @@ class Publication:
                     Author.from_query(
                         author
                     )
-                    for author in data.get('authorInfos', {}).get('value', '').split(" | ")
+                    for author in data.get('authorInfos', {}).get('value', '').split(" || ")
                     if author
                 ]
                 if 'authorInfos' in data else [],

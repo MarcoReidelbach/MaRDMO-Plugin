@@ -83,7 +83,7 @@ class MRelatant:
     def from_query(cls, raw: str) -> 'MRelatant':
 
         id_mathalgodb = ''
-        id_general, label, description, link = raw.split(" | ")
+        id_general, label, description, link = raw.split(" || ")
 
         if link and link.startswith('https://mardi4nfdi.de/mathalgodb/0.1/algorithm#'):
             _, id_mathalgodb = link.split('#')
@@ -173,7 +173,7 @@ class Software:
             description = None,
             sourceCodeRepository = data.get('sourceCodeRepository', {}).get('value', '') ,
             userManualURL = data.get('userManualURL', {}).get('value', ''),
-            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
+            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' || ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' || ') if part.startswith('https://')), None)) else {}),
             programmedIn =  [Relatant.from_query(language) for language in data.get('programmedIn', {}).get('value', '').split(" / ") if language] if 'programmedIn' in data else [], 
             dependsOnSoftware = [Relatant.from_query(software) for software in data.get('dependsOnSoftware', {}).get('value', '').split(" / ") if software] if 'dependsOnSoftware' in data else []
         )

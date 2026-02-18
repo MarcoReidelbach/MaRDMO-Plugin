@@ -13,7 +13,7 @@ class Relatant:
     @classmethod
     def from_query(cls, raw: str) -> 'Relatant':
         '''Generate Item From Query'''
-        identifier, label, description = raw.split(" | ")
+        identifier, label, description = raw.split(" || ")
         return cls(
             id = identifier,
             label = label,
@@ -49,7 +49,7 @@ class RelatantWithClass:
     @classmethod
     def from_query(cls, raw: str) -> 'RelatantWithClass':
         '''Generate Item From Query'''
-        raw_split = raw.split(" | ")
+        raw_split = raw.split(" || ")
         if len(raw_split) == 3:
             item_class = None
         else:

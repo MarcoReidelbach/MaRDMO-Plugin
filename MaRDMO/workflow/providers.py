@@ -114,7 +114,7 @@ class WorkflowTask(Provider):
                 if results[0].get('usedBy', {}).get('value'):
                     tasks = results[0]['usedBy']['value'].split(' / ')
                     for task in tasks:
-                        id, label, description = task.split(' | ')
+                        id, label, description = task.split(' || ')
                         options.append({'id': id, 'text': f'{label} ({description}) [mardi]'})
 
         return options

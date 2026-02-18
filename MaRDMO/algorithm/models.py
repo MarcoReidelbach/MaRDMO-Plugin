@@ -18,7 +18,7 @@ class Benchmark:
         order = add_reference_order('benchmark')
 
         return cls(
-            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
+            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' || ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' || ') if part.startswith('https://')), None)) else {}),
             publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
         )
         
@@ -36,7 +36,7 @@ class Software:
         order = add_reference_order('software')
 
         return cls(
-            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' | ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' | ') if part.startswith('https://')), None)) else {}),
+            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' || ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' || ') if part.startswith('https://')), None)) else {}),
             tests =  [Relatant.from_query(benchmark) for benchmark in data.get('tests', {}).get('value', '').split(" / ") if benchmark] if 'tests' in data else [], 
             publications = [Relatant.from_query(publication) for publication in data.get('publication', {}).get('value', '').split(" / ") if publication] if 'publication' in data else []
         )
