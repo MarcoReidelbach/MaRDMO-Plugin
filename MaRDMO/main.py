@@ -28,7 +28,6 @@ from .helpers import  (
     compare_items,
     inline_mathml,
     is_cyclic,
-    merge_dicts_with_unique_keys,
     process_question_dict,
     topological_order
 )
