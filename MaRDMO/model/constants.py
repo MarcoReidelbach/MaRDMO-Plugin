@@ -141,7 +141,9 @@ props = {
         'approximates',
         'linearized_by',
         'linearizes',
-        'similar_to'
+        'similar_to',
+        'has_weak_formulation',
+        'is_weak_formulation_of'
     ],
     'Task': [
         'specialized_by',
@@ -167,7 +169,9 @@ props = {
         'linearizes',
         'nondimensionalized_by',
         'nondimensionalizes',
-        'similar_to'
+        'similar_to',
+        'has_weak_formulation',
+        'is_weak_formulation_of'
     ],
     'Quantity': [
         "specialized_by",
@@ -383,6 +387,14 @@ def get_relations():
         mathmoddb['similar_to']: [
             properties['similar to'],
             'forward'
+        ],
+        mathmoddb['has_weak_formulation']: [
+            properties['has weak formulation'],
+            'forward'
+        ],
+        mathmoddb['is_weak_formulation_of']: [
+            properties['has weak formulation'],
+            'backward'
         ]
     }
     return relations
