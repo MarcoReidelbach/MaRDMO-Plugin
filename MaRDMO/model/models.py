@@ -25,7 +25,7 @@ class RelatantWithQualifier:
             raw, order = raw.split(" >|< ")
         else:
             order = None
-        identifier, label, description, qualifier = raw.split(" | ", 3)
+        identifier, label, description, qualifier = raw.split(" || ", 3)
         return cls(
             id = identifier,
             label = label,
@@ -186,6 +186,8 @@ class MathematicalModel:
     discretizes: list[Relatant] = field(default_factory=list)
     linearized_by: list[Relatant] = field(default_factory=list)
     linearizes: list[Relatant] = field(default_factory=list)
+    has_weak_formulation: list[Relatant] = field(default_factory=list)
+    is_weak_formulation_of: list[Relatant] = field(default_factory=list)
     similar_to: list[Relatant] = field(default_factory=list)
     publications: list[Relatant] = field(default_factory=list)
 
@@ -377,6 +379,18 @@ class MathematicalModel:
                 key = 'linearizes',
                 transform = Relatant.from_query
             ),
+            # Get Has Weak Formulation Relation(s)
+            'has_weak_formulation': split_value(
+                data = data,
+                key = 'has_weak_formulation',
+                transform = Relatant.from_query
+            ),
+            # Get Is Weak Formulation Of Relation(s)
+            'is_weak_formulation_of': split_value(
+                data = data,
+                key = 'is_weak_formulation_of',
+                transform = Relatant.from_query
+            ),
             # Get Similar To Relation(s)
             'similar_to': split_value(
                 data = data,
@@ -462,13 +476,13 @@ class QuantityOrQuantityKind:
             'symbols': split_value(
                 data = data,
                 key = 'contains_quantity',
-                transform = lambda s: s.split(' | ', 1)[0]
+                transform = lambda s: s.split(' || ', 1)[0]
             ),
             # Get contained Quantities
             'contains_quantity': split_value(
                 data = data,
                 key = 'contains_quantity',
-                transform = lambda q: Relatant.from_query(q.split(' | ', 1)[1])
+                transform = lambda q: Relatant.from_query(q.split(' || ', 1)[1])
             ),
             # Get Specialized By Relation(s)
             'specialized_by': split_value(
@@ -576,6 +590,8 @@ class MathematicalFormulation:
     linearizes: list[Relatant] = field(default_factory=list)
     nondimensionalized_by: list[Relatant] = field(default_factory=list)
     nondimensionalizes: list[Relatant] = field(default_factory=list)
+    has_weak_formulation: list[Relatant] = field(default_factory=list)
+    is_weak_formulation_of: list[Relatant] = field(default_factory=list)
     similar_to: list[Relatant] = field(default_factory=list)
     publications: list[Relatant] = field(default_factory=list)
 
@@ -617,13 +633,13 @@ class MathematicalFormulation:
             'symbols': split_value(
                 data = data,
                 key = 'contains_quantity',
-                transform = lambda s: s.split(' | ', 1)[0]
+                transform = lambda s: s.split(' || ', 1)[0]
             ),
             # Get contained Quantities
             'contains_quantity': split_value(
                 data = data,
                 key = 'contains_quantity',
-                transform = lambda q: Relatant.from_query(q.split(' | ', 1)[1])
+                transform = lambda q: Relatant.from_query(q.split(' || ', 1)[1])
             ),
             # Get Assumption Relation(s)
             'assumes': split_value(
@@ -731,6 +747,18 @@ class MathematicalFormulation:
             'nondimensionalizes': split_value(
                 data = data,
                 key = 'nondimensionalizes',
+                transform = Relatant.from_query
+            ),
+            # Get Has Weak Formulation Relation(s)
+            'has_weak_formulation': split_value(
+                data = data,
+                key = 'has_weak_formulation',
+                transform = Relatant.from_query
+            ),
+            # Get Is Weak Formulation Of Relation(s)
+            'is_weak_formulation_of': split_value(
+                data = data,
+                key = 'is_weak_formulation_of',
                 transform = Relatant.from_query
             ),
             # Get Similar To Relation(s)
