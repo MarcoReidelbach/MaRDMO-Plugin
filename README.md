@@ -54,6 +54,12 @@ PROJECT_EXPORTS += [
         ('wikibase', _('Export to MaRDI Portal'), 'MaRDMO.main.MaRDMOExportProvider'),
         ]
 
+PROJECT_IMPORTS += [
+    ('mardmo_pdf_import', _('Impot MaRDMO Per PDF'), 'MaRDMO.imports.MaRDMOPDFImport'),
+    ('mardmo_import', _('Impot MaRDMO JSON'), 'MaRDMO.imports.MaRDMOImport')
+]
+
+
 OPTIONSET_PROVIDERS = [
     # Search
     ('MaRDISearch', _('Options for MaRDI Search'), 'MaRDMO.search.providers.MaRDISearch'),
@@ -151,6 +157,10 @@ MARDMO_PROVIDER = {
 }
 ``` 
 Contact the MaRDI consortium for the individual credentials.
+
+MARDMO_OLLAMA_URL   = 'https://ollama.zib.de/api'
+MARDMO_OLLAMA_MODEL = 'gpt-oss:120b'
+MARDMO_OLLAMA_API_KEY = ''
 
 ## MaRDMO-Questionnaire        
 
