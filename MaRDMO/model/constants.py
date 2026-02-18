@@ -12,7 +12,13 @@ data_properties_check = {
     ('is_space_continuous', 'is_space_discrete'): '(Space-Continuous and Space-Discrete)',
     ('is_time_continuous', 'is_time_discrete'): '(Time-Continuous and Time-Discrete)',
     ('is_mathematical_constant', 'is_physical_constant'): '(Mathematical and Physical Constant)',
-    ('is_mathematical_constant', 'is_physical_constant'): '(Mathematical and Chemical Constant)'
+    ('is_mathematical_constant', 'is_physical_constant'): '(Mathematical and Chemical Constant)',
+    ('is_ordinary_differential_equation', 'is_partial_differential_equation'): '(Ordinary and Partial Differential Equation)',
+    ('is_ordinary_differential_equation', 'is_stochastic_differential_equation'): '(Ordinary and Stochastic Differential Equation)',
+    ('is_ordinary_differential_equation', 'is_integro_differential_equation'): '(Ordinary and Integro-Differential Equation)',
+    ('is_partial_differential_equation', 'is_stochastic_differential_equation'): '(Partial and Stochastic Differential Equation)',
+    ('is_partial_differential_equation', 'is_integro_differential_equation'): '(Partial and Integro-Differential Equation)',
+    ('is_stochastic_differential_equation', 'is_integro_differential_equation'): '(Stochastic and Integro-Differential Equation)',
 }
 
 # Data Properties per Class
@@ -31,7 +37,9 @@ data_properties_per_class = {
     'formulation': [
         'is_linear', 'is_not_linear', 'is_dynamic', 'is_static', 'is_deterministic',
         'is_stochastic', 'is_dimensionless', 'is_dimensional', 'is_time_continuous',
-        'is_time_discrete', 'is_space_continuous', 'is_space_discrete'
+        'is_time_discrete', 'is_space_continuous', 'is_space_discrete',
+        'is_ordinary_differential_equation', 'is_partial_differential_equation',
+        'is_stochastic_differential_equation', 'is_integro_differential_equation'
     ],
     'task': ['is_linear', 'is_not_linear', 'is_time_continuous', 'is_time_discrete',
              'is_space_continuous', 'is_space_discrete'
@@ -206,6 +214,10 @@ def get_data_properties(item_type):
     mathmoddb = get_mathmoddb()
     items = get_items()
     data_properties = {
+        mathmoddb['is_ordinary_differential_equation']: items.get('ordinary differential equation'),
+        mathmoddb['is_partial_differential_equation']: items.get('partial differential equation'),
+        mathmoddb['is_stochastic_differential_equation']: items.get('stochastic differential equation'),
+        mathmoddb['is_integro_differential_equation']: items.get('integro-differential equation'),
         mathmoddb['is_chemical_constant']: items.get('chemical constant'),
         mathmoddb['is_mathematical_constant']: items.get('mathematical constant'),
         mathmoddb['is_physical_constant']: items.get('physical constant'),
