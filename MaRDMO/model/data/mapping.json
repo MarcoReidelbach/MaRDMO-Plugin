@@ -1,4 +1,6 @@
 {
+    "has_weak_formulation": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/has-weak-formulation",
+    "is_weak_formulation_of": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-weak-formulation-of",
     "models": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/models",
     "used_by": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/used-by",
     "documents": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/documents",
