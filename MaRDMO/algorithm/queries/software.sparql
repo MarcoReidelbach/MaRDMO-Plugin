@@ -3,9 +3,9 @@ PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/software#>
 PREFIX dc: <http://purl.org/spar/datacite/>   
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>                          
 
-SELECT DISTINCT (GROUP_CONCAT(DISTINCT ?referenceraw; separator=" | ") AS ?reference)
-                (GROUP_CONCAT(DISTINCT CONCAT(?bench, " | ", ?benchl, " | ", ?benchd); separator=" / ") AS ?tests)
-                (GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+SELECT DISTINCT (GROUP_CONCAT(DISTINCT ?referenceraw; separator=" || ") AS ?reference)
+                (GROUP_CONCAT(DISTINCT CONCAT(?bench, " || ", ?benchl, " || ", ?benchd); separator=" / ") AS ?tests)
+                (GROUP_CONCAT(DISTINCT CONCAT(?pub, " || ", ?publ, " || ", ?pubd); separator=" / ") AS ?publication)
 WHERE {{
         VALUES ?idraw {{ :{0} }}
 

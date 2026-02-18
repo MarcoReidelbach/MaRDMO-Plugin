@@ -1,7 +1,7 @@
 SELECT DISTINCT
 ?sourceCodeRepository ?userManualURL ?reference
-(GROUP_CONCAT(DISTINCT CONCAT(?pl, " | ", ?pll, " | ", ?pld); separator=" / ") AS ?programmedIn)
-(GROUP_CONCAT(DISTINCT CONCAT(?dp, " | ", ?dpl, " | ", ?dpd); separator=" / ") AS ?dependsOnSoftware)
+(GROUP_CONCAT(DISTINCT CONCAT(?pl, " || ", ?pll, " || ", ?pld); separator=" / ") AS ?programmedIn)
+(GROUP_CONCAT(DISTINCT CONCAT(?dp, " || ", ?dpl, " || ", ?dpd); separator=" / ") AS ?dependsOnSoftware)
                                        
 WHERE {{
 
@@ -57,13 +57,13 @@ WHERE {{
 
     BIND(
      CONCAT(
-         IF(BOUND(?doi), CONCAT("doi:", STR(?doi), " | "), ""),
-         IF(BOUND(?swmath), CONCAT("swmath:", STR(?swmath), " | "), ""),
+         IF(BOUND(?doi), CONCAT("doi:", STR(?doi), " || "), ""),
+         IF(BOUND(?swmath), CONCAT("swmath:", STR(?swmath), " || "), ""),
          IF(BOUND(?url), STR(?url), "")
      ) AS ?referenceraw
     )
                                           
-    BIND(IF(STRENDS(?referenceraw, " | "), STRBEFORE(?referenceraw, " | "), ?referenceraw) AS ?reference)
+    BIND(IF(STRENDS(?referenceraw, " || "), STRBEFORE(?referenceraw, " || "), ?referenceraw) AS ?reference)
            
 }}
                                            

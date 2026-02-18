@@ -1,5 +1,5 @@
 SELECT DISTINCT
-(GROUP_CONCAT(DISTINCT CONCAT(?imple, " | ", ?implel, " | ", ?impled); separator=" / ") AS ?implementedBySoftware)
+(GROUP_CONCAT(DISTINCT CONCAT(?imple, " || ", ?implel, " || ", ?impled); separator=" / ") AS ?implementedBySoftware)
                 
 WHERE {{
         

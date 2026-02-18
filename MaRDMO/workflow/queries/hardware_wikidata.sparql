@@ -1,6 +1,6 @@
 SELECT DISTINCT
 ?nodes ?cores
-(GROUP_CONCAT(DISTINCT CONCAT(?cpu, " | ", ?cpul, " | ", ?cpud); separator=" / ") AS ?CPU)
+(GROUP_CONCAT(DISTINCT CONCAT(?cpu, " || ", ?cpul, " || ", ?cpud); separator=" / ") AS ?CPU)
        
 WHERE {{
 

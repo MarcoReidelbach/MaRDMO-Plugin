@@ -2,9 +2,9 @@ PREFIX prop: <https://mardi4nfdi.de/mathalgodb/0.1#>
 PREFIX : <https://mardi4nfdi.de/mathalgodb/0.1/problem#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>                          
 
-SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?bench, " | ", ?benchl, " | ", ?benchd); separator=" / ") AS ?instantiates)
-                (GROUP_CONCAT(DISTINCT CONCAT(?spec, " | ", ?specl, " | ", ?specd); separator=" / ") AS ?specializes)
-                (GROUP_CONCAT(DISTINCT CONCAT(?specby, " | ", ?specbyl, " | ", ?specbyd); separator=" / ") AS ?specializedBy)
+SELECT DISTINCT (GROUP_CONCAT(DISTINCT CONCAT(?bench, " || ", ?benchl, " || ", ?benchd); separator=" / ") AS ?instantiates)
+                (GROUP_CONCAT(DISTINCT CONCAT(?spec, " || ", ?specl, " || ", ?specd); separator=" / ") AS ?specializes)
+                (GROUP_CONCAT(DISTINCT CONCAT(?specby, " || ", ?specbyl, " || ", ?specbyd); separator=" / ") AS ?specializedBy)
 WHERE {{
         VALUES ?idraw {{ :{0} }}
 

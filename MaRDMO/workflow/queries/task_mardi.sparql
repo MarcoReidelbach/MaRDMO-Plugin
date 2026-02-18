@@ -1,5 +1,5 @@
 SELECT DISTINCT
-(GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); separator=" / ") AS ?usedBy)
+(GROUP_CONCAT(DISTINCT CONCAT(?ta, " || ", ?tal, " || ", ?tad); separator=" / ") AS ?usedBy)
                                                        
 WHERE {{
                                          

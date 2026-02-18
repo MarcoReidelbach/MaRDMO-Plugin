@@ -1,4 +1,4 @@
-SELECT (GROUP_CONCAT(DISTINCT(?journal_info_raw); separator=" | ") AS ?journal_info)
+SELECT (GROUP_CONCAT(DISTINCT(?journal_info_raw); separator=" || ") AS ?journal_info)
 
 WHERE {{
     

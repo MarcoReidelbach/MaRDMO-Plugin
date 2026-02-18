@@ -1,6 +1,6 @@
 SELECT DISTINCT
-(GROUP_CONCAT(DISTINCT CONCAT(?impSoft, " | ", ?impSoftl, " | ", ?impSoftd); separator=" / ") AS ?implementedBySoftware)
-(GROUP_CONCAT(DISTINCT CONCAT(?impInst, " | ", ?impInstl, " | ", ?impInstd); separator=" / ") AS ?implementedByInstrument)
+(GROUP_CONCAT(DISTINCT CONCAT(?impSoft, " || ", ?impSoftl, " || ", ?impSoftd); separator=" / ") AS ?implementedBySoftware)
+(GROUP_CONCAT(DISTINCT CONCAT(?impInst, " || ", ?impInstl, " || ", ?impInstd); separator=" / ") AS ?implementedByInstrument)
                                                 
 WHERE {{
         
