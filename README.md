@@ -158,9 +158,11 @@ MARDMO_PROVIDER = {
 ``` 
 Contact the MaRDI consortium for the individual credentials.
 
+```python
 MARDMO_OLLAMA_URL   = 'https://ollama.zib.de/api'
 MARDMO_OLLAMA_MODEL = 'gpt-oss:120b'
 MARDMO_OLLAMA_API_KEY = ''
+```
 
 ## MaRDMO-Questionnaire        
 
