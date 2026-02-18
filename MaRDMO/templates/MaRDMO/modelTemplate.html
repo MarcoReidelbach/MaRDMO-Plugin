@@ -840,8 +840,32 @@
     </p>
 
     <b>Properties</b>:  
-    {% for value in values.Properties.values %} 
-        {% if value == option.is_deterministic %} 
+    {% for value in values.Properties.values %}
+        {% if value == option.is_ordinary_differential_equation %}
+	    {% if option.is_partial_differential_equation in values.Properties.values or option.is_stochastic_differential_equation in values.Properties.values or option.is_integro_differential_equation in values.Properties.values %}
+	        <strong style="color:red;">Is Ordinary Differential Equation</strong>
+            {% else %}
+                Is Ordinary Differential Equation
+            {% endif %}
+	{% elif value == option.is_partial_differential_equation %}
+            {% if option.is_ordinary_differential_equation in values.Properties.values or option.is_stochastic_differential_equation in values.Properties.values or option.is_integro_differential_equation in values.Properties.values %}
+                <strong style="color:red;">Is Partial Differential Equation</strong>
+            {% else %}
+                Is Partial Differential Equation
+            {% endif %}
+	{% elif value == option.is_stochastic_differential_equation %}
+            {% if option.is_ordinary_differential_equation in values.Properties.values or option.is_partial_differential_equation in values.Properties.values or option.is_integro_differential_equation in values.Properties.values %}
+                <strong style="color:red;">Is Stochastic Differential Equation</strong>
+            {% else %}
+                Is Stochastic Differential Equation
+            {% endif %}
+	{% elif value == option.is_integro_differential_equation %}
+            {% if option.is_ordinary_differential_equation in values.Properties.values or option.is_stochastic_differential_equation in values.Properties.values or option.is_partial_differential_equation in values.Properties.values %}
+                <strong style="color:red;">Is Integro-Differential Equation</strong>
+            {% else %}
+                Is Integro-Differential Equation
+            {% endif %}
+        {% elif value == option.is_deterministic %} 
             {% if option.is_stocastic in values.Properties.values %}
                 <strong style="color:red;">Is Deterministic</strong>
             {% else %}
