@@ -4,7 +4,7 @@
  "hasComponent": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/has-component",
  "componentOf": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/component-of",
  "hasSubclass": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/has-subclass",
- "subclassOf": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/subclass-ff",
+ "subclassOf": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/subclass-of",
  "relatedTo": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/related-to",
  "solves": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/solves",
  "implementedBy": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/implemented-by",
