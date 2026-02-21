@@ -145,12 +145,16 @@ class OauthProviderMixin:
                 try:
                     jsons = self._post_data(key, jsons, access_token)
                 except RuntimeError as err:
-                    logger.exception("[%s] Failed posting item %s: %s", job_id, key, err)
+                    label = jsons.get(key, {}).get('label', key)
+                    logger.exception(
+                        "[%s] Failed posting item %s (%s): %s",
+                        job_id, key, label, err
+                    )
                     _progress_store[job_id] = {
                         "progress": int((completed / total) * 100),
                         "done": True,
                         "phase": "error",
-                        "error": f"Error posting item {key}: {err}",
+                        "error": f"Error posting item '{label}': {err}",
                     }
                     return
 
@@ -279,9 +283,60 @@ class OauthProviderMixin:
                     continue
                 if status == 422:
                     return self._handle_policy_violation(resp, key, jsons)
-                raise RuntimeError(_("POST request failed")) from exc
+                # Extract detailed error message from response
+                error_detail = self._extract_error_message(resp)
+                raise RuntimeError(
+                    _("POST request failed (HTTP %(status)s): %(detail)s") % {
+                        'status': status,
+                        'detail': error_detail
+                    }
+                ) from exc
 
-        raise RuntimeError(_("POST request failed after multiple retries"))
+        if response is not None:
+            error_detail = self._extract_error_message(response)
+            raise RuntimeError(
+                _("POST request failed after %(attempts)s retries: %(detail)s") % {
+                    'attempts': 5,
+                    'detail': error_detail
+                }
+            )
+
+        raise RuntimeError(_("POST request failed after multiple retries (no response)"))
+
+    def _extract_error_message(self, response):
+        """Extract detailed error message from API response"""
+        try:
+            error_data = response.json()
+
+            # Try to get the most informative error message
+            # Wikibase API returns 'message' (REST API) or 'info' (Action API)
+            if 'message' in error_data:
+                error_msg = error_data['message']
+            elif 'error' in error_data:
+                # Action API: error.info or error.code
+                error_obj = error_data['error']
+                error_msg = error_obj.get('info') or error_obj.get('code', 'Unknown error')
+            elif 'code' in error_data:
+                # REST API: code + optional context
+                error_msg = error_data['code']
+                if 'context' in error_data:
+                    context = error_data['context']
+                    if isinstance(context, dict):
+                        try:
+                            context_str = ', '.join(f"{k}: {v}" for k, v in context.items())
+                            error_msg = f"{error_msg} ({context_str})"
+                        except Exception:
+                            pass
+            else:
+                error_msg = str(error_data)[:500]
+
+            return error_msg
+        except (ValueError, AttributeError, TypeError, KeyError):
+            # If response is not JSON or has unexpected structure
+            try:
+                return response.text[:200] if response.text else "No error details available"
+            except Exception:
+                return "Error details unavailable"
 
     def _handle_response(self, response, key, jsons):
         """Handle POST response and update placeholders."""

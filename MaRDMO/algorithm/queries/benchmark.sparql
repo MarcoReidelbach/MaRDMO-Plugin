@@ -1,7 +1,6 @@
 SELECT DISTINCT
 ?DOI ?MORWIKI
-(GROUP_CONCAT(DISTINCT ?referenceraw; separator=" | ") AS ?reference)
-(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" <|> ") AS ?publication)
+(GROUP_CONCAT(DISTINCT CONCAT(?pub, " || ", ?publ, " || ", ?pubd); separator=" <|> ") AS ?publication)
 
 WHERE {{
   
@@ -31,5 +30,5 @@ WHERE {{
         BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
     }}
 }}
-
 GROUP BY ?DOI ?MORWIKI
+

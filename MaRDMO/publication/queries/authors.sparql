@@ -1,4 +1,4 @@
-SELECT (GROUP_CONCAT(DISTINCT(?author_info_raw); separator=" | ") AS ?author_info)
+SELECT (GROUP_CONCAT(DISTINCT(?author_info_raw); separator=" || ") AS ?author_info)
                           
 WHERE {{
 

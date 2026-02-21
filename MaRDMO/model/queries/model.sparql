@@ -7,22 +7,24 @@ SELECT DISTINCT
 ?is_time_continuous ?is_time_discrete
 (GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" <|> ") AS ?description_long)
 (GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" <|> ") AS ?aliases)
-(GROUP_CONCAT(DISTINCT CONCAT(?rp, " | ", ?rpl, " | ", ?rpd); SEPARATOR=" <|> ") AS ?models)
-(GROUP_CONCAT(DISTINCT CONCAT(?ass, " | ", ?assl, " | ", ?assd, " |  >|< ", ?assq); SEPARATOR=" <|> ") AS ?assumes)
-(GROUP_CONCAT(DISTINCT CONCAT(?conf, " | ", ?confl, " | ", ?confd, " | ", ?confq, " >|< ", ?confq2); SEPARATOR=" <|> ") AS ?contains_formulation)
-(GROUP_CONCAT(DISTINCT CONCAT(?ta, " | ", ?tal, " | ", ?tad); SEPARATOR=" <|> ") AS ?used_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?sbm, " | ", ?sbml, " | ", ?sbmd, " | ", ?sbmq); SEPARATOR=" <|> ") AS ?specialized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?sm, " | ", ?sml, " | ", ?smd, " | ", ?smq); SEPARATOR=" <|> ") AS ?specializes)
-(GROUP_CONCAT(DISTINCT CONCAT(?abm, " | ", ?abml, " | ", ?abmd); SEPARATOR=" <|> ") AS ?approximated_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?am, " | ", ?aml, " | ", ?amd); SEPARATOR=" <|> ") AS ?approximates)
-(GROUP_CONCAT(DISTINCT CONCAT(?conm, " | ", ?conml, " | ", ?conmd); SEPARATOR=" <|> ") AS ?contains_model)
-(GROUP_CONCAT(DISTINCT CONCAT(?conim, " | ", ?coniml, " | ", ?conimd); SEPARATOR=" <|> ") AS ?contained_in_model)
-(GROUP_CONCAT(DISTINCT CONCAT(?dbm, " | ", ?dbml, " | ", ?dbmd); SEPARATOR=" <|> ") AS ?discretized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?dm, " | ", ?dml, " | ", ?dmd); SEPARATOR=" <|> ") AS ?discretizes)
-(GROUP_CONCAT(DISTINCT CONCAT(?lbm, " | ", ?lbml, " | ", ?lbmd); SEPARATOR=" <|> ") AS ?linearized_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?lm, " | ", ?lml, " | ", ?lmd); SEPARATOR=" <|> ") AS ?linearizes)
-(GROUP_CONCAT(DISTINCT CONCAT(?stm, " | ", ?stml, " | ", ?stmd); SEPARATOR=" <|> ") AS ?similar_to)
-(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); SEPARATOR=" <|> ") AS ?publication)
+(GROUP_CONCAT(DISTINCT CONCAT(?rp, " || ", ?rpl, " || ", ?rpd); SEPARATOR=" <|> ") AS ?models)
+(GROUP_CONCAT(DISTINCT CONCAT(?ass, " || ", ?assl, " || ", ?assd, " |  >|< ", ?assq); SEPARATOR=" <|> ") AS ?assumes)
+(GROUP_CONCAT(DISTINCT CONCAT(?conf, " || ", ?confl, " || ", ?confd, " || ", ?confq, " >|< ", ?confq2); SEPARATOR=" <|> ") AS ?contains_formulation)
+(GROUP_CONCAT(DISTINCT CONCAT(?ta, " || ", ?tal, " || ", ?tad); SEPARATOR=" <|> ") AS ?used_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?sbm, " || ", ?sbml, " || ", ?sbmd, " || ", ?sbmq); SEPARATOR=" <|> ") AS ?specialized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?sm, " || ", ?sml, " || ", ?smd, " || ", ?smq); SEPARATOR=" <|> ") AS ?specializes)
+(GROUP_CONCAT(DISTINCT CONCAT(?abm, " || ", ?abml, " || ", ?abmd); SEPARATOR=" <|> ") AS ?approximated_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?am, " || ", ?aml, " || ", ?amd); SEPARATOR=" <|> ") AS ?approximates)
+(GROUP_CONCAT(DISTINCT CONCAT(?conm, " || ", ?conml, " || ", ?conmd); SEPARATOR=" <|> ") AS ?contains_model)
+(GROUP_CONCAT(DISTINCT CONCAT(?conim, " || ", ?coniml, " || ", ?conimd); SEPARATOR=" <|> ") AS ?contained_in_model)
+(GROUP_CONCAT(DISTINCT CONCAT(?dbm, " || ", ?dbml, " || ", ?dbmd); SEPARATOR=" <|> ") AS ?discretized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?dm, " || ", ?dml, " || ", ?dmd); SEPARATOR=" <|> ") AS ?discretizes)
+(GROUP_CONCAT(DISTINCT CONCAT(?lbm, " || ", ?lbml, " || ", ?lbmd); SEPARATOR=" <|> ") AS ?linearized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?lm, " || ", ?lml, " || ", ?lmd); SEPARATOR=" <|> ") AS ?linearizes)
+(GROUP_CONCAT(DISTINCT CONCAT(?hwfm, " || ", ?hwfml, " || ", ?hwfmd); SEPARATOR=" <|> ") AS ?has_weak_formulation)
+(GROUP_CONCAT(DISTINCT CONCAT(?iwfm, " || ", ?iwfml, " || ", ?iwfmd); SEPARATOR=" <|> ") AS ?is_weak_formulation_of)
+(GROUP_CONCAT(DISTINCT CONCAT(?stm, " || ", ?stml, " || ", ?stmd); SEPARATOR=" <|> ") AS ?similar_to)
+(GROUP_CONCAT(DISTINCT CONCAT(?pub, " || ", ?publ, " || ", ?pubd); SEPARATOR=" <|> ") AS ?publication)
                                                                  
 WHERE {{
                                                    
@@ -178,7 +180,7 @@ WHERE {{
                     BIND(COALESCE(?sbmql, "") AS ?sbmql_final)
                     BIND(COALESCE(?sbmqd, "") AS ?sbmqd_final)
 
-                    BIND(IF((?qua2_final = "" && ?sbmql_final = "" && ?sbmqd_final = ""),"",CONCAT(?qua2_final, " | ", ?sbmql_final, " | ", ?sbmqd_final)) AS ?sbmq_entry)
+                    BIND(IF((?qua2_final = "" && ?sbmql_final = "" && ?sbmqd_final = ""),"",CONCAT(?qua2_final, " || ", ?sbmql_final, " || ", ?sbmqd_final)) AS ?sbmq_entry)
                    
                 }}
                 GROUP BY ?statement2
@@ -237,7 +239,7 @@ WHERE {{
                     BIND(COALESCE(?smql, "") AS ?smql_final)
                     BIND(COALESCE(?smqd, "") AS ?smqd_final)
                 
-                    BIND(IF((?qua3_final = "" && ?smql_final = "" && ?smqd_final = ""),"",CONCAT(?qua3_final, " | ", ?smql_final, " | ", ?smqd_final)) AS ?smq_entry)
+                    BIND(IF((?qua3_final = "" && ?smql_final = "" && ?smqd_final = ""),"",CONCAT(?qua3_final, " || ", ?smql_final, " || ", ?smqd_final)) AS ?smq_entry)
                    
                 }}
                 GROUP BY ?statement3
@@ -415,6 +417,44 @@ WHERE {{
             FILTER (lang(?lmdraw) = 'en')
         }}
         BIND(COALESCE(?lmdraw, "No Description Provided!") AS ?lmd)
+    }}
+
+    OPTIONAL {{
+        ?id wdt:{has weak formulation} ?hwfmraw.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?hwfmraw), STR(wd:))) AS ?hwfm)
+
+        ?hwfmraw wdt:{instance of} wd:{mathematical model}.
+
+        OPTIONAL {{
+            ?hwfmraw rdfs:label ?hwfmlraw.
+            FILTER (lang(?hwfmlraw) = 'en')
+        }}
+        BIND(COALESCE(?hwfmlraw, "No Label Provided!") AS ?hwfml)
+
+        OPTIONAL {{
+            ?hwfmraw schema:description ?hwfmdraw
+            FILTER (lang(?hwfmdraw) = 'en')
+        }}
+        BIND(COALESCE(?hwfmdraw, "No Description Provided!") AS ?hwfmd)
+    }}
+
+    OPTIONAL {{
+        ?iwfmraw wdt:{has weak formulation} ?id.
+        BIND(CONCAT("mardi:", STRAFTER(STR(?iwfmraw), STR(wd:))) AS ?iwfm)
+
+        ?iwfmraw wdt:{instance of} wd:{mathematical model}.
+
+        OPTIONAL {{
+            ?iwfmraw rdfs:label ?iwfmlraw.
+            FILTER (lang(?iwfmlraw) = 'en')
+        }}
+        BIND(COALESCE(?iwfmlraw, "No Label Provided!") AS ?iwfml)
+
+        OPTIONAL {{
+            ?iwfmraw schema:description ?iwfmdraw
+            FILTER (lang(?iwfmdraw) = 'en')
+        }}
+        BIND(COALESCE(?iwfmdraw, "No Description Provided!") AS ?iwfmd)
     }}
 
     OPTIONAL {{

@@ -1,12 +1,12 @@
 SELECT DISTINCT 
-(GROUP_CONCAT(DISTINCT CONCAT(?prob, " | ", ?probl, " | ", ?probd); separator=" <|> ") AS ?solved_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?imple, " | ", ?implel, " | ", ?impled); separator=" <|> ") AS ?implementation_of)
-(GROUP_CONCAT(DISTINCT CONCAT(?hascomp, " | ", ?hascompl, " | ", ?hascompd); separator=" <|> ") AS ?has_parts)
-(GROUP_CONCAT(DISTINCT CONCAT(?comp, " | ", ?compl, " | ", ?compd); separator=" <|> ") AS ?part_of)
-(GROUP_CONCAT(DISTINCT CONCAT(?hassub, " | ", ?hassubl, " | ", ?hassubd); separator=" <|> ") AS ?has_subclass)
-(GROUP_CONCAT(DISTINCT CONCAT(?sub, " | ", ?subl, " | ", ?subd); separator=" <|> ") AS ?subclass_of)
-(GROUP_CONCAT(DISTINCT CONCAT(?rel, " | ", ?rell, " | ", ?reld); separator=" <|> ") AS ?similar_to)
-(GROUP_CONCAT(DISTINCT CONCAT(?pub, " | ", ?publ, " | ", ?pubd); separator=" / ") AS ?publication)
+(GROUP_CONCAT(DISTINCT CONCAT(?prob, " || ", ?probl, " || ", ?probd); separator=" <|> ") AS ?solved_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?imple, " || ", ?implel, " || ", ?impled); separator=" <|> ") AS ?implementation_of)
+(GROUP_CONCAT(DISTINCT CONCAT(?hascomp, " || ", ?hascompl, " || ", ?hascompd); separator=" <|> ") AS ?has_parts)
+(GROUP_CONCAT(DISTINCT CONCAT(?comp, " || ", ?compl, " || ", ?compd); separator=" <|> ") AS ?part_of)
+(GROUP_CONCAT(DISTINCT CONCAT(?hassub, " || ", ?hassubl, " || ", ?hassubd); separator=" <|> ") AS ?has_subclass)
+(GROUP_CONCAT(DISTINCT CONCAT(?sub, " || ", ?subl, " || ", ?subd); separator=" <|> ") AS ?subclass_of)
+(GROUP_CONCAT(DISTINCT CONCAT(?rel, " || ", ?rell, " || ", ?reld); separator=" <|> ") AS ?similar_to)
+(GROUP_CONCAT(DISTINCT CONCAT(?pub, " || ", ?publ, " || ", ?pubd); separator=" <|> ") AS ?publication)
 
 WHERE {{
   
@@ -165,3 +165,4 @@ WHERE {{
         BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
     }}
 }}
+

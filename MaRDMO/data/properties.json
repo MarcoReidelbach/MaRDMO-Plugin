@@ -21,6 +21,7 @@
 "file extension":                   "P921",
 "has part(s)":                      "P265",
 "implementation of":                "P113",
+"has weak formulation":		    "P1736",
 "implemented by":                   "",
 "input data set":                   "P1605",
 "in defining formula":              "P983",

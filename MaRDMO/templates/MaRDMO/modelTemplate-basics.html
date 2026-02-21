@@ -375,6 +375,22 @@
             {% else %}
 	            linearizes: {{relation.relatant }} <br>
             {% endif %}
+	{% elif relation.relation == option.has_weak_formulation %}
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                has weak Formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                has weak Formulation: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
+            {% else %}
+                has weak Formulation: {{relation.relatant }} <br>
+            {% endif %}
+        {% elif relation.relation == option.is_weak_formulation_of %}
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                is weak Formulation of: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                is weak Formulation of: <strong style="color:red;">SELECTED MATHEMATICAL MODEL NOT FOUND IN MATHEMATICAL MODEL SECTION</strong> <br>
+            {% else %}
+                is weak Formulation of: {{relation.relatant }} <br>
+            {% endif %}
         {% elif relation.relation == option.similar_to %}
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}
                 similar to: <strong style="color:red;">{{relation.relatant }}</strong> <br>
@@ -748,8 +764,32 @@
     </p>
 
     <b>Properties</b>:  
-    {% for value in values.Properties.values %} 
-        {% if value == option.is_deterministic %} 
+    {% for value in values.Properties.values %}
+        {% if value == option.is_ordinary_differential_equation %}
+            {% if option.is_partial_differential_equation in values.Properties.values or option.is_stochastic_differential_equation in values.Properties.values or option.is_integro_differential_equation in values.Properties.values %}
+                <strong style="color:red;">Is Ordinary Differential Equation</strong>
+            {% else %}
+                Is Ordinary Differential Equation
+            {% endif %}
+        {% elif value == option.is_partial_differential_equation %}
+            {% if option.is_ordinary_differential_equation in values.Properties.values or option.is_stochastic_differential_equation in values.Properties.values or option.is_integro_differential_equation in values.Properties.values %}
+                <strong style="color:red;">Is Partial Differential Equation</strong>
+            {% else %}
+                Is Partial Differential Equation
+            {% endif %}
+        {% elif value == option.is_stochastic_differential_equation %}
+            {% if option.is_ordinary_differential_equation in values.Properties.values or option.is_partial_differential_equation in values.Properties.values or option.is_integro_differential_equation in values.Properties.values %}
+                <strong style="color:red;">Is Stochastic Differential Equation</strong>
+            {% else %}
+                Is Stochastic Differential Equation
+            {% endif %}
+        {% elif value == option.is_integro_differential_equation %}
+            {% if option.is_ordinary_differential_equation in values.Properties.values or option.is_stochastic_differential_equation in values.Properties.values or option.is_partial_differential_equation in values.Properties.values %}
+                <strong style="color:red;">Is Integro-Differential Equation</strong>
+            {% else %}
+                Is Integro-Differential Equation
+            {% endif %}
+        {% elif value == option.is_deterministic %} 
             {% if option.is_stocastic in values.Properties.values %}
                 <strong style="color:red;">Is Deterministic</strong>
             {% else %}
@@ -912,6 +952,22 @@
                 linearizes: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
             {% else %}
                 linearizes: {{relation.relatant }} <br>
+            {% endif %}
+	{% elif relation.relation == option.has_weak_formulation %}
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                has weak Formulation: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                has weak Formulation: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
+            {% else %}
+                has weak Formulation: {{relation.relatant }} <br>
+            {% endif %}
+        {% elif relation.relation == option.is_weak_formulation_of %}
+            {% if relation.relatant == 'MISSING OBJECT ITEM' %}
+                is weak Formulation of: <strong style="color:red;">{{relation.relatant }}</strong> <br>
+            {% elif relation.relatant == 'not found' %}
+                is weak Formulation of: <strong style="color:red;">SELECTED MATHEMATICAL EXPRESSION NOT FOUND IN MATHEMATICAL EXPRESSION SECTION</strong> <br>
+            {% else %}
+                is weak Formulation of: {{relation.relatant }} <br>
             {% endif %}
         {% elif relation.relation == option.similar_to %} 
             {% if relation.relatant == 'MISSING OBJECT ITEM' %}

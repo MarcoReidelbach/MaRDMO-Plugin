@@ -188,3 +188,4 @@ class Algorithm:
         return cls(
             **algorithm
         )
+

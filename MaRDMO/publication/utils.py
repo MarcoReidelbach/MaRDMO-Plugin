@@ -107,7 +107,7 @@ def extract_authors(data):
     '''Function to extract Author Information from query results'''
     authors = {}
     if data:
-        for idx, entry in enumerate(data[0].get('author_info', {}).get('value', '').split(" | ")):
+        for idx, entry in enumerate(data[0].get('author_info', {}).get('value', '').split(" || ")):
             if entry:
                 authors[idx] = Author.from_query(entry)
     return authors
@@ -116,7 +116,7 @@ def extract_journals(data):
     '''Function to extract Journal Information from query results'''
     journals = {}
     if data:
-        for idx, entry in enumerate(data[0].get('journal_info', {}).get('value', '').split(" | ")):
+        for idx, entry in enumerate(data[0].get('journal_info', {}).get('value', '').split(" || ")):
             if entry:
                 journals[idx] = Journal.from_query(entry)
     return journals

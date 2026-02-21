@@ -1,11 +1,11 @@
 SELECT DISTINCT
 (GROUP_CONCAT(DISTINCT(?msc); SEPARATOR=" / ") AS ?mscID)
-(GROUP_CONCAT(DISTINCT CONCAT(?input, " | ", ?inputl, " | ", ?inputd); separator=" / ") AS ?inputDataSet)
-(GROUP_CONCAT(DISTINCT CONCAT(?output, " | ", ?outputl, " | ", ?outputd); separator=" / ") AS ?outputDataSet)
-(GROUP_CONCAT(DISTINCT CONCAT(?method, " | ", ?methodl, " | ", ?methodd, " | ", STR(?methodurl)); separator=" / ") AS ?uses)
-(GROUP_CONCAT(DISTINCT CONCAT(?platformsoftware, " | ", ?platformsoftwarel, " | ", ?platformsoftwared); separator=" / ") AS ?platformSoftware)
-(GROUP_CONCAT(DISTINCT CONCAT(?platforminstrument, " | ", ?platforminstrumentl, " | ", ?platforminstrumentd); separator=" / ") AS ?platformInstrument)
-(GROUP_CONCAT(DISTINCT CONCAT(?field, " | ", ?fieldl, " | ", ?fieldd); separator=" / ") AS ?fieldOfWork)
+(GROUP_CONCAT(DISTINCT CONCAT(?input, " || ", ?inputl, " || ", ?inputd); separator=" / ") AS ?inputDataSet)
+(GROUP_CONCAT(DISTINCT CONCAT(?output, " || ", ?outputl, " || ", ?outputd); separator=" / ") AS ?outputDataSet)
+(GROUP_CONCAT(DISTINCT CONCAT(?method, " || ", ?methodl, " || ", ?methodd, " || ", STR(?methodurl)); separator=" / ") AS ?uses)
+(GROUP_CONCAT(DISTINCT CONCAT(?platformsoftware, " || ", ?platformsoftwarel, " || ", ?platformsoftwared); separator=" / ") AS ?platformSoftware)
+(GROUP_CONCAT(DISTINCT CONCAT(?platforminstrument, " || ", ?platforminstrumentl, " || ", ?platforminstrumentd); separator=" / ") AS ?platformInstrument)
+(GROUP_CONCAT(DISTINCT CONCAT(?field, " || ", ?fieldl, " || ", ?fieldd); separator=" / ") AS ?fieldOfWork)
                                   
 WHERE {{
     

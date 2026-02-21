@@ -1,4 +1,6 @@
 {
+    "has_weak_formulation": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/has-weak-formulation",
+    "is_weak_formulation_of": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-weak-formulation-of",
     "models": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/models",
     "used_by": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/used-by",
     "documents": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/documents",
@@ -60,4 +62,8 @@
     "qudt_quantitykind_id": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/qudt-quantitykind-id",
     "qudt_constant_id": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/qudt-constant-id",
     "Quantity": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/quantity",
-    "QuantityKind": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/quantity-kind"}
+    "QuantityKind": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/quantity-kind",
+    "is_ordinary_differential_equation": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-ordinary-differential-equation",
+    "is_partial_differential_equation": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-partial-differential-equation",
+    "is_stochastic_differential_equation": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-stochastic-differential-equation",
+    "is_integro_differential_equation": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-integro-differential-equation"}

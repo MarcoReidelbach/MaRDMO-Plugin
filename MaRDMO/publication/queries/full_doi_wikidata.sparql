@@ -1,5 +1,5 @@
 SELECT ?id ?label ?description ?reference ?entrytypelabel
-       (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" | ") AS ?authorInfos)
+       (GROUP_CONCAT(DISTINCT(?authorInfo); separator=" || ") AS ?authorInfos)
        ?journalInfo ?title ?date ?volume ?issue ?page ?languagelabel 
 
 WHERE {{

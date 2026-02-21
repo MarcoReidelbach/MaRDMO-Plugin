@@ -1,8 +1,8 @@
 SELECT DICTINCT
 ?sizeValue ?sizeUnit ?sizeRecord ?fileFormat ?binaryOrText ?proprietary
 ?DOI ?URL ?publish ?archive ?endTime
-(GROUP_CONCAT(DISTINCT CONCAT(?datatype, " | ", ?datatypel, " | ", ?datatyped); separator=" / ") AS ?dataType)
-(GROUP_CONCAT(DISTINCT CONCAT(?representationformat, " | ", ?representationformatl, " | ", ?representationformatd); separator=" / ") AS ?representationFormat)
+(GROUP_CONCAT(DISTINCT CONCAT(?datatype, " || ", ?datatypel, " || ", ?datatyped); separator=" / ") AS ?dataType)
+(GROUP_CONCAT(DISTINCT CONCAT(?representationformat, " || ", ?representationformatl, " || ", ?representationformatd); separator=" / ") AS ?representationFormat)
                 
 WHERE {{
 

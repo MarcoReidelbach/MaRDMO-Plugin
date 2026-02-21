@@ -1,7 +1,7 @@
 SELECT DISTINCT
-(GROUP_CONCAT(DISTINCT CONCAT(?bench, " | ", ?benchl, " | ", ?benchd); separator=" <|> ") AS ?manifests)
-(GROUP_CONCAT(DISTINCT CONCAT(?spec, " | ", ?specl, " | ", ?specd); separator=" <|> ") AS ?specializes)
-(GROUP_CONCAT(DISTINCT CONCAT(?specby, " | ", ?specbyl, " | ", ?specbyd); separator=" <|> ") AS ?specialized_by)
+(GROUP_CONCAT(DISTINCT CONCAT(?bench, " || ", ?benchl, " || ", ?benchd); separator=" <|> ") AS ?manifests)
+(GROUP_CONCAT(DISTINCT CONCAT(?spec, " || ", ?specl, " || ", ?specd); separator=" <|> ") AS ?specializes)
+(GROUP_CONCAT(DISTINCT CONCAT(?specby, " || ", ?specbyl, " || ", ?specbyd); separator=" <|> ") AS ?specialized_by)
 
 WHERE {{
 
@@ -64,3 +64,4 @@ WHERE {{
         BIND(COALESCE(?specbydraw, "No Description Provided!") AS ?specbyd)
     }}
 }}
+
