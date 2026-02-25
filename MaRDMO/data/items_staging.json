@@ -1,7 +1,9 @@
 {
 "algorithm":                                        "Q4629",
+"algorithmic task":				    "Q3780",
 "academic discipline":                              "Q3758",
 "analytical solution":                              "Q19826",
+"benchmark":					    "Q18953",
 "binary data":                                      "Q3742",
 "boundary condition":                               "Q4504",
 "chemical constant":                                "Q13298",
