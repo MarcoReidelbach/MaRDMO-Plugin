@@ -35,5 +35,7 @@
   "DOI": "https://rdmo.mardi4nfdi.de/terms/options/doi",
   "URL": "https://rdmo.mardi4nfdi.de/terms/options/url",
   "SWMATH": "https://rdmo.mardi4nfdi.de/terms/options/swmath",
-  "MORWIKI": "https://rdmo.mardi4nfdi.de/terms/options/morwiki" 
+  "MORWIKI": "https://rdmo.mardi4nfdi.de/terms/options/morwiki",
+  "SOURCECODE_URL": "https://rdmo.mardi4nfdi.de/terms/options/source-code-repository-url",
+  "DESCRIPTION_URL": "https://rdmo.mardi4nfdi.de/terms/options/described-at-url" 
 }
