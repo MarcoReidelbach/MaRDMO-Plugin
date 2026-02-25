@@ -1,6 +1,6 @@
 SELECT DISTINCT 
 (GROUP_CONCAT(DISTINCT CONCAT(?prob, " || ", ?probl, " || ", ?probd); separator=" <|> ") AS ?solved_by)
-(GROUP_CONCAT(DISTINCT CONCAT(?imple, " || ", ?implel, " || ", ?impled); separator=" <|> ") AS ?implementation_of)
+(GROUP_CONCAT(DISTINCT CONCAT(?imple, " || ", ?implel, " || ", ?impled); separator=" <|> ") AS ?implementation_by)
 (GROUP_CONCAT(DISTINCT CONCAT(?hascomp, " || ", ?hascompl, " || ", ?hascompd); separator=" <|> ") AS ?has_parts)
 (GROUP_CONCAT(DISTINCT CONCAT(?comp, " || ", ?compl, " || ", ?compd); separator=" <|> ") AS ?part_of)
 (GROUP_CONCAT(DISTINCT CONCAT(?hassub, " || ", ?hassubl, " || ", ?hassubd); separator=" <|> ") AS ?has_subclass)
@@ -32,7 +32,7 @@ WHERE {{
     }}
 
     OPTIONAL {{
-        ?impleraw wdt:{implementation of} ?id.
+        ?id wdt:{implemented by} ?impleraw.
         BIND(CONCAT("mardi:", STRAFTER(STR(?impleraw), STR(wd:))) AS ?imple)
 
         ?impleraw wdt:{instance of} wd:{software}.

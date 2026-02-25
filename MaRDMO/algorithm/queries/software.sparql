@@ -1,5 +1,5 @@
 SELECT DISTINCT
-?DOI ?SWMATH
+?DOI ?SWMATH ?SOURCECODE_URL ?DESCRIPTION_URL
 (GROUP_CONCAT(DISTINCT CONCAT(?bench, " || ", ?benchl, " || ", ?benchd); separator=" <|> ") AS ?tested_by)
 (GROUP_CONCAT(DISTINCT CONCAT(?pub, " || ", ?publ, " || ", ?pubd); separator=" <|> ") AS ?publication)
 
@@ -7,11 +7,19 @@ WHERE {{
     VALUES ?id {{ wd:{0} }}
 
     OPTIONAL {{ 
-      ?id wdt:{swMath work ID} ?swMath
+      ?id wdt:{swMath work ID} ?SWMATH
     }}
 
     OPTIONAL {{ 
-      ?id wdt:{DOI} ?doi
+      ?id wdt:{DOI} ?DOI
+    }}
+
+    OPTIONAL {{
+      ?id wdt:{source code repository URL} ?SOURCECODE_URL.
+    }}
+
+    OPTIONAL {{
+      ?id wdt:{described at URL} ?DESCRIPTION_URL.
     }}
 
     OPTIONAL {{
@@ -53,5 +61,5 @@ WHERE {{
         BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
     }}
 }}
-GROUP BY ?swmath ?doi
+GROUP BY ?DOI ?SWMATH ?SOURCECODE_URL ?DESCRIPTION_URL
 

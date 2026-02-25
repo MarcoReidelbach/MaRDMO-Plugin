@@ -1,14 +1,26 @@
 SELECT DISTINCT
-?DOI ?MORWIKI
+?DOI ?MORWIKI ?SOURCECODE_URL ?DESCRIPTION_URL
 (GROUP_CONCAT(DISTINCT CONCAT(?pub, " || ", ?publ, " || ", ?pubd); separator=" <|> ") AS ?publication)
 
 WHERE {{
   
     VALUES ?id {{ wd:{0} }}
 
-    OPTIONAL {{ ?id wdt:{DOI} ?DOI }}
+    OPTIONAL {{
+      ?id wdt:{DOI} ?DOI 
+    }}
 
-    OPTIONAL {{ ?id wdt:{MORwiki ID} ?MORWIKI }}
+    OPTIONAL {{ 
+      ?id wdt:{MORwiki ID} ?MORWIKI 
+    }}
+
+    OPTIONAL {{
+      ?id wdt:{source code repository URL} ?SOURCECODE_URL.
+    }}
+
+    OPTIONAL {{
+      ?id wdt:{described at URL} ?DESCRIPTION_URL.
+    }}
 
     OPTIONAL {{
         ?id p:{described by source} ?statement_p .
@@ -30,5 +42,5 @@ WHERE {{
         BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
     }}
 }}
-GROUP BY ?DOI ?MORWIKI
+GROUP BY ?DOI ?MORWIKI ?SOURCECODE_URL ?DESCRIPTION_URL
 

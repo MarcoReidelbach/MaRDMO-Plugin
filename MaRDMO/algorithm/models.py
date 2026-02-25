@@ -144,7 +144,7 @@ class Algorithm:
             # Get implementing Software
             'implemented_by': split_value(
                 data = data,
-                key = 'implementation_of',
+                key = 'implementation_by',
                 transform = Relatant.from_query
             ),
             # Get has Components

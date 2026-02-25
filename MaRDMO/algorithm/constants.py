@@ -16,13 +16,15 @@ PROPS = {
 software_reference_ids = [
     'DOI',
     'SWMATH',
-    'URL'
+    'SOURCECODE_URL',
+    'DESCRIPTION_URL'
 ]
 
 benchmark_reference_ids = [
     'DOI',
     'MORWIKI',
-    'URL'
+    'SOURCECODE_URL',
+    'DESCRIPTION_URL'
 ]
 
 # URI PREFIX Map
