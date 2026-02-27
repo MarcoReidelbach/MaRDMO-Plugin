@@ -29,6 +29,7 @@ from .helpers import  (
     topological_order
 )
 from .oauth2 import OauthProviderMixin
+from .views import render_preview
 
 from .model.worker import PrepareModel
 from .model.checks import Checks
@@ -120,19 +121,11 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             else:
                 template = 'MaRDMO/modelTemplate.html'
 
-            return render(
-                self.request,
-                'MaRDMO/mardmoPreview.html', 
-                {
-                    'form': self.ExportForm(),
-                    'include_file': template,
-                    'include_params': {
-                        'title': self.project.title
-                    },
-                    'answers': answers,
-                    'option': options|mathmoddb
-                },
-                status=200
+            return render_preview(
+                self = self,
+                template = template,
+                answers = answers,
+                option = options|mathmoddb
             )
 
         # MaRDMO: Algorithm Documentation
@@ -141,19 +134,11 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             # Get answers, options, mathalgodb
             answers, options, mathalgodb = self.get_post_data('preview')
 
-            return render(
-                self.request,
-                'MaRDMO/mardmoPreview.html',
-                {
-                    'form': self.ExportForm(),
-                    'include_file': 'MaRDMO/algorithmTemplate.html',
-                    'include_params': {
-                        'title': self.project.title
-                    },
-                    'answers': answers,
-                    'option': options|mathalgodb
-                },
-                status=200
+            return render_preview(
+                self = self,
+                template = 'MaRDMO/algorithmTemplate.html',
+                answers = answers,
+                option = options|mathalgodb
             )
 
         # MaRDMO: Search Interdisciplinary Workflows, Mathematical Models or Algorithms
@@ -161,19 +146,11 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
             answers, options = self.get_post_data('preview')
 
-            return render(
-                self.request,
-                'MaRDMO/mardmoPreview.html',
-                {
-                    'form': self.ExportForm(),
-                    'include_file': 'MaRDMO/searchTemplate.html',
-                    'include_params': {
-                        'title': self.project.title
-                    },
-                    'answers': answers,
-                    'option': options
-                },
-                status=200
+            return render_preview(
+                self = self,
+                template = 'MaRDMO/serachTemplate.html',
+                answers = answers,
+                option = options
             )
 
         # MaRDMO: Interdisciplinary Workflow Documentation
@@ -188,21 +165,11 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             # Adjust MathML for Preview
             inline_mathml(answers)
 
-            return render(
-                self.request,
-                'MaRDMO/mardmoPreview.html',
-                {
-                    'form': self.ExportForm(),
-                    'include_file': 'MaRDMO/workflowTemplate.html',
-                    'include_params': {
-                        'title': self.project.title
-                    },
-                    'answers': answers,
-                    'option': options,
-                    'mardiURI': get_item_url('mardi'),
-                    'wikidataURI': get_item_url('wikidata'),
-                },
-                status=200
+            return render_preview(
+                self = self,
+                template = 'MaRDMO/workflowTemplate.html',
+                answers = answers,
+                option = options
             )
 
         # Non-MaRDMO Catalog
