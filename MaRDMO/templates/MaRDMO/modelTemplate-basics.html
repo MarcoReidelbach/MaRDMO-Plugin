@@ -69,85 +69,13 @@
     <br>
     </p>
     <b>Properties</b>:
-    {% for value in values.Properties.values %} 
-        {% if value == option.is_deterministic %} 
-            {% if option.is_stochastic in values.Properties.values %}
-                <strong style="color:red;">Is Deterministic</strong>
-            {% else %}
-                Is Deterministic
-            {% endif %} 
-	    {% elif value == option.is_stochastic %} 
-            {% if option.is_deterministic in values.Properties.values %}
-                <strong style="color:red;">Is Stochastic</strong>
-            {% else %}
-                Is Stochastic 
-            {% endif %}
-        {% elif value == option.is_dimensionless %}
-            {% if option.is_dimensional in values.Properties.values %}
-                <strong style="color:red;">Is Dimensionless</strong>
-            {% else %}
-                Is Dimensionless
-            {% endif %}   
-	    {% elif value == option.is_dimensional %} 
-            {% if option.is_dimensionless in values.Properties.values %}
-                <strong style="color:red;">Is Dimensional</strong>
-            {% else %}
-                Is Dimensional
-            {% endif %} 
-	    {% elif value == option.is_dynamic %} 
-            {% if option.is_static in values.Properties.values %}
-                <strong style="color:red;">Is Dynamic</strong>
-            {% else %}
-                Is Dynamic
-            {% endif %}  
-	    {% elif value == option.is_static %} 
-            {% if option.is_dynamic in values.Properties.values %}
-                <strong style="color:red;">Is Static</strong>
-            {% else %}
-                Is Static
-            {% endif %} 
-	    {% elif value == option.is_linear %} 
-            {% if option.is_not_linear in values.Properties.values %}
-                <strong style="color:red;">Is Linear</strong>
-            {% else %}
-                Is Linear
-            {% endif %} 
-	    {% elif value == option.is_not_linear %} 
-            {% if option.is_linear in values.Properties.values %}
-                <strong style="color:red;">Is Not Linear</strong>
-            {% else %}
-                Is Not Linear
-            {% endif %}
-	    {% elif value == option.is_space_continuous %}
-            {% if option.is_space_discrete in values.Properties.values %}
-                <strong style="color:red;">Is Space-Continuous</strong>
-            {% else %}
-                Is Space-Continuous
-            {% endif %} 
-	    {% elif value == option.is_space_discrete %}
-            {% if option.is_space_continuous in values.Properties.values %}
-                <strong style="color:red;">Is Space-Discrete</strong>
-            {% else %}
-                Is Space-Discrete
-            {% endif %}  
-	    {% elif value == option.is_time_continuous %}
-            {% if option.is_time_discrete in values.Properties.values %}
-                <strong style="color:red;">Is Time-Continuous</strong>
-            {% else %}
-                Is Time-Continuous
-            {% endif %}  
-	    {% elif value == option.is_time_discrete %} 
-            {% if option.is_time_continuous in values.Properties.values %}
-                <strong style="color:red;">Is Time-Discrete</strong>
-            {% else %}
-                Is Time-Discrete
-            {% endif %} 
-	    {% endif %} 
-	    {% if not forloop.last %}
-	        , 
-	    {% endif %} 
-    {% empty %}
-        -
+    {% for prop in values.Properties_Check %}
+        {% if prop.error %}
+            <strong style="color:red;">{{ prop.label }}</strong>
+        {% else %}
+            {{ prop.label }}
+        {% endif %}
+        {% if not forloop.last %}, {% endif %}
     {% endfor %}
 
     <h3 id="RelationsToResearchProblems"> Relations to Research Problems </h3>
@@ -450,49 +378,13 @@
     </p>
 
     <b>Properties</b>:
-    {% for value in values.Properties.values %} 
-        {% if value == option.is_linear %} 
-            {% if option.is_not_linear in values.Properties.values %}
-                <strong style="color:red;">Is Linear</strong>
-            {% else %}
-                Is Linear
-            {% endif %} 
-        {% elif value == option.is_not_linear %} 
-            {% if option.is_linear in values.Properties.values %}
-                <strong style="color:red;">Is Not Linear</strong>
-            {% else %}
-                Is Not Linear
-            {% endif %}
-            {% elif value == option.is_space_continuous %}
-            {% if option.is_space_discrete in values.Properties.values %}
-                <strong style="color:red;">Is Space-Continuous</strong>
-            {% else %}
-                Is Space-Continuous
-            {% endif %} 
-	    {% elif value == option.is_space_discrete %}
-            {% if option.is_space_continuous in values.Properties.values %}
-                <strong style="color:red;">Is Space-Discrete</strong>
-            {% else %}
-                Is Space-Discrete
-            {% endif %}  
-	    {% elif value == option.is_time_continuous %}
-            {% if option.is_time_discrete in values.Properties.values %}
-                <strong style="color:red;">Is Time-Continuous</strong>
-            {% else %}
-                Is Time-Continuous
-            {% endif %}  
-	    {% elif value == option.is_time_discrete %} 
-            {% if option.is_time_continuous in values.Properties.values %}
-                <strong style="color:red;">Is Time-Discrete</strong>
-            {% else %}
-                Is Time-Discrete
-            {% endif %} 
-	    {% endif %}
-        {% if not forloop.last %}
-            , 
+    {% for prop in values.Properties_Check %}
+        {% if prop.error %}
+            <strong style="color:red;">{{ prop.label }}</strong>
+        {% else %}
+            {{ prop.label }}
         {% endif %}
-    {% empty %}
-        -
+        {% if not forloop.last %}, {% endif %}
     {% endfor %}
 
     <h3 id="RelationsToMathematicalFormulations"> Relations to Mathematical Expressions </h3>
@@ -764,109 +656,13 @@
     </p>
 
     <b>Properties</b>:  
-    {% for value in values.Properties.values %}
-        {% if value == option.is_ordinary_differential_equation %}
-            {% if option.is_partial_differential_equation in values.Properties.values or option.is_stochastic_differential_equation in values.Properties.values or option.is_integro_differential_equation in values.Properties.values %}
-                <strong style="color:red;">Is Ordinary Differential Equation</strong>
-            {% else %}
-                Is Ordinary Differential Equation
-            {% endif %}
-        {% elif value == option.is_partial_differential_equation %}
-            {% if option.is_ordinary_differential_equation in values.Properties.values or option.is_stochastic_differential_equation in values.Properties.values or option.is_integro_differential_equation in values.Properties.values %}
-                <strong style="color:red;">Is Partial Differential Equation</strong>
-            {% else %}
-                Is Partial Differential Equation
-            {% endif %}
-        {% elif value == option.is_stochastic_differential_equation %}
-            {% if option.is_ordinary_differential_equation in values.Properties.values or option.is_partial_differential_equation in values.Properties.values or option.is_integro_differential_equation in values.Properties.values %}
-                <strong style="color:red;">Is Stochastic Differential Equation</strong>
-            {% else %}
-                Is Stochastic Differential Equation
-            {% endif %}
-        {% elif value == option.is_integro_differential_equation %}
-            {% if option.is_ordinary_differential_equation in values.Properties.values or option.is_stochastic_differential_equation in values.Properties.values or option.is_partial_differential_equation in values.Properties.values %}
-                <strong style="color:red;">Is Integro-Differential Equation</strong>
-            {% else %}
-                Is Integro-Differential Equation
-            {% endif %}
-        {% elif value == option.is_deterministic %} 
-            {% if option.is_stocastic in values.Properties.values %}
-                <strong style="color:red;">Is Deterministic</strong>
-            {% else %}
-                Is Deterministic
-            {% endif %} 
-        {% elif value == option.is_stochastic %} 
-            {% if option.is_deterministic in values.Properties.values %}
-                <strong style="color:red;">Is Stochastic</strong>
-            {% else %}
-                Is Stochastic
-            {% endif %}
-        {% elif value == option.is_dimensionless %} 
-            {% if option.is_dimensional in values.Properties.values %}
-                <strong style="color:red;">Is Dimensionless</strong>
-            {% else %}
-                Is Dimensionless
-            {% endif %}
-        {% elif value == option.is_dimensional %} 
-            {% if option.is_dimensionless in values.Properties.values %}
-                <strong style="color:red;">Is Dimensional</strong>
-            {% else %}
-                Is Dimensional
-            {% endif %} 
-        {% elif value == option.is_dynamic %} 
-            {% if option.is_static in values.Properties.values %}
-                <strong style="color:red;">Is Dynamic</strong>
-            {% else %}
-                Is Dynamic
-            {% endif %} 
-        {% elif value == option.is_static %} 
-            {% if option.is_dynamic in values.Properties.values %}
-                <strong style="color:red;">Is Static</strong>
-            {% else %}
-                Is Static
-            {% endif %}  
-        {% elif value == option.is_linear %} 
-            {% if option.is_not_linear in values.Properties.values %}
-                <strong style="color:red;">Is Linear</strong>
-            {% else %}
-                Is Linear
-            {% endif %}    
-        {% elif value == option.is_not_linear %} 
-            {% if option.is_linear in values.Properties.values %}
-                <strong style="color:red;">Is Not Linear</strong>
-            {% else %}
-                Is Not Linear
-            {% endif %} 
-        {% elif value == option.is_space_continuous %} 
-            {% if option.is_space_discrete in values.Properties.values %}
-                <strong style="color:red;">Is Space-Continuous</strong>
-            {% else %}
-                Is Space-Continuous
-            {% endif %} 
-        {% elif value == option.is_space_discrete %}
-            {% if option.is_space_continuous in values.Properties.values %}
-                <strong style="color:red;">Is Space-Discrete</strong>
-            {% else %}
-                Is Space-Discrete
-            {% endif %}  
-        {% elif value == option.is_time_continuous %} 
-            {% if option.is_time_discrete in values.Properties.values %}
-                <strong style="color:red;">Is Time-Continuous</strong>
-            {% else %}
-                Is Time-Continuous
-            {% endif %}  
-        {% elif value == option.is_time_discrete %} 
-            {% if option.is_time_continuous in values.Properties.values %}
-                <strong style="color:red;">Is Time-Discrete</strong>
-            {% else %}
-                Is Time-Discrete
-            {% endif %} 
-        {% endif %} 
-        {% if not forloop.last %}
-            , 
-        {% endif %} 
-    {% empty %}
-        -
+    {% for prop in values.Properties_Check %}
+        {% if prop.error %}
+            <strong style="color:red;">{{ prop.label }}</strong>
+        {% else %}
+            {{ prop.label }}
+        {% endif %}
+        {% if not forloop.last %}, {% endif %}
     {% endfor %}
         
     {% for relation in values.RelationMF2.values %}

@@ -225,11 +225,11 @@ def check_list(list_var):
 def label_index_map(data, data_type):
     '''Map Label to Index'''
     label_to_index_maps = []
-    for to_idx_entry in data_type:
+    for to_idx in data_type:
         label_to_index_maps.append(
             {
-                f"{data[to_idx_entry][k].get('Name')} ({data[to_idx_entry][k].get('Description')})": idx
-                for idx, k in enumerate(data.get(to_idx_entry, {}))
+                f"{data[to_idx][k].get('Name')} ({data[to_idx][k].get('Description')})": idx
+                for idx, k in enumerate(data.get(to_idx, {}))
             }
         )
     return label_to_index_maps
@@ -309,7 +309,7 @@ def entity_relations(data, idx, entity, order, assumption):
                         for enc_entry, label_map in zip(entity['encryption'], label_to_index_maps):
                             resolved = resolve_target(
                                 name=value.get("Name"),
-                                description=value.get("Description"), 
+                                description=value.get("Description"),
                                 id_=value.get("ID"),
                                 entity_enc=enc_entry,
                                 label_map=label_map,

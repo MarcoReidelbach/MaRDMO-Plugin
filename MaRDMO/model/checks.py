@@ -2,7 +2,7 @@
 
 from rdmo.domain.models import Attribute
 
-from .constants import data_properties_check, section_map
+from .constants import data_properties_check, data_properties_label, section_map
 from .utils import error_message, check_relation_flexible, check_relation_static
 
 from ..constants import BASE_URI
@@ -95,17 +95,19 @@ class Checks:
             )
             for ikey, ivalue in ovalue.items():
                 page_name = values.get(set_index=ikey).text
-                if ivalue.get('Properties'):
-                    properties = ivalue['Properties'].values()
-                    for key, value in data_properties_check.items():
-                        if {self.mathmoddb[key[0]], self.mathmoddb[key[1]]}.issubset(properties):
-                            self.err.append(
-                                error_message(
-                                    section = section_map[okey],
-                                    page = page_name,
-                                    message = f'Inconsistent Properties {value}'
-                                )
-                            )
+                if not ivalue.get('Properties'):
+                    continue
+                properties = ivalue['Properties'].values()
+                for pair in data_properties_check:
+                    if not {self.mathmoddb[pair[0]], self.mathmoddb[pair[1]]}.issubset(properties):
+                        continue
+                    self.err.append(
+                        error_message(
+                            section = section_map[okey],
+                            page = page_name,
+                            message = f'Inconsistent Properties ({data_properties_label[pair[0]]} and {data_properties_label[pair[1]]})'
+                        )
+                    )
 
     def model(self, project, data, catalog):
         '''Perform Model Checks:

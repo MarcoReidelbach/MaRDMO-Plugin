@@ -4,6 +4,8 @@ import logging
 import time
 
 from .constants import (
+    data_properties_check,
+    data_properties_label,
     preview_relations,
     preview_map_general,
     preview_map_quantity,
@@ -69,6 +71,30 @@ class PrepareModel:
                 data = answers,
                 entity_type = mapping,
                 mapping = self.mathmoddb)
+
+        # Check Data Properties for Preview
+        for mathmoddb_class in answers.values():
+            for class_item in mathmoddb_class.values():
+                properties = class_item.get('Properties')
+                if not properties:
+                    continue
+
+                present = set(properties.values())
+                wrong = set()
+
+                for pair in data_properties_check:
+                    opt_a, opt_b = self.mathmoddb[pair[0]], self.mathmoddb[pair[1]]
+                    if {opt_a, opt_b}.issubset(present):
+                        wrong.update([pair[0], pair[1]])
+                        present.discard(opt_a)
+                        present.discard(opt_b)
+
+                correct = {key for key in data_properties_label if self.mathmoddb[key] in present}
+
+                class_item['Properties_Check'] = [
+                    {'label': data_properties_label[k], 'error': k in wrong}
+                    for k in correct | wrong
+                ]
 
         return answers
 

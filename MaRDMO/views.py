@@ -9,7 +9,6 @@ from .getters import get_item_url
 from .oauth2 import _progress_store
 from .store import clear_progress, _unregister_job_for_session, _job_belongs_to_session
 
-
 @login_required
 def get_progress(request, job_id):
     """Return JSON progress updates"""

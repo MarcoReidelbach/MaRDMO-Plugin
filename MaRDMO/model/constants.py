@@ -3,23 +3,46 @@
 from ..constants import BASE_URI
 from ..getters import get_items, get_mathmoddb, get_properties, get_questions
 
-# Data Properties Check
-data_properties_check = {
-    ('is_deterministic', 'is_stochastic'): '(Deterministic and Stochastic)',
-    ('is_dimensionless', 'is_dimensional'): '(Dimensionless and Dimensional)',
-    ('is_dynamic', 'is_static'): '(Dynamic and Static)',
-    ('is_linear', 'is_not_linear'): '(Linear and Not Linear)',
-    ('is_space_continuous', 'is_space_discrete'): '(Space-Continuous and Space-Discrete)',
-    ('is_time_continuous', 'is_time_discrete'): '(Time-Continuous and Time-Discrete)',
-    ('is_mathematical_constant', 'is_physical_constant'): '(Mathematical and Physical Constant)',
-    ('is_mathematical_constant', 'is_physical_constant'): '(Mathematical and Chemical Constant)',
-    ('is_ordinary_differential_equation', 'is_partial_differential_equation'): '(Ordinary and Partial Differential Equation)',
-    ('is_ordinary_differential_equation', 'is_stochastic_differential_equation'): '(Ordinary and Stochastic Differential Equation)',
-    ('is_ordinary_differential_equation', 'is_integro_differential_equation'): '(Ordinary and Integro-Differential Equation)',
-    ('is_partial_differential_equation', 'is_stochastic_differential_equation'): '(Partial and Stochastic Differential Equation)',
-    ('is_partial_differential_equation', 'is_integro_differential_equation'): '(Partial and Integro-Differential Equation)',
-    ('is_stochastic_differential_equation', 'is_integro_differential_equation'): '(Stochastic and Integro-Differential Equation)',
+# Data Properties Label
+data_properties_label = {
+    'is_deterministic': 'Is Deterministic',
+    'is_stochastic': 'Is Stochastic',
+    'is_dimensionless': 'Is Dimensionless',
+    'is_dimensional': 'Is Dimensional',
+    'is_dynamic': 'Is Dynamic',
+    'is_static': 'Is Static',
+    'is_linear': 'Is Linear',
+    'is_not_linear': 'Is Not Linear',
+    'is_space_continuous': 'Is Space-Continuous',
+    'is_space_discrete': 'Is Space-Discrete',
+    'is_time_continuous': 'Is Time-Continuous',
+    'is_time_discrete': 'Is Time-Discrete',
+    'is_mathematical_constant': 'Is Mathematical Constant',
+    'is_physical_constant': 'Is Physical Constant',
+    'is_chemical_constant': 'Is Chemical Constant',
+    'is_ordinary_differential_equation': 'Is Ordinary Differential Equation',
+    'is_partial_differential_equation': 'Is Partial Differential Equation',
+    'is_stochastic_differential_equation': 'Is Stochastic Differential Equation',
+    'is_integro_differential_equation': 'Is Integro-Differential Equation',
 }
+
+# Data Properties Check
+data_properties_check = [
+    ('is_deterministic', 'is_stochastic'),
+    ('is_dimensionless', 'is_dimensional'),
+    ('is_dynamic', 'is_static'),
+    ('is_linear', 'is_not_linear'),
+    ('is_space_continuous', 'is_space_discrete'),
+    ('is_time_continuous', 'is_time_discrete'),
+    ('is_mathematical_constant', 'is_physical_constant'),
+    ('is_mathematical_constant', 'is_physical_constant'),
+    ('is_ordinary_differential_equation', 'is_partial_differential_equation'),
+    ('is_ordinary_differential_equation', 'is_stochastic_differential_equation'),
+    ('is_ordinary_differential_equation', 'is_integro_differential_equation'),
+    ('is_partial_differential_equation', 'is_stochastic_differential_equation'),
+    ('is_partial_differential_equation', 'is_integro_differential_equation'),
+    ('is_stochastic_differential_equation', 'is_integro_differential_equation'),
+]
 
 # Data Properties per Class
 data_properties_per_class = {
