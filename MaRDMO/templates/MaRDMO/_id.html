@@ -1,0 +1,11 @@
+{% if id %}
+    {% if 'not found' in id %} 
+        <b>ID</b>: - <br><br>
+    {% elif 'mardi' in id %} 
+        <b>MaRDI Portal ID</b>: {{ id|cut:"mardi:"}} <br><br>
+    {% elif 'wikidata' in id %} 
+        <b>Wikidata ID</b>: {{ id|cut:"wikidata:"}} <br><br>
+    {% endif %}
+{% else %}
+    <strong style="color:red;">MISSING {{ class }} ID</strong> <br><br>
+{% endif %}

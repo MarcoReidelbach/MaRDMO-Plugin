@@ -1,0 +1,9 @@
+<b>Properties</b>:
+{% for property in properties %}
+    {% if property.error %}
+        <strong style="color:red;">{{ property.label }}</strong>
+    {% else %}
+        {{ property.label }}
+    {% endif %}
+    {% if not forloop.last %}, {% endif %}
+{% endfor %}

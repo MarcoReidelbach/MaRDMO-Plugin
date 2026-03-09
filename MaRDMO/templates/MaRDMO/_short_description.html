@@ -1,0 +1,12 @@
+<b>Short Description</b>:
+{% if description %}
+    {% if description|length > 250 %}
+        <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
+    {% elif description == name %}
+        <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>
+    {% else %}
+        {{ description }} <br>
+    {% endif %}
+{% else %}
+     <strong style="color:red;">MISSING {{ class }} SHORT DESCRIPTION</strong> <br>
+{% endif %}

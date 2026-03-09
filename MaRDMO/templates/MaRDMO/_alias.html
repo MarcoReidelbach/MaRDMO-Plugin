@@ -1,0 +1,8 @@
+{% if aliases %}
+    <b>Alias</b>:
+    <ol style="margin-left: 1.5em;">
+        {% for alias in aliases.values %}
+            <li style="margin-bottom: 0.5em;">{{ alias }}</li>
+        {% endfor %}
+    </ol>
+{% endif %}

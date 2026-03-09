@@ -1,0 +1,62 @@
+{% if element.values %}
+    <table border="1">
+        <colgroup>
+            <col style="width: 10%" />
+            <col style="width: 15%" />
+            <col style="width: 15%" />
+            <col style="width: 15%" />
+            <col style="width: 15%" />
+            <col style="width: 30%" />
+        </colgroup>
+        <thead>
+            <tr class="header">
+                <th style="text-align: center; vertical-align: middle;">Symbol</th>
+                <th style="text-align: center; vertical-align: middle;">Quantity</th>
+                <th style="text-align: center; vertical-align: middle;">Quantity ID</th>
+                <th style="text-align: center; vertical-align: middle;">Quantity Kind</th>
+                <th style="text-align: center; vertical-align: middle;">Quantity Kind ID</th>
+                <th style="text-align: center; vertical-align: middle;">Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for value in element.values %}
+                {% if value.Info.Type == "Quantity" %}
+                    <tr>{% if '<math' in value.symbol %}
+                            <td style="text-align: center; vertical-align: middle;">{% if value.symbol %} {{ value.symbol|safe }} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                        {% else %}
+                            <td style="text-align: center; vertical-align: middle;">{% if value.symbol %} \( {{ value.symbol }} \) {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                        {% endif %}
+                        <td style="text-align: center; vertical-align: middle;">{% if value.Info.Name %} {{ value.Info.Name }} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %} </td>
+                        <td style="text-align: center; vertical-align: middle;">{% if value.Info.ID != 'not found' %} {{ value.Info.ID }} {% else %} - {% endif %}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ value.Info.QKName }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{% if value.Info.QKID == 'not found' %} - {% else %} {{ value.Info.QKID }} {% endif %}</td>
+                        <td style="text-align: center; vertical-align: middle;">{% if value.Info.Description %} {{ value.Info.Description }} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
+                    </tr>
+                {% elif value.Info.Type == "Quantity Kind" %}
+                    <tr>{% if '<math' in value.symbol %}
+                            <td style="text-align: center; vertical-align: middle;">{% if value.symbol %} {{ value.symbol|safe }} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                        {% else %}
+                            <td style="text-align: center; vertical-align: middle;">{% if value.symbol %} \( {{ value.symbol }} \) {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                        {% endif %}
+                        <td style="text-align: center; vertical-align: middle;"></td>
+                        <td style="text-align: center; vertical-align: middle;"></td>
+                        <td style="text-align: center; vertical-align: middle;">{% if value.Info.Name %} {{ value.Info.Name }} {% else %} <strong style="color:red;">MISSING NAME</strong> {% endif %}</td>
+                        <td style="text-align: center; vertical-align: middle;">{% if value.Info.ID == 'not found' %} - {% else %} {{ value.Info.ID }} {% endif %}</td>
+                        <td style="text-align: center; vertical-align: middle;">{% if value.Info.Description %} {{ value.Info.Description }} {% else %} <strong style="color:red;">MISSING DESCRIPTION</strong> {% endif %}</td>				
+                    </tr>
+                {% else %}
+                    <tr>
+                        {% if '<math' in value.symbol %}
+                            <td style="text-align: center; vertical-align: middle;">{% if value.symbol %} {{ value.symbol|safe }} {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                        {% else %}
+                            <td style="text-align: center; vertical-align: middle;">{% if value.symbol %} \( {{ value.symbol }} \) {% else %} <strong style="color:red;">MISSING SYMBOL</strong> {% endif %} </td>
+                        {% endif %}
+                        <td colspan="5" style="text-align: center; vertical-align: middle;"> <strong style="color:red;">MISSING QUANTITY OR QUANTITY KIND</strong> </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <strong style="color:red;">MISSING MATHEMATICAL EXPRESSION ELEMENT INFORMATION</strong>
+{% endif %}
