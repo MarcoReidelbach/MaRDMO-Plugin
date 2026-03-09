@@ -9,6 +9,33 @@ from rdmo.projects.models import Value
 from rdmo.domain.models import Attribute
 from rdmo.options.models import Option
 
+class PropertyRegistry:
+    """Registry class to look up properties by key, label, or url."""
+    def __init__(self, properties):
+        self._by_key = {}
+        self._by_label = {}
+        self._by_url = {}
+
+        for item in properties:
+            entry = {
+                "key":   item["key"],
+                "label": item["label"],
+                "url":   item["url"],
+            }
+            self._by_key[item["key"]]     = entry
+            self._by_label[item["label"]] = entry
+            self._by_url[item["url"]]     = entry
+
+    def get(self, *, key=None, label=None, url=None) -> dict | None:
+        """Look up a property by any field. Pass exactly one keyword arg."""
+        if key is not None:
+            return self._by_key.get(key)
+        if label is not None:
+            return self._by_label.get(label)
+        if url is not None:
+            return self._by_url.get(url)
+        raise ValueError("Provide exactly one of: key, label, url")
+
 def topological_order(direct_dependencies: dict[str, set[str]]) -> list[str]:
     '''Generate Topological Order of Dependency Graph Nodes'''
     dependents = defaultdict(set)
@@ -241,7 +268,7 @@ def resolve_target(name, description, id_, entity_enc, label_map):
         return f"{entity_enc}{label_map[label_description] + 1}"
     return id_
 
-def build_new_value(from_entry, entity, key, resolved, order, assumption):
+def build_new_value(from_entry, entity, key, resolved, order, assumption, mapping):
     """Build the new value depending on relation and order flags."""
     if not entity['relation']:
         return resolved
@@ -254,7 +281,7 @@ def build_new_value(from_entry, entity, key, resolved, order, assumption):
     )
 
     new_value = {
-            'relation': relation_value,
+            'relation': mapping.get(url=relation_value),
             'relatant': resolved
         }
 
@@ -282,7 +309,7 @@ def build_new_value(from_entry, entity, key, resolved, order, assumption):
     return new_value
 
 
-def entity_relations(data, idx, entity, order, assumption):
+def entity_relations(data, idx, entity, order, assumption, mapping):
     """Process Entity Relations."""
     idx['to'] = check_list(idx.get('to'))
     entity['encryption'] = check_list(entity['encryption'])
@@ -324,7 +351,8 @@ def entity_relations(data, idx, entity, order, assumption):
                         key,
                         resolved,
                         order,
-                        assumption
+                        assumption,
+                        mapping
                     )
 
                     # Add Process Item to Dict
@@ -344,7 +372,7 @@ def entity_relations(data, idx, entity, order, assumption):
                     if resolved != values.get("ID"):
                         break
                 # Build new Item Value
-                new_value = build_new_value(from_entry, entity, key, resolved, order, assumption)
+                new_value = build_new_value(from_entry, entity, key, resolved, order, assumption, mapping)
                 if new_value not in entity_values.values():
                     entity_values[key] = new_value
 
@@ -360,24 +388,23 @@ def map_entity(data, idx, entity):
 
     # Create mappings for all idx['to'] lists
     label_to_index_maps = label_index_map(data, idx['to'])
-
     # Use Template or Ressource Label
     for from_entry in data.get(idx['from'], {}).values():
         for outer_key, relation in from_entry.get(entity['old_name'], {}).items():
-            for inner_key, entity_item in relation.items():
+            for inner_key, item in relation.items():
                 match_found = False
                 # Create Dict Entry
                 outer = from_entry.setdefault(entity['new_name'], {})
                 inner = outer.setdefault(outer_key, {})
                 for enc_entry, label_to_index in zip(entity['encryption'], label_to_index_maps):
-                    if entity_item['Name'] in label_to_index:
-                        label_idx = label_to_index[entity_item['Name']]
+                    if f"{item['Name']} ({item['Description']})" in label_to_index:
+                        label_idx = label_to_index[f"{item['Name']} ({item['Description']})"]
                         match_found = True
                         inner[inner_key] = f"{enc_entry}{label_idx+1}"
                         break
 
                 if not match_found:
-                    inner[inner_key] = entity_item['ID']
+                    inner[inner_key] = item['ID']
 
 def process_qualifier(value):
     '''Process Qualifier'''

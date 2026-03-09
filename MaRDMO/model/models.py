@@ -5,7 +5,7 @@ from typing import Optional
 
 from .constants import data_properties_per_class, qudt_reference_ids
 
-from ..getters import get_items, get_mathmoddb
+from ..getters import get_items, get_mathmoddb, get_options
 from ..helpers import split_value
 from ..models import Relatant, RelatantWithClass
 
@@ -213,7 +213,7 @@ class MathematicalModel:
             ),
             # Get Properties
             'properties': {
-                idx: [mathmoddb[prop]]
+                idx: [mathmoddb.get(key=prop)["url"]]
                 for idx, prop in enumerate(data_properties_per_class['model'])
                 if data.get(prop, {}).get('value') == 'True'
             },
@@ -438,6 +438,7 @@ class QuantityOrQuantityKind:
         '''Generate Class Item From Query'''
 
         mathmoddb = get_mathmoddb()
+        options = get_options() 
 
         data = raw_data[0]
 
@@ -454,7 +455,7 @@ class QuantityOrQuantityKind:
             ),
             # Get Reference
             'reference': {
-                idx: [mathmoddb[prop], data[prop]['value']]
+                idx: [options[prop], data[prop]['value']]
                 for idx, prop in enumerate(qudt_reference_ids)
                 if data.get(prop, {}).get('value')
             },
@@ -462,7 +463,7 @@ class QuantityOrQuantityKind:
             'qclass': data.get('class', {}).get('value'),
             # Get Properties
             'properties': {
-                idx: [mathmoddb[prop]]
+                idx: [mathmoddb.get(key=prop)["url"]]
                 for idx, prop in enumerate(data_properties_per_class['quantity'])
                 if data.get(prop, {}).get('value') == 'True'
             },
@@ -617,7 +618,7 @@ class MathematicalFormulation:
             ),
             # Get Properties
             'properties': {
-                idx: [mathmoddb[prop]]
+                idx: [mathmoddb.get(key=prop)["url"]]
                 for idx, prop in enumerate(data_properties_per_class['formulation'])
                 if data.get(prop, {}).get('value') == 'True'
             },
@@ -837,7 +838,7 @@ class Task:
             ),
             # Get Properties
             'properties': {
-                idx: [mathmoddb[prop]]
+                idx: [mathmoddb.get(key=prop)["url"]]
                 for idx, prop in enumerate(data_properties_per_class['task'])
                 if data.get(prop, {}).get('value') == 'True'
             },

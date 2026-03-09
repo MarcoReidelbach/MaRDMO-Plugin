@@ -99,7 +99,7 @@ class Checks:
                     continue
                 properties = ivalue['Properties'].values()
                 for pair in data_properties_check:
-                    if not {self.mathmoddb[pair[0]], self.mathmoddb[pair[1]]}.issubset(properties):
+                    if not {self.mathmoddb.get(key=pair[0])["url"], self.mathmoddb.get(key=pair[1])["url"]}.issubset(properties):
                         continue
                     self.err.append(
                         error_message(
@@ -170,7 +170,7 @@ class Checks:
 
             # Check Qualifier Existance
             if any(
-                mval['relation'] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by'])
+                mval['relation'] in (self.mathmoddb.get(key='specializes')["url"], self.mathmoddb.get(key='specialized_by')["url"])
                 and not mval.get('assumption')
                 for mval in ivalue.get('RelationMM', {}).values()
             ):
@@ -185,7 +185,7 @@ class Checks:
 
             # Check Expression Existance in Qualifier
             if any(
-                mval['relation'] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by'])
+                mval['relation'] in (self.mathmoddb.get(key='specializes')["url"], self.mathmoddb.get(key='specialized_by')["url"])
                 and 'not found' in mval.get('assumption', {}).values()
                 for mval in ivalue.get('RelationMM', {}).values()
             ):
@@ -270,7 +270,7 @@ class Checks:
 
             # Check Qualifier Existance
             if any(
-                tval['relation'] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by'])
+                tval['relation'] in (self.mathmoddb.get(key='specializes')["url"], self.mathmoddb.get(key='specialized_by')["url"])
                 and not tval.get('assumption')
                 for tval in ivalue.get('RelationT', {}).values()
             ):
@@ -285,7 +285,7 @@ class Checks:
 
             # Check Existance of Expression in Qualifier
             if any(
-                tval['relation'] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by'])
+                tval['relation'] in (self.mathmoddb.get(key='specializes')["url"], self.mathmoddb.get(key='specialized_by')["url"])
                 and 'not found' in tval.get('assumption', {}).values()
                 for tval in ivalue.get('RelationT', {}).values()
             ):
@@ -300,7 +300,7 @@ class Checks:
 
             # Check Order Number Qualifier
             if any(
-                tval['relation'] in (self.mathmoddb['contains'], self.mathmoddb['contained_in'])
+                tval['relation'] in (self.mathmoddb.get(key='contains_task')["url"], self.mathmoddb.get('contained_in_task')["url"])
                 and not tval.get('order')
                 for tval in ivalue.get('RelationT', {}).values()
             ):
@@ -368,7 +368,7 @@ class Checks:
 
             # Check Qualifier Existance
             if any(
-                mval['relation'] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by'])
+                mval['relation'] in (self.mathmoddb.get(key='specializes')["url"], self.mathmoddb.get(key='specialized_by')["url"])
                 and not mval.get('assumption')
                 for mval in ivalue.get('RelationMF2', {}).values()
             ):
@@ -383,7 +383,7 @@ class Checks:
 
             # Check Existance of Expression Qualifier
             if any(
-                mval['relation'] in (self.mathmoddb['specializes'], self.mathmoddb['specialized_by'])
+                mval['relation'] in (self.mathmoddb.get(key='specializes')["url"], self.mathmoddb.get(key='specialized_by')["url"])
                 and 'not found' in mval.get('assumption', {}).values()
                 for mval in ivalue.get('RelationMF2', {}).values()
             ):
@@ -496,7 +496,7 @@ class Checks:
                         )
                     )
                 # Check if Quantity Kind ID is selected for Quantity Kinds
-                if ivalue.get('QorQK') == self.mathmoddb['Quantity']:
+                if ivalue.get('QorQK') == self.mathmoddb.get(key='Quantity')["url"]:
                     if ivalue['reference'].get(0):
                         self.err.append(
                             error_message(
@@ -506,7 +506,7 @@ class Checks:
                             )
                         )
                 # Check if Constant ID is selected for Quantities
-                if ivalue.get('QorQK') == self.mathmoddb['QuantityKind']:
+                if ivalue.get('QorQK') == self.mathmoddb.get(key='QuantityKind')["url"]:
                     if ivalue['reference'].get(1):
                         self.err.append(
                             error_message(
@@ -564,7 +564,7 @@ class Checks:
                             )
                         )
             # Relation Connections
-            if ivalue.get('QorQK') == self.mathmoddb['Quantity']:
+            if ivalue.get('QorQK') == self.mathmoddb.get(key='Quantity')["url"]:
                 # Check optional flexible Q-Q Statements
                 check_relation_flexible(
                     data = ivalue,
@@ -583,7 +583,7 @@ class Checks:
                     from_class = 'Quantity'
                 )
 
-            elif ivalue.get('QorQK') == self.mathmoddb['QuantityKind']:
+            elif ivalue.get('QorQK') == self.mathmoddb.get(key='QuantityKind')["url"]:
                 # Check optional flexible Q-Q Statements
                 check_relation_flexible(
                     data = ivalue,

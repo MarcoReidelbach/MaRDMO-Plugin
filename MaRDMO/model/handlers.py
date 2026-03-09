@@ -341,7 +341,7 @@ class Information:
                 uri = f'{self.base}{quantity["QorQK"]["uri"]}',
                 info = {
                     'option': Option.objects.get(
-                        uri = self.mathmoddb[results[0]['class']['value']]
+                        uri = self.mathmoddb.get(key=results[0]['class']['value'])["url"]
                     ),
                     'set_index': instance.set_index
                 }
@@ -410,7 +410,7 @@ class Information:
                     project=instance.project,
                     uri=f"{self.base}{quantity[relation_uris[qclass_pair]]['uri']}",
                     info = {
-                        'option': Option.objects.get(uri = self.mathmoddb[prop]),
+                        'option': Option.objects.get(uri = self.mathmoddb.get(key=prop)["url"]),
                         'set_index': index_counters[qclass_pair],
                         'set_prefix': f"{instance.set_index}"
                     }

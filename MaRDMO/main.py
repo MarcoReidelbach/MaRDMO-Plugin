@@ -110,7 +110,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         ):
 
             # Get answers, options, and mathmoddb
-            answers, options, mathmoddb = self.get_post_data('preview')
+            answers, options, _ = self.get_post_data('preview')
 
             # Adjust MathML for Preview
             inline_mathml(answers)
@@ -125,7 +125,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 self = self,
                 template = template,
                 answers = answers,
-                option = options|mathmoddb
+                option = options
             )
 
         # MaRDMO: Algorithm Documentation

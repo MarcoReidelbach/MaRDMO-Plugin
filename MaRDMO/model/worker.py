@@ -62,15 +62,21 @@ class PrepareModel:
                     'formulation': relation['formulation'],
                     'task': relation['task']
                 },
-                assumption = relation['assumption']
+                assumption = relation['assumption'],
+                mapping = self.mathmoddb
             )
 
+        # Quantity Type as Label
+        for quantity in answers.get("quantity", {}).values():
+            if quantity.get("QorQK"):
+                quantity['QorQK'] = self.mathmoddb.get(url=quantity["QorQK"])['label']
+    
         # Prepare Quantity Mapping
         for mapping in preview_map_quantity:
             map_entity_quantity(
                 data = answers,
-                entity_type = mapping,
-                mapping = self.mathmoddb)
+                entity_type = mapping
+            )
 
         # Check Data Properties for Preview
         for mathmoddb_class in answers.values():
@@ -83,13 +89,13 @@ class PrepareModel:
                 wrong = set()
 
                 for pair in data_properties_check:
-                    opt_a, opt_b = self.mathmoddb[pair[0]], self.mathmoddb[pair[1]]
+                    opt_a, opt_b = self.mathmoddb.get(key=pair[0])["url"], self.mathmoddb.get(key=pair[1])["url"]
                     if {opt_a, opt_b}.issubset(present):
                         wrong.update([pair[0], pair[1]])
                         present.discard(opt_a)
                         present.discard(opt_b)
 
-                correct = {key for key in data_properties_label if self.mathmoddb[key] in present}
+                correct = {key for key in data_properties_label if self.mathmoddb.get(key=key)["url"] in present}
 
                 class_item['Properties_Check'] = [
                     {'label': data_properties_label[k], 'error': k in wrong}
@@ -435,7 +441,7 @@ class PrepareModel:
                 value = entry
             )
 
-            if entry.get("QorQK") == self.mathmoddb["Quantity"]:
+            if entry.get("QorQK") == self.mathmoddb.get(label='Quantity')['url']:
                 self._add_common_metadata(
                     payload = payload,
                     qclass = self.items["quantity"],
@@ -443,7 +449,7 @@ class PrepareModel:
                 )
                 qtype = "quantity"
 
-            elif entry.get("QorQK") == self.mathmoddb["QuantityKind"]:
+            elif entry.get("QorQK") == self.mathmoddb.get(label='Quantity Kind')['url']:
                 self._add_common_metadata(
                     payload = payload,
                     qclass = self.items["kind of quantity"],

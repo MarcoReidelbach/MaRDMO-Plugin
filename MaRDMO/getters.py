@@ -9,11 +9,13 @@ from rdmo.domain.models import Attribute
 
 from .constants import BASE_URI
 from .constants import flag_dict
-from .helpers import nested_set
+from .helpers import nested_set, PropertyRegistry
 
 def get_mathmoddb():
     """Retrieve the mathmoddb ontology from MaRDMOConfig."""
-    return apps.get_app_config("MaRDMO").mathmoddb
+    return PropertyRegistry(
+        apps.get_app_config("MaRDMO").mathmoddb
+    )
 
 def get_mathalgodb():
     """Retrieve the mathmoddb ontology from MaRDMOConfig."""

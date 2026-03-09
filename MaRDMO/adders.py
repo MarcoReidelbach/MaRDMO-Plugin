@@ -283,7 +283,7 @@ def add_relations_flexible(project, data, props, index, statement):
                 value = value,
                 set_prefix_red = index['set_prefix_reduced'],
                 info = info,
-                relation_id = props['mapping'][prop]
+                relation_id = props['mapping'].get(key=prop)["url"]
             )
 
             if matches:
@@ -338,7 +338,7 @@ def add_relations_flexible(project, data, props, index, statement):
                 project = project,
                 uri = statement['relation'],
                 info = {
-                    'option': Option.objects.get(uri=props['mapping'][prop]),
+                    'option': Option.objects.get(uri=props['mapping'].get(key=prop)["url"]),
                     'collection_index': None,
                     'set_index': order_number_index or assumption_index or index['idx'],
                     'set_prefix': index['set_prefix']
@@ -362,7 +362,7 @@ def add_relations_flexible(project, data, props, index, statement):
             info['value_ids'].append(value.id)
             info['set_prefix_ids'].append(index['set_prefix_reduced'])
             info['texts'].append(f"{value.label} ({value.description}) [{source}]")
-            info['rels'].append(props['mapping'][prop])
+            info['rels'].append(props['mapping'].get(key=prop)["url"])
 
             inner_idx += 1
 

@@ -6,24 +6,18 @@ def build_quantity_info(quantity, qtype):
         "Type": qtype,
         "Name": quantity.get("Name", ""),
         "Description": quantity.get("Description", ""),
-        "ID": (
-            quantity.get("ID", "")
-            if quantity.get("ID", "") and quantity.get("ID", "") != "not found"
-            else quantity.get("Reference", "")
-            if qtype == "Quantity" and quantity.get("Reference", "")
-            else ""
-        ),
+        "ID": quantity.get("ID", ""),
     }
 
     # Only Quantity has QKRelatant
     if qtype == "Quantity":
-        base_info["QKName"] = quantity.get("QKRelatant", [{}])[0].get("Name", "")
-        base_info["QKID"] = quantity.get("QKRelatant", [{}])[0].get("ID", "")
+        base_info["QKName"] = quantity.get("QKRelatant-Q", {}).get(0, {}).get(0, {}).get("Name", "")
+        base_info["QKID"] = quantity.get("QKRelatant-Q", {}).get(0, {}).get(0, {}).get("ID", "")
 
     return base_info
 
 
-def map_entity_quantity(data, entity_type, mapping):
+def map_entity_quantity(data, entity_type):
     """Map quantities or quantity kinds to entity elements."""
     for entity in data.get(entity_type, {}).values():
         for element in entity.get("element", {}).values():
@@ -36,7 +30,8 @@ def map_entity_quantity(data, entity_type, mapping):
                     continue
 
                 qtype = quantity.get("QorQK")
-                if qtype in mapping.values():
+
+                if qtype in ('Quantity', 'Quantity Kind'):
                     element["Info"] = build_quantity_info(quantity, qtype)
 
 def error_message(section, page, message):

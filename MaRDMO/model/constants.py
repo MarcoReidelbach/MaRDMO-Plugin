@@ -241,25 +241,25 @@ def get_data_properties(item_type):
     mathmoddb = get_mathmoddb()
     items = get_items()
     data_properties = {
-        mathmoddb['is_ordinary_differential_equation']: items.get('ordinary differential equation'),
-        mathmoddb['is_partial_differential_equation']: items.get('partial differential equation'),
-        mathmoddb['is_stochastic_differential_equation']: items.get('stochastic differential equation'),
-        mathmoddb['is_integro_differential_equation']: items.get('integro-differential equation'),
-        mathmoddb['is_chemical_constant']: items.get('chemical constant'),
-        mathmoddb['is_mathematical_constant']: items.get('mathematical constant'),
-        mathmoddb['is_physical_constant']: items.get('physical constant'),
-        mathmoddb['is_deterministic']: items.get(f'deterministic {item_type}'),
-        mathmoddb['is_stochastic']: items.get(f'probabilistic {item_type}'),
-        mathmoddb['is_dimensional']: items.get(f'dimensional {item_type}'),
-        mathmoddb['is_dimensionless']: items.get(f'dimensionless {item_type}'),
-        mathmoddb['is_dynamic']: items.get(f'dynamic {item_type}'),
-        mathmoddb['is_static']: items.get(f'static {item_type}'),
-        mathmoddb['is_linear']: items.get(f'linear {item_type}'),
-        mathmoddb['is_not_linear']: items.get(f'nonlinear {item_type}'),
-        mathmoddb['is_space_continuous']: items.get(f'continuous-space {item_type}'),
-        mathmoddb['is_space_discrete']: items.get(f'discrete-space {item_type}'),
-        mathmoddb['is_time_continuous']: items.get(f'continuous-time {item_type}'),
-        mathmoddb['is_time_discrete']: items.get(f'discrete-time {item_type}')
+        mathmoddb.get(key='is_ordinary_differential_equation')["url"]: items.get('ordinary differential equation'),
+        mathmoddb.get(key='is_partial_differential_equation')["url"]: items.get('partial differential equation'),
+        mathmoddb.get(key='is_stochastic_differential_equation')["url"]: items.get('stochastic differential equation'),
+        mathmoddb.get(key='is_integro_differential_equation')["url"]: items.get('integro-differential equation'),
+        mathmoddb.get(key='is_chemical_constant')["url"]: items.get('chemical constant'),
+        mathmoddb.get(key='is_mathematical_constant')["url"]: items.get('mathematical constant'),
+        mathmoddb.get(key='is_physical_constant')["url"]: items.get('physical constant'),
+        mathmoddb.get(key='is_deterministic')["url"]: items.get(f'deterministic {item_type}'),
+        mathmoddb.get(key='is_stochastic')["url"]: items.get(f'probabilistic {item_type}'),
+        mathmoddb.get(key='is_dimensional')["url"]: items.get(f'dimensional {item_type}'),
+        mathmoddb.get(key='is_dimensionless')["url"]: items.get(f'dimensionless {item_type}'),
+        mathmoddb.get(key='is_dynamic')["url"]: items.get(f'dynamic {item_type}'),
+        mathmoddb.get(key='is_static')["url"]: items.get(f'static {item_type}'),
+        mathmoddb.get(key='is_linear')["url"]: items.get(f'linear {item_type}'),
+        mathmoddb.get(key='is_not_linear')["url"]: items.get(f'nonlinear {item_type}'),
+        mathmoddb.get(key='is_space_continuous')["url"]: items.get(f'continuous-space {item_type}'),
+        mathmoddb.get(key='is_space_discrete')["url"]: items.get(f'discrete-space {item_type}'),
+        mathmoddb.get(key='is_time_continuous')["url"]: items.get(f'continuous-time {item_type}'),
+        mathmoddb.get(key='is_time_discrete')["url"]: items.get(f'discrete-time {item_type}')
     }
     return data_properties
 
@@ -271,151 +271,151 @@ def get_relations():
     properties = get_properties()
     relations = {
         # Map MathModDB Relation on Wikibase Property + Qualifier Item
-        mathmoddb['assumes']: [
+        mathmoddb.get(key='assumes')['url']: [
             properties['assumes']
         ],
-        mathmoddb['contains_boundary_condition']: [
+        mathmoddb.get(key='contains_boundary_condition')['url']: [
             properties['contains'],
             items['boundary condition']
         ],
-        mathmoddb['contains_constraint_condition']: [
+        mathmoddb.get(key='contains_constraint_condition')['url']: [
             properties['contains'],
             items['constraint']
         ],
-        mathmoddb['contains_coupling_condition']: [
+        mathmoddb.get(key='contains_coupling_condition')['url']: [
             properties['contains'],
             items['coupling condition']
         ],
-        mathmoddb['contains_initial_condition']: [
+        mathmoddb.get(key='contains_initial_condition')['url']: [
             properties['contains'],
             items['initial condition']
         ],
-        mathmoddb['contains_final_condition']: [
+        mathmoddb.get(key='contains_final_condition')['url']: [
             properties['contains'],
             items['final condition']
         ],
-        mathmoddb['contains_input']: [
+        mathmoddb.get(key='contains_input')['url']: [
             properties['contains'],
             items['input']
         ],
-        mathmoddb['contains_constant']: [
+        mathmoddb.get(key='contains_constant')['url']: [
             properties['contains'],
             items['constant']
         ],
-        mathmoddb['contains_objective']: [
+        mathmoddb.get(key='contains_objective')['url']: [
             properties['contains'],
             items['objective function']
         ],
-        mathmoddb['contains_output']: [
+        mathmoddb.get(key='contains_output')['url']: [
             properties['contains'],
             items['output']
         ],
-        mathmoddb['contains_parameter']: [
+        mathmoddb.get(key='contains_parameter')['url']: [
             properties['contains'],
             items['parameter']
         ],
-        mathmoddb['contains_analytical_solution']: [
+        mathmoddb.get(key='contains_analytical_solution')['url']: [
             properties['contains'],
             items['analytical solution']
         ],
-        mathmoddb['contains_physical_law']: [
+        mathmoddb.get(key='contains_physical_law')['url']: [
             properties['contains'],
             items['physical law']
         ],
-        mathmoddb['contains_computational_domain']: [
+        mathmoddb.get(key='contains_computational_domain')['url']: [
             properties['contains'],
             items['computational domain']
         ],
-        mathmoddb['contains_constitutive_equation']: [
+        mathmoddb.get(key='contains_constitutive_equation')['url']: [
             properties['contains'],
             items['constitutive equation']
         ],
-        mathmoddb['contains_weak_formulation']: [
+        mathmoddb.get(key='contains_weak_formulation')['url']: [
             properties['contains'],
             items['weak formulation']
         ],
-        mathmoddb['contains_strong_formulation']: [
+        mathmoddb.get(key='contains_strong_formulation')['url']: [
             properties['contains'],
             items['strong formulation']
         ],
-        mathmoddb['documents']: [
+        mathmoddb.get(key='documents')['url']: [
             properties['described by source'],
             items['documentation']
         ],
-        mathmoddb['invents']: [
+        mathmoddb.get(key='invents')['url']: [
             properties['described by source'],
             items['invention']
         ],
-        mathmoddb['studies']: [
+        mathmoddb.get(key='studies')['url']: [
             properties['described by source'],
             items['study']
         ],
-        mathmoddb['surveys']: [
+        mathmoddb.get(key='surveys')['url']: [
             properties['described by source'],
             items['review']
         ],
-        mathmoddb['uses']: [
+        mathmoddb.get(key='uses')['url']: [
             properties['described by source'],
             items['use']
         ],
         # Map MathModDB Relation on Wikibase Property + Direction
-        mathmoddb['specialized_by']: [
+        mathmoddb.get(key='specialized_by')['url']: [
             properties['specialized by'],
             'forward'
         ],
-        mathmoddb['specializes']: [
+        mathmoddb.get(key='specializes')['url']: [
             properties['specialized by'],
             'backward'
         ],
-        mathmoddb['approximated_by']: [
+        mathmoddb.get(key='approximated_by')['url']: [
             properties['approximated by'],
             'forward'
         ],
-        mathmoddb['approximates']: [
+        mathmoddb.get(key='approximates')['url']: [
             properties['approximated by'],
             'backward'
         ],
-        mathmoddb['discretized_by']: [
+        mathmoddb.get(key='discretized_by')['url']: [
             properties['discretized by'],
             'forward'
         ],
-        mathmoddb['discretizes']: [
+        mathmoddb.get(key='discretizes')['url']: [
             properties['discretized by'],
             'backward'
         ],
-        mathmoddb['linearized_by']: [
+        mathmoddb.get(key='linearized_by')['url']: [
             properties['linearized by'],
             'forward'
         ],
-        mathmoddb['linearizes']: [
+        mathmoddb.get(key='linearizes')['url']: [
             properties['linearized by'],
             'backward'
         ],
-        mathmoddb['nondimensionalized_by']: [
+        mathmoddb.get(key='nondimensionalized_by')['url']: [
             properties['nondimensionalized by'],
             'forward'
         ],
-        mathmoddb['nondimensionalizes']: [
+        mathmoddb.get(key='nondimensionalizes')['url']: [
             properties['nondimensionalized by'],
             'backward'
         ],
-        mathmoddb['contains']: [
+        mathmoddb.get(key='contains')['url']: [
             properties['contains'],
             'forward'
         ],
-        mathmoddb['contained_in']: [
+        mathmoddb.get(key='contained_in')['url']: [
             properties['contains'],
             'backward'
         ],
-        mathmoddb['similar_to']: [
+        mathmoddb.get(key='similar_to')['url']: [
             properties['similar to'],
             'forward'
         ],
-        mathmoddb['has_weak_formulation']: [
+        mathmoddb.get(key='has_weak_formulation')['url']: [
             properties['has weak formulation'],
             'forward'
         ],
-        mathmoddb['is_weak_formulation_of']: [
+        mathmoddb.get(key='is_weak_formulation_of')['url']: [
             properties['has weak formulation'],
             'backward'
         ]
