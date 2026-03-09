@@ -32,7 +32,8 @@ class PrepareAlgorithm:
                     'formulation': False,
                     'task': False
                 },
-                assumption = False
+                assumption = False,
+                mapping = self.mathalgodb
             )
 
         return answers

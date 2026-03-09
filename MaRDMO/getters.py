@@ -19,7 +19,9 @@ def get_mathmoddb():
 
 def get_mathalgodb():
     """Retrieve the mathmoddb ontology from MaRDMOConfig."""
-    return apps.get_app_config("MaRDMO").mathalgodb
+    return PropertyRegistry(
+        apps.get_app_config("MaRDMO").mathalgodb
+    )
 
 def get_options():
     """Retrieve the rdmo options from MaRDMOConfig."""
