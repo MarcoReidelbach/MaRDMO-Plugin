@@ -1,5 +1,30 @@
 '''Module containing Utility Functions for the Model Documentation'''
 
+from .constants import DEPENDENT_PROPERTIES, INDEPENDENT_PROPERTIES
+
+from ..getters import get_items, get_mathmoddb
+
+def get_data_properties(item_type):
+    """Get Data Properties Mapping"""
+
+    # Get MathModDB Mapping and Items
+    mathmoddb = get_mathmoddb()
+    items = get_items()
+
+    # Add class-independent Properties
+    properties = {
+        mathmoddb.get(key=k)["url"]: items.get(label)
+        for k, label in INDEPENDENT_PROPERTIES
+    }
+
+    # Add class-dependent Properties
+    properties.update({
+        mathmoddb.get(key=k)["url"]: items.get(f'{label} {item_type}')
+        for k, label in DEPENDENT_PROPERTIES
+    })
+
+    return properties
+
 def build_quantity_info(quantity, qtype):
     """Build the Info dict for a Quantity or QuantityKind."""
     base_info = {

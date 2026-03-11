@@ -10,9 +10,8 @@ from .constants import (
     preview_map_general,
     preview_map_quantity,
     get_relations,
-    get_data_properties,
 )
-from .utils import map_entity_quantity
+from .utils import get_data_properties, map_entity_quantity
 
 from ..getters import get_items, get_mathmoddb, get_properties, get_url
 from ..helpers import entity_relations, map_entity, unique_items, date_precision
@@ -70,7 +69,7 @@ class PrepareModel:
         for quantity in answers.get("quantity", {}).values():
             if quantity.get("QorQK"):
                 quantity['QorQK'] = self.mathmoddb.get(url=quantity["QorQK"])['label']
-    
+
         # Prepare Quantity Mapping
         for mapping in preview_map_quantity:
             map_entity_quantity(

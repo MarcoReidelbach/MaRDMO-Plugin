@@ -69,6 +69,33 @@ data_properties_per_class = {
     ]
 }
 
+# Key-Item Map for Class-Independent Data Properties
+INDEPENDENT_PROPERTIES = [
+    ('is_ordinary_differential_equation',   'ordinary differential equation'),
+    ('is_partial_differential_equation',    'partial differential equation'),
+    ('is_stochastic_differential_equation', 'stochastic differential equation'),
+    ('is_integro_differential_equation',    'integro-differential equation'),
+    ('is_chemical_constant',                'chemical constant'),
+    ('is_mathematical_constant',            'mathematical constant'),
+    ('is_physical_constant',                'physical constant'),
+]
+
+# Key-Item Map for Class-Dependent Data Properties
+DEPENDENT_PROPERTIES = [
+    ('is_deterministic',     'deterministic'),
+    ('is_stochastic',        'probabilistic'),
+    ('is_dimensional',       'dimensional'),
+    ('is_dimensionless',     'dimensionless'),
+    ('is_dynamic',           'dynamic'),
+    ('is_static',            'static'),
+    ('is_linear',            'linear'),
+    ('is_not_linear',        'nonlinear'),
+    ('is_space_continuous',  'continuous-space'),
+    ('is_space_discrete',    'discrete-space'),
+    ('is_time_continuous',   'continuous-time'),
+    ('is_time_discrete',     'discrete-time'),
+]
+
 # QUDT Reference IDs
 qudt_reference_ids = [
     'qudt_quantitykind_id',
@@ -234,34 +261,6 @@ relatant_uris = {
     ("Quantity", "QuantityKind"): "QQKRelatant",
     ("QuantityKind", "Quantity"): "QKQRelatant",
 }
-
-# DATA Properties
-def get_data_properties(item_type):
-    '''Data Properties for the Model Documentation'''
-    mathmoddb = get_mathmoddb()
-    items = get_items()
-    data_properties = {
-        mathmoddb.get(key='is_ordinary_differential_equation')["url"]: items.get('ordinary differential equation'),
-        mathmoddb.get(key='is_partial_differential_equation')["url"]: items.get('partial differential equation'),
-        mathmoddb.get(key='is_stochastic_differential_equation')["url"]: items.get('stochastic differential equation'),
-        mathmoddb.get(key='is_integro_differential_equation')["url"]: items.get('integro-differential equation'),
-        mathmoddb.get(key='is_chemical_constant')["url"]: items.get('chemical constant'),
-        mathmoddb.get(key='is_mathematical_constant')["url"]: items.get('mathematical constant'),
-        mathmoddb.get(key='is_physical_constant')["url"]: items.get('physical constant'),
-        mathmoddb.get(key='is_deterministic')["url"]: items.get(f'deterministic {item_type}'),
-        mathmoddb.get(key='is_stochastic')["url"]: items.get(f'probabilistic {item_type}'),
-        mathmoddb.get(key='is_dimensional')["url"]: items.get(f'dimensional {item_type}'),
-        mathmoddb.get(key='is_dimensionless')["url"]: items.get(f'dimensionless {item_type}'),
-        mathmoddb.get(key='is_dynamic')["url"]: items.get(f'dynamic {item_type}'),
-        mathmoddb.get(key='is_static')["url"]: items.get(f'static {item_type}'),
-        mathmoddb.get(key='is_linear')["url"]: items.get(f'linear {item_type}'),
-        mathmoddb.get(key='is_not_linear')["url"]: items.get(f'nonlinear {item_type}'),
-        mathmoddb.get(key='is_space_continuous')["url"]: items.get(f'continuous-space {item_type}'),
-        mathmoddb.get(key='is_space_discrete')["url"]: items.get(f'discrete-space {item_type}'),
-        mathmoddb.get(key='is_time_continuous')["url"]: items.get(f'continuous-time {item_type}'),
-        mathmoddb.get(key='is_time_discrete')["url"]: items.get(f'discrete-time {item_type}')
-    }
-    return data_properties
 
 # Relations
 def get_relations():
