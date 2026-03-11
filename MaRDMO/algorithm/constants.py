@@ -115,18 +115,12 @@ preview_relations = [
     },
     {
         "from_idx": "publication",
-        "to_idx": "benchmark",
-        "relation": "P2B",
-        "old_name": "BRelatant",
-        "new_name": "RelationB",
-        "encryption": "B"
-    },
-    {
-        "from_idx": "publication",
-        "to_idx": "software",
-        "relation": "P2S",
-        "old_name": "SRelatant",
-        "new_name": "RelationS",
-        "encryption": "S"
+        "to_idx": [
+            "benchmark", "software"
+        ],
+        "relation": "P2BS",
+        "old_name": "BSRelatant",
+        "new_name": "RelationBS",
+        "encryption": ["B", "S"]
     }
 ]
