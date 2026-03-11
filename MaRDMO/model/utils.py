@@ -107,7 +107,7 @@ def check_relation_flexible(
             )
     # Check Missing Relation Type
     if any(
-        val['relation'] == 'MISSING RELATION TYPE'
+        val['relation'] is None
         for val in data.get(relation, {}).values()
     ):
         error.append(
