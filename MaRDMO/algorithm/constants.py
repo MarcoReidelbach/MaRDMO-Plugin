@@ -3,6 +3,15 @@
 from ..constants import BASE_URI
 from ..getters import get_questions
 
+#Dictionary for internal / external section names
+SECTION_MAP = {
+    'algorithm': 'Algorithm',
+    'problem': 'Algorithmic Task',
+    'software': 'Software',
+    'benchmark': 'Benchmark',
+    'publication': 'Publication'
+}
+
 # Dictionary with list of property names
 PROPS = {
     'A2P': ['solves'],
