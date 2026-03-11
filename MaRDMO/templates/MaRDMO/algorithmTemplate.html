@@ -32,236 +32,147 @@
     </style>
 </head>
 <body>
-    <h1 id="title"> {{ title }} </h1>
-        {% for values in answers.algorithm.values %}
-            {% if forloop.counter == 1 %}
-                <h1 id="Algorithm"> Algorithms </h1>
-            {% endif %}
-      
-            <h2 id="A{{ forloop.counter }}"> A{{ forloop.counter }}: {{ values.Name }} </h2>
+<h1 id="title"> {{ title }} </h1>
+
+<h1 id="Algorithm"> Algorithms </h1>
+{% for values in answers.algorithm.values %}
+
+    {# Include Algorithm Name #}
+    {% include "MaRDMO/_name.html" with class="ALGORITHM" counter=forloop.counter name=values.Name prefix="A" %}
    
-            <p>
-                {% if values.Description %}
-                    <b>Description</b>: {{ values.Description }} <br>
-                {% endif %}
-                {% if 'not found' in values.ID %} 
-                    <b>ID</b>: - 
-                {% elif 'mardi' in values.ID %} 
-                    <b>MaRDI Portal ID</b>: {{ values.ID|cut:"mardi:"}} 
-                {% elif 'wikidata' in values.ID %} 
-                    <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
-                {% endif %} 
-            </p>
+    {# Include Algorithm Short Description #}
+    {% include "MaRDMO/_short_description.html" with class="ALGORITHM" description=values.Description name=values.Name %}
+
+    {# Include Algorithm ID #}
+    {% include "MaRDMO/_id.html" with class="ALGORITHM" id=values.ID %}
+
+    {# Include Block for single Relation between Algorithm and Task #}
+    {% include "MaRDMO/_relation_block_single.html" with anchor="A2AT" title="Algorithmic Tasks" relation="solves" relatants=values.RelationP class="ALGORITHMIC TASK" %}
+
+    {# Include Block for single Relation between Algorithm and Software #}
+    {% include "MaRDMO/_relation_block_single.html" with anchor="A2S" title="Softwares" relation="implemented by" relatants=values.RelationS class="SOFTWARE" %}
         
-            {% for solves in values.RelationP.values %}
-                {% if forloop.counter == 1 %}
-                    <h3 id="RelationsToAlgorithmicProblems"> Relations to Algorithmic Problems </h3>
-                {% endif %}
-	            solves: {{ solves }} <br>
-            {% endfor %}
-
-            {% for implementedBy in values.RelationS.values %}
-                {% if forloop.counter == 1 %}
-                    <h3 id="RelationsToSoftware"> Relations to Software </h3>
-                {% endif %}
-	            implemented by: {{ implementedBy }} <br>
-            {% endfor %}
-
-            {% for relation in values.RelationA.values %}
-                {% if forloop.counter == 1 %}
-                    <h3 id="RelationsToAlgorithms"> Relations to Algorithms </h3>
-                {% endif %}
-                {% if relation.relation == option.hasComponent %} 
-	                has Component: {{relation.relatant }} <br>
-                {% elif relation.relation == option.componentOf %} 
-	                component of: {{relation.relatant }} <br>
-                {% elif relation.relation == option.hasSubclass %} 
-	                has subclass: {{relation.relatant }} <br>
-                {% elif relation.relation == option.subclassOf %} 
-	                subclass of: {{relation.relatant }} <br>
-                {% elif relation.relation == option.relatedTo %} 
-	                related to: {{relation.relatant }} <br>
-                {% endif %}
-            {% endfor %}
-        {% endfor %}
+    {# Include Block for multiple Relations between Algorithm and Algorithm #}
+    {% include "MaRDMO/_relation_block_multiple.html" with anchor="A2A" title="Algorithms" relations=values.RelationA class="ALGORITHM" empty_msg="True" %}
     
-        {% for values in answers.problem.values %}
-            {% if forloop.counter == 1 %}
-                <h1 id="AlgorithmicProblem"> Algorithmic Problem </h1>
-            {% endif %}
-            
-            {% if values.ID %}
+{% empty %}
+    <strong style="color:black;">NO ALGORITHM DOCUMENTED</strong>
+{% endfor %}
+    
+<h1 id="Task"> Algorithmic Tasks </h1> 
+{% for values in answers.problem.values %}
 
-                <h2 id="AP{{ forloop.counter }}"> AP{{ forloop.counter }}: {{ values.Name }} </h2>
-            
-                <p>
-                    {% if values.Description %}
-                        <b>Description</b>: {{ values.Description }} <br>
-                    {% endif %}
-                    {% if 'not found' in values.ID %} 
-                        <b>ID</b>: - 
-                    {% elif 'mardi' in values.ID %} 
-                        <b>MaRDI Portal ID</b>: {{ values.ID|cut:"mardi:"}} 
-                    {% elif 'wikidata' in values.ID %} 
-                        <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
-                    {% endif %} 
-                </p>
+    {# Include Algorithmic Task Name #}
+    {% include "MaRDMO/_name.html" with class="ALGORITHMIC TASK" counter=forloop.counter name=values.Name prefix="AT" %}
 
-                {% for instantiates in values.RelationB.values %}
-                    {% if forloop.counter == 1 %}
-                        <h3 id="RelationsToBenchmarks"> Relations to Benchmarks </h3>
-                    {% endif %}
-	                instantiates: {{ instantiates }} <br>
-                {% endfor %}
+    {# Include Algorithmic Task Short Description #}
+    {% include "MaRDMO/_short_description.html" with class="ALGORITHMIC TASK" description=values.Description name=values.Name %}            
 
-                {% for relation in values.RelationP.values %}
-                    {% if forloop.counter == 1 %}
-                        <h3 id="RelationsToAlgorithmicProblems"> Relations to Algorithmic Problems </h3>
-                    {% endif %}
-                    {% if relation.relation == option.specializes %} 
-	                    specializes: {{relation.relatant }} <br>
-                    {% elif relation.relation == option.specializedBy %} 
-	                    specializedby: {{relation.relatant }} <br>
-                    {% endif %}
-                {% endfor %}
-            
-            {% endif %}
+    {# Include Algorithmic Task ID #}
+    {% include "MaRDMO/_id.html" with class="ALGORITHMIC TASK" id=values.ID %}
+                
+    {# Include Block for single Relation between Algorithmic Task and Benchmark #}
+    {% include "MaRDMO/_relation_block_single.html" with anchor="AT2B" title="Benchmarks" relation="instantiates" relatants=values.RelationB class="BENCHMARK" %}
 
-        {% endfor %}
+    {# Include Block for multiple Relations between Algorithmic Task and Algorithmic Task #}
+    {% include "MaRDMO/_relation_block_multiple.html" with anchor="AT2AT" title="Algorithmic Tasks" relations=values.RelationP class="ALGORITHMIC TASK" empty_msg="False" %}
+    
+{% empty %}
+    <strong style="color:black;">NO ALGORITHMIC TASK DOCUMENTED</strong>
+{% endfor %}
+    
+<h1 id="Software"> Softwares </h1> 
+{% for values in answers.software.values %}
+
+    {# Include Software Name #}
+    {% include "MaRDMO/_name.html" with class="SOFTWARE" counter=forloop.counter name=values.Name prefix="S" %}
+
+    {# Include Software Short Description #}
+    {% include "MaRDMO/_short_description.html" with class="SOFTWARE" description=values.Description name=values.Name %}            
+
+    {% for reference in values.reference.values %}
+        {% if reference.0 == option.SWMATH %}
+            <b>swMath ID</b>: {{ reference.1 }} <br>
+        {% endif %}
+        {% if reference.0 == option.DOI %}
+            <b>DOI</b>: {{ reference.1 }} <br>
+        {% endif %}
+        {% if reference.0 == option.URL %}
+            <b>URL</b>: {{ reference.1 }} <br>
+        {% endif %}
+    {% endfor %}
+
+    {# Include Software ID #}
+    {% include "MaRDMO/_id.html" with class="SOFTWARE" id=values.ID %}
+
+    {# Include Block for single Relation between Software and Benchmark #}
+    {% include "MaRDMO/_relation_block_single.html" with anchor="S2B" title="Benchmarks" relation="tests" relatants=values.RelationB class="BENCHMARK" %}
+
+{% empty %}
+    <strong style="color:black;">NO SOFTWARE DOCUMENTED</strong>
+{% endfor %}
+
+<h1 id="Benchmark"> Benchmarks </h1> 
+{% for values in answers.benchmark.values %}
+
+    {# Include Benchmark Name #}
+    {% include "MaRDMO/_name.html" with class="BENCHMARK" counter=forloop.counter name=values.Name prefix="B" %}
+
+    {# Include Benchmark Short Description #}
+    {% include "MaRDMO/_short_description.html" with class="BENCHMARK" description=values.Description name=values.Name %}
    
-        {% for values in answers.software.values %}
-            {% if forloop.counter == 1 %}
-                <h1 id="Software"> Software </h1>
-            {% endif %}
-      
-            <h2 id="S{{ forloop.counter }}"> S{{ forloop.counter }}: {{ values.Name }} </h2>
-   
-            <p>
-                {% if values.Description %}
-                    <b>Description</b>: {{ values.Description }} <br>
-                {% endif %}
-                {% if 'not found' in values.ID %} 
-                    <b>ID</b>: - 
-                {% elif 'mardi' in values.ID %} 
-                    <b>MaRDI Portal ID</b>: {{ values.ID|cut:"mardi:"}} 
-                {% elif 'wikidata' in values.ID %} 
-                    <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
-                {% endif %}
-                <br>
-                {% for reference in values.reference.values %}
-                    {% if reference.0 == option.SWMATH %}
-                        <b>swMath ID</b>: {{ reference.1 }} <br>
-                    {% endif %}
-                    {% if reference.0 == option.DOI %}
-                        <b>DOI</b>: {{ reference.1 }} <br>
-                    {% endif %}
-                    {% if reference.0 == option.URL %}
-                        <b>URL</b>: {{ reference.1 }} <br>
-                    {% endif %}
-                {% endfor %}
-            </p>
+    {% for reference in values.reference.values %}
+        {% if reference.0 == option.MORWIKI %}
+            <b>MORwiki ID</b>: {{ reference.1 }} <br>
+        {% endif %}
+        {% if reference.0 == option.DOI %}
+            <b>DOI</b>: {{ reference.1 }} <br>
+        {% endif %}
+        {% if reference.0 == option.URL %}
+            <b>URL</b>: {{ reference.1 }} <br>
+        {% endif %}
+    {% endfor %} 
 
-            {% for tests in values.RelationB.values %}
-                {% if forloop.counter == 1 %}
-                    <h3 id="RelationsToBenchmarks"> Relations to Benchmarks </h3>
-                {% endif %}
-	            tests: {{ tests }} <br>
-            {% endfor %}
+    {# Include Benchmark ID #}
+    {% include "MaRDMO/_id.html" with class="BENCHMARK" id=values.ID %}
 
-        {% endfor %}
+{% empty %}
+    <strong style="color:black;">NO BENCHMARK DOCUMENTED</strong>
+{% endfor %}
 
-        {% for values in answers.benchmark.values %}
-            {% if forloop.counter == 1 %}
-                <h1 id="Benchmark"> Benchmark </h1>
-            {% endif %}
-      
-            <h2 id="B{{ forloop.counter }}"> B{{ forloop.counter }}: {{ values.Name }} </h2>
-   
-            <p>
-                {% if values.Description %}
-                    <b>Description</b>: {{ values.Description }} <br>
-                {% endif %}
-                {% if 'not found' in values.ID %} 
-                    <b>ID</b>: - 
-                {% elif 'mardi' in values.ID %} 
-                    <b>MaRDI Portal ID</b>: {{ values.ID|cut:"mardi:"}} 
-                {% elif 'wikidata' in values.ID %} 
-                    <b>Wikidata ID</b>: {{ values.ID|cut:"wikidata:"}}
-                {% endif %}
-                <br>
-                {% for reference in values.reference.values %}
-                    {% if reference.0 == option.MORWIKI %}
-                        <b>MORwiki ID</b>: {{ reference.1 }} <br>
-                    {% endif %}
-                    {% if reference.0 == option.DOI %}
-                        <b>DOI</b>: {{ reference.1 }} <br>
-                    {% endif %}
-                    {% if reference.0 == option.URL %}
-                        <b>URL</b>: {{ reference.1 }} <br>
-                    {% endif %}
-                {% endfor %} 
-            </p>
+<h1 id="Publication"> Publications </h1>
+{% for values in answers.publication.values %}
 
-        {% endfor %}
+    {# Include Publication Name #}
+    {% include "MaRDMO/_name.html" with class="PUBLICATION" counter=forloop.counter name=values.Name prefix="P" %}
+    
+    {% for reference in values.reference.values %}
+        {% if reference.0 == option.DOI %}
+            <b>DOI</b>: {{ reference.1 }} <br>
+	    {% endif %} 
+    {% empty %}
+        {% if 'not found' in values.ID %}
+            <strong style="color:red;">MISSING PUBLICATION DOI</strong>
+        {% endif %}
+    {% endfor %}
 
-        {% for values in answers.publication.values %}
+    {# Include Publication ID #}
+    {% include "MaRDMO/_id.html" with id=values.ID %}
 
-            {% if forloop.counter == 1 %}
-                <h1 id="Publication"> Publications </h1>
-            {% endif %}
+    {% if values.RelationA or values.RelationB or values.RelationS %}
 
-            <h2 id="P{{ forloop.counter }}"> P{{ forloop.counter }}: {{ values.Name }} </h2>
+        {# Include Block for multiple Relations between Publication and Algorithm #}
+        {% include "MaRDMO/_relation_block_multiple.html" with anchor="P2A" title="Algorithms" relations=values.RelationA class="ALGORITHM" empty_msg="False" %}
 
-            <p> {% if values.ID %}
-                    <b>ID</b>: {{ values.ID }} <br>
-                {% endif %}
-                {% for reference in values.reference.values %}
-                    {% if reference.0 == option.DOI %}
-                        <b>DOI</b>: {{ reference.1 }} <br>
-        	        {% endif %} 
-                {% endfor %}
-            </p>
-        
-            {% for relation in values.RelationA.values %}
-                {% if forloop.counter == 1 %}
-                    <h3 id="RelationsToAlgorithms"> Relations to Algorithms </h3>
-                {% endif %}
-                {% if relation.relation == option.analyzes %} 
-        	    analyzes: {{ relation.relatant }} <br>
-                {% elif relation.relation == option.applies %} 
-        	    applies: {{ relation.relatant }} <br>
-                {% elif relation.relation == option.invents %} 
-        	    invents: {{ relation.relatant }} <br>
-                {% elif relation.relation == option.studies %} 
-        	    studies: {{ relation.relatant }} <br>
-                {% elif relation.relation == option.surveys %} 
-        	    surveys: {{ relation.relatant }} <br>
-                {% endif %}
-            {% endfor %}
+        {# Include Block for multiple Relations between Publication and Benchmark or Software #}
+        {% include "MaRDMO/_relation_block_multiple.html" with anchor="P2BS" title="Benchmarks or Softwares" relations=values.RelationBS class="BENCHMARK OR SOFTWARE" empty_msg="False" %}
 
-            {% for relation in values.RelationB.values %}
-                {% if forloop.counter == 1 %}
-                    <h3 id="RelationsToBenchmarks"> Relations to Benchmarks </h3>
-                {% endif %}
-                {% if relation.relation == option.documents %} 
-        	    documents: {{ relation.relatant }} <br>
-                {% elif relation.relation == option.uses %} 
-        	    uses: {{ relation.relatant }} <br>
-                {% endif %}
-            {% endfor %}
+    {% else %}
+        <strong style="color:red;">MISSING PUBLICATION to ALGORITHM, BENCHMARK, OR SOFTWARE RELATION</strong>
+    {% endif %}
 
-            {% for relation in values.RelationS.values %}
-                {% if forloop.counter == 1 %}
-                    <h3 id="RelationsToSoftware"> Relations to Software </h3>
-                {% endif %}
-                {% if relation.relation == option.documents %} 
-        	    documents: {{ relation.relatant }} <br>
-                {% elif relation.relation == option.uses %} 
-        	    uses: {{ relation.relatant }} <br>
-                {% endif %}
-            {% endfor %}
-
-        {% endfor %}
-
+{% empty %}
+    <strong style="color:black;">NO PUBLICATION DOCUMENTED</strong>
+{% endfor %}
 
 </body>
