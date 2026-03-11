@@ -15,8 +15,6 @@ from rdmo.services.providers import OauthProviderMixin
 from .getters import (
     get_answers,
     get_item_url,
-    get_mathmoddb,
-    get_mathalgodb,
     get_options,
     get_questions,
     get_url
@@ -32,9 +30,10 @@ from .oauth2 import OauthProviderMixin
 from .views import render_preview
 
 from .model.worker import PrepareModel
-from .model.checks import Checks
+from .model.checks import Checks as ModelChecks
 
 from .algorithm.worker import PrepareAlgorithm
+from .algorithm.checks import Checks as AlgorithmChecks
 
 from .workflow.utils import get_discipline
 from .workflow.worker import prepareWorkflow
@@ -227,10 +226,10 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 status=200
             )
 
-        answers, _ = self.get_post_data()
+        answers, __ = self.get_post_data()
 
         # Validate documentation completeness / consistency
-        checker = Checks()
+        checker = ModelChecks()
 
         err = checker.run(
             project = self.project,
@@ -300,7 +299,26 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 status=200
             )
 
-        answers, _ = self.get_post_data()
+        answers, __ = self.get_post_data()
+
+        # Validate documentation completeness / consistency
+        checker = AlgorithmChecks()
+
+        err = checker.run(
+            project = self.project,
+            data = answers
+        )
+
+        if err:
+            return render(
+                self.request,
+                'core/error.html',
+                {
+                    'title': _("Incomplete or Inconsistent Documentation"),
+                    'errors': err
+                },
+                status=200
+            )
 
         ###ADD MATHALGODB EXPORT TO PORTAL###
 
@@ -349,7 +367,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 status=200
             )
 
-        answers, *__ = self.get_post_data()
+        answers, __ = self.get_post_data()
 
         try:
             prepare = prepareWorkflow()
