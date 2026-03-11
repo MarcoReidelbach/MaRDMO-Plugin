@@ -110,7 +110,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         ):
 
             # Get answers, options, and mathmoddb
-            answers, options, _ = self.get_post_data('preview')
+            answers, options = self.get_post_data('preview')
 
             # Adjust MathML for Preview
             inline_mathml(answers)
@@ -132,13 +132,13 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         if str(self.project.catalog).endswith('mardmo-algorithm-catalog'):
 
             # Get answers, options, mathalgodb
-            answers, options, mathalgodb = self.get_post_data('preview')
+            answers, options = self.get_post_data('preview')
 
             return render_preview(
                 self = self,
                 template = 'MaRDMO/algorithmTemplate.html',
                 answers = answers,
-                option = options|mathalgodb
+                option = options
             )
 
         # MaRDMO: Search Interdisciplinary Workflows, Mathematical Models or Algorithms
@@ -227,7 +227,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 status=200
             )
 
-        answers, *__ = self.get_post_data()
+        answers, _ = self.get_post_data()
 
         # Validate documentation completeness / consistency
         checker = Checks()
@@ -300,7 +300,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 status=200
             )
 
-        answers, *__ = self.get_post_data()
+        answers, _ = self.get_post_data()
 
         ###ADD MATHALGODB EXPORT TO PORTAL###
 
@@ -413,9 +413,8 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             )
         ):
 
-            # Load Data for Model & Publication Documentation
+            # Load Model & Publication Questions
             questions = get_questions('model') | get_questions('publication')
-            mathmoddb = get_mathmoddb()
 
             answers = process_question_dict(
                 project = self.project,
@@ -437,14 +436,13 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             prepare = PrepareModel()
             answers = prepare.preview(answers)
 
-            return answers, options, mathmoddb
+            return answers, options
 
         # MaRDMO: Algorithm Documentation
         if str(self.project.catalog).endswith('mardmo-algorithm-catalog'):
 
-            # Load Data for Mathematical Model Documentation
+            # Load Algorithm and Publication Questions
             questions = get_questions('algorithm') | get_questions('publication')
-            mathalgodb = get_mathalgodb()
 
             answers = process_question_dict(
                 project = self.project,
@@ -466,7 +464,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
             prepare = PrepareAlgorithm()
             answers = prepare.preview(answers)
 
-            return answers, options, mathalgodb
+            return answers, options
 
         # MaRDMO: Search Interdisciplinary Workflow, Mathematical Model or Algorithm
         if str(self.project.catalog).endswith('mardmo-search-catalog'):
@@ -491,7 +489,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         # MaRDMO: Interdisciplinary Workflow Documentation
         if str(self.project.catalog).endswith('mardmo-interdisciplinary-workflow-catalog'):
 
-            # Load Data for Interdisciplinary Workflow Documentation
+            # Load Interdisciplinary Workflow and Publication Questions
             questions = get_questions('workflow') | get_questions('publication')
 
             answers = process_question_dict(
@@ -505,7 +503,7 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
 
             # Retrieve Publications related to Workflow
             publication = PublicationRetriever()
-            answers = publication.workflow_or_model(
+            answers = publication.get_information(
                 project = self.project,
                 snapshot = self.snapshot,
                 answers = answers,
