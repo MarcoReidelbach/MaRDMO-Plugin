@@ -19,7 +19,7 @@ class Software(Provider):
             return []
 
         return query_sources(search)
-    
+
 class RelatedSoftwareWithCreation(Provider):
     '''Software Provider (MaRDI Portal / Wikidata / MathAlgoDB),
        User Creation, No Refresh Upon Selection
