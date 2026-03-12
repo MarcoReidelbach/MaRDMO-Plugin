@@ -5,6 +5,24 @@ from . import rules
 #RDMO BASE URI
 BASE_URI = 'https://rdmo.mardi4nfdi.de/terms/'
 
+#MaRDMO Catalog URIs
+CATALOG_MODEL        = 'https://rdmo.mardi4nfdi.de/terms/questions/mardmo-model-catalog'
+CATALOG_MODEL_BASICS = 'https://rdmo.mardi4nfdi.de/terms/questions/mardmo-model-basics-catalog'
+CATALOG_ALGORITHM    = 'https://rdmo.mardi4nfdi.de/terms/questions/mardmo-algorithm-catalog'
+
+#MaRDMO Section Mapt (Base)
+SECTION_MAP_BASE = {
+    'model':       'Mathematical Model',
+    'task':        'Computational Task',
+    'formulation': 'Mathematical Expression',
+    'quantity':    'Quantity [Kind]',
+    'field':       'Academic Discipline',
+    'algorithm':   'Algorithm',
+    'software':    'Software',
+    'benchmark':   'Benchmark',
+    'publication': 'Publication',
+}
+
 flag_dict = {
     (False, False, False, False, False): rules.rule_0,
     (True, False, False, False, False): rules.rule_1,
