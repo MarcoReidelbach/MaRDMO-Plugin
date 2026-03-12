@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from rdmo.projects.exports import Export
 from rdmo.services.providers import OauthProviderMixin
 
+from .checks import Checks
 from .getters import (
     get_answers,
     get_item_url,
@@ -30,10 +31,8 @@ from .oauth2 import OauthProviderMixin
 from .views import render_preview
 
 from .model.worker import PrepareModel
-from .model.checks import Checks as ModelChecks
 
 from .algorithm.worker import PrepareAlgorithm
-from .algorithm.checks import Checks as AlgorithmChecks
 
 from .workflow.utils import get_discipline
 from .workflow.worker import prepareWorkflow
@@ -229,9 +228,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         answers, __ = self.get_post_data()
 
         # Validate documentation completeness / consistency
-        checker = ModelChecks()
+        checker = Checks()
 
-        err = checker.run(
+        err = checker.run_model(
             project = self.project,
             data = answers,
             catalog = str(self.project.catalog)
@@ -302,9 +301,9 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
         answers, __ = self.get_post_data()
 
         # Validate documentation completeness / consistency
-        checker = AlgorithmChecks()
+        checker = Checks()
 
-        err = checker.run(
+        err = checker.run_algorithm(
             project = self.project,
             data = answers
         )
