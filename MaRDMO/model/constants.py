@@ -1,6 +1,6 @@
 '''Module containing Constants for the Model Documentation'''
 
-from ..constants import BASE_URI
+from ..constants import BASE_URI, SECTION_MAP_BASE
 from ..getters import get_items, get_mathmoddb, get_properties, get_questions
 
 # Data Properties Label
@@ -103,15 +103,7 @@ qudt_reference_ids = [
 ]
 
 # Dictionary for internal / external section names
-section_map = {
-    'model': 'Mathematical Model',
-    'task': 'Computational Task',
-    'formulation': 'Mathematical Expression',
-    'quantity': 'Quantity [Kind]',
-    'problem': 'Research Problem',
-    'field': 'Academic Discipline',
-    'publication': 'Publication'
-}
+SECTION_MAP = {**SECTION_MAP_BASE, 'problem': 'Research Problem'}
 
 # Dictionary with list of property names
 props = {

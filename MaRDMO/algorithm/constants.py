@@ -1,16 +1,10 @@
 '''Module containing Constants for the Algorithm Documentation'''
 
-from ..constants import BASE_URI
+from ..constants import BASE_URI, SECTION_MAP_BASE
 from ..getters import get_questions
 
 #Dictionary for internal / external section names
-SECTION_MAP = {
-    'algorithm': 'Algorithm',
-    'problem': 'Algorithmic Task',
-    'software': 'Software',
-    'benchmark': 'Benchmark',
-    'publication': 'Publication'
-}
+SECTION_MAP = {**SECTION_MAP_BASE, 'problem': 'Algorithmic Task'}
 
 # Dictionary with list of property names
 PROPS = {
