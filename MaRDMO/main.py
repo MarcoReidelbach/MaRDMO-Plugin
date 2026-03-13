@@ -319,7 +319,40 @@ class MaRDMOExportProvider(BaseMaRDMOExportProvider):
                 status=200
             )
 
-        ###ADD MATHALGODB EXPORT TO PORTAL###
+        # Prepare payload
+        try:
+            prepare = PrepareAlgorithm()
+            payload, dependency = prepare.export(
+                answers,
+                get_url('mardi', 'uri')
+            )
+        except (ValueError, KeyError) as err:
+            return render(
+                self.request,
+                'core/error.html',
+                {
+                    'title': _('Value Error'),
+                    'errors': [err]
+                },
+                status=200
+            )
+
+        # Check if Dependency Graph of Documentation is cyclic
+        if is_cyclic(dependency):
+            return render(
+                self.request,
+                'core/error.html',
+                {
+                    'title': _('Inconsistent Documentation'),
+                    'errors': ['Cyclic Dependency Graph']
+                },
+                status=200
+            )
+
+        # Order the creation of Items following their dependencies
+        dependency_ordered = topological_order(dependency)
+
+        return self.post(self.request, payload, dependency_ordered)
 
     def submit_mardmo_search(self):
         """Submit MaRDMO Search Interdisciplinary Workflow, Models, or Algorithms."""
