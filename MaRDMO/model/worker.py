@@ -14,11 +14,13 @@ from .constants import (
 from .utils import get_data_properties, map_entity_quantity
 
 from ..getters import get_items, get_mathmoddb, get_properties, get_url
-from ..helpers import entity_relations, map_entity, unique_items, date_precision
+from ..helpers import entity_relations, map_entity, unique_items
 from ..payload import GeneratePayload
 from ..queries import query_sparql
 
-class PrepareModel:
+from ..publication.worker import PublicationExport
+
+class PrepareModel(PublicationExport):
     '''Class preparing Model Answers for Preview and Export'''
     def __init__(self):
         self.mathmoddb = get_mathmoddb()
@@ -158,7 +160,8 @@ class PrepareModel:
         )
         self._export_publications(
             payload = payload,
-            publications = data.get("publication", {})
+            publications = data.get("publication", {}),
+            relations = [('P2E', 'EntityRelatant')]
         )
 
         # Construct Item Payloads
@@ -522,184 +525,3 @@ class PrepareModel:
                         'relatant': "QRelatant-QK"
                     }
                 )
-
-    def _export_journals(self, payload, publications: dict):
-        for publication in publications.values():
-            for entry in publication.get('journal', {}).values():
-                if not entry.get("ID") or entry.get("ID") == 'no journal found':
-                    continue
-
-                payload.get_item_key(
-                value = entry
-                )
-
-                payload.add_answer(
-                    verb = self.properties["instance of"],
-                    object_and_type = [self.items["scientific journal"], "wikibase-item"],
-                )
-
-                if entry.get('issn'):
-                    payload.add_answer(
-                        verb = self.properties["ISSN"],
-                        object_and_type = [entry["issn"], "external-id"],
-                    )
-
-    def _export_authors(self, payload, publications: dict):
-        for publication in publications.values():
-            for entry in publication.get('author', {}).values():
-                if not entry.get("ID") or entry.get("ID") == 'no author found':
-                    continue
-
-                payload.get_item_key(
-                value = entry
-                )
-
-                payload.add_answer(
-                    verb = self.properties["instance of"],
-                    object_and_type = [self.items["human"], "wikibase-item"],
-                )
-
-                payload.add_answer(
-                    verb = self.properties["MaRDI profile type"],
-                    object_and_type = [self.items["Person"], "wikibase-item"],
-                )
-
-                if entry.get('orcid'):
-                    payload.add_answer(
-                        verb = self.properties["ORCID iD"],
-                        object_and_type = [
-                            entry['orcid'],
-                            "external-id"
-                        ],
-                    )
-
-                if entry.get('zbmath'):
-                    payload.add_answer(
-                        verb = self.properties["zbMATH author ID"],
-                        object_and_type = [
-                            entry['zbmath'],
-                            "external-id"
-                        ],
-                    )
-
-    def _export_publications(self, payload, publications: dict):
-        for entry in publications.values():
-            if not entry.get("ID"):
-                continue
-
-            payload.get_item_key(
-                value = entry
-            )
-
-            # Only add class, profile, and DOI for non-MaRDI items
-            if "mardi" not in entry["ID"]:
-
-                 # Set and add Publication Class
-                if entry.get("entrytype") == "scholarly article":
-                    pclass = self.items["scholarly article"]
-                else:
-                    pclass = self.items["publication"]
-
-                payload.add_answer(
-                    verb = self.properties["instance of"],
-                    object_and_type = [pclass, "wikibase-item"],
-                )
-
-                # Add Publication Profile
-                payload.add_answer(
-                        verb = self.properties["MaRDI profile type"],
-                        object_and_type = [
-                            self.items["MaRDI publication profile"],
-                            "wikibase-item"
-                        ],
-                    )
-
-                # Add DOI
-                if entry.get("reference", {}).get(0):
-                    payload.add_answer(
-                        verb = self.properties["DOI"],
-                        object_and_type = [
-                            entry["reference"][0][1].upper(),
-                            "external-id"
-                        ],
-                    )
-
-                # bibliographic data
-                if entry.get("title"):
-                    payload.add_answer(
-                        verb = self.properties["title"],
-                        object_and_type = [
-                            {"text": entry["title"], "language": "en"},
-                            "monolingualtext",
-                        ],
-                    )
-
-                if entry.get("volume"):
-                    payload.add_answer(
-                        verb = self.properties["volume"],
-                        object_and_type = [entry["volume"], "string"],
-                    )
-
-                if entry.get("issue"):
-                    payload.add_answer(
-                        verb = self.properties["issue"],
-                        object_and_type = [entry["issue"], "string"],
-                    )
-
-                if entry.get("page"):
-                    payload.add_answer(
-                        verb = self.properties["page(s)"],
-                        object_and_type = [entry["page"], "string"],
-                    )
-
-                if entry.get("date"):
-                    payload.add_answer(
-                        verb = self.properties["publication date"],
-                        object_and_type = [
-                            {
-                                "time": f"+{entry['date']}",
-                                "precision": date_precision(
-                                    date_str = entry['date']
-                                ),
-                                "calendarmodel": (
-                                    "http://www.wikidata.org/entity/Q1985727"
-                                ),
-                            },
-                            "time",
-                        ],
-                    )
-
-                # Add Language
-                payload.add_single_relation(
-                    statement = {
-                        'relation': self.properties["language of work or name"],
-                        'relatant': "language"
-                    }
-                )
-                # Add Journal
-                payload.add_single_relation(
-                    statement = {
-                        'relation': self.properties["published in"],
-                        'relatant': "journal"
-                    }
-                )
-                # Add Authors
-                payload.add_single_relation(
-                    statement = {
-                        'relation': self.properties["author"],
-                        'relatant': "author"
-                    },
-                    alt_statement = {
-                        "relation": self.properties["author name string"],
-                        "relatant": "Name",
-                    },
-                )
-
-            # Add relations to Entities of Mathematical Model
-            payload.add_multiple_relation(
-                statement = {
-                    'relation': "P2E",
-                    'relatant': "EntityRelatant"
-                },
-                reverse = True,
-            )
