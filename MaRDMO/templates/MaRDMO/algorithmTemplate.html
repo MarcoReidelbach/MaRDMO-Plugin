@@ -53,7 +53,7 @@
     {% include "MaRDMO/_relation_block_single.html" with anchor="A2S" title="Softwares" relation="implemented by" relatants=values.RelationS class="SOFTWARE" %}
         
     {# Include Block for multiple Relations between Algorithm and Algorithm #}
-    {% include "MaRDMO/_relation_block_multiple.html" with anchor="A2A" title="Algorithms" relations=values.RelationA class="ALGORITHM" empty_msg="True" %}
+    {% include "MaRDMO/_relation_block_multiple.html" with anchor="A2A" title="Algorithms" relations=values.RelationA class="ALGORITHM" empty_msg="False" %}
     
 {% empty %}
     <strong style="color:black;">NO ALGORITHM DOCUMENTED</strong>
