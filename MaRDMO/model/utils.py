@@ -41,7 +41,6 @@ def build_quantity_info(quantity, qtype):
 
     return base_info
 
-
 def map_entity_quantity(data, entity_type):
     """Map quantities or quantity kinds to entity elements."""
     for entity in data.get(entity_type, {}).values():
@@ -58,5 +57,3 @@ def map_entity_quantity(data, entity_type):
 
                 if qtype in ('Quantity', 'Quantity Kind'):
                     element["Info"] = build_quantity_info(quantity, qtype)
-
-
