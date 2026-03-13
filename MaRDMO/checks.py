@@ -456,9 +456,9 @@ class Checks:
             if not ivalue.get('QorQK'):
                 self.err.append(
                     self._error(
-                        section = 'Quantity',
+                        section = 'Quantity [Kind]',
                         page    = page_name,
-                        message = 'Missing [Kind] Class'
+                        message = 'Missing Quantity [Kind] Class'
                     )
                 )
 
@@ -467,7 +467,7 @@ class Checks:
                 if ref.get(0) and not ref[0][1]:
                     self.err.append(
                         self._error(
-                            section = 'Quantity',
+                            section = 'Quantity [Kind]',
                             page    = page_name,
                             message = 'QUDT Quantity Kind ID selected, but no ID provided!'
                         )
@@ -475,7 +475,7 @@ class Checks:
                 elif ref.get(1) and not ref[1][1]:
                     self.err.append(
                         self._error(
-                            section = 'Quantity',
+                            section = 'Quantity [Kind]',
                             page    = page_name,
                             message = 'QUDT Constant ID selected, but no ID provided!'
                         )
@@ -483,7 +483,7 @@ class Checks:
                 if ivalue.get('QorQK') == self.mathmoddb.get(key='Quantity')["url"] and ref.get(0):
                     self.err.append(
                         self._error(
-                            section = 'Quantity',
+                            section = 'Quantity [Kind]',
                             page    = page_name,
                             message = 'QUDT Quantity Kind ID limited to Quantity Kinds!'
                         )
@@ -491,7 +491,7 @@ class Checks:
                 if ivalue.get('QorQK') == self.mathmoddb.get(key='QuantityKind')["url"] and ref.get(1):
                     self.err.append(
                         self._error(
-                            section = 'Quantity',
+                            section = 'Quantity [Kind]',
                             page    = page_name,
                             message = 'QUDT Constant ID limited to Quantities!'
                         )
@@ -503,7 +503,7 @@ class Checks:
                     if not any(equiv in formula for equiv in equiv_sign_encodings):
                         self.err.append(
                             self._error(
-                                section = 'Quantity',
+                                section = 'Quantity [Kind]',
                                 page    = page_name,
                                 message = r'Inconsistent Quantity Definition (missing \equiv)'
                             )
@@ -511,7 +511,7 @@ class Checks:
                 if not ivalue.get('element'):
                     self.err.append(
                         self._error(
-                            section = 'Quantity / Quantity Kind',
+                            section = 'Quantity [Kind]',
                             page    = page_name,
                             message = 'Missing Quantity Definition Element Information'
                         )
@@ -520,7 +520,7 @@ class Checks:
                     if any(not ev.get('symbol') for ev in ivalue['element'].values()):
                         self.err.append(
                             self._error(
-                                section = 'Quantity',
+                                section = 'Quantity [Kind]',
                                 page    = page_name,
                                 message = 'Missing Quantity Definition Symbol'
                             )
@@ -528,7 +528,7 @@ class Checks:
                     if any(not ev.get('quantity') for ev in ivalue['element'].values()):
                         self.err.append(
                             self._error(
-                                section = 'Quantity',
+                                section = 'Quantity [Kind]',
                                 page    = page_name,
                                 message = 'Missing Quantity Definition Quantity'
                             )
