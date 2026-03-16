@@ -227,7 +227,7 @@ class Checks:
                 return
 
             if any(
-                mval['relation'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
+                mval['relation']['url'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
                 and not mval.get('assumption')
                 for mval in ivalue.get('RelationMM', {}).values()
             ):
@@ -240,7 +240,7 @@ class Checks:
                 )
 
             if any(
-                mval['relation'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
+                mval['relation']['url'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
                 and 'not found' in mval.get('assumption', {}).values()
                 for mval in ivalue.get('RelationMM', {}).values()
             ):
@@ -302,7 +302,7 @@ class Checks:
                 return
 
             if any(
-                tval['relation'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
+                tval['relation']['url'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
                 and not tval.get('assumption')
                 for tval in ivalue.get('RelationT', {}).values()
             ):
@@ -315,7 +315,7 @@ class Checks:
                 )
 
             if any(
-                tval['relation'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
+                tval['relation']['url'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
                 and 'not found' in tval.get('assumption', {}).values()
                 for tval in ivalue.get('RelationT', {}).values()
             ):
@@ -328,7 +328,7 @@ class Checks:
                 )
 
             if any(
-                tval['relation'] in self._pairs(self.mathmoddb, 'contains_task', 'contained_in_task')
+                tval['relation']['url'] in self._pairs(self.mathmoddb, 'contains_task', 'contained_in_task')
                 and not tval.get('order')
                 for tval in ivalue.get('RelationT', {}).values()
             ):
@@ -376,7 +376,7 @@ class Checks:
                 return
 
             if any(
-                mval['relation'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
+                mval['relation']['url'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
                 and not mval.get('assumption')
                 for mval in ivalue.get('RelationMF2', {}).values()
             ):
@@ -387,7 +387,7 @@ class Checks:
                         message = 'Missing Assumption (Mathematical Expression Specialization)'))
 
             if any(
-                mval['relation'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
+                mval['relation']['url'] in self._pairs(self.mathmoddb, 'specializes', 'specialized_by')
                 and 'not found' in mval.get('assumption', {}).values()
                 for mval in ivalue.get('RelationMF2', {}).values()
             ):
