@@ -53,6 +53,10 @@ class Information:
         # Get source and ID of Item
         source, identifier = instance.external_id.split(':')
 
+        # Only consider MaRDI (so far)
+        if source != 'mardi':
+            return
+
         # If Item from MathModDB, query relations and load MathModDB Vocabulary
         query = get_sparql_query('algorithm/queries/benchmark.sparql').format(
             identifier,
@@ -113,6 +117,10 @@ class Information:
 
         # Get source and ID of Item
         source, identifier = instance.external_id.split(':')
+
+        # Only consider MaRDI (so far)
+        if source != 'mardi':
+            return
 
         query = get_sparql_query('algorithm/queries/software.sparql').format(
             identifier,
@@ -189,6 +197,10 @@ class Information:
         # Get source and ID of Item
         source, identifier = instance.external_id.split(':')
 
+        # Only consider MaRDI (so far)
+        if source != 'mardi':
+            return
+
         query = get_sparql_query('algorithm/queries/problem.sparql').format(
             identifier,
             **get_items(),
@@ -263,6 +275,10 @@ class Information:
 
         # Get source and ID of Item
         source, identifier = instance.external_id.split(':')
+
+        # Only consider MaRDI (so far)
+        if source != 'mardi':
+            return
 
         query = get_sparql_query('algorithm/queries/algorithm.sparql').format(
             identifier,
