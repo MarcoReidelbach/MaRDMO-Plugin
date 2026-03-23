@@ -14,7 +14,6 @@ from .helpers import (
     value_editor,
 )
 
-
 def add_basics(project, text, questions, item_type, index = (None, None)):
     '''Function extracts Label, Description and Source of Items selected or defined
        in the ID Question on each Page. Label and Description are added to the Name
@@ -392,6 +391,8 @@ def add_references(project, data, uri, set_index = 0, set_prefix = None):
        
        Input: References
        Output: -'''
+    if not data.reference:
+        return
 
     for key, value in data.reference.items():
         value_editor(
