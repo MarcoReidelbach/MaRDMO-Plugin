@@ -10,7 +10,7 @@ class MaRDISearch(Provider):
 
     search = True
 
-    def get_options(self, project, search, user=None, site=None):
+    def get_options(self, project, search=None, user=None, site=None):
         '''Queries external source for user input'''
         if not search or len(search) < 3:
             return []
