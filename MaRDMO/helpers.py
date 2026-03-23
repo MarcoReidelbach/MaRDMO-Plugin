@@ -441,7 +441,7 @@ def relation_exists(value, set_prefix_red, info, relation_id=None):
     if relation_id and "rels" in info:
         return any(
             (
-                (f"{value.label} ({value.description})" in text or vid == value.id)
+                (f"{value.label} ({value.description})" == text or vid == value.id)
                 and int(sid) == set_prefix_red
                 and rel == relation_id
             )
@@ -456,7 +456,7 @@ def relation_exists(value, set_prefix_red, info, relation_id=None):
     # Case: only value + set check
     return any(
         (
-            (f"{value.label} ({value.description})" in text or vid == value.id)
+            (f"{value.label} ({value.description})" == text or vid == value.id)
             and int(sid) == set_prefix_red
         )
         for vid, sid, text in zip(
