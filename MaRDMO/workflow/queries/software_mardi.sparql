@@ -1,7 +1,7 @@
 SELECT DISTINCT
 ?userManualURL ?sourceCodeRepository ?reference
-(GROUP_CONCAT(DISTINCT CONCAT(?pl, " || ", ?pll, " || ", ?pld); separator=" / ") AS ?programmedIn)
-(GROUP_CONCAT(DISTINCT CONCAT(?dp, " || ", ?dpl, " || ", ?dpd); separator=" / ") AS ?dependsOnSoftware)
+(GROUP_CONCAT(DISTINCT CONCAT(?pl, " || ", ?pll, " || ", ?pld); separator=" <|> ") AS ?programmedIn)
+(GROUP_CONCAT(DISTINCT CONCAT(?dp, " || ", ?dpl, " || ", ?dpd); separator=" <|> ") AS ?dependsOnSoftware)
                
 WHERE {{
                                           

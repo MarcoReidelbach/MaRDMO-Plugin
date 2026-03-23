@@ -120,13 +120,13 @@ class ProcessStep:
             id = None,
             label = None,
             description = None,
-            inputDataSet = [Relatant.from_query(input) for input in data.get('inputDataSet', {}).get('value', '').split(" / ") if input] if 'inputDataSet' in data else [],
-            outputDataSet = [Relatant.from_query(output) for output in data.get('outputDataSet', {}).get('value', '').split(" / ") if output] if 'outputDataSet' in data else [],
-            uses = [MRelatant.from_query(algorithm) for algorithm in data.get('uses', {}).get('value', '').split(" / ") if algorithm] if 'uses' in data else [], 
-            platformSoftware = [Relatant.from_query(software) for software in data.get('platformSoftware', {}).get('value', '').split(" / ") if software] if 'platformSoftware' in data else [],
-            platformInstrument = [Relatant.from_query(instrument) for instrument in data.get('platformInstrument', {}).get('value', '').split(" / ") if instrument] if 'platformInstrument' in data else [], 
-            fieldOfWork = [Relatant.from_query(field) for field in data.get('fieldOfWork', {}).get('value', '').split(" / ") if field] if 'fieldOfWork' in data else [],
-            mscID = [Relatant.from_msc(mscID, next((key for key, value in msc.items() if value['id'] == mscID), None), next((value['quote'] for key, value in msc.items() if value['id'] == mscID), None)) for mscID in data.get('mscID', {}).get('value', '').split(" / ") if mscID] if 'mscID' in data else [],
+            inputDataSet = [Relatant.from_query(input) for input in data.get('inputDataSet', {}).get('value', '').split(" <|> ") if input] if 'inputDataSet' in data else [],
+            outputDataSet = [Relatant.from_query(output) for output in data.get('outputDataSet', {}).get('value', '').split(" <|> ") if output] if 'outputDataSet' in data else [],
+            uses = [MRelatant.from_query(algorithm) for algorithm in data.get('uses', {}).get('value', '').split(" <|> ") if algorithm] if 'uses' in data else [], 
+            platformSoftware = [Relatant.from_query(software) for software in data.get('platformSoftware', {}).get('value', '').split(" <|> ") if software] if 'platformSoftware' in data else [],
+            platformInstrument = [Relatant.from_query(instrument) for instrument in data.get('platformInstrument', {}).get('value', '').split(" <|> ") if instrument] if 'platformInstrument' in data else [], 
+            fieldOfWork = [Relatant.from_query(field) for field in data.get('fieldOfWork', {}).get('value', '').split(" <|> ") if field] if 'fieldOfWork' in data else [],
+            mscID = [Relatant.from_msc(mscID, next((key for key, value in msc.items() if value['id'] == mscID), None), next((value['quote'] for key, value in msc.items() if value['id'] == mscID), None)) for mscID in data.get('mscID', {}).get('value', '').split(" <|> ") if mscID] if 'mscID' in data else [],
         )
 
 @dataclass
@@ -146,8 +146,8 @@ class Method:
             id = None,
             label = None,
             description = None,
-            implementedBySoftware = [Relatant.from_query(software) for software in data.get('implementedBySoftware', {}).get('value', '').split(" / ") if field] if 'implementedBySoftware' in data else [],
-            implementedByInstrument = [Relatant.from_query(software) for software in data.get('implementedByInstrument', {}).get('value', '').split(" / ") if field] if 'implementedByInstrument' in data else [] 
+            implementedBySoftware = [Relatant.from_query(software) for software in data.get('implementedBySoftware', {}).get('value', '').split(" <|> ") if field] if 'implementedBySoftware' in data else [],
+            implementedByInstrument = [Relatant.from_query(software) for software in data.get('implementedByInstrument', {}).get('value', '').split(" <|> ") if field] if 'implementedByInstrument' in data else [] 
         )
     
 @dataclass
@@ -174,8 +174,8 @@ class Software:
             sourceCodeRepository = data.get('sourceCodeRepository', {}).get('value', '') ,
             userManualURL = data.get('userManualURL', {}).get('value', ''),
             reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' || ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' || ') if part.startswith('https://')), None)) else {}),
-            programmedIn =  [Relatant.from_query(language) for language in data.get('programmedIn', {}).get('value', '').split(" / ") if language] if 'programmedIn' in data else [], 
-            dependsOnSoftware = [Relatant.from_query(software) for software in data.get('dependsOnSoftware', {}).get('value', '').split(" / ") if software] if 'dependsOnSoftware' in data else []
+            programmedIn =  [Relatant.from_query(language) for language in data.get('programmedIn', {}).get('value', '').split(" <|> ") if language] if 'programmedIn' in data else [], 
+            dependsOnSoftware = [Relatant.from_query(software) for software in data.get('dependsOnSoftware', {}).get('value', '').split(" <|> ") if software] if 'dependsOnSoftware' in data else []
         )
     
 @dataclass
@@ -198,7 +198,7 @@ class Hardware:
             description = None, 
             nodes = data.get('nodes', {}).get('value', ''),
             cores = data.get('cores', {}).get('value', ''),
-            CPU = [Relatant.from_query(cpu) for cpu in data.get('CPU', {}).get('value', '').split(" / ") if cpu] if 'CPU' in data else []
+            CPU = [Relatant.from_query(cpu) for cpu in data.get('CPU', {}).get('value', '').split(" <|> ") if cpu] if 'CPU' in data else []
         )
 
 @dataclass
@@ -233,8 +233,8 @@ class DataSet:
             proprietary = options[data['proprietary']['value']] if data.get('proprietary', {}).get('value') else '',
             reference = ({order_to_publish()[data['publish']['value']][0]: [order_to_publish()[data['publish']['value']][1], '']} if data.get('publish', {}).get('value') else {}) | ({order_to_publish()['doi'][0]: [order_to_publish()['doi'][1], data['DOI']['value']]} if data.get('DOI', {}).get('value') else {}) | ({order_to_publish()['url'][0]: [order_to_publish()['url'][1], data['URL']['value']]} if data.get('URL', {}).get('value') else {}),
             toArchive = (temp := [options[data['archive']['value']] if data.get('archive', {}).get('value') else '',data.get('endTime', {}).get('value', '')[:4] if data.get('endTime', {}).get('value') else '']) and temp if temp[0] != '' else [],
-            dataType = [Relatant.from_query(dtype) for dtype in data.get('dataType', {}).get('value', '').split(" / ") if dtype] if 'dataType' in data else [],
-            representationFormat = [Relatant.from_query(rformat) for rformat in data.get('representationFormat', {}).get('value', '').split(" / ") if rformat] if 'representationFormat' in data else [] 
+            dataType = [Relatant.from_query(dtype) for dtype in data.get('dataType', {}).get('value', '').split(" <|> ") if dtype] if 'dataType' in data else [],
+            representationFormat = [Relatant.from_query(rformat) for rformat in data.get('representationFormat', {}).get('value', '').split(" <|> ") if rformat] if 'representationFormat' in data else [] 
         )
 
 
