@@ -1,4 +1,6 @@
 SELECT DISTINCT
+?id
+(CONCAT("mardi:", STRAFTER(STR(?id), STR(wd:))) AS ?qid)
 ?is_dynamic ?is_static
 ?is_deterministic ?is_stochastic
 ?is_dimensionless ?is_dimensional
@@ -25,7 +27,7 @@ SELECT DISTINCT
                                                                       
 WHERE {{
                                                 
-    VALUES ?id {{wd:{0}}}
+    VALUES ?id {{{0}}}
 
     OPTIONAL {{
         ?id skos:altLabel ?alias .
@@ -453,7 +455,7 @@ WHERE {{
     }}
 }}
 
-GROUP BY ?is_dynamic ?is_static ?is_deterministic ?is_stochastic ?is_dimensionless 
+GROUP BY ?id ?is_dynamic ?is_static ?is_deterministic ?is_stochastic ?is_dimensionless 
          ?is_dimensional ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete
          ?is_chemical_constant ?is_mathematical_constant ?is_physical_constant ?class 
          ?qudt_quantitykind_id ?qudt_constant_id

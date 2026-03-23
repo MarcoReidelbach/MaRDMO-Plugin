@@ -1,4 +1,6 @@
 SELECT DISTINCT
+?id
+(CONCAT("mardi:", STRAFTER(STR(?id), STR(wd:))) AS ?qid)
 ?is_linear ?is_not_linear
 ?is_space_continuous ?is_space_discrete
 ?is_time_continuous ?is_time_discrete
@@ -18,7 +20,7 @@ SELECT DISTINCT
                         
 WHERE {{
 
-    VALUES ?id {{wd:{0}}}
+    VALUES ?id {{{0}}}
 
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear task} }}, "True", "False" ) AS ?is_linear)
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear task} }}, "True", "False" ) AS ?is_not_linear)
@@ -376,4 +378,4 @@ WHERE {{
     }}
 }}
 
-GROUP BY ?is_linear ?is_not_linear ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete
+GROUP BY ?id ?is_linear ?is_not_linear ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete

@@ -1,10 +1,12 @@
 SELECT DISTINCT
+?id
+(CONCAT("mardi:", STRAFTER(STR(?id), STR(wd:))) AS ?qid)
 ?DOI ?SWMATH ?SOURCECODE_URL ?DESCRIPTION_URL
 (GROUP_CONCAT(DISTINCT CONCAT(?bench, " || ", ?benchl, " || ", ?benchd); separator=" <|> ") AS ?tested_by)
 (GROUP_CONCAT(DISTINCT CONCAT(?pub, " || ", ?publ, " || ", ?pubd); separator=" <|> ") AS ?publication)
 
 WHERE {{
-    VALUES ?id {{ wd:{0} }}
+    VALUES ?id {{{0}}}
 
     OPTIONAL {{ 
       ?id wdt:{swMath work ID} ?SWMATH
@@ -61,5 +63,5 @@ WHERE {{
         BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
     }}
 }}
-GROUP BY ?DOI ?SWMATH ?SOURCECODE_URL ?DESCRIPTION_URL
+GROUP BY ?id ?DOI ?SWMATH ?SOURCECODE_URL ?DESCRIPTION_URL
 

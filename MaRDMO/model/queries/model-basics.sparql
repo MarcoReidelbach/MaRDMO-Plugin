@@ -1,4 +1,6 @@
 SELECT DISTINCT
+?id
+(CONCAT("mardi:", STRAFTER(STR(?id), STR(wd:))) AS ?qid)
 ?is_linear ?is_not_linear
 ?is_dynamic ?is_static
 ?is_deterministic ?is_stochastic
@@ -25,7 +27,7 @@ SELECT DISTINCT
                                                                  
 WHERE {{
                                                    
-    VALUES ?id {{wd:{0}}}
+    VALUES ?id {{{0}}}
                                                    
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{linear model} }}, "True", "False" ) AS ?is_linear)
     BIND(IF(EXISTS {{ ?id wdt:{instance of} wd:{nonlinear model} }}, "True", "False" ) AS ?is_not_linear)
@@ -455,5 +457,5 @@ WHERE {{
     }}
           
 }}
-GROUP BY ?is_linear ?is_not_linear ?is_dynamic ?is_static ?is_deterministic ?is_stochastic ?is_dimensionless 
+GROUP BY ?id ?is_linear ?is_not_linear ?is_dynamic ?is_static ?is_deterministic ?is_stochastic ?is_dimensionless 
          ?is_dimensional ?is_space_continuous ?is_space_discrete ?is_time_continuous ?is_time_discrete

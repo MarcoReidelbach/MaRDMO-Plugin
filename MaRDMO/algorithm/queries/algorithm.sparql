@@ -1,4 +1,6 @@
-SELECT DISTINCT 
+SELECT DISTINCT
+?id
+(CONCAT("mardi:", STRAFTER(STR(?id), STR(wd:))) AS ?qid)
 (GROUP_CONCAT(DISTINCT CONCAT(?prob, " || ", ?probl, " || ", ?probd); separator=" <|> ") AS ?solved_by)
 (GROUP_CONCAT(DISTINCT CONCAT(?imple, " || ", ?implel, " || ", ?impled); separator=" <|> ") AS ?implementation_by)
 (GROUP_CONCAT(DISTINCT CONCAT(?hascomp, " || ", ?hascompl, " || ", ?hascompd); separator=" <|> ") AS ?has_parts)
@@ -10,7 +12,7 @@ SELECT DISTINCT
 
 WHERE {{
   
-    VALUES ?id {{ wd:{0} }}
+    VALUES ?id {{{0}}}
 
     OPTIONAL {{
         ?probraw wdt:{solved by} ?id.
@@ -165,4 +167,4 @@ WHERE {{
         BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
     }}
 }}
-
+GROUP BY ?id

@@ -1,4 +1,6 @@
 SELECT DISTINCT
+?id
+(CONCAT("mardi:", STRAFTER(STR(?id), STR(wd:))) AS ?qid)
 (GROUP_CONCAT(DISTINCT ?alias; SEPARATOR=" <|> ") AS ?aliases)
 (GROUP_CONCAT(DISTINCT ?descriptionLong; SEPARATOR=" <|> ") AS ?description_long)
 (GROUP_CONCAT(DISTINCT CONCAT(?rf, " || ", ?rfl, " || ", ?rfd); SEPARATOR=" <|> ") AS ?contained_in_field)
@@ -9,7 +11,7 @@ SELECT DISTINCT
 
 WHERE {{
 
-    VALUES ?id {{wd:{0}}}
+    VALUES ?id {{{0}}}
 
     OPTIONAL {{
         ?id skos:altLabel ?alias .
@@ -116,3 +118,4 @@ WHERE {{
         BIND(COALESCE(?pubdraw, "No Description Provided!") AS ?pubd)
     }}
 }}
+GROUP BY ?id

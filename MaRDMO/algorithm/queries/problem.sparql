@@ -1,11 +1,13 @@
 SELECT DISTINCT
+?id
+(CONCAT("mardi:", STRAFTER(STR(?id), STR(wd:))) AS ?qid)
 (GROUP_CONCAT(DISTINCT CONCAT(?bench, " || ", ?benchl, " || ", ?benchd); separator=" <|> ") AS ?manifests)
 (GROUP_CONCAT(DISTINCT CONCAT(?spec, " || ", ?specl, " || ", ?specd); separator=" <|> ") AS ?specializes)
 (GROUP_CONCAT(DISTINCT CONCAT(?specby, " || ", ?specbyl, " || ", ?specbyd); separator=" <|> ") AS ?specialized_by)
 
 WHERE {{
 
-    VALUES ?id {{ wd:{0} }}
+    VALUES ?id {{{0}}}
 
     OPTIONAL {{
         ?benchraw wdt:{manifestation of} ?id.
@@ -64,4 +66,4 @@ WHERE {{
         BIND(COALESCE(?specbydraw, "No Description Provided!") AS ?specbyd)
     }}
 }}
-
+GROUP BY ?id
