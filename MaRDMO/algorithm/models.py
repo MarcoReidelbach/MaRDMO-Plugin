@@ -16,10 +16,22 @@ class Benchmark:
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Benchmark':
-        '''Generate Class Item From Query'''
-        options = get_options()
+        '''Generate Class Item From Query (single-item, backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
 
-        data = raw_data[0]
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, Benchmark]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'Benchmark':
+        '''Parse one SPARQL result row into a Benchmark instance.'''
+        options = get_options()
 
         benchmark = {
             # Benchmark Reference (DOI, MORWIKI, URL)
@@ -49,10 +61,22 @@ class Software:
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Software':
-        '''Generate Class Item From Query'''
-        options = get_options()
+        '''Generate Class Item From Query (single-item, backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
 
-        data = raw_data[0]
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, Software]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'Software':
+        '''Parse one SPARQL result row into a Software instance.'''
+        options = get_options()
 
         software = {
             # Software Reference (DOI, SWMATH, and URL)
@@ -88,8 +112,21 @@ class Problem:
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Problem':
-        '''Generate Class Item From Query'''
-        data = raw_data[0]
+        '''Generate Class Item From Query (single-item, backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
+
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, Problem]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'Problem':
+        '''Parse one SPARQL result row into a Problem instance.'''
 
         problem = {
             # Get manifests Statements
@@ -130,9 +167,21 @@ class Algorithm:
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Algorithm':
-        '''Generate Class Item From Query'''
+        '''Generate Class Item From Query (single-item, backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
 
-        data = raw_data[0]
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, Algorithm]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'Algorithm':
+        '''Parse one SPARQL result row into an Algorithm instance.'''
 
         algorithm = {
             # Get Problems Solved
@@ -188,4 +237,3 @@ class Algorithm:
         return cls(
             **algorithm
         )
-

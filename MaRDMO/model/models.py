@@ -46,9 +46,21 @@ class ResearchField:
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'ResearchField':
-        '''Generate Class Item From Query'''
+        '''Generate Class Item From Query (single-item, backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
 
-        data = raw_data[0]
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, ResearchField]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'ResearchField':
+        '''Parse one SPARQL result row into a ResearchField instance.'''
 
         research_field = {
             # Get Aliases
@@ -104,9 +116,21 @@ class ResearchProblem:
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'ResearchProblem':
-        '''Generate Class Item From Query'''
+        '''Generate Class Item From Query (single-item, backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
 
-        data = raw_data[0]
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, ResearchProblem]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'ResearchProblem':
+        '''Parse one SPARQL result row into a ResearchProblem instance.'''
 
         research_problem = {
             # Get Aliases
@@ -193,12 +217,24 @@ class MathematicalModel:
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'MathematicalModel':
+        '''Generate Class Item From Query (single-item, backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
+
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, MathematicalModel]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'MathematicalModel':
         '''Generate Class Item From Query'''
 
         mathmoddb = get_mathmoddb()
         items = get_items()
-
-        data = raw_data[0]
 
         mathematical_model = {
             # Get Aliases
@@ -435,12 +471,24 @@ class QuantityOrQuantityKind:
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'QuantityOrQuantityKind':
-        '''Generate Class Item From Query'''
+        '''Generate Class Item From Query (single-item, backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
+
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, QuantityOrQuantityKind]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'QuantityOrQuantityKind':
+        '''Parse one SPARQL result row into a QuantityOrQuantityKind instance.'''
 
         mathmoddb = get_mathmoddb()
         options = get_options() 
-
-        data = raw_data[0]
 
         quantity = {
             # Get Aliases
@@ -598,12 +646,24 @@ class MathematicalFormulation:
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'MathematicalFormulation':
-        '''Generate Class Item From Query'''
+        '''Generate Class Item From Query (single-item, backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
+
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, MathematicalFormulation]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'MathematicalFormulation':
+        '''Parse one SPARQL result row into a MathematicalFormulation instance.'''
 
         mathmoddb = get_mathmoddb()
         items = get_items()
-
-        data = raw_data[0]
 
         mathematical_formulation = {
             # Get Aliases
@@ -818,12 +878,24 @@ class Task:
 
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Task':
-        '''Generate Class Item From Query'''
+        '''Generate Class Item From Query (single-item, backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
+
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, Task]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'Task':
+        '''Parse one SPARQL result row into a Task instance.'''
 
         mathmoddb = get_mathmoddb()
         items = get_items()
-
-        data = raw_data[0]
 
         task = {
             # Get Aliases
