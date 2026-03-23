@@ -1,358 +1,298 @@
-'''Module containing Handlers for the Algorithm Documentation'''
+'''Module containing Handlers for the Algorithm Documentation.
+
+Information inherits _entry, _collect_existing_ids, _hydrate_relatants,
+and _fill from BaseInformation (MaRDMO/base_handler.py).
+
+All batch methods accept catalog='' (unused but required by the shared
+_fill and _hydrate_relatants signatures).
+'''
+
+import logging
+from functools import partial
 
 from .constants import PROPS
 from .models import Benchmark, Software, Problem, Algorithm
 
+from ..handler_base import BaseInformation, _get_pub_info, _values_clause
 from ..constants import BASE_URI
 from ..getters import (
+    get_id,
     get_items,
     get_mathalgodb,
     get_properties,
     get_questions,
     get_sparql_query,
-    get_url
+    get_url,
 )
+from ..helpers import value_editor
 from ..queries import query_sparql
 from ..adders import (
     add_basics,
-    add_entities,
-    add_relations_static,
+    add_references,
     add_relations_flexible,
-    add_references
+    add_relations_static,
 )
 
-class Information:
-    '''Class containing functions, querying external sources for specific
-       entities and integrating the related metadata into the questionnaire.'''
+logger = logging.getLogger(__name__)
+
+
+class Information(BaseInformation):
+    '''Handlers for the Algorithm Documentation questionnaire.'''
+
+    _ENTITY_KEYS = ('Algorithm', 'Problem', 'Software', 'Benchmark', 'Publication')
 
     def __init__(self):
-        # Load shared data once
-        self.questions = get_questions("algorithm") | get_questions('publication')
+        self.questions  = get_questions('algorithm') | get_questions('publication')
         self.mathalgodb = get_mathalgodb()
-        self.base = BASE_URI
+        self.base       = BASE_URI
+
+    # ------------------------------------------------------------------ #
+    #  Public entry points (called by router via post_save signal)         #
+    # ------------------------------------------------------------------ #
 
     def benchmark(self, instance):
-        '''Benchmark Information'''
-
-        # Benchmark specific Questions.
-        benchmark = self.questions["Benchmark"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = "Benchmark",
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # Only consider MaRDI (so far)
-        if source != 'mardi':
-            return
-
-        # If Item from MathModDB, query relations and load MathModDB Vocabulary
-        query = get_sparql_query('algorithm/queries/benchmark.sparql').format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        # Stop if no Results retrieved from external source
-        if not results:
-            return
-
-        # Get Benchmark Data from Query
-        data = Benchmark.from_query(results)
-
-        # Add References to Questionnaire
-        add_references(
-            project = instance.project,
-            data = data,
-            uri = f'{self.base}{benchmark["Reference"]["uri"]}',
-            set_prefix = instance.set_index
-        )
-
-        # Add Publications to Questionnaire
-        add_entities(
-            project = instance.project,
-            question_set = f'{self.base}{self.questions["Publication"]["uri"]}',
-            datas = data.publications,
-            source = source,
-            prefix = 'P'
-        )
+        self._entry(instance, 'Benchmark', self._fill_benchmark_batch)
 
     def software(self, instance):
-        '''Software Information'''
-
-        # Software specific Questions.
-        software = self.questions["Software"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = "Software",
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # Only consider MaRDI (so far)
-        if source != 'mardi':
-            return
-
-        query = get_sparql_query('algorithm/queries/software.sparql').format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        # Stop if no Results retrieved from external source
-        if not results:
-            return
-
-        # Structure Results and load MathAlgoDB
-        data = Software.from_query(results)
-
-        # Add References to Questionnaire
-        add_references(
-            project = instance.project,
-            data = data,
-            uri = f'{self.base}{software["Reference"]["uri"]}',
-            set_prefix = instance.set_index
-        )
-
-        # Add Benchmarks to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['S2B']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{software["BRelatant"]["uri"]}'
-            }
-        )
-
-        # Add Publications to Questionnaire
-        add_entities(
-            project = instance.project,
-            question_set = f'{self.base}{self.questions["Publication"]["uri"]}',
-            datas = data.publications,
-            source = source,
-            prefix = 'P'
-        )
+        self._entry(instance, 'Software', self._fill_software_batch)
 
     def problem(self, instance):
-        '''Algorithmic Problem Information'''
-
-        # Algorithmic Problem specific Questions.
-        problem = self.questions["Problem"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = "Problem",
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # Only consider MaRDI (so far)
-        if source != 'mardi':
-            return
-
-        query = get_sparql_query('algorithm/queries/problem.sparql').format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        # Stop if no Results retrieved from external source
-        if not results:
-            return
-
-        # Structure Data and load MathAlgoDB
-        data = Problem.from_query(results)
-
-        # Add Benchmarks to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['P2B']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{problem["BRelatant"]["uri"]}'
-            }
-        )
-
-        # Add Relations between Algorithmic Problems to Questionnaire
-        add_relations_flexible(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['Problem'],
-                'mapping': self.mathalgodb,
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relation': f'{self.base}{problem["IntraClassRelation"]["uri"]}',
-                'relatant': f'{self.base}{problem["IntraClassElement"]["uri"]}',
-            },
-        )
+        self._entry(instance, 'Problem', self._fill_problem_batch)
 
     def algorithm(self, instance):
-        '''Algorithm Information'''
+        self._entry(instance, 'Algorithm', self._fill_algorithm_batch)
 
-        # Algorithm specific Questions.
-        algorithm = self.questions["Algorithm"]
+    # ------------------------------------------------------------------ #
+    #  Algorithm-specific cascade helper                                   #
+    # ------------------------------------------------------------------ #
 
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
+    def _hydrate_publications(self, project, publications, source, catalog, visited):
+        '''Register and hydrate publications via the publication handler.'''
+        pub_info    = _get_pub_info()
+        pub_id_uri  = f'{self.base}{self.questions["Publication"]["ID"]["uri"]}'
+        pub_set_uri = f'{self.base}{self.questions["Publication"]["uri"]}'
+
+        existing = get_id(project, pub_set_uri, ['set_index'])
+        next_idx = max((e for e in existing if e is not None), default=-1) + 1
+
+        for pub in publications:
+            if pub.id in visited:
+                continue
+            visited.add(pub.id)
+
+            text = f'{pub.label} ({pub.description}) [{source}]'
+            value_editor(project=project, uri=pub_set_uri,
+                         info={'text': f'P{next_idx + 1}', 'set_index': next_idx})
+            value_editor(project=project, uri=pub_id_uri,
+                         info={'text': text, 'external_id': pub.id,
+                               'set_index': next_idx})
+
+            pub_info._fill_citation(project=project, text=text,
+                                    external_id=pub.id, set_index=next_idx,
+                                    catalog=catalog)
+            next_idx += 1
+
+    # ------------------------------------------------------------------ #
+    #  Batch _fill_* methods (one SPARQL query for N entities)            #
+    # ------------------------------------------------------------------ #
+
+    def _fill_benchmark_batch(self, project, items, catalog='', visited=None):
+        '''Hydrate multiple benchmarks with a single SPARQL query.'''
+        if not items:
             return
+        if visited is None:
+            visited = set()
 
-        # Add basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = "Algorithm",
-            index = (0, instance.set_index)
+        benchmark = self.questions['Benchmark']
+        query = get_sparql_query('algorithm/queries/benchmark.sparql').format(
+            _values_clause(items), **get_items(), **get_properties()
         )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # Only consider MaRDI (so far)
-        if source != 'mardi':
-            return
-
-        query = get_sparql_query('algorithm/queries/algorithm.sparql').format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        # Stop if no Results retrieved from external source
+        results = query_sparql(query, get_url('mardi', 'sparql'))
         if not results:
             return
 
-        # Structure Data and load MathAlgoDB
-        data = Algorithm.from_query(results)
+        data_by_id = Benchmark.from_query_batch(results)
 
-        # Add Algorithmic Problems to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['A2P']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{algorithm["PRelatant"]["uri"]}'
-            }
-        )
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
 
-        # Add Softwares to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['A2S']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{algorithm["SRelatant"]["uri"]}'
-            }
-        )
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Benchmark', index=(0, set_index))
 
-        # Add Relations between Algorithms to Questionnaire
-        add_relations_flexible(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['Algorithm'],
-                'mapping': self.mathalgodb,
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relation': f'{self.base}{algorithm["IntraClassRelation"]["uri"]}',
-                'relatant': f'{self.base}{algorithm["IntraClassElement"]["uri"]}',
-            },
-        )
+            add_references(project=project, data=data,
+                           uri=f'{self.base}{benchmark["Reference"]["uri"]}',
+                           set_prefix=set_index)
 
-        # Add Publications to Questionnaire
-        add_entities(
-            project = instance.project,
-            question_set = f'{self.base}{self.questions["Publication"]["uri"]}',
-            datas = data.publications,
-            source = source,
-            prefix = 'P'
+            self._hydrate_publications(project, data.publications, 'mardi',
+                                       catalog, visited)
+
+    def _fill_software_batch(self, project, items, catalog='', visited=None):
+        '''Hydrate multiple software items with a single SPARQL query.'''
+        if not items:
+            return
+        if visited is None:
+            visited = set()
+
+        software = self.questions['Software']
+        query = get_sparql_query('algorithm/queries/software.sparql').format(
+            _values_clause(items), **get_items(), **get_properties()
         )
+        results = query_sparql(query, get_url('mardi', 'sparql'))
+        if not results:
+            return
+
+        data_by_id = Software.from_query_batch(results)
+
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Software', index=(0, set_index))
+
+            add_references(project=project, data=data,
+                           uri=f'{self.base}{software["Reference"]["uri"]}',
+                           set_prefix=set_index)
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': PROPS['S2B']},
+                index={'set_prefix': set_index},
+                statement={'relatant': f'{self.base}{software["BRelatant"]["uri"]}'})
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=PROPS['S2B'],
+                question_id_uri=f'{self.base}{self.questions["Benchmark"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Benchmark"]["uri"]}',
+                prefix='B',
+                fill_method=partial(self._fill, item_type='Benchmark',
+                                    batch_fill_method=self._fill_benchmark_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_benchmark_batch)
+
+            self._hydrate_publications(project, data.publications, 'mardi',
+                                       catalog, visited)
+
+    def _fill_problem_batch(self, project, items, catalog='', visited=None):
+        '''Hydrate multiple algorithmic problems with a single SPARQL query.'''
+        if not items:
+            return
+        if visited is None:
+            visited = set()
+
+        problem = self.questions['Problem']
+        query = get_sparql_query('algorithm/queries/problem.sparql').format(
+            _values_clause(items), **get_items(), **get_properties()
+        )
+        results = query_sparql(query, get_url('mardi', 'sparql'))
+        if not results:
+            return
+
+        data_by_id = Problem.from_query_batch(results)
+
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Problem', index=(0, set_index))
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': PROPS['P2B']},
+                index={'set_prefix': set_index},
+                statement={'relatant': f'{self.base}{problem["BRelatant"]["uri"]}'})
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=PROPS['P2B'],
+                question_id_uri=f'{self.base}{self.questions["Benchmark"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Benchmark"]["uri"]}',
+                prefix='B',
+                fill_method=partial(self._fill, item_type='Benchmark',
+                                    batch_fill_method=self._fill_benchmark_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_benchmark_batch)
+
+            add_relations_flexible(
+                project=project, data=data,
+                props={'keys': PROPS['Problem'], 'mapping': self.mathalgodb},
+                index={'set_prefix': set_index},
+                statement={
+                    'relation': f'{self.base}{problem["IntraClassRelation"]["uri"]}',
+                    'relatant': f'{self.base}{problem["IntraClassElement"]["uri"]}',
+                })
+
+            # IntraClass relations are not cascade-hydrated
+
+    def _fill_algorithm_batch(self, project, items, catalog='', visited=None):
+        '''Hydrate multiple algorithms with a single SPARQL query.'''
+        if not items:
+            return
+        if visited is None:
+            visited = set()
+
+        algorithm = self.questions['Algorithm']
+        query = get_sparql_query('algorithm/queries/algorithm.sparql').format(
+            _values_clause(items), **get_items(), **get_properties()
+        )
+        results = query_sparql(query, get_url('mardi', 'sparql'))
+        if not results:
+            return
+
+        data_by_id = Algorithm.from_query_batch(results)
+
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Algorithm', index=(0, set_index))
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': PROPS['A2P']},
+                index={'set_prefix': set_index},
+                statement={'relatant': f'{self.base}{algorithm["PRelatant"]["uri"]}'})
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=PROPS['A2P'],
+                question_id_uri=f'{self.base}{self.questions["Problem"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Problem"]["uri"]}',
+                prefix='AT',
+                fill_method=partial(self._fill, item_type='Problem',
+                                    batch_fill_method=self._fill_problem_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_problem_batch)
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': PROPS['A2S']},
+                index={'set_prefix': set_index},
+                statement={'relatant': f'{self.base}{algorithm["SRelatant"]["uri"]}'})
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=PROPS['A2S'],
+                question_id_uri=f'{self.base}{self.questions["Software"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Software"]["uri"]}',
+                prefix='S',
+                fill_method=partial(self._fill, item_type='Software',
+                                    batch_fill_method=self._fill_software_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_software_batch)
+
+            add_relations_flexible(
+                project=project, data=data,
+                props={'keys': PROPS['Algorithm'], 'mapping': self.mathalgodb},
+                index={'set_prefix': set_index},
+                statement={
+                    'relation': f'{self.base}{algorithm["IntraClassRelation"]["uri"]}',
+                    'relatant': f'{self.base}{algorithm["IntraClassElement"]["uri"]}',
+                })
+
+            self._hydrate_publications(project, data.publications, 'mardi',
+                                       catalog, visited)

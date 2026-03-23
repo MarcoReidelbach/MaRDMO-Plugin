@@ -1,925 +1,652 @@
-'''Module containing Handlers for the Model Documentation'''
+'''Module containing Handlers for the Model Documentation.
+
+Information inherits _entry, _collect_existing_ids, _hydrate_relatants,
+and _fill from BaseInformation (MaRDMO/base_handler.py).
+
+All SPARQL and write logic lives in the _fill_*_batch methods.
+'''
+
+import logging
+from functools import partial
 
 from rdmo.options.models import Option
 
 from . import models
-
 from .constants import props, relatant_uris, relation_uris, index_counters
 
+from ..handler_base import BaseInformation, _get_pub_info, _values_clause
 from ..constants import BASE_URI
 from ..getters import (
+    get_id,
     get_items,
     get_mathmoddb,
     get_properties,
     get_questions,
     get_sparql_query,
-    get_url
+    get_url,
 )
 from ..helpers import value_editor
 from ..queries import query_sparql
 from ..adders import (
     add_basics,
-    add_entities,
     add_properties,
-    add_relations_static,
+    add_references,
     add_relations_flexible,
-    add_references
+    add_relations_static,
 )
 
-class Information:
-    '''Class containing functions, querying external sources for specific
-       entities and integrating the related metadata into the questionnaire.'''
+logger = logging.getLogger(__name__)
+
+
+def _sparql_file(template, catalog):
+    '''Return the basics or full variant of a SPARQL template path.'''
+    return template.replace('.sparql', '-basics.sparql') if 'basics' in catalog else template
+
+
+class Information(BaseInformation):
+    '''Handlers for the Model Documentation questionnaire.'''
+
+    _ENTITY_KEYS = (
+        'Research Field', 'Research Problem', 'Quantity',
+        'Mathematical Formulation', 'Task', 'Mathematical Model',
+        'Publication',
+    )
 
     def __init__(self):
-        # Load shared data once
-        self.questions = get_questions("model") | get_questions('publication')
+        self.questions = get_questions('model') | get_questions('publication')
         self.mathmoddb = get_mathmoddb()
-        self.base = BASE_URI
+        self.base      = BASE_URI
+
+    # ------------------------------------------------------------------ #
+    #  Public signal-handler entry points                                  #
+    # ------------------------------------------------------------------ #
 
     def field(self, instance):
-        '''Research Field Information'''
-
-        # Research Field specific Questions.
-        field = self.questions["Research Field"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add basic Informatiom
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Research Field',
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # Only consider MaRDI (so far)
-        if source != 'mardi':
-            return
-
-        # If Item from MathModDB, set up Query and...
-        query = get_sparql_query('model/queries/field.sparql').format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        # ...get Results.
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        # Stop if no Results retrieved from external source
-        if not results:
-            return
-
-        # Structure Results
-        data = models.ResearchField.from_query(results)
-
-        # Add Aliases (optional)
-        for idx, alias in enumerate(data.aliases):
-            value_editor(
-                project = instance.project,
-                uri = f'{BASE_URI}{field["Alias"]["uri"]}',
-                info = {
-                    'text': alias,
-                    'collection_index': idx,
-                    'set_index': 0,
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Add long Descriptions (optional)
-        for idx, description_long in enumerate(data.description_long):
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{field["Long Description"]["uri"]}',
-                info = {
-                    'text': description_long,
-                    'collection_index': idx,
-                    'set_index': 0, 
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Add Research Field Relations (flexible)
-        add_relations_flexible(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['Field'],
-                'mapping': self.mathmoddb,
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relation': f'{self.base}{field["IntraClassRelation"]["uri"]}',
-                'relatant': f'{self.base}{field["IntraClassElement"]["uri"]}',
-            },
-        )
-
-        # Add Publications
-        add_entities(
-            project = instance.project,
-            question_set = f'{self.base}{self.questions["Publication"]["uri"]}',
-            datas = data.publications,
-            source = source,
-            prefix = 'P'
-        )
+        self._entry(instance, 'Research Field', self._fill_field_batch)
 
     def problem(self, instance):
-        '''Research Problem Information'''
-
-        # Research Problem specific Questions.
-        problem = self.questions["Research Problem"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Research Problem',
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # Only consider MaRDI (so far)
-        if source != 'mardi':
-            return
-
-        # If Item from MathModDB, set up Query and...
-        catalog = getattr(instance.project, "catalog", None)
-        if 'basics' in str(catalog):
-            sparql_file = 'model/queries/problem-basics.sparql'
-        else:
-            sparql_file = 'model/queries/problem.sparql'
-
-        query = get_sparql_query(sparql_file).format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        # ...get Results.
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        # Stop if no Results retrieved from external source
-        if not results:
-            return
-
-        # Structure Results
-        data = models.ResearchProblem.from_query(results)
-
-        # Add Aliases (optional)
-        for idx, alias in enumerate(data.aliases):
-            value_editor(
-                project = instance.project,
-                uri = f'{BASE_URI}{problem["Alias"]["uri"]}',
-                info = {
-                    'text': alias,
-                    'collection_index': idx,
-                    'set_index': 0,
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Add long Description (optional)
-        for idx, description_long in enumerate(data.description_long):
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{problem["Long Description"]["uri"]}',
-                info = {
-                    'text': description_long,
-                    'collection_index': idx,
-                    'set_index': 0, 
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Add Research Field Relations (static)
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['RP2RF']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{problem["RFRelatant"]["uri"]}'
-            }
-        )
-
-        # Add Research Problem Relations (flexible)
-        add_relations_flexible(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['Problem'],
-                'mapping': self.mathmoddb,
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relation': f'{self.base}{problem["IntraClassRelation"]["uri"]}',
-                'relatant': f'{self.base}{problem["IntraClassElement"]["uri"]}',
-            },
-        )
-
-        # Add Publications
-        add_entities(
-            project = instance.project,
-            question_set = f'{self.base}{self.questions["Publication"]["uri"]}',
-            datas = data.publications,
-            source = source,
-            prefix = 'P'
-        )
+        self._entry(instance, 'Research Problem', self._fill_problem_batch)
 
     def quantity(self, instance):
-        '''Quantity [Kind] Information'''
-
-        # Quantity specific Questions.
-        quantity = self.questions["Quantity"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Quantity',
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # Only consider MaRDI (so far)
-        if source != 'mardi':
-            return
-
-        # If Item from MathModDB, set up Query and...
-        query = get_sparql_query('model/queries/quantity.sparql').format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        # ...get Results.
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        # Stop if no Results retrieved from external source
-        if not results:
-            return
-
-        # Structure Results
-        data = models.QuantityOrQuantityKind.from_query(results)
-
-        # Add Aliases (optional)
-        for idx, alias in enumerate(data.aliases):
-            value_editor(
-                project = instance.project,
-                uri = f'{BASE_URI}{quantity["Alias"]["uri"]}',
-                info = {
-                    'text': alias,
-                    'collection_index': idx,
-                    'set_index': 0,
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Add long Description (optional)
-        for idx, description_long in enumerate(data.description_long):
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{quantity["Long Description"]["uri"]}',
-                info = {
-                    'text': description_long,
-                    'collection_index': idx,
-                    'set_index': 0, 
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Add Type
-        if data.qclass:
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{quantity["QorQK"]["uri"]}',
-                info = {
-                    'option': Option.objects.get(
-                        uri = self.mathmoddb.get(key=results[0]['class']['value'])["url"]
-                    ),
-                    'set_index': instance.set_index
-                }
-            )
-
-        # Add Properties
-        add_properties(
-            project = instance.project,
-            data = data,
-            uri = f'{self.base}{quantity["Properties"]["uri"]}',
-            set_prefix = instance.set_index
-        )
-
-        # Add References
-        add_references(
-            project = instance.project,
-            data = data,
-            uri = f'{self.base}{quantity["Reference"]["uri"]}',
-            set_prefix = instance.set_index
-        )
-
-        # Add defining Formula(s)
-        for idx, formula in enumerate(data.formulas):
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{quantity["Formula"]["uri"]}',
-                info = {
-                    'text': formula, 
-                    'collection_index': idx, 
-                    'set_index': 0, 
-                    'set_prefix': f"{instance.set_index}|0"
-                }
-            )
-
-        # Add Symbol(s)
-        for idx, symbol in enumerate(data.symbols):
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{quantity["Element Symbol"]["uri"]}',
-                info = {
-                    'text': symbol,
-                    'set_index': idx, 
-                    'set_prefix': f"{instance.set_index}|0|0"
-                }
-            )
-
-        # Add Quantities
-        for idx, encoded_quantity in enumerate(data.contains_quantity):
-            source, _ = encoded_quantity.id.split(':')
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{quantity["Element Quantity"]["uri"]}',
-                info = {
-                    'text': f"{encoded_quantity.label} ({encoded_quantity.description}) [{source}]",
-                    'external_id': encoded_quantity.id,
-                    'set_index': idx,
-                    'set_prefix': f"{instance.set_index}|0|0"
-                }
-            )
-
-        # Add Quantity [Kind] Relations (flexible)
-        for prop in props['Quantity']:
-            for value in getattr(data, prop):
-                qclass_pair = (data.qclass, value.item_class)
-                value_editor(
-                    project=instance.project,
-                    uri=f"{self.base}{quantity[relation_uris[qclass_pair]]['uri']}",
-                    info = {
-                        'option': Option.objects.get(uri = self.mathmoddb.get(key=prop)["url"]),
-                        'set_index': index_counters[qclass_pair],
-                        'set_prefix': f"{instance.set_index}"
-                    }
-                )
-                value_editor(
-                    project=instance.project,
-                    uri=f"{self.base}{quantity[relatant_uris[qclass_pair]]['uri']}",
-                    info = {
-                        'text': f"{value.label} ({value.description}) [{source}]",
-                        'external_id': value.id,
-                        'set_index': index_counters[qclass_pair],
-                        'set_prefix': f"{instance.set_index}"
-                    }
-                )
-                index_counters[qclass_pair] += 1
-
-        # Add Publications
-        add_entities(
-            project = instance.project,
-            question_set = f'{self.base}{self.questions["Publication"]["uri"]}',
-            datas = data.publications,
-            source = source,
-            prefix = 'P'
-        )
+        self._entry(instance, 'Quantity', self._fill_quantity_batch)
 
     def formulation(self, instance):
-        '''Mathematical Formulation Information'''
-
-        # Formulation specific Questions.
-        formulation = self.questions["Mathematical Formulation"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Mathematical Formulation',
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # Only consider MaRDI (so far)
-        if source != 'mardi':
-            return
-
-        # If Item from MathModDB, set up Query and...
-        catalog = getattr(instance.project, "catalog", None)
-        if 'basics' in str(catalog):
-            sparql_file = 'model/queries/formulation-basics.sparql'
-        else:
-            sparql_file = 'model/queries/formulation.sparql'
-
-        # If Item from MathModDB, set up Query and...
-        query = get_sparql_query(sparql_file).format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        # ...get Results.
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        # Stop if no Results retrieved from external source
-        if not results:
-            return
-
-        # Structure Results
-        data = models.MathematicalFormulation.from_query(results)
-
-        # Add Aliases (optional)
-        for idx, alias in enumerate(data.aliases):
-            value_editor(
-                project = instance.project,
-                uri = f'{BASE_URI}{formulation["Alias"]["uri"]}',
-                info = {
-                    'text': alias,
-                    'collection_index': idx,
-                    'set_index': 0,
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Add long Description (optional)
-        for idx, description_long in enumerate(data.description_long):
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{formulation["Long Description"]["uri"]}',
-                info = {
-                    'text': description_long,
-                    'collection_index': idx,
-                    'set_index': 0,
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Add Properties
-        add_properties(
-            project = instance.project,
-            data = data,
-            uri = f'{self.base}{formulation["Properties"]["uri"]}',
-            set_prefix = instance.set_index
-        )
-
-        # Add Formula(s)
-        for idx, formula in enumerate(data.formulas):
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{formulation["Formula"]["uri"]}',
-                info = {
-                    'text': formula, 
-                    'collection_index': idx, 
-                    'set_index': 0, 
-                    'set_prefix': f"{instance.set_index}|0"
-                }
-            )
-
-        # Add Symbol(s)
-        for idx, symbol in enumerate(data.symbols):
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{formulation["Element Symbol"]["uri"]}',
-                info = {
-                    'text': symbol, 
-                    'set_index': idx, 
-                    'set_prefix': f"{instance.set_index}|0|0"
-                }
-            )
-
-        # Add Quantities
-        for idx, quantity in enumerate(data.contains_quantity):
-            source, _ = quantity.id.split(':')
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{formulation["Element Quantity"]["uri"]}',
-                info = {
-                    'text': f"{quantity.label} ({quantity.description}) [{source}]", 
-                    'external_id': quantity.id, 
-                    'set_index': idx, 
-                    'set_prefix': f"{instance.set_index}|0|0"
-                }
-            )
-
-        # Add Formulation Relations I (flexible)
-        add_relations_flexible(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['MF2MF'],
-                'mapping': self.mathmoddb,
-            },
-            index = {
-                'set_prefix': f"{instance.set_index}|0"
-            },
-            statement = {
-                'relation': f'{self.base}{formulation["MF2MF"]["uri"]}',
-                'relatant': f'{self.base}{formulation["MFRelatant"]["uri"]}',
-            },
-        )
-
-        # Add Formulation Relations II (flexible)
-        add_relations_flexible(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['Formulation'],
-                'mapping': self.mathmoddb,
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relation': f'{self.base}{formulation["IntraClassRelation"]["uri"]}',
-                'relatant': f'{self.base}{formulation["IntraClassElement"]["uri"]}',
-                'assumption': f'{self.base}{formulation["Assumption"]["uri"]}',
-            },
-        )
-
-        # Add Publications
-        add_entities(
-            project = instance.project,
-            question_set = f'{self.base}{self.questions["Publication"]["uri"]}',
-            datas = data.publications,
-            source = source,
-            prefix = 'P'
-        )
+        self._entry(instance, 'Mathematical Formulation', self._fill_formulation_batch)
 
     def task(self, instance):
-        '''Task Information'''
-
-        # Task specific Questions.
-        task = self.questions["Task"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Task',
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # Only consider MaRDI (so far)
-        if source != 'mardi':
-            return
-
-        # If Item from MathModDB, set up Query and...
-        catalog = getattr(instance.project, "catalog", None)
-        if 'basics' in str(catalog):
-            sparql_file = 'model/queries/task-basics.sparql'
-        else:
-            sparql_file = 'model/queries/task.sparql'
-
-        query = get_sparql_query(sparql_file).format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        # ...get Results.
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        # Stop if no Results retrieved from external source
-        if not results:
-            return
-
-        #Structure Results
-        data = models.Task.from_query(results)
-
-        # Add Aliases (optional)
-        for idx, alias in enumerate(data.aliases):
-            value_editor(
-                project = instance.project,
-                uri = f'{BASE_URI}{task["Alias"]["uri"]}',
-                info = {
-                    'text': alias,
-                    'collection_index': idx,
-                    'set_index': 0,
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Add long Description (optional)
-        for idx, description_long in enumerate(data.description_long):
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{task["Long Description"]["uri"]}',
-                info = {
-                    'text': description_long,
-                    'collection_index': idx,
-                    'set_index': 0,
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Add Properties
-        add_properties(
-            project = instance.project,
-            data = data,
-            uri = f'{self.base}{task["Properties"]["uri"]}',
-            set_prefix = instance.set_index
-        )
-
-        # Add Formulations Relations (flexible)
-        add_relations_flexible(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['T2MF'],
-                'mapping': self.mathmoddb,
-            },
-            index = {
-                'set_prefix': f"{instance.set_index}|0"
-            },
-            statement = {
-                'relation': f'{self.base}{task["T2MF"]["uri"]}',
-                'relatant': f'{self.base}{task["MFRelatant"]["uri"]}',
-            },
-        )
-
-        # Add Quantity Relations (flexible)
-        add_relations_flexible(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['T2Q'],
-                'mapping': self.mathmoddb,
-            },
-            index = {
-                'set_prefix': f"{instance.set_index}|0"
-            },
-            statement = {
-                'relation': f'{self.base}{task["T2Q"]["uri"]}',
-                'relatant': f'{self.base}{task["QRelatant"]["uri"]}',
-            },
-        )
-
-        # Add Task Relations (flexible)
-        add_relations_flexible(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['Task'],
-                'mapping': self.mathmoddb,
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relation': f'{self.base}{task["IntraClassRelation"]["uri"]}',
-                'relatant': f'{self.base}{task["IntraClassElement"]["uri"]}',
-                'assumption': f'{self.base}{task["Assumption"]["uri"]}',
-                'order': f'{self.base}{task["Order Number"]["uri"]}',
-            },
-        )
-
-        # Add Publications
-        add_entities(
-            project = instance.project,
-            question_set = f'{self.base}{self.questions["Publication"]["uri"]}',
-            datas = data.publications,
-            source = source,
-            prefix = 'P'
-        )
+        self._entry(instance, 'Task', self._fill_task_batch)
 
     def model(self, instance):
-        '''Mathematical Model Information'''
+        self._entry(instance, 'Mathematical Model', self._fill_model_batch)
 
-        # Model specific Questions.
-        model = self.questions["Mathematical Model"]
+    # ------------------------------------------------------------------ #
+    #  Model-specific cascade helpers                                      #
+    # ------------------------------------------------------------------ #
 
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
+    def _hydrate_assumptions(self, project, data, prop_keys, catalog, visited):
+        '''Hydrate formulation IDs embedded as assumption qualifiers.'''
+        from ..helpers import process_qualifier  # noqa: PLC0415
+
+        mf_id_uri  = f'{self.base}{self.questions["Mathematical Formulation"]["ID"]["uri"]}'
+        mf_set_uri = f'{self.base}{self.questions["Mathematical Formulation"]["uri"]}'
+
+        existing = get_id(project, mf_set_uri, ['set_index'])
+        next_idx = max((e for e in existing if e is not None), default=-1) + 1
+
+        for prop in prop_keys:
+            for relatant in getattr(data, prop, []):
+                qualifier = getattr(relatant, 'qualifier', None)
+                if not qualifier:
+                    continue
+                for assumption in process_qualifier(qualifier).values():
+                    ext_id = assumption['id']
+                    if ext_id in visited:
+                        continue
+                    visited.add(ext_id)
+                    source = ext_id.split(':')[0]
+                    text   = (f'{assumption["label"]} '
+                              f'({assumption["description"]}) [{source}]')
+
+                    value_editor(project=project, uri=mf_set_uri,
+                                 info={'text': f'ME{next_idx + 1}',
+                                       'set_index': next_idx})
+                    value_editor(project=project, uri=mf_id_uri,
+                                 info={'text': text, 'external_id': ext_id,
+                                       'set_index': next_idx})
+
+                    self._fill(project=project, text=text, external_id=ext_id,
+                               set_index=next_idx,
+                               item_type='Mathematical Formulation',
+                               batch_fill_method=self._fill_formulation_batch,
+                               catalog=catalog, visited=visited)
+                    next_idx += 1
+
+    def _hydrate_publications(self, project, publications, source, catalog, visited):
+        '''Register and hydrate publications via the publication handler.'''
+        pub_info    = _get_pub_info()
+        pub_id_uri  = f'{self.base}{self.questions["Publication"]["ID"]["uri"]}'
+        pub_set_uri = f'{self.base}{self.questions["Publication"]["uri"]}'
+
+        existing = get_id(project, pub_set_uri, ['set_index'])
+        next_idx = max((e for e in existing if e is not None), default=-1) + 1
+
+        for pub in publications:
+            if pub.id in visited:
+                continue
+            visited.add(pub.id)
+
+            text = f'{pub.label} ({pub.description}) [{source}]'
+            value_editor(project=project, uri=pub_set_uri,
+                         info={'text': f'P{next_idx + 1}', 'set_index': next_idx})
+            value_editor(project=project, uri=pub_id_uri,
+                         info={'text': text, 'external_id': pub.id,
+                               'set_index': next_idx})
+
+            pub_info._fill_citation(project=project, text=text,
+                                    external_id=pub.id, set_index=next_idx,
+                                    catalog=catalog)
+            next_idx += 1
+
+    # ------------------------------------------------------------------ #
+    #  Batch _fill_* methods (one SPARQL query for N entities)            #
+    # ------------------------------------------------------------------ #
+
+    def _fill_field_batch(self, project, items, catalog, visited):
+        '''Hydrate multiple research fields with a single SPARQL query.'''
+        if not items:
             return
 
-        # Add basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Mathematical Model',
-            index = (0, instance.set_index)
+        field = self.questions['Research Field']
+        query = get_sparql_query('model/queries/field.sparql').format(
+            _values_clause(items), **get_items(), **get_properties()
         )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # Only consider MaRDI (so far)
-        if source != 'mardi':
-            return
-
-        # If Item from MathModDB, set up Query and...
-        catalog = getattr(instance.project, "catalog", None)
-        if 'basics' in str(catalog):
-            sparql_file = 'model/queries/model-basics.sparql'
-        else:
-            sparql_file = 'model/queries/model.sparql'
-
-        query = get_sparql_query(sparql_file).format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        # ...get Results.
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        # Stop if no Results retrieved from external source
+        results = query_sparql(query, get_url('mardi', 'sparql'))
         if not results:
             return
 
-        # Structure Results
-        data = models.MathematicalModel.from_query(results)
+        data_by_id = models.ResearchField.from_query_batch(results)
 
-        # Add Aliases (optional)
-        for idx, alias in enumerate(data.aliases):
-            value_editor(
-                project = instance.project,
-                uri = f'{BASE_URI}{model["Alias"]["uri"]}',
-                info = {
-                    'text': alias,
-                    'collection_index': idx,
-                    'set_index': 0,
-                    'set_prefix': instance.set_index
-                }
-            )
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
 
-        # Add long Description (optional)
-        for idx, description_long in enumerate(data.description_long):
-            value_editor(
-                project = instance.project,
-                uri = f'{BASE_URI}{model["Long Description"]["uri"]}',
-                info = {
-                    'text': description_long,
-                    'collection_index': idx,
-                    'set_index': 0,
-                    'set_prefix': instance.set_index
-                }
-            )
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Research Field', index=(0, set_index))
 
-        # Add Properties
-        add_properties(
-            project = instance.project,
-            data = data,
-            uri = f'{BASE_URI}{model["Properties"]["uri"]}',
-            set_prefix = instance.set_index
+            for idx, alias in enumerate(data.aliases):
+                value_editor(project=project, uri=f'{self.base}{field["Alias"]["uri"]}',
+                             info={'text': alias, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
+
+            for idx, desc in enumerate(data.description_long):
+                value_editor(project=project,
+                             uri=f'{self.base}{field["Long Description"]["uri"]}',
+                             info={'text': desc, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
+
+            add_relations_flexible(
+                project=project, data=data,
+                props={'keys': props['Field'], 'mapping': self.mathmoddb},
+                index={'set_prefix': set_index},
+                statement={
+                    'relation': f'{self.base}{field["IntraClassRelation"]["uri"]}',
+                    'relatant': f'{self.base}{field["IntraClassElement"]["uri"]}',
+                })
+
+            self._hydrate_publications(project, data.publications, 'mardi',
+                                       catalog, visited)
+
+    def _fill_problem_batch(self, project, items, catalog, visited):
+        '''Hydrate multiple research problems with a single SPARQL query.'''
+        if not items:
+            return
+
+        problem = self.questions['Research Problem']
+        query = get_sparql_query(
+            _sparql_file('model/queries/problem.sparql', catalog)
+        ).format(_values_clause(items), **get_items(), **get_properties())
+        results = query_sparql(query, get_url('mardi', 'sparql'))
+        if not results:
+            return
+
+        data_by_id = models.ResearchProblem.from_query_batch(results)
+
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Research Problem', index=(0, set_index))
+
+            for idx, alias in enumerate(data.aliases):
+                value_editor(project=project, uri=f'{self.base}{problem["Alias"]["uri"]}',
+                             info={'text': alias, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
+
+            for idx, desc in enumerate(data.description_long):
+                value_editor(project=project,
+                             uri=f'{self.base}{problem["Long Description"]["uri"]}',
+                             info={'text': desc, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': props['RP2RF']},
+                index={'set_prefix': set_index},
+                statement={'relatant': f'{self.base}{problem["RFRelatant"]["uri"]}'})
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=props['RP2RF'],
+                question_id_uri=f'{self.base}{self.questions["Research Field"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Research Field"]["uri"]}',
+                prefix='AD',
+                fill_method=partial(self._fill, item_type='Research Field',
+                                    batch_fill_method=self._fill_field_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_field_batch)
+
+            add_relations_flexible(
+                project=project, data=data,
+                props={'keys': props['Problem'], 'mapping': self.mathmoddb},
+                index={'set_prefix': set_index},
+                statement={
+                    'relation': f'{self.base}{problem["IntraClassRelation"]["uri"]}',
+                    'relatant': f'{self.base}{problem["IntraClassElement"]["uri"]}',
+                })
+
+            self._hydrate_publications(project, data.publications, 'mardi',
+                                       catalog, visited)
+
+    def _fill_quantity_batch(self, project, items, catalog, visited):
+        '''Hydrate multiple quantities with a single SPARQL query.'''
+        if not items:
+            return
+
+        quantity = self.questions['Quantity']
+        query = get_sparql_query('model/queries/quantity.sparql').format(
+            _values_clause(items), **get_items(), **get_properties()
         )
+        results = query_sparql(query, get_url('mardi', 'sparql'))
+        if not results:
+            return
 
-        # Add Research Problems Relations (static)
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['MM2RP']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{BASE_URI}{model["RPRelatant"]["uri"]}'
-            }
-        )
+        data_by_id = models.QuantityOrQuantityKind.from_query_batch(results)
 
-        # Add Formulations contained in Mathematical Model
-        add_relations_flexible(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['MM2MF'],
-                'mapping': self.mathmoddb,
-            },
-            index = {
-                'set_prefix': f"{instance.set_index}|0"
-            },
-            statement = {
-                'relation': f'{BASE_URI}{model["MM2MF"]["uri"]}',
-                'relatant': f'{BASE_URI}{model["MFRelatant"]["uri"]}',
-                'order': f'{BASE_URI}{model["Order Number"]["uri"]}',
-            },
-        )
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
 
-        # Add Relations between Mathematical Models and Tasks to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['MM2T']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{BASE_URI}{model["TRelatant"]["uri"]}'
-            }
-        )
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Quantity', index=(0, set_index))
 
-        # Add related Models to questionnaire
-        add_relations_flexible(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': props['Model'],
-                'mapping': self.mathmoddb,
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relation': f'{BASE_URI}{model["IntraClassRelation"]["uri"]}',
-                'relatant': f'{BASE_URI}{model["IntraClassElement"]["uri"]}',
-                'assumption': f'{BASE_URI}{model["Assumption"]["uri"]}',
-            },
-        )
+            for idx, alias in enumerate(data.aliases):
+                value_editor(project=project, uri=f'{self.base}{quantity["Alias"]["uri"]}',
+                             info={'text': alias, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
 
-        # Add Publications to Questionnaire
-        add_entities(
-            project = instance.project,
-            question_set = f'{BASE_URI}{self.questions["Publication"]["uri"]}',
-            datas = data.publications,
-            source = source,
-            prefix = 'P'
-        )
+            for idx, desc in enumerate(data.description_long):
+                value_editor(project=project,
+                             uri=f'{self.base}{quantity["Long Description"]["uri"]}',
+                             info={'text': desc, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
+
+            if data.qclass:
+                value_editor(project=project, uri=f'{self.base}{quantity["QorQK"]["uri"]}',
+                             info={'option': Option.objects.get(
+                                       uri=self.mathmoddb.get(key=data.qclass)['url']),
+                                   'set_index': set_index})
+
+            add_properties(project=project, data=data,
+                           uri=f'{self.base}{quantity["Properties"]["uri"]}',
+                           set_prefix=set_index)
+            add_references(project=project, data=data,
+                           uri=f'{self.base}{quantity["Reference"]["uri"]}',
+                           set_prefix=set_index)
+
+            for idx, formula in enumerate(data.formulas):
+                value_editor(project=project, uri=f'{self.base}{quantity["Formula"]["uri"]}',
+                             info={'text': formula, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': f'{set_index}|0'})
+
+            for idx, symbol in enumerate(data.symbols):
+                value_editor(project=project,
+                             uri=f'{self.base}{quantity["Element Symbol"]["uri"]}',
+                             info={'text': symbol, 'set_index': idx,
+                                   'set_prefix': f'{set_index}|0|0'})
+
+            for idx, qty in enumerate(data.contains_quantity):
+                src_q = qty.id.split(':')[0]
+                value_editor(project=project,
+                             uri=f'{self.base}{quantity["Element Quantity"]["uri"]}',
+                             info={'text': f'{qty.label} ({qty.description}) [{src_q}]',
+                                   'external_id': qty.id, 'set_index': idx,
+                                   'set_prefix': f'{set_index}|0|0'})
+
+            for prop in props['Quantity']:
+                for val in getattr(data, prop):
+                    pair = (data.qclass, val.item_class)
+                    value_editor(
+                        project=project,
+                        uri=f'{self.base}{quantity[relation_uris[pair]]["uri"]}',
+                        info={'option': Option.objects.get(
+                                  uri=self.mathmoddb.get(key=prop)['url']),
+                              'set_index': index_counters[pair],
+                              'set_prefix': str(set_index)})
+                    value_editor(
+                        project=project,
+                        uri=f'{self.base}{quantity[relatant_uris[pair]]["uri"]}',
+                        info={'text': f'{val.label} ({val.description}) [mardi]',
+                              'external_id': val.id,
+                              'set_index': index_counters[pair],
+                              'set_prefix': str(set_index)})
+                    index_counters[pair] += 1
+
+            self._hydrate_publications(project, data.publications, 'mardi',
+                                       catalog, visited)
+
+    def _fill_formulation_batch(self, project, items, catalog, visited):
+        '''Hydrate multiple formulations with a single SPARQL query.'''
+        if not items:
+            return
+
+        formulation = self.questions['Mathematical Formulation']
+        query = get_sparql_query(
+            _sparql_file('model/queries/formulation.sparql', catalog)
+        ).format(_values_clause(items), **get_items(), **get_properties())
+        results = query_sparql(query, get_url('mardi', 'sparql'))
+        if not results:
+            return
+
+        data_by_id = models.MathematicalFormulation.from_query_batch(results)
+
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Mathematical Formulation', index=(0, set_index))
+
+            for idx, alias in enumerate(data.aliases):
+                value_editor(project=project,
+                             uri=f'{self.base}{formulation["Alias"]["uri"]}',
+                             info={'text': alias, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
+
+            for idx, desc in enumerate(data.description_long):
+                value_editor(project=project,
+                             uri=f'{self.base}{formulation["Long Description"]["uri"]}',
+                             info={'text': desc, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
+
+            add_properties(project=project, data=data,
+                           uri=f'{self.base}{formulation["Properties"]["uri"]}',
+                           set_prefix=set_index)
+
+            for idx, formula in enumerate(data.formulas):
+                value_editor(project=project,
+                             uri=f'{self.base}{formulation["Formula"]["uri"]}',
+                             info={'text': formula, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': f'{set_index}|0'})
+
+            for idx, symbol in enumerate(data.symbols):
+                value_editor(project=project,
+                             uri=f'{self.base}{formulation["Element Symbol"]["uri"]}',
+                             info={'text': symbol, 'set_index': idx,
+                                   'set_prefix': f'{set_index}|0|0'})
+
+            for idx, qty in enumerate(data.contains_quantity):
+                src_q = qty.id.split(':')[0]
+                value_editor(project=project,
+                             uri=f'{self.base}{formulation["Element Quantity"]["uri"]}',
+                             info={'text': f'{qty.label} ({qty.description}) [{src_q}]',
+                                   'external_id': qty.id, 'set_index': idx,
+                                   'set_prefix': f'{set_index}|0|0'})
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=['contains_quantity'],
+                question_id_uri=f'{self.base}{self.questions["Quantity"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Quantity"]["uri"]}',
+                prefix='QQK',
+                fill_method=partial(self._fill, item_type='Quantity',
+                                    batch_fill_method=self._fill_quantity_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_quantity_batch)
+
+            add_relations_flexible(
+                project=project, data=data,
+                props={'keys': props['MF2MF'], 'mapping': self.mathmoddb},
+                index={'set_prefix': f'{set_index}|0'},
+                statement={
+                    'relation': f'{self.base}{formulation["MF2MF"]["uri"]}',
+                    'relatant': f'{self.base}{formulation["MFRelatant"]["uri"]}',
+                })
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=props['MF2MF'],
+                question_id_uri=(
+                    f'{self.base}{self.questions["Mathematical Formulation"]["ID"]["uri"]}'),
+                question_set_uri=(
+                    f'{self.base}{self.questions["Mathematical Formulation"]["uri"]}'),
+                prefix='ME',
+                fill_method=partial(self._fill, item_type='Mathematical Formulation',
+                                    batch_fill_method=self._fill_formulation_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_formulation_batch)
+
+            add_relations_flexible(
+                project=project, data=data,
+                props={'keys': props['Formulation'], 'mapping': self.mathmoddb},
+                index={'set_prefix': set_index},
+                statement={
+                    'relation':   f'{self.base}{formulation["IntraClassRelation"]["uri"]}',
+                    'relatant':   f'{self.base}{formulation["IntraClassElement"]["uri"]}',
+                    'assumption': f'{self.base}{formulation["Assumption"]["uri"]}',
+                })
+
+            self._hydrate_assumptions(project, data, props['Formulation'],
+                                      catalog, visited)
+            self._hydrate_publications(project, data.publications, 'mardi',
+                                       catalog, visited)
+
+    def _fill_task_batch(self, project, items, catalog, visited):
+        '''Hydrate multiple tasks with a single SPARQL query.'''
+        if not items:
+            return
+
+        task = self.questions['Task']
+        query = get_sparql_query(
+            _sparql_file('model/queries/task.sparql', catalog)
+        ).format(_values_clause(items), **get_items(), **get_properties())
+        results = query_sparql(query, get_url('mardi', 'sparql'))
+        if not results:
+            return
+
+        data_by_id = models.Task.from_query_batch(results)
+
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Task', index=(0, set_index))
+
+            for idx, alias in enumerate(data.aliases):
+                value_editor(project=project, uri=f'{self.base}{task["Alias"]["uri"]}',
+                             info={'text': alias, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
+
+            for idx, desc in enumerate(data.description_long):
+                value_editor(project=project,
+                             uri=f'{self.base}{task["Long Description"]["uri"]}',
+                             info={'text': desc, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
+
+            add_properties(project=project, data=data,
+                           uri=f'{self.base}{task["Properties"]["uri"]}',
+                           set_prefix=set_index)
+
+            add_relations_flexible(
+                project=project, data=data,
+                props={'keys': props['T2MF'], 'mapping': self.mathmoddb},
+                index={'set_prefix': f'{set_index}|0'},
+                statement={
+                    'relation': f'{self.base}{task["T2MF"]["uri"]}',
+                    'relatant': f'{self.base}{task["MFRelatant"]["uri"]}',
+                })
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=props['T2MF'],
+                question_id_uri=(
+                    f'{self.base}{self.questions["Mathematical Formulation"]["ID"]["uri"]}'),
+                question_set_uri=(
+                    f'{self.base}{self.questions["Mathematical Formulation"]["uri"]}'),
+                prefix='ME',
+                fill_method=partial(self._fill, item_type='Mathematical Formulation',
+                                    batch_fill_method=self._fill_formulation_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_formulation_batch)
+
+            add_relations_flexible(
+                project=project, data=data,
+                props={'keys': props['T2Q'], 'mapping': self.mathmoddb},
+                index={'set_prefix': f'{set_index}|0'},
+                statement={
+                    'relation': f'{self.base}{task["T2Q"]["uri"]}',
+                    'relatant': f'{self.base}{task["QRelatant"]["uri"]}',
+                })
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=props['T2Q'],
+                question_id_uri=f'{self.base}{self.questions["Quantity"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Quantity"]["uri"]}',
+                prefix='QQK',
+                fill_method=partial(self._fill, item_type='Quantity',
+                                    batch_fill_method=self._fill_quantity_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_quantity_batch)
+
+            add_relations_flexible(
+                project=project, data=data,
+                props={'keys': props['Task'], 'mapping': self.mathmoddb},
+                index={'set_prefix': set_index},
+                statement={
+                    'relation':   f'{self.base}{task["IntraClassRelation"]["uri"]}',
+                    'relatant':   f'{self.base}{task["IntraClassElement"]["uri"]}',
+                    'assumption': f'{self.base}{task["Assumption"]["uri"]}',
+                    'order':      f'{self.base}{task["Order Number"]["uri"]}',
+                })
+
+            self._hydrate_assumptions(project, data, props['Task'], catalog, visited)
+            self._hydrate_publications(project, data.publications, 'mardi',
+                                       catalog, visited)
+
+    def _fill_model_batch(self, project, items, catalog, visited):
+        '''Hydrate multiple mathematical models with a single SPARQL query.'''
+        if not items:
+            return
+
+        model_q = self.questions['Mathematical Model']
+        query = get_sparql_query(
+            _sparql_file('model/queries/model.sparql', catalog)
+        ).format(_values_clause(items), **get_items(), **get_properties())
+        results = query_sparql(query, get_url('mardi', 'sparql'))
+        if not results:
+            return
+
+        data_by_id = models.MathematicalModel.from_query_batch(results)
+
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Mathematical Model', index=(0, set_index))
+
+            for idx, alias in enumerate(data.aliases):
+                value_editor(project=project, uri=f'{self.base}{model_q["Alias"]["uri"]}',
+                             info={'text': alias, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
+
+            for idx, desc in enumerate(data.description_long):
+                value_editor(project=project,
+                             uri=f'{self.base}{model_q["Long Description"]["uri"]}',
+                             info={'text': desc, 'collection_index': idx,
+                                   'set_index': 0, 'set_prefix': set_index})
+
+            add_properties(project=project, data=data,
+                           uri=f'{self.base}{model_q["Properties"]["uri"]}',
+                           set_prefix=set_index)
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': props['MM2RP']},
+                index={'set_prefix': set_index},
+                statement={'relatant': f'{self.base}{model_q["RPRelatant"]["uri"]}'})
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=props['MM2RP'],
+                question_id_uri=f'{self.base}{self.questions["Research Problem"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Research Problem"]["uri"]}',
+                prefix='RP',
+                fill_method=partial(self._fill, item_type='Research Problem',
+                                    batch_fill_method=self._fill_problem_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_problem_batch)
+
+            add_relations_flexible(
+                project=project, data=data,
+                props={'keys': props['MM2MF'], 'mapping': self.mathmoddb},
+                index={'set_prefix': f'{set_index}|0'},
+                statement={
+                    'relation': f'{self.base}{model_q["MM2MF"]["uri"]}',
+                    'relatant': f'{self.base}{model_q["MFRelatant"]["uri"]}',
+                    'order':    f'{self.base}{model_q["Order Number"]["uri"]}',
+                })
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=props['MM2MF'],
+                question_id_uri=(
+                    f'{self.base}{self.questions["Mathematical Formulation"]["ID"]["uri"]}'),
+                question_set_uri=(
+                    f'{self.base}{self.questions["Mathematical Formulation"]["uri"]}'),
+                prefix='ME',
+                fill_method=partial(self._fill, item_type='Mathematical Formulation',
+                                    batch_fill_method=self._fill_formulation_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_formulation_batch)
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': props['MM2T']},
+                index={'set_prefix': set_index},
+                statement={'relatant': f'{self.base}{model_q["TRelatant"]["uri"]}'})
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=props['MM2T'],
+                question_id_uri=f'{self.base}{self.questions["Task"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Task"]["uri"]}',
+                prefix='CT',
+                fill_method=partial(self._fill, item_type='Task',
+                                    batch_fill_method=self._fill_task_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_task_batch)
+
+            add_relations_flexible(
+                project=project, data=data,
+                props={'keys': props['Model'], 'mapping': self.mathmoddb},
+                index={'set_prefix': set_index},
+                statement={
+                    'relation':   f'{self.base}{model_q["IntraClassRelation"]["uri"]}',
+                    'relatant':   f'{self.base}{model_q["IntraClassElement"]["uri"]}',
+                    'assumption': f'{self.base}{model_q["Assumption"]["uri"]}',
+                })
+
+            self._hydrate_assumptions(project, data, props['Model'], catalog, visited)
+            self._hydrate_publications(project, data.publications, 'mardi',
+                                       catalog, visited)

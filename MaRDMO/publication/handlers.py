@@ -29,6 +29,7 @@ from .constants import (
 from .utils import clean_background_data
 from .models import Publication
 
+
 class Information:
     '''Class containing functions, querying external sources for specific
        entities and integrating the related metadata into the questionnaire.'''
@@ -41,36 +42,46 @@ class Information:
         self.base = BASE_URI
 
     def citation(self, instance):
-        '''Citation Information'''
+        '''Citation Information – signal entry point.'''
+        self._fill_citation(
+            project     = instance.project,
+            text        = instance.text,
+            external_id = instance.external_id,
+            set_index   = instance.set_index,
+            catalog     = str(getattr(instance.project, 'catalog', '')),
+            snapshot    = instance.snapshot,
+        )
 
-        # Publication specific Questions.
+    def _fill_citation(self, project, text, external_id, set_index, catalog='', snapshot=None):
+        '''Citation Information – core logic, callable directly without a signal.'''
+
         publication = self.questions["Publication"]
 
         clean_background_data(
-            key_dict = ITEMINFOS | CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS,
+            key_dict  = ITEMINFOS | CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS,
             questions = publication,
-            project = instance.project,
-            snapshot = instance.snapshot,
-            set_index = instance.set_index
+            project   = project,
+            snapshot  = snapshot,
+            set_index = set_index
         )
 
         # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
+        if not text or text == 'not found':
             return
 
-        # Add basic Informatiom
+        # Add basic Information
         add_basics(
-            project = instance.project,
-            text = instance.text,
+            project   = project,
+            text      = text,
             questions = self.questions,
             item_type = 'Publication',
-            index = (instance.set_index, 0)
+            index     = (set_index, 0)
         )
 
         # Get Source and ID of selected Publication
-        source, identifier = instance.external_id.split(':')
+        source, identifier = external_id.split(':')
 
-        # Query the External Source,...
+        # Query the External Source
         query = get_sparql_query(
             f'publication/queries/doi_from_{source}.sparql'
         ).format(
@@ -79,13 +90,7 @@ class Information:
             **get_properties()
         )
 
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
+        results = query_sparql(query, get_url(source, 'sparql'))
 
         if not results:
             return
@@ -94,94 +99,62 @@ class Information:
         data = Publication.from_query(results)
 
         add_references(
-            project = instance.project,
-            data = data,
-            uri = f'{BASE_URI}{publication["Reference"]["uri"]}',
-            set_index = instance.set_index
+            project   = project,
+            data      = data,
+            uri       = f'{BASE_URI}{publication["Reference"]["uri"]}',
+            set_index = set_index
         )
 
         if source != 'mardi':
             return
 
-        # For Models add Relations
-        if str(instance.project.catalog).endswith(
-            (
-                'mardmo-model-catalog',
-                'mardmo-model-basics-catalog'
-            )
-        ):
-
-            # Add Publication - Model Entity Relations
+        # For Models: add Publication–Entity Relations
+        if catalog.endswith(('mardmo-model-catalog', 'mardmo-model-basics-catalog')):
             add_relations_flexible(
-                project = instance.project,
-                data = data,
-                props = {
-                    'keys': PROPS['P2E'],
-                    'mapping': self.mathmoddb,
-                },
-                index = {
-                    'set_prefix': instance.set_index
-                },
+                project   = project,
+                data      = data,
+                props     = {'keys': PROPS['P2E'], 'mapping': self.mathmoddb},
+                index     = {'set_prefix': set_index},
                 statement = {
                     'relation': f'{BASE_URI}{publication["P2E"]["uri"]}',
                     'relatant': f'{BASE_URI}{publication["EntityRelatant"]["uri"]}',
                 },
             )
 
-        # For Algorithms add Relations
-        if str(instance.project.catalog).endswith('mardmo-algorithm-catalog'):
-
-            # Add Publication - Algorithm Relations
+        # For Algorithms: add Publication–Algorithm and Publication–Benchmark/Software Relations
+        if catalog.endswith('mardmo-algorithm-catalog'):
             add_relations_flexible(
-                project = instance.project,
-                data = data,
-                props = {
-                    'keys': PROPS['P2A'],
-                    'mapping': self.mathalgodb,
-                },
-                index = {
-                    'set_prefix': instance.set_index
-                },
+                project   = project,
+                data      = data,
+                props     = {'keys': PROPS['P2A'], 'mapping': self.mathalgodb},
+                index     = {'set_prefix': set_index},
                 statement = {
                     'relation': f'{BASE_URI}{publication["P2A"]["uri"]}',
                     'relatant': f'{BASE_URI}{publication["ARelatant"]["uri"]}',
                 },
             )
-
-            # Add Publication - Benchmark / Software Relations
             add_relations_flexible(
-                project = instance.project,
-                data = data,
-                props = {
-                    'keys': PROPS['P2BS'],
-                    'mapping': self.mathalgodb,
-                },
-                index = {
-                    'set_prefix': instance.set_index
-                },
+                project   = project,
+                data      = data,
+                props     = {'keys': PROPS['P2BS'], 'mapping': self.mathalgodb},
+                index     = {'set_prefix': set_index},
                 statement = {
                     'relation': f'{BASE_URI}{publication["P2BS"]["uri"]}',
                     'relatant': f'{BASE_URI}{publication["BSRelatant"]["uri"]}',
                 },
             )
 
-        return
 
 @receiver(post_delete, sender=Value)
 def publication_set_delete(sender, **kwargs):
-    '''Handler to delete hidden Publication Information
-       upon deletion of Set.
-    '''
+    '''Handler to delete hidden Publication Information upon deletion of Set.'''
     instance = kwargs.get("instance", None)
-    # Get Questions of Publication Section
     questions = get_questions('publication')
-    # Check if Publication is concerned
     if instance and instance.attribute.uri == f'{BASE_URI}{questions["Publication"]["uri"]}':
-        # Loop through "hidden" Data and delete it
         clean_background_data(
-            key_dict = ITEMINFOS | CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS,
+            key_dict  = ITEMINFOS | CITATIONINFOS | LANGUAGES | JOURNALS | AUTHORS,
             questions = questions["Publication"],
-            project = instance.project,
-            snapshot = instance.snapshot,
+            project   = instance.project,
+            snapshot  = instance.snapshot,
             set_index = instance.set_index
         )
