@@ -1,6 +1,20 @@
 from ..constants import BASE_URI
 from ..getters import get_options, get_questions
 
+software_reference_ids = [
+    'DOI',
+    'SWMATH',
+    'SOURCECODE_URL',
+    'DESCRIPTION_URL'
+]
+
+data_set_reference_ids = [
+    'Yes',
+    'DOI',
+    'URL',
+    'No'
+]
+
 # URI PREFIX Map
 def get_uri_prefix_map():
     questions = get_questions('workflow')
@@ -56,20 +70,20 @@ def get_uri_prefix_map():
 
 # Dictionary with list of property names
 PROPS = {
-    'PS2IDS': ['inputDataSet'],
-    'PS2ODS': ['outputDataSet'],
+    'PS2IDS': ['input_data_set'],
+    'PS2ODS': ['output_data_set'],
     'PS2M': ['uses'],
-    'PS2PLS': ['platformSoftware'],
-    'PS2PLI': ['platformInstrument'],
-    'PS2F': ['fieldOfWork'],
-    'PS2MA': ['mscID'],
-    'M2S': ['implementedBySoftware'],
-    'M2I': ['implementedByInstrument'],
-    'S2PL': ['programmedIn'],
-    'S2DP': ['dependsOnSoftware'],
-    'H2CPU': ['CPU'],
-    'DS2DT': ['dataType'],
-    'DS2RF': ['representationFormat']
+    'PS2PLS': ['platform_software'],
+    'PS2PLI': ['platform_instrument'],
+    'PS2F': ['field_of_work'],
+    'PS2MA': ['msc_id'],
+    'M2S': ['implemented_by_software'],
+    'M2I': ['implemented_by_instrument'],
+    'S2PL': ['programmed_in'],
+    'S2DP': ['depends_on_software'],
+    'H2CPU': ['cpu'],
+    'DS2DT': ['data_type'],
+    'DS2RF': ['representation_format']
 }
 
 # Order of toPublish Answers
@@ -79,7 +93,7 @@ def order_to_publish():
         'Yes': (0, options['Yes']),
         'doi': (1, options['DOI']),
         'url': (2, options['URL']),
-        'No': (3, options['URL'])
+        'No': (3, options['No'])
         }
     return order
 
