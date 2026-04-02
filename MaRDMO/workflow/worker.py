@@ -160,9 +160,17 @@ class prepareWorkflow:
                             'external-id',
                         ]
                     )
-                elif reference[0] == options['URL']:
+                elif reference[0] == options['SOURCECODE_URL']:
                     payload.add_answer(
-                        verb=self.properties['URL'],
+                        verb=self.properties['source code reposiory URL'],
+                        object_and_type=[
+                            reference[1],
+                            'url',
+                        ]
+                    )
+                elif reference[0] == options['DESCRIPTION_URL']:
+                    payload.add_answer(
+                        verb=self.properties['described at URL'],
                         object_and_type=[
                             reference[1],
                             'url',
