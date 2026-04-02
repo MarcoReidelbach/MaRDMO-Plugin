@@ -406,20 +406,3 @@ def add_references(project, data, uri, set_index = 0, set_prefix = None):
                 'set_prefix': set_prefix
             }
         )
-
-def add_reference_order(entity):
-    '''Function which defines the reference order according to the Item type
-    
-       Input: Item Information
-       Output: -'''
-    options = get_options()
-    # Define Flexible Key and Value
-    flex_key = 'morwiki' if entity == 'benchmark' else 'swmath'
-    flex_value = options['MORWIKI' if entity == 'benchmark' else 'SWMATH']
-    # Define Reference Order
-    order = {
-        'doi': (0, options['DOI']),
-        flex_key: (1, flex_value),
-        'url': (2, options['URL']),
-        }
-    return order
