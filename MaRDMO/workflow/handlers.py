@@ -1,5 +1,14 @@
-'''Module containing Handlers for the Workflow Documentation'''
+'''Module containing Handlers for the Workflow Documentation.
 
+Information inherits _entry, _collect_existing_ids, _hydrate_relatants,
+and _fill from BaseInformation (MaRDMO/handler_base.py).
+'''
+# pylint: disable=duplicate-code
+
+import logging
+from functools import partial
+
+from ..handler_base import BaseInformation, _values_clause
 from ..constants import BASE_URI
 from ..getters import (
     get_items,
@@ -7,7 +16,7 @@ from ..getters import (
     get_properties,
     get_questions,
     get_sparql_query,
-    get_url
+    get_url,
 )
 from ..helpers import value_editor
 from ..queries import query_sparql
@@ -16,582 +25,483 @@ from ..adders import add_basics, add_references, add_relations_static
 from .constants import PROPS
 from .models import Method, ProcessStep, Software, Hardware, DataSet
 
-class Information:
-    '''Class containing functions, querying external sources for specific
-       entities and integrating the related metadata into the questionnaire.'''
+logger = logging.getLogger(__name__)
+
+
+class Information(BaseInformation):
+    '''Handlers for the Workflow Documentation questionnaire.'''
+
+    _ENTITY_KEYS = ('Software', 'Hardware', 'Instrument', 'Data Set', 'Method', 'Process Step')
 
     def __init__(self):
-        # Load shared data once
-        self.questions = get_questions("workflow")
-        self.base = BASE_URI
-        self.options = get_options()
+        self.questions = get_questions('workflow')
+        self.base      = BASE_URI
+        self.options   = get_options()
+
+    # ------------------------------------------------------------------ #
+    #  Public entry points (called by router via post_save signal)         #
+    # ------------------------------------------------------------------ #
 
     def software(self, instance):
-        '''Software Information'''
-
-        # Software specific Questions.
-        software = self.questions["Software"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add Basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Software',
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # If Item from MaRDI Portal, Wikidata, or MathAlgoDB, set up Query and...
-        query = get_sparql_query(f'workflow/queries/software_{source}.sparql').format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        # ...Query source for further Information
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        if not results:
-            return
-
-        # Structure Results and load options
-        data = Software.from_query(results)
-
-        # Add References to Questionnaire
-        add_references(
-            project = instance.project,
-            data = data,
-            uri = f'{self.base}{software["Reference"]["uri"]}',
-            set_prefix = instance.set_index
-        )
-
-        # Add Relations between Programming Language and Method to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['S2PL']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{software["Programming Language"]["uri"]}'
-            }
-        )
-
-        # Add Relations between Programming Language and Method to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['S2DP']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{software["Dependency"]["uri"]}'
-            }
-        )
-
-        # Software Source Code Published?
-        if data.sourceCodeRepository:
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{software["Published"]["uri"]}',
-                info = {
-                    'text': data.sourceCodeRepository, 
-                    'option': self.options['YesText'], 
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Software User Manual Documented?
-        if data.userManualURL:
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{software["Documented"]["uri"]}',
-                info = {
-                    'text': data.userManualURL,
-                    'option': self.options['YesText'],
-                    'set_prefix': instance.set_index
-                }
-            )
+        '''Handle Software ID save: hydrate basics and SPARQL data.'''
+        self._entry(instance, 'Software', self._fill_software_batch)
 
     def hardware(self, instance):
-        '''Hardware Information'''
-
-        # Hardwre specific Questions.
-        hardware = self.questions["Hardware"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add Basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Hardware',
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # If Item from MaRDI Portal or Wikidata set up Query and...
-        query = get_sparql_query(f'workflow/queries/hardware_{source}.sparql').format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        # ...Query source for further Information
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        if not results:
-            return
-
-        # Structure Results
-        data = Hardware.from_query(results)
-
-        # Add Relations between CPU and Hardware to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['H2CPU']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{hardware["CPU"]["uri"]}'
-            }
-        )
-
-        # Number of Nodes
-        if data.nodes:
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{hardware["Nodes"]["uri"]}',
-                info = {
-                    'text': data.nodes, 
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Number of Cores
-        if data.cores:
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{hardware["Cores"]["uri"]}',
-                info = {
-                    'text': data.cores, 
-                    'set_prefix': instance.set_index
-                }
-            )
+        '''Handle Hardware ID save: hydrate basics and SPARQL data.'''
+        self._entry(instance, 'Hardware', self._fill_hardware_batch)
 
     def instrument(self, instance):
-        '''Instrument Information'''
-
-        # Instrument specific Questions.
-        instrument = self.questions["Instrument"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add Basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Instrument',
-            index = (0, instance.set_index)
-        )
+        '''Handle Instrument ID save: hydrate basics only (no SPARQL).'''
+        self._entry(instance, 'Instrument', self._fill_instrument_batch)
 
     def data_set(self, instance):
-        '''Data Set Information'''
-
-        # Data Set specific Questions.
-        data_set = self.questions["Data Set"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add Basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Data Set',
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # If Item from MaRDI Portal or Wikidata set up Query and...
-        query = get_sparql_query(f'workflow/queries/data_set_{source}.sparql').format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        # ...Query source for further Information
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        if not results:
-            return
-
-        # Structure Results and load Pptions
-        data = DataSet.from_query(results)
-
-        # Data Set Size
-        if data.size:
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{data_set["Size"]["uri"]}',
-                info = {
-                    'text': data.size[1],
-                    'option': data.size[0],
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Add Relations between Data Type and Data Set to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['DS2DT']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{data_set["Data Type"]["uri"]}'
-            }
-        )
-
-        # Add Relations between Representation Format and Data Set to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['DS2RF']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{data_set["Representation Format"]["uri"]}'
-            }
-        )
-
-        # File Format
-        if data.fileFormat:
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{data_set["File Format"]["uri"]}',
-                info = {
-                    'text': data.fileFormat, 
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Binary or Text
-        if data.binaryOrText:
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{data_set["Binary or Text"]["uri"]}',
-                info = {
-                    'option': data.binaryOrText, 
-                    'set_prefix': instance.set_index
-                }
-            )
-
-        # Proprietary
-        if data.proprietary:
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{data_set["Proprietary"]["uri"]}',
-                info = {
-                    'option': data.proprietary, 
-                    'set_prefix':  instance.set_index
-                }
-            )
-
-        # References To Publish
-        add_references(
-            project = instance.project,
-            data = data,
-            uri = f'{self.base}{data_set["To Publish"]["uri"]}',
-            set_prefix = instance.set_index
-        )
-
-        # Archiving
-        if data.toArchive:
-            value_editor(
-                project = instance.project,
-                uri = f'{self.base}{data_set["To Archive"]["uri"]}',
-                info = {
-                    'text': data.toArchive[1],
-                    'option': data.toArchive[0], 
-                    'set_prefix': instance.set_index
-                }
-            )
+        '''Handle Data Set ID save: hydrate basics and SPARQL data.'''
+        self._entry(instance, 'Data Set', self._fill_data_set_batch)
 
     def method(self, instance):
-        '''Method Information'''
-
-        # Method specific Questions.
-        method = self.questions["Method"]
-
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
-            return
-
-        # Add basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Method',
-            index = (0, instance.set_index)
-        )
-
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
-
-        # If Item from MaRDI Portal, Wikidata, or MathAlgoDB, set up Query and...
-        query = get_sparql_query(f'workflow/queries/method_{source}.sparql').format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        # ...Query source for further Information
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
-            )
-        )
-
-        if not results:
-            return
-
-        # Structure Results
-        data = Method.from_query(results)
-
-        # Add Relations between Software and Method to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['M2S']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{method["Software"]["uri"]}'
-            }
-        )
-
-        # Add Relations between Instrument and Method to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['M2I']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{method["Instrument"]["uri"]}'
-            }
-        )
-
-        return
+        '''Handle Method ID save: hydrate basics and cascade to Software/Instrument.'''
+        self._entry(instance, 'Method', self._fill_method_batch)
 
     def process_step(self, instance):
-        '''Process Step Information'''
+        '''Handle Process Step ID save: hydrate basics and cascade to all related entities.'''
+        self._entry(instance, 'Process Step', self._fill_process_step_batch)
 
-        # Process Step specific Questions.
-        process_step = self.questions["Process Step"]
+    # ------------------------------------------------------------------ #
+    #  Batch _fill_* methods (one SPARQL query for N entities)            #
+    # ------------------------------------------------------------------ #
 
-        # Stop if no Text or 'not found' in ID Field
-        if not instance.text or instance.text == 'not found':
+    def _fill_software_batch(self, project, items, catalog='', visited=None):  # pylint: disable=unused-argument
+        '''Hydrate multiple software items with a single SPARQL query per source.'''
+        if not items:
             return
+        if visited is None:
+            visited = set()
 
-        # Add basic Information
-        add_basics(
-            project = instance.project,
-            text = instance.text,
-            questions = self.questions,
-            item_type = 'Process Step',
-            index = (0, instance.set_index)
-        )
+        software   = self.questions['Software']
+        data_by_id = {}
 
-        # Get source and ID of Item
-        source, identifier = instance.external_id.split(':')
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
 
-        # If Item from MaRDI Portal or Wikidata set up Query and...
-        query = get_sparql_query(f'workflow/queries/process_step_{source}.sparql').format(
-            identifier,
-            **get_items(),
-            **get_properties()
-        )
-
-        # ...Query source for further Information
-        results = query_sparql(
-            query,
-            get_url(
-                source,
-                'sparql'
+        if mardi_items:
+            query   = get_sparql_query('workflow/queries/software_mardi.sparql').format(
+                _values_clause(mardi_items), **get_items(), **get_properties()
             )
-        )
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(Software.from_query_batch(results))
 
-        if not results:
+        if wikidata_items:
+            query   = get_sparql_query('workflow/queries/software_wikidata.sparql').format(
+                _values_clause(wikidata_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('wikidata', 'sparql'))
+            if results:
+                data_by_id.update(Software.from_query_batch(results))
+
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Software', index=(0, set_index))
+
+            add_references(project=project, data=data,
+                           uri=f'{self.base}{software["Reference"]["uri"]}',
+                           set_prefix=set_index)
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': PROPS['S2PL']},
+                index={'set_prefix': set_index},
+                statement={
+                    'relatant': f'{self.base}{software["Programming Language"]["uri"]}'
+                })
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': PROPS['S2DP']},
+                index={'set_prefix': set_index},
+                statement={'relatant': f'{self.base}{software["Dependency"]["uri"]}'})
+
+    def _fill_hardware_batch(self, project, items, catalog='', visited=None):  # pylint: disable=unused-argument
+        '''Hydrate multiple hardware items with a single SPARQL query per source.'''
+        if not items:
+            return
+        if visited is None:
+            visited = set()
+
+        hardware   = self.questions['Hardware']
+        data_by_id = {}
+
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query('workflow/queries/hardware_mardi.sparql').format(
+                _values_clause(mardi_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(Hardware.from_query_batch(results))
+
+        if wikidata_items:
+            query   = get_sparql_query('workflow/queries/hardware_wikidata.sparql').format(
+                _values_clause(wikidata_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('wikidata', 'sparql'))
+            if results:
+                data_by_id.update(Hardware.from_query_batch(results))
+
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Hardware', index=(0, set_index))
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': PROPS['H2CPU']},
+                index={'set_prefix': set_index},
+                statement={'relatant': f'{self.base}{hardware["CPU"]["uri"]}'})
+
+            if data.nodes:
+                value_editor(
+                    project=project,
+                    uri=f'{self.base}{hardware["Nodes"]["uri"]}',
+                    info={'text': data.nodes, 'set_prefix': set_index})
+
+            if data.cores:
+                value_editor(
+                    project=project,
+                    uri=f'{self.base}{hardware["Cores"]["uri"]}',
+                    info={'text': data.cores, 'set_prefix': set_index})
+
+    def _fill_instrument_batch(self, project, items, catalog='', visited=None):  # pylint: disable=unused-argument
+        '''Hydrate multiple instruments. Instruments have no external SPARQL data.'''
+        if not items:
             return
 
-        # Structure Results
-        data = ProcessStep.from_query(results)
+        for text, _, set_index in items:
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Instrument', index=(0, set_index))
 
-        # Add Relations between Input Data Set and Process Step to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['PS2IDS']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{process_step["Input"]["uri"]}'
-            }
-        )
+    def _fill_data_set_batch(self, project, items, catalog='', visited=None):  # pylint: disable=unused-argument
+        '''Hydrate multiple data sets with a single SPARQL query per source.'''
+        if not items:
+            return
+        if visited is None:
+            visited = set()
 
-        # Add Relations between Output Data Set and Process Step to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['PS2ODS']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{process_step["Output"]["uri"]}'
-            }
-        )
+        data_set_q = self.questions['Data Set']
+        data_by_id = {}
 
-        # Add Relations between Method and Process Step to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['PS2M']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{process_step["Method"]["uri"]}'
-            }
-        )
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
 
-        # Add Relations between Software Platform and Process Step to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['PS2PLS']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{process_step["Environment-Software"]["uri"]}'
-            }
-        )
+        if mardi_items:
+            query   = get_sparql_query('workflow/queries/data_set_mardi.sparql').format(
+                _values_clause(mardi_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(DataSet.from_query_batch(results))
 
-        # Add Relations between Instrument Platform and Process Step to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['PS2PLI']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{process_step["Environment-Instrument"]["uri"]}'
-            }
-        )
+        if wikidata_items:
+            query   = get_sparql_query('workflow/queries/data_set_wikidata.sparql').format(
+                _values_clause(wikidata_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('wikidata', 'sparql'))
+            if results:
+                data_by_id.update(DataSet.from_query_batch(results))
 
-        # Add Relations between Fields and Process Step to Questionnaire
-        add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['PS2F']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{process_step["Discipline"]["uri"]}'
-            }
-        )
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Data Set', index=(0, set_index))
+            self._write_data_set_fields(project, data_set_q, data, set_index)
 
-        # Add Relations between Math Areas and Process Step to Questionnaire
+    def _write_data_set_fields(self, project, data_set_q, data, set_index):
+        '''Write all RDMO fields for one data set item.'''
+        if data.size:
+            value_editor(
+                project=project,
+                uri=f'{self.base}{data_set_q["Size"]["uri"]}',
+                info={'text': data.size[1], 'option': data.size[0],
+                      'set_prefix': set_index})
+
         add_relations_static(
-            project = instance.project,
-            data = data,
-            props = {
-                'keys': PROPS['PS2MA']
-            },
-            index = {
-                'set_prefix': instance.set_index
-            },
-            statement = {
-                'relatant': f'{self.base}{process_step["Discipline"]["uri"]}'
-            }
-        )
+            project=project, data=data,
+            props={'keys': PROPS['DS2DT']},
+            index={'set_prefix': set_index},
+            statement={
+                'relatant': f'{self.base}{data_set_q["Data Type"]["uri"]}'
+            })
+
+        add_relations_static(
+            project=project, data=data,
+            props={'keys': PROPS['DS2RF']},
+            index={'set_prefix': set_index},
+            statement={
+                'relatant': f'{self.base}{data_set_q["Representation Format"]["uri"]}'
+            })
+
+        if data.file_format:
+            value_editor(
+                project=project,
+                uri=f'{self.base}{data_set_q["File Format"]["uri"]}',
+                info={'text': data.file_format, 'set_prefix': set_index})
+
+        if data.binary_or_text:
+            value_editor(
+                project=project,
+                uri=f'{self.base}{data_set_q["Binary or Text"]["uri"]}',
+                info={'option': data.binary_or_text, 'set_prefix': set_index})
+
+        if data.proprietary:
+            value_editor(
+                project=project,
+                uri=f'{self.base}{data_set_q["Proprietary"]["uri"]}',
+                info={'option': data.proprietary, 'set_prefix': set_index})
+
+        add_references(project=project, data=data,
+                       uri=f'{self.base}{data_set_q["To Publish"]["uri"]}',
+                       set_prefix=set_index)
+
+        if data.to_archive:
+            value_editor(
+                project=project,
+                uri=f'{self.base}{data_set_q["To Archive"]["uri"]}',
+                info={'text': data.to_archive[1], 'option': data.to_archive[0],
+                      'set_prefix': set_index})
+
+    def _fill_method_batch(self, project, items, catalog='', visited=None):
+        '''Hydrate multiple methods with a single SPARQL query per source.
+
+        Explicitly cascades into Software and Instrument via _hydrate_relatants.
+        '''
+        if not items:
+            return
+        if visited is None:
+            visited = set()
+
+        method     = self.questions['Method']
+        data_by_id = {}
+
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query('workflow/queries/method_mardi.sparql').format(
+                _values_clause(mardi_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(Method.from_query_batch(results))
+
+        if wikidata_items:
+            query   = get_sparql_query('workflow/queries/method_wikidata.sparql').format(
+                _values_clause(wikidata_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('wikidata', 'sparql'))
+            if results:
+                data_by_id.update(Method.from_query_batch(results))
+
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Method', index=(0, set_index))
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': PROPS['M2S']},
+                index={'set_prefix': set_index},
+                statement={'relatant': f'{self.base}{method["Software"]["uri"]}'})
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=PROPS['M2S'],
+                question_id_uri=f'{self.base}{self.questions["Software"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Software"]["uri"]}',
+                prefix='S',
+                fill_method=partial(self._fill, item_type='Software',
+                                    batch_fill_method=self._fill_software_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_software_batch)
+
+            add_relations_static(
+                project=project, data=data,
+                props={'keys': PROPS['M2I']},
+                index={'set_prefix': set_index},
+                statement={'relatant': f'{self.base}{method["Instrument"]["uri"]}'})
+
+            self._hydrate_relatants(
+                project=project, data=data, prop_keys=PROPS['M2I'],
+                question_id_uri=f'{self.base}{self.questions["Instrument"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Instrument"]["uri"]}',
+                prefix='I',
+                fill_method=partial(self._fill, item_type='Instrument',
+                                    batch_fill_method=self._fill_instrument_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_instrument_batch)
+
+    def _fill_process_step_batch(self, project, items, catalog='', visited=None):
+        '''Hydrate multiple process steps with a single SPARQL query per source.
+
+        Explicitly cascades into Data Set, Method, Software, and Instrument
+        via _hydrate_relatants instead of relying on signal-driven cascades.
+        '''
+        if not items:
+            return
+        if visited is None:
+            visited = set()
+
+        process_step = self.questions['Process Step']
+        data_by_id   = {}
+
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query('workflow/queries/process_step_mardi.sparql').format(
+                _values_clause(mardi_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(ProcessStep.from_query_batch(results))
+
+        if wikidata_items:
+            query   = get_sparql_query('workflow/queries/process_step_wikidata.sparql').format(
+                _values_clause(wikidata_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('wikidata', 'sparql'))
+            if results:
+                data_by_id.update(ProcessStep.from_query_batch(results))
+
+        for text, external_id, set_index in items:
+            data = data_by_id.get(external_id)
+            if not data:
+                continue
+
+            add_basics(project=project, text=text, questions=self.questions,
+                       item_type='Process Step', index=(0, set_index))
+
+            self._fill_process_step_relations(
+                project, process_step, data, set_index, catalog, visited
+            )
+
+    def _fill_process_step_relations(
+        self, project, process_step, data, set_index, catalog, visited
+    ):
+        '''Write all relation fields and cascade hydration for one process step.'''
+        # Input Data Sets
+        add_relations_static(
+            project=project, data=data,
+            props={'keys': PROPS['PS2IDS']},
+            index={'set_prefix': set_index},
+            statement={'relatant': f'{self.base}{process_step["Input"]["uri"]}'})
+
+        self._hydrate_relatants(
+            project=project, data=data, prop_keys=PROPS['PS2IDS'],
+            question_id_uri=f'{self.base}{self.questions["Data Set"]["ID"]["uri"]}',
+            question_set_uri=f'{self.base}{self.questions["Data Set"]["uri"]}',
+            prefix='DS',
+            fill_method=partial(self._fill, item_type='Data Set',
+                                batch_fill_method=self._fill_data_set_batch),
+            catalog=catalog, visited=visited,
+            batch_fill_method=self._fill_data_set_batch)
+
+        # Output Data Sets
+        add_relations_static(
+            project=project, data=data,
+            props={'keys': PROPS['PS2ODS']},
+            index={'set_prefix': set_index},
+            statement={'relatant': f'{self.base}{process_step["Output"]["uri"]}'})
+
+        self._hydrate_relatants(
+            project=project, data=data, prop_keys=PROPS['PS2ODS'],
+            question_id_uri=f'{self.base}{self.questions["Data Set"]["ID"]["uri"]}',
+            question_set_uri=f'{self.base}{self.questions["Data Set"]["uri"]}',
+            prefix='DS',
+            fill_method=partial(self._fill, item_type='Data Set',
+                                batch_fill_method=self._fill_data_set_batch),
+            catalog=catalog, visited=visited,
+            batch_fill_method=self._fill_data_set_batch)
+
+        # Methods
+        add_relations_static(
+            project=project, data=data,
+            props={'keys': PROPS['PS2M']},
+            index={'set_prefix': set_index},
+            statement={'relatant': f'{self.base}{process_step["Method"]["uri"]}'})
+
+        self._hydrate_relatants(
+            project=project, data=data, prop_keys=PROPS['PS2M'],
+            question_id_uri=f'{self.base}{self.questions["Method"]["ID"]["uri"]}',
+            question_set_uri=f'{self.base}{self.questions["Method"]["uri"]}',
+            prefix='M',
+            fill_method=partial(self._fill, item_type='Method',
+                                batch_fill_method=self._fill_method_batch),
+            catalog=catalog, visited=visited,
+            batch_fill_method=self._fill_method_batch)
+
+        # Platform Software
+        add_relations_static(
+            project=project, data=data,
+            props={'keys': PROPS['PS2PLS']},
+            index={'set_prefix': set_index},
+            statement={
+                'relatant':
+                    f'{self.base}{process_step["Environment-Software"]["uri"]}'
+            })
+
+        self._hydrate_relatants(
+            project=project, data=data, prop_keys=PROPS['PS2PLS'],
+            question_id_uri=f'{self.base}{self.questions["Software"]["ID"]["uri"]}',
+            question_set_uri=f'{self.base}{self.questions["Software"]["uri"]}',
+            prefix='S',
+            fill_method=partial(self._fill, item_type='Software',
+                                batch_fill_method=self._fill_software_batch),
+            catalog=catalog, visited=visited,
+            batch_fill_method=self._fill_software_batch)
+
+        # Platform Instrument
+        add_relations_static(
+            project=project, data=data,
+            props={'keys': PROPS['PS2PLI']},
+            index={'set_prefix': set_index},
+            statement={
+                'relatant':
+                    f'{self.base}{process_step["Environment-Instrument"]["uri"]}'
+            })
+
+        self._hydrate_relatants(
+            project=project, data=data, prop_keys=PROPS['PS2PLI'],
+            question_id_uri=f'{self.base}{self.questions["Instrument"]["ID"]["uri"]}',
+            question_set_uri=f'{self.base}{self.questions["Instrument"]["uri"]}',
+            prefix='I',
+            fill_method=partial(self._fill, item_type='Instrument',
+                                batch_fill_method=self._fill_instrument_batch),
+            catalog=catalog, visited=visited,
+            batch_fill_method=self._fill_instrument_batch)
+
+        # Fields of Work (static, no cascade)
+        add_relations_static(
+            project=project, data=data,
+            props={'keys': PROPS['PS2F']},
+            index={'set_prefix': set_index},
+            statement={'relatant': f'{self.base}{process_step["Discipline"]["uri"]}'})
+
+        # MSC IDs (static, no cascade)
+        add_relations_static(
+            project=project, data=data,
+            props={'keys': PROPS['PS2MA']},
+            index={'set_prefix': set_index},
+            statement={'relatant': f'{self.base}{process_step["Discipline"]["uri"]}'})

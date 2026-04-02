@@ -1,241 +1,317 @@
+'''Data models for the Workflow Documentation module.'''
+
 import re
 from dataclasses import dataclass, field
-from typing import List, Optional
+from typing import Optional
 
-from .constants import order_to_publish
+from .constants import software_reference_ids
+from .utils import get_archive, get_reference, get_size
 
-from ..adders import add_reference_order
 from ..getters import get_data, get_options
+from ..helpers import split_value
 from ..models import Relatant
 
-@dataclass
-class ModelProperties:
-    Time: Optional[str]
-    Space: Optional[str]
-    
-    @classmethod
-    def from_query(cls, raw_data: List) -> 'ModelProperties':
 
+@dataclass
+class ModelProperties:  # pylint: disable=invalid-name
+    '''Properties (time/space discretisation) of a mathematical model.'''
+
+    time: Optional[str] = None
+    space: Optional[str] = None
+
+    @classmethod
+    def from_query(cls, raw_data: list) -> 'ModelProperties':
+        '''Parse a single SPARQL result row into a ModelProperties instance.'''
         data = raw_data[0]
 
-        Time = ''
         if data.get('isTimeContinuous', {}).get('value') == 'True':
-            Time = 'continuous'
+            time = 'continuous'
         elif data.get('isTimeDiscrete', {}).get('value') == 'True':
-            Time = 'discrete'
+            time = 'discrete'
+        else:
+            time = ''
 
-        Space = ''
         if data.get('isSpaceContinuous', {}).get('value') == 'True':
-            Space = 'continuous'
+            space = 'continuous'
         elif data.get('isSpaceDiscrete', {}).get('value') == 'True':
-            Space = 'discrete'
+            space = 'discrete'
+        else:
+            space = ''
 
         return cls(
-            Time = Time,
-            Space = Space,
+            time = time,
+            space = space,
         )
-    
+
+
 @dataclass
-class Variables:
+class Variables:  # pylint: disable=invalid-name
+    '''A single variable entry from MathModDB.'''
+
     ID: Optional[str]
     Name: Optional[str]
     Unit: Optional[str]
     Symbol: Optional[str]
     Task: Optional[str]
     Type: Optional[str]
-    
-    @classmethod
-    def from_query(cls, data: List) -> 'Variables':
 
+    @classmethod
+    def from_query(cls, data: dict) -> 'Variables':
+        '''Parse one SPARQL result row into a Variables instance.'''
         return cls(
-            ID = data.get('ID', {}).get('value'),
-            Name = data.get('Name', {}).get('value'),
-            Unit = data.get('Unit', {}).get('value'),
-            Symbol = re.sub(r'(<math\b(?![^>]*\bdisplay=)[^>]*)(>)', r'\1 display="inline"\2', data.get('Symbol', {}).get('value')),
-            Task = data.get('label', {}).get('value'),
-            Type = data.get('Type', {}).get('value')
+            ID=data.get('ID', {}).get('value'),
+            Name=data.get('Name', {}).get('value'),
+            Unit=data.get('Unit', {}).get('value'),
+            Symbol=re.sub(
+                r'(<math\b(?![^>]*\bdisplay=)[^>]*)(>)',
+                r'\1 display="inline"\2',
+                data.get('Symbol', {}).get('value'),
+            ),
+            Task=data.get('label', {}).get('value'),
+            Type=data.get('Type', {}).get('value'),
         )
-    
+
+
 @dataclass
-class Parameters:
+class Parameters:  # pylint: disable=invalid-name
+    '''A single parameter entry from MathModDB.'''
+
     Name: Optional[str]
     Unit: Optional[str]
     Symbol: Optional[str]
     Task: Optional[str]
-    
+
     @classmethod
-    def from_query(cls, data: List) -> 'Parameters':
-
+    def from_query(cls, data: dict) -> 'Parameters':
+        '''Parse one SPARQL result row into a Parameters instance.'''
         return cls(
-            Name = data.get('Name', {}).get('value'),
-            Unit = data.get('Unit', {}).get('value'),
-            Symbol = re.sub(r'(<math\b(?![^>]*\bdisplay=)[^>]*)(>)', r'\1 display="inline"\2', data.get('Symbol', {}).get('value')),
-            Task = data.get('label', {}).get('value')
+            Name=data.get('Name', {}).get('value'),
+            Unit=data.get('Unit', {}).get('value'),
+            Symbol=re.sub(
+                r'(<math\b(?![^>]*\bdisplay=)[^>]*)(>)',
+                r'\1 display="inline"\2',
+                data.get('Symbol', {}).get('value'),
+            ),
+            Task=data.get('label', {}).get('value'),
         )
-    
-@dataclass
-class MRelatant:
-    id: Optional[str]
-    label: Optional[str]
-    description: Optional[str]
-    
-    @classmethod
-    def from_query(cls, raw: str) -> 'MRelatant':
 
-        id_mathalgodb = ''
-        id_general, label, description, link = raw.split(" || ")
 
-        if link and link.startswith('https://mardi4nfdi.de/mathalgodb/0.1/algorithm#'):
-            _, id_mathalgodb = link.split('#')
-
-        return cls(
-            id = f"mathalgodb:{id_mathalgodb}" if id_mathalgodb else id_general,
-            label = label,
-            description = description,
-        )
-    
 @dataclass
 class ProcessStep:
-    id: Optional[str]
-    label: Optional[str]
-    description: Optional[str]
-    inputDataSet: Optional[List[Relatant]] = field(default_factory=list)
-    outputDataSet: Optional[List[Relatant]] = field(default_factory=list)
-    uses: Optional[List[Relatant]] = field(default_factory=list)
-    platformSoftware: Optional[List[Relatant]] = field(default_factory=list)
-    platformInstrument: Optional[List[Relatant]] = field(default_factory=list)
-    fieldOfWork: Optional[List[Relatant]] = field(default_factory=list)
-    mscID: Optional[List[Relatant]] = field(default_factory=list)
+    '''Relations of a Process Step entity from MaRDI/Wikidata.'''
 
-    
+    input_data_set: list[Relatant] = field(default_factory=list)
+    output_data_set: list[Relatant] = field(default_factory=list)
+    uses: list[Relatant] = field(default_factory=list)
+    platform_software: list[Relatant] = field(default_factory=list)
+    platform_instrument: list[Relatant] = field(default_factory=list)
+    field_of_work: list[Relatant] = field(default_factory=list)
+    msc_id: list[Relatant] = field(default_factory=list)
+
     @classmethod
-    def from_query(cls, raw_data: List) -> 'ProcessStep':
+    def from_query(cls, raw_data: list) -> 'ProcessStep':
+        '''Parse a single-item SPARQL result (backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
 
-        data = raw_data[0]
-        
-        # Load MSC Classification
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, ProcessStep]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'ProcessStep':
+        '''Parse one SPARQL result row into a ProcessStep instance.'''
         msc = get_data('data/msc2020.json')
 
         return cls(
-            id = None,
-            label = None,
-            description = None,
-            inputDataSet = [Relatant.from_query(input) for input in data.get('inputDataSet', {}).get('value', '').split(" <|> ") if input] if 'inputDataSet' in data else [],
-            outputDataSet = [Relatant.from_query(output) for output in data.get('outputDataSet', {}).get('value', '').split(" <|> ") if output] if 'outputDataSet' in data else [],
-            uses = [MRelatant.from_query(algorithm) for algorithm in data.get('uses', {}).get('value', '').split(" <|> ") if algorithm] if 'uses' in data else [], 
-            platformSoftware = [Relatant.from_query(software) for software in data.get('platformSoftware', {}).get('value', '').split(" <|> ") if software] if 'platformSoftware' in data else [],
-            platformInstrument = [Relatant.from_query(instrument) for instrument in data.get('platformInstrument', {}).get('value', '').split(" <|> ") if instrument] if 'platformInstrument' in data else [], 
-            fieldOfWork = [Relatant.from_query(field) for field in data.get('fieldOfWork', {}).get('value', '').split(" <|> ") if field] if 'fieldOfWork' in data else [],
-            mscID = [Relatant.from_msc(mscID, next((key for key, value in msc.items() if value['id'] == mscID), None), next((value['quote'] for key, value in msc.items() if value['id'] == mscID), None)) for mscID in data.get('mscID', {}).get('value', '').split(" <|> ") if mscID] if 'mscID' in data else [],
+            input_data_set=split_value(
+                data=data, key='input_data_set', transform=Relatant.from_query
+            ),
+            output_data_set=split_value(
+                data=data, key='output_data_set', transform=Relatant.from_query
+            ),
+            uses=split_value(
+                data=data, key='uses', transform=Relatant.from_query
+            ),
+            platform_software=split_value(
+                data=data, key='platform_software', transform=Relatant.from_query
+            ),
+            platform_instrument=split_value(
+                data=data, key='platform_instrument', transform=Relatant.from_query
+            ),
+            field_of_work=split_value(
+                data=data, key='field_of_work', transform=Relatant.from_query
+            ),
+            msc_id=[
+                Relatant.from_msc(msc_id, label, entry['quote'])
+                for msc_id in split_value(data, 'msc_id')
+                for label, entry in msc.items()
+                if entry['id'] == msc_id
+            ],
         )
+
 
 @dataclass
 class Method:
-    id: Optional[str]
-    label: Optional[str]
-    description: Optional[str]
-    implementedBySoftware: Optional[List[Relatant]] = field(default_factory=list)
-    implementedByInstrument: Optional[List[Relatant]] = field(default_factory=list)
+    '''Relations of a Method entity from MaRDI/Wikidata.'''
+
+    implemented_by_software: list[Relatant] = field(default_factory=list)
+    implemented_by_instrument: list[Relatant] = field(default_factory=list)
 
     @classmethod
-    def from_query(cls, raw_data: List) -> 'ProcessStep':
+    def from_query(cls, raw_data: list) -> 'Method':
+        '''Parse a single-item SPARQL result (backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
 
-        data = raw_data[0]
-        
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, Method]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'Method':
+        '''Parse one SPARQL result row into a Method instance.'''
         return cls(
-            id = None,
-            label = None,
-            description = None,
-            implementedBySoftware = [Relatant.from_query(software) for software in data.get('implementedBySoftware', {}).get('value', '').split(" <|> ") if field] if 'implementedBySoftware' in data else [],
-            implementedByInstrument = [Relatant.from_query(software) for software in data.get('implementedByInstrument', {}).get('value', '').split(" <|> ") if field] if 'implementedByInstrument' in data else [] 
+            implemented_by_software=split_value(
+                data=data, key='implemented_by_software', transform=Relatant.from_query
+            ),
+            implemented_by_instrument=split_value(
+                data=data, key='implemented_by_instrument', transform=Relatant.from_query
+            ),
         )
-    
+
+
 @dataclass
 class Software:
-    id: Optional[str]
-    label: Optional[str]
-    description: Optional[str]
-    sourceCodeRepository: Optional[str]
-    userManualURL: Optional[str]
-    reference: Optional[List] = field(default_factory=list)
-    programmedIn: Optional[List[Relatant]] = field(default_factory=list)
-    dependsOnSoftware: Optional[List[Relatant]] = field(default_factory=list)
-    
+    '''References and relations of a Software entity from MaRDI/Wikidata.'''
+
+    reference: dict[int, list[str]] = field(default_factory=dict)
+    programmed_in: list[Relatant] = field(default_factory=list)
+    depends_on_software: list[Relatant] = field(default_factory=list)
+
     @classmethod
     def from_query(cls, raw_data: dict) -> 'Software':
+        '''Parse a single-item SPARQL result (backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
 
-        data = raw_data[0]
-        order = add_reference_order('software')
-
-        return cls(
-            id = None,
-            label = None,
-            description = None,
-            sourceCodeRepository = data.get('sourceCodeRepository', {}).get('value', '') ,
-            userManualURL = data.get('userManualURL', {}).get('value', ''),
-            reference = {order[key][0]: [order[key][1], value] for part in data.get('reference', {}).get('value', '').split(' || ') if (key := part.split(':')[0]) in order and (value := part.split(':')[1])} | ({order['url'][0]: [order['url'][1], url]} if (url := next((part for part in data.get('reference', {}).get('value', '').split(' || ') if part.startswith('https://')), None)) else {}),
-            programmedIn =  [Relatant.from_query(language) for language in data.get('programmedIn', {}).get('value', '').split(" <|> ") if language] if 'programmedIn' in data else [], 
-            dependsOnSoftware = [Relatant.from_query(software) for software in data.get('dependsOnSoftware', {}).get('value', '').split(" <|> ") if software] if 'dependsOnSoftware' in data else []
-        )
-    
-@dataclass
-class Hardware:
-    id: Optional[str]
-    label: Optional[str]
-    description: Optional[str]
-    nodes: Optional[str]
-    cores: Optional[str]
-    CPU: Optional[List[Relatant]] = field(default_factory=list)
-    
     @classmethod
-    def from_query(cls, raw_data: dict) -> 'Hardware':
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, Software]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
 
-        data = raw_data[0]
-
-        return cls(
-            id = None,
-            label = None,
-            description = None, 
-            nodes = data.get('nodes', {}).get('value', ''),
-            cores = data.get('cores', {}).get('value', ''),
-            CPU = [Relatant.from_query(cpu) for cpu in data.get('CPU', {}).get('value', '').split(" <|> ") if cpu] if 'CPU' in data else []
-        )
-
-@dataclass
-class DataSet:
-    id: Optional[str]
-    label: Optional[str]
-    description: Optional[str]
-    size: Optional[List]
-    fileFormat: Optional[str]
-    binaryOrText: Optional[str]
-    proprietary: Optional[str]
-    reference: Optional[List]
-    toArchive: Optional[List]
-    dataType: Optional[List[Relatant]] = field(default_factory=list)
-    representationFormat: Optional[List[Relatant]] = field(default_factory=list)
-    
     @classmethod
-    def from_query(cls, raw_data: dict) -> 'DataSet':
-
-        # Load MSC Classification
+    def from_query_single(cls, data: dict) -> 'Software':
+        '''Parse one SPARQL result row into a Software instance.'''
         options = get_options()
 
-        data = raw_data[0]
-
         return cls(
-            id = None,
-            label = None,
-            description = None,
-            size = [] if '' in (temp := [options[data['sizeUnit']['value']] if data.get('sizeUnit', {}).get('value', '') else options['items'] if data.get('sizeRecord', {}).get('value', '') else '', data['sizeValue']['value'] if data.get('sizeValue', {}).get('value', '') else data['sizeRecord']['value'] if data.get('sizeRecord', {}).get('value', '') else '']) else temp,
-            fileFormat = data.get('fileFormat', {}).get('value'),
-            binaryOrText = options[data['binaryOrText']['value']] if data.get('binaryOrText', {}).get('value') else '',
-            proprietary = options[data['proprietary']['value']] if data.get('proprietary', {}).get('value') else '',
-            reference = ({order_to_publish()[data['publish']['value']][0]: [order_to_publish()[data['publish']['value']][1], '']} if data.get('publish', {}).get('value') else {}) | ({order_to_publish()['doi'][0]: [order_to_publish()['doi'][1], data['DOI']['value']]} if data.get('DOI', {}).get('value') else {}) | ({order_to_publish()['url'][0]: [order_to_publish()['url'][1], data['URL']['value']]} if data.get('URL', {}).get('value') else {}),
-            toArchive = (temp := [options[data['archive']['value']] if data.get('archive', {}).get('value') else '',data.get('endTime', {}).get('value', '')[:4] if data.get('endTime', {}).get('value') else '']) and temp if temp[0] != '' else [],
-            dataType = [Relatant.from_query(dtype) for dtype in data.get('dataType', {}).get('value', '').split(" <|> ") if dtype] if 'dataType' in data else [],
-            representationFormat = [Relatant.from_query(rformat) for rformat in data.get('representationFormat', {}).get('value', '').split(" <|> ") if rformat] if 'representationFormat' in data else [] 
+            reference={
+                idx: [options[prop], data[prop]['value']]
+                for idx, prop in enumerate(software_reference_ids)
+                if data.get(prop, {}).get('value')
+            },
+            programmed_in=split_value(
+                data=data, key='programmed_in', transform=Relatant.from_query
+            ),
+            depends_on_software=split_value(
+                data=data, key='depends_on_software', transform=Relatant.from_query
+            ),
         )
 
 
+@dataclass
+class Hardware:
+    '''Node/core counts and CPU relations of a Hardware entity.'''
 
+    nodes: Optional[str] = None
+    cores: Optional[str] = None
+    cpu: list[Relatant] = field(default_factory=list)
+
+    @classmethod
+    def from_query(cls, raw_data: dict) -> 'Hardware':
+        '''Parse a single-item SPARQL result (backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
+
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, Hardware]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'Hardware':
+        '''Parse one SPARQL result row into a Hardware instance.'''
+        return cls(
+            nodes=data.get('nodes', {}).get('value', ''),
+            cores=data.get('cores', {}).get('value', ''),
+            cpu=split_value(data=data, key='cpu', transform=Relatant.from_query),
+        )
+
+
+@dataclass
+class DataSet:  # pylint: disable=too-many-instance-attributes
+    '''Metadata and relations of a Data Set entity from MaRDI/Wikidata.'''
+
+    size: list = field(default_factory=list)
+    file_format: Optional[str] = None
+    binary_or_text: Optional[str] = None
+    proprietary: Optional[str] = None
+    reference: list = field(default_factory=list)
+    to_archive: list = field(default_factory=list)
+    data_type: list[Relatant] = field(default_factory=list)
+    representation_format: list[Relatant] = field(default_factory=list)
+
+    @classmethod
+    def from_query(cls, raw_data: dict) -> 'DataSet':
+        '''Parse a single-item SPARQL result (backward-compatible).'''
+        return cls.from_query_single(raw_data[0])
+
+    @classmethod
+    def from_query_batch(cls, raw_data: list) -> 'dict[str, DataSet]':
+        '''Parse a batch SPARQL result into {external_id: instance} dict.'''
+        return {
+            row['qid']['value']: cls.from_query_single(row)
+            for row in raw_data
+            if row.get('qid', {}).get('value')
+        }
+
+    @classmethod
+    def from_query_single(cls, data: dict) -> 'DataSet':
+        '''Parse one SPARQL result row into a DataSet instance.'''
+        options = get_options()
+
+        return cls(
+            size=get_size(data, options),
+            file_format=data.get('file_format', {}).get('value'),
+            binary_or_text=(
+                options[data['binary_or_text']['value']]
+                if data.get('binary_or_text', {}).get('value') else ''
+            ),
+            proprietary=(
+                options[data['proprietary']['value']]
+                if data.get('proprietary', {}).get('value') else ''
+            ),
+            reference=get_reference(data, options),
+            to_archive=get_archive(data, options),
+            data_type=split_value(
+                data=data, key='data_type', transform=Relatant.from_query
+            ),
+            representation_format=split_value(
+                data=data, key='representation_format', transform=Relatant.from_query
+            ),
+        )

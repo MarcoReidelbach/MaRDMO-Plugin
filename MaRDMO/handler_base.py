@@ -106,7 +106,7 @@ class BaseInformation:
                              info={'text': text, 'external_id': relatant.id,
                                    'set_index': next_idx})
 
-                if batch_fill_method and source == 'mardi':
+                if batch_fill_method and source in ('mardi', 'wikidata'):
                     batch_items.append((text, relatant.id, next_idx))
                 else:
                     fill_method(project=project, text=text,
@@ -133,7 +133,7 @@ class BaseInformation:
         visited.add(external_id)
         add_basics(project=project, text=text, questions=self.questions,
                    item_type=item_type, index=(0, set_index))
-        if external_id.split(':')[0] != 'mardi':
+        if external_id.split(':')[0] not in ('mardi', 'wikidata'):
             return
         batch_fill_method(project=project, items=[(text, external_id, set_index)],
                           catalog=catalog, visited=visited)

@@ -9,8 +9,9 @@ from .model.constants import get_uri_prefix_map as get_uri_prefix_map_model
 from .workflow.constants import get_uri_prefix_map as get_uri_prefix_map_workflow
 
 # Lazy imports to avoid circular dependencies
-_MODEL_INFO = None
-_ALGO_INFO  = None
+_MODEL_INFO    = None
+_ALGO_INFO     = None
+_WORKFLOW_INFO = None
 
 def _get_model_info():
     global _MODEL_INFO
@@ -26,6 +27,13 @@ def _get_algo_info():
         _ALGO_INFO = AlgorithmInformation()
     return _ALGO_INFO
 
+def _get_workflow_info():
+    global _WORKFLOW_INFO
+    if _WORKFLOW_INFO is None:
+        from .workflow.handlers import Information as WorkflowInformation
+        _WORKFLOW_INFO = WorkflowInformation()
+    return _WORKFLOW_INFO
+
 
 # Map prefix → (item_type, batch_method_name) per catalog family.
 _MODEL_PREFIX_TO_FILL = {
@@ -40,6 +48,13 @@ _ALGO_PREFIX_TO_FILL = {
     'AT': ('Problem',   '_fill_problem_batch'),
     'S':  ('Software',  '_fill_software_batch'),
     'B':  ('Benchmark', '_fill_benchmark_batch'),
+}
+
+_WORKFLOW_PREFIX_TO_FILL = {
+    'DS': ('Data Set',   '_fill_data_set_batch'),
+    'M':  ('Method',     '_fill_method_batch'),
+    'S':  ('Software',   '_fill_software_batch'),
+    'I':  ('Instrument', '_fill_instrument_batch'),
 }
 
 
@@ -70,8 +85,8 @@ class Information:
             get_info     = _get_model_info
         elif catalog_str.endswith("mardmo-interdisciplinary-workflow-catalog"):
             config_map   = get_uri_prefix_map_workflow()
-            prefix_map   = None
-            get_info     = None
+            prefix_map   = _WORKFLOW_PREFIX_TO_FILL
+            get_info     = _get_workflow_info
         elif catalog_str.endswith("mardmo-algorithm-catalog"):
             config_map   = get_uri_prefix_map_algorithm()
             prefix_map   = _ALGO_PREFIX_TO_FILL
@@ -105,9 +120,12 @@ class Information:
             return  # user-defined entities have no external data to hydrate
 
         # --- Step 2: explicitly hydrate the entity ---
-        # Only mardi-sourced entities carry SPARQL-queryable metadata.
-        # Workflow catalog has no hydration step.
-        if source != 'mardi' or prefix_map is None or get_info is None:
+        # Only mardi/wikidata-sourced entities carry SPARQL-queryable metadata,
+
+        if prefix_map is None or get_info is None:
+            return
+        is_workflow = catalog_str.endswith("mardmo-interdisciplinary-workflow-catalog")
+        if source not in ('mardi', 'wikidata') if is_workflow else source != 'mardi':
             return
 
         entry = prefix_map.get(config["prefix"])
