@@ -61,6 +61,14 @@ def get_sparql_query(file_name):
         query = sparql_file.read()
     return query
 
+def get_sparql_query_optional(file_name):
+    """Get Data from SPARQL File, or None if the file does not exist."""
+    path = os.path.join(os.path.dirname(__file__), file_name)
+    if not os.path.exists(path):
+        return None
+    with open(path, "r", encoding="utf-8") as sparql_file:
+        return sparql_file.read()
+
 def get_id(project, uri, keys):
     """Get Set of User requested Identifiers for specific URI"""
     values = project.values.filter(
