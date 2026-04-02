@@ -97,8 +97,8 @@
                         <a href="{{ mardiURI }}{{ model.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ answers.model.Name }}</a>
                     </td>
                     <td style="text-align: center; vertical-align: middle;">{{ answers.model.Description }}</td>
-                    <td style="text-align: center; vertical-align: middle;">{{ answers.model.Time }}</td>
-                    <td style="text-align: center; vertical-align: middle;">{{ answers.model.Space }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ answers.model.time }}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{ answers.model.space }}</td>
                 </tr>
             </tbody>
         </table>
@@ -447,25 +447,20 @@
                                 {% endif %}
                             </td>
                             <td style="text-align: center; vertical-align: middle;">
-                                {% if values.Published.0 == option.YesText %}
-                                        <a href=" {{values.Published.1}} ">Yes</a> <br>
-                                {% elif values.Published.0 == option.NoText %}
-                                        No
-                                {% else %}
-                                        -
-                                {% endif %}
+                                {% for reference in values.reference.values %}
+                                    {% if reference.0 == option.SOURCECODE_URL %}
+                                        <a href=" {{ reference.1 }} ">Yes</a> <br>
+                                    {% endif %}
+                                {% endfor %}
                             </td>
                             <td style="text-align: center; vertical-align: middle;">
-                                {% if values.Documented.0 == option.YesText %}
-                                        <a href=" {{values.Documented.1}} ">Yes</a> <br>
-                                {% elif values.Documented.0 == option.NoText %}
-                                        No
-                                {% else %}
-                                        -
-                                {% endif %}
+                                {% for reference in values.reference.values %}
+                                    {% if reference.0 == option.DESCRIPTION_URL %}
+                                        <a href=" {{ reference.1 }} ">Yes</a> <br>
+                                    {% endif %}
+                                {% endfor %}
                             </td>
                         </tr>
-                    
                     {% endfor %}
                 </tbody>
             </table>

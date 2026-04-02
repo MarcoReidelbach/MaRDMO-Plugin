@@ -97,8 +97,11 @@
         {% if reference.0 == option.DOI %}
             <b>DOI</b>: {{ reference.1 }} <br>
         {% endif %}
-        {% if reference.0 == option.URL %}
-            <b>URL</b>: {{ reference.1 }} <br>
+        {% if reference.0 == option.DESCRIPTION_URL %}
+            <b>Described at URL</b>: {{ reference.1 }} <br>
+        {% endif %}
+        {% if reference.0 == option.SOURCECODE_URL %}
+            <b>Source Code URL</b>: {{ reference.1 }} <br>
         {% endif %}
     {% endfor %}
 
@@ -128,8 +131,11 @@
         {% if reference.0 == option.DOI %}
             <b>DOI</b>: {{ reference.1 }} <br>
         {% endif %}
-        {% if reference.0 == option.URL %}
-            <b>URL</b>: {{ reference.1 }} <br>
+        {% if reference.0 == option.DESCRIPTION_URL %}
+            <b>Described at URL</b>: {{ reference.1 }} <br>
+        {% endif %}
+        {% if reference.0 == option.SOURCECODE_URL %}
+            <b>Source Code URL</b>: {{ reference.1 }} <br>
         {% endif %}
     {% endfor %} 
 
