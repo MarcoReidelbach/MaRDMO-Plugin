@@ -22,6 +22,7 @@ from ..getters import (
     get_properties,
     get_questions,
     get_sparql_query,
+    get_sparql_query_optional,
     get_url,
 )
 from ..helpers import value_editor
@@ -97,21 +98,38 @@ class Information(BaseInformation):
     # ------------------------------------------------------------------ #
 
     def _fill_benchmark_batch(self, project, items, catalog='', visited=None):
-        '''Hydrate multiple benchmarks with a single SPARQL query.'''
+        '''Hydrate multiple benchmarks with a single SPARQL query per source.'''
         if not items:
             return
         if visited is None:
             visited = set()
 
-        benchmark = self.questions['Benchmark']
-        query = get_sparql_query('algorithm/queries/benchmark.sparql').format(
-            _values_clause(items), **get_items(), **get_properties()
-        )
-        results = query_sparql(query, get_url('mardi', 'sparql'))
-        if not results:
-            return
+        benchmark  = self.questions['Benchmark']
+        data_by_id = {}
 
-        data_by_id = Benchmark.from_query_batch(results)
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query('algorithm/queries/benchmark_mardi.sparql').format(
+                _values_clause(mardi_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(Benchmark.from_query_batch(results))
+
+        if wikidata_items:
+            tmpl = get_sparql_query_optional('algorithm/queries/benchmark_wikidata.sparql')
+            if tmpl:
+                query   = tmpl.format(
+                    _values_clause(wikidata_items), **get_items(), **get_properties()
+                )
+                results = query_sparql(query, get_url('wikidata', 'sparql'))
+                if results:
+                    data_by_id.update(Benchmark.from_query_batch(results))
+
+        if not data_by_id:
+            return
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -129,21 +147,38 @@ class Information(BaseInformation):
                                        catalog, visited)
 
     def _fill_software_batch(self, project, items, catalog='', visited=None):
-        '''Hydrate multiple software items with a single SPARQL query.'''
+        '''Hydrate multiple software items with a single SPARQL query per source.'''
         if not items:
             return
         if visited is None:
             visited = set()
 
-        software = self.questions['Software']
-        query = get_sparql_query('algorithm/queries/software.sparql').format(
-            _values_clause(items), **get_items(), **get_properties()
-        )
-        results = query_sparql(query, get_url('mardi', 'sparql'))
-        if not results:
-            return
+        software   = self.questions['Software']
+        data_by_id = {}
 
-        data_by_id = Software.from_query_batch(results)
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query('algorithm/queries/software_mardi.sparql').format(
+                _values_clause(mardi_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(Software.from_query_batch(results))
+
+        if wikidata_items:
+            tmpl = get_sparql_query_optional('algorithm/queries/software_wikidata.sparql')
+            if tmpl:
+                query   = tmpl.format(
+                    _values_clause(wikidata_items), **get_items(), **get_properties()
+                )
+                results = query_sparql(query, get_url('wikidata', 'sparql'))
+                if results:
+                    data_by_id.update(Software.from_query_batch(results))
+
+        if not data_by_id:
+            return
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -177,21 +212,38 @@ class Information(BaseInformation):
                                        catalog, visited)
 
     def _fill_problem_batch(self, project, items, catalog='', visited=None):
-        '''Hydrate multiple algorithmic problems with a single SPARQL query.'''
+        '''Hydrate multiple algorithmic problems with a single SPARQL query per source.'''
         if not items:
             return
         if visited is None:
             visited = set()
 
-        problem = self.questions['Problem']
-        query = get_sparql_query('algorithm/queries/problem.sparql').format(
-            _values_clause(items), **get_items(), **get_properties()
-        )
-        results = query_sparql(query, get_url('mardi', 'sparql'))
-        if not results:
-            return
+        problem    = self.questions['Problem']
+        data_by_id = {}
 
-        data_by_id = Problem.from_query_batch(results)
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query('algorithm/queries/problem_mardi.sparql').format(
+                _values_clause(mardi_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(Problem.from_query_batch(results))
+
+        if wikidata_items:
+            tmpl = get_sparql_query_optional('algorithm/queries/problem_wikidata.sparql')
+            if tmpl:
+                query   = tmpl.format(
+                    _values_clause(wikidata_items), **get_items(), **get_properties()
+                )
+                results = query_sparql(query, get_url('wikidata', 'sparql'))
+                if results:
+                    data_by_id.update(Problem.from_query_batch(results))
+
+        if not data_by_id:
+            return
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -229,21 +281,38 @@ class Information(BaseInformation):
             # IntraClass relations are not cascade-hydrated
 
     def _fill_algorithm_batch(self, project, items, catalog='', visited=None):
-        '''Hydrate multiple algorithms with a single SPARQL query.'''
+        '''Hydrate multiple algorithms with a single SPARQL query per source.'''
         if not items:
             return
         if visited is None:
             visited = set()
 
-        algorithm = self.questions['Algorithm']
-        query = get_sparql_query('algorithm/queries/algorithm.sparql').format(
-            _values_clause(items), **get_items(), **get_properties()
-        )
-        results = query_sparql(query, get_url('mardi', 'sparql'))
-        if not results:
-            return
+        algorithm  = self.questions['Algorithm']
+        data_by_id = {}
 
-        data_by_id = Algorithm.from_query_batch(results)
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query('algorithm/queries/algorithm_mardi.sparql').format(
+                _values_clause(mardi_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(Algorithm.from_query_batch(results))
+
+        if wikidata_items:
+            tmpl = get_sparql_query_optional('algorithm/queries/algorithm_wikidata.sparql')
+            if tmpl:
+                query   = tmpl.format(
+                    _values_clause(wikidata_items), **get_items(), **get_properties()
+                )
+                results = query_sparql(query, get_url('wikidata', 'sparql'))
+                if results:
+                    data_by_id.update(Algorithm.from_query_batch(results))
+
+        if not data_by_id:
+            return
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)

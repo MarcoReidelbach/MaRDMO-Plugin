@@ -23,6 +23,7 @@ from ..getters import (
     get_properties,
     get_questions,
     get_sparql_query,
+    get_sparql_query_optional,
     get_url,
 )
 from ..helpers import value_editor
@@ -39,8 +40,15 @@ logger = logging.getLogger(__name__)
 
 
 def _sparql_file(template, catalog):
-    '''Return the basics or full variant of a SPARQL template path.'''
-    return template.replace('.sparql', '-basics.sparql') if 'basics' in catalog else template
+    '''Return the basics or full variant of a SPARQL template path.
+    Inserts -basics before the _<source>.sparql suffix, e.g.
+    problem_mardi.sparql -> problem-basics_mardi.sparql.'''
+    if 'basics' not in catalog:
+        return template
+    for suffix in ('_mardi.sparql', '_wikidata.sparql'):
+        if template.endswith(suffix):
+            return template[:-len(suffix)] + '-basics' + suffix
+    return template
 
 
 class Information(BaseInformation):
@@ -152,19 +160,36 @@ class Information(BaseInformation):
     # ------------------------------------------------------------------ #
 
     def _fill_field_batch(self, project, items, catalog, visited):
-        '''Hydrate multiple research fields with a single SPARQL query.'''
+        '''Hydrate multiple research fields with a single SPARQL query per source.'''
         if not items:
             return
 
-        field = self.questions['Research Field']
-        query = get_sparql_query('model/queries/field.sparql').format(
-            _values_clause(items), **get_items(), **get_properties()
-        )
-        results = query_sparql(query, get_url('mardi', 'sparql'))
-        if not results:
-            return
+        field      = self.questions['Research Field']
+        data_by_id = {}
 
-        data_by_id = models.ResearchField.from_query_batch(results)
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query('model/queries/field_mardi.sparql').format(
+                _values_clause(mardi_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(models.ResearchField.from_query_batch(results))
+
+        if wikidata_items:
+            tmpl = get_sparql_query_optional('model/queries/field_wikidata.sparql')
+            if tmpl:
+                query   = tmpl.format(
+                    _values_clause(wikidata_items), **get_items(), **get_properties()
+                )
+                results = query_sparql(query, get_url('wikidata', 'sparql'))
+                if results:
+                    data_by_id.update(models.ResearchField.from_query_batch(results))
+
+        if not data_by_id:
+            return
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -198,19 +223,38 @@ class Information(BaseInformation):
                                        catalog, visited)
 
     def _fill_problem_batch(self, project, items, catalog, visited):
-        '''Hydrate multiple research problems with a single SPARQL query.'''
+        '''Hydrate multiple research problems with a single SPARQL query per source.'''
         if not items:
             return
 
-        problem = self.questions['Research Problem']
-        query = get_sparql_query(
-            _sparql_file('model/queries/problem.sparql', catalog)
-        ).format(_values_clause(items), **get_items(), **get_properties())
-        results = query_sparql(query, get_url('mardi', 'sparql'))
-        if not results:
-            return
+        problem    = self.questions['Research Problem']
+        data_by_id = {}
 
-        data_by_id = models.ResearchProblem.from_query_batch(results)
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query(
+                _sparql_file('model/queries/problem_mardi.sparql', catalog)
+            ).format(_values_clause(mardi_items), **get_items(), **get_properties())
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(models.ResearchProblem.from_query_batch(results))
+
+        if wikidata_items:
+            tmpl = get_sparql_query_optional(
+                _sparql_file('model/queries/problem_wikidata.sparql', catalog)
+            )
+            if tmpl:
+                query   = tmpl.format(
+                    _values_clause(wikidata_items), **get_items(), **get_properties()
+                )
+                results = query_sparql(query, get_url('wikidata', 'sparql'))
+                if results:
+                    data_by_id.update(models.ResearchProblem.from_query_batch(results))
+
+        if not data_by_id:
+            return
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -260,19 +304,36 @@ class Information(BaseInformation):
                                        catalog, visited)
 
     def _fill_quantity_batch(self, project, items, catalog, visited):
-        '''Hydrate multiple quantities with a single SPARQL query.'''
+        '''Hydrate multiple quantities with a single SPARQL query per source.'''
         if not items:
             return
 
-        quantity = self.questions['Quantity']
-        query = get_sparql_query('model/queries/quantity.sparql').format(
-            _values_clause(items), **get_items(), **get_properties()
-        )
-        results = query_sparql(query, get_url('mardi', 'sparql'))
-        if not results:
-            return
+        quantity   = self.questions['Quantity']
+        data_by_id = {}
 
-        data_by_id = models.QuantityOrQuantityKind.from_query_batch(results)
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query('model/queries/quantity_mardi.sparql').format(
+                _values_clause(mardi_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(models.QuantityOrQuantityKind.from_query_batch(results))
+
+        if wikidata_items:
+            tmpl = get_sparql_query_optional('model/queries/quantity_wikidata.sparql')
+            if tmpl:
+                query   = tmpl.format(
+                    _values_clause(wikidata_items), **get_items(), **get_properties()
+                )
+                results = query_sparql(query, get_url('wikidata', 'sparql'))
+                if results:
+                    data_by_id.update(models.QuantityOrQuantityKind.from_query_batch(results))
+
+        if not data_by_id:
+            return
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -348,19 +409,38 @@ class Information(BaseInformation):
                                        catalog, visited)
 
     def _fill_formulation_batch(self, project, items, catalog, visited):
-        '''Hydrate multiple formulations with a single SPARQL query.'''
+        '''Hydrate multiple formulations with a single SPARQL query per source.'''
         if not items:
             return
 
         formulation = self.questions['Mathematical Formulation']
-        query = get_sparql_query(
-            _sparql_file('model/queries/formulation.sparql', catalog)
-        ).format(_values_clause(items), **get_items(), **get_properties())
-        results = query_sparql(query, get_url('mardi', 'sparql'))
-        if not results:
-            return
+        data_by_id  = {}
 
-        data_by_id = models.MathematicalFormulation.from_query_batch(results)
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query(
+                _sparql_file('model/queries/formulation_mardi.sparql', catalog)
+            ).format(_values_clause(mardi_items), **get_items(), **get_properties())
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(models.MathematicalFormulation.from_query_batch(results))
+
+        if wikidata_items:
+            tmpl = get_sparql_query_optional(
+                _sparql_file('model/queries/formulation_wikidata.sparql', catalog)
+            )
+            if tmpl:
+                query   = tmpl.format(
+                    _values_clause(wikidata_items), **get_items(), **get_properties()
+                )
+                results = query_sparql(query, get_url('wikidata', 'sparql'))
+                if results:
+                    data_by_id.update(models.MathematicalFormulation.from_query_batch(results))
+
+        if not data_by_id:
+            return
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -453,19 +533,38 @@ class Information(BaseInformation):
                                        catalog, visited)
 
     def _fill_task_batch(self, project, items, catalog, visited):
-        '''Hydrate multiple tasks with a single SPARQL query.'''
+        '''Hydrate multiple tasks with a single SPARQL query per source.'''
         if not items:
             return
 
-        task = self.questions['Task']
-        query = get_sparql_query(
-            _sparql_file('model/queries/task.sparql', catalog)
-        ).format(_values_clause(items), **get_items(), **get_properties())
-        results = query_sparql(query, get_url('mardi', 'sparql'))
-        if not results:
-            return
+        task       = self.questions['Task']
+        data_by_id = {}
 
-        data_by_id = models.Task.from_query_batch(results)
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query(
+                _sparql_file('model/queries/task_mardi.sparql', catalog)
+            ).format(_values_clause(mardi_items), **get_items(), **get_properties())
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(models.Task.from_query_batch(results))
+
+        if wikidata_items:
+            tmpl = get_sparql_query_optional(
+                _sparql_file('model/queries/task_wikidata.sparql', catalog)
+            )
+            if tmpl:
+                query   = tmpl.format(
+                    _values_clause(wikidata_items), **get_items(), **get_properties()
+                )
+                results = query_sparql(query, get_url('wikidata', 'sparql'))
+                if results:
+                    data_by_id.update(models.Task.from_query_batch(results))
+
+        if not data_by_id:
+            return
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -546,19 +645,38 @@ class Information(BaseInformation):
                                        catalog, visited)
 
     def _fill_model_batch(self, project, items, catalog, visited):
-        '''Hydrate multiple mathematical models with a single SPARQL query.'''
+        '''Hydrate multiple mathematical models with a single SPARQL query per source.'''
         if not items:
             return
 
-        model_q = self.questions['Mathematical Model']
-        query = get_sparql_query(
-            _sparql_file('model/queries/model.sparql', catalog)
-        ).format(_values_clause(items), **get_items(), **get_properties())
-        results = query_sparql(query, get_url('mardi', 'sparql'))
-        if not results:
-            return
+        model_q    = self.questions['Mathematical Model']
+        data_by_id = {}
 
-        data_by_id = models.MathematicalModel.from_query_batch(results)
+        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+        if mardi_items:
+            query   = get_sparql_query(
+                _sparql_file('model/queries/model_mardi.sparql', catalog)
+            ).format(_values_clause(mardi_items), **get_items(), **get_properties())
+            results = query_sparql(query, get_url('mardi', 'sparql'))
+            if results:
+                data_by_id.update(models.MathematicalModel.from_query_batch(results))
+
+        if wikidata_items:
+            tmpl = get_sparql_query_optional(
+                _sparql_file('model/queries/model_wikidata.sparql', catalog)
+            )
+            if tmpl:
+                query   = tmpl.format(
+                    _values_clause(wikidata_items), **get_items(), **get_properties()
+                )
+                results = query_sparql(query, get_url('wikidata', 'sparql'))
+                if results:
+                    data_by_id.update(models.MathematicalModel.from_query_batch(results))
+
+        if not data_by_id:
+            return
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
