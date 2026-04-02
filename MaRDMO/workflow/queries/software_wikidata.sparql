@@ -1,70 +1,58 @@
 SELECT DISTINCT
-?sourceCodeRepository ?userManualURL ?reference
-(GROUP_CONCAT(DISTINCT CONCAT(?pl, " || ", ?pll, " || ", ?pld); separator=" <|> ") AS ?programmedIn)
-(GROUP_CONCAT(DISTINCT CONCAT(?dp, " || ", ?dpl, " || ", ?dpd); separator=" <|> ") AS ?dependsOnSoftware)
-                                       
+?id
+(REPLACE(STR(?id), "http://www.wikidata.org/entity/", "wikidata:") AS ?qid)
+?DOI ?SWMATH ?SOURCECODE_URL ?DESCRIPTION_URL
+(GROUP_CONCAT(DISTINCT CONCAT(?pl, " || ", ?pll, " || ", ?pld); separator=" <|> ") AS ?programmed_in)
+(GROUP_CONCAT(DISTINCT CONCAT(?dp, " || ", ?dpl, " || ", ?dpd); separator=" <|> ") AS ?depends_on_software)
+
 WHERE {{
 
-    VALUES ?software {{ wd:{0} }}
-           
+    VALUES ?id {{{0}}}
+
     OPTIONAL {{
-        ?software wdt:P277 ?plraw.
-        BIND(replace( xsd:string(?plraw),'http://www.wikidata.org/entity/','wikidata:') as ?pl) 
-        
+        ?id wdt:P277 ?plraw.
+        BIND(replace( xsd:string(?plraw),'http://www.wikidata.org/entity/','wikidata:') as ?pl)
+
         SERVICE wikibase:label {{
-              bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
-              ?plraw rdfs:label ?pllraw .
-              ?plraw schema:description ?pldraw .
+            bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+            ?plraw rdfs:label ?pllraw .
+            ?plraw schema:description ?pldraw .
         }}
-            
-            BIND(COALESCE(?pllraw, "No Label Provided!") AS ?pll)
-            BIND(COALESCE(?pldraw, "No Description Provided!") AS ?pld)
-    }}  
-                                             
+
+        BIND(COALESCE(?pllraw, "No Label Provided!") AS ?pll)
+        BIND(COALESCE(?pldraw, "No Description Provided!") AS ?pld)
+    }}
+
     OPTIONAL {{
-        ?software wdt:P1547 ?dpraw.
-        BIND(replace( xsd:string(?dpraw),'http://www.wikidata.org/entity/','wikidata:') as ?dp) 
-        
+        ?id wdt:P1547 ?dpraw.
+        BIND(replace( xsd:string(?dpraw),'http://www.wikidata.org/entity/','wikidata:') as ?dp)
+
         SERVICE wikibase:label {{
-              bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
-              ?dpraw rdfs:label ?dplraw .
-              ?dpraw schema:description ?dpdraw .
+            bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+            ?dpraw rdfs:label ?dplraw .
+            ?dpraw schema:description ?dpdraw .
         }}
-            
+
         BIND(COALESCE(?dplraw, "No Label Provided!") AS ?dpl)
         BIND(COALESCE(?dpdraw, "No Description Provided!") AS ?dpd)
     }}
-           
+
     OPTIONAL {{
-        ?software wdt:P1324 ?published.
-    }}
-           
-    OPTIONAL {{
-        ?software wdt:P2078 ?documented.
-    }}
-    
-    OPTIONAL {{
-        ?software wdt:P356 ?doi.
-    }}
-                                             
-    OPTIONAL {{
-        ?software wdt:P6830 ?swmath.
+        ?id wdt:{DOI} ?DOI.
     }}
 
     OPTIONAL {{
-        ?software wdt:P2699 ?url.
+        ?id wdt:{swMath work ID} ?SWMATH.
     }}
 
-    BIND(
-     CONCAT(
-         IF(BOUND(?doi), CONCAT("doi:", STR(?doi), " || "), ""),
-         IF(BOUND(?swmath), CONCAT("swmath:", STR(?swmath), " || "), ""),
-         IF(BOUND(?url), STR(?url), "")
-     ) AS ?referenceraw
-    )
-                                          
-    BIND(IF(STRENDS(?referenceraw, " || "), STRBEFORE(?referenceraw, " || "), ?referenceraw) AS ?reference)
-           
+    OPTIONAL {{
+        ?id wdt:{source code repository URL} ?SOURCECODE_URL.
+    }}
+
+    OPTIONAL {{
+        ?id wdt:{described at URL} ?DESCRIPTION_URL.
+    }}
+
 }}
-                                           
-GROUP BY ?sourceCodeRepository ?userManualURL ?reference
+
+GROUP BY ?id ?DOI ?SWMATH ?SOURCECODE_URL ?DESCRIPTION_URL

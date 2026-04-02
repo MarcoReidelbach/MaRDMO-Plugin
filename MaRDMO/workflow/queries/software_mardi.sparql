@@ -1,81 +1,68 @@
 SELECT DISTINCT
-?userManualURL ?sourceCodeRepository ?reference
-(GROUP_CONCAT(DISTINCT CONCAT(?pl, " || ", ?pll, " || ", ?pld); separator=" <|> ") AS ?programmedIn)
-(GROUP_CONCAT(DISTINCT CONCAT(?dp, " || ", ?dpl, " || ", ?dpd); separator=" <|> ") AS ?dependsOnSoftware)
-               
+?id
+(CONCAT("mardi:", STRAFTER(STR(?id), STR(wd:))) AS ?qid)
+?DOI ?SWMATH ?SOURCECODE_URL ?DESCRIPTION_URL
+(GROUP_CONCAT(DISTINCT CONCAT(?pl, " || ", ?pll, " || ", ?pld); separator=" <|> ") AS ?programmed_in)
+(GROUP_CONCAT(DISTINCT CONCAT(?dp, " || ", ?dpl, " || ", ?dpd); separator=" <|> ") AS ?depends_on_software)
+
 WHERE {{
-                                          
-    VALUES ?software {{ wd:{0} }}
-                                          
+
+    VALUES ?id {{{0}}}
+
     OPTIONAL {{
-        ?software wdt:{programmed in} ?plraw.
+        ?id wdt:{programmed in} ?plraw.
         BIND(CONCAT("mardi:", STRAFTER(STR(?plraw), STR(wd:))) AS ?pl)
-        
+
         OPTIONAL {{
             ?plraw rdfs:label ?pllraw
             FILTER (lang(?pllraw) = 'en')
         }}
-        
+
         BIND(COALESCE(?pllraw, "No Label Provided!") AS ?pll)
-        
+
         OPTIONAL {{
             ?plraw schema:description ?pldraw
             FILTER (lang(?pldraw) = 'en')
         }}
-        
+
         BIND(COALESCE(?pldraw, "No Description Provided!") AS ?pld)
-    }}  
-                                          
+    }}
+
     OPTIONAL {{
-        ?software wdt:{depends on software} ?dpraw.
+        ?id wdt:{depends on software} ?dpraw.
         BIND(CONCAT("mardi:", STRAFTER(STR(?dpraw), STR(wd:))) AS ?dp)
-        
+
         OPTIONAL {{
             ?dpraw rdfs:label ?dplraw
             FILTER (lang(?dplraw) = 'en')
         }}
-        
+
         BIND(COALESCE(?dplraw, "No Label Provided!") AS ?dpl)
-        
+
         OPTIONAL {{
             ?dpraw schema:description ?dpdraw
             FILTER (lang(?dpdraw) = 'en')
         }}
-        
+
         BIND(COALESCE(?dpdraw, "No Description Provided!") AS ?dpd)
     }}
-        
-    
+
     OPTIONAL {{
-        ?software wdt:{source code repository URL} ?sourceCodeRepository.
-    }}
-    
-    OPTIONAL {{
-        ?software wdt:{user manual URL} ?userManualURL.
-    }}
-    
-    OPTIONAL {{
-        ?software wdt:{DOI} ?doi.
-    }}
-    
-    OPTIONAL {{
-        ?software wdt:{swMath work ID} ?swmath.
-    }}
-    
-    OPTIONAL {{
-        ?software wdt:{URL} ?url.
+        ?id wdt:{DOI} ?DOI.
     }}
 
-    BIND(
-         CONCAT(
-             IF(BOUND(?doi), CONCAT("doi:", STR(?doi), " || "), ""),
-             IF(BOUND(?swmath), CONCAT("swmath:", STR(?swmath), " || "), ""),
-             IF(BOUND(?url), STR(?url), "")
-         ) AS ?referenceraw
-     )
-                                          
-    BIND(IF(STRENDS(?referenceraw, " || "), STRBEFORE(?referenceraw, " || "), ?referenceraw) AS ?reference)
+    OPTIONAL {{
+        ?id wdt:{swMath work ID} ?SWMATH.
+    }}
 
-}}  
-                                        
-GROUP BY ?sourceCodeRepository ?userManualURL ?reference
+    OPTIONAL {{
+        ?id wdt:{source code repository URL} ?SOURCECODE_URL.
+    }}
+
+    OPTIONAL {{
+        ?id wdt:{described at URL} ?DESCRIPTION_URL.
+    }}
+
+}}
+
+GROUP BY ?id ?DOI ?SWMATH ?SOURCECODE_URL ?DESCRIPTION_URL

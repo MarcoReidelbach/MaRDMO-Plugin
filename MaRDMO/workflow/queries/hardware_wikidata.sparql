@@ -1,25 +1,27 @@
 SELECT DISTINCT
+?id
+(REPLACE(STR(?id), "http://www.wikidata.org/entity/", "wikidata:") AS ?qid)
 ?nodes ?cores
-(GROUP_CONCAT(DISTINCT CONCAT(?cpu, " || ", ?cpul, " || ", ?cpud); separator=" <|> ") AS ?CPU)
-       
+(GROUP_CONCAT(DISTINCT CONCAT(?cpu_id, " || ", ?cpul, " || ", ?cpud); separator=" <|> ") AS ?cpu)
+
 WHERE {{
 
-    VALUES ?hardware {{ wd:{0} }}
+    VALUES ?id {{{0}}}
 
-    OPTIONAL {{           
-        ?hardware p:P880 ?statement.
+    OPTIONAL {{
+        ?id p:P880 ?statement.
         ?statement ps:P880 ?cpuraw.
-        BIND(replace( xsd:string(?cpuraw),'http://www.wikidata.org/entity/','wikidata:') as ?cpu) 
-        
+        BIND(replace( xsd:string(?cpuraw),'http://www.wikidata.org/entity/','wikidata:') as ?cpu_id)
+
         SERVICE wikibase:label {{
-          bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
-          ?cpuraw rdfs:label ?cpulraw .
-          ?cpuraw schema:description ?cpudraw .
+            bd:serviceParam wikibase:language "en,[AUTO_LANGUAGE],mul" .
+            ?cpuraw rdfs:label ?cpulraw .
+            ?cpuraw schema:description ?cpudraw .
         }}
-        
+
         BIND(COALESCE(?cpulraw, "No Label Provided!") AS ?cpul)
         BIND(COALESCE(?cpudraw, "No Description Provided!") AS ?cpud)
-        
+
         OPTIONAL {{
             ?cpuraw wdt:P1141 ?cores.
         }}
@@ -30,4 +32,4 @@ WHERE {{
     }}
 }}
 
-GROUP BY ?nodes ?cores
+GROUP BY ?id ?nodes ?cores
