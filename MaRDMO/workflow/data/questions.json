@@ -80,20 +80,6 @@
             "set_prefix": true,
             "collection_index": true,
             "external_id": true
-        },
-        "Published": {
-            "key1": "software",
-            "key2": "Published",
-            "uri": "domain/software/published",
-            "set_prefix": true,
-            "option_text": true
-        },
-        "Documented": {
-            "key1": "software",
-            "key2": "Documented",
-            "uri": "domain/software/documented",
-            "set_prefix": true,
-            "option_text": true
         }
     },
     "Hardware": {
