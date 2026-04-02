@@ -123,9 +123,9 @@ class WorkflowTask(Provider):
             return options
 
         if results[0].get('usedBy', {}).get('value'):
-            tasks = results[0]['usedBy']['value'].split(' / ')
+            tasks = results[0]['usedBy']['value'].split(' <|> ')
             for task in tasks:
-                identifier, label, description = task.split(' | ')
+                identifier, label, description = task.split(' || ')
                 options.append(
                     {
                         'id': identifier,
