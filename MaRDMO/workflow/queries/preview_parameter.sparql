@@ -1,5 +1,5 @@
 SELECT DISTINCT
-?Name ?Unit ?Symbol ?label
+?ID ?Name ?Unit ?Symbol ?label
 
 WHERE {{ 
 
