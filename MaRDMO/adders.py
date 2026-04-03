@@ -3,7 +3,7 @@
 from rdmo.options.models import Option
 
 from .constants import BASE_URI
-from .getters import get_id, get_options
+from .getters import get_id
 from .helpers import (
     extract_parts,
     initialize_counter,
