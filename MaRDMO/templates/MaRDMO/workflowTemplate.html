@@ -128,12 +128,12 @@
                 {% for values in answers.variables.values %}
                     <tr>
                         <td style="text-align: center; vertical-align: middle;">
-                            <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                            <a href="{{ mardiURI }}{{ values.identifier|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.name }}</a>
                         </td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Unit }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Symbol|safe }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Task }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Type }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.unit }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.symbol|safe }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.task }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.type }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -162,11 +162,11 @@
                 {% for values in answers.parameters.values %}
                     <tr>
                         <td style="text-align: center; vertical-align: middle;">
-                            <a href="{{ mardiURI }}{{ values.ID|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.Name }}</a>
+                            <a href="{{ mardiURI }}{{ values.identifier|cut:"mardi:"}}"" style="color:dodgerblue;">{{ values.name }}</a>
                         </td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Unit }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Symbol|safe }}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{ values.Task }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.unit }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.symbol|safe }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ values.task }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

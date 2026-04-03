@@ -13,7 +13,7 @@ from ..models import Relatant
 
 
 @dataclass
-class ModelProperties:  # pylint: disable=invalid-name
+class ModelProperties:
     '''Properties (time/space discretisation) of a mathematical model.'''
 
     time: Optional[str] = None
@@ -45,54 +45,77 @@ class ModelProperties:  # pylint: disable=invalid-name
 
 
 @dataclass
-class Variables:  # pylint: disable=invalid-name
+class Variables:
     '''A single variable entry from MathModDB.'''
 
-    ID: Optional[str]
-    Name: Optional[str]
-    Unit: Optional[str]
-    Symbol: Optional[str]
-    Task: Optional[str]
-    Type: Optional[str]
+    identifier: Optional[str] = None
+    name: Optional[str] = None
+    unit: Optional[str] = None
+    symbol: Optional[str] = None
+    task: Optional[str] = None
+    type: Optional[str] = None
 
     @classmethod
     def from_query(cls, data: dict) -> 'Variables':
         '''Parse one SPARQL result row into a Variables instance.'''
-        return cls(
-            ID=data.get('ID', {}).get('value'),
-            Name=data.get('Name', {}).get('value'),
-            Unit=data.get('Unit', {}).get('value'),
-            Symbol=re.sub(
+
+        variables = {
+            # Identifier of Variable
+            'identifier': data.get('ID', {}).get('value'),
+            # Name of Variable
+            'name': data.get('Name', {}).get('value'),
+            # Unit of Variable
+            'unit': data.get('Unit', {}).get('value'),
+            # Symbol of Variable
+            'symbol': re.sub(
                 r'(<math\b(?![^>]*\bdisplay=)[^>]*)(>)',
                 r'\1 display="inline"\2',
                 data.get('Symbol', {}).get('value'),
             ),
-            Task=data.get('label', {}).get('value'),
-            Type=data.get('Type', {}).get('value'),
+            # Task Variable is Part Of
+            'task': data.get('label', {}).get('value'),
+            # Role of Variable in Task (Input/Output)
+            'type': data.get('Type', {}).get('value'),
+        }
+
+        return cls(
+            **variables
         )
 
 
 @dataclass
-class Parameters:  # pylint: disable=invalid-name
+class Parameters:
     '''A single parameter entry from MathModDB.'''
 
-    Name: Optional[str]
-    Unit: Optional[str]
-    Symbol: Optional[str]
-    Task: Optional[str]
+    identifier: Optional[str] = None
+    name: Optional[str] = None
+    unit: Optional[str] = None
+    symbol: Optional[str] = None
+    task: Optional[str] = None
 
     @classmethod
     def from_query(cls, data: dict) -> 'Parameters':
         '''Parse one SPARQL result row into a Parameters instance.'''
-        return cls(
-            Name=data.get('Name', {}).get('value'),
-            Unit=data.get('Unit', {}).get('value'),
-            Symbol=re.sub(
+
+        parameters = {
+            # Identifier of Parameter
+            'identifier': data.get('ID', {}).get('value'),
+            # Name of Parameter
+            'name': data.get('Name', {}).get('value'),
+            # Unit of Parameter
+            'unit': data.get('Unit', {}).get('value'),
+            # Symbol of Parameter
+            'symbol': re.sub(
                 r'(<math\b(?![^>]*\bdisplay=)[^>]*)(>)',
                 r'\1 display="inline"\2',
                 data.get('Symbol', {}).get('value'),
             ),
-            Task=data.get('label', {}).get('value'),
+            # Task Parameter is Part Of
+            'task': data.get('label', {}).get('value'),
+        }
+
+        return cls(
+            **parameters
         )
 
 
@@ -264,7 +287,7 @@ class Hardware:
 
 
 @dataclass
-class DataSet:  # pylint: disable=too-many-instance-attributes
+class DataSet:
     '''Metadata and relations of a Data Set entity from MaRDI/Wikidata.'''
 
     size: list = field(default_factory=list)
