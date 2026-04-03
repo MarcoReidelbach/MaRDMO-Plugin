@@ -165,7 +165,7 @@
     {# Include Publication ID #}
     {% include "MaRDMO/_id.html" with id=values.ID %}
 
-    {% if values.RelationA or values.RelationB or values.RelationS %}
+    {% if values.RelationA or values.RelationBS %}
 
         {# Include Block for multiple Relations between Publication and Algorithm #}
         {% include "MaRDMO/_relation_block_multiple.html" with anchor="P2A" title="Algorithms" relations=values.RelationA class="ALGORITHM" empty_msg="False" %}
