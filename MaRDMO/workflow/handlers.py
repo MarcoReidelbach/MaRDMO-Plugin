@@ -3,7 +3,6 @@
 Information inherits _entry, _collect_existing_ids, _hydrate_relatants,
 and _fill from BaseInformation (MaRDMO/handler_base.py).
 '''
-# pylint: disable=duplicate-code
 
 import logging
 from functools import partial
@@ -70,7 +69,7 @@ class Information(BaseInformation):
     #  Batch _fill_* methods (one SPARQL query for N entities)            #
     # ------------------------------------------------------------------ #
 
-    def _fill_software_batch(self, project, items, catalog='', visited=None):  # pylint: disable=unused-argument
+    def _fill_software_batch(self, project, items, catalog='', visited=None):
         '''Hydrate multiple software items with a single SPARQL query per source.'''
         if not items:
             return
@@ -125,7 +124,7 @@ class Information(BaseInformation):
                 index={'set_prefix': set_index},
                 statement={'relatant': f'{self.base}{software["Dependency"]["uri"]}'})
 
-    def _fill_hardware_batch(self, project, items, catalog='', visited=None):  # pylint: disable=unused-argument
+    def _fill_hardware_batch(self, project, items, catalog='', visited=None):
         '''Hydrate multiple hardware items with a single SPARQL query per source.'''
         if not items:
             return
@@ -180,7 +179,7 @@ class Information(BaseInformation):
                     uri=f'{self.base}{hardware["Cores"]["uri"]}',
                     info={'text': data.cores, 'set_prefix': set_index})
 
-    def _fill_instrument_batch(self, project, items, catalog='', visited=None):  # pylint: disable=unused-argument
+    def _fill_instrument_batch(self, project, items, catalog='', visited=None):
         '''Hydrate multiple instruments. Instruments have no external SPARQL data.'''
         if not items:
             return
@@ -189,7 +188,7 @@ class Information(BaseInformation):
             add_basics(project=project, text=text, questions=self.questions,
                        item_type='Instrument', index=(0, set_index))
 
-    def _fill_data_set_batch(self, project, items, catalog='', visited=None):  # pylint: disable=unused-argument
+    def _fill_data_set_batch(self, project, items, catalog='', visited=None):
         '''Hydrate multiple data sets with a single SPARQL query per source.'''
         if not items:
             return
