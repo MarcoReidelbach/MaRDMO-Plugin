@@ -140,6 +140,7 @@ class Information(BaseInformation):
         if not data_by_id:
             return
 
+        section_indices = {}
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
             if not data:
@@ -166,7 +167,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Benchmark',
                                     batch_fill_method=self._fill_benchmark_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_benchmark_batch)
+                batch_fill_method=self._fill_benchmark_batch,
+                section_indices=section_indices)
 
             self._hydrate_publications(project, data.publications, 'mardi',
                                        catalog, visited)
@@ -188,6 +190,7 @@ class Information(BaseInformation):
         if not data_by_id:
             return
 
+        section_indices = {}
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
             if not data:
@@ -210,7 +213,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Benchmark',
                                     batch_fill_method=self._fill_benchmark_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_benchmark_batch)
+                batch_fill_method=self._fill_benchmark_batch,
+                section_indices=section_indices)
 
             add_relations_flexible(
                 project=project, data=data,
@@ -240,6 +244,7 @@ class Information(BaseInformation):
         if not data_by_id:
             return
 
+        section_indices = {}
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
             if not data:
@@ -262,7 +267,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Problem',
                                     batch_fill_method=self._fill_problem_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_problem_batch)
+                batch_fill_method=self._fill_problem_batch,
+                section_indices=section_indices)
 
             add_relations_static(
                 project=project, data=data,
@@ -278,7 +284,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Software',
                                     batch_fill_method=self._fill_software_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_software_batch)
+                batch_fill_method=self._fill_software_batch,
+                section_indices=section_indices)
 
             add_relations_flexible(
                 project=project, data=data,

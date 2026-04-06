@@ -214,6 +214,7 @@ class Information(BaseInformation):
         if not data_by_id:
             return
 
+        section_indices = {}
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
             if not data:
@@ -247,7 +248,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Research Field',
                                     batch_fill_method=self._fill_field_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_field_batch)
+                batch_fill_method=self._fill_field_batch,
+                section_indices=section_indices)
 
             add_relations_flexible(
                 project=project, data=data,
@@ -364,6 +366,7 @@ class Information(BaseInformation):
         if not data_by_id:
             return
 
+        section_indices = {}
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
             if not data:
@@ -416,7 +419,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Quantity',
                                     batch_fill_method=self._fill_quantity_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_quantity_batch)
+                batch_fill_method=self._fill_quantity_batch,
+                section_indices=section_indices)
 
             add_relations_flexible(
                 project=project, data=data,
@@ -437,7 +441,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Mathematical Formulation',
                                     batch_fill_method=self._fill_formulation_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_formulation_batch)
+                batch_fill_method=self._fill_formulation_batch,
+                section_indices=section_indices)
 
             add_relations_flexible(
                 project=project, data=data,
@@ -469,6 +474,7 @@ class Information(BaseInformation):
         if not data_by_id:
             return
 
+        section_indices = {}
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
             if not data:
@@ -511,7 +517,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Mathematical Formulation',
                                     batch_fill_method=self._fill_formulation_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_formulation_batch)
+                batch_fill_method=self._fill_formulation_batch,
+                section_indices=section_indices)
 
             add_relations_flexible(
                 project=project, data=data,
@@ -530,7 +537,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Quantity',
                                     batch_fill_method=self._fill_quantity_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_quantity_batch)
+                batch_fill_method=self._fill_quantity_batch,
+                section_indices=section_indices)
 
             add_relations_flexible(
                 project=project, data=data,
@@ -562,6 +570,7 @@ class Information(BaseInformation):
         if not data_by_id:
             return
 
+        section_indices = {}
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
             if not data:
@@ -599,7 +608,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Research Problem',
                                     batch_fill_method=self._fill_problem_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_problem_batch)
+                batch_fill_method=self._fill_problem_batch,
+                section_indices=section_indices)
 
             add_relations_flexible(
                 project=project, data=data,
@@ -621,7 +631,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Mathematical Formulation',
                                     batch_fill_method=self._fill_formulation_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_formulation_batch)
+                batch_fill_method=self._fill_formulation_batch,
+                section_indices=section_indices)
 
             add_relations_static(
                 project=project, data=data,
@@ -637,7 +648,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Task',
                                     batch_fill_method=self._fill_task_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_task_batch)
+                batch_fill_method=self._fill_task_batch,
+                section_indices=section_indices)
 
             add_relations_flexible(
                 project=project, data=data,

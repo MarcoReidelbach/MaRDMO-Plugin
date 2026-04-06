@@ -247,6 +247,7 @@ class Information(BaseInformation):
             Method,
         )
 
+        section_indices = {}
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
             if not data:
@@ -269,7 +270,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Software',
                                     batch_fill_method=self._fill_software_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_software_batch)
+                batch_fill_method=self._fill_software_batch,
+                section_indices=section_indices)
 
             add_relations_static(
                 project=project, data=data,
@@ -285,7 +287,8 @@ class Information(BaseInformation):
                 fill_method=partial(self._fill, item_type='Instrument',
                                     batch_fill_method=self._fill_instrument_batch),
                 catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_instrument_batch)
+                batch_fill_method=self._fill_instrument_batch,
+                section_indices=section_indices)
 
     def _fill_process_step_batch(self, project, items, catalog='', visited=None):
         '''Hydrate multiple process steps with a single SPARQL query per source.
@@ -306,6 +309,7 @@ class Information(BaseInformation):
             ProcessStep,
         )
 
+        section_indices = {}
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
             if not data:
@@ -315,11 +319,13 @@ class Information(BaseInformation):
                        item_type='Process Step', index=(0, set_index))
 
             self._fill_process_step_relations(
-                project, process_step, data, set_index, catalog, visited
+                project, process_step, data, set_index, catalog, visited,
+                section_indices,
             )
 
     def _fill_process_step_relations(
-        self, project, process_step, data, set_index, catalog, visited
+        self, project, process_step, data, set_index, catalog, visited,
+        section_indices=None,
     ):
         '''Write all relation fields and cascade hydration for one process step.'''
         # Input Data Sets
@@ -337,7 +343,8 @@ class Information(BaseInformation):
             fill_method=partial(self._fill, item_type='Data Set',
                                 batch_fill_method=self._fill_data_set_batch),
             catalog=catalog, visited=visited,
-            batch_fill_method=self._fill_data_set_batch)
+            batch_fill_method=self._fill_data_set_batch,
+            section_indices=section_indices)
 
         # Output Data Sets
         add_relations_static(
@@ -354,7 +361,8 @@ class Information(BaseInformation):
             fill_method=partial(self._fill, item_type='Data Set',
                                 batch_fill_method=self._fill_data_set_batch),
             catalog=catalog, visited=visited,
-            batch_fill_method=self._fill_data_set_batch)
+            batch_fill_method=self._fill_data_set_batch,
+            section_indices=section_indices)
 
         # Methods
         add_relations_static(
@@ -371,7 +379,8 @@ class Information(BaseInformation):
             fill_method=partial(self._fill, item_type='Method',
                                 batch_fill_method=self._fill_method_batch),
             catalog=catalog, visited=visited,
-            batch_fill_method=self._fill_method_batch)
+            batch_fill_method=self._fill_method_batch,
+            section_indices=section_indices)
 
         # Platform Software
         add_relations_static(
@@ -391,7 +400,8 @@ class Information(BaseInformation):
             fill_method=partial(self._fill, item_type='Software',
                                 batch_fill_method=self._fill_software_batch),
             catalog=catalog, visited=visited,
-            batch_fill_method=self._fill_software_batch)
+            batch_fill_method=self._fill_software_batch,
+            section_indices=section_indices)
 
         # Platform Instrument
         add_relations_static(
@@ -411,7 +421,8 @@ class Information(BaseInformation):
             fill_method=partial(self._fill, item_type='Instrument',
                                 batch_fill_method=self._fill_instrument_batch),
             catalog=catalog, visited=visited,
-            batch_fill_method=self._fill_instrument_batch)
+            batch_fill_method=self._fill_instrument_batch,
+            section_indices=section_indices)
 
         # Fields of Work (static, no cascade)
         add_relations_static(

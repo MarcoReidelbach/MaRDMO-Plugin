@@ -119,15 +119,25 @@ class BaseInformation:
 
     def _hydrate_relatants(self, project, data, prop_keys, question_id_uri,
                            question_set_uri, prefix, fill_method, catalog,
-                           visited, batch_fill_method=None):
+                           visited, batch_fill_method=None, section_indices=None):
         '''Register and hydrate all relatants found under prop_keys.
 
         Skips ids already in visited.  Collects mardi items for a single
         batch SPARQL call when batch_fill_method is provided; otherwise
         calls fill_method individually.
+
+        section_indices – optional mutable dict {question_set_uri: next_idx}.
+          When provided, the DB query for the current max set_index is skipped
+          on subsequent calls for the same URI within one batch fill.  Callers
+          create an empty dict once per _fill_*_batch call and pass it to every
+          _hydrate_relatants invocation so the counter is shared across them.
         '''
-        existing = get_id(project, question_set_uri, ['set_index'])
-        next_idx = max((e for e in existing if e is not None), default=-1) + 1
+        if section_indices is not None and question_set_uri in section_indices:
+            next_idx = section_indices[question_set_uri]
+        else:
+            existing = get_id(project, question_set_uri, ['set_index'])
+            next_idx = max((e for e in existing if e is not None), default=-1) + 1
+
         batch_items = []
 
         for prop in prop_keys:
@@ -154,6 +164,9 @@ class BaseInformation:
                                 catalog=catalog, visited=visited)
 
                 next_idx += 1
+
+        if section_indices is not None:
+            section_indices[question_set_uri] = next_idx
 
         if batch_items and batch_fill_method:
             batch_fill_method(project=project, items=batch_items,
