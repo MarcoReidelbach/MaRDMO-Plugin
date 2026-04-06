@@ -13,9 +13,17 @@ simply uses the default catalog='' everywhere.
 
 import logging
 
-from .getters import get_id
+from .getters import (
+    get_id,
+    get_items,
+    get_properties,
+    get_sparql_query,
+    get_sparql_query_optional,
+    get_url,
+)
 from .helpers import value_editor
 from .adders import add_basics
+from .queries import query_sparql
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +42,38 @@ def _get_pub_info():
 def _values_clause(items):
     '''Return "wd:Q1 wd:Q2 …" from a list of (text, ext_id, idx).'''
     return ' '.join(f'wd:{ext_id.split(":")[-1]}' for _, ext_id, _ in items)
+
+
+def _fetch_by_source(items, mardi_file, wikidata_file, model_class):
+    '''Run one SPARQL query per source; return {external_id: instance} dict.
+
+    Uses get_sparql_query for the mardi file (always required) and
+    get_sparql_query_optional for the wikidata file (no-op if absent).
+    Both functions are lru_cached, so repeated calls are free.
+    '''
+    data_by_id     = {}
+    mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
+    wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
+
+    if mardi_items:
+        query   = get_sparql_query(mardi_file).format(
+            _values_clause(mardi_items), **get_items(), **get_properties()
+        )
+        results = query_sparql(query, get_url('mardi', 'sparql'))
+        if results:
+            data_by_id.update(model_class.from_query_batch(results))
+
+    if wikidata_items:
+        tmpl = get_sparql_query_optional(wikidata_file)
+        if tmpl:
+            query   = tmpl.format(
+                _values_clause(wikidata_items), **get_items(), **get_properties()
+            )
+            results = query_sparql(query, get_url('wikidata', 'sparql'))
+            if results:
+                data_by_id.update(model_class.from_query_batch(results))
+
+    return data_by_id
 
 
 class BaseInformation:

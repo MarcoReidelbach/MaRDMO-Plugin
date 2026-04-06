@@ -7,18 +7,10 @@ and _fill from BaseInformation (MaRDMO/handler_base.py).
 import logging
 from functools import partial
 
-from ..handler_base import BaseInformation, _values_clause
+from ..handler_base import BaseInformation, _fetch_by_source
 from ..constants import BASE_URI
-from ..getters import (
-    get_items,
-    get_options,
-    get_properties,
-    get_questions,
-    get_sparql_query,
-    get_url,
-)
+from ..getters import get_options, get_questions
 from ..helpers import value_editor
-from ..queries import query_sparql
 from ..adders import add_basics, add_references, add_relations_static
 
 from .constants import PROPS
@@ -77,26 +69,12 @@ class Information(BaseInformation):
             visited = set()
 
         software   = self.questions['Software']
-        data_by_id = {}
-
-        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
-        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
-
-        if mardi_items:
-            query   = get_sparql_query('workflow/queries/software_mardi.sparql').format(
-                _values_clause(mardi_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('mardi', 'sparql'))
-            if results:
-                data_by_id.update(Software.from_query_batch(results))
-
-        if wikidata_items:
-            query   = get_sparql_query('workflow/queries/software_wikidata.sparql').format(
-                _values_clause(wikidata_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('wikidata', 'sparql'))
-            if results:
-                data_by_id.update(Software.from_query_batch(results))
+        data_by_id = _fetch_by_source(
+            items,
+            'workflow/queries/software_mardi.sparql',
+            'workflow/queries/software_wikidata.sparql',
+            Software,
+        )
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -132,26 +110,12 @@ class Information(BaseInformation):
             visited = set()
 
         hardware   = self.questions['Hardware']
-        data_by_id = {}
-
-        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
-        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
-
-        if mardi_items:
-            query   = get_sparql_query('workflow/queries/hardware_mardi.sparql').format(
-                _values_clause(mardi_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('mardi', 'sparql'))
-            if results:
-                data_by_id.update(Hardware.from_query_batch(results))
-
-        if wikidata_items:
-            query   = get_sparql_query('workflow/queries/hardware_wikidata.sparql').format(
-                _values_clause(wikidata_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('wikidata', 'sparql'))
-            if results:
-                data_by_id.update(Hardware.from_query_batch(results))
+        data_by_id = _fetch_by_source(
+            items,
+            'workflow/queries/hardware_mardi.sparql',
+            'workflow/queries/hardware_wikidata.sparql',
+            Hardware,
+        )
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -196,26 +160,12 @@ class Information(BaseInformation):
             visited = set()
 
         data_set_q = self.questions['Data Set']
-        data_by_id = {}
-
-        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
-        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
-
-        if mardi_items:
-            query   = get_sparql_query('workflow/queries/data_set_mardi.sparql').format(
-                _values_clause(mardi_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('mardi', 'sparql'))
-            if results:
-                data_by_id.update(DataSet.from_query_batch(results))
-
-        if wikidata_items:
-            query   = get_sparql_query('workflow/queries/data_set_wikidata.sparql').format(
-                _values_clause(wikidata_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('wikidata', 'sparql'))
-            if results:
-                data_by_id.update(DataSet.from_query_batch(results))
+        data_by_id = _fetch_by_source(
+            items,
+            'workflow/queries/data_set_mardi.sparql',
+            'workflow/queries/data_set_wikidata.sparql',
+            DataSet,
+        )
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -290,26 +240,12 @@ class Information(BaseInformation):
             visited = set()
 
         method     = self.questions['Method']
-        data_by_id = {}
-
-        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
-        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
-
-        if mardi_items:
-            query   = get_sparql_query('workflow/queries/method_mardi.sparql').format(
-                _values_clause(mardi_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('mardi', 'sparql'))
-            if results:
-                data_by_id.update(Method.from_query_batch(results))
-
-        if wikidata_items:
-            query   = get_sparql_query('workflow/queries/method_wikidata.sparql').format(
-                _values_clause(wikidata_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('wikidata', 'sparql'))
-            if results:
-                data_by_id.update(Method.from_query_batch(results))
+        data_by_id = _fetch_by_source(
+            items,
+            'workflow/queries/method_mardi.sparql',
+            'workflow/queries/method_wikidata.sparql',
+            Method,
+        )
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)
@@ -363,26 +299,12 @@ class Information(BaseInformation):
             visited = set()
 
         process_step = self.questions['Process Step']
-        data_by_id   = {}
-
-        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
-        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
-
-        if mardi_items:
-            query   = get_sparql_query('workflow/queries/process_step_mardi.sparql').format(
-                _values_clause(mardi_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('mardi', 'sparql'))
-            if results:
-                data_by_id.update(ProcessStep.from_query_batch(results))
-
-        if wikidata_items:
-            query   = get_sparql_query('workflow/queries/process_step_wikidata.sparql').format(
-                _values_clause(wikidata_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('wikidata', 'sparql'))
-            if results:
-                data_by_id.update(ProcessStep.from_query_batch(results))
+        data_by_id   = _fetch_by_source(
+            items,
+            'workflow/queries/process_step_mardi.sparql',
+            'workflow/queries/process_step_wikidata.sparql',
+            ProcessStep,
+        )
 
         for text, external_id, set_index in items:
             data = data_by_id.get(external_id)

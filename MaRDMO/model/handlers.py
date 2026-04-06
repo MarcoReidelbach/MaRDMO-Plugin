@@ -14,20 +14,14 @@ from rdmo.options.models import Option
 from . import models
 from .constants import props, relatant_uris, relation_uris, index_counters
 
-from ..handler_base import BaseInformation, _get_pub_info, _values_clause
+from ..handler_base import BaseInformation, _fetch_by_source, _get_pub_info
 from ..constants import BASE_URI
 from ..getters import (
     get_id,
-    get_items,
     get_mathmoddb,
-    get_properties,
     get_questions,
-    get_sparql_query,
-    get_sparql_query_optional,
-    get_url,
 )
 from ..helpers import value_editor
-from ..queries import query_sparql
 from ..adders import (
     add_basics,
     add_properties,
@@ -165,29 +159,12 @@ class Information(BaseInformation):
             return
 
         field      = self.questions['Research Field']
-        data_by_id = {}
-
-        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
-        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
-
-        if mardi_items:
-            query   = get_sparql_query('model/queries/field_mardi.sparql').format(
-                _values_clause(mardi_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('mardi', 'sparql'))
-            if results:
-                data_by_id.update(models.ResearchField.from_query_batch(results))
-
-        if wikidata_items:
-            tmpl = get_sparql_query_optional('model/queries/field_wikidata.sparql')
-            if tmpl:
-                query   = tmpl.format(
-                    _values_clause(wikidata_items), **get_items(), **get_properties()
-                )
-                results = query_sparql(query, get_url('wikidata', 'sparql'))
-                if results:
-                    data_by_id.update(models.ResearchField.from_query_batch(results))
-
+        data_by_id = _fetch_by_source(
+            items,
+            'model/queries/field_mardi.sparql',
+            'model/queries/field_wikidata.sparql',
+            models.ResearchField,
+        )
         if not data_by_id:
             return
 
@@ -228,31 +205,12 @@ class Information(BaseInformation):
             return
 
         problem    = self.questions['Research Problem']
-        data_by_id = {}
-
-        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
-        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
-
-        if mardi_items:
-            query   = get_sparql_query(
-                _sparql_file('model/queries/problem_mardi.sparql', catalog)
-            ).format(_values_clause(mardi_items), **get_items(), **get_properties())
-            results = query_sparql(query, get_url('mardi', 'sparql'))
-            if results:
-                data_by_id.update(models.ResearchProblem.from_query_batch(results))
-
-        if wikidata_items:
-            tmpl = get_sparql_query_optional(
-                _sparql_file('model/queries/problem_wikidata.sparql', catalog)
-            )
-            if tmpl:
-                query   = tmpl.format(
-                    _values_clause(wikidata_items), **get_items(), **get_properties()
-                )
-                results = query_sparql(query, get_url('wikidata', 'sparql'))
-                if results:
-                    data_by_id.update(models.ResearchProblem.from_query_batch(results))
-
+        data_by_id = _fetch_by_source(
+            items,
+            _sparql_file('model/queries/problem_mardi.sparql', catalog),
+            _sparql_file('model/queries/problem_wikidata.sparql', catalog),
+            models.ResearchProblem,
+        )
         if not data_by_id:
             return
 
@@ -309,29 +267,12 @@ class Information(BaseInformation):
             return
 
         quantity   = self.questions['Quantity']
-        data_by_id = {}
-
-        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
-        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
-
-        if mardi_items:
-            query   = get_sparql_query('model/queries/quantity_mardi.sparql').format(
-                _values_clause(mardi_items), **get_items(), **get_properties()
-            )
-            results = query_sparql(query, get_url('mardi', 'sparql'))
-            if results:
-                data_by_id.update(models.QuantityOrQuantityKind.from_query_batch(results))
-
-        if wikidata_items:
-            tmpl = get_sparql_query_optional('model/queries/quantity_wikidata.sparql')
-            if tmpl:
-                query   = tmpl.format(
-                    _values_clause(wikidata_items), **get_items(), **get_properties()
-                )
-                results = query_sparql(query, get_url('wikidata', 'sparql'))
-                if results:
-                    data_by_id.update(models.QuantityOrQuantityKind.from_query_batch(results))
-
+        data_by_id = _fetch_by_source(
+            items,
+            'model/queries/quantity_mardi.sparql',
+            'model/queries/quantity_wikidata.sparql',
+            models.QuantityOrQuantityKind,
+        )
         if not data_by_id:
             return
 
@@ -414,31 +355,12 @@ class Information(BaseInformation):
             return
 
         formulation = self.questions['Mathematical Formulation']
-        data_by_id  = {}
-
-        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
-        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
-
-        if mardi_items:
-            query   = get_sparql_query(
-                _sparql_file('model/queries/formulation_mardi.sparql', catalog)
-            ).format(_values_clause(mardi_items), **get_items(), **get_properties())
-            results = query_sparql(query, get_url('mardi', 'sparql'))
-            if results:
-                data_by_id.update(models.MathematicalFormulation.from_query_batch(results))
-
-        if wikidata_items:
-            tmpl = get_sparql_query_optional(
-                _sparql_file('model/queries/formulation_wikidata.sparql', catalog)
-            )
-            if tmpl:
-                query   = tmpl.format(
-                    _values_clause(wikidata_items), **get_items(), **get_properties()
-                )
-                results = query_sparql(query, get_url('wikidata', 'sparql'))
-                if results:
-                    data_by_id.update(models.MathematicalFormulation.from_query_batch(results))
-
+        data_by_id  = _fetch_by_source(
+            items,
+            _sparql_file('model/queries/formulation_mardi.sparql', catalog),
+            _sparql_file('model/queries/formulation_wikidata.sparql', catalog),
+            models.MathematicalFormulation,
+        )
         if not data_by_id:
             return
 
@@ -538,31 +460,12 @@ class Information(BaseInformation):
             return
 
         task       = self.questions['Task']
-        data_by_id = {}
-
-        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
-        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
-
-        if mardi_items:
-            query   = get_sparql_query(
-                _sparql_file('model/queries/task_mardi.sparql', catalog)
-            ).format(_values_clause(mardi_items), **get_items(), **get_properties())
-            results = query_sparql(query, get_url('mardi', 'sparql'))
-            if results:
-                data_by_id.update(models.Task.from_query_batch(results))
-
-        if wikidata_items:
-            tmpl = get_sparql_query_optional(
-                _sparql_file('model/queries/task_wikidata.sparql', catalog)
-            )
-            if tmpl:
-                query   = tmpl.format(
-                    _values_clause(wikidata_items), **get_items(), **get_properties()
-                )
-                results = query_sparql(query, get_url('wikidata', 'sparql'))
-                if results:
-                    data_by_id.update(models.Task.from_query_batch(results))
-
+        data_by_id = _fetch_by_source(
+            items,
+            _sparql_file('model/queries/task_mardi.sparql', catalog),
+            _sparql_file('model/queries/task_wikidata.sparql', catalog),
+            models.Task,
+        )
         if not data_by_id:
             return
 
@@ -650,31 +553,12 @@ class Information(BaseInformation):
             return
 
         model_q    = self.questions['Mathematical Model']
-        data_by_id = {}
-
-        mardi_items    = [(t, eid, si) for t, eid, si in items if eid.startswith('mardi:')]
-        wikidata_items = [(t, eid, si) for t, eid, si in items if eid.startswith('wikidata:')]
-
-        if mardi_items:
-            query   = get_sparql_query(
-                _sparql_file('model/queries/model_mardi.sparql', catalog)
-            ).format(_values_clause(mardi_items), **get_items(), **get_properties())
-            results = query_sparql(query, get_url('mardi', 'sparql'))
-            if results:
-                data_by_id.update(models.MathematicalModel.from_query_batch(results))
-
-        if wikidata_items:
-            tmpl = get_sparql_query_optional(
-                _sparql_file('model/queries/model_wikidata.sparql', catalog)
-            )
-            if tmpl:
-                query   = tmpl.format(
-                    _values_clause(wikidata_items), **get_items(), **get_properties()
-                )
-                results = query_sparql(query, get_url('wikidata', 'sparql'))
-                if results:
-                    data_by_id.update(models.MathematicalModel.from_query_batch(results))
-
+        data_by_id = _fetch_by_source(
+            items,
+            _sparql_file('model/queries/model_mardi.sparql', catalog),
+            _sparql_file('model/queries/model_wikidata.sparql', catalog),
+            models.MathematicalModel,
+        )
         if not data_by_id:
             return
 

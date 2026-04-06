@@ -2,6 +2,7 @@
 
 import json
 import os
+from functools import lru_cache
 
 from django.apps import apps
 from django.conf import settings
@@ -47,22 +48,24 @@ def get_item_url(source):
     """Get general Wikibase Item URL from Wikibase URL"""
     return f"{settings.MARDMO_PROVIDER[source]['uri']}/wiki/Item:"
 
+@lru_cache(maxsize=None)
 def get_data(file_name):
-    """Get Data from JSON File"""
+    """Get Data from JSON File (cached after first read)."""
     path = os.path.join(os.path.dirname(__file__), file_name)
     with open(path, "r", encoding="utf-8") as json_file:
         data = json.load(json_file)
     return data
 
+@lru_cache(maxsize=None)
 def get_sparql_query(file_name):
-    """Get Data from SPARQL File"""
+    """Get Data from SPARQL File (cached after first read)."""
     path = os.path.join(os.path.dirname(__file__), file_name)
     with open(path, "r", encoding="utf-8") as sparql_file:
-        query = sparql_file.read()
-    return query
+        return sparql_file.read()
 
+@lru_cache(maxsize=None)
 def get_sparql_query_optional(file_name):
-    """Get Data from SPARQL File, or None if the file does not exist."""
+    """Get Data from SPARQL File, or None if the file does not exist (cached)."""
     path = os.path.join(os.path.dirname(__file__), file_name)
     if not os.path.exists(path):
         return None

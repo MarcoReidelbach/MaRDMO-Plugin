@@ -10,7 +10,7 @@ from .handlers import Information as GeneralInformation
 
 def build_handler_map():
     """Build a global mapping of attribute URIs to handler functions."""
-    #from .model import handlers as model_handlers
+
     base = BASE_URI
     handler_map = {}
 
