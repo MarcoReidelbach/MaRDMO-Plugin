@@ -11,6 +11,13 @@ from ..getters import get_data, get_options
 from ..helpers import split_value
 from ..models import Relatant
 
+# Reverse lookup for MSC 2020: {msc_id: (label, quote)} — built once at import time.
+# get_data is lru_cached so the JSON is read from disk only once.
+_MSC_BY_ID: dict = {
+    entry['id']: (label, entry['quote'])
+    for label, entry in get_data('data/msc2020.json').items()
+}
+
 
 @dataclass
 class ModelProperties:
@@ -148,8 +155,6 @@ class ProcessStep:
     @classmethod
     def from_query_single(cls, data: dict) -> 'ProcessStep':
         '''Parse one SPARQL result row into a ProcessStep instance.'''
-        msc = get_data('data/msc2020.json')
-
         return cls(
             input_data_set=split_value(
                 data=data, key='input_data_set', transform=Relatant.from_query
@@ -170,10 +175,10 @@ class ProcessStep:
                 data=data, key='field_of_work', transform=Relatant.from_query
             ),
             msc_id=[
-                Relatant.from_msc(msc_id, label, entry['quote'])
+                Relatant.from_msc(msc_id, label, quote)
                 for msc_id in split_value(data, 'msc_id')
-                for label, entry in msc.items()
-                if entry['id'] == msc_id
+                if (match := _MSC_BY_ID.get(msc_id))
+                for label, quote in (match,)
             ],
         )
 
