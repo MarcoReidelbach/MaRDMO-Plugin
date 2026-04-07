@@ -1,3 +1,5 @@
+'''Module containing Constants for the Workflow Documentation'''
+
 from ..constants import BASE_URI
 from ..getters import get_options, get_questions
 
@@ -17,6 +19,7 @@ data_set_reference_ids = [
 
 # URI PREFIX Map
 def get_uri_prefix_map():
+    '''URI Prefixes for the Workflow Documentation'''
     questions = get_questions('workflow')
     URI_PREFIX_MAP = {
         f'{BASE_URI}{questions["Process Step"]["Input"]["uri"]}': {
@@ -87,7 +90,7 @@ PROPS = {
 }
 
 # Order of toPublish Answers
-def order_to_publish(): 
+def order_to_publish():
     options = get_options()
     order = {
         'Yes': (0, options['Yes']),
@@ -105,4 +108,3 @@ REPRODUCIBILITY = {
     'originalplatform': 'original platform reproducible research workflow',
     'otherplatform': 'cross-platform reproducible research workflow'
     }
-
