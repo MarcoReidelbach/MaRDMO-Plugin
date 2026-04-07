@@ -1,6 +1,7 @@
 '''Module containing general Handlers for MaRDMO'''
 
 from .adders import add_entities, add_new_entities
+from .getters import get_id
 from .helpers import extract_parts
 from .models import Relatant
 
@@ -8,40 +9,43 @@ from .algorithm.constants import get_uri_prefix_map as get_uri_prefix_map_algori
 from .model.constants import get_uri_prefix_map as get_uri_prefix_map_model
 from .workflow.constants import get_uri_prefix_map as get_uri_prefix_map_workflow
 
-# Lazy imports to avoid circular dependencies
+# Lazy singletons – avoid circular imports and repeated instantiation
 _MODEL_INFO    = None
 _ALGO_INFO     = None
 _WORKFLOW_INFO = None
 
+
 def _get_model_info():
-    global _MODEL_INFO
+    global _MODEL_INFO                                     # pylint: disable=global-statement
     if _MODEL_INFO is None:
-        from .model.handlers import Information as ModelInformation
-        _MODEL_INFO = ModelInformation()
+        from .model.handlers import Information as M       # noqa: PLC0415
+        _MODEL_INFO = M()
     return _MODEL_INFO
 
+
 def _get_algo_info():
-    global _ALGO_INFO
+    global _ALGO_INFO                                      # pylint: disable=global-statement
     if _ALGO_INFO is None:
-        from .algorithm.handlers import Information as AlgorithmInformation
-        _ALGO_INFO = AlgorithmInformation()
+        from .algorithm.handlers import Information as A   # noqa: PLC0415
+        _ALGO_INFO = A()
     return _ALGO_INFO
 
+
 def _get_workflow_info():
-    global _WORKFLOW_INFO
+    global _WORKFLOW_INFO                                  # pylint: disable=global-statement
     if _WORKFLOW_INFO is None:
-        from .workflow.handlers import Information as WorkflowInformation
-        _WORKFLOW_INFO = WorkflowInformation()
+        from .workflow.handlers import Information as W    # noqa: PLC0415
+        _WORKFLOW_INFO = W()
     return _WORKFLOW_INFO
 
 
 # Map prefix → (item_type, batch_method_name) per catalog family.
 _MODEL_PREFIX_TO_FILL = {
     'AD':  ('Research Field',          '_fill_field_batch'),
-    'RP':  ('Research Problem',         '_fill_problem_batch'),
-    'CT':  ('Task',                     '_fill_task_batch'),
-    'ME':  ('Mathematical Formulation', '_fill_formulation_batch'),
-    'QQK': ('Quantity',                 '_fill_quantity_batch'),
+    'RP':  ('Research Problem',        '_fill_problem_batch'),
+    'CT':  ('Task',                    '_fill_task_batch'),
+    'ME':  ('Mathematical Formulation','_fill_formulation_batch'),
+    'QQK': ('Quantity',                '_fill_quantity_batch'),
 }
 
 _ALGO_PREFIX_TO_FILL = {
@@ -55,6 +59,31 @@ _WORKFLOW_PREFIX_TO_FILL = {
     'M':  ('Method',     '_fill_method_batch'),
     'S':  ('Software',   '_fill_software_batch'),
     'I':  ('Instrument', '_fill_instrument_batch'),
+}
+
+# Dispatch table: catalog suffix → (get_uri_prefix_map_fn, prefix_map, get_info_fn)
+# All catalogs accept both 'mardi' and 'wikidata' as hydration sources.
+_CATALOG_DISPATCH = {
+    'mardmo-model-catalog': (
+        get_uri_prefix_map_model,
+        _MODEL_PREFIX_TO_FILL,
+        _get_model_info
+    ),
+    'mardmo-model-basics-catalog': (
+        get_uri_prefix_map_model,
+        _MODEL_PREFIX_TO_FILL,
+        _get_model_info
+    ),
+    'mardmo-interdisciplinary-workflow-catalog': (
+        get_uri_prefix_map_workflow,
+        _WORKFLOW_PREFIX_TO_FILL,
+        _get_workflow_info
+    ),
+    'mardmo-algorithm-catalog': (
+        get_uri_prefix_map_algorithm,
+        _ALGO_PREFIX_TO_FILL,
+        _get_algo_info
+    ),
 }
 
 
@@ -72,33 +101,19 @@ class Information:
         2. Explicitly hydrates the entity via _fill on the appropriate
            Information class.
         '''
-
         catalog_str = str(instance.project.catalog)
+        catalog_key = catalog_str.rsplit('/', maxsplit=1)[-1]
 
-        if catalog_str.endswith("mardmo-model-catalog"):
-            config_map   = get_uri_prefix_map_model()
-            prefix_map   = _MODEL_PREFIX_TO_FILL
-            get_info     = _get_model_info
-        elif catalog_str.endswith("mardmo-model-basics-catalog"):
-            config_map   = get_uri_prefix_map_model()
-            prefix_map   = _MODEL_PREFIX_TO_FILL
-            get_info     = _get_model_info
-        elif catalog_str.endswith("mardmo-interdisciplinary-workflow-catalog"):
-            config_map   = get_uri_prefix_map_workflow()
-            prefix_map   = _WORKFLOW_PREFIX_TO_FILL
-            get_info     = _get_workflow_info
-        elif catalog_str.endswith("mardmo-algorithm-catalog"):
-            config_map   = get_uri_prefix_map_algorithm()
-            prefix_map   = _ALGO_PREFIX_TO_FILL
-            get_info     = _get_algo_info
-        else:
+        dispatch = _CATALOG_DISPATCH.get(catalog_key)
+        if dispatch is None:
             return
+        get_uri_prefix_map, prefix_map, get_info = dispatch
 
         if not instance.text:
             return
 
         label, description, source = extract_parts(instance.text)
-        config = config_map[instance.attribute.uri]
+        config = get_uri_prefix_map()[instance.attribute.uri]
         datas  = [Relatant.from_triple(instance.external_id, label, description)]
 
         # --- Step 1: add entity to questionnaire section ---
@@ -120,12 +135,8 @@ class Information:
             return  # user-defined entities have no external data to hydrate
 
         # --- Step 2: explicitly hydrate the entity ---
-        # Only mardi/wikidata-sourced entities carry SPARQL-queryable metadata,
-
-        if prefix_map is None or get_info is None:
-            return
-        is_workflow = catalog_str.endswith("mardmo-interdisciplinary-workflow-catalog")
-        if source not in ('mardi', 'wikidata') if is_workflow else source != 'mardi':
+        # Only mardi/wikidata-sourced entities carry SPARQL-queryable metadata.
+        if source not in ('mardi', 'wikidata'):
             return
 
         entry = prefix_map.get(config["prefix"])
@@ -133,8 +144,6 @@ class Information:
             return
         item_type, batch_method_name = entry
 
-        from .getters import get_id
-        catalog  = catalog_str.rsplit('/', maxsplit=1)[-1]
         info     = get_info()
         batch_fn = getattr(info, batch_method_name)
 
@@ -151,7 +160,7 @@ class Information:
                     set_index         = set_index,
                     item_type         = item_type,
                     batch_fill_method = batch_fn,
-                    catalog           = catalog,
+                    catalog           = catalog_key,
                     visited           = visited,
                 )
                 break
