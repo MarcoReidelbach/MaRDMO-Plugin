@@ -7,7 +7,7 @@ and _fill from BaseInformation (MaRDMO/handler_base.py).
 import logging
 from functools import partial
 
-from ..handler_base import BaseInformation, _fetch_by_source
+from ..handler_base import BaseInformation, _RelatantSpec, _fetch_by_source
 from ..constants import BASE_URI
 from ..getters import get_options, get_questions
 from ..helpers import value_editor
@@ -264,14 +264,16 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=PROPS['M2S'],
-                question_id_uri=f'{self.base}{self.questions["Software"]["ID"]["uri"]}',
-                question_set_uri=f'{self.base}{self.questions["Software"]["uri"]}',
-                prefix='S',
-                fill_method=partial(self._fill, item_type='Software',
-                                    batch_fill_method=self._fill_software_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_software_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=f'{self.base}{self.questions["Software"]["ID"]["uri"]}',
+                    question_set_uri=f'{self.base}{self.questions["Software"]["uri"]}',
+                    prefix='S',
+                    fill_method=partial(self._fill, item_type='Software',
+                                        batch_fill_method=self._fill_software_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_software_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_static(
                 project=project, data=data,
@@ -281,14 +283,16 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=PROPS['M2I'],
-                question_id_uri=f'{self.base}{self.questions["Instrument"]["ID"]["uri"]}',
-                question_set_uri=f'{self.base}{self.questions["Instrument"]["uri"]}',
-                prefix='I',
-                fill_method=partial(self._fill, item_type='Instrument',
-                                    batch_fill_method=self._fill_instrument_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_instrument_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=f'{self.base}{self.questions["Instrument"]["ID"]["uri"]}',
+                    question_set_uri=f'{self.base}{self.questions["Instrument"]["uri"]}',
+                    prefix='I',
+                    fill_method=partial(self._fill, item_type='Instrument',
+                                        batch_fill_method=self._fill_instrument_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_instrument_batch,
+                    section_indices=section_indices,
+                ))
 
     def _fill_process_step_batch(self, project, items, catalog='', visited=None):
         '''Hydrate multiple process steps with a single SPARQL query per source.
@@ -337,14 +341,16 @@ class Information(BaseInformation):
 
         self._hydrate_relatants(
             project=project, data=data, prop_keys=PROPS['PS2IDS'],
-            question_id_uri=f'{self.base}{self.questions["Data Set"]["ID"]["uri"]}',
-            question_set_uri=f'{self.base}{self.questions["Data Set"]["uri"]}',
-            prefix='DS',
-            fill_method=partial(self._fill, item_type='Data Set',
-                                batch_fill_method=self._fill_data_set_batch),
-            catalog=catalog, visited=visited,
-            batch_fill_method=self._fill_data_set_batch,
-            section_indices=section_indices)
+            spec=_RelatantSpec(
+                question_id_uri=f'{self.base}{self.questions["Data Set"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Data Set"]["uri"]}',
+                prefix='DS',
+                fill_method=partial(self._fill, item_type='Data Set',
+                                    batch_fill_method=self._fill_data_set_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_data_set_batch,
+                section_indices=section_indices,
+            ))
 
         # Output Data Sets
         add_relations_static(
@@ -355,14 +361,16 @@ class Information(BaseInformation):
 
         self._hydrate_relatants(
             project=project, data=data, prop_keys=PROPS['PS2ODS'],
-            question_id_uri=f'{self.base}{self.questions["Data Set"]["ID"]["uri"]}',
-            question_set_uri=f'{self.base}{self.questions["Data Set"]["uri"]}',
-            prefix='DS',
-            fill_method=partial(self._fill, item_type='Data Set',
-                                batch_fill_method=self._fill_data_set_batch),
-            catalog=catalog, visited=visited,
-            batch_fill_method=self._fill_data_set_batch,
-            section_indices=section_indices)
+            spec=_RelatantSpec(
+                question_id_uri=f'{self.base}{self.questions["Data Set"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Data Set"]["uri"]}',
+                prefix='DS',
+                fill_method=partial(self._fill, item_type='Data Set',
+                                    batch_fill_method=self._fill_data_set_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_data_set_batch,
+                section_indices=section_indices,
+            ))
 
         # Methods
         add_relations_static(
@@ -373,14 +381,16 @@ class Information(BaseInformation):
 
         self._hydrate_relatants(
             project=project, data=data, prop_keys=PROPS['PS2M'],
-            question_id_uri=f'{self.base}{self.questions["Method"]["ID"]["uri"]}',
-            question_set_uri=f'{self.base}{self.questions["Method"]["uri"]}',
-            prefix='M',
-            fill_method=partial(self._fill, item_type='Method',
-                                batch_fill_method=self._fill_method_batch),
-            catalog=catalog, visited=visited,
-            batch_fill_method=self._fill_method_batch,
-            section_indices=section_indices)
+            spec=_RelatantSpec(
+                question_id_uri=f'{self.base}{self.questions["Method"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Method"]["uri"]}',
+                prefix='M',
+                fill_method=partial(self._fill, item_type='Method',
+                                    batch_fill_method=self._fill_method_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_method_batch,
+                section_indices=section_indices,
+            ))
 
         # Platform Software
         add_relations_static(
@@ -394,14 +404,16 @@ class Information(BaseInformation):
 
         self._hydrate_relatants(
             project=project, data=data, prop_keys=PROPS['PS2PLS'],
-            question_id_uri=f'{self.base}{self.questions["Software"]["ID"]["uri"]}',
-            question_set_uri=f'{self.base}{self.questions["Software"]["uri"]}',
-            prefix='S',
-            fill_method=partial(self._fill, item_type='Software',
-                                batch_fill_method=self._fill_software_batch),
-            catalog=catalog, visited=visited,
-            batch_fill_method=self._fill_software_batch,
-            section_indices=section_indices)
+            spec=_RelatantSpec(
+                question_id_uri=f'{self.base}{self.questions["Software"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Software"]["uri"]}',
+                prefix='S',
+                fill_method=partial(self._fill, item_type='Software',
+                                    batch_fill_method=self._fill_software_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_software_batch,
+                section_indices=section_indices,
+            ))
 
         # Platform Instrument
         add_relations_static(
@@ -415,14 +427,16 @@ class Information(BaseInformation):
 
         self._hydrate_relatants(
             project=project, data=data, prop_keys=PROPS['PS2PLI'],
-            question_id_uri=f'{self.base}{self.questions["Instrument"]["ID"]["uri"]}',
-            question_set_uri=f'{self.base}{self.questions["Instrument"]["uri"]}',
-            prefix='I',
-            fill_method=partial(self._fill, item_type='Instrument',
-                                batch_fill_method=self._fill_instrument_batch),
-            catalog=catalog, visited=visited,
-            batch_fill_method=self._fill_instrument_batch,
-            section_indices=section_indices)
+            spec=_RelatantSpec(
+                question_id_uri=f'{self.base}{self.questions["Instrument"]["ID"]["uri"]}',
+                question_set_uri=f'{self.base}{self.questions["Instrument"]["uri"]}',
+                prefix='I',
+                fill_method=partial(self._fill, item_type='Instrument',
+                                    batch_fill_method=self._fill_instrument_batch),
+                catalog=catalog, visited=visited,
+                batch_fill_method=self._fill_instrument_batch,
+                section_indices=section_indices,
+            ))
 
         # Fields of Work (static, no cascade)
         add_relations_static(
