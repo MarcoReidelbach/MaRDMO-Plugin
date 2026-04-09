@@ -175,10 +175,9 @@ class ProcessStep:
                 data=data, key='field_of_work', transform=Relatant.from_query
             ),
             msc_id=[
-                Relatant.from_msc(msc_id, label, quote)
+                Relatant.from_msc(msc_id, *_MSC_BY_ID[msc_id])
                 for msc_id in split_value(data, 'msc_id')
-                if (match := _MSC_BY_ID.get(msc_id))
-                for label, quote in (match,)
+                if msc_id in _MSC_BY_ID
             ],
         )
 
