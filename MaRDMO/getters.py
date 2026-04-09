@@ -19,7 +19,7 @@ def get_mathmoddb():
     )
 
 def get_mathalgodb():
-    """Retrieve the mathmoddb ontology from MaRDMOConfig."""
+    """Retrieve the mathalgodb ontology from MaRDMOConfig."""
     return PropertyRegistry(
         apps.get_app_config("MaRDMO").mathalgodb
     )
@@ -29,11 +29,11 @@ def get_options():
     return apps.get_app_config("MaRDMO").options
 
 def get_items():
-    """Retrieve the rdmo options from MaRDMOConfig."""
+    """Retrieve the wikibase items dict from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").items
 
 def get_properties():
-    """Retrieve the rdmo options from MaRDMOConfig."""
+    """Retrieve the wikibase properties dict from MaRDMOConfig."""
     return apps.get_app_config("MaRDMO").properties
 
 def get_questions(question_set):
