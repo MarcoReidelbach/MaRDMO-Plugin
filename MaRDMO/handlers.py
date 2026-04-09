@@ -16,25 +16,25 @@ _WORKFLOW_INFO = None
 
 
 def _get_model_info():
-    global _MODEL_INFO                                     # pylint: disable=global-statement
+    global _MODEL_INFO
     if _MODEL_INFO is None:
-        from .model.handlers import Information as M       # noqa: PLC0415
+        from .model.handlers import Information as M
         _MODEL_INFO = M()
     return _MODEL_INFO
 
 
 def _get_algo_info():
-    global _ALGO_INFO                                      # pylint: disable=global-statement
+    global _ALGO_INFO
     if _ALGO_INFO is None:
-        from .algorithm.handlers import Information as A   # noqa: PLC0415
+        from .algorithm.handlers import Information as A
         _ALGO_INFO = A()
     return _ALGO_INFO
 
 
 def _get_workflow_info():
-    global _WORKFLOW_INFO                                  # pylint: disable=global-statement
+    global _WORKFLOW_INFO
     if _WORKFLOW_INFO is None:
-        from .workflow.handlers import Information as W    # noqa: PLC0415
+        from .workflow.handlers import Information as W
         _WORKFLOW_INFO = W()
     return _WORKFLOW_INFO
 
@@ -92,7 +92,7 @@ class Information:
        entities and integrating the related metadata into the questionnaire.'''
 
     def __init__(self):
-        return
+        pass
 
     def relation(self, instance):
         '''Relation Information.
