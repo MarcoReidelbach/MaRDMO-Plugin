@@ -43,7 +43,7 @@ class Information:
 
     def citation(self, instance):
         '''Citation Information – signal entry point.'''
-        self._fill_citation(
+        self.fill_citation(
             project     = instance.project,
             text        = instance.text,
             external_id = instance.external_id,
@@ -52,7 +52,7 @@ class Information:
             snapshot    = instance.snapshot,
         )
 
-    def _fill_citation(self, project, text, external_id, set_index, catalog='', snapshot=None):
+    def fill_citation(self, project, text, external_id, set_index, catalog='', snapshot=None):
         '''Citation Information – core logic, callable directly without a signal.'''
 
         publication = self.questions["Publication"]
