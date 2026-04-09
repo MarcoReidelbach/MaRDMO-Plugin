@@ -1,7 +1,7 @@
 '''Module containing Handlers for the Model Documentation.
 
 Information inherits _entry, _collect_existing_ids, _hydrate_relatants,
-and _fill from BaseInformation (MaRDMO/base_handler.py).
+and _fill from BaseInformation (MaRDMO/handler_base.py).
 
 All SPARQL and write logic lives in the _fill_*_batch methods.
 '''
@@ -14,7 +14,7 @@ from rdmo.options.models import Option
 from . import models
 from .constants import props, relatant_uris, relation_uris, index_counters
 
-from ..handler_base import BaseInformation, _fetch_by_source, _get_pub_info
+from ..handler_base import BaseInformation, _RelatantSpec, _fetch_by_source
 from ..constants import BASE_URI
 from ..getters import (
     get_id,
@@ -64,21 +64,27 @@ class Information(BaseInformation):
     # ------------------------------------------------------------------ #
 
     def field(self, instance):
+        '''Handle Research Field ID save: hydrate basics and SPARQL data.'''
         self._entry(instance, 'Research Field', self._fill_field_batch)
 
     def problem(self, instance):
+        '''Handle Research Problem ID save: hydrate basics and SPARQL data.'''
         self._entry(instance, 'Research Problem', self._fill_problem_batch)
 
     def quantity(self, instance):
+        '''Handle Quantity ID save: hydrate basics and SPARQL data.'''
         self._entry(instance, 'Quantity', self._fill_quantity_batch)
 
     def formulation(self, instance):
+        '''Handle Formulation ID save: hydrate basics and SPARQL data.'''
         self._entry(instance, 'Mathematical Formulation', self._fill_formulation_batch)
 
     def task(self, instance):
+        '''Handle Task ID save: hydrate basics and SPARQL data.'''
         self._entry(instance, 'Task', self._fill_task_batch)
 
     def model(self, instance):
+        '''Handle Model ID save: hydrate basics and SPARQL data.'''
         self._entry(instance, 'Mathematical Model', self._fill_model_batch)
 
     # ------------------------------------------------------------------ #
@@ -122,32 +128,6 @@ class Information(BaseInformation):
                                batch_fill_method=self._fill_formulation_batch,
                                catalog=catalog, visited=visited)
                     next_idx += 1
-
-    def _hydrate_publications(self, project, publications, source, catalog, visited):
-        '''Register and hydrate publications via the publication handler.'''
-        pub_info    = _get_pub_info()
-        pub_id_uri  = f'{self.base}{self.questions["Publication"]["ID"]["uri"]}'
-        pub_set_uri = f'{self.base}{self.questions["Publication"]["uri"]}'
-
-        existing = get_id(project, pub_set_uri, ['set_index'])
-        next_idx = max((e for e in existing if e is not None), default=-1) + 1
-
-        for pub in publications:
-            if pub.id in visited:
-                continue
-            visited.add(pub.id)
-
-            text = f'{pub.label} ({pub.description}) [{source}]'
-            value_editor(project=project, uri=pub_set_uri,
-                         info={'text': f'P{next_idx + 1}', 'set_index': next_idx})
-            value_editor(project=project, uri=pub_id_uri,
-                         info={'text': text, 'external_id': pub.id,
-                               'set_index': next_idx})
-
-            pub_info._fill_citation(project=project, text=text,
-                                    external_id=pub.id, set_index=next_idx,
-                                    catalog=catalog)
-            next_idx += 1
 
     # ------------------------------------------------------------------ #
     #  Batch _fill_* methods (one SPARQL query for N entities)            #
@@ -196,7 +176,7 @@ class Information(BaseInformation):
                     'relatant': f'{self.base}{field["IntraClassElement"]["uri"]}',
                 })
 
-            self._hydrate_publications(project, data.publications, 'mardi',
+            self._hydrate_publications(project, data.publications,
                                        catalog, visited)
 
     def _fill_problem_batch(self, project, items, catalog, visited):
@@ -242,14 +222,16 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=props['RP2RF'],
-                question_id_uri=f'{self.base}{self.questions["Research Field"]["ID"]["uri"]}',
-                question_set_uri=f'{self.base}{self.questions["Research Field"]["uri"]}',
-                prefix='AD',
-                fill_method=partial(self._fill, item_type='Research Field',
-                                    batch_fill_method=self._fill_field_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_field_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=f'{self.base}{self.questions["Research Field"]["ID"]["uri"]}',
+                    question_set_uri=f'{self.base}{self.questions["Research Field"]["uri"]}',
+                    prefix='AD',
+                    fill_method=partial(self._fill, item_type='Research Field',
+                                        batch_fill_method=self._fill_field_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_field_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_flexible(
                 project=project, data=data,
@@ -260,7 +242,7 @@ class Information(BaseInformation):
                     'relatant': f'{self.base}{problem["IntraClassElement"]["uri"]}',
                 })
 
-            self._hydrate_publications(project, data.publications, 'mardi',
+            self._hydrate_publications(project, data.publications,
                                        catalog, visited)
 
     def _fill_quantity_batch(self, project, items, catalog, visited):
@@ -348,7 +330,7 @@ class Information(BaseInformation):
                               'set_prefix': str(set_index)})
                     index_counters[pair] += 1
 
-            self._hydrate_publications(project, data.publications, 'mardi',
+            self._hydrate_publications(project, data.publications,
                                        catalog, visited)
 
     def _fill_formulation_batch(self, project, items, catalog, visited):
@@ -413,14 +395,16 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=['contains_quantity'],
-                question_id_uri=f'{self.base}{self.questions["Quantity"]["ID"]["uri"]}',
-                question_set_uri=f'{self.base}{self.questions["Quantity"]["uri"]}',
-                prefix='QQK',
-                fill_method=partial(self._fill, item_type='Quantity',
-                                    batch_fill_method=self._fill_quantity_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_quantity_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=f'{self.base}{self.questions["Quantity"]["ID"]["uri"]}',
+                    question_set_uri=f'{self.base}{self.questions["Quantity"]["uri"]}',
+                    prefix='QQK',
+                    fill_method=partial(self._fill, item_type='Quantity',
+                                        batch_fill_method=self._fill_quantity_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_quantity_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_flexible(
                 project=project, data=data,
@@ -433,16 +417,18 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=props['MF2MF'],
-                question_id_uri=(
-                    f'{self.base}{self.questions["Mathematical Formulation"]["ID"]["uri"]}'),
-                question_set_uri=(
-                    f'{self.base}{self.questions["Mathematical Formulation"]["uri"]}'),
-                prefix='ME',
-                fill_method=partial(self._fill, item_type='Mathematical Formulation',
-                                    batch_fill_method=self._fill_formulation_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_formulation_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=(
+                        f'{self.base}{self.questions["Mathematical Formulation"]["ID"]["uri"]}'),
+                    question_set_uri=(
+                        f'{self.base}{self.questions["Mathematical Formulation"]["uri"]}'),
+                    prefix='ME',
+                    fill_method=partial(self._fill, item_type='Mathematical Formulation',
+                                        batch_fill_method=self._fill_formulation_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_formulation_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_flexible(
                 project=project, data=data,
@@ -456,7 +442,7 @@ class Information(BaseInformation):
 
             self._hydrate_assumptions(project, data, props['Formulation'],
                                       catalog, visited)
-            self._hydrate_publications(project, data.publications, 'mardi',
+            self._hydrate_publications(project, data.publications,
                                        catalog, visited)
 
     def _fill_task_batch(self, project, items, catalog, visited):
@@ -509,16 +495,18 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=props['T2MF'],
-                question_id_uri=(
-                    f'{self.base}{self.questions["Mathematical Formulation"]["ID"]["uri"]}'),
-                question_set_uri=(
-                    f'{self.base}{self.questions["Mathematical Formulation"]["uri"]}'),
-                prefix='ME',
-                fill_method=partial(self._fill, item_type='Mathematical Formulation',
-                                    batch_fill_method=self._fill_formulation_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_formulation_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=(
+                        f'{self.base}{self.questions["Mathematical Formulation"]["ID"]["uri"]}'),
+                    question_set_uri=(
+                        f'{self.base}{self.questions["Mathematical Formulation"]["uri"]}'),
+                    prefix='ME',
+                    fill_method=partial(self._fill, item_type='Mathematical Formulation',
+                                        batch_fill_method=self._fill_formulation_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_formulation_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_flexible(
                 project=project, data=data,
@@ -531,14 +519,16 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=props['T2Q'],
-                question_id_uri=f'{self.base}{self.questions["Quantity"]["ID"]["uri"]}',
-                question_set_uri=f'{self.base}{self.questions["Quantity"]["uri"]}',
-                prefix='QQK',
-                fill_method=partial(self._fill, item_type='Quantity',
-                                    batch_fill_method=self._fill_quantity_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_quantity_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=f'{self.base}{self.questions["Quantity"]["ID"]["uri"]}',
+                    question_set_uri=f'{self.base}{self.questions["Quantity"]["uri"]}',
+                    prefix='QQK',
+                    fill_method=partial(self._fill, item_type='Quantity',
+                                        batch_fill_method=self._fill_quantity_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_quantity_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_flexible(
                 project=project, data=data,
@@ -552,7 +542,7 @@ class Information(BaseInformation):
                 })
 
             self._hydrate_assumptions(project, data, props['Task'], catalog, visited)
-            self._hydrate_publications(project, data.publications, 'mardi',
+            self._hydrate_publications(project, data.publications,
                                        catalog, visited)
 
     def _fill_model_batch(self, project, items, catalog, visited):
@@ -602,14 +592,16 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=props['MM2RP'],
-                question_id_uri=f'{self.base}{self.questions["Research Problem"]["ID"]["uri"]}',
-                question_set_uri=f'{self.base}{self.questions["Research Problem"]["uri"]}',
-                prefix='RP',
-                fill_method=partial(self._fill, item_type='Research Problem',
-                                    batch_fill_method=self._fill_problem_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_problem_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=f'{self.base}{self.questions["Research Problem"]["ID"]["uri"]}',
+                    question_set_uri=f'{self.base}{self.questions["Research Problem"]["uri"]}',
+                    prefix='RP',
+                    fill_method=partial(self._fill, item_type='Research Problem',
+                                        batch_fill_method=self._fill_problem_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_problem_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_flexible(
                 project=project, data=data,
@@ -623,16 +615,18 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=props['MM2MF'],
-                question_id_uri=(
-                    f'{self.base}{self.questions["Mathematical Formulation"]["ID"]["uri"]}'),
-                question_set_uri=(
-                    f'{self.base}{self.questions["Mathematical Formulation"]["uri"]}'),
-                prefix='ME',
-                fill_method=partial(self._fill, item_type='Mathematical Formulation',
-                                    batch_fill_method=self._fill_formulation_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_formulation_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=(
+                        f'{self.base}{self.questions["Mathematical Formulation"]["ID"]["uri"]}'),
+                    question_set_uri=(
+                        f'{self.base}{self.questions["Mathematical Formulation"]["uri"]}'),
+                    prefix='ME',
+                    fill_method=partial(self._fill, item_type='Mathematical Formulation',
+                                        batch_fill_method=self._fill_formulation_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_formulation_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_static(
                 project=project, data=data,
@@ -642,14 +636,16 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=props['MM2T'],
-                question_id_uri=f'{self.base}{self.questions["Task"]["ID"]["uri"]}',
-                question_set_uri=f'{self.base}{self.questions["Task"]["uri"]}',
-                prefix='CT',
-                fill_method=partial(self._fill, item_type='Task',
-                                    batch_fill_method=self._fill_task_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_task_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=f'{self.base}{self.questions["Task"]["ID"]["uri"]}',
+                    question_set_uri=f'{self.base}{self.questions["Task"]["uri"]}',
+                    prefix='CT',
+                    fill_method=partial(self._fill, item_type='Task',
+                                        batch_fill_method=self._fill_task_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_task_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_flexible(
                 project=project, data=data,
@@ -662,5 +658,5 @@ class Information(BaseInformation):
                 })
 
             self._hydrate_assumptions(project, data, props['Model'], catalog, visited)
-            self._hydrate_publications(project, data.publications, 'mardi',
+            self._hydrate_publications(project, data.publications,
                                        catalog, visited)

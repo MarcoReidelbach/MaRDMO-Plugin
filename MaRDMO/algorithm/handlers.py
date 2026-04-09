@@ -1,7 +1,7 @@
 '''Module containing Handlers for the Algorithm Documentation.
 
 Information inherits _entry, _collect_existing_ids, _hydrate_relatants,
-and _fill from BaseInformation (MaRDMO/base_handler.py).
+and _fill from BaseInformation (MaRDMO/handler_base.py).
 
 All batch methods accept catalog='' (unused but required by the shared
 _fill and _hydrate_relatants signatures).
@@ -13,14 +13,12 @@ from functools import partial
 from .constants import PROPS
 from .models import Benchmark, Software, Problem, Algorithm
 
-from ..handler_base import BaseInformation, _fetch_by_source, _get_pub_info
+from ..handler_base import BaseInformation, _RelatantSpec, _fetch_by_source
 from ..constants import BASE_URI
 from ..getters import (
-    get_id,
     get_mathalgodb,
     get_questions,
 )
-from ..helpers import value_editor
 from ..adders import (
     add_basics,
     add_references,
@@ -46,46 +44,20 @@ class Information(BaseInformation):
     # ------------------------------------------------------------------ #
 
     def benchmark(self, instance):
+        '''Handle Benchmark ID save: hydrate basics and SPARQL data.'''
         self._entry(instance, 'Benchmark', self._fill_benchmark_batch)
 
     def software(self, instance):
+        '''Handle Software ID save: hydrate basics and cascade to Benchmark.'''
         self._entry(instance, 'Software', self._fill_software_batch)
 
     def problem(self, instance):
+        '''Handle Problem ID save: hydrate basics and cascade to Benchmark.'''
         self._entry(instance, 'Problem', self._fill_problem_batch)
 
     def algorithm(self, instance):
+        '''Handle Algorithm ID save: hydrate basics and cascade to Problem and Software.'''
         self._entry(instance, 'Algorithm', self._fill_algorithm_batch)
-
-    # ------------------------------------------------------------------ #
-    #  Algorithm-specific cascade helper                                   #
-    # ------------------------------------------------------------------ #
-
-    def _hydrate_publications(self, project, publications, source, catalog, visited):
-        '''Register and hydrate publications via the publication handler.'''
-        pub_info    = _get_pub_info()
-        pub_id_uri  = f'{self.base}{self.questions["Publication"]["ID"]["uri"]}'
-        pub_set_uri = f'{self.base}{self.questions["Publication"]["uri"]}'
-
-        existing = get_id(project, pub_set_uri, ['set_index'])
-        next_idx = max((e for e in existing if e is not None), default=-1) + 1
-
-        for pub in publications:
-            if pub.id in visited:
-                continue
-            visited.add(pub.id)
-
-            text = f'{pub.label} ({pub.description}) [{source}]'
-            value_editor(project=project, uri=pub_set_uri,
-                         info={'text': f'P{next_idx + 1}', 'set_index': next_idx})
-            value_editor(project=project, uri=pub_id_uri,
-                         info={'text': text, 'external_id': pub.id,
-                               'set_index': next_idx})
-
-            pub_info._fill_citation(project=project, text=text,
-                                    external_id=pub.id, set_index=next_idx,
-                                    catalog=catalog)
-            next_idx += 1
 
     # ------------------------------------------------------------------ #
     #  Batch _fill_* methods (one SPARQL query for N entities)            #
@@ -120,7 +92,7 @@ class Information(BaseInformation):
                            uri=f'{self.base}{benchmark["Reference"]["uri"]}',
                            set_prefix=set_index)
 
-            self._hydrate_publications(project, data.publications, 'mardi',
+            self._hydrate_publications(project, data.publications,
                                        catalog, visited)
 
     def _fill_software_batch(self, project, items, catalog='', visited=None):
@@ -161,16 +133,18 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=PROPS['S2B'],
-                question_id_uri=f'{self.base}{self.questions["Benchmark"]["ID"]["uri"]}',
-                question_set_uri=f'{self.base}{self.questions["Benchmark"]["uri"]}',
-                prefix='B',
-                fill_method=partial(self._fill, item_type='Benchmark',
-                                    batch_fill_method=self._fill_benchmark_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_benchmark_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=f'{self.base}{self.questions["Benchmark"]["ID"]["uri"]}',
+                    question_set_uri=f'{self.base}{self.questions["Benchmark"]["uri"]}',
+                    prefix='B',
+                    fill_method=partial(self._fill, item_type='Benchmark',
+                                        batch_fill_method=self._fill_benchmark_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_benchmark_batch,
+                    section_indices=section_indices,
+                ))
 
-            self._hydrate_publications(project, data.publications, 'mardi',
+            self._hydrate_publications(project, data.publications,
                                        catalog, visited)
 
     def _fill_problem_batch(self, project, items, catalog='', visited=None):
@@ -207,14 +181,16 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=PROPS['P2B'],
-                question_id_uri=f'{self.base}{self.questions["Benchmark"]["ID"]["uri"]}',
-                question_set_uri=f'{self.base}{self.questions["Benchmark"]["uri"]}',
-                prefix='B',
-                fill_method=partial(self._fill, item_type='Benchmark',
-                                    batch_fill_method=self._fill_benchmark_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_benchmark_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=f'{self.base}{self.questions["Benchmark"]["ID"]["uri"]}',
+                    question_set_uri=f'{self.base}{self.questions["Benchmark"]["uri"]}',
+                    prefix='B',
+                    fill_method=partial(self._fill, item_type='Benchmark',
+                                        batch_fill_method=self._fill_benchmark_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_benchmark_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_flexible(
                 project=project, data=data,
@@ -261,14 +237,16 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=PROPS['A2P'],
-                question_id_uri=f'{self.base}{self.questions["Problem"]["ID"]["uri"]}',
-                question_set_uri=f'{self.base}{self.questions["Problem"]["uri"]}',
-                prefix='AT',
-                fill_method=partial(self._fill, item_type='Problem',
-                                    batch_fill_method=self._fill_problem_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_problem_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=f'{self.base}{self.questions["Problem"]["ID"]["uri"]}',
+                    question_set_uri=f'{self.base}{self.questions["Problem"]["uri"]}',
+                    prefix='AT',
+                    fill_method=partial(self._fill, item_type='Problem',
+                                        batch_fill_method=self._fill_problem_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_problem_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_static(
                 project=project, data=data,
@@ -278,14 +256,16 @@ class Information(BaseInformation):
 
             self._hydrate_relatants(
                 project=project, data=data, prop_keys=PROPS['A2S'],
-                question_id_uri=f'{self.base}{self.questions["Software"]["ID"]["uri"]}',
-                question_set_uri=f'{self.base}{self.questions["Software"]["uri"]}',
-                prefix='S',
-                fill_method=partial(self._fill, item_type='Software',
-                                    batch_fill_method=self._fill_software_batch),
-                catalog=catalog, visited=visited,
-                batch_fill_method=self._fill_software_batch,
-                section_indices=section_indices)
+                spec=_RelatantSpec(
+                    question_id_uri=f'{self.base}{self.questions["Software"]["ID"]["uri"]}',
+                    question_set_uri=f'{self.base}{self.questions["Software"]["uri"]}',
+                    prefix='S',
+                    fill_method=partial(self._fill, item_type='Software',
+                                        batch_fill_method=self._fill_software_batch),
+                    catalog=catalog, visited=visited,
+                    batch_fill_method=self._fill_software_batch,
+                    section_indices=section_indices,
+                ))
 
             add_relations_flexible(
                 project=project, data=data,
@@ -296,5 +276,5 @@ class Information(BaseInformation):
                     'relatant': f'{self.base}{algorithm["IntraClassElement"]["uri"]}',
                 })
 
-            self._hydrate_publications(project, data.publications, 'mardi',
+            self._hydrate_publications(project, data.publications,
                                        catalog, visited)
