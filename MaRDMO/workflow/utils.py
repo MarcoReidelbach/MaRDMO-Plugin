@@ -3,6 +3,7 @@
 from .constants import data_set_reference_ids
 
 def get_discipline(answers):
+    '''Function to extract the discipline of a process step.'''
     ids = []
     md = 0
     nmd = 0
