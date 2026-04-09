@@ -21,7 +21,7 @@ data_set_reference_ids = [
 def get_uri_prefix_map():
     '''URI Prefixes for the Workflow Documentation'''
     questions = get_questions('workflow')
-    URI_PREFIX_MAP = {
+    uri_prefix_map = {
         f'{BASE_URI}{questions["Process Step"]["Input"]["uri"]}': {
             "question_set": f'{BASE_URI}{questions["Data Set"]["uri"]}',
             "question_id": f'{BASE_URI}{questions["Data Set"]["ID"]["uri"]}',
@@ -68,7 +68,7 @@ def get_uri_prefix_map():
             "prefix": "S"
         }
     }
-    return URI_PREFIX_MAP
+    return uri_prefix_map
 
 
 # Dictionary with list of property names
@@ -91,6 +91,7 @@ PROPS = {
 
 # Order of toPublish Answers
 def order_to_publish():
+    '''Function to order publishing options.'''
     options = get_options()
     order = {
         'Yes': (0, options['Yes']),
