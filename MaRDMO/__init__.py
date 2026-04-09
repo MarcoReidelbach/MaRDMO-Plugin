@@ -12,7 +12,7 @@ Modules:
 """
 
 __title__ = 'MaRDMO'
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 __author__ = 'Marco Reidelbach'
 __email__ = 'reidelbach@zib.de'
 __license__ = 'Apache-2.0'
