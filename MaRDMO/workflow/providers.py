@@ -1,4 +1,5 @@
 '''Module containing Providers for the Documentation of Interdisciplinary Workflows'''
+# pylint: disable=too-few-public-methods  # Provider subclasses only need get_options
 
 from rdmo.options.providers import Provider
 from rdmo.domain.models import Attribute
@@ -7,6 +8,9 @@ from ..constants import BASE_URI
 from ..getters import get_items, get_data, get_properties, get_questions, get_sparql_query, get_url
 from ..helpers import define_setup
 from ..queries import query_sources, query_sources_with_user_additions, query_sparql
+
+_ITEMS = get_items()
+
 
 class MaRDIAndWikidataSearch(Provider):
     '''General Provider (MaRDI Portal / Wikidata),
@@ -20,7 +24,10 @@ class MaRDIAndWikidataSearch(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search
+        )
+
 
 class MainMathematicalModel(Provider):
     '''Main Mathematical Model Provider (MaRDI Portal),
@@ -34,10 +41,11 @@ class MainMathematicalModel(Provider):
         if not search or len(search) < 3:
             return []
 
-        # Define the sources to query
-        sources = ['mardi']
-
-        return query_sources(search, sources)
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['mathematical model'],
+            sources = ['mardi'],
+        )
 
 class Method(Provider):
     '''Method Provider (MaRDI Portal / Wikidata),
@@ -52,7 +60,13 @@ class Method(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = [
+                _ITEMS['method'],
+                _ITEMS['algorithm']
+            ]
+        )
 
 class RelatedMethod(Provider):
     '''Method Provider (MaRDI Portal / Wikidata),
@@ -66,10 +80,13 @@ class RelatedMethod(Provider):
         if not search:
             return []
 
-        # Define the query_setup
         setup = define_setup(
             query_attributes = ['method'],
-            creation = True
+            creation = True,
+            item_class = [
+                _ITEMS['method'],
+                _ITEMS['algorithm']
+            ]
         )
 
         return query_sources_with_user_additions(
@@ -113,10 +130,7 @@ class WorkflowTask(Provider):
 
         results = query_sparql(
             query,
-            get_url(
-                'mardi',
-                'sparql'
-            )
+            get_url('mardi', 'sparql')
         )
 
         if not results:
@@ -148,7 +162,10 @@ class Hardware(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['computer hardware'],
+        )
 
 class Instrument(Provider):
     '''Instrument Provider (MaRDI Portal / Wikidata),
@@ -163,7 +180,10 @@ class Instrument(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['research tool'],
+        )
 
 class DataSet(Provider):
     '''Data Set Provider (MaRDI Portal / Wikidata),
@@ -178,7 +198,10 @@ class DataSet(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['data set'],
+        )
 
 class RelatedInstrument(Provider):
     '''Instrument Provider (MaRDI Portal / Wikidata),
@@ -192,10 +215,10 @@ class RelatedInstrument(Provider):
         if not search:
             return []
 
-        # Define the query_setup
         setup = define_setup(
             creation = True,
-            query_attributes = ['instrument']
+            query_attributes = ['instrument'],
+            item_class = _ITEMS['research tool'],
         )
 
         return query_sources_with_user_additions(
@@ -216,10 +239,10 @@ class RelatedDataSet(Provider):
         if not search:
             return []
 
-        # Define the query_setup
         setup = define_setup(
             creation = True,
-            query_attributes = ['data-set']
+            query_attributes = ['data-set'],
+            item_class = _ITEMS['data set'],
         )
 
         return query_sources_with_user_additions(
@@ -241,7 +264,10 @@ class ProcessStep(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['process step'],
+        )
 
 class Discipline(Provider):
     '''Discipline Provider (MaRDI Portal / Wikidata / MSC),
@@ -261,7 +287,8 @@ class Discipline(Provider):
         # Discipline from Knowledge Graphs
         options = query_sources(
             search = search,
-            not_found = False
+            item_class = _ITEMS['academic discipline'],
+            not_found = False,
         )
 
         # Mathematical Subjects

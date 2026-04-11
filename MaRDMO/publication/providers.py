@@ -1,4 +1,5 @@
 '''Module containing Providers for the Publication Documentation'''
+# pylint: disable=too-few-public-methods  # Provider subclasses only need get_options
 
 from rdmo.options.providers import Provider
 from ..queries import query_sources

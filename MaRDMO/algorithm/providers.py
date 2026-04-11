@@ -1,9 +1,14 @@
 '''Module containing Providers for the Algorithm Documentation'''
+# pylint: disable=too-few-public-methods  # Provider subclasses only need get_options
 
 from rdmo.options.providers import Provider
 
+from ..getters import get_items
 from ..helpers import define_setup
 from ..queries import query_sources, query_sources_with_user_additions
+
+_ITEMS = get_items()
+
 
 class Algorithm(Provider):
     '''Algorithm Provider (MaRDI Portal / Wikidata),
@@ -18,7 +23,10 @@ class Algorithm(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['algorithm']
+        )
 
 class RelatedAlgorithmWithoutCreation(Provider):
     '''Algorithm Provider (MaRDI Portal),
@@ -32,10 +40,10 @@ class RelatedAlgorithmWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
 
-        # Define the query_setup
         setup = define_setup(
             query_attributes = ['algorithm'],
-            sources = ['mardi']
+            sources = ['mardi'],
+            item_class = _ITEMS['algorithm']
         )
 
         return query_sources_with_user_additions(
@@ -57,7 +65,10 @@ class AlgorithmicProblem(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['algorithmic task']
+        )
 
 class RelatedAlgorithmicProblemWithCreation(Provider):
     '''Algorithmic Problem Provider (MaRDI Portal / Wikidata),
@@ -71,10 +82,10 @@ class RelatedAlgorithmicProblemWithCreation(Provider):
         if not search or len(search) < 3:
             return []
 
-        # Define the query_setup
         setup = define_setup(
             query_attributes = ['problem'],
-            creation = True
+            creation = True,
+            item_class = _ITEMS['algorithmic task']
         )
 
         return query_sources_with_user_additions(
@@ -95,10 +106,10 @@ class RelatedAlgorithmicProblemWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
 
-        # Define the query_setup
         setup = define_setup(
             query_attributes = ['problem'],
-            sources = ['mardi']
+            sources = ['mardi'],
+            item_class = _ITEMS['algorithmic task']
         )
 
         return query_sources_with_user_additions(
@@ -120,7 +131,10 @@ class Benchmark(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['benchmark']
+        )
 
 class RelatedBenchmarkWithCreation(Provider):
     '''Benchmark Provider (MaRDI Portal / Wikidata),
@@ -134,10 +148,10 @@ class RelatedBenchmarkWithCreation(Provider):
         if not search or len(search) < 3:
             return []
 
-        # Define the query_setup
         setup = define_setup(
             query_attributes = ['benchmark'],
-            creation = True
+            creation = True,
+            item_class = _ITEMS['benchmark']
         )
 
         return query_sources_with_user_additions(
@@ -158,10 +172,13 @@ class RelatedBenchmarkOrSoftwareWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
 
-        # Define the query_setup
         setup = define_setup(
             query_attributes = ['benchmark', 'software'],
-            sources = ['mardi']
+            sources = ['mardi'],
+            item_class = [
+                _ITEMS['benchmark'],
+                _ITEMS['software']
+            ]
         )
 
         return query_sources_with_user_additions(

@@ -1,9 +1,13 @@
 '''Module containing Providers for the Model Documentation'''
+# pylint: disable=too-few-public-methods  # Provider subclasses only need get_options
 
 from rdmo.options.providers import Provider
 
+from ..getters import get_items
 from ..helpers import define_setup
 from ..queries import query_sources, query_sources_with_user_additions
+
+_ITEMS = get_items()
 
 class Formula(Provider):
     '''Formula Provider for all sorts of Latex Math.
@@ -31,7 +35,12 @@ class ResearchField(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = [
+                _ITEMS['academic discipline']
+            ]
+        )
 
 class RelatedResearchFieldWithCreation(Provider):
     '''Research Field Provider (MaRDI Portal / Wikidata),
@@ -45,10 +54,12 @@ class RelatedResearchFieldWithCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['field'],
-            creation = True
+            creation = True,
+            item_class = _ITEMS['academic discipline']
         )
 
         return query_sources_with_user_additions(
@@ -69,10 +80,12 @@ class RelatedResearchFieldWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['field'],
-            sources = ['mardi']
+            sources = ['mardi'],
+            item_class = _ITEMS['academic discipline']
         )
 
         return query_sources_with_user_additions(
@@ -94,7 +107,10 @@ class ResearchProblem(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['research problem']
+        )
 
 class RelatedResearchProblemWithCreation(Provider):
     '''Research Problem Provider (MaRDI Portal / Wikidata),
@@ -111,7 +127,8 @@ class RelatedResearchProblemWithCreation(Provider):
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['problem'],
-            creation = True
+            creation = True,
+            item_class = _ITEMS['research problem']
         )
 
         return query_sources_with_user_additions(
@@ -132,10 +149,12 @@ class RelatedResearchProblemWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['problem'],
-            sources = ['mardi']
+            sources = ['mardi'],
+            item_class = _ITEMS['research problem']
         )
 
         return query_sources_with_user_additions(
@@ -156,8 +175,12 @@ class MathematicalModel(Provider):
         '''Queries external sources for user input'''
         if not search or len(search) < 3:
             return []
+        
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['mathematical model']
+        )
 
 class RelatedMathematicalModelWithoutCreation(Provider):
     '''Mathematical Model Provider (MaRDI Portal / Wikidata),
@@ -171,10 +194,12 @@ class RelatedMathematicalModelWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['model'],
-            sources = ['mardi']
+            sources = ['mardi'],
+            item_class = _ITEMS['mathematical model']
         )
 
         return query_sources_with_user_additions(
@@ -196,7 +221,14 @@ class QuantityOrQuantityKind(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+
+        return query_sources(
+            search = search,
+            item_class = [
+                _ITEMS['quantity'],
+                _ITEMS['kind of quantity']
+            ]
+        )
 
 class RelatedQuantityWithoutCreation(Provider):
     '''Quantity Provider (MaRDI Portal),
@@ -210,10 +242,12 @@ class RelatedQuantityWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['quantity'],
-            sources = ['mardi']
+            sources = ['mardi'],
+            item_class = _ITEMS['quantity']
         )
 
         return query_sources_with_user_additions(
@@ -234,10 +268,12 @@ class RelatedQuantityKindWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['quantity'],
-            sources = ['mardi']
+            sources = ['mardi'],
+            item_class = _ITEMS['kind of quantity']
         )
 
         return query_sources_with_user_additions(
@@ -259,10 +295,15 @@ class RelatedQuantityOrQuantityKindWithCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['quantity'],
-            creation = True
+            creation = True,
+            item_class = [
+                _ITEMS['quantity'],
+                _ITEMS['kind of quantity']
+            ]
         )
 
         return query_sources_with_user_additions(
@@ -284,7 +325,11 @@ class MathematicalFormulation(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['mathematical expression']
+        )
 
 class RelatedMathematicalFormulationWithCreation(Provider):
     '''Mathematical Formulation Provider (MaRDI Portal / Wikidata),
@@ -299,10 +344,12 @@ class RelatedMathematicalFormulationWithCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['formulation'],
-            creation = True
+            creation = True,
+            item_class = _ITEMS['mathematical expression']
         )
 
         return query_sources_with_user_additions(
@@ -323,10 +370,12 @@ class RelatedMathematicalFormulationWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['formulation'],
-            sources = ['mardi']
+            sources = ['mardi'],
+            item_class = _ITEMS['mathematical expression']
         )
 
         return query_sources_with_user_additions(
@@ -348,7 +397,11 @@ class Task(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['computational task']
+        )
 
 class RelatedTaskWithCreation(Provider):
     '''Task Provider (MaRDI Portal / Wikidata),
@@ -362,10 +415,12 @@ class RelatedTaskWithCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['task'],
-            creation = True
+            creation = True,
+            item_class = _ITEMS['computational task']
         )
 
         return query_sources_with_user_additions(
@@ -386,10 +441,12 @@ class RelatedTaskWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['task'],
-            sources = ['mardi']
+            sources = ['mardi'],
+            item_class = _ITEMS['computational task']
         )
 
         return query_sources_with_user_additions(
@@ -411,10 +468,20 @@ class RelatedModelEntityWithoutCreation(Provider):
         if not search or len(search) < 3:
             return []
 
+
         # Define the query_setup
         setup = define_setup(
             query_attributes = ['field', 'problem', 'model', 'quantity', 'formulation', 'task'],
-            sources = ['mardi']
+            sources = ['mardi'],
+            item_class = [
+                _ITEMS['academic discipline'],
+                _ITEMS['research problem'],
+                _ITEMS['mathematical model'],
+                _ITEMS['quantity'],
+                _ITEMS['kind of quantity'],
+                _ITEMS['mathematical expression'],
+                _ITEMS['computational task']
+            ]
         )
 
         return query_sources_with_user_additions(

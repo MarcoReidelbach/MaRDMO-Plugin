@@ -1,9 +1,14 @@
 '''Module containing general Providers for the Documentation'''
+# pylint: disable=too-few-public-methods  # Provider subclasses only need get_options
 
 from rdmo.options.providers import Provider
 
+from .getters import get_items
 from .helpers import define_setup
 from .queries import query_sources, query_sources_with_user_additions
+
+_ITEMS = get_items()
+
 
 class Software(Provider):
     '''Software Provider (MaRDI Portal / Wikidata),
@@ -18,7 +23,10 @@ class Software(Provider):
         if not search or len(search) < 3:
             return []
 
-        return query_sources(search)
+        return query_sources(
+            search = search,
+            item_class = _ITEMS['software'],
+        )
 
 class RelatedSoftwareWithCreation(Provider):
     '''Software Provider (MaRDI Portal / Wikidata / MathAlgoDB),
@@ -32,10 +40,10 @@ class RelatedSoftwareWithCreation(Provider):
         if not search or len(search) < 3:
             return []
 
-        # Define the query_setup
         setup = define_setup(
             query_attributes = ['software'],
-            creation = True
+            creation = True,
+            item_class = _ITEMS['software'],
         )
 
         return query_sources_with_user_additions(
