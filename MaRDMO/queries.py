@@ -6,7 +6,7 @@ from django.core.cache import cache
 import requests
 
 from .getters import get_url, get_user_entries
-from .helpers import extract_parts, process_result
+from .helpers import extract_parts, rank_by_search_term
 
 logger = logging.getLogger(__name__)
 
@@ -118,36 +118,49 @@ def query_sparql_pool(query_input):
     data = dict(zip(query_input.keys(), results))
     return data
 
-def query_sources(search, sources = None, not_found = True):
-    '''Helper function to query specified sources and process results.'''
+def query_sources(search, item_class=None, sources=None, not_found=True):
+    '''Query specified sources for items and return sorted results.
 
+    item_class – QID string or list of QID strings used for class-filtered
+                 search on MaRDI, e.g. 'Q42' or ['Q42', 'Q43'].
+                 Wikidata is always queried by label/description only
+                 (class classification on Wikidata is too inconsistent).
+    sources    – list of sources to query; defaults to ['mardi', 'wikidata'].
+    '''
     if sources is None:
-        # Set default Sources
         sources = ['mardi', 'wikidata']
 
-    source_functions = {
-        'wikidata': lambda s: query_api(get_url('wikidata', 'api'), s),
-        'mardi': lambda s: query_api(get_url('mardi', 'api'), s),
-    }
+    source_functions = {}
+    if 'mardi' in sources:
+        source_functions['mardi'] = lambda s: query_api_per_class(s, item_class)
+    if 'wikidata' in sources:
+        source_functions['wikidata'] = lambda s: query_api(get_url('wikidata', 'api'), s)
 
-    # Filter only specified sources
-    queries = [source_functions[source] for source in sources if source in source_functions]
+    pool = ThreadPool(processes=len(source_functions))
+    results = pool.map(lambda func: func(search), source_functions.values())
+    results_dict = dict(zip(source_functions.keys(), results))
 
-    # Use ThreadPool to make concurrent API requests
-    pool = ThreadPool(processes=len(queries))
-    results = pool.map(lambda func: func(search), queries)
-
-    # Unpack results based on available sources
-    results_dict = dict(zip(sources, results))
-
-    # Process results to fit RDMO Provider Output Requirements
     options = []
+    for source in sources:
+        if source not in results_dict:
+            continue
+        raw = results_dict[source][:25]
+        if source == 'wikidata':
+            # query_api returns raw Wikibase search dicts; format them here
+            display_key = 'display'
+            raw = [
+                {
+                    'id':   f"wikidata:{r['id']}",
+                    'text': (f"{r[display_key].get('label', {}).get('value', 'No Label Provided!')}"
+                             f" ({r[display_key].get('description', {}).get('value', 'No Description Provided!')})"
+                             f" [wikidata]"),
+                }
+                for r in raw
+                if display_key in r
+            ]
+        options += raw
 
-    if 'mardi' in results_dict:
-        options += [process_result(result, 'mardi') for result in results_dict['mardi'][:15]]
-
-    if 'wikidata' in results_dict:
-        options += [process_result(result, 'wikidata') for result in results_dict['wikidata'][:15]]
+    options.sort(key=lambda opt: rank_by_search_term(opt, search))
 
     if not_found:
         options = [{'id': 'not found', 'text': 'not found'}] + options
@@ -163,8 +176,9 @@ def query_sources_with_user_additions(search, project, setup):
     try:
         options = query_sources(
             search=search,
+            item_class=setup['item_class'],
             sources=setup['sources'],
-            not_found=False
+            not_found=False,
         )
     except (requests.exceptions.RequestException, KeyError, ValueError) as e:
         logger.error("Query sources failed: %s", e)
@@ -252,3 +266,74 @@ def query_user_entries(project, setup):
                     dic[f"{label} ({description}) [{source}]"] = {'id': item_id}
 
     return dic
+
+def query_api_per_class(search_term: str, item_class) -> list[dict]:
+    '''Search the MaRDI portal for items belonging to one or more classes.
+
+    item_class – a single QID string or a list of QID strings.  Multiple
+                 classes are combined with OR: haswbstatement:P31=Q1|P31=Q2.
+    Returns list of dicts with id and text matching the format used by query_sources.
+    '''
+    if isinstance(item_class, str):
+        item_class = [item_class]
+
+    class_filter = '|'.join(f'P31={qid}' for qid in item_class)
+    api_url      = get_url('mardi', 'api')
+
+    try:
+        search_resp = requests.get(
+            api_url,
+            params={
+                'action':      'query',
+                'list':        'search',
+                'srsearch':    f'{search_term}* haswbstatement:{class_filter}',
+                'srnamespace': 120,
+                'srlimit':     50,
+                'srprop':      'snippet',
+                'format':      'json',
+            },
+            headers={'User-Agent': 'MaRDMO (https://zib.de; reidelbach@zib.de)'},
+            timeout=5,
+        )
+        search_resp.raise_for_status()
+        hits = search_resp.json().get('query', {}).get('search', [])
+    except requests.exceptions.RequestException as e:
+        logger.error("Class-based MaRDI search failed: %s", e)
+        return []
+
+    if not hits:
+        return []
+
+    qids = [hit['title'].removeprefix('Item:') for hit in hits]
+
+    try:
+        entity_resp = requests.get(
+            api_url,
+            params={
+                'action':    'wbgetentities',
+                'ids':       '|'.join(qids),
+                'props':     'labels|descriptions',
+                'languages': 'en',
+                'format':    'json',
+            },
+            headers={'User-Agent': 'MaRDMO (https://zib.de; reidelbach@zib.de)'},
+            timeout=5,
+        )
+        entity_resp.raise_for_status()
+        entities = entity_resp.json().get('entities', {})
+    except requests.exceptions.RequestException as e:
+        logger.error("MaRDI entity fetch failed: %s", e)
+        return []
+
+    results = []
+    for qid in qids:
+        entity      = entities.get(qid, {})
+        label       = entity.get('labels',       {}).get('en', {}).get('value', qid)
+        description = entity.get('descriptions', {}).get('en', {}).get('value',
+                                                                        'No Description Provided!')
+        results.append({
+            'id':   f'mardi:{qid}',
+            'text': f'{label} ({description}) [mardi]',
+        })
+
+    return results
