@@ -488,7 +488,7 @@ class QuantityOrQuantityKind:
         '''Parse one SPARQL result row into a QuantityOrQuantityKind instance.'''
 
         mathmoddb = get_mathmoddb()
-        options = get_options() 
+        options = get_options()
 
         quantity = {
             # Get Aliases
