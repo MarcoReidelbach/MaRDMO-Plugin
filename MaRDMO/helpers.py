@@ -157,13 +157,14 @@ def basic_list(value):
         value.text
     ]
 
-def define_setup(query_attributes, creation=False, query_id='', sources=None):
+def define_setup(query_attributes, creation=False, query_id='', sources=None, item_class=None):
     """Define the setup of particular queries."""
     return {
         'creation': creation,
         'query_attributes': query_attributes,
         'query_id': query_id,
         'sources': sources,
+        'item_class': item_class,
     }
 
 def nested_set(data, path, entry):
@@ -621,12 +622,26 @@ def is_flat(d):
         return True
     return isinstance(next(iter(d.values())), str)
 
-def process_result(result, source):
-    '''Function to process the result and return a dictionary with id and text'''
-    display = result['display']
-    label = display.get('label', {}).get('value', 'No Label Provided!')
-    description = display.get('description', {}).get('value', 'No Description Provided!')
-    return {
-        'id': f"{source}:{result['id']}",
-        'text': f"{label} ({description}) [{source}]"        
-    }
+
+def rank_by_search_term(option, term):
+    '''Return a sort key for an option dict based on how well its label/description
+    matches term.  Lower is better.
+
+    0 – label is exact match
+    1 – label starts with term
+    2 – label contains term
+    3 – description contains term
+    4 – no match
+    '''
+    label, desc, _ = extract_parts(option['text'])
+    label_lower = label.lower()
+    term_lower  = term.lower()
+    if label_lower == term_lower:
+        return 0
+    if label_lower.startswith(term_lower):
+        return 1
+    if term_lower in label_lower:
+        return 2
+    if term_lower in desc.lower():
+        return 3
+    return 4
