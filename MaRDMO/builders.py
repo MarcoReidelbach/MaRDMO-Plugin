@@ -8,16 +8,30 @@ with the appropriate ``Information`` handler methods from each sub-package.
 Provides:
 
 - ``build_post_save_handler_set``   — post-save dispatch dict (all catalogs)
-- ``build_post_delete_handler_set`` — post-delete dispatch dict (workflow + publication catalogs)
+- ``build_post_delete_handler_set`` — post-delete dispatch dict (all catalogs)
+- ``build_presave_validator_map``   — pre-save validation dispatch dict
+  (model + algorithm + workflow)
 '''
 
-from .constants import BASE_URI
+from .constants import (
+    BASE_URI,
+    CATALOG_MODEL_NAME,
+    CATALOG_MODEL_BASICS_NAME,
+    CATALOG_ALGORITHM_NAME,
+    CATALOG_WORKFLOW_NAME,
+)
 from .getters import get_questions
 from .model.handlers import Information as ModelInformation
 from .algorithm.handlers import Information as AlgorithmInformation
 from .workflow.handlers import Information as WorkflowInformation
 from .publication.handlers import Information as PublicationInformation
 from .handlers import Information as GeneralInformation
+from .validators import (
+    validate_label_format,
+    validate_properties,
+    validate_qudt_id,
+    validate_short_description,
+)
 
 def build_post_save_handler_set():
     """Build and return the post-save attribute-URI-to-handler dispatch set.
@@ -53,7 +67,7 @@ def build_post_save_handler_set():
 
     # Model handlers
     handler_map.update({
-        'mardmo-model-catalog': {
+        CATALOG_MODEL_NAME: {
             f"{base}{questions_model['Research Field']['ID']['uri']}":
                 model.field,
             f"{base}{questions_model['Research Problem']['ID']['uri']}":
@@ -97,7 +111,7 @@ def build_post_save_handler_set():
 
     # Model handlers
     handler_map.update({
-        'mardmo-model-basics-catalog': {
+        CATALOG_MODEL_BASICS_NAME: {
             f"{base}{questions_model['Research Problem']['ID']['uri']}":
                 model.problem,
             f"{base}{questions_model['Task']['ID']['uri']}":
@@ -127,7 +141,7 @@ def build_post_save_handler_set():
 
     # Algorithm handlers
     handler_map.update({
-        'mardmo-algorithm-catalog': {
+        CATALOG_ALGORITHM_NAME: {
             f"{base}{questions_algorithm['Benchmark']['ID']['uri']}":
                 algorithm.benchmark,
             f"{base}{questions_algorithm['Software']['ID']['uri']}":
@@ -153,7 +167,7 @@ def build_post_save_handler_set():
 
     # Workflow handlers
     handler_map.update({
-        'mardmo-interdisciplinary-workflow-catalog': {
+        CATALOG_WORKFLOW_NAME: {
             f"{base}{questions_workflow['Workflow']['ID']['uri']}":
                 workflow.workflow,
             f"{base}{questions_workflow['Algorithm']['ID']['uri']}":
@@ -217,16 +231,184 @@ def build_post_delete_handler_set():
     pub_set_uri = f"{base}{questions_publication['Publication']['uri']}"
 
     return {
-        'mardmo-model-catalog': {
+        CATALOG_MODEL_NAME: {
             pub_set_uri: publication.publication_delete,
         },
-        'mardmo-model-basics-catalog': {
+        CATALOG_MODEL_BASICS_NAME: {
             pub_set_uri: publication.publication_delete,
         },
-        'mardmo-algorithm-catalog': {
+        CATALOG_ALGORITHM_NAME: {
             pub_set_uri: publication.publication_delete,
         },
-        'mardmo-interdisciplinary-workflow-catalog': {
+        CATALOG_WORKFLOW_NAME: {
             pub_set_uri: publication.publication_delete,
+        },
+    }
+
+
+def build_presave_validator_map():
+    """Build and return the pre-save attribute-URI-to-validator dispatch map.
+
+    Maps each attribute URI that requires pre-save validation to the appropriate
+    validator function from :mod:`MaRDMO.validators`.  Three validators are
+    registered:
+
+    - :func:`~MaRDMO.validators.validate_short_description` — for all entity
+      ``Description`` question URIs across all catalogs (max 250 characters).
+    - :func:`~MaRDMO.validators.validate_properties` — for the four data-property
+      question URIs (model, formulation, quantity, task) in the model catalogs.
+    - :func:`~MaRDMO.validators.validate_qudt_id` — for the Quantity reference
+      URI in the full model catalog only.
+    - :func:`~MaRDMO.validators.validate_label_format` — for all
+      ``general.relation`` question URIs across model, algorithm, and workflow.
+
+    Returns:
+        dict: Nested mapping of the form
+        ``{catalog_slug: {absolute_attribute_uri: validator_fn}}``.
+    """
+    base = BASE_URI
+    questions_model     = get_questions('model')
+    questions_algorithm = get_questions('algorithm')
+    questions_workflow  = get_questions('workflow')
+
+    return {
+        CATALOG_MODEL_NAME: {
+            # Short description (all 6 entity types)
+            f'{base}{questions_model["Research Field"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_model["Research Problem"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_model["Quantity"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_model["Mathematical Formulation"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_model["Task"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_model["Mathematical Model"]["Description"]["uri"]}':
+                validate_short_description,
+            # Data properties (model, formulation, quantity, task)
+            f'{base}{questions_model["Mathematical Model"]["Properties"]["uri"]}':
+                validate_properties,
+            f'{base}{questions_model["Mathematical Formulation"]["Properties"]["uri"]}':
+                validate_properties,
+            f'{base}{questions_model["Quantity"]["Properties"]["uri"]}':
+                validate_properties,
+            f'{base}{questions_model["Task"]["Properties"]["uri"]}':
+                validate_properties,
+            # QUDT reference ID (quantity only)
+            f'{base}{questions_model["Quantity"]["Reference"]["uri"]}':
+                validate_qudt_id,
+            # Relation label format
+            f'{base}{questions_model["Task"]["QRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Task"]["MFRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Mathematical Formulation"]["Element Quantity"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Quantity"]["Element Quantity"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Mathematical Model"]["MFRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Mathematical Model"]["Assumption"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Task"]["Assumption"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Mathematical Formulation"]["Assumption"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Mathematical Formulation"]["MFRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Research Problem"]["RFRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Mathematical Model"]["RPRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Mathematical Model"]["TRelatant"]["uri"]}':
+                validate_label_format,
+        },
+        CATALOG_MODEL_BASICS_NAME: {
+            # Short description (Research Problem, Formulation, Task, Model only)
+            f'{base}{questions_model["Research Problem"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_model["Mathematical Formulation"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_model["Task"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_model["Mathematical Model"]["Description"]["uri"]}':
+                validate_short_description,
+            # Data properties (no Quantity in basics catalog)
+            f'{base}{questions_model["Mathematical Model"]["Properties"]["uri"]}':
+                validate_properties,
+            f'{base}{questions_model["Mathematical Formulation"]["Properties"]["uri"]}':
+                validate_properties,
+            f'{base}{questions_model["Task"]["Properties"]["uri"]}':
+                validate_properties,
+            # Relation label format
+            f'{base}{questions_model["Mathematical Model"]["RPRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Mathematical Model"]["TRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Mathematical Model"]["MFRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Mathematical Model"]["Assumption"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Task"]["MFRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Task"]["Assumption"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_model["Mathematical Formulation"]["Assumption"]["uri"]}':
+                validate_label_format,
+        },
+        CATALOG_ALGORITHM_NAME: {
+            # Short description
+            f'{base}{questions_algorithm["Algorithm"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_algorithm["Problem"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_algorithm["Software"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_algorithm["Benchmark"]["Description"]["uri"]}':
+                validate_short_description,
+            # Relation label format
+            f'{base}{questions_algorithm["Problem"]["BRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_algorithm["Software"]["BRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_algorithm["Algorithm"]["PRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_algorithm["Algorithm"]["SRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_algorithm["Software"]["Dependency"]["uri"]}':
+                validate_label_format,
+        },
+        CATALOG_WORKFLOW_NAME: {
+            # Short description
+            f'{base}{questions_workflow["Workflow"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_workflow["Algorithm"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_workflow["Software"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_workflow["Hardware"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_workflow["Data Set"]["Description"]["uri"]}':
+                validate_short_description,
+            f'{base}{questions_workflow["Process Step"]["Description"]["uri"]}':
+                validate_short_description,
+            # Relation label format
+            f'{base}{questions_workflow["Process Step"]["Algorithm"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_workflow["Process Step"]["Hardware"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_workflow["Process Step"]["Input"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_workflow["Process Step"]["Output"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_workflow["Workflow"]["PSRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_workflow["Process Step"]["Software"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_workflow["Algorithm"]["SRelatant"]["uri"]}':
+                validate_label_format,
+            f'{base}{questions_workflow["Software"]["Dependency"]["uri"]}':
+                validate_label_format,
         },
     }

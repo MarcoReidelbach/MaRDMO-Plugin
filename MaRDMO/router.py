@@ -13,28 +13,49 @@ deletions and set deletions via RDMO's ``delete_set``, which calls
 Both maps are assembled once at startup via :func:`~MaRDMO.builders.build_handler_map`
 and :func:`~MaRDMO.builders.build_delete_handler_map`.
 
+Before every ``Value`` save the pre-save router looks up the attribute URI in
+``PRESAVE_VALIDATOR_MAP`` and calls the matching validator, which may raise
+``ValidationError`` to reject the value and surface an error in the UI.
+``PRESAVE_VALIDATOR_MAP`` is assembled explicitly by
+:func:`~MaRDMO.builders.build_presave_validator_map`.
+
+All maps are assembled once at startup.
+
 Provides:
 
-- ``HANDLER_MAP``        — ``{catalog: {uri: handler}}`` dispatch dict for saves
-- ``DELETE_HANDLER_MAP`` — ``{catalog: {uri: handler}}`` dispatch dict for deletes
+- ``HANDLER_MAP``           — ``{catalog: {uri: handler}}`` dispatch dict for saves
+- ``DELETE_HANDLER_MAP``    — ``{catalog: {uri: handler}}`` dispatch dict for deletes
+- ``PRESAVE_VALIDATOR_MAP`` — ``{catalog: {uri: validator}}`` dispatch dict for pre-save validation
 - ``mardmo_router_post_save``   — receiver wired to ``value_created`` and ``value_updated``
 - ``mardmo_router_post_delete`` — receiver wired to Django's ``post_delete`` on ``Value``
+- ``mardmo_router_pre_save``    — receiver wired to Django's ``pre_save`` on ``Value``
 '''
 
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, pre_save
 from django.dispatch import receiver
 from rdmo.projects.models import Value
 from rdmo.projects.signals import value_created, value_updated
-from .builders import build_post_save_handler_set, build_post_delete_handler_set
+from .constants import (
+    CATALOG_MODEL_NAME,
+    CATALOG_MODEL_BASICS_NAME,
+    CATALOG_ALGORITHM_NAME,
+    CATALOG_WORKFLOW_NAME,
+)
+from .builders import (
+    build_post_save_handler_set,
+    build_post_delete_handler_set,
+    build_presave_validator_map,
+)
 
-HANDLER_MAP        = build_post_save_handler_set()
-DELETE_HANDLER_MAP = build_post_delete_handler_set()
+HANDLER_MAP           = build_post_save_handler_set()
+DELETE_HANDLER_MAP    = build_post_delete_handler_set()
+PRESAVE_VALIDATOR_MAP = build_presave_validator_map()
 
 _MARDMO_CATALOGS = (
-    "mardmo-model-catalog",
-    "mardmo-model-basics-catalog",
-    "mardmo-algorithm-catalog",
-    "mardmo-interdisciplinary-workflow-catalog",
+    CATALOG_MODEL_NAME,
+    CATALOG_MODEL_BASICS_NAME,
+    CATALOG_ALGORITHM_NAME,
+    CATALOG_WORKFLOW_NAME,
 )
 
 
@@ -107,3 +128,37 @@ def mardmo_router_post_delete(sender, instance, **kwargs):  # pylint: disable=un
     handler = DELETE_HANDLER_MAP.get(catalog_name, {}).get(attr_uri)
     if handler:
         handler(instance)
+
+
+@receiver(pre_save, sender=Value)
+def mardmo_router_pre_save(sender, instance=None, **kwargs):  # pylint: disable=unused-argument
+    """Pre-save router: validate Value text before it is written to the database.
+
+    Connected to Django's ``pre_save`` signal on ``Value``.
+    Skips fixture loads, non-MaRDMO catalogs, and attributes with no registered
+    validator.  Calls the matching validator from ``PRESAVE_VALIDATOR_MAP``,
+    which raises ``ValidationError`` to reject malformed input.
+
+    Args:
+        sender:   Signal sender class (``Value``).
+        instance: The ``Value`` instance about to be saved.
+        **kwargs: Additional signal keyword arguments (includes ``raw`` for
+                  fixture loads).
+    """
+    if kwargs.get('raw'):
+        return
+
+    if not instance:
+        return
+
+    catalog_name = _catalog_name(instance)
+    if not catalog_name:
+        return
+
+    attr_uri = getattr(instance.attribute, 'uri', None)
+    if not attr_uri:
+        return
+
+    validator = PRESAVE_VALIDATOR_MAP.get(catalog_name, {}).get(attr_uri)
+    if validator:
+        validator(instance)

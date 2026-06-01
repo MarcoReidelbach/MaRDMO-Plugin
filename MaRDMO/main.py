@@ -23,7 +23,13 @@ from django.utils.translation import gettext_lazy as _
 from rdmo.projects.exports import Export
 
 from .checks import Checks
-from .constants import CATALOG_TEMPLATE_MAP
+from .constants import (
+    CATALOG_TEMPLATE_MAP,
+    CATALOG_MODEL_NAME,
+    CATALOG_MODEL_BASICS_NAME,
+    CATALOG_ALGORITHM_NAME,
+    CATALOG_WORKFLOW_NAME,
+)
 from .getters import (
     get_answers,
     get_options,
@@ -47,10 +53,10 @@ from .search.worker import search
 from .publication.worker import PublicationRetriever
 
 _CATALOG_PREPARE_MAP = {
-    'mardmo-model-catalog':                      ('model',     PrepareModel,     'run_model'),
-    'mardmo-model-basics-catalog':               ('model',     PrepareModel,     'run_model'),
-    'mardmo-algorithm-catalog':                  ('algorithm', PrepareAlgorithm, 'run_algorithm'),
-    'mardmo-interdisciplinary-workflow-catalog': ('workflow',  PrepareWorkflow,  'run_workflow'),
+    CATALOG_MODEL_NAME:        ('model',     PrepareModel,     'run_model'),
+    CATALOG_MODEL_BASICS_NAME: ('model',     PrepareModel,     'run_model'),
+    CATALOG_ALGORITHM_NAME:    ('algorithm', PrepareAlgorithm, 'run_algorithm'),
+    CATALOG_WORKFLOW_NAME:     ('workflow',  PrepareWorkflow,  'run_workflow'),
 }
 
 class BaseMaRDMOExportProvider(OauthProviderMixin, Export, ABC):
