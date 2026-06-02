@@ -108,7 +108,7 @@ class ChecksBase:
                     parent_class, parent_page,
                     f'Missing {item_class} Short Description ({label})'
                 ))
-            elif len(desc) > 250:
+            elif len(desc) > 2000:
                 self.err.append(self._error(
                     parent_class, parent_page,
                     f'{item_class} Short Description Too Long ({label})'
@@ -201,7 +201,7 @@ class ChecksBase:
         '''Check that every entity page has a non-empty ID, Name, and Description.
 
         Also flags equal Name/Description pairs and descriptions exceeding
-        250 characters.  Skips entity types not relevant to *catalog*.
+        2000 characters.  Skips entity types not relevant to *catalog*.
 
         Args:
             project: RDMO project instance (used to look up page labels).
@@ -267,7 +267,7 @@ class ChecksBase:
                             message = 'Equal Name and Short Description Forbidden'
                         )
                     )
-                if ivalue.get('Description') and len(ivalue['Description']) > 250:
+                if ivalue.get('Description') and len(ivalue['Description']) > 2000:
                     self.err.append(
                         self._error(
                             section = section_map[okey],

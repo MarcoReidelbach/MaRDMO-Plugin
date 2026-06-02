@@ -7,7 +7,7 @@ Validators are registered in ``builders.py`` via ``build_presave_validator_map``
 Provides:
 
 - :func:`validate_label_format`      — rejects entries not matching ``Label (Description)``
-- :func:`validate_short_description` — rejects descriptions longer than 250 characters
+- :func:`validate_short_description` — rejects descriptions longer than 2000 characters
 - :func:`validate_qudt_id`           — rejects QUDT IDs not matching the expected format
 - :func:`validate_properties`        — rejects mutually exclusive data-property combinations
 '''
@@ -50,17 +50,17 @@ def validate_label_format(instance):
 
 
 def validate_short_description(instance):
-    '''Reject a short description that exceeds 250 characters.
+    '''Reject a short description that exceeds 2000 characters.
 
     Args:
         instance: RDMO ``Value`` instance about to be saved.
 
     Raises:
-        ValidationError: when ``instance.text`` exceeds 250 characters.
+        ValidationError: when ``instance.text`` exceeds 2000 characters.
     '''
-    if instance.text and len(instance.text) > 250:
+    if instance.text and len(instance.text) > 2000:
         raise ValidationError({
-            'text': [_('Short description must not exceed 250 characters.')]
+            'text': [_('Short description must not exceed 2000 characters.')]
         })
 
 

@@ -14,7 +14,7 @@
                     {% else %}
                         {% if item.ID == 'not found' %}
                             {% if item.Name %}{{ primary_label }}: {{ item.Name }}{% else %}{{ primary_label }}: <strong style="color:red;">MISSING {{ primary_class }} NAME</strong>{% endif %}
-                            {% if not item.Description %} — <strong style="color:red;">MISSING {{ primary_class }} SHORT DESCRIPTION</strong>{% elif item.Description|length > 250 %} ({{ item.Description }}) — <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong>{% elif item.Description == item.Name %} ({{ item.Description }}) — <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong>{% else %} ({{ item.Description }}){% endif %}{% if not forloop.last %}<br>{% endif %}
+                            {% if not item.Description %} — <strong style="color:red;">MISSING {{ primary_class }} SHORT DESCRIPTION</strong>{% elif item.Description|length > 2000 %} ({{ item.Description }}) — <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong>{% elif item.Description == item.Name %} ({{ item.Description }}) — <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong>{% else %} ({{ item.Description }}){% endif %}{% if not forloop.last %}<br>{% endif %}
                         {% else %}
                             {{ primary_label }}: {{ item.ID }}{% if not forloop.last %}<br>{% endif %}
                         {% endif %}
@@ -38,7 +38,7 @@
                         {% else %}
                             {% if pair.qualifier.ID == 'not found' %}
                                 {% if pair.qualifier.Name %}{{ pair.qualifier.Name }}{% else %}<strong style="color:red;">MISSING {{ qualifier_class }} NAME</strong>{% endif %}
-                                {% if not pair.qualifier.Description %} — <strong style="color:red;">MISSING {{ qualifier_class }} SHORT DESCRIPTION</strong>{% elif pair.qualifier.Description|length > 250 %} ({{ pair.qualifier.Description }}) — <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong>{% elif pair.qualifier.Description == pair.qualifier.Name %} ({{ pair.qualifier.Description }}) — <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong>{% else %} ({{ pair.qualifier.Description }}){% endif %}
+                                {% if not pair.qualifier.Description %} — <strong style="color:red;">MISSING {{ qualifier_class }} SHORT DESCRIPTION</strong>{% elif pair.qualifier.Description|length > 2000 %} ({{ pair.qualifier.Description }}) — <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong>{% elif pair.qualifier.Description == pair.qualifier.Name %} ({{ pair.qualifier.Description }}) — <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong>{% else %} ({{ pair.qualifier.Description }}){% endif %}
                             {% else %}
                                 {{ pair.qualifier.ID }}
                             {% endif %}

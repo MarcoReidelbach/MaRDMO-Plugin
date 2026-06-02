@@ -1,6 +1,6 @@
 <b>Short Description</b>:
 {% if description %}
-    {% if description|length > 250 %}
+    {% if description|length > 2000 %}
         {{ description }} <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong> <br>
     {% elif description == name %}
         {{ description }} <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>

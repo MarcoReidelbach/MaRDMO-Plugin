@@ -205,7 +205,7 @@
                 {% endif %}
                 {% if not cpu.description %}
                     (<strong style="color:red;">MISSING CPU SHORT DESCRIPTION</strong>) <br>
-                {% elif cpu.description|length > 250 %}
+                {% elif cpu.description|length > 2000 %}
                     ({{ cpu.description }}) <strong style="color:red;">CPU SHORT DESCRIPTION TOO LONG</strong> <br>
                 {% elif cpu.description == cpu.name %}
                     ({{ cpu.description }}) <strong style="color:red;">CPU NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong> <br>

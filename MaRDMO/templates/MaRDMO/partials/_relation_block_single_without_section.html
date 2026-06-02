@@ -7,7 +7,7 @@
             {{ relation }}: <strong style="color:red;">MISSING {{ class }} NAME</strong>
         {% endif %}
         {% if relatant.Description %}
-            {% if relatant.Description|length > 250 %}
+            {% if relatant.Description|length > 2000 %}
                 ({{ relatant.Description }}) — <strong style="color:red;">SHORT DESCRIPTION TOO LONG</strong>
             {% elif relatant.Description == relatant.Name %}
                 ({{ relatant.Description }}) — <strong style="color:red;">NAME AND SHORT DESCRIPTION MUST BE DIFFERENT</strong>
