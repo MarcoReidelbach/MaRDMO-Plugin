@@ -10,8 +10,9 @@ custom ``value_deleted``) ensures the handler fires for both individual REST
 deletions and set deletions via RDMO's ``delete_set``, which calls
 ``value.delete()`` directly.
 
-Both maps are assembled once at startup via :func:`~MaRDMO.builders.build_handler_map`
-and :func:`~MaRDMO.builders.build_delete_handler_map`.
+Both maps are assembled once at startup via
+:func:`~MaRDMO.builders.build_post_save_handler_set` and
+:func:`~MaRDMO.builders.build_post_delete_handler_set`.
 
 Before every ``Value`` save the pre-save router looks up the attribute URI in
 ``PRESAVE_VALIDATOR_MAP`` and calls the matching validator, which may raise

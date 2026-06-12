@@ -1,9 +1,14 @@
-'''Module conaining functions writing retrieved metadata into an RDMO questionnaire.
+'''Functions that write retrieved metadata into an RDMO questionnaire.
 
 After a background worker has collected entity data from external knowledge
 graphs, the results must be stored as RDMO ``Value`` objects so that the
 questionnaire reflects the fetched information.  This module provides helpers
 that create or update those values for a given project and set of answers.
+
+Portal-fetched data is sanitized before writing: ``add_properties`` silently
+drops any pair of mutually exclusive data properties (neither can be judged
+correct), and ``add_references`` skips QUDT IDs that do not match the expected
+format.  The documentation checker surfaces any resulting gaps at export time.
 
 Provides:
 
@@ -12,8 +17,8 @@ Provides:
 - ``add_new_entities``       — write newly user-created entities into the questionnaire
 - ``add_relations_static``   — write relation values using a fixed property-to-question mapping
 - ``add_relations_flexible`` — write relation values using a dynamic property-to-question mapping
-- ``add_properties``         — write data-property values for an entity at a given URI
-- ``add_references``         — write external-reference values for an entity
+- ``add_properties``         — write data-property values; drops mutually exclusive pairs
+- ``add_references``         — write external-reference values; skips malformed QUDT IDs
 '''
 
 import re

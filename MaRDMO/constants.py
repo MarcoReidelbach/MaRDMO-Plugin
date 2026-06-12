@@ -1,10 +1,11 @@
 '''Package-wide constants and the answer-routing flag map for MaRDMO.
 
-Defines the RDMO base URI, catalog URIs, the shared section-name map
-(:data:`SECTION_MAP_BASE`), and :data:`flag_dict` — a mapping from
-five-tuple boolean flags to the corresponding :mod:`~MaRDMO.rules`
-function used by :func:`~MaRDMO.getters.get_answers` to route each
-questionnaire value into the correct position in the answers dict.
+Defines the RDMO base URI, catalog name slugs (:data:`CATALOG_MODEL_NAME` etc.),
+derived catalog URIs, the shared section-name map (:data:`SECTION_MAP_BASE`),
+and :data:`flag_dict` — a mapping from five-tuple boolean flags to the
+corresponding :mod:`~MaRDMO.rules` function used by
+:func:`~MaRDMO.getters.get_answers` to route each questionnaire value into
+the correct position in the answers dict.
 '''
 
 from . import rules
