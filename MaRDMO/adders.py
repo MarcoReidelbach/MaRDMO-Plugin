@@ -16,10 +16,12 @@ Provides:
 - ``add_references``         — write external-reference values for an entity
 '''
 
+import re
+
 from rdmo.options.models import Option
 
 from .constants import BASE_URI
-from .getters import get_id
+from .getters import get_id, get_mathmoddb, get_options
 from .helpers import (
     extract_parts,
     initialize_counter,
@@ -29,7 +31,10 @@ from .helpers import (
     relevant_set_ids,
     value_editor,
 )
+from .model.constants import data_properties_check, qudt_reference_ids
 from .workflow.models import ProcessStepUsage
+
+_QUDT_ID_RE = re.compile(r'^[A-Z][a-zA-Z_\-]+$')
 
 def add_basics(project, text, questions, item_type, index = (None, None)):
     '''Parse the ID-question text and write label/description into the questionnaire.
@@ -518,14 +523,31 @@ def add_properties(project, data, uri, set_prefix):
     ``data.properties`` and calls :func:`~MaRDMO.helpers.value_editor` for
     each entry at ``set_index=0``.
 
+    Entries whose option URI belongs to a mutually exclusive pair (as defined
+    by ``data_properties_check``) are silently skipped — the entire conflicting
+    pair is dropped because it cannot be determined which side is correct.  The
+    documentation checker will report the missing properties at export time.
+
     Args:
         project:    RDMO project instance.
         data:       Dataclass instance with a ``properties`` attribute.
         uri:        Attribute URI of the data-property collection question.
         set_prefix: Set-prefix of the parent entity page.
     '''
+    incoming_uris = {value[0] for value in data.properties.values()}
+    mathmoddb = get_mathmoddb()
+    conflict = set()
+    for key_a, key_b in data_properties_check:
+        entry_a = mathmoddb.get(key=key_a)
+        entry_b = mathmoddb.get(key=key_b)
+        if entry_a and entry_b:
+            if entry_a['url'] in incoming_uris and entry_b['url'] in incoming_uris:
+                conflict.add(entry_a['url'])
+                conflict.add(entry_b['url'])
 
     for key, value in data.properties.items():
+        if value[0] in conflict:
+            continue
         value_editor(
             project = project,
             uri  = uri,
@@ -544,6 +566,11 @@ def add_references(project, data, uri, set_index = 0, set_prefix = None):
     ``{collection_index: [option_uri, text]}`` mapping is stored as an option
     value at the given *set_index* / *set_prefix*.
 
+    For QUDT reference options (quantity kind ID or constant ID), the text is
+    validated against ``^[A-Z][a-zA-Z_\\-]+$`` and silently skipped when it
+    does not match.  The documentation checker will report the missing reference
+    at export time.
+
     Args:
         project:    RDMO project instance.
         data:       Dataclass instance with a ``reference`` attribute.
@@ -554,13 +581,19 @@ def add_references(project, data, uri, set_index = 0, set_prefix = None):
     if not data.reference:
         return
 
+    options = get_options()
+    qudt_option_uris = {options[k] for k in qudt_reference_ids if k in options}
+
     for key, value in data.reference.items():
+        option_uri, text = value[0], value[1]
+        if option_uri in qudt_option_uris and not _QUDT_ID_RE.match(text or ''):
+            continue
         value_editor(
             project = project,
             uri  = uri,
             info = {
-                'text': value[1],
-                'option': Option.objects.get(uri=value[0]),
+                'text': text,
+                'option': Option.objects.get(uri=option_uri),
                 'collection_index': key,
                 'set_index': set_index,
                 'set_prefix': set_prefix
