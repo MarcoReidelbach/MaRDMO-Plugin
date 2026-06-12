@@ -6,7 +6,7 @@ Validators are registered in ``builders.py`` via ``build_presave_validator_map``
 
 Provides:
 
-- :func:`validate_label_format`      — rejects entries not matching ``Label (Description)``
+- :func:`validate_value_format`      — rejects entries not matching ``Label (Description)``
 - :func:`validate_short_description` — rejects descriptions longer than 2000 characters
 - :func:`validate_qudt_id`           — rejects QUDT IDs not matching the expected format
 - :func:`validate_properties`        — rejects mutually exclusive data-property combinations
@@ -18,14 +18,14 @@ from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
-from .helpers import extract_parts
 from .getters import get_mathmoddb
+from .helpers import extract_parts
 from .model.constants import data_properties_check, data_properties_label
 
 _QUDT_ID_RE = re.compile(r'^[A-Z][a-zA-Z_\-]*$')
 
 
-def validate_label_format(instance):
+def validate_value_format(instance):
     '''Reject values whose text cannot be parsed as ``Label (Description)``.
 
     Accepts empty text (field cleared), ``Label (Description)`` (user entry),

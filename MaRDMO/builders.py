@@ -27,7 +27,7 @@ from .workflow.handlers import Information as WorkflowInformation
 from .publication.handlers import Information as PublicationInformation
 from .handlers import Information as GeneralInformation
 from .validators import (
-    validate_label_format,
+    validate_value_format,
     validate_properties,
     validate_qudt_id,
     validate_short_description,
@@ -259,7 +259,7 @@ def build_presave_validator_map():
       question URIs (model, formulation, quantity, task) in the model catalogs.
     - :func:`~MaRDMO.validators.validate_qudt_id` — for the Quantity reference
       URI in the full model catalog only.
-    - :func:`~MaRDMO.validators.validate_label_format` — for all
+    - :func:`~MaRDMO.validators.validate_value_format` — for all
       ``general.relation`` question URIs across model, algorithm, and workflow.
 
     Returns:
@@ -300,29 +300,29 @@ def build_presave_validator_map():
                 validate_qudt_id,
             # Relation label format
             f'{base}{questions_model["Task"]["QRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Task"]["MFRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Mathematical Formulation"]["Element Quantity"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Quantity"]["Element Quantity"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Mathematical Model"]["MFRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Mathematical Model"]["Assumption"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Task"]["Assumption"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Mathematical Formulation"]["Assumption"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Mathematical Formulation"]["MFRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Research Problem"]["RFRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Mathematical Model"]["RPRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Mathematical Model"]["TRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
         },
         CATALOG_MODEL_BASICS_NAME: {
             # Short description (Research Problem, Formulation, Task, Model only)
@@ -343,19 +343,19 @@ def build_presave_validator_map():
                 validate_properties,
             # Relation label format
             f'{base}{questions_model["Mathematical Model"]["RPRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Mathematical Model"]["TRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Mathematical Model"]["MFRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Mathematical Model"]["Assumption"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Task"]["MFRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Task"]["Assumption"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_model["Mathematical Formulation"]["Assumption"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
         },
         CATALOG_ALGORITHM_NAME: {
             # Short description
@@ -369,15 +369,15 @@ def build_presave_validator_map():
                 validate_short_description,
             # Relation label format
             f'{base}{questions_algorithm["Problem"]["BRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_algorithm["Software"]["BRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_algorithm["Algorithm"]["PRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_algorithm["Algorithm"]["SRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_algorithm["Software"]["Dependency"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
         },
         CATALOG_WORKFLOW_NAME: {
             # Short description
@@ -395,20 +395,20 @@ def build_presave_validator_map():
                 validate_short_description,
             # Relation label format
             f'{base}{questions_workflow["Process Step"]["Algorithm"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_workflow["Process Step"]["Hardware"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_workflow["Process Step"]["Input"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_workflow["Process Step"]["Output"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_workflow["Workflow"]["PSRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_workflow["Process Step"]["Software"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_workflow["Algorithm"]["SRelatant"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
             f'{base}{questions_workflow["Software"]["Dependency"]["uri"]}':
-                validate_label_format,
+                validate_value_format,
         },
     }
