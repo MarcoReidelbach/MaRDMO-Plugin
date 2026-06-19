@@ -18,6 +18,8 @@ nav:
       - Handlers: concepts/handlers.md
       - Publications: concepts/publication.md
       - Export Pipeline: concepts/export.md
+  - How to:
+      - How to Add a Data Property: how-to/data-property.md
   - Reference:
       - Core:
           - Entry Points: reference/mardmo.md

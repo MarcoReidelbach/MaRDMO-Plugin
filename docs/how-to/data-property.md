@@ -1,0 +1,262 @@
+# How to Add a Data Property
+
+A *data property* is a boolean characteristic of a MathModDB entity — for
+example *Is Dimensional* or *Is Physical Constant*.  When a user selects such
+a property in the RDMO interview, MaRDMO validates the selection, writes it to
+the questionnaire, checks it before export, and maps it to a Wikibase statement
+on the MaRDI Portal.
+
+Properties come in two flavours:
+
+- **Class-dependent** — the corresponding MaRDI Portal item has a different
+  name per entity class.  Example: *Is Dimensional* maps to "dimensional model",
+  "dimensional formula", "dimensional quantity", "dimensional quantity kind" —
+  separate Wikibase items for each class.
+- **Class-independent** — one Wikibase item is used regardless of entity class.
+  Example: *Is Physical Constant* maps to "physical constant" for every entity
+  class that supports it.
+
+The two walkthroughs below use these properties as concrete examples.  Both
+properties are part of the MaRDMO Catalogs for detailed and basic documentation
+of mathematical models.
+
+!!! note "Quantity and Quantity Kind"
+    The entity classes *Quantity* and *Quantity Kind* are treated together in
+    the backend under the key `quantity`.  They share a single pair of SPARQL
+    query files (`quantity_mardi.sparql` and `quantity_wikidata.sparql`), where
+    both item types are covered via a UNION pattern.
+
+---
+
+## Case 1 — Class-Dependent: Is Dimensional
+
+### Step 1a — Add the Option to RDMO
+
+Create a new option with the URI
+`https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-dimensional` and add it
+to each relevant optionset in RDMO.  For *Is Dimensional* the relevant
+optionsets are:
+
+- `https://rdmo.mardi4nfdi.de/terms/options/model-properties`
+- `https://rdmo.mardi4nfdi.de/terms/options/formulation-properties`
+- `https://rdmo.mardi4nfdi.de/terms/options/quantity-properties`
+
+See [How to create a new Option](https://rdmo.readthedocs.io/en/latest/management/options.html)
+and [How to create a new or edit an existing Optionset](https://rdmo.readthedocs.io/en/latest/management/options.html)
+for further information.
+
+### Step 1b — Register the Option in `model/data/mapping.json`
+
+Add an entry to `model/data/mapping.json`.  This file maps MathModDB property
+keys to their RDMO option URIs and human-readable labels:
+
+```json
+{"key": "is_dimensional", "url": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-dimensional", "label": "is Dimensional"}
+```
+
+### Step 2 — Register MaRDI Portal QIDs
+
+Add one entry per entity class to `data/items.json` (productive portal) and
+`data/items_staging.json` (staging portal, for testing purposes):
+
+=== "data/items.json"
+
+    ```json
+    "dimensional model":         "Q6775551",
+    "dimensional formula":       "Q6775550",
+    "dimensional quantity":      "Q6775552",
+    "dimensional quantity kind": "Q6775553"
+    ```
+
+=== "data/items_staging.json"
+
+    ```json
+    "dimensional model":         "Q13324",
+    "dimensional formula":       "Q13323",
+    "dimensional quantity":      "Q13325",
+    "dimensional quantity kind": "Q13326"
+    ```
+
+### Step 3 — `model/constants.py`
+
+**3a** — Human-readable label used in the preview and error messages:
+
+```python
+data_properties_label = {
+    ...
+    'is_dimensional': 'Is Dimensional',
+}
+```
+
+**3b** — Mutual exclusion pair (*Is Dimensional* and *Is Dimensionless* cannot
+both be true at the same time):
+
+```python
+data_properties_check = [
+    ...
+    ('is_dimensionless', 'is_dimensional'),
+]
+```
+
+**3c** — Entity classes that carry this property (model, formula, quantity,
+quantity kind):
+
+```python
+data_properties_per_class = {
+    'model':       [..., 'is_dimensional'],
+    'formulation': [..., 'is_dimensional'],
+    'quantity':    [..., 'is_dimensional'],
+}
+```
+
+**3d** — Register as class-dependent.  The second element is the item name
+prefix; MaRDMO appends the entity class name automatically to look up the
+correct Wikibase item ("dimensional model", "dimensional formula", etc.):
+
+```python
+DEPENDENT_PROPERTIES = [
+    ...
+    ('is_dimensional', 'dimensional'),
+]
+```
+
+### Step 4 — SPARQL Queries
+
+For each entity class the property applies to, edit the corresponding files in
+`model/queries/` — both the MaRDI and Wikidata variants, and both the full
+and `-basics` variants where they exist.
+
+Affected files for *Is Dimensional*:
+
+| Entity class | Files |
+|---|---|
+| Model | `model_mardi.sparql`, `model_wikidata.sparql`, `model-basics_mardi.sparql`, `model-basics_wikidata.sparql` |
+| Formula | `formulation_mardi.sparql`, `formulation_wikidata.sparql`, `formulation-basics_mardi.sparql`, `formulation-basics_wikidata.sparql` |
+| Quantity + Quantity Kind | `quantity_mardi.sparql`, `quantity_wikidata.sparql` |
+
+**MaRDI Portal queries** (`*_mardi.sparql`): add `?is_dimensional` to the
+`SELECT` and `GROUP BY` clauses.  For model and formula files, add a single
+`OPTIONAL` block with a trailing `BIND`:
+
+```sparql
+OPTIONAL {{ ?id wdt:{instance of} wd:{dimensional model}. BIND("True" AS ?is_dimensional_raw) }}
+    BIND(COALESCE(?is_dimensional_raw, "False") AS ?is_dimensional)
+```
+
+Use `{dimensional formula}` in the formula files.  For the quantity file, both
+item types are combined via UNION since only one file covers both:
+
+```sparql
+OPTIONAL {{ {{ ?id wdt:{instance of} wd:{dimensional quantity}. }} UNION {{ ?id wdt:{instance of} wd:{dimensional quantity kind}. }} BIND("True" AS ?is_dimensional_raw) }}
+    BIND(COALESCE(?is_dimensional_raw, "False") AS ?is_dimensional)
+```
+
+**Wikidata queries** (`*_wikidata.sparql`): the items "dimensional model",
+"dimensional formula", "dimensional quantity", and "dimensional quantity kind"
+do not currently exist in Wikidata, so there is nothing to add to the Wikidata
+SPARQL queries.  Should these items be created in Wikidata in the future, the
+corresponding blocks can be added at that point using the actual Wikidata QIDs.
+
+---
+
+## Case 2 — Class-Independent: Is Physical Constant
+
+### Step 1a — Add the Option to RDMO
+
+Create a new option with the URI
+`https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-physical-constant` and
+add it to the relevant optionset.  For *Is Physical Constant* the relevant
+optionset is:
+
+- `https://rdmo.mardi4nfdi.de/terms/options/quantity-properties`
+
+See [How to create a new Option](https://rdmo.readthedocs.io/en/latest/management/options.html)
+and [How to create a new or edit an existing Optionset](https://rdmo.readthedocs.io/en/latest/management/options.html)
+for further information.
+
+### Step 1b — Register the Option in `model/data/mapping.json`
+
+```json
+{"key": "is_physical_constant", "url": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-physical-constant", "label": "is Physical Constant"}
+```
+
+### Step 2 — Register MaRDI Portal QIDs
+
+A single item is shared across all entity classes:
+
+=== "data/items.json"
+
+    ```json
+    "physical constant": "Q6534290"
+    ```
+
+=== "data/items_staging.json"
+
+    ```json
+    "physical constant": "Q1777"
+    ```
+
+### Step 3 — `model/constants.py`
+
+**3a** — Human-readable label:
+
+```python
+data_properties_label = {
+    ...
+    'is_physical_constant': 'Is Physical Constant',
+}
+```
+
+**3b** — Mutual exclusion pairs (*Is Physical Constant* is mutually exclusive
+with both *Is Mathematical Constant* and *Is Chemical Constant*):
+
+```python
+data_properties_check = [
+    ...
+    ('is_mathematical_constant', 'is_physical_constant'),
+    ('is_physical_constant',     'is_chemical_constant'),
+]
+```
+
+**3c** — Entity classes (*Is Physical Constant* applies to quantities and
+quantity kinds only):
+
+```python
+data_properties_per_class = {
+    'quantity': [..., 'is_physical_constant'],
+}
+```
+
+**3d** — Register as class-independent.  The second element is the full item
+name used for all entity classes:
+
+```python
+INDEPENDENT_PROPERTIES = [
+    ...
+    ('is_physical_constant', 'physical constant'),
+]
+```
+
+### Step 4 — SPARQL Queries
+
+Only the quantity query files need updating:
+`quantity_mardi.sparql` and `quantity_wikidata.sparql`.
+
+Add `?is_physical_constant` to `SELECT` and `GROUP BY`, then add the `OPTIONAL`
+block in the `WHERE` clause.
+
+**MaRDI Portal:**
+
+```sparql
+OPTIONAL {{ ?id wdt:{instance of} wd:{physical constant}. BIND("True" AS ?is_physical_constant_raw) }}
+    BIND(COALESCE(?is_physical_constant_raw, "False") AS ?is_physical_constant)
+```
+
+**Wikidata:** "physical constant" exists in Wikidata as
+[Q173227](https://www.wikidata.org/wiki/Q173227), so the corresponding block
+should be added to the Wikidata query:
+
+```sparql
+OPTIONAL {{ ?id wdt:P31 wd:Q173227. BIND("True" AS ?is_physical_constant_raw) }}
+    BIND(COALESCE(?is_physical_constant_raw, "False") AS ?is_physical_constant)
+```
