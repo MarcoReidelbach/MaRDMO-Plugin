@@ -41,8 +41,8 @@ optionsets are:
 - `https://rdmo.mardi4nfdi.de/terms/options/formulation-properties`
 - `https://rdmo.mardi4nfdi.de/terms/options/quantity-properties`
 
-See [How to create a new Option](https://rdmo.readthedocs.io/en/latest/management/options.html)
-and [How to create a new or edit an existing Optionset](https://rdmo.readthedocs.io/en/latest/management/options.html)
+See [How to create a new Option in RDMO](add-option-rdmo.md)
+and [How to create a new Optionset in RDMO](https://rdmo.readthedocs.io/en/latest/management/options.html)
 for further information.
 
 ### Step 1b — Register the Option in `model/data/mapping.json`
@@ -170,8 +170,8 @@ optionset is:
 
 - `https://rdmo.mardi4nfdi.de/terms/options/quantity-properties`
 
-See [How to create a new Option](https://rdmo.readthedocs.io/en/latest/management/options.html)
-and [How to create a new or edit an existing Optionset](https://rdmo.readthedocs.io/en/latest/management/options.html)
+See [How to create a new Option in RDMO](add-option-rdmo.md)
+and [How to create a new Optionset in RDMO](https://rdmo.readthedocs.io/en/latest/management/options.html)
 for further information.
 
 ### Step 1b — Register the Option in `model/data/mapping.json`
