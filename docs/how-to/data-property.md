@@ -1,4 +1,4 @@
-# How to Add a Data Property
+# How to Add a Data Property in MaRDMO
 
 A *data property* is a boolean characteristic of a MathModDB entity — for
 example *Is Dimensional* or *Is Physical Constant*.  When a user selects such
@@ -42,7 +42,7 @@ optionsets are:
 - `https://rdmo.mardi4nfdi.de/terms/options/quantity-properties`
 
 See [How to create a new Option in RDMO](add-option-rdmo.md)
-and [How to create a new Optionset in RDMO](https://rdmo.readthedocs.io/en/latest/management/options.html)
+and [How to create a new Optionset in RDMO](add-optionset-rdmo.md)
 for further information.
 
 ### Step 1b — Register the Option in `model/data/mapping.json`
@@ -171,7 +171,7 @@ optionset is:
 - `https://rdmo.mardi4nfdi.de/terms/options/quantity-properties`
 
 See [How to create a new Option in RDMO](add-option-rdmo.md)
-and [How to create a new Optionset in RDMO](https://rdmo.readthedocs.io/en/latest/management/options.html)
+and [How to create a new Optionset in RDMO](add-optionset-rdmo.md)
 for further information.
 
 ### Step 1b — Register the Option in `model/data/mapping.json`
