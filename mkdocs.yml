@@ -19,6 +19,8 @@ nav:
       - Publications: concepts/publication.md
       - Export Pipeline: concepts/export.md
   - How to:
+      - How to Create a New Attribute in RDMO: how-to/add-attribute-rdmo.md
+      - How to Create a New Condition in RDMO: how-to/add-condition-rdmo.md
       - How to Create a New Option in RDMO: how-to/add-option-rdmo.md
       - How to Create a New Optionset in RDMO: how-to/add-optionset-rdmo.md
       - How to Add a Data Property in MaRDMO: how-to/data-property.md
