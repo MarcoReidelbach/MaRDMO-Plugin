@@ -59,23 +59,23 @@ keys to their RDMO option URIs and human-readable labels:
 Add one entry per entity class to `data/items.json` (productive portal) and
 `data/items_staging.json` (staging portal, for testing purposes):
 
-=== "data/items.json"
+**data/items.json:**
 
-    ```json
-    "dimensional model":         "Q6775551",
-    "dimensional formula":       "Q6775550",
-    "dimensional quantity":      "Q6775552",
-    "dimensional quantity kind": "Q6775553"
-    ```
+```json
+"dimensional model":         "Q6775551",
+"dimensional formula":       "Q6775550",
+"dimensional quantity":      "Q6775552",
+"dimensional quantity kind": "Q6775553"
+```
 
-=== "data/items_staging.json"
+**data/items_staging.json:**
 
-    ```json
-    "dimensional model":         "Q13324",
-    "dimensional formula":       "Q13323",
-    "dimensional quantity":      "Q13325",
-    "dimensional quantity kind": "Q13326"
-    ```
+```json
+"dimensional model":         "Q13324",
+"dimensional formula":       "Q13323",
+"dimensional quantity":      "Q13325",
+"dimensional quantity kind": "Q13326"
+```
 
 ### Step 3 — `model/constants.py`
 
@@ -175,17 +175,17 @@ for further information.
 
 A single item is shared across all entity classes:
 
-=== "data/items.json"
+**data/items.json:**
 
-    ```json
-    "physical constant": "Q6534290"
-    ```
+```json
+"physical constant": "Q6534290"
+```
 
-=== "data/items_staging.json"
+**data/items_staging.json:**
 
-    ```json
-    "physical constant": "Q1777"
-    ```
+```json
+"physical constant": "Q1777"
+```
 
 ### Step 3 — `model/constants.py`
 
