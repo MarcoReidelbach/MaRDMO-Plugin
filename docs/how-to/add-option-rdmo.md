@@ -9,8 +9,8 @@ option.  The numbered fields are explained in the sections that follow.
 
 **① URI prefix**
 
-The base URI that scopes all options belonging to a particular installation or
-vocabulary.  For MaRDMO-specific options this is:
+The base URI that scopes all items belonging to a particular source.
+For MaRDMO-specific items this is:
 
 ```
 https://rdmo.mardi4nfdi.de/terms
