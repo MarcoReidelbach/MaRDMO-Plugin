@@ -1,7 +1,7 @@
-# How to Add a Data Property in MaRDMO
+# How to Add a Data Property
 
 A *data property* is a boolean characteristic of a MathModDB entity — for
-example *Is Dimensional* or *Is Physical Constant*.  When a user selects such
+example *is dimensional* or *is physical constant*.  When a user selects such
 a property in the RDMO interview, MaRDMO validates the selection, writes it to
 the questionnaire, checks it before export, and maps it to a Wikibase statement
 on the MaRDI Portal.
@@ -9,11 +9,11 @@ on the MaRDI Portal.
 Properties come in two flavours:
 
 - **Class-dependent** — the corresponding MaRDI Portal item has a different
-  name per entity class.  Example: *Is Dimensional* maps to "dimensional model",
+  name per entity class.  Example: *is dimensional* maps to "dimensional model",
   "dimensional formula", "dimensional quantity", "dimensional quantity kind" —
   separate Wikibase items for each class.
 - **Class-independent** — one Wikibase item is used regardless of entity class.
-  Example: *Is Physical Constant* maps to "physical constant" for every entity
+  Example: *is physical constant* maps to "physical constant" for every entity
   class that supports it.
 
 The two walkthroughs below use these properties as concrete examples.  Both
@@ -28,21 +28,21 @@ of mathematical models.
 
 ---
 
-## Case 1 — Class-Dependent: Is Dimensional
+## Case 1 — Class-Dependent: is dimensional
 
 ### Step 1a — Add the Option to RDMO
 
 Create a new option with the URI
 `https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-dimensional` and add it
-to each relevant optionset in RDMO.  For *Is Dimensional* the relevant
+to each relevant optionset in RDMO.  For *is dimensional* the relevant
 optionsets are:
 
 - `https://rdmo.mardi4nfdi.de/terms/options/model-properties`
 - `https://rdmo.mardi4nfdi.de/terms/options/formulation-properties`
 - `https://rdmo.mardi4nfdi.de/terms/options/quantity-properties`
 
-See [How to create a new Option in RDMO](add-option-rdmo.md)
-and [How to create a new Optionset in RDMO](add-optionset-rdmo.md)
+See [How to Create a New Option](../rdmo/add-option.md)
+and [How to Create a New Optionset](../rdmo/add-optionset.md)
 for further information.
 
 ### Step 1b — Register the Option in `model/data/mapping.json`
@@ -51,7 +51,7 @@ Add an entry to `model/data/mapping.json`.  This file maps MathModDB property
 keys to their RDMO option URIs and human-readable labels:
 
 ```json
-{"key": "is_dimensional", "url": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-dimensional", "label": "is Dimensional"}
+{"key": "is_dimensional", "url": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-dimensional", "label": "is dimensional"}
 ```
 
 ### Step 2 — Register MaRDI Portal QIDs
@@ -79,16 +79,7 @@ Add one entry per entity class to `data/items.json` (productive portal) and
 
 ### Step 3 — `model/constants.py`
 
-**3a** — Human-readable label used in the preview and error messages:
-
-```python
-data_properties_label = {
-    ...
-    'is_dimensional': 'Is Dimensional',
-}
-```
-
-**3b** — Mutual exclusion pair (*Is Dimensional* and *Is Dimensionless* cannot
+**3a** — Mutual exclusion pair (*is dimensional* and *is dimensionless* cannot
 both be true at the same time):
 
 ```python
@@ -98,7 +89,7 @@ data_properties_check = [
 ]
 ```
 
-**3c** — Entity classes that carry this property (model, formula, quantity,
+**3b** — Entity classes that carry this property (model, formula, quantity,
 quantity kind):
 
 ```python
@@ -109,7 +100,7 @@ data_properties_per_class = {
 }
 ```
 
-**3d** — Register as class-dependent.  The second element is the item name
+**3c** — Register as class-dependent.  The second element is the item name
 prefix; MaRDMO appends the entity class name automatically to look up the
 correct Wikibase item ("dimensional model", "dimensional formula", etc.):
 
@@ -126,7 +117,7 @@ For each entity class the property applies to, edit the corresponding files in
 `model/queries/` — both the MaRDI and Wikidata variants, and both the full
 and `-basics` variants where they exist.
 
-Affected files for *Is Dimensional*:
+Affected files for *is dimensional*:
 
 | Entity class | Files |
 |---|---|
@@ -159,25 +150,25 @@ corresponding blocks can be added at that point using the actual Wikidata QIDs.
 
 ---
 
-## Case 2 — Class-Independent: Is Physical Constant
+## Case 2 — Class-Independent: is physical constant
 
 ### Step 1a — Add the Option to RDMO
 
 Create a new option with the URI
 `https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-physical-constant` and
-add it to the relevant optionset.  For *Is Physical Constant* the relevant
+add it to the relevant optionset.  For *is physical constant* the relevant
 optionset is:
 
 - `https://rdmo.mardi4nfdi.de/terms/options/quantity-properties`
 
-See [How to create a new Option in RDMO](add-option-rdmo.md)
-and [How to create a new Optionset in RDMO](add-optionset-rdmo.md)
+See [How to Create a New Option](../rdmo/add-option.md)
+and [How to Create a New Optionset](../rdmo/add-optionset.md)
 for further information.
 
 ### Step 1b — Register the Option in `model/data/mapping.json`
 
 ```json
-{"key": "is_physical_constant", "url": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-physical-constant", "label": "is Physical Constant"}
+{"key": "is_physical_constant", "url": "https://rdmo.mardi4nfdi.de/terms/options/mathmoddb/is-physical-constant", "label": "is physical constant"}
 ```
 
 ### Step 2 — Register MaRDI Portal QIDs
@@ -198,17 +189,8 @@ A single item is shared across all entity classes:
 
 ### Step 3 — `model/constants.py`
 
-**3a** — Human-readable label:
-
-```python
-data_properties_label = {
-    ...
-    'is_physical_constant': 'Is Physical Constant',
-}
-```
-
-**3b** — Mutual exclusion pairs (*Is Physical Constant* is mutually exclusive
-with both *Is Mathematical Constant* and *Is Chemical Constant*):
+**3a** — Mutual exclusion pairs (*is physical constant* is mutually exclusive
+with both *is mathematical constant* and *is chemical constant*):
 
 ```python
 data_properties_check = [
@@ -218,7 +200,7 @@ data_properties_check = [
 ]
 ```
 
-**3c** — Entity classes (*Is Physical Constant* applies to quantities and
+**3b** — Entity classes (*is physical constant* applies to quantities and
 quantity kinds only):
 
 ```python
@@ -227,7 +209,7 @@ data_properties_per_class = {
 }
 ```
 
-**3d** — Register as class-independent.  The second element is the full item
+**3c** — Register as class-independent.  The second element is the full item
 name used for all entity classes:
 
 ```python

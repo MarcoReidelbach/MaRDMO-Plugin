@@ -19,11 +19,13 @@ nav:
       - Publications: concepts/publication.md
       - Export Pipeline: concepts/export.md
   - How to:
-      - How to Create a New Attribute in RDMO: how-to/add-attribute-rdmo.md
-      - How to Create a New Condition in RDMO: how-to/add-condition-rdmo.md
-      - How to Create a New Option in RDMO: how-to/add-option-rdmo.md
-      - How to Create a New Optionset in RDMO: how-to/add-optionset-rdmo.md
-      - How to Add a Data Property in MaRDMO: how-to/data-property.md
+      - RDMO:
+          - Create a New Attribute: how-to/rdmo/add-attribute.md
+          - Create a New Condition: how-to/rdmo/add-condition.md
+          - Create a New Option: how-to/rdmo/add-option.md
+          - Create a New Optionset: how-to/rdmo/add-optionset.md
+      - MaRDMO:
+          - Add a Data Property: how-to/mardmo/data-property.md
   - Reference:
       - Core:
           - Entry Points: reference/mardmo.md

@@ -1,4 +1,4 @@
-# How to Create a New Condition in RDMO
+# How to Create a New Condition
 
 The screenshot below (taken in RDMO 2.4.4) shows the form for creating a new
 condition.  The numbered fields are explained in the sections that follow.
@@ -36,7 +36,7 @@ https://rdmo.mardi4nfdi.de/terms/conditions/model-search
 The URI of the attribute whose value is evaluated by this condition.  The
 condition checks the answer stored under this attribute in the current project.
 An existing attribute can be selected from the list, or a new one created
-first — see [How to Create a New Attribute in RDMO](add-attribute-rdmo.md).
+first — see [How to Create a New Attribute](add-attribute.md).
 
 **④ Relation**
 

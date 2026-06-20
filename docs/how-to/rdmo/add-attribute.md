@@ -1,4 +1,4 @@
-# How to Create a New Attribute in RDMO
+# How to Create a New Attribute
 
 The screenshot below (taken in RDMO 2.4.4) shows the form for creating a new
 attribute.  The numbered fields are explained in the sections that follow.
