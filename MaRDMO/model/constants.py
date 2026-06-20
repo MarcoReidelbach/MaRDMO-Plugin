@@ -16,29 +16,6 @@ from ..constants import BASE_URI, SECTION_MAP_BASE
 from ..getters import get_items, get_mathmoddb, get_properties, get_questions
 from ..publication.constants import get_publication_relations
 
-# Data Properties Label
-data_properties_label = {
-    'is_deterministic': 'Is Deterministic',
-    'is_stochastic': 'Is Stochastic',
-    'is_dimensionless': 'Is Dimensionless',
-    'is_dimensional': 'Is Dimensional',
-    'is_dynamic': 'Is Dynamic',
-    'is_static': 'Is Static',
-    'is_linear': 'Is Linear',
-    'is_not_linear': 'Is Not Linear',
-    'is_space_continuous': 'Is Space-Continuous',
-    'is_space_discrete': 'Is Space-Discrete',
-    'is_time_continuous': 'Is Time-Continuous',
-    'is_time_discrete': 'Is Time-Discrete',
-    'is_mathematical_constant': 'Is Mathematical Constant',
-    'is_physical_constant': 'Is Physical Constant',
-    'is_chemical_constant': 'Is Chemical Constant',
-    'is_ordinary_differential_equation': 'Is Ordinary Differential Equation',
-    'is_partial_differential_equation': 'Is Partial Differential Equation',
-    'is_stochastic_differential_equation': 'Is Stochastic Differential Equation',
-    'is_integro_differential_equation': 'Is Integro-Differential Equation',
-}
-
 # Data Properties Check
 data_properties_check = [
     ('is_deterministic', 'is_stochastic'),

@@ -1,12 +1,16 @@
 '''Model Documentation check mixin.'''
 
+import re
+
 from rdmo.domain.models import Attribute
 
 from ..model.constants import (
-    data_properties_check, data_properties_label,
+    data_properties_check,
     SECTION_MAP as SECTION_MAP_MODEL,
 )
 from ..constants import BASE_URI, CATALOG_MODEL, CATALOG_MODEL_BASICS
+
+_QUDT_ID_RE = re.compile(r'^[A-Z][a-zA-Z_\-]+$')
 
 
 class ModelMixin:
@@ -55,8 +59,8 @@ class ModelMixin:
                         self._error(
                             section = section_map[okey],
                             page = page_name,
-                            message = f'Inconsistent Properties ({data_properties_label[url[0]]}'
-                                      f' and {data_properties_label[url[1]]})'
+                            message = f'Inconsistent Properties ({self.mathmoddb.get(key=url[0])["label"]}'
+                                      f' and {self.mathmoddb.get(key=url[1])["label"]})'
                         )
                     )
 
@@ -400,12 +404,28 @@ class ModelMixin:
                             message = 'QUDT Quantity Kind ID selected, but no ID provided!'
                         )
                     )
-                elif ref.get(1) and not ref[1][1]:
+                elif ref.get(0) and ref[0][1] and not _QUDT_ID_RE.match(ref[0][1]):
+                    self.err.append(
+                        self._error(
+                            section = 'Quantity [Kind]',
+                            page    = page_name,
+                            message = f'Invalid QUDT Quantity Kind ID format: "{ref[0][1]}"'
+                        )
+                    )
+                if ref.get(1) and not ref[1][1]:
                     self.err.append(
                         self._error(
                             section = 'Quantity [Kind]',
                             page    = page_name,
                             message = 'QUDT Constant ID selected, but no ID provided!'
+                        )
+                    )
+                elif ref.get(1) and ref[1][1] and not _QUDT_ID_RE.match(ref[1][1]):
+                    self.err.append(
+                        self._error(
+                            section = 'Quantity [Kind]',
+                            page    = page_name,
+                            message = f'Invalid QUDT Constant ID format: "{ref[1][1]}"'
                         )
                     )
                 if ivalue.get('QorQK') == self.mathmoddb.get(key='Quantity')["url"] and ref.get(0):
