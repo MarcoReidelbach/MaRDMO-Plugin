@@ -1,5 +1,8 @@
 # How to Create a New Question
 
+The screenshot below (taken in RDMO 2.4.4) shows the form for creating a new
+question.  The numbered fields are explained in the sections that follow.
+
 ![RDMO — create new question form](img/add_question.svg)
 
 **① URI prefix** — The base URI that scopes all items belonging to a particular source. For MaRDMO-specific items this is: `https://rdmo.mardi4nfdi.de/terms`

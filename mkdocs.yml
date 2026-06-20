@@ -21,10 +21,14 @@ nav:
   - How to:
       - RDMO:
           - Create a New Attribute: how-to/rdmo/add-attribute.md
+          - Create a New Catalog: how-to/rdmo/add-catalog.md
           - Create a New Condition: how-to/rdmo/add-condition.md
           - Create a New Option: how-to/rdmo/add-option.md
           - Create a New Optionset: how-to/rdmo/add-optionset.md
+          - Create a New Page: how-to/rdmo/add-page.md
           - Create a New Question: how-to/rdmo/add-question.md
+          - Create a New Question Set: how-to/rdmo/add-questionset.md
+          - Create a New Section: how-to/rdmo/add-section.md
       - MaRDMO:
           - Add a Data Property: how-to/mardmo/data-property.md
   - Reference:
