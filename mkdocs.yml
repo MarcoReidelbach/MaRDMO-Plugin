@@ -24,6 +24,7 @@ nav:
           - Create a New Condition: how-to/rdmo/add-condition.md
           - Create a New Option: how-to/rdmo/add-option.md
           - Create a New Optionset: how-to/rdmo/add-optionset.md
+          - Create a New Question: how-to/rdmo/add-question.md
       - MaRDMO:
           - Add a Data Property: how-to/mardmo/data-property.md
   - Reference:
