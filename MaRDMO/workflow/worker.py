@@ -137,8 +137,8 @@ class PrepareWorkflow(PublicationExport):
                     'has_primary':   bool(algo_by_set.get(idx)),
                     'has_qualifier': bool(software.get(idx)),
                     'parameters':    ', '.join(
-                        v[1][1] for v in sorted(algo_params.get(idx, {}).items())
-                        if v[1][1]
+                        v[1] for v in sorted(algo_params.get(idx, {}).items())
+                        if v[1]
                     ),
                     'software_doc':  software_doc.get(idx, {}),
                     'hardware':      hardware.get(idx),
@@ -163,8 +163,8 @@ class PrepareWorkflow(PublicationExport):
                     'has_primary':   bool(meth_by_set.get(idx)),
                     'has_qualifier': bool(instruments.get(idx)),
                     'parameters':    ', '.join(
-                        v[1][1] for v in sorted(meth_params.get(idx, {}).items())
-                        if v[1][1]
+                        v[1] for v in sorted(meth_params.get(idx, {}).items())
+                        if v[1]
                     ),
                     'method_doc':    method_doc.get(idx, {}),
                 }
@@ -449,9 +449,9 @@ class PrepareWorkflow(PublicationExport):
                 qualifiers = []
                 for coll_dict in transferability.values():
                     for val in coll_dict.values():
-                        if val and val[1]:
+                        if val:
                             qualifiers += payload.add_qualifier(
-                                self.properties["comment"], "string", val[1]
+                                self.properties["comment"], "string", val
                             )
                 payload.add_answer(
                     verb            = self.properties["instance of"],
@@ -550,9 +550,9 @@ class PrepareWorkflow(PublicationExport):
                         )
 
                 for param in entry.get('algorithm-parameter', {}).get(set_idx, {}).values():
-                    if param and param[1]:
+                    if param:
                         qualifiers += payload.add_qualifier(
-                            self.properties["comment"], "string", param[1]
+                            self.properties["comment"], "string", param
                         )
 
                 for doc in entry.get('software-documentation', {}).get(set_idx, {}).values():
@@ -591,9 +591,9 @@ class PrepareWorkflow(PublicationExport):
                         )
 
                 for param in entry.get('method-parameter', {}).get(set_idx, {}).values():
-                    if param and param[1]:
+                    if param:
                         qualifiers += payload.add_qualifier(
-                            self.properties["comment"], "string", param[1]
+                            self.properties["comment"], "string", param
                         )
 
                 for doc in entry.get('method-documentation', {}).get(set_idx, {}).values():

@@ -7,7 +7,7 @@ via a lookup table (``RULES`` dict) in the caller.
 
 Provides:
 
-- ``rule_0`` … ``rule_19`` — individual rule implementations
+- ``rule_0`` … ``rule_20`` — individual rule implementations
 - ``RULES`` — ``{int: callable}`` dispatch table used by the handler layer
 '''
 
@@ -118,7 +118,7 @@ def rule_5(value, attribute, config, prefix_idx):
     return entry, path
 
 def rule_6(value, _attribute, config, prefix_idx):
-    '''Handle flag-combo 6: nested collection path ``[key1, prefix_idx, key2, set_index, collection_index]``.
+    '''Handle flag-combo 6: ``[key1, prefix_idx, key2, set_index, collection_index]`` path, option list entry.
 
     Args:
         value:       RDMO :class:`~rdmo.projects.models.Value` instance.
@@ -130,6 +130,23 @@ def rule_6(value, _attribute, config, prefix_idx):
         Tuple ``(entry, path)`` where *entry* is ``[option_uri, text]``.
     '''
     entry = basic_list(value)
+    path = [config["key1"], prefix_idx, config["key2"], value.set_index, value.collection_index]
+    return entry, path
+
+def rule_20(value, attribute, config, prefix_idx):
+    '''Handle flag-combo 20: ``[key1, prefix_idx, key2, set_index, collection_index]`` path, raw attribute value.
+
+    Args:
+        value:       RDMO :class:`~rdmo.projects.models.Value` instance.
+        attribute:   Attribute name to read from *value*.
+        config:      Question config dict with ``key1`` and ``key2`` entries.
+        prefix_idx:  Current set-prefix index.
+
+    Returns:
+        Tuple ``(entry, path)`` where *entry* is the raw attribute value and
+        *path* is ``[key1, prefix_idx, key2, set_index, collection_index]``.
+    '''
+    entry = getattr(value, attribute)
     path = [config["key1"], prefix_idx, config["key2"], value.set_index, value.collection_index]
     return entry, path
 

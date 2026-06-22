@@ -90,7 +90,7 @@ flag_dict = {
     (True, True, False, False, False): rules.rule_3,
     (False, True, True, False, False): rules.rule_4,
     (True, False, True, False, False): rules.rule_5,
-    (True, True, True, False, False): rules.rule_6,
+    (True, True, True, False, False): rules.rule_20,
     (True, True, True, False, True): rules.rule_6,
     (True, False, False, False, True): rules.rule_7,
     (False, True, False, False, True): rules.rule_8,
