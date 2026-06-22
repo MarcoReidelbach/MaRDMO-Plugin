@@ -7,7 +7,7 @@ via a lookup table (``RULES`` dict) in the caller.
 
 Provides:
 
-- ``rule_0`` … ``rule_20`` — individual rule implementations
+- ``rule_0`` … ``rule_19`` — individual rule implementations
 - ``RULES`` — ``{int: callable}`` dispatch table used by the handler layer
 '''
 
@@ -133,8 +133,8 @@ def rule_6(value, _attribute, config, prefix_idx):
     path = [config["key1"], prefix_idx, config["key2"], value.set_index, value.collection_index]
     return entry, path
 
-def rule_20(value, attribute, config, prefix_idx):
-    '''Handle flag-combo 20: ``[key1, prefix_idx, key2, set_index, collection_index]`` path, raw attribute value.
+def rule_19(value, attribute, config, prefix_idx):
+    '''Handle flag-combo 19: ``[key1, prefix_idx, key2, set_index, collection_index]`` path, raw attribute value.
 
     Args:
         value:       RDMO :class:`~rdmo.projects.models.Value` instance.
@@ -248,29 +248,7 @@ def rule_12(value, _attribute, config, _prefix_idx):
     return entry, path
 
 def rule_13(value, _attribute, config, prefix_idx):
-    '''Handle flag-combo 13: ``[key1, prefix_idx, key2]`` path, entity dict or external ID.
-
-    Returns a basic entity dict ``{ID, Name, Description}`` when
-    ``key2 == 'DefinedQuantity'``, otherwise ``value.external_id``.
-
-    Args:
-        value:       RDMO :class:`~rdmo.projects.models.Value` instance.
-        _attribute:  Unused (present for uniform call signature).
-        config:      Question config dict with ``key1`` and ``key2`` entries.
-        prefix_idx:  Current set-prefix index.
-
-    Returns:
-        Tuple ``(entry, path)``.
-    '''
-    if config["key2"] == 'DefinedQuantity':
-        entry = basic_dict(value)
-    else:
-        entry = value.external_id
-    path = [config["key1"], prefix_idx, config["key2"]]
-    return entry, path
-
-def rule_14(value, _attribute, config, prefix_idx):
-    '''Handle flag-combo 14: ``[key1, prefix_idx, key2, set_index(, key3)]`` path, entity dict.
+    '''Handle flag-combo 13: ``[key1, prefix_idx, key2, set_index(, key3)]`` path, entity dict.
 
     Args:
         value:       RDMO :class:`~rdmo.projects.models.Value` instance.
@@ -288,8 +266,8 @@ def rule_14(value, _attribute, config, prefix_idx):
         path.append(config["key3"])
     return entry, path
 
-def rule_15(value, _attribute, config, prefix_idx):
-    '''Handle flag-combo 15: ``[key1, prefix_idx, key2, collection_index]`` path, entity dict.
+def rule_14(value, _attribute, config, prefix_idx):
+    '''Handle flag-combo 14: ``[key1, prefix_idx, key2, collection_index]`` path, entity dict.
 
     Args:
         value:       RDMO :class:`~rdmo.projects.models.Value` instance.
@@ -301,11 +279,11 @@ def rule_15(value, _attribute, config, prefix_idx):
         Tuple ``(entry, path)`` where *entry* is ``{ID, Name, Description}``.
     '''
     entry = basic_dict(value)
-    path = [config["key1"], prefix_idx,config["key2"], value.collection_index]
+    path = [config["key1"], prefix_idx, config["key2"], value.collection_index]
     return entry, path
 
-def rule_16(value, _attribute, config, prefix_idx):
-    '''Handle flag-combo 16: ``[key1, prefix_idx, key2, set_index, collection_index]`` path, entity dict.
+def rule_15(value, _attribute, config, prefix_idx):
+    '''Handle flag-combo 15: ``[key1, prefix_idx, key2, set_index, collection_index]`` path, entity dict.
 
     Args:
         value:       RDMO :class:`~rdmo.projects.models.Value` instance.
@@ -320,8 +298,8 @@ def rule_16(value, _attribute, config, prefix_idx):
     path = [config["key1"], prefix_idx, config["key2"], value.set_index, value.collection_index]
     return entry, path
 
-def rule_17(value, attribute, config, prefix_idx):
-    '''Handle flag-combo 17: ``[key1, prefix_idx, key2, set_index(, key3)]`` path.
+def rule_16(value, attribute, config, prefix_idx):
+    '''Handle flag-combo 16: ``[key1, prefix_idx, key2, set_index(, key3)]`` path.
 
     Args:
         value:      RDMO :class:`~rdmo.projects.models.Value` instance.
@@ -338,8 +316,8 @@ def rule_17(value, attribute, config, prefix_idx):
         path.append(config["key3"])
     return entry, path
 
-def rule_18(value, _attribute, config, prefix_idx):
-    '''Handle flag-combo 18: ``[key1, prefix_idx, key2, collection_index]`` path, option list entry.
+def rule_17(value, _attribute, config, prefix_idx):
+    '''Handle flag-combo 17: ``[key1, prefix_idx, key2, collection_index]`` path, option list entry.
 
     Args:
         value:       RDMO :class:`~rdmo.projects.models.Value` instance.
@@ -355,8 +333,8 @@ def rule_18(value, _attribute, config, prefix_idx):
     path = [config["key1"], prefix_idx, config["key2"], value.collection_index]
     return entry, path
 
-def rule_19(value, _attribute, config, _prefix_idx):
-    '''Handle flag-combo 19: ``[key1, set_index, key2, collection_index(, key3)]`` path, option list entry.
+def rule_18(value, _attribute, config, _prefix_idx):
+    '''Handle flag-combo 18: ``[key1, set_index, key2, collection_index(, key3)]`` path, option list entry.
 
     Args:
         value:       RDMO :class:`~rdmo.projects.models.Value` instance.
