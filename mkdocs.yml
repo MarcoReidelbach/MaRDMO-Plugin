@@ -31,6 +31,8 @@ nav:
           - Create a New Section: how-to/rdmo/add-section.md
       - MaRDMO:
           - Add a Data Property: how-to/mardmo/data-property.md
+          - Add a Question: how-to/mardmo/register-question.md
+          - Extend the Export: how-to/mardmo/extend-export.md
   - Reference:
       - Core:
           - Entry Points: reference/mardmo.md
@@ -38,6 +40,7 @@ nav:
           - Payload: reference/payload.md
           - Data Access: reference/data.md
           - Utilities: reference/helpers.md
+          - Question Configuration: reference/questions.md
       - Submodules:
           - Model: reference/model.md
           - Algorithm: reference/algorithm.md
