@@ -1,10 +1,11 @@
 '''Package-wide constants and the answer-routing flag map for MaRDMO.
 
-Defines the RDMO base URI, catalog URIs, the shared section-name map
-(:data:`SECTION_MAP_BASE`), and :data:`flag_dict` — a mapping from
-five-tuple boolean flags to the corresponding :mod:`~MaRDMO.rules`
-function used by :func:`~MaRDMO.getters.get_answers` to route each
-questionnaire value into the correct position in the answers dict.
+Defines the RDMO base URI, catalog name slugs (:data:`CATALOG_MODEL_NAME` etc.),
+derived catalog URIs, the shared section-name map (:data:`SECTION_MAP_BASE`),
+and :data:`flag_dict` — a mapping from five-tuple boolean flags to the
+corresponding :mod:`~MaRDMO.rules` function used by
+:func:`~MaRDMO.getters.get_answers` to route each questionnaire value into
+the correct position in the answers dict.
 '''
 
 from . import rules
@@ -12,11 +13,17 @@ from . import rules
 #RDMO BASE URI
 BASE_URI = 'https://rdmo.mardi4nfdi.de/terms/'
 
-#MaRDMO Catalog URIs
-CATALOG_MODEL        = 'https://rdmo.mardi4nfdi.de/terms/questions/mardmo-model-catalog'
-CATALOG_MODEL_BASICS = 'https://rdmo.mardi4nfdi.de/terms/questions/mardmo-model-basics-catalog'
-CATALOG_ALGORITHM    = 'https://rdmo.mardi4nfdi.de/terms/questions/mardmo-algorithm-catalog'
-CATALOG_WORKFLOW     = 'https://rdmo.mardi4nfdi.de/terms/questions/mardmo-interdisciplinary-workflow-catalog'
+# MaRDMO Catalog name slugs
+CATALOG_MODEL_NAME        = 'mardmo-model-catalog'
+CATALOG_MODEL_BASICS_NAME = 'mardmo-model-basics-catalog'
+CATALOG_ALGORITHM_NAME    = 'mardmo-algorithm-catalog'
+CATALOG_WORKFLOW_NAME     = 'mardmo-interdisciplinary-workflow-catalog'
+
+# MaRDMO Catalog URIs
+CATALOG_MODEL        = f'{BASE_URI}questions/{CATALOG_MODEL_NAME}'
+CATALOG_MODEL_BASICS = f'{BASE_URI}questions/{CATALOG_MODEL_BASICS_NAME}'
+CATALOG_ALGORITHM    = f'{BASE_URI}questions/{CATALOG_ALGORITHM_NAME}'
+CATALOG_WORKFLOW     = f'{BASE_URI}questions/{CATALOG_WORKFLOW_NAME}'
 
 # Wikidata endpoint URLs (internal — not user-configurable)
 WIKIDATA = {
@@ -37,10 +44,10 @@ ISSN_BASE_URL            = 'http://www.issn.cc/'
 
 # Mapping from catalog slug to preview template
 CATALOG_TEMPLATE_MAP = {
-    'mardmo-model-catalog':                      'MaRDMO/modelTemplate.html',
-    'mardmo-model-basics-catalog':               'MaRDMO/modelTemplate-basics.html',
-    'mardmo-algorithm-catalog':                  'MaRDMO/algorithmTemplate.html',
-    'mardmo-interdisciplinary-workflow-catalog': 'MaRDMO/workflowTemplate.html',
+    CATALOG_MODEL_NAME:        'MaRDMO/modelTemplate.html',
+    CATALOG_MODEL_BASICS_NAME: 'MaRDMO/modelTemplate-basics.html',
+    CATALOG_ALGORITHM_NAME:    'MaRDMO/algorithmTemplate.html',
+    CATALOG_WORKFLOW_NAME:     'MaRDMO/workflowTemplate.html',
 }
 
 #MaRDMO Section Mapt (Base)
@@ -75,6 +82,7 @@ software_reference_ids = [
     'DESCRIPTION_URL',
 ]
 
+# Tuple fields: (set_prefix, set_index, collection_index, external_id, option_text)
 flag_dict = {
     (False, False, False, False, False): rules.rule_0,
     (True, False, False, False, False): rules.rule_1,
@@ -95,4 +103,6 @@ flag_dict = {
     (True, False, True, True, False): rules.rule_15,
     (True, True, True, True, False): rules.rule_16,
     (True, True, False, False, True): rules.rule_17,
+    (True, False, True, False, True): rules.rule_18,
+    (False, True, True, False, True): rules.rule_19,
 }

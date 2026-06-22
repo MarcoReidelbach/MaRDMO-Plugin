@@ -124,8 +124,9 @@
             "key1": "software",
             "key2": "reference",
             "uri": "domain/software/reference",
+            "set_prefix": true,
             "collection_index": true,
-            "set_prefix": true
+            "option_text": true
         },
         "BRelatant": {
             "key1": "software",
@@ -177,8 +178,9 @@
             "key1": "benchmark",
             "key2": "reference",
             "uri": "domain/benchmark/reference",
+            "set_prefix": true,
             "collection_index": true,
-            "set_prefix": true
+            "option_text": true
         }
     }
 }

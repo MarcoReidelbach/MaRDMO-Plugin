@@ -157,7 +157,8 @@
             "key2": "reference",
             "uri": "domain/software/reference",
             "set_prefix": true,
-            "collection_index": true
+            "collection_index": true,
+            "option_text": true
         },
         "Dependency": {
             "key1": "software",

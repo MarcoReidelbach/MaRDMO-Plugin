@@ -25,13 +25,8 @@
             "key2": "reference",
             "uri": "domain/publication/reference",
             "set_index": true,
-            "collection_index": true
-        },
-        "URL Citation": {
-            "key1": "publication",
-            "key2": "urlcitation",
-            "uri": "domain/publication/url-citation",
-            "set_index": true
+            "collection_index": true,
+            "option_text": true
         },
         "P2A": {
             "key1": "publication",
@@ -243,19 +238,6 @@
             "key2": "author",
             "key3": "wikidata",
             "uri": "domain/publication/author/wikidata",
-            "set_index": true,
-            "collection_index": true
-        },
-        "Workflow Reference": {
-            "key1": "publication",
-            "key2": "workflow",
-            "uri": "domain/publication/workflow-reference",
-            "set_index": true
-        },
-        "Entity Reference": {
-            "key1": "publication",
-            "key2": "element",
-            "uri": "domain/publication/workflow-element-reference",
             "set_index": true,
             "collection_index": true
         }
