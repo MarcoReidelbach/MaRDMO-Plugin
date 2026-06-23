@@ -20,7 +20,7 @@ from rest_framework.exceptions import ValidationError
 
 from .getters import get_mathmoddb
 from .helpers import extract_parts
-from .model.constants import data_properties_check, data_properties_label
+from .model.constants import data_properties_check
 
 _QUDT_ID_RE = re.compile(r'^[A-Z][a-zA-Z_\-]*$')
 
@@ -143,7 +143,7 @@ def validate_properties(instance):
                             'Inconsistent properties: {a} and {b}'
                             ' cannot both be selected.'
                         ),
-                        a=data_properties_label[key_a],
-                        b=data_properties_label[key_b],
+                        a=mathmoddb.get(key=key_a)['label'],
+                        b=mathmoddb.get(key=key_b)['label'],
                     )]
                 })
