@@ -1,13 +1,13 @@
 [
-{"key": "manifests",      "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/instantiates",  "label": "manifests"},
-{"key": "specializes",    "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/specializes",   "label": "specializes"},
-{"key": "specialized_by", "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/specialized-by","label": "specialized by"},
-{"key": "has_component",  "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/has-component", "label": "has component"},
-{"key": "component_of",   "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/component-of",  "label": "component of"},
-{"key": "has_subclass",   "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/has-subclass",  "label": "has subclass"},
-{"key": "subclass_of",    "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/subclass-of",   "label": "subclass of"},
-{"key": "related_to",     "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/related-to",    "label": "related to"},
-{"key": "solves",         "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/solves",        "label": "solves"},
-{"key": "implemented_by", "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/implemented-by","label": "implemented by"},
-{"key": "tested_by",      "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/tested-by",     "label": "tested by"}
+    {"key": "has_component",  "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/has-component", "label": "has component"},
+    {"key": "component_of",   "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/component-of",  "label": "component of"},
+    {"key": "has_subclass",   "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/has-subclass",  "label": "has subclass"},
+    {"key": "subclass_of",    "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/subclass-of",   "label": "subclass of"},
+    {"key": "implemented_by", "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/implemented-by","label": "implemented by"},
+    {"key": "manifests",      "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/instantiates",  "label": "manifests"},
+    {"key": "related_to",     "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/related-to",    "label": "related to"},
+    {"key": "solves",         "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/solves",        "label": "solves"},
+    {"key": "specializes",    "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/specializes",   "label": "specializes"},
+    {"key": "specialized_by", "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/specialized-by","label": "specialized by"},
+    {"key": "tested_by",      "url": "https://rdmo.mardi4nfdi.de/terms/options/mathalgodb/tested-by",     "label": "tested by"}
 ]

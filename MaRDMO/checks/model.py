@@ -5,7 +5,7 @@ import re
 from rdmo.domain.models import Attribute
 
 from ..model.constants import (
-    data_properties_check, data_properties_label,
+    data_properties_check,
     SECTION_MAP as SECTION_MAP_MODEL,
 )
 from ..constants import BASE_URI, CATALOG_MODEL, CATALOG_MODEL_BASICS
@@ -59,8 +59,8 @@ class ModelMixin:
                         self._error(
                             section = section_map[okey],
                             page = page_name,
-                            message = f'Inconsistent Properties ({data_properties_label[url[0]]}'
-                                      f' and {data_properties_label[url[1]]})'
+                            message = f'Inconsistent Properties ({self.mathmoddb.get(key=url[0])["label"]}'
+                                      f' and {self.mathmoddb.get(key=url[1])["label"]})'
                         )
                     )
 

@@ -15,7 +15,8 @@ import time
 
 from .constants import (
     data_properties_check,
-    data_properties_label,
+    DEPENDENT_PROPERTIES,
+    INDEPENDENT_PROPERTIES,
     preview_relations,
     preview_map_general,
     preview_map_quantity,
@@ -127,10 +128,11 @@ class PrepareModel(PublicationExport):
                         present.discard(opt_a)
                         present.discard(opt_b)
 
-                correct = {key for key in data_properties_label if self.mathmoddb.get(key=key)["url"] in present}
+                all_prop_keys = {k for k, _ in DEPENDENT_PROPERTIES + INDEPENDENT_PROPERTIES}
+                correct = {key for key in all_prop_keys if self.mathmoddb.get(key=key)["url"] in present}
 
                 class_item['Properties_Check'] = [
-                    {'label': data_properties_label[k], 'error': k in wrong}
+                    {'label': self.mathmoddb.get(key=k)['label'], 'error': k in wrong}
                     for k in correct | wrong
                 ]
 

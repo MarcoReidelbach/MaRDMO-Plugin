@@ -372,7 +372,8 @@
             "key2": "reference",
             "uri": "domain/quantity/reference",
             "set_prefix": true,
-            "collection_index": true
+            "collection_index": true,
+            "option_text": true
         },
         "QorQK": {
             "key1": "quantity",
