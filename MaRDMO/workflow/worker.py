@@ -23,6 +23,7 @@ from ..helpers import (
     collect_items_without_section, entity_relations, entity_relations_grouped,
     is_valid_url, unique_items,
 )
+from ..patterns import DOI_STRICT_RE
 from ..queries import query_sparql
 from ..payload import GeneratePayload
 
@@ -235,8 +236,7 @@ class PrepareWorkflow(PublicationExport):
             publish = ds_data.get('ToPublish')
             if publish and len(publish) > 1 and publish[1]:
                 val = str(publish[1]).strip()
-                if not val.startswith('10.'):
-                    ds_data['publish_url_valid'] = is_valid_url(val)
+                ds_data['publish_doi_valid'] = bool(DOI_STRICT_RE.match(val))
 
         for sw_data in answers.get('software', {}).values():
             ref = sw_data.get('reference', {})
@@ -884,15 +884,10 @@ class PrepareWorkflow(PublicationExport):
                         object_and_type = [self.items["data publishing"], "wikibase-item"],
                     )
                     val = entry["ToPublish"][1] if len(entry["ToPublish"]) > 1 else ""
-                    if val.startswith("10."):
+                    if val:
                         payload.add_answer(
                             verb = self.properties["DOI"],
                             object_and_type = [val, "external-id"],
-                        )
-                    elif val.startswith(("http://", "https://")):
-                        payload.add_answer(
-                            verb = self.properties["URL"],
-                            object_and_type = [val, "url"],
                         )
 
             if entry.get("ToArchive"):
