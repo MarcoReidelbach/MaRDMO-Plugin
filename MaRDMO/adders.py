@@ -21,8 +21,6 @@ Provides:
 - ``add_references``         — write external-reference values; skips malformed QUDT IDs
 '''
 
-import re
-
 from rdmo.options.models import Option
 
 from .constants import BASE_URI
@@ -37,9 +35,8 @@ from .helpers import (
     value_editor,
 )
 from .model.constants import data_properties_check, qudt_reference_ids
+from .patterns import QUDT_ID_STRICT_RE
 from .workflow.models import ProcessStepUsage
-
-_QUDT_ID_RE = re.compile(r'^[A-Z][a-zA-Z_\-]+$')
 
 def add_basics(project, text, questions, item_type, index = (None, None)):
     '''Parse the ID-question text and write label/description into the questionnaire.
@@ -591,7 +588,7 @@ def add_references(project, data, uri, set_index = 0, set_prefix = None):
 
     for key, value in data.reference.items():
         option_uri, text = value[0], value[1]
-        if option_uri in qudt_option_uris and not _QUDT_ID_RE.match(text or ''):
+        if option_uri in qudt_option_uris and not QUDT_ID_STRICT_RE.match(text or ''):
             continue
         value_editor(
             project = project,

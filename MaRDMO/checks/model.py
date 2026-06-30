@@ -1,7 +1,5 @@
 '''Model Documentation check mixin.'''
 
-import re
-
 from rdmo.domain.models import Attribute
 
 from ..model.constants import (
@@ -9,8 +7,7 @@ from ..model.constants import (
     SECTION_MAP as SECTION_MAP_MODEL,
 )
 from ..constants import BASE_URI, CATALOG_MODEL, CATALOG_MODEL_BASICS
-
-_QUDT_ID_RE = re.compile(r'^[A-Z][a-zA-Z_\-]+$')
+from ..patterns import QUDT_ID_STRICT_RE
 
 
 class ModelMixin:
@@ -404,7 +401,7 @@ class ModelMixin:
                             message = 'QUDT Quantity Kind ID selected, but no ID provided!'
                         )
                     )
-                elif ref.get(0) and ref[0][1] and not _QUDT_ID_RE.match(ref[0][1]):
+                elif ref.get(0) and ref[0][1] and not QUDT_ID_STRICT_RE.match(ref[0][1]):
                     self.err.append(
                         self._error(
                             section = 'Quantity [Kind]',
@@ -420,7 +417,7 @@ class ModelMixin:
                             message = 'QUDT Constant ID selected, but no ID provided!'
                         )
                     )
-                elif ref.get(1) and ref[1][1] and not _QUDT_ID_RE.match(ref[1][1]):
+                elif ref.get(1) and ref[1][1] and not QUDT_ID_STRICT_RE.match(ref[1][1]):
                     self.err.append(
                         self._error(
                             section = 'Quantity [Kind]',

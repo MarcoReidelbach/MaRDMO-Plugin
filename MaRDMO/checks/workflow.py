@@ -5,6 +5,7 @@ from rdmo.domain.models import Attribute
 from ..constants import BASE_URI, CATALOG_WORKFLOW
 from ..getters import get_options
 from ..helpers import is_valid_url
+from ..patterns import DOI_STRICT_RE
 
 
 class WorkflowMixin:
@@ -404,12 +405,11 @@ class WorkflowMixin:
                 ivalue['ToPublish'][0] == options['YesText']
                 and len(ivalue['ToPublish']) > 1
                 and ivalue['ToPublish'][1]
-                and not str(ivalue['ToPublish'][1]).startswith('10.')
-                and not is_valid_url(ivalue['ToPublish'][1])
+                and not DOI_STRICT_RE.match(str(ivalue['ToPublish'][1]))
             ):
                 self.err.append(self._error(
                     'Data Set', page_name,
-                    'Invalid Publication URL: must start with http:// or https://'
+                    'Invalid Publication DOI: expected format 10.XXXX/suffix'
                 ))
 
             to_archive = ivalue.get('ToArchive')
