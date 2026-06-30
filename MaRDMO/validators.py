@@ -9,20 +9,18 @@ Provides:
 - :func:`validate_value_format`      — rejects entries not matching ``Label (Description)``
 - :func:`validate_short_description` — rejects descriptions longer than 2000 characters
 - :func:`validate_qudt_id`           — rejects QUDT IDs not matching the expected format
+- :func:`validate_doi`               — rejects DOI text not matching the expected format
 - :func:`validate_properties`        — rejects mutually exclusive data-property combinations
 '''
-
-import re
 
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
-from .getters import get_mathmoddb
+from .getters import get_mathmoddb, get_options
 from .helpers import extract_parts
 from .model.constants import data_properties_check
-
-_QUDT_ID_RE = re.compile(r'^[A-Z][a-zA-Z_\-]*$')
+from .patterns import DOI_RE, QUDT_ID_RE
 
 
 def validate_value_format(instance):
@@ -86,13 +84,43 @@ def validate_qudt_id(instance):
     '''
     if not instance.option or not instance.text:
         return
-    if not _QUDT_ID_RE.match(instance.text):
+    if not QUDT_ID_RE.match(instance.text):
         raise ValidationError({
             'text': [_(
                 'Invalid QUDT ID. Must start with an uppercase letter'
                 ' and contain only letters, underscores, or hyphens'
                 ' (e.g. SpeedOfLight).'
             )]
+        })
+
+
+def validate_doi(instance):
+    '''Reject a DOI that does not match the expected format.
+
+    Validates incrementally as the user types: accepts ``1``, ``10``, ``10.``,
+    ``10.1234``, ``10.1234/``, ``10.1234/suffix`` — each a valid prefix of a
+    complete DOI.  Completeness (``10.NNNN/suffix``) is enforced by the
+    documentation checker via a strict regex.
+
+    Triggers only when the selected option is the DOI option or the
+    ``YesText`` option (Data Set "To Publish") and text is non-empty.
+
+    Args:
+        instance: RDMO ``Value`` instance about to be saved.
+
+    Raises:
+        ValidationError: when both ``instance.option`` and ``instance.text``
+            are set, the option is a DOI-entry option, and ``instance.text``
+            does not match ``^1(0(\\.\\d*(/\\S*)?)?)?$``.
+    '''
+    if not instance.option or not instance.text:
+        return
+    opts = get_options()
+    if instance.option.uri not in (opts.get('DOI'), opts.get('YesText')):
+        return
+    if not DOI_RE.match(instance.text):
+        raise ValidationError({
+            'text': [_('Invalid DOI. Expected format: 10.XXXX/suffix (e.g. 10.1000/xyz123).')]
         })
 
 

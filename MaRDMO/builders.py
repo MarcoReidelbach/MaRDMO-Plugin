@@ -10,7 +10,7 @@ Provides:
 - ``build_post_save_handler_set``   — post-save dispatch dict (all catalogs)
 - ``build_post_delete_handler_set`` — post-delete dispatch dict (all catalogs)
 - ``build_presave_validator_map``   — pre-save validation dispatch dict
-  (model + algorithm + workflow)
+  (model + algorithm + workflow + publication)
 '''
 
 from .constants import (
@@ -27,6 +27,7 @@ from .workflow.handlers import Information as WorkflowInformation
 from .publication.handlers import Information as PublicationInformation
 from .handlers import Information as GeneralInformation
 from .validators import (
+    validate_doi,
     validate_value_format,
     validate_properties,
     validate_qudt_id,
@@ -259,6 +260,9 @@ def build_presave_validator_map():
       question URIs (model, formulation, quantity, task) in the model catalogs.
     - :func:`~MaRDMO.validators.validate_qudt_id` — for the Quantity reference
       URI in the full model catalog only.
+    - :func:`~MaRDMO.validators.validate_doi` — for all reference URIs that
+      accept a DOI (publication, software, benchmark, process-step documentation,
+      and data-set publication) across algorithm and workflow catalogs.
     - :func:`~MaRDMO.validators.validate_value_format` — for all
       ``general.relation`` question URIs across model, algorithm, and workflow.
 
@@ -267,9 +271,10 @@ def build_presave_validator_map():
         ``{catalog_slug: {absolute_attribute_uri: validator_fn}}``.
     """
     base = BASE_URI
-    questions_model     = get_questions('model')
-    questions_algorithm = get_questions('algorithm')
-    questions_workflow  = get_questions('workflow')
+    questions_model       = get_questions('model')
+    questions_algorithm   = get_questions('algorithm')
+    questions_workflow    = get_questions('workflow')
+    questions_publication = get_questions('publication')
 
     return {
         CATALOG_MODEL_NAME: {
@@ -298,6 +303,9 @@ def build_presave_validator_map():
             # QUDT reference ID (quantity only)
             f'{base}{questions_model["Quantity"]["Reference"]["uri"]}':
                 validate_qudt_id,
+            # DOI reference (publication)
+            f'{base}{questions_publication["Publication"]["Reference"]["uri"]}':
+                validate_doi,
             # Relation label format
             f'{base}{questions_model["Task"]["QRelatant"]["uri"]}':
                 validate_value_format,
@@ -341,6 +349,9 @@ def build_presave_validator_map():
                 validate_properties,
             f'{base}{questions_model["Task"]["Properties"]["uri"]}':
                 validate_properties,
+            # DOI reference (publication)
+            f'{base}{questions_publication["Publication"]["Reference"]["uri"]}':
+                validate_doi,
             # Relation label format
             f'{base}{questions_model["Mathematical Model"]["RPRelatant"]["uri"]}':
                 validate_value_format,
@@ -367,6 +378,13 @@ def build_presave_validator_map():
                 validate_short_description,
             f'{base}{questions_algorithm["Benchmark"]["Description"]["uri"]}':
                 validate_short_description,
+            # DOI reference (publication, software, benchmark)
+            f'{base}{questions_publication["Publication"]["Reference"]["uri"]}':
+                validate_doi,
+            f'{base}{questions_algorithm["Software"]["Reference"]["uri"]}':
+                validate_doi,
+            f'{base}{questions_algorithm["Benchmark"]["Reference"]["uri"]}':
+                validate_doi,
             # Relation label format
             f'{base}{questions_algorithm["Problem"]["BRelatant"]["uri"]}':
                 validate_value_format,
@@ -393,6 +411,17 @@ def build_presave_validator_map():
                 validate_short_description,
             f'{base}{questions_workflow["Process Step"]["Description"]["uri"]}':
                 validate_short_description,
+            # DOI reference (publication, software, PS documentation, DS to-publish)
+            f'{base}{questions_publication["Publication"]["Reference"]["uri"]}':
+                validate_doi,
+            f'{base}{questions_workflow["Software"]["Reference"]["uri"]}':
+                validate_doi,
+            f'{base}{questions_workflow["Process Step"]["Software-Documentation"]["uri"]}':
+                validate_doi,
+            f'{base}{questions_workflow["Process Step"]["Method-Documentation"]["uri"]}':
+                validate_doi,
+            f'{base}{questions_workflow["Data Set"]["To Publish"]["uri"]}':
+                validate_doi,
             # Relation label format
             f'{base}{questions_workflow["Process Step"]["Algorithm"]["uri"]}':
                 validate_value_format,
