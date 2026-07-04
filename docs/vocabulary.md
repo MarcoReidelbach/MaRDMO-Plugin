@@ -21,7 +21,6 @@ MaRDMO communicates with the MaRDI Portal using a defined set of items and prope
 | compute node | [Q6767935](https://portal.mardi4nfdi.de/wiki/Item:Q6767935) |
 | computer hardware | [Q56583](https://portal.mardi4nfdi.de/wiki/Item:Q56583) |
 | constant | [Q6480317](https://portal.mardi4nfdi.de/wiki/Item:Q6480317) |
-| constitutive equation | [Q6775587](https://portal.mardi4nfdi.de/wiki/Item:Q6775587) |
 | constraint | [Q6534262](https://portal.mardi4nfdi.de/wiki/Item:Q6534262) |
 | continuous-space equation | [Q6672088](https://portal.mardi4nfdi.de/wiki/Item:Q6672088) |
 | continuous-space model | [Q6672089](https://portal.mardi4nfdi.de/wiki/Item:Q6672089) |
@@ -69,6 +68,7 @@ MaRDMO communicates with the MaRDI Portal using a defined set of items and prope
 | english | [Q56366](https://portal.mardi4nfdi.de/wiki/Item:Q56366) |
 | final condition | [Q6534267](https://portal.mardi4nfdi.de/wiki/Item:Q6534267) |
 | gigabyte | [Q6534225](https://portal.mardi4nfdi.de/wiki/Item:Q6534225) |
+| governing equation | [Q7270342](https://portal.mardi4nfdi.de/wiki/Item:Q7270342) |
 | human | [Q57162](https://portal.mardi4nfdi.de/wiki/Item:Q57162) |
 | initial condition | [Q6534264](https://portal.mardi4nfdi.de/wiki/Item:Q6534264) |
 | input | [Q6480299](https://portal.mardi4nfdi.de/wiki/Item:Q6480299) |
@@ -113,7 +113,6 @@ MaRDMO communicates with the MaRDI Portal using a defined set of items and prope
 | parameter | [Q6480341](https://portal.mardi4nfdi.de/wiki/Item:Q6480341) |
 | partial differential equation | [Q6822213](https://portal.mardi4nfdi.de/wiki/Item:Q6822213) |
 | physical constant | [Q6534290](https://portal.mardi4nfdi.de/wiki/Item:Q6534290) |
-| physical law | [Q6775588](https://portal.mardi4nfdi.de/wiki/Item:Q6775588) |
 | probabilistic equation | [Q6672077](https://portal.mardi4nfdi.de/wiki/Item:Q6672077) |
 | probabilistic model | [Q6672078](https://portal.mardi4nfdi.de/wiki/Item:Q6672078) |
 | probabilistic quantity | [Q6775555](https://portal.mardi4nfdi.de/wiki/Item:Q6775555) |

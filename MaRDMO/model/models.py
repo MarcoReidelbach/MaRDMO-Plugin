@@ -391,9 +391,8 @@ class MathematicalModel:
     contains_initial_condition: list[Relatant] = field(default_factory=list)
     contains_final_condition: list[Relatant] = field(default_factory=list)
     contains_analytical_solution: list[Relatant] = field(default_factory=list)
-    contains_physical_law: list[Relatant] = field(default_factory=list)
+    contains_governing_equation: list[Relatant] = field(default_factory=list)
     contains_computational_domain: list[Relatant] = field(default_factory=list)
-    contains_constitutive_equation: list[Relatant] = field(default_factory=list)
     contains_weak_formulation: list[Relatant] = field(default_factory=list)
     contains_strong_formulation: list[Relatant] = field(default_factory=list)
     used_by: list[Relatant] = field(default_factory=list)
@@ -511,12 +510,12 @@ class MathematicalModel:
                 transform = RelatantWithQualifier.from_query,
                 object_role = lambda item: item.qualifier == f'mardi:{items["analytical solution"]}'
             ),
-            # Get Contains Physical Law Relation(s)
-            'contains_physical_law': split_value(
+            # Get Contains Governing Equation Relation(s)
+            'contains_governing_equation': split_value(
                 data = data,
                 key = 'contains_formulation',
                 transform = RelatantWithQualifier.from_query,
-                object_role = lambda item: item.qualifier == f'mardi:{items["physical law"]}'
+                object_role = lambda item: item.qualifier == f'mardi:{items["governing equation"]}'
             ),
             # Get Contains Computational Domain Relation(s)
             'contains_computational_domain': split_value(
@@ -525,15 +524,6 @@ class MathematicalModel:
                 transform = RelatantWithQualifier.from_query,
                 object_role = (
                     lambda item: item.qualifier == f'mardi:{items["computational domain"]}'
-                )
-            ),
-            # Get Contains Constitutive Equation Relation(s)
-            'contains_constitutive_equation': split_value(
-                data = data,
-                key = 'contains_formulation',
-                transform = RelatantWithQualifier.from_query,
-                object_role = (
-                    lambda item: item.qualifier == f'mardi:{items["constitutive equation"]}'
                 )
             ),
             # Get Contains Weak Formulation Relation(s)
@@ -1020,9 +1010,8 @@ class Task:
     contains_constraint_condition: list[Relatant] = field(default_factory=list)
     contains_coupling_condition: list[Relatant] = field(default_factory=list)
     contains_analytical_solution: list[Relatant] = field(default_factory=list)
-    contains_physical_law: list[Relatant] = field(default_factory=list)
+    contains_governing_equation: list[Relatant] = field(default_factory=list)
     contains_computational_domain: list[Relatant] = field(default_factory=list)
-    contains_constitutive_equation: list[Relatant] = field(default_factory=list)
     contains_weak_formulation: list[Relatant] = field(default_factory=list)
     contains_strong_formulation: list[Relatant] = field(default_factory=list)
     contains_input: list[Relatant] = field(default_factory=list)
@@ -1136,12 +1125,12 @@ class Task:
                 transform = RelatantWithQualifier.from_query,
                 object_role = lambda item: item.qualifier == f'mardi:{items["analytical solution"]}'
             ),
-            # Get Contains Physical Law Relation(s)
-            'contains_physical_law': split_value(
+            # Get Contains Governing Equation Relation(s)
+            'contains_governing_equation': split_value(
                 data = data,
                 key = 'contains_formulation',
                 transform = RelatantWithQualifier.from_query,
-                object_role = lambda item: item.qualifier == f'mardi:{items["physical law"]}'
+                object_role = lambda item: item.qualifier == f'mardi:{items["governing equation"]}'
             ),
             # Get Contains Computational Domain Relation(s)
             'contains_computational_domain': split_value(
@@ -1150,15 +1139,6 @@ class Task:
                 transform = RelatantWithQualifier.from_query,
                 object_role = (
                     lambda item: item.qualifier == f'mardi:{items["computational domain"]}'
-                )
-            ),
-            # Get Contains Constitutive Equation Relation(s)
-            'contains_constitutive_equation': split_value(
-                data = data,
-                key = 'contains_formulation',
-                transform = RelatantWithQualifier.from_query,
-                object_role = (
-                    lambda item: item.qualifier == f'mardi:{items["constitutive equation"]}'
                 )
             ),
             # Get Contains Weak Formulation Relation(s)
