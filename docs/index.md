@@ -66,6 +66,7 @@ MARDMO_PROVIDER = {
         'api':                 'https://portal.mardi4nfdi.de/w/api.php',
         'sparql':              'https://query.portal.mardi4nfdi.de/sparql',
         'uri':                 'https://portal.mardi4nfdi.de',
+        'entity_uri':          'http://portal.mardi4nfdi.de',
         'oauth2_client_id':    '',
         'oauth2_client_secret': '',
     },
