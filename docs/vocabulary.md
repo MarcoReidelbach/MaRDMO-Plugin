@@ -21,7 +21,6 @@ MaRDMO communicates with the MaRDI Portal using a defined set of items and prope
 | compute node | [Q6767935](https://portal.mardi4nfdi.de/wiki/Item:Q6767935) |
 | computer hardware | [Q56583](https://portal.mardi4nfdi.de/wiki/Item:Q56583) |
 | constant | [Q6480317](https://portal.mardi4nfdi.de/wiki/Item:Q6480317) |
-| constitutive equation | [Q6775587](https://portal.mardi4nfdi.de/wiki/Item:Q6775587) |
 | constraint | [Q6534262](https://portal.mardi4nfdi.de/wiki/Item:Q6534262) |
 | continuous-space equation | [Q6672088](https://portal.mardi4nfdi.de/wiki/Item:Q6672088) |
 | continuous-space model | [Q6672089](https://portal.mardi4nfdi.de/wiki/Item:Q6672089) |

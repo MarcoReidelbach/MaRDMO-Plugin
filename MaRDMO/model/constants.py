@@ -103,7 +103,6 @@ props = {
         'contains_analytical_solution',
         'contains_physical_law',
         'contains_computational_domain',
-        'contains_constitutive_equation',
         'contains_weak_formulation',
         'contains_strong_formulation',
         'contains_formulation',
@@ -134,7 +133,6 @@ props = {
         'contains_analytical_solution',
         'contains_physical_law',
         'contains_computational_domain',
-        'contains_constitutive_equation',
         'contains_weak_formulation',
         'contains_strong_formulation',
         'contains_formulation',
@@ -317,10 +315,6 @@ def get_relations():
         mathmoddb.get(key='contains_computational_domain')['url']: [
             properties['contains'],
             items['computational domain']
-        ],
-        mathmoddb.get(key='contains_constitutive_equation')['url']: [
-            properties['contains'],
-            items['constitutive equation']
         ],
         mathmoddb.get(key='contains_weak_formulation')['url']: [
             properties['contains'],
