@@ -101,7 +101,7 @@ props = {
     'T2MF': [
         'assumes',
         'contains_analytical_solution',
-        'contains_physical_law',
+        'contains_governing_equation',
         'contains_computational_domain',
         'contains_weak_formulation',
         'contains_strong_formulation',
@@ -131,7 +131,7 @@ props = {
     'MM2MF': [
         'assumes',
         'contains_analytical_solution',
-        'contains_physical_law',
+        'contains_governing_equation',
         'contains_computational_domain',
         'contains_weak_formulation',
         'contains_strong_formulation',
@@ -308,9 +308,9 @@ def get_relations():
             properties['contains'],
             items['analytical solution']
         ],
-        mathmoddb.get(key='contains_physical_law')['url']: [
+        mathmoddb.get(key='contains_governing_equation')['url']: [
             properties['contains'],
-            items['physical law']
+            items['governing equation']
         ],
         mathmoddb.get(key='contains_computational_domain')['url']: [
             properties['contains'],
